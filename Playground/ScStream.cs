@@ -35,6 +35,19 @@ public class ScStream(byte[] buffer) : IDisposable
         return span;
     }
 
+    public Span<byte> ReadByteArray()
+    {
+        var length = ReadInt32();
+
+        if (length == 0)
+            return [];
+
+        if (length < 0)
+            throw new InvalidDataException("Negative length for byte array.");
+
+        return ReadBytes(length);
+    }
+
     public Span<byte> ReadToEnd()
     {
         return ReadBytes(Length - Position);
