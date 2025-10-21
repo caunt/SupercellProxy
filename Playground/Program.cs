@@ -60,7 +60,8 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
 
     PacketReader reader = (direction, id) switch
     {
-        (Direction.Serverbound, 10100) => ReadHelloPacket,
+        (Direction.Serverbound, 10100) => ReadClientHelloPacket,
+        (Direction.Clientbound, 20100) => ReadServerHelloPacket,
         (Direction.Clientbound, 20103) => ReadLoginFailedPacket,
         _ => ReadUnknownPacket
     };
@@ -68,7 +69,7 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
     reader(prefix, stream);
 }
 
-static void ReadHelloPacket(string prefix, ScStream stream)
+static void ReadClientHelloPacket(string prefix, ScStream stream)
 {
     var protocolVersion = stream.ReadInt32();
     var keyVersion = stream.ReadInt32();
@@ -89,6 +90,14 @@ static void ReadHelloPacket(string prefix, ScStream stream)
         $"\n\tfingerprintSha1={fingerprintSha1}" +
         $"\n\tdeviceType={deviceType}" +
         $"\n\tappStore={appStore}");
+}
+
+static void ReadServerHelloPacket(string prefix, ScStream stream)
+{
+    var sessionKey = stream.ReadByteArray();
+
+    Console.WriteLine($"{prefix} Hello from Server" +
+        $"\n\tsessionKey={Convert.ToHexString(sessionKey)}");
 }
 
 static void ReadLoginFailedPacket(string prefix, ScStream stream)
