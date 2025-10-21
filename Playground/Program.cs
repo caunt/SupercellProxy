@@ -58,7 +58,7 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
 
     var prefix = $"[{DateTime.Now:T}][{direction.ToString().ToLower()},version={PadLeft(version, 4)},id={PadLeft(id, 5)}]";
 
-    PacketReader? reader = (direction, id) switch
+    PacketReader reader = (direction, id) switch
     {
         (Direction.Serverbound, 10100) => ReadLoginPacket,
         (Direction.Clientbound, 20103) => ReadLoginFailedPacket,
