@@ -61,8 +61,9 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
     PacketReader reader = (direction, id) switch
     {
         (Direction.Serverbound, 10100) => ReadClientHelloPacket,
+        (Direction.Serverbound, 10101) => ReadClientHelloPacket,
         (Direction.Clientbound, 20100) => ReadServerHelloPacket,
-        (Direction.Clientbound, 20103) => ReadLoginFailedPacket,
+        (Direction.Clientbound, 20103) => ReadHelloFailedPacket,
         _ => ReadUnknownPacket
     };
 
@@ -100,7 +101,7 @@ static void ReadServerHelloPacket(string prefix, ScStream stream)
         $"\n\tsessionKey={Convert.ToHexString(sessionKey)}");
 }
 
-static void ReadLoginFailedPacket(string prefix, ScStream stream)
+static void ReadHelloFailedPacket(string prefix, ScStream stream)
 {
     // 8 - UpdateRequired
     var errorCode = stream.ReadInt32();
