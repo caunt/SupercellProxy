@@ -60,7 +60,7 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
 
     PacketReader reader = (direction, id) switch
     {
-        (Direction.Serverbound, 10100) => ReadLoginPacket,
+        (Direction.Serverbound, 10100) => ReadHelloPacket,
         (Direction.Clientbound, 20103) => ReadLoginFailedPacket,
         _ => ReadUnknownPacket
     };
@@ -68,25 +68,27 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
     reader(prefix, stream);
 }
 
-static void ReadLoginPacket(string prefix, ScStream stream)
+static void ReadHelloPacket(string prefix, ScStream stream)
 {
     var protocolVersion = stream.ReadInt32();
     var keyVersion = stream.ReadInt32();
 
-    var clientVersionMajor = stream.ReadInt32();
-    var clientVersionMinor = stream.ReadInt32();
-    var clientVersionPatch = stream.ReadInt32();
+    var majorVersion = stream.ReadInt32();
+    var minorVersion = stream.ReadInt32();
+    var patchVersion = stream.ReadInt32();
 
     var fingerprintSha1 = stream.ReadString();
 
-    var flag1 = stream.ReadInt32();
-    var flag2 = stream.ReadInt32();
+    var deviceType = stream.ReadInt32();
+    var appStore = stream.ReadInt32();
+
     Console.WriteLine($"{prefix} Hello from Client" +
         $"\n\tprotocolVersion={protocolVersion}" +
         $"\n\tkeyVersion={keyVersion}" +
-        $"\n\tclientVersion={clientVersionMajor}.{clientVersionMinor}.{clientVersionPatch}" +
+        $"\n\tclientVersion={majorVersion}.{minorVersion}.{patchVersion}" +
         $"\n\tfingerprintSha1={fingerprintSha1}" +
-        $"\n\tflags=[{flag1}, {flag2}]");
+        $"\n\tdeviceType={deviceType}" +
+        $"\n\tappStore={appStore}");
 }
 
 static void ReadLoginFailedPacket(string prefix, ScStream stream)
