@@ -17,26 +17,85 @@ while (true)
     _ = HandleClientAsync(client, upstreamHost, upstreamPort);
 }
 
-static async Task HandleClientAsync(TcpClient client, string upstreamHost, int upstreamPort)
+// https://github.com/ReversedCell/ScDocumentation/wiki/Encryption-Setup
+// https://github.com/ReversedCell/ScDocumentation/wiki/Protocol
+
+static async Task PacketSent(Direction direction, ushort id, ushort version, ScStream stream)
 {
-    using var clientConn = client;
-    var remote = clientConn.Client.RemoteEndPoint?.ToString() ?? "client";
-    Console.WriteLine($"[{DateTime.Now:T}] Incoming connection from {remote}");
+    var prefix = $"[{DateTime.Now:T}][{direction.ToString().ToLower()},version={PadLeft(version, 4)},id={PadLeft(id, 5)}]";
 
-    using var upstream = new TcpClient();
-    await upstream.ConnectAsync(upstreamHost, upstreamPort);
-
-    using var c2s = clientConn.GetStream();
-    using var s2c = upstream.GetStream();
-
-    try
+    PacketReader? reader = (direction, id) switch
     {
-        await Task.WhenAll(PumpAsync(c2s, s2c, Direction.Serverbound), PumpAsync(s2c, c2s, Direction.Clientbound));
-    }
-    catch (Exception exception)
-    {
-        Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
-    }
+        (Direction.Serverbound, 10100) => ReadLoginPacket,
+        (Direction.Clientbound, 20103) => ReadLoginFailedPacket,
+        _ => ReadUnknownPacket
+    };
+
+    reader(prefix, stream);
+}
+
+static void ReadLoginPacket(string prefix, ScStream stream)
+{
+    var protocolVersion = stream.ReadInt32();
+    var keyVersion = stream.ReadInt32();
+
+    var clientVersionMajor = stream.ReadInt32();
+    var clientVersionMinor = stream.ReadInt32();
+    var clientVersionPatch = stream.ReadInt32();
+
+    var fingerprintSha1 = stream.ReadString();
+
+    var flag1 = stream.ReadInt32();
+    var flag2 = stream.ReadInt32();
+    Console.WriteLine($"{prefix} Hello from Client" +
+        $"\n\tprotocolVersion={protocolVersion}" +
+        $"\n\tkeyVersion={keyVersion}" +
+        $"\n\tclientVersion={clientVersionMajor}.{clientVersionMinor}.{clientVersionPatch}" +
+        $"\n\tfingerprintSha1={fingerprintSha1}" +
+        $"\n\tflags=[{flag1}, {flag2}]");
+}
+
+static void ReadLoginFailedPacket(string prefix, ScStream stream)
+{
+    // 8 - UpdateRequired
+    var errorCode = stream.ReadInt32();
+    var resourceFingerprintData = stream.ReadString();
+    var redirectDomain = stream.ReadString();
+    var contentURL = stream.ReadString();
+    var updateURL = stream.ReadString();
+    var reason = stream.ReadString();
+    var secondsUntilMaintenanceEnd = stream.ReadInt32();
+    var unknown1 = stream.ReadByte();
+    var unknown2 = stream.ReadString();
+    var unknown3 = stream.ReadString();
+    var unknown4 = stream.ReadInt32();
+    var unknown5 = stream.ReadInt32();
+    var unknown6 = stream.ReadString();
+    var unknown7 = stream.ReadString();
+
+    var unknown8 = new int[BinaryPrimitives.ReverseEndianness(stream.ReadUInt16())];
+    for (var i = 0; i < unknown8.Length; i++)
+        unknown8[i] = stream.ReadInt32();
+
+    var unknown9 = stream.ReadByte();
+
+    Console.WriteLine($"{prefix} LoginFailed from server" +
+        $"\n\terrorCode={errorCode}" +
+        $"\n\tresourceFingerprintData={resourceFingerprintData}" +
+        $"\n\tredirectDomain={redirectDomain}" +
+        $"\n\tcontentURL={contentURL}" +
+        $"\n\tupdateURL={updateURL}" +
+        $"\n\treason={reason}" +
+        $"\n\tsecondsUntilMaintenanceEnd={secondsUntilMaintenanceEnd}" +
+        $"\n\tunknown1={unknown1}" +
+        $"\n\tunknown2={unknown2}" +
+        $"\n\tunknown3={unknown3}" +
+        $"\n\tunknown4={unknown4}" +
+        $"\n\tunknown5={unknown5}" +
+        $"\n\tunknown6={unknown6}" +
+        $"\n\tunknown7={unknown7}" +
+        $"\n\tunknown8=[{string.Join(", ", unknown8)}]" +
+        $"\n\tunknown9={unknown9}");
 }
 
 static async Task PumpAsync(NetworkStream source, NetworkStream destination, Direction direction)
@@ -74,94 +133,45 @@ static async Task PumpAsync(NetworkStream source, NetworkStream destination, Dir
     }
 }
 
-static async Task PacketSent(Direction direction, ushort id, ushort version, ScStream stream)
+static async Task HandleClientAsync(TcpClient client, string upstreamHost, int upstreamPort)
 {
-    var prefix = $"[{DateTime.Now:T}][{direction.ToString().ToLower()},version={PadLeft(version, 4)},id={PadLeft(id, 5)}]";
+    using var clientConn = client;
+    var remote = clientConn.Client.RemoteEndPoint?.ToString() ?? "client";
+    Console.WriteLine($"[{DateTime.Now:T}] Incoming connection from {remote}");
 
-    switch (direction, id)
+    using var upstream = new TcpClient();
+    await upstream.ConnectAsync(upstreamHost, upstreamPort);
+
+    using var c2s = clientConn.GetStream();
+    using var s2c = upstream.GetStream();
+
+    try
     {
-        case (Direction.Serverbound, 10100):
-            var protocolVersion = stream.ReadInt32();
-            var keyVersion = stream.ReadInt32();
-
-            var clientVersionMajor = stream.ReadInt32();
-            var clientVersionMinor = stream.ReadInt32();
-            var clientVersionPatch = stream.ReadInt32();
-
-            var fingerprintSha1 = stream.ReadString();
-
-            var flag1 = stream.ReadInt32();
-            var flag2 = stream.ReadInt32();
-            Console.WriteLine($"{prefix} Hello from Client" +
-                $"\n\tprotocolVersion={protocolVersion}" +
-                $"\n\tkeyVersion={keyVersion}" +
-                $"\n\tclientVersion={clientVersionMajor}.{clientVersionMinor}.{clientVersionPatch}" +
-                $"\n\tfingerprintSha1={fingerprintSha1}" +
-                $"\n\tflags=[{flag1}, {flag2}]");
-            break;
-        case (Direction.Clientbound, 20103):
-            // 8 - UpdateRequired
-            var errorCode = stream.ReadInt32();
-            var resourceFingerprintData = stream.ReadString();
-            var redirectDomain = stream.ReadString();
-            var contentURL = stream.ReadString();
-            var updateURL = stream.ReadString();
-            var reason = stream.ReadString();
-            var secondsUntilMaintenanceEnd = stream.ReadInt32();
-            var unknown1 = stream.ReadByte();
-            var unknown2 = stream.ReadString();
-            var unknown3 = stream.ReadString();
-            var unknown4 = stream.ReadInt32();
-            var unknown5 = stream.ReadInt32();
-            var unknown6 = stream.ReadString();
-            var unknown7 = stream.ReadString();
-
-            var unknown8 = new int[BinaryPrimitives.ReverseEndianness(stream.ReadUInt16())];
-            for (var i = 0; i < unknown8.Length; i++)
-                unknown8[i] = stream.ReadInt32();
-
-            var unknown9 = stream.ReadByte();
-
-            Console.WriteLine($"{prefix} LoginFailed from server" +
-                $"\n\terrorCode={errorCode}" +
-                $"\n\tresourceFingerprintData={resourceFingerprintData}" +
-                $"\n\tredirectDomain={redirectDomain}" +
-                $"\n\tcontentURL={contentURL}" +
-                $"\n\tupdateURL={updateURL}" +
-                $"\n\treason={reason}" +
-                $"\n\tsecondsUntilMaintenanceEnd={secondsUntilMaintenanceEnd}" +
-                $"\n\tunknown1={unknown1}" +
-                $"\n\tunknown2={unknown2}" +
-                $"\n\tunknown3={unknown3}" +
-                $"\n\tunknown4={unknown4}" +
-                $"\n\tunknown5={unknown5}" +
-                $"\n\tunknown6={unknown6}" +
-                $"\n\tunknown7={unknown7}" +
-                $"\n\tunknown8=[{string.Join(", ", unknown8)}]" +
-                $"\n\tunknown9={unknown9}");
-            break;
-        default:
-            const int maxWidth = 64;
-
-            var data = stream.ReadToEnd();
-            var sliced = data.Length > maxWidth;
-            var placeholder = Convert.ToHexString(data[..Math.Min(maxWidth, data.Length)]);
-
-            if (sliced)
-                placeholder += "...";
-
-            Console.WriteLine($"{prefix} length={PadLeft(stream.Length, 5)} => {placeholder}");
-            break;
+        await Task.WhenAll(PumpAsync(c2s, s2c, Direction.Serverbound), PumpAsync(s2c, c2s, Direction.Clientbound));
     }
-
-    static string? PadLeft<T>(T value, int width, char @char = '.') where T : struct
+    catch (Exception exception)
     {
-        return value.ToString()?.PadLeft(width, @char);
+        Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
     }
 }
 
-// https://github.com/ReversedCell/ScDocumentation/wiki/Encryption-Setup
-// https://github.com/ReversedCell/ScDocumentation/wiki/Protocol
+static void ReadUnknownPacket(string prefix, ScStream stream)
+{
+    const int maxOutputWidth = 64;
+
+    var data = stream.ReadToEnd();
+    var sliced = data.Length > maxOutputWidth;
+    var preview = Convert.ToHexString(data[..Math.Min(maxOutputWidth, data.Length)]);
+
+    if (sliced)
+        preview += "...";
+
+    Console.WriteLine($"{prefix} length={PadLeft(stream.Length, 5)} => {preview}");
+}
+
+static string? PadLeft<T>(T value, int width, char @char = '.') where T : struct => value.ToString()?.PadLeft(width, @char);
+
+delegate void PacketReader(string prefix, ScStream stream);
 
 enum Direction
 {
