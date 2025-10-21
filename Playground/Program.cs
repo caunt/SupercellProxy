@@ -1,4 +1,5 @@
 ﻿using Playground;
+using Playground.Crypto;
 using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
@@ -61,13 +62,87 @@ static async Task PacketSent(Direction direction, ushort id, ushort version, ScS
     PacketReader reader = (direction, id) switch
     {
         (Direction.Serverbound, 10100) => ReadClientHelloPacket,
-        (Direction.Serverbound, 10101) => ReadClientHelloPacket,
+        (Direction.Serverbound, 10101) => ReadClientLoginPacket,
         (Direction.Clientbound, 20100) => ReadServerHelloPacket,
         (Direction.Clientbound, 20103) => ReadHelloFailedPacket,
         _ => ReadUnknownPacket
     };
 
-    reader(prefix, stream);
+    try
+    {
+        reader(prefix, stream);
+    }
+    catch (Exception exception)
+    {
+        Console.WriteLine($"[{DateTime.Now:T}] Error reading {direction} packet id={id}:\n{exception}");
+    }
+}
+
+static void ReadClientLoginPacket(string prefix, ScStream stream)
+{
+    // This packet is encrypted already
+    var supercellPublicKey = new byte[] {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    var messageDirection = Direction.Serverbound;
+    var oppositeDirection = messageDirection is Direction.Clientbound ? Direction.Serverbound : messageDirection is Direction.Serverbound ? Direction.Clientbound : throw new InvalidOperationException();
+    var clientCrypto = new Crypto8(oppositeDirection, Crypto8.StandardKeyPair);
+    var serverCrypto = new Crypto8(oppositeDirection, Crypto8.GenerateKeyPair());
+
+    serverCrypto.UpdateSharedKey(supercellPublicKey);
+
+
+
+    _ = stream.ReadToEnd();
+    return;
+
+    var highId = stream.ReadInt32();
+    var lowId = stream.ReadInt32();
+    var token = stream.ReadString();
+
+    var majorVersion = stream.ReadVarInt();
+    var minorVersion = stream.ReadVarInt();
+    var buildVersion = stream.ReadVarInt();
+
+    var masterHash = stream.ReadString();
+
+    var unknown1 = stream.ReadInt32();
+
+    var openUdid = stream.ReadString();
+    var macAddress = stream.ReadString();
+    var model = stream.ReadString();
+
+    var advertiseId = stream.ReadString();
+    var osVersion = stream.ReadString();
+
+    var isAndroid = stream.ReadBoolean();
+
+    var unknown2 = stream.ReadString();
+
+    var androidId = stream.ReadString();
+
+    var region = stream.ReadString();
+
+    Console.WriteLine($"{prefix} Login from Client" +
+        $"\n\thighId={highId}" +
+        $"\n\tlowId={lowId}" +
+        $"\n\ttoken={token}" +
+        $"\n\tclientVersion={majorVersion}.{minorVersion}.{buildVersion}" +
+        $"\n\tmasterHash={masterHash}" +
+        $"\n\tunknown1={unknown1}" +
+        $"\n\topenUdid={openUdid}" +
+        $"\n\tmacAddress={macAddress}" +
+        $"\n\tmodel={model}" +
+        $"\n\tadvertiseId={advertiseId}" +
+        $"\n\tosVersion={osVersion}" +
+        $"\n\tisAndroid={isAndroid}" +
+        $"\n\tunknown2={unknown2}" +
+        $"\n\tandroidId={androidId}" +
+        $"\n\tregion={region}");
 }
 
 static void ReadClientHelloPacket(string prefix, ScStream stream)
@@ -218,9 +293,3 @@ static async Task HandleClientAsync(TcpClient client, string upstreamHost, int u
 static string? PadLeft<T>(T value, int width, char @char = '.') where T : struct => value.ToString()?.PadLeft(width, @char);
 
 delegate void PacketReader(string prefix, ScStream stream);
-
-enum Direction
-{
-    Clientbound,
-    Serverbound
-}
