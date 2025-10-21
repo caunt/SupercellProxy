@@ -143,6 +143,20 @@ static void ReadLoginFailedPacket(string prefix, ScStream stream)
         $"\n\tunknown9={unknown9}");
 }
 
+static void ReadUnknownPacket(string prefix, ScStream stream)
+{
+    const int maxOutputWidth = 64;
+
+    var data = stream.ReadToEnd();
+    var sliced = data.Length > maxOutputWidth;
+    var preview = Convert.ToHexString(data[..Math.Min(maxOutputWidth, data.Length)]);
+
+    if (sliced)
+        preview += "...";
+
+    Console.WriteLine($"{prefix} length={PadLeft(stream.Length, 5)} => {preview}");
+}
+
 static async Task PumpAsync(NetworkStream source, NetworkStream destination, Direction direction)
 {
     var header = new byte[7];
@@ -198,20 +212,6 @@ static async Task HandleClientAsync(TcpClient client, string upstreamHost, int u
     {
         Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
     }
-}
-
-static void ReadUnknownPacket(string prefix, ScStream stream)
-{
-    const int maxOutputWidth = 64;
-
-    var data = stream.ReadToEnd();
-    var sliced = data.Length > maxOutputWidth;
-    var preview = Convert.ToHexString(data[..Math.Min(maxOutputWidth, data.Length)]);
-
-    if (sliced)
-        preview += "...";
-
-    Console.WriteLine($"{prefix} length={PadLeft(stream.Length, 5)} => {preview}");
 }
 
 static string? PadLeft<T>(T value, int width, char @char = '.') where T : struct => value.ToString()?.PadLeft(width, @char);
