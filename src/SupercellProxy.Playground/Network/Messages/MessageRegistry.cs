@@ -73,12 +73,17 @@ public static class MessageRegistry
         if (message is PassthroughMessage passthroughMessage)
             return passthroughMessage.Id;
 
-        return GetId<T>();
+        return GetId(message.GetType());
     }
 
     public static ushort GetId<T>() where T : IMessage
     {
-        var entry = GetEntry<T>();
+        return GetId(typeof(T));
+    }
+
+    public static ushort GetId(Type type)
+    {
+        var entry = GetEntry(type);
         return _map.First(kv => kv.Value == entry).Key;
     }
 
@@ -87,17 +92,26 @@ public static class MessageRegistry
         if (message is PassthroughMessage passthroughMessage)
             return passthroughMessage.Version;
 
-        return GetVersion<T>();
+        return GetVersion(message.GetType());
     }
 
     public static ushort GetVersion<T>() where T : IMessage
     {
-        return GetEntry<T>().Version;
+        return GetVersion(typeof(T));
     }
 
-    private static Entry GetEntry<T>()
+    public static ushort GetVersion(Type type)
     {
-        var type = typeof(T);
+        return GetEntry(type).Version;
+    }
+
+    private static Entry GetEntry<T>() where T : IMessage
+    {
+        return GetEntry(typeof(T));
+    }
+
+    private static Entry GetEntry(Type type)
+    {
         return _map.Values.FirstOrDefault(entry => entry.Type == type) ?? throw new InvalidOperationException($"Message type {type} is not registered.");
     }
 }

@@ -2,7 +2,6 @@ using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Streams;
-using SupercellProxy.Playground.Supercell;
 using System.Net;
 using System.Net.Sockets;
 
@@ -51,50 +50,34 @@ public class Proxy(ProxyConfiguration configuration)
         }
     }
 
-    private static async ValueTask PacketSentAsync(MessageContainer container, Direction direction, CancellationToken cancellationToken = default)
+    private static async ValueTask MessageSentAsync(IMessage message, Direction direction, CancellationToken cancellationToken = default)
     {
-        switch (container.Id)
+        switch (message)
         {
-            case 10100:
-                Console.WriteLine($"[{DateTime.Now:T}] {ClientHelloMessage.Create(container)}");
+            case ClientHelloMessage clientHelloMessage:
+                Console.WriteLine($"[{DateTime.Now:T}] {clientHelloMessage}");
                 return;
-            case 20100:
-                Console.WriteLine($"[{DateTime.Now:T}] {ServerHelloMessage.Create(container)}");
+            case ServerHelloMessage serverHelloMessage:
+                Console.WriteLine($"[{DateTime.Now:T}] {serverHelloMessage}");
                 return;
-            case 10101:
-                var serverPublicKey = await HayDayApi.GetServerPublicKeyAsync(cancellationToken);
-                var clientPublicKey = container.Payload.ReadExactly(stackalloc byte[32]).ToArray();
-
-                Console.WriteLine($"[{DateTime.Now:T}] Server public key: {Convert.ToHexString(serverPublicKey)}");
-                Console.WriteLine($"[{DateTime.Now:T}] Client public key: {Convert.ToHexString(clientPublicKey)}");
-                Console.WriteLine($"[{DateTime.Now:T}] {direction} => {container}");
-
-                var buffer = container.Payload.ReadToEnd().ToArray();
-
-                // https://github.com/FICTURE7/CoCSharp/blob/d8602264fd185a9236197502eb40aa57019bf4be/src/CoCSharp.Proxy/MessageProcessorNaClProxy.cs#L99
-
-                /// var serverboundCrypto = new Crypto8(Direction.Serverbound, new KeyPair(clientPublicKey, [/*client secret key*/]));
-                /// serverboundCrypto.UpdateSharedKey(serverPublicKey);
-                /// serverboundCrypto.Decrypt(ref buffer);
+            case LoginMessage loginMessage:
+                Console.WriteLine($"[{DateTime.Now:T}] {loginMessage}");
                 return;
         }
 
-        Console.WriteLine($"[{DateTime.Now:T}] {direction} => {container}");
+        Console.WriteLine($"[{DateTime.Now:T}] {direction} => {message}");
     }
 
     private static async Task PumpAsync(SupercellStream source, SupercellStream destination, Direction direction, CancellationToken cancellationToken = default)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var container = await source.ReadContainerAsync(cancellationToken);
+            var message = await source.ReadMessageAsync(cancellationToken);
 
             try
             {
-                await destination.WriteContainerAsync(container, cancellationToken);
-
-                container.Payload.Position = 0;
-
-                await PacketSentAsync(container, direction, cancellationToken);
+                await destination.WriteMessageAsync(message, cancellationToken);
+                await MessageSentAsync(message, direction, cancellationToken);
             }
             catch (IOException ioException) when (ioException.InnerException is SocketException socketException)
             {
@@ -102,7 +85,7 @@ public class Proxy(ProxyConfiguration configuration)
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"[{DateTime.Now:T}] Error handling {direction} packet {container}:\n{exception}");
+                Console.WriteLine($"[{DateTime.Now:T}] Error handling {direction} packet {message}:\n{exception}");
             }
         }
     }
