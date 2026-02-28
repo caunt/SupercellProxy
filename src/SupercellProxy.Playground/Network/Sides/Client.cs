@@ -129,7 +129,10 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             throw new InvalidOperationException($"Expected message ID {T.Id}, but received {container.Id}.");
 
         if (T.Create(container) is not T message)
-            throw new InvalidOperationException($"Failed to create message of type {typeof(T).Name} from container.");
+            throw new InvalidOperationException($"Failed to create message of type {typeof(T)} from container.");
+
+        if (container.Payload.Position != container.Payload.Length)
+            Console.WriteLine($"Warning: Not all payload data was consumed for message {typeof(T)}. Remaining bytes: {container.Payload.Length - container.Payload.Position}");
 
         return message;
     }

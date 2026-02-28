@@ -48,12 +48,8 @@ public record LoginFailedMessage : IMessage
 
     public required Type ErrorCode { get; init; }
     public required string ResourceFingerprintData { get; init; }
-    public required string RedirectDomain { get; init; }
-    public required string ContentUrl { get; init; }
-    public required string UpdateUrl { get; init; }
-    public required string Reason { get; init; }
-    public required int SecondsUntilMaintenanceEnd { get; init; }
-    public required Memory<byte> UnknownBytes { get; init; }
+    public string? Reason { get; init; }
+    public Memory<byte> UnknownData { get; init; }
 
     static IMessage IMessage.Create(MessageContainer container)
     {
@@ -66,12 +62,8 @@ public record LoginFailedMessage : IMessage
         {
             ErrorCode = (Type)container.Payload.ReadInt32(),
             ResourceFingerprintData = container.Payload.ReadString(),
-            RedirectDomain = container.Payload.ReadString(),
-            ContentUrl = container.Payload.ReadString(),
-            UpdateUrl = container.Payload.ReadString(),
-            Reason = container.Payload.ReadString(),
-            SecondsUntilMaintenanceEnd = container.Payload.ReadInt32(),
-            UnknownBytes = container.Payload.ReadToEnd()
+            Reason = container.Payload.ReadOptionalString(),
+            UnknownData = container.Payload.ReadToEnd()
         };
     }
 
@@ -81,12 +73,8 @@ public record LoginFailedMessage : IMessage
 
         supercellStream.WriteInt32((int)ErrorCode);
         supercellStream.WriteString(ResourceFingerprintData);
-        supercellStream.WriteString(RedirectDomain);
-        supercellStream.WriteString(ContentUrl);
-        supercellStream.WriteString(UpdateUrl);
-        supercellStream.WriteString(Reason);
-        supercellStream.WriteInt32(SecondsUntilMaintenanceEnd);
-        supercellStream.Write(UnknownBytes.Span);
+        supercellStream.WriteOptionalString(Reason);
+        supercellStream.Write(UnknownData.Span);
 
         return new MessageContainer(id, version, supercellStream);
     }
