@@ -8,6 +8,8 @@ public record PassthroughMessage : IMessage
     public required ushort Version { get; init; }
     public required Memory<byte> Data { get; init; }
 
+    public string? Hint => MessageRegistry.GetHint(Id);
+
     public static PassthroughMessage Create(MessageContainer container)
     {
         return new PassthroughMessage

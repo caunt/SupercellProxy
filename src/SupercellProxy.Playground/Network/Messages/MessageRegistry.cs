@@ -7,6 +7,16 @@ public static class MessageRegistry
 {
     private record Entry(ushort Version, Type Type, Func<MessageContainer, IMessage> Factory);
 
+    private static readonly Dictionary<ushort, string> _hints = new()
+    {
+        [20155] = "???",
+        [40000] = "updateConversionValue",
+        [26199] = "LogicArrayList<FriendMeta *>",
+        [14484] = "VISIT_HOME",
+        [24180] = "OWN_HOME_DATA",
+        [24489] = "OTHER_HOME_DATA"
+    };
+
     private static readonly Dictionary<ushort, Entry> _map = new()
     {
         [10100] = new Entry(
@@ -24,6 +34,11 @@ public static class MessageRegistry
             Type: typeof(LoginMessage),
             Factory: LoginMessage.Create),
 
+        [10108] = new Entry(
+            Version: 0,
+            Type: typeof(KeepAliveMessage),
+            Factory: KeepAliveMessage.Create),
+
         [20103] = new Entry(
             Version: 2,
             Type: typeof(LoginFailedMessage),
@@ -32,7 +47,12 @@ public static class MessageRegistry
         [25220] = new Entry(
             Version: 2,
             Type: typeof(LoginOkMessage),
-            Factory: LoginOkMessage.Create)
+            Factory: LoginOkMessage.Create),
+
+        [20108] = new Entry(
+            Version: 0,
+            Type: typeof(KeepAliveOkMessage),
+            Factory: KeepAliveOkMessage.Create)
     };
 
     public static IMessage Resolve(MessageContainer container)
@@ -41,6 +61,11 @@ public static class MessageRegistry
             return PassthroughMessage.Create(container);
 
         return entry.Factory(container);
+    }
+
+    public static string? GetHint(ushort id)
+    {
+        return _hints.TryGetValue(id, out var hint) ? hint : null;
     }
 
     public static ushort GetId<T>(T message) where T : IMessage

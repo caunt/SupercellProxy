@@ -18,11 +18,6 @@ public partial class Client
 
     private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default) where T : IMessage
     {
-        await WriteMessageAsync(message, version: 0 /* TODO: Always write message version here? */, cancellationToken);
-    }
-
-    private async Task WriteMessageAsync<T>(T message, ushort version, CancellationToken cancellationToken = default) where T : IMessage
-    {
         var stream = await GetStreamAsync(cancellationToken);
         await stream.WriteMessageAsync(message.ToContainer(MessageRegistry.GetId(message), version: MessageRegistry.GetVersion(message)), cancellationToken);
     }

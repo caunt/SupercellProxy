@@ -107,7 +107,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
                 DataRef = -1,
                 SystemString1 = "",
                 SystemString2 = ""
-            }, version: 5209, cancellationToken);
+            }, cancellationToken);
 
             message = await ReadMessageAsync(cancellationToken);
             LoginException.ThrowIfFailed(message);
