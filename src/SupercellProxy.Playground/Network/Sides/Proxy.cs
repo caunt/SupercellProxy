@@ -50,7 +50,7 @@ public class Proxy(ProxyConfiguration configuration)
         }
     }
 
-    private static async ValueTask MessageSentAsync(IMessage message, Direction direction, CancellationToken cancellationToken = default)
+    private static async ValueTask MessageReceivedAsync(IMessage message, Direction direction, SupercellStream source, SupercellStream destination, CancellationToken cancellationToken = default)
     {
         switch (message)
         {
@@ -59,6 +59,8 @@ public class Proxy(ProxyConfiguration configuration)
                 return;
             case ServerHelloMessage serverHelloMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {serverHelloMessage}");
+                await source.SetupEncryptionAsync(serverHelloMessage.SessionKey, cancellationToken);
+                await destination.SetupEncryptionAsync(serverHelloMessage.SessionKey, cancellationToken);
                 return;
             case LoginMessage loginMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {loginMessage}");
@@ -73,11 +75,11 @@ public class Proxy(ProxyConfiguration configuration)
         while (!cancellationToken.IsCancellationRequested)
         {
             var message = await source.ReadMessageAsync(cancellationToken);
+            await MessageReceivedAsync(message, direction, source, destination, cancellationToken);
 
             try
             {
                 await destination.WriteMessageAsync(message, cancellationToken);
-                await MessageSentAsync(message, direction, cancellationToken);
             }
             catch (IOException ioException) when (ioException.InnerException is SocketException socketException)
             {
