@@ -54,7 +54,7 @@ public partial class SupercellStream
         }
         else
         {
-            _encryption.Nonce.Increment();
+            _encryption.DecryptNonce.Increment();
             var ciphertext = NaClV3Crypto.SecretBox(payload, _encryption.DecryptNonce.Span, _encryption.SharedKey.Span);
 
             memoryStream = new MemoryStream(ciphertext, writable: false);
