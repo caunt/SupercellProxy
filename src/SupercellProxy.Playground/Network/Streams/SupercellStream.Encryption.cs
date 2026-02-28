@@ -8,10 +8,10 @@ public partial class SupercellStream
 {
     private record Encryption(Memory<byte> ClientPrivateKey, Memory<byte> ClientPublicKey, Memory<byte> ServerPublicKey, Memory<byte> SessionKey)
     {
-        public Nonce DecryptNonce { get; init; } = new Nonce();
         public Nonce Nonce { get; init; } = new Nonce(clientPublicKey: ClientPublicKey.Span, serverPublicKey: ServerPublicKey.Span);
-        public Memory<byte> SharedKey { get; set; }
+        public Nonce DecryptNonce { get; init; } = new Nonce();
         public Nonce? EncryptNonce { get; set; }
+        public Memory<byte> SharedKey { get; set; }
 
         public Encryption(Memory<byte> ClientPrivateKey, Memory<byte> ServerPublicKey, Memory<byte> SessionKey) : this(ClientPrivateKey, NaClV3Crypto.CryptoScalarMultBase(ClientPrivateKey.Span), ServerPublicKey, SessionKey)
         {
