@@ -9,13 +9,24 @@ public record ClientConfiguration(string UpstreamHost, int UpstreamPort, int Maj
 
 public partial class Client(ClientConfiguration configuration) : IAsyncDisposable
 {
+    private static readonly TimeSpan _keepAliveInterval = TimeSpan.FromSeconds(5);
+
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             var loginOkMessage = await LoginAsync(cancellationToken);
 
-            while (!cancellationToken.IsCancellationRequested)
+            var keepAliveTask = Task.Run(async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    await Task.Delay(_keepAliveInterval);
+                    await WriteMessageAsync(new KeepAliveMessage(), cancellationToken);
+                }
+            }, cancellationToken);
+
+            while (!keepAliveTask.IsCompleted)
                 await HandleIncomingMessageAsync(cancellationToken);
         }
         catch (LoginException loginException)

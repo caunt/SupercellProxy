@@ -9,12 +9,12 @@ public static class MessageRegistry
 
     private static readonly Dictionary<ushort, string> _hints = new()
     {
-        [20155] = "???",
-        [40000] = "updateConversionValue",
-        [26199] = "LogicArrayList<FriendMeta *>",
         [14484] = "VISIT_HOME",
+        [20155] = "???",
         [24180] = "OWN_HOME_DATA",
-        [24489] = "OTHER_HOME_DATA"
+        [24489] = "OTHER_HOME_DATA",
+        [26199] = "LogicArrayList<FriendMeta *>",
+        [40000] = "updateConversionValue"
     };
 
     private static readonly Dictionary<ushort, Entry> _map = new()
@@ -23,11 +23,6 @@ public static class MessageRegistry
             Version: 0,
             Type: typeof(ClientHelloMessage),
             Factory: ClientHelloMessage.Create),
-
-        [20100] = new Entry(
-            Version: 0,
-            Type: typeof(ServerHelloMessage),
-            Factory: ServerHelloMessage.Create),
 
         [10101] = new Entry(
             Version: 5209,
@@ -39,20 +34,25 @@ public static class MessageRegistry
             Type: typeof(KeepAliveMessage),
             Factory: KeepAliveMessage.Create),
 
+        [20100] = new Entry(
+            Version: 0,
+            Type: typeof(ServerHelloMessage),
+            Factory: ServerHelloMessage.Create),
+
         [20103] = new Entry(
             Version: 2,
             Type: typeof(LoginFailedMessage),
             Factory: LoginFailedMessage.Create),
 
-        [25220] = new Entry(
-            Version: 2,
-            Type: typeof(LoginOkMessage),
-            Factory: LoginOkMessage.Create),
-
         [20108] = new Entry(
             Version: 0,
             Type: typeof(KeepAliveOkMessage),
-            Factory: KeepAliveOkMessage.Create)
+            Factory: KeepAliveOkMessage.Create),
+
+        [25220] = new Entry(
+            Version: 2,
+            Type: typeof(LoginOkMessage),
+            Factory: LoginOkMessage.Create)
     };
 
     public static IMessage Resolve(MessageContainer container)
