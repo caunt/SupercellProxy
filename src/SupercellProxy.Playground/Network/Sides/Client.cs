@@ -64,7 +64,7 @@ public partial class Client(string upstreamHost, int upstreamPort)
         hasher.Update(serverPublicKey);
         var tempNonce = hasher.Finish();
 
-        var encrypted = NaClV3Crypto.NaclV3Box([.. sessionToken, .. clientNonce, .. loginMessageBuffer, .. new byte[508]], tempNonce, serverPublicKey.ToArray(), clientPrivateKey);
+        var encrypted = NaClV3Crypto.Box([.. sessionToken, .. clientNonce, .. loginMessageBuffer, .. new byte[508]], tempNonce, serverPublicKey.ToArray(), clientPrivateKey);
 
         return new MessageContainer(10101, 5209, new SupercellStream(new MemoryStream([.. clientPublicKey, .. encrypted])));
 

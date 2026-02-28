@@ -32,7 +32,7 @@ public static class NaClV3Crypto
         return resultDataArray;
     }
 
-    public static byte[] NaclV3Box(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
+    public static byte[] Box(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
     {
         var sharedSecretData = (stackalloc byte[32]);
         CryptoScalarMult(clientSecretKeyData, serverPublicKeyData, sharedSecretData);
@@ -54,7 +54,7 @@ public static class NaClV3Crypto
         return finalResultDataArray;
     }
 
-    public static byte[] NaclV3BoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
+    public static byte[] BoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
     {
         var messageAuthenticationCodeData = cipherTextData[..16];
         var encryptedPayloadData = cipherTextData[16..];
@@ -85,7 +85,7 @@ public static class NaClV3Crypto
         return fullDecryptedDataArray;
     }
 
-    public static byte[] NaclV3SecretBox(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
+    public static byte[] SecretBox(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
     {
         var subKeyData = (stackalloc byte[32]);
         HChaCha20(keyData, nonce24Data[..16], subKeyData);
@@ -101,7 +101,7 @@ public static class NaClV3Crypto
         return finalResultDataArray;
     }
 
-    public static byte[] NaclV3SecretBoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
+    public static byte[] SecretBoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
     {
         var messageAuthenticationCodeData = cipherTextData[..16];
         var encryptedPayloadData = cipherTextData[16..];
@@ -257,12 +257,6 @@ public static class NaClV3Crypto
         finalCalculatedMac.TryWriteBytes(macResultData, out _, isUnsigned: true, isBigEndian: false);
     }
 
-    private static BigInteger Modulo(BigInteger valueData, BigInteger modulusData)
-    {
-        var remainderData = valueData % modulusData;
-        return remainderData.Sign < 0 ? remainderData + modulusData : remainderData;
-    }
-
     private static void CryptoScalarMult(ReadOnlySpan<byte> clientSecretKeyData, ReadOnlySpan<byte> serverPublicKeyData, Span<byte> resultData)
     {
         var clampedSecretKeyData = (stackalloc byte[32]);
@@ -330,5 +324,11 @@ public static class NaClV3Crypto
         var finalXCoordinate = Modulo(xCoordinate2 * zCoordinate2Inverse, Curve25519PrimeModulus);
 
         finalXCoordinate.TryWriteBytes(resultData, out _, isUnsigned: true, isBigEndian: false);
+    }
+
+    private static BigInteger Modulo(BigInteger valueData, BigInteger modulusData)
+    {
+        var remainderData = valueData % modulusData;
+        return remainderData.Sign < 0 ? remainderData + modulusData : remainderData;
     }
 }
