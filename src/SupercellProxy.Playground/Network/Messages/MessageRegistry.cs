@@ -12,7 +12,7 @@ public static class MessageRegistry
         [14484] = "VISIT_HOME",
         [20155] = "???",
         [24180] = "OWN_HOME_DATA",
-        [24489] = "OTHER_HOME_DATA",
+        [24489] = "OtherHomeDataMessage",
         [26199] = "LogicArrayList<FriendMeta *>",
         [40000] = "updateConversionValue"
     };

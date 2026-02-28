@@ -9,7 +9,7 @@ public record KeepAliveMessage : IMessage
         return new KeepAliveMessage();
     }
 
-    public MessageContainer ToContainer(ushort id, ushort version = 5209)
+    public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
         using var supercellStream = SupercellStream.Create();
 

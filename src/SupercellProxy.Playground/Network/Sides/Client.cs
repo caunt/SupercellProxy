@@ -17,6 +17,8 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
         {
             var loginOkMessage = await LoginAsync(cancellationToken);
 
+            Console.WriteLine(loginOkMessage);
+
             var keepAliveTask = Task.Run(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
@@ -28,6 +30,8 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
 
             while (!keepAliveTask.IsCompleted)
                 await HandleIncomingMessageAsync(cancellationToken);
+
+            await keepAliveTask;
         }
         catch (LoginException loginException)
         {
