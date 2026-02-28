@@ -62,6 +62,9 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
         var memoryStream = messageContainer.Payload.GetMemoryStream();
         memoryStream.Position = 0;
 
+        if (_encryption is not null)
+            memoryStream = Encrypt(memoryStream);
+
         memoryStream.CopyTo(stream);
         stream.Flush();
     }
@@ -85,6 +88,9 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
 
         var memoryStream = messageContainer.Payload.GetMemoryStream();
         memoryStream.Position = 0;
+
+        if (_encryption is not null)
+            memoryStream = Encrypt(memoryStream);
 
         await memoryStream.CopyToAsync(stream, cancellationToken);
     }

@@ -4,6 +4,8 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 public record LoginMessage : IMessage
 {
+    public static ushort Id => 10101;
+
     public required long AccountId { get; init; }
     public required string PassToken { get; init; }
     public required string ResourceSha { get; init; }
@@ -25,6 +27,11 @@ public record LoginMessage : IMessage
     public required int DataRef { get; init; }
     public required string SystemString1 { get; init; }
     public required string SystemString2 { get; init; }
+
+    static IMessage IMessage.Create(MessageContainer container)
+    {
+        return Create(container);
+    }
 
     public static LoginMessage Create(MessageContainer container)
     {
@@ -54,7 +61,7 @@ public record LoginMessage : IMessage
         };
     }
 
-    public MessageContainer ToContainer(ushort id = 10101, ushort version = 5209)
+    public MessageContainer ToContainer(ushort id, ushort version = 5209)
     {
         using var supercellStream = SupercellStream.Create();
 

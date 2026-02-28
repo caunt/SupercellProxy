@@ -1,11 +1,8 @@
-using SupercellProxy.Playground.Crypto;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Streams;
-using SupercellProxy.Playground.Supercell;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
@@ -44,9 +41,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
 
     private async Task LoginAsync(CancellationToken cancellationToken = default)
     {
-        var stream = await GetStreamAsync(cancellationToken);
-
-        await stream.WriteMessageAsync(new ClientHelloMessage
+        await WriteMessageAsync(new ClientHelloMessage
         {
             ProtocolVersion = configuration.ProtocolVersion,
             KeyVersion = configuration.KeyVersion,
@@ -62,49 +57,66 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
 
             DeviceType = 1,
             AppStore = 1
-        }.ToContainer(), cancellationToken);
+        }, cancellationToken);
 
-        var serverHello = ServerHelloMessage.Create(await stream.ReadMessageAsync(cancellationToken));
+        var serverHello = await ReadMessageAsync<ServerHelloMessage>(cancellationToken);
 
-        // 10101
-        var loginMessage = new LoginMessage
+        var stream = await GetStreamAsync(cancellationToken);
+        await stream.SetupEncryptionAsync(serverHello.SessionKey, cancellationToken);
+
+        await WriteMessageAsync(new LoginMessage
         {
             AccountId = 0,
             PassToken = "",
-            ResourceSha = "",
-            LoginVersion = 0,
+            ResourceSha = "0c95746ec8ced89978f4b9fded2fdbc95b3daf18",
+            LoginVersion = 1119325,
             UdId = "",
             OpenUdId = "",
             MacAddress = "",
-            DeviceModel = "",
+            DeviceModel = "iPad9,1",
             AdId = "",
             IsAdTracking = false,
-            OsVersion = "",
+            OsVersion = "18.2",
             Locale = "",
             Idfv = "",
             PreferredLanguage = "",
             ScidString = "",
-            UnknownBool = false,
+            UnknownBool = true,
             ScIdToken = "",
-            UnknownInt = 0,
-            DataRef = 0,
+            UnknownInt = -1,
+            DataRef = -1,
             SystemString1 = "",
             SystemString2 = ""
-        };
+        }, cancellationToken);
 
-        var serverPublicKey = await HayDayApi.GetServerPublicKeyAsync(cancellationToken);
-        var clientPrivateKey = RandomNumberGenerator.GetBytes(count: 32);
-        var clientPublicKey = NaClV3Crypto.CryptoScalarMultBase(clientPrivateKey);
+        Console.WriteLine(await ReadMessageAsync(cancellationToken));
+    }
 
-        var decryptNonce = new Nonce(clientPublicKey: clientPublicKey, serverPublicKey: serverPublicKey);
-        var nonce = new Nonce(clientPublicKey: clientPublicKey, serverPublicKey: serverPublicKey);
+    private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken) where T : IMessage
+    {
+        var stream = await GetStreamAsync(cancellationToken);
+        await stream.WriteMessageAsync(message.ToContainer(T.Id, version: 0 /* TODO: Write message version here? */), cancellationToken);
+    }
 
-        var encrypted = NaClV3Crypto.Box([.. serverHello.SessionKey.Span, .. decryptNonce.Span, .. loginMessage.ToContainer().Payload.ToArray(), .. stackalloc byte[508]], nonce.Span, serverPublicKey, clientPrivateKey);
-        await stream.WriteMessageAsync(new MessageContainer(10101, 5209, new SupercellStream(new MemoryStream([.. clientPublicKey, .. encrypted]))), cancellationToken);
+    private async Task<MessageContainer> ReadMessageAsync(CancellationToken cancellationToken)
+    {
+        var stream = await GetStreamAsync(cancellationToken);
+        var container = await stream.ReadMessageAsync(cancellationToken);
 
-        // any
-        var anyContainer = await stream.ReadMessageAsync(cancellationToken);
-        Console.WriteLine(anyContainer);
+        return container;
+    }
+
+    private async Task<T> ReadMessageAsync<T>(CancellationToken cancellationToken) where T : IMessage
+    {
+        var container = await ReadMessageAsync(cancellationToken);
+
+        if (container.Id != T.Id)
+            throw new InvalidOperationException($"Expected message ID {T.Id}, but received {container.Id}.");
+
+        if (T.Create(container) is not T message)
+            throw new InvalidOperationException($"Failed to create message of type {typeof(T).Name} from container.");
+
+        return message;
     }
 
     private async Task<SupercellStream> GetStreamAsync(CancellationToken cancellationToken = default)

@@ -4,6 +4,8 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record LoginFailedMessage : IMessage
 {
+    public static ushort Id => 20103;
+
     public enum Type : int
     {
         /// <summary>
@@ -53,6 +55,11 @@ public record LoginFailedMessage : IMessage
     public required int SecondsUntilMaintenanceEnd { get; init; }
     public required Memory<byte> UnknownBytes { get; init; }
 
+    static IMessage IMessage.Create(MessageContainer container)
+    {
+        return Create(container);
+    }
+
     public static LoginFailedMessage Create(MessageContainer container)
     {
         return new LoginFailedMessage
@@ -68,7 +75,7 @@ public record LoginFailedMessage : IMessage
         };
     }
 
-    public MessageContainer ToContainer(ushort id = 20103, ushort version = 2)
+    public MessageContainer ToContainer(ushort id, ushort version = 2)
     {
         using var supercellStream = SupercellStream.Create();
 

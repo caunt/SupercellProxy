@@ -54,12 +54,6 @@ public class Nonce
         }
     }
 
-    public static Nonce operator ++(Nonce nonce)
-    {
-        nonce.Increment();
-        return nonce;
-    }
-
     public void Increment()
     {
         var span = Span;
