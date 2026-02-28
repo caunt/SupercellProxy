@@ -6,11 +6,12 @@ var upstreamPort = args.Length > 1 && int.TryParse(args[1], out var up) ? up : 9
 var client = new Client(new ClientConfiguration(
     UpstreamHost: upstreamHost,
     UpstreamPort: upstreamPort,
-    MajorVersion: 1,
-    MinorVersion: 69,
-    PatchVersion: 89,
-    ProtocolVersion: 3,
-    KeyVersion: 40));
+    Protocol: new ProtocolConfiguration(
+        MajorVersion: 1,
+        MinorVersion: 69,
+        PatchVersion: 89,
+        ProtocolVersion: 3,
+        KeyVersion: 40)));
 
 await client.RunAsync();
 

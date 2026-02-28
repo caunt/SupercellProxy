@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
-public record ClientConfiguration(string UpstreamHost, int UpstreamPort, int MajorVersion, int MinorVersion, int PatchVersion, int ProtocolVersion, int KeyVersion);
+public record ClientConfiguration(string UpstreamHost, int UpstreamPort, ProtocolConfiguration Protocol);
 
 public partial class Client(ClientConfiguration configuration) : IAsyncDisposable
 {
@@ -76,12 +76,12 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
         {
             await WriteMessageAsync(new ClientHelloMessage
             {
-                ProtocolVersion = configuration.ProtocolVersion,
-                KeyVersion = configuration.KeyVersion,
+                ProtocolVersion = configuration.Protocol.ProtocolVersion,
+                KeyVersion = configuration.Protocol.KeyVersion,
 
-                MajorVersion = configuration.MajorVersion,
-                MinorVersion = configuration.MinorVersion,
-                PatchVersion = configuration.PatchVersion,
+                MajorVersion = configuration.Protocol.MajorVersion,
+                MinorVersion = configuration.Protocol.MinorVersion,
+                PatchVersion = configuration.Protocol.PatchVersion,
 
                 FingerprintSha1 = fingerprintSha1,
 
