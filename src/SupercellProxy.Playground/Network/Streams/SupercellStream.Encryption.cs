@@ -8,9 +8,9 @@ public partial class SupercellStream
 {
     private record Encryption(Memory<byte> ClientPrivateKey, Memory<byte> ClientPublicKey, Memory<byte> ServerPublicKey, Memory<byte> SessionKey)
     {
-        public Nonce Nonce { get; init; } = new Nonce(clientPublicKey: ClientPublicKey.Span, serverPublicKey: ServerPublicKey.Span);
-        public Nonce DecryptNonce { get; init; } = new Nonce();
-        public Nonce? EncryptNonce { get; set; }
+        public Nonce TempNonce { get; init; } = new Nonce(clientPublicKey: ClientPublicKey.Span, serverPublicKey: ServerPublicKey.Span);
+        public Nonce ServerboundNonce { get; init; } = new Nonce();
+        public Nonce? ClientboundNonce { get; set; }
         public Memory<byte> SharedKey { get; set; }
 
         public Encryption(Memory<byte> ClientPrivateKey, Memory<byte> ServerPublicKey, Memory<byte> SessionKey) : this(ClientPrivateKey, NaClV3Crypto.CryptoScalarMultBase(ClientPrivateKey.Span), ServerPublicKey, SessionKey)
@@ -45,17 +45,17 @@ public partial class SupercellStream
             var ciphertext = NaClV3Crypto.Box(
             [
                 .. _encryption.SessionKey.Span,
-                .. _encryption.DecryptNonce.Span,
+                .. _encryption.ServerboundNonce.Span,
                 .. payload,
                 .. stackalloc byte[508]
-            ], _encryption.Nonce.Span, _encryption.ServerPublicKey.Span, _encryption.ClientPrivateKey.Span);
+            ], _encryption.TempNonce.Span, _encryption.ServerPublicKey.Span, _encryption.ClientPrivateKey.Span);
 
             memoryStream = new MemoryStream([.. _encryption.ClientPublicKey.Span, .. ciphertext], writable: false);
         }
         else
         {
-            _encryption.DecryptNonce.Increment();
-            var ciphertext = NaClV3Crypto.SecretBox(payload, _encryption.DecryptNonce.Span, _encryption.SharedKey.Span);
+            _encryption.ServerboundNonce.Increment();
+            var ciphertext = NaClV3Crypto.SecretBox(payload, _encryption.ServerboundNonce.Span, _encryption.SharedKey.Span);
 
             memoryStream = new MemoryStream(ciphertext, writable: false);
         }
@@ -70,20 +70,20 @@ public partial class SupercellStream
 
         var payload = memoryStream.ToArray();
 
-        if (_encryption.SharedKey.IsEmpty || _encryption.EncryptNonce is null)
+        if (_encryption.SharedKey.IsEmpty || _encryption.ClientboundNonce is null)
         {
-            var nonce = new Nonce(_encryption.DecryptNonce.Span, _encryption.ClientPublicKey.Span, _encryption.ServerPublicKey.Span);
+            var nonce = new Nonce(_encryption.ServerboundNonce.Span, _encryption.ClientPublicKey.Span, _encryption.ServerPublicKey.Span);
             var plaintext = NaClV3Crypto.BoxOpen(payload, nonce.Span, _encryption.ServerPublicKey.Span, _encryption.ClientPrivateKey.Span);
 
-            _encryption.EncryptNonce = new Nonce(nonceBytes: plaintext.AsSpan(..24));
+            _encryption.ClientboundNonce = new Nonce(nonceBytes: plaintext.AsSpan(..24));
             _encryption.SharedKey = plaintext.AsMemory(24..56);
 
             memoryStream = new MemoryStream(plaintext, 56, plaintext.Length - 56, writable: false);
         }
         else
         {
-            _encryption.EncryptNonce.Increment();
-            var ciphertext = NaClV3Crypto.SecretBoxOpen(payload, _encryption.EncryptNonce.Span, _encryption.SharedKey.Span);
+            _encryption.ClientboundNonce.Increment();
+            var ciphertext = NaClV3Crypto.SecretBoxOpen(payload, _encryption.ClientboundNonce.Span, _encryption.SharedKey.Span);
 
             memoryStream = new MemoryStream(ciphertext, writable: false);
         }
