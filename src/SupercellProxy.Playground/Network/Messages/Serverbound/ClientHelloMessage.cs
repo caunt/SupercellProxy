@@ -4,8 +4,6 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 public record ClientHelloMessage : IMessage
 {
-    public static ushort Id => 10100;
-
     public required int ProtocolVersion { get; init; }
     public required int KeyVersion { get; init; }
 
@@ -19,11 +17,6 @@ public record ClientHelloMessage : IMessage
     public required int AppStore { get; init; }
 
     public int Unknown1 { get; init; }
-
-    static IMessage IMessage.Create(MessageContainer container)
-    {
-        return Create(container);
-    }
 
     public static ClientHelloMessage Create(MessageContainer container)
     {

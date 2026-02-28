@@ -4,8 +4,6 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record LoginOkMessage : IMessage
 {
-    public static ushort Id => 25220;
-
     public required int LoginResult { get; init; }
     public required int Field2 { get; init; }
     public required int LoginVersion { get; init; }
@@ -19,11 +17,7 @@ public record LoginOkMessage : IMessage
     public required string?[] UnknownStrings { get; init; }
     public required string CountryCode { get; init; }
     public required string EventAssetsUrl { get; init; }
-
-    static IMessage IMessage.Create(MessageContainer container)
-    {
-        return Create(container);
-    }
+    public Memory<byte> UnknownData { get; init; }
 
     public static LoginOkMessage Create(MessageContainer container)
     {
@@ -47,7 +41,8 @@ public record LoginOkMessage : IMessage
                 container.Payload.ReadOptionalString()
             ],
             CountryCode = container.Payload.ReadString(),
-            EventAssetsUrl = container.Payload.ReadString()
+            EventAssetsUrl = container.Payload.ReadString(),
+            UnknownData = container.Payload.ReadToEnd()
         };
     }
 
@@ -71,6 +66,8 @@ public record LoginOkMessage : IMessage
 
         supercellStream.WriteString(CountryCode);
         supercellStream.WriteString(EventAssetsUrl);
+
+        supercellStream.Write(UnknownData.Span);
 
         return new MessageContainer(id, version, supercellStream);
     }

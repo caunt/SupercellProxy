@@ -4,14 +4,7 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record ServerHelloMessage : IMessage
 {
-    public static ushort Id => 20100;
-
     public required Memory<byte> SessionKey { get; init; }
-
-    static IMessage IMessage.Create(MessageContainer container)
-    {
-        return Create(container);
-    }
 
     public static ServerHelloMessage Create(MessageContainer container)
     {

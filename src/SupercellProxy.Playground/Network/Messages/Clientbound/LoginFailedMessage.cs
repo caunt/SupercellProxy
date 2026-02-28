@@ -4,8 +4,6 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record LoginFailedMessage : IMessage
 {
-    public static ushort Id => 20103;
-
     public enum Type : int
     {
         /// <summary>
@@ -55,11 +53,6 @@ public record LoginFailedMessage : IMessage
     public required string ResourceFingerprintData { get; init; }
     public string? Reason { get; init; }
     public Memory<byte> UnknownData { get; init; }
-
-    static IMessage IMessage.Create(MessageContainer container)
-    {
-        return Create(container);
-    }
 
     public static LoginFailedMessage Create(MessageContainer container)
     {
