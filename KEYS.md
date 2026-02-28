@@ -7,6 +7,7 @@
 | ------- | ------------------------------------------------------------------ |
 | 64.264  | `0BD3FB945510B29F5FF6304859FDE0EFC8EAE01AF3557B3F4DDE317FAA91BB5D` |
 | 64.226  | `0BD3FB945510B29F5FF6304859FDE0EFC8EAE01AF3557B3F4DDE317FAA91BB5D` |
+| 65.165  | `AE0B932FF04E0E84C45409BA9E6B349BD0A3F28262C3722F59BD997B7652D82B` |
 
 ## [Hay Day](https://decrypt.day/app/id506627515)
 | Version  | Key                                                                |
