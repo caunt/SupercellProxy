@@ -24,7 +24,9 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await Task.Delay(_keepAliveInterval);
-                    await WriteMessageAsync(new KeepAliveMessage(), cancellationToken);
+
+                    var stream = await GetStreamAsync(cancellationToken);
+                    await stream.WriteMessageAsync(new KeepAliveMessage(), cancellationToken);
                 }
             }, cancellationToken);
 
@@ -74,7 +76,9 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
     {
         try
         {
-            await WriteMessageAsync(new ClientHelloMessage
+            var stream = await GetStreamAsync(cancellationToken);
+
+            await stream.WriteMessageAsync(new ClientHelloMessage
             {
                 ProtocolVersion = configuration.Protocol.ProtocolVersion,
                 KeyVersion = configuration.Protocol.KeyVersion,
@@ -90,16 +94,15 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
                 Unknown1 = -1
             }, cancellationToken);
 
-            var message = await ReadMessageAsync(cancellationToken);
+            var message = await stream.ReadMessageAsync(cancellationToken);
             LoginException.ThrowIfFailed(message);
 
             if (message is not ServerHelloMessage serverHello)
                 throw new InvalidOperationException($"Expected {nameof(ServerHelloMessage)}, but received {message}.");
 
-            var stream = await GetStreamAsync(cancellationToken);
             await stream.SetupEncryptionAsync(serverHello.SessionKey, cancellationToken);
 
-            await WriteMessageAsync(new LoginMessage
+            await stream.WriteMessageAsync(new LoginMessage
             {
                 AccountId = 0,
                 PassToken = null,
@@ -124,7 +127,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
                 SystemString2 = ""
             }, cancellationToken);
 
-            message = await ReadMessageAsync(cancellationToken);
+            message = await stream.ReadMessageAsync(cancellationToken);
             LoginException.ThrowIfFailed(message);
 
             if (message is not LoginOkMessage loginOkMessage)
