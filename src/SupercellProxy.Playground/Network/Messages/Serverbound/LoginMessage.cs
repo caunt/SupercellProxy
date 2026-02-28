@@ -54,7 +54,7 @@ public record LoginMessage : IMessage
         };
     }
 
-    public MessageContainer ToContainer(ushort id = 10101, ushort version = 0)
+    public MessageContainer ToContainer(ushort id = 10101, ushort version = 5209)
     {
         using var supercellStream = SupercellStream.Create();
 
