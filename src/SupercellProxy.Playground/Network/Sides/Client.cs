@@ -1,10 +1,10 @@
 using Blake2Fast;
-using SupercellProxy.Crypto.Piranha.Wrappers;
-using SupercellProxy.Playground.Crypto.NaCl;
+using SupercellProxy.Playground.Crypto;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 
@@ -33,9 +33,7 @@ public partial class Client(string upstreamHost, int upstreamPort)
             Console.WriteLine(serverHelloContainer);
 
             // 10101
-            var serverPublicKey = Convert.FromHexString("FF9C8D567D78F6DE1BDB27F7B4E4EE8D3F359292149F5EF3C46D59C1404DC91D");
-            // await HayDayApi.GetServerPublicKeyAsync(cancellationToken)
-            // serverPublicKey = Convert.FromHexString("F3EF2947524B5E4D8F92F9A69328517D6383388B6C72F786C2749BBE1CD9E07D");
+            var serverPublicKey = await HayDayApi.GetServerPublicKeyAsync(cancellationToken);
             var loginContainer = CreateLoginMessageContainer(serverPublicKey, serverHello.SessionKey.Span);
             Console.WriteLine(loginContainer);
             await supercellStream.WriteMessageAsync(loginContainer, cancellationToken);
@@ -52,72 +50,12 @@ public partial class Client(string upstreamHost, int upstreamPort)
 
     private static MessageContainer CreateLoginMessageContainer(Span<byte> serverPublicKey, Span<byte> sessionToken)
     {
-        var loginMessageStream = SupercellStream.Create();
+        var loginMessageStream = CreateLoginMessage().ToContainer();
 
-        // Account/Session ID - Low/High
-        // loginMessageStream.WriteUInt32(0);
-        // loginMessageStream.WriteUInt32(0);
-        loginMessageStream.WriteInt64(77315876446);
-        
-        // pass token
-        loginMessageStream.WriteOptionalString("8fmjfbydma48wfbpnkc4tz6xre2yetzg3twa3jx2");
-
-        // resource sha
-        loginMessageStream.WriteOptionalString("fdb648cea5e3494c3cafc32eca103331d85c5bfd"); // required 20 bytes sha1
-
-        // unknown flag (crc or id?)
-        loginMessageStream.WriteUInt32(1117359); // sub_1002C9648
-
-        // device id triplet - udid, openudid, macaddress
-        loginMessageStream.WriteOptionalString();
-        loginMessageStream.WriteOptionalString("e4b7c2a9f13d58be");
-        loginMessageStream.WriteOptionalString();
-
-        // device
-        loginMessageStream.WriteOptionalString("iPad12.1");
-
-        // adid
-        loginMessageStream.WriteOptionalString("49b4c3e4-d85b-4628-b55c-4bf70350417c");
-
-        // add tacking enabled
-        loginMessageStream.WriteBoolean(true);
-
-        // os version
-        loginMessageStream.WriteOptionalString("18.2");
-
-        // model
-        loginMessageStream.WriteString("");
-
-        // manufacturer
-        loginMessageStream.WriteString("8dcc54fdd8cbb59c");
-
-        // preferred language id
-        loginMessageStream.WriteOptionalString("EN");
-
-        // region
-        loginMessageStream.WriteString("");
-
-        // unknown flag
-        loginMessageStream.WriteBoolean(true);
-
-        // app version
-        loginMessageStream.WriteString("");
-
-        // build
-        loginMessageStream.WriteUInt32(1);
-
-        // unknown pair
-        loginMessageStream.WriteUInt64(0);
-        loginMessageStream.WriteUInt32(0xFFFFFFFF);
-
-        // unknown trailing strings
-        loginMessageStream.WriteString("");
-        loginMessageStream.WriteString("");
-
-        var loginMessageBuffer = loginMessageStream.ToArray();
+        var loginMessageBuffer = loginMessageStream.Payload.ToArray();
 
         var clientPrivateKey = RandomNumberGenerator.GetBytes(count: 32);
-        var clientPublicKey = TweetNaCl.CryptoScalarmultBase(clientPrivateKey);
+        var clientPublicKey = NaClV3Crypto.CryptoScalarMultBase(clientPrivateKey);
         var clientNonce = RandomNumberGenerator.GetBytes(count: 24);
         clientNonce[0] &= 0xFE;
 
@@ -126,12 +64,40 @@ public partial class Client(string upstreamHost, int upstreamPort)
         hasher.Update(serverPublicKey);
         var tempNonce = hasher.Finish();
 
-        var encrypted = TweetNaCl.CryptoBox([.. sessionToken, .. clientNonce, .. loginMessageBuffer], tempNonce, clientPrivateKey, serverPublicKey.ToArray());
+        var encrypted = NaClV3Crypto.NaclV3Box([.. sessionToken, .. clientNonce, .. loginMessageBuffer, .. new byte[508]], tempNonce, serverPublicKey.ToArray(), clientPrivateKey);
 
-        return new MessageContainer(10101, 3247, new SupercellStream(new MemoryStream([.. clientPublicKey, .. encrypted])));
+        return new MessageContainer(10101, 5209, new SupercellStream(new MemoryStream([.. clientPublicKey, .. encrypted])));
 
         // FF9C8D567D78F6DE 1BDB27F7B4E4EE8D3F359292149F5EF3C46D59C1404DC91D
         // 8602D5C784329E3E 9A763F079F247156C1649B2D0E36B1C73CCB3AE5FE3CEC54A8CE22FA4D2C026730BCE46EAE4205DE0ED6432B0D0BF8C2052F884CF1650E37F5C20E65C2AC882F4AC1F80BC00743D6CAD10542606DE4BCD92D022C713D22CE3C32EC3C2BBC3ACBC258B136BFAF9B64C80C7124DB983F7684309E32BD3ED502
+    }
+
+    private static LoginMessage CreateLoginMessage()
+    {
+        return new LoginMessage
+        {
+            AccountId = 0,
+            PassToken = "",
+            ResourceSha = "",
+            LoginVersion = 0,
+            UdId = "",
+            OpenUdId = "",
+            MacAddress = "",
+            DeviceModel = "",
+            AdId = "",
+            IsAdTracking = false,
+            OsVersion = "",
+            Locale = "",
+            Idfv = "",
+            PreferredLanguage = "",
+            ScidString = "",
+            UnknownBool = false,
+            ScIdToken = "",
+            UnknownInt = 0,
+            DataRef = 0,
+            SystemString1 = "",
+            SystemString2 = ""
+        };
     }
 
     private static ClientHelloMessage CreateClientHello()
@@ -139,15 +105,15 @@ public partial class Client(string upstreamHost, int upstreamPort)
         return new ClientHelloMessage
         {
             ProtocolVersion = 3,
-            KeyVersion = 38,
+            KeyVersion = 40,
 
             MajorVersion = 1,
-            MinorVersion = 67,
-            PatchVersion = 175,
+            MinorVersion = 69,
+            PatchVersion = 89,
 
             // 1.67.170 => be514e02b198d18287af1405089a0e72b849ac69
             // 1.67.175 => fdb648cea5e3494c3cafc32eca103331d85c5bfd
-            FingerprintSha1 = "fdb648cea5e3494c3cafc32eca103331d85c5bfd",
+            FingerprintSha1 = "0c95746ec8ced89978f4b9fded2fdbc95b3daf18",
 
             DeviceType = 1,
             AppStore = 1
