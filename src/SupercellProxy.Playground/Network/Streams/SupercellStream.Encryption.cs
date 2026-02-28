@@ -11,6 +11,7 @@ public partial class SupercellStream
         public Nonce DecryptNonce { get; init; } = new Nonce();
         public Nonce Nonce { get; init; } = new Nonce(clientPublicKey: ClientPublicKey.Span, serverPublicKey: ServerPublicKey.Span);
         public Memory<byte> SharedKey { get; set; }
+        public Nonce? EncryptNonce { get; set; }
 
         public Encryption(Memory<byte> ClientPrivateKey, Memory<byte> ServerPublicKey, Memory<byte> SessionKey) : this(ClientPrivateKey, NaClV3Crypto.CryptoScalarMultBase(ClientPrivateKey.Span), ServerPublicKey, SessionKey)
         {
@@ -55,6 +56,34 @@ public partial class SupercellStream
         {
             _encryption.Nonce.Increment();
             var ciphertext = NaClV3Crypto.SecretBox(payload, _encryption.DecryptNonce.Span, _encryption.SharedKey.Span);
+
+            memoryStream = new MemoryStream(ciphertext, writable: false);
+        }
+
+        return memoryStream;
+    }
+
+    private MemoryStream Decrypt(MemoryStream memoryStream)
+    {
+        if (_encryption is null)
+            throw new InvalidOperationException("Encryption is not set up.");
+
+        var payload = memoryStream.ToArray();
+
+        if (_encryption.SharedKey.IsEmpty || _encryption.EncryptNonce is null)
+        {
+            var nonce = new Nonce(_encryption.DecryptNonce.Span, _encryption.ClientPublicKey.Span, _encryption.ServerPublicKey.Span);
+            var plaintext = NaClV3Crypto.BoxOpen(payload, nonce.Span, _encryption.ServerPublicKey.Span, _encryption.ClientPrivateKey.Span);
+
+            _encryption.EncryptNonce = new Nonce(nonceBytes: plaintext.AsSpan(..24));
+            _encryption.SharedKey = plaintext.AsMemory(24..56);
+
+            memoryStream = new MemoryStream(plaintext, 56, plaintext.Length - 56, writable: false);
+        }
+        else
+        {
+            _encryption.EncryptNonce.Increment();
+            var ciphertext = NaClV3Crypto.SecretBoxOpen(payload, _encryption.EncryptNonce.Span, _encryption.SharedKey.Span);
 
             memoryStream = new MemoryStream(ciphertext, writable: false);
         }

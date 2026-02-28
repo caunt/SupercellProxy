@@ -25,7 +25,15 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
         var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
         var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
 
-        return new MessageContainer(id, version, CreateOfflineStream(new byte[length]));
+        var buffer = new byte[length];
+        _ = ReadExactly(buffer);
+
+        var memoryStream = new MemoryStream(buffer);
+
+        if (_encryption is not null)
+            memoryStream = Decrypt(memoryStream);
+
+        return new MessageContainer(id, version, new SupercellStream(memoryStream));
     }
 
     public async ValueTask<MessageContainer> ReadMessageAsync(CancellationToken cancellationToken = default)
@@ -38,18 +46,32 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
         var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
         var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
 
-        return new MessageContainer(id, version, CreateOfflineStream(await ReadExactlyAsync(RentExactly(length), cancellationToken)));
+        var buffer = new byte[length];
+        _ = await ReadExactlyAsync(buffer, cancellationToken);
+
+        var memoryStream = new MemoryStream(buffer);
+
+        if (_encryption is not null)
+            memoryStream = Decrypt(memoryStream);
+
+        return new MessageContainer(id, version, new SupercellStream(memoryStream));
     }
 
     public void WriteMessage(MessageContainer messageContainer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MaxPayloadLength, nameof(messageContainer.Payload.Length));
 
+        var memoryStream = messageContainer.Payload.GetMemoryStream();
+        memoryStream.Position = 0;
+
+        if (_encryption is not null)
+            memoryStream = Encrypt(memoryStream);
+
         var headerSpan = (stackalloc byte[7]);
 
         BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
 
-        var length = messageContainer.Payload.Length;
+        var length = memoryStream.Length;
 
         headerSpan[2] = (byte)(length >> 16);
         headerSpan[3] = (byte)(length >> 8);
@@ -59,24 +81,25 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
 
         Write(headerSpan);
 
+        memoryStream.CopyTo(stream);
+    }
+
+    public async ValueTask WriteMessageAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MaxPayloadLength, nameof(messageContainer.Payload.Length));
+
         var memoryStream = messageContainer.Payload.GetMemoryStream();
         memoryStream.Position = 0;
 
         if (_encryption is not null)
             memoryStream = Encrypt(memoryStream);
 
-        memoryStream.CopyTo(stream);
-        stream.Flush();
-    }
-
-    public async ValueTask WriteMessageAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
-    {
         var headerMemory = RentExactly(7);
         var headerSpan = headerMemory.Span;
 
         BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
 
-        var length = messageContainer.Payload.Length;
+        var length = memoryStream.Length;
 
         headerSpan[2] = (byte)(length >> 16);
         headerSpan[3] = (byte)(length >> 8);
@@ -85,12 +108,6 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
         BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
 
         await WriteAsync(headerMemory, cancellationToken);
-
-        var memoryStream = messageContainer.Payload.GetMemoryStream();
-        memoryStream.Position = 0;
-
-        if (_encryption is not null)
-            memoryStream = Encrypt(memoryStream);
 
         await memoryStream.CopyToAsync(stream, cancellationToken);
     }
@@ -119,7 +136,6 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
         if (MemoryMarshal.TryGetArray(memory, out var segment) && segment.Array is not null)
             return new SupercellStream(new MemoryStream(segment.Array, segment.Offset, segment.Count));
 
-        Console.WriteLine("copy ...");
         return new SupercellStream(new MemoryStream(memory.ToArray()));
     }
 

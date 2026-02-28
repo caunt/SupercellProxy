@@ -59,10 +59,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             AppStore = 1
         }, cancellationToken);
 
-        var serverHello = await ReadMessageAsync<ServerHelloMessage>(cancellationToken);
-
-        var stream = await GetStreamAsync(cancellationToken);
-        await stream.SetupEncryptionAsync(serverHello.SessionKey, cancellationToken);
+        await SetupEncryptionAsync(cancellationToken);
 
         await WriteMessageAsync(new LoginMessage
         {
@@ -87,15 +84,33 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             DataRef = -1,
             SystemString1 = "",
             SystemString2 = ""
-        }, cancellationToken);
+        }, version: 5209, cancellationToken);
 
-        Console.WriteLine(await ReadMessageAsync(cancellationToken));
+        var container = await ReadMessageAsync(cancellationToken);
+
+        if (container.Id == LoginFailedMessage.Id)
+            Console.WriteLine($"Login failed: {LoginFailedMessage.Create(container)}");
+        else if (container.Id == LoginOkMessage.Id)
+            Console.WriteLine($"Login successful: {LoginOkMessage.Create(container)}");
     }
 
-    private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken) where T : IMessage
+    public async Task SetupEncryptionAsync(CancellationToken cancellationToken = default)
+    {
+        var serverHello = await ReadMessageAsync<ServerHelloMessage>(cancellationToken);
+
+        var stream = await GetStreamAsync(cancellationToken);
+        await stream.SetupEncryptionAsync(serverHello.SessionKey, cancellationToken);
+    }
+
+    private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default) where T : IMessage
+    {
+        await WriteMessageAsync(message, version: 0 /* TODO: Always write message version here? */, cancellationToken);
+    }
+
+    private async Task WriteMessageAsync<T>(T message, ushort version, CancellationToken cancellationToken = default) where T : IMessage
     {
         var stream = await GetStreamAsync(cancellationToken);
-        await stream.WriteMessageAsync(message.ToContainer(T.Id, version: 0 /* TODO: Write message version here? */), cancellationToken);
+        await stream.WriteMessageAsync(message.ToContainer(T.Id, version: version), cancellationToken);
     }
 
     private async Task<MessageContainer> ReadMessageAsync(CancellationToken cancellationToken)
