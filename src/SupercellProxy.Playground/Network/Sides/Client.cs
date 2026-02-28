@@ -14,7 +14,9 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
         try
         {
             var loginOkMessage = await LoginAsync(cancellationToken);
-            Console.WriteLine(loginOkMessage);
+
+            while (!cancellationToken.IsCancellationRequested)
+                await HandleIncomingMessageAsync(cancellationToken);
         }
         catch (LoginException loginException)
         {

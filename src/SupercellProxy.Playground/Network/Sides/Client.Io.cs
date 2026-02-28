@@ -10,6 +10,12 @@ public partial class Client
     private NetworkStream? _networkStream;
     private SupercellStream? _supercellStream;
 
+    private async Task HandleIncomingMessageAsync(CancellationToken cancellationToken = default)
+    {
+        var message = await ReadMessageAsync(cancellationToken);
+        Console.WriteLine($"Received message: {message}");
+    }
+
     private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default) where T : IMessage
     {
         await WriteMessageAsync(message, version: 0 /* TODO: Always write message version here? */, cancellationToken);
@@ -18,7 +24,7 @@ public partial class Client
     private async Task WriteMessageAsync<T>(T message, ushort version, CancellationToken cancellationToken = default) where T : IMessage
     {
         var stream = await GetStreamAsync(cancellationToken);
-        await stream.WriteMessageAsync(message.ToContainer(MessageRegistry.GetId<T>(), version: version), cancellationToken);
+        await stream.WriteMessageAsync(message.ToContainer(MessageRegistry.GetId(message), version: MessageRegistry.GetVersion(message)), cancellationToken);
     }
 
     private async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken)
