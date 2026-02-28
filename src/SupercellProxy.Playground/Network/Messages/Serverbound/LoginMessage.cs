@@ -6,8 +6,8 @@ public record LoginMessage : IMessage
 {
     public static ushort Id => 10101;
 
-    public required long AccountId { get; init; }
-    public required string PassToken { get; init; }
+    public long AccountId { get; init; }
+    public string? PassToken { get; init; }
     public required string ResourceSha { get; init; }
     public required int LoginVersion { get; init; }
     public required string UdId { get; init; }
@@ -38,7 +38,7 @@ public record LoginMessage : IMessage
         return new LoginMessage
         {
             AccountId = container.Payload.ReadInt64(),
-            PassToken = container.Payload.ReadString(),
+            PassToken = container.Payload.ReadOptionalString(),
             ResourceSha = container.Payload.ReadString(),
             LoginVersion = container.Payload.ReadInt32(),
             UdId = container.Payload.ReadString(),
@@ -66,7 +66,7 @@ public record LoginMessage : IMessage
         using var supercellStream = SupercellStream.Create();
 
         supercellStream.WriteInt64(AccountId);
-        supercellStream.WriteString(PassToken);
+        supercellStream.WriteOptionalString(PassToken);
         supercellStream.WriteString(ResourceSha);
         supercellStream.WriteInt32(LoginVersion);
         supercellStream.WriteString(UdId);

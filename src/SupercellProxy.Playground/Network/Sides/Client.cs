@@ -56,7 +56,8 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             FingerprintSha1 = "0c95746ec8ced89978f4b9fded2fdbc95b3daf18",
 
             DeviceType = 1,
-            AppStore = 1
+            AppStore = 1,
+            Unknown1 = -1
         }, cancellationToken);
 
         await SetupEncryptionAsync(cancellationToken);
@@ -64,7 +65,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
         await WriteMessageAsync(new LoginMessage
         {
             AccountId = 0,
-            PassToken = "",
+            PassToken = null,
             ResourceSha = "0c95746ec8ced89978f4b9fded2fdbc95b3daf18",
             LoginVersion = 1119325,
             UdId = "",

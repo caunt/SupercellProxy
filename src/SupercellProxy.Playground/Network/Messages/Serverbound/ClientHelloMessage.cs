@@ -18,6 +18,8 @@ public record ClientHelloMessage : IMessage
     public required int DeviceType { get; init; }
     public required int AppStore { get; init; }
 
+    public int Unknown1 { get; init; }
+
     static IMessage IMessage.Create(MessageContainer container)
     {
         return Create(container);
@@ -37,7 +39,8 @@ public record ClientHelloMessage : IMessage
             FingerprintSha1 = container.Payload.ReadString(),
 
             DeviceType = container.Payload.ReadInt32(),
-            AppStore = container.Payload.ReadInt32()
+            AppStore = container.Payload.ReadInt32(),
+            Unknown1 = container.Payload.ReadInt32()
         };
     }
 
@@ -56,6 +59,8 @@ public record ClientHelloMessage : IMessage
 
         supercellStream.WriteInt32(DeviceType);
         supercellStream.WriteInt32(AppStore);
+
+        supercellStream.WriteInt32(Unknown1);
 
         return new MessageContainer(id, version, supercellStream);
     }

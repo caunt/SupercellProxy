@@ -16,7 +16,7 @@ public record LoginOkMessage : IMessage
     public required string CreationTimestamp { get; init; }
     public required string CreationTimestampTrunc { get; init; }
     public required string PassToken { get; init; }
-    public required string[] UnknownStrings { get; init; }
+    public required string?[] UnknownStrings { get; init; }
     public required string CountryCode { get; init; }
     public required string EventAssetsUrl { get; init; }
 
@@ -41,10 +41,10 @@ public record LoginOkMessage : IMessage
             PassToken = container.Payload.ReadString(),
             UnknownStrings =
             [
-                container.Payload.ReadString(),
-                container.Payload.ReadString(),
-                container.Payload.ReadString(),
-                container.Payload.ReadString()
+                container.Payload.ReadOptionalString(),
+                container.Payload.ReadOptionalString(),
+                container.Payload.ReadOptionalString(),
+                container.Payload.ReadOptionalString()
             ],
             CountryCode = container.Payload.ReadString(),
             EventAssetsUrl = container.Payload.ReadString()
@@ -66,8 +66,8 @@ public record LoginOkMessage : IMessage
         supercellStream.WriteString(CreationTimestampTrunc);
         supercellStream.WriteString(PassToken);
 
-        foreach (var str in UnknownStrings)
-            supercellStream.WriteString(str);
+        foreach (var unknownString in UnknownStrings)
+            supercellStream.WriteOptionalString(unknownString);
 
         supercellStream.WriteString(CountryCode);
         supercellStream.WriteString(EventAssetsUrl);

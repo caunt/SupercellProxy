@@ -9,6 +9,11 @@ public record LoginFailedMessage : IMessage
     public enum Type : int
     {
         /// <summary>
+        /// Provided credentials are invalid. This occurs when the account ID or pass token is incorrect.
+        /// </summary>
+        InvalidCredentials = 2,
+
+        /// <summary>
         /// Content version is outdated. This occurs when the client's fingerprint hash is not equal
         /// to the server's fingerprint hash.
         /// </summary>
