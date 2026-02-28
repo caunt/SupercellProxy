@@ -54,10 +54,9 @@ public class Nonce
         }
     }
 
-    public void Increment()
+    public void Increment(int carryValue = 2)
     {
         var span = Span;
-        var carryValue = 2;
 
         for (var currentIndex = 0; currentIndex < span.Length; currentIndex++)
         {
