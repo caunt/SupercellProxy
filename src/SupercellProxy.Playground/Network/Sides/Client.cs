@@ -1,9 +1,6 @@
 using SupercellProxy.Playground.Exceptions;
-using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
-using SupercellProxy.Playground.Network.Streams;
-using System.Net.Sockets;
 using System.Text.Json.Nodes;
 
 namespace SupercellProxy.Playground.Network.Sides;
@@ -12,10 +9,6 @@ public record ClientConfiguration(string UpstreamHost, int UpstreamPort, int Maj
 
 public partial class Client(ClientConfiguration configuration) : IAsyncDisposable
 {
-    private TcpClient? tcpClient;
-    private NetworkStream? _networkStream;
-    private SupercellStream? _supercellStream;
-
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -127,70 +120,5 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             await DisconnectAsync(cancellationToken);
             throw;
         }
-    }
-
-    private async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default) where T : IMessage
-    {
-        await WriteMessageAsync(message, version: 0 /* TODO: Always write message version here? */, cancellationToken);
-    }
-
-    private async Task WriteMessageAsync<T>(T message, ushort version, CancellationToken cancellationToken = default) where T : IMessage
-    {
-        var stream = await GetStreamAsync(cancellationToken);
-        await stream.WriteMessageAsync(message.ToContainer(MessageRegistry.GetId<T>(), version: version), cancellationToken);
-    }
-
-    private async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken)
-    {
-        var stream = await GetStreamAsync(cancellationToken);
-        var container = await stream.ReadMessageAsync(cancellationToken);
-        var message = MessageRegistry.Resolve(container);
-
-        if (container.Payload.Position != container.Payload.Length)
-            Console.WriteLine($"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}");
-
-        return message;
-    }
-
-    private async Task<T> ReadMessageAsync<T>(CancellationToken cancellationToken) where T : IMessage
-    {
-        var genericMessage = await ReadMessageAsync(cancellationToken);
-
-        if (genericMessage is not T message)
-            throw new InvalidOperationException($"Expected message {typeof(T)}, but received {genericMessage}.");
-
-        return message;
-    }
-
-    private async Task<SupercellStream> GetStreamAsync(CancellationToken cancellationToken = default)
-    {
-        if (_supercellStream is null)
-        {
-            tcpClient = new TcpClient();
-            await tcpClient.ConnectAsync(configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
-
-            _networkStream = tcpClient.GetStream();
-            _supercellStream = new SupercellStream(_networkStream);
-        }
-
-        return _supercellStream;
-    }
-
-    private async Task DisconnectAsync(CancellationToken cancellationToken = default)
-    {
-        if (_supercellStream is not null)
-        {
-            await _supercellStream.DisposeAsync();
-            _supercellStream = null;
-        }
-
-        if (_networkStream is not null)
-        {
-            await _networkStream.DisposeAsync();
-            _networkStream = null;
-        }
-
-        tcpClient?.Dispose();
-        tcpClient = null;
     }
 }
