@@ -9,7 +9,9 @@ using System.Security.Cryptography;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
-public partial class Client(string upstreamHost, int upstreamPort) : IAsyncDisposable
+public record ClientConfiguration(string UpstreamHost, int UpstreamPort, int MajorVersion, int MinorVersion, int PatchVersion, int ProtocolVersion, int KeyVersion);
+
+public partial class Client(ClientConfiguration configuration) : IAsyncDisposable
 {
     private TcpClient? tcpClient;
     private NetworkStream? _networkStream;
@@ -46,12 +48,12 @@ public partial class Client(string upstreamHost, int upstreamPort) : IAsyncDispo
 
         await stream.WriteMessageAsync(new ClientHelloMessage
         {
-            ProtocolVersion = 3,
-            KeyVersion = 40,
+            ProtocolVersion = configuration.ProtocolVersion,
+            KeyVersion = configuration.KeyVersion,
 
-            MajorVersion = 1,
-            MinorVersion = 69,
-            PatchVersion = 89,
+            MajorVersion = configuration.MajorVersion,
+            MinorVersion = configuration.MinorVersion,
+            PatchVersion = configuration.PatchVersion,
 
             // 1.67.170 => be514e02b198d18287af1405089a0e72b849ac69
             // 1.67.175 => fdb648cea5e3494c3cafc32eca103331d85c5bfd
@@ -110,7 +112,7 @@ public partial class Client(string upstreamHost, int upstreamPort) : IAsyncDispo
         if (_supercellStream is null)
         {
             tcpClient = new TcpClient();
-            await tcpClient.ConnectAsync(upstreamHost, upstreamPort, cancellationToken);
+            await tcpClient.ConnectAsync(configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
 
             _networkStream = tcpClient.GetStream();
             _supercellStream = new SupercellStream(_networkStream);

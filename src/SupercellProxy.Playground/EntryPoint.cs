@@ -3,7 +3,15 @@
 var upstreamHost = args.Length > 0 ? args[0] : "game.haydaygame.com";
 var upstreamPort = args.Length > 1 && int.TryParse(args[1], out var up) ? up : 9339;
 
-var client = new Client(upstreamHost, upstreamPort);
+var client = new Client(new ClientConfiguration(
+    UpstreamHost: upstreamHost,
+    UpstreamPort: upstreamPort,
+    MajorVersion: 1,
+    MinorVersion: 69,
+    PatchVersion: 89,
+    ProtocolVersion: 3,
+    KeyVersion: 40));
+
 await client.RunAsync();
 
 // var listenAddress = args.Length > 2 ? args[2] : "0.0.0.0";
