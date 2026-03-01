@@ -1,4 +1,5 @@
 ﻿using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
@@ -9,7 +10,7 @@ public record LoginOkMessage : IMessage
     public required int LoginVersion { get; init; }
     public required int ServerBuild { get; init; }
     public required bool UnknownBool { get; init; }
-    public required long AccountId { get; init; }
+    public required AccountId AccountId { get; init; }
     public required long HomeId { get; init; }
     public required string CreationTimestamp { get; init; }
     public required string CreationTimestampTrunc { get; init; }
@@ -28,7 +29,7 @@ public record LoginOkMessage : IMessage
             LoginVersion = container.Payload.ReadVarInt(),
             ServerBuild = container.Payload.ReadVarInt(),
             UnknownBool = container.Payload.ReadBoolean(),
-            AccountId = container.Payload.ReadInt64(),
+            AccountId = container.Payload.ReadAccountId(),
             HomeId = container.Payload.ReadInt64(),
             CreationTimestamp = container.Payload.ReadString(),
             CreationTimestampTrunc = container.Payload.ReadString(),
@@ -55,7 +56,7 @@ public record LoginOkMessage : IMessage
         supercellStream.WriteVarInt(LoginVersion);
         supercellStream.WriteVarInt(ServerBuild);
         supercellStream.WriteBoolean(UnknownBool);
-        supercellStream.WriteInt64(AccountId);
+        supercellStream.WriteAccountId(AccountId);
         supercellStream.WriteInt64(HomeId);
         supercellStream.WriteString(CreationTimestamp);
         supercellStream.WriteString(CreationTimestampTrunc);

@@ -1,10 +1,11 @@
 using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 public record LoginMessage : IMessage
 {
-    public long AccountId { get; init; }
+    public AccountId AccountId { get; init; }
     public string? PassToken { get; init; }
     public required string ResourceSha { get; init; }
     public required int LoginVersion { get; init; }
@@ -29,7 +30,7 @@ public record LoginMessage : IMessage
     {
         return new LoginMessage
         {
-            AccountId = container.Payload.ReadInt64(),
+            AccountId = container.Payload.ReadAccountId(),
             PassToken = container.Payload.ReadOptionalString(),
             ResourceSha = container.Payload.ReadString(),
             LoginVersion = container.Payload.ReadInt32(),
@@ -56,7 +57,7 @@ public record LoginMessage : IMessage
     {
         using var supercellStream = SupercellStream.Create();
 
-        supercellStream.WriteInt64(AccountId);
+        supercellStream.WriteAccountId(AccountId);
         supercellStream.WriteOptionalString(PassToken);
         supercellStream.WriteString(ResourceSha);
         supercellStream.WriteInt32(LoginVersion);

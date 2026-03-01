@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Supercell;
 using System.Buffers.Binary;
 using System.Text;
 
@@ -279,6 +280,18 @@ public partial class SupercellStream
         } while (flipped != 0);
 
         await stream.WriteAsync(memory[..index], cancellationToken);
+    }
+
+    public void WriteAccountId(AccountId accountId)
+    {
+        WriteInt32(accountId.HighInt32);
+        WriteInt32(accountId.LowInt32);
+    }
+
+    public async ValueTask WriteAccountIdAsync(AccountId accountId, CancellationToken cancellationToken = default)
+    {
+        await WriteInt32Async(accountId.HighInt32, cancellationToken);
+        await WriteInt32Async(accountId.LowInt32, cancellationToken);
     }
 
     private void FlushWriteBoolean()

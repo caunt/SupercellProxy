@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Supercell;
 using System.Buffers.Binary;
 using System.Text;
 
@@ -214,6 +215,16 @@ public partial class SupercellStream
         accumulator -= twoComplementBase;
 
         return (int)accumulator;
+    }
+
+    public AccountId ReadAccountId()
+    {
+        return new AccountId(highInt32: ReadInt32(), lowInt32: ReadInt32());
+    }
+
+    public async ValueTask<AccountId> ReadAccountIdAsync(CancellationToken cancellationToken = default)
+    {
+        return new AccountId(highInt32: await ReadInt32Async(cancellationToken), lowInt32: await ReadInt32Async(cancellationToken));
     }
 
     private void ResetReadBoolean()
