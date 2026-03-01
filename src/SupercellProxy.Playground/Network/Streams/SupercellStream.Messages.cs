@@ -1,10 +1,14 @@
-﻿using SupercellProxy.Playground.Network.Messages;
+﻿using Nito.AsyncEx;
+using SupercellProxy.Playground.Network.Messages;
 using System.Buffers.Binary;
 
 namespace SupercellProxy.Playground.Network.Streams;
 
 public partial class SupercellStream
 {
+    private readonly AsyncLock _readLock = new();
+    private readonly AsyncLock _writeLock = new();
+
     public async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default) where T : IMessage
     {
         await WriteContainerAsync(message.ToContainer(MessageRegistry.GetId(message), version: MessageRegistry.GetVersion(message)), cancellationToken);
@@ -33,6 +37,8 @@ public partial class SupercellStream
 
     public MessageContainer ReadContainer()
     {
+        using var disposable = _readLock.Lock();
+
         var headerSpan = ReadExactly(stackalloc byte[7]);
 
         var id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
@@ -52,6 +58,8 @@ public partial class SupercellStream
 
     public async ValueTask<MessageContainer> ReadContainerAsync(CancellationToken cancellationToken = default)
     {
+        using var disposable = await _readLock.LockAsync(cancellationToken);
+
         var headerMemory = RentExactly(7);
         await ReadExactlyAsync(headerMemory, cancellationToken);
 
@@ -74,6 +82,8 @@ public partial class SupercellStream
     public void WriteContainer(MessageContainer messageContainer)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MaxPayloadLength, nameof(messageContainer.Payload.Length));
+
+        using var disposable = _writeLock.Lock();
 
         var memoryStream = messageContainer.Payload.GetMemoryStream();
         memoryStream.Position = 0;
@@ -101,6 +111,8 @@ public partial class SupercellStream
     public async ValueTask WriteContainerAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MaxPayloadLength, nameof(messageContainer.Payload.Length));
+
+        using var disposable = await _writeLock.LockAsync(cancellationToken);
 
         var memoryStream = messageContainer.Payload.GetMemoryStream();
         memoryStream.Position = 0;

@@ -100,7 +100,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
             if (message is not ServerHelloMessage serverHello)
                 throw new InvalidOperationException($"Expected {nameof(ServerHelloMessage)}, but received {message}.");
 
-            await stream.SetupEncryptionAsync(serverHello.SessionKey, cancellationToken);
+            await stream.SetupEncryptionAsync(Side.Server, serverHello.SessionKey, cancellationToken);
 
             await stream.WriteMessageAsync(new LoginMessage
             {
@@ -122,9 +122,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
                 UnknownBool = true,
                 ScIdToken = "",
                 UnknownInt = -1,
-                DataRef = -1,
-                SystemString1 = "",
-                SystemString2 = ""
+                DataRef = -1
             }, cancellationToken);
 
             message = await stream.ReadMessageAsync(cancellationToken);

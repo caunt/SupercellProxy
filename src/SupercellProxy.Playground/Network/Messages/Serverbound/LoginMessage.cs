@@ -8,9 +8,9 @@ public record LoginMessage : IMessage
     public string? PassToken { get; init; }
     public required string ResourceSha { get; init; }
     public required int LoginVersion { get; init; }
-    public required string UdId { get; init; }
-    public required string OpenUdId { get; init; }
-    public required string MacAddress { get; init; }
+    public string? UdId { get; init; }
+    public string? OpenUdId { get; init; }
+    public string? MacAddress { get; init; }
     public required string DeviceModel { get; init; }
     public required string AdId { get; init; }
     public required bool IsAdTracking { get; init; }
@@ -23,34 +23,53 @@ public record LoginMessage : IMessage
     public required string ScIdToken { get; init; }
     public required int UnknownInt { get; init; }
     public required int DataRef { get; init; }
-    public required string SystemString1 { get; init; }
-    public required string SystemString2 { get; init; }
+    public Memory<byte> UnknownData { get; init; }
 
     public static LoginMessage Create(MessageContainer container)
     {
+        var accountId = container.Payload.ReadInt64();
+        var passToken = container.Payload.ReadOptionalString();
+        var resourceSha = container.Payload.ReadString();
+        var loginVersion = container.Payload.ReadInt32();
+        var udId = container.Payload.ReadOptionalString();
+        var openUdId = container.Payload.ReadOptionalString();
+        var macAddress = container.Payload.ReadOptionalString();
+        var deviceModel = container.Payload.ReadString();
+        var adId = container.Payload.ReadString();
+        var isAdTracking = container.Payload.ReadBoolean();
+        var osVersion = container.Payload.ReadString();
+        var locale = container.Payload.ReadString();
+        var idfv = container.Payload.ReadString();
+        var preferredLanguage = container.Payload.ReadString();
+        var scidString = container.Payload.ReadString();
+        var unknownBool = container.Payload.ReadBoolean();
+        var scIdToken = container.Payload.ReadString();
+        var unknownInt = container.Payload.ReadInt32();
+        var dataRef = container.Payload.ReadInt32();
+        var unknownData = container.Payload.ReadToEnd();
+
         return new LoginMessage
         {
-            AccountId = container.Payload.ReadInt64(),
-            PassToken = container.Payload.ReadOptionalString(),
-            ResourceSha = container.Payload.ReadString(),
-            LoginVersion = container.Payload.ReadInt32(),
-            UdId = container.Payload.ReadString(),
-            OpenUdId = container.Payload.ReadString(),
-            MacAddress = container.Payload.ReadString(),
-            DeviceModel = container.Payload.ReadString(),
-            AdId = container.Payload.ReadString(),
-            IsAdTracking = container.Payload.ReadBoolean(),
-            OsVersion = container.Payload.ReadString(),
-            Locale = container.Payload.ReadString(),
-            Idfv = container.Payload.ReadString(),
-            PreferredLanguage = container.Payload.ReadString(),
-            ScidString = container.Payload.ReadString(),
-            UnknownBool = container.Payload.ReadBoolean(),
-            ScIdToken = container.Payload.ReadString(),
-            UnknownInt = container.Payload.ReadInt32(),
-            DataRef = container.Payload.ReadInt32(),
-            SystemString1 = container.Payload.ReadString(),
-            SystemString2 = container.Payload.ReadString()
+            AccountId = accountId,
+            PassToken = passToken,
+            ResourceSha = resourceSha,
+            LoginVersion = loginVersion,
+            UdId = udId,
+            OpenUdId = openUdId,
+            MacAddress = macAddress,
+            DeviceModel = deviceModel,
+            AdId = adId,
+            IsAdTracking = isAdTracking,
+            OsVersion = osVersion,
+            Locale = locale,
+            Idfv = idfv,
+            PreferredLanguage = preferredLanguage,
+            ScidString = scidString,
+            UnknownBool = unknownBool,
+            ScIdToken = scIdToken,
+            UnknownInt = unknownInt,
+            DataRef = dataRef,
+            UnknownData = unknownData
         };
     }
 
@@ -62,9 +81,9 @@ public record LoginMessage : IMessage
         supercellStream.WriteOptionalString(PassToken);
         supercellStream.WriteString(ResourceSha);
         supercellStream.WriteInt32(LoginVersion);
-        supercellStream.WriteString(UdId);
-        supercellStream.WriteString(OpenUdId);
-        supercellStream.WriteString(MacAddress);
+        supercellStream.WriteOptionalString(UdId);
+        supercellStream.WriteOptionalString(OpenUdId);
+        supercellStream.WriteOptionalString(MacAddress);
         supercellStream.WriteString(DeviceModel);
         supercellStream.WriteString(AdId);
         supercellStream.WriteBoolean(IsAdTracking);
@@ -77,8 +96,8 @@ public record LoginMessage : IMessage
         supercellStream.WriteString(ScIdToken);
         supercellStream.WriteInt32(UnknownInt);
         supercellStream.WriteInt32(DataRef);
-        supercellStream.WriteString(SystemString1);
-        supercellStream.WriteString(SystemString2);
+
+        supercellStream.Write(UnknownData.Span);
 
         return new MessageContainer(id, version, supercellStream);
     }

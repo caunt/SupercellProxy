@@ -16,24 +16,151 @@ namespace SupercellProxy.Playground.Network.Sides;
 // standard(proxy) public key encoded: 5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 // If the goal is just to log unencrypted packets, maybe patch the app to log them directly.
 
-// private static readonly byte[] _standardPrivateKey = new byte[]
-// {
-//         0x18, 0x91, 0xD4, 0x01, 0xFA, 0xDB, 0x51, 0xD2, 0x5D, 0x3A, 0x91, 0x74,
-//         0xD4, 0x72, 0xA9, 0xF6, 0x91, 0xA4, 0x5B, 0x97, 0x42, 0x85, 0xD4, 0x77,
-//         0x29, 0xC4, 0x5C, 0x65, 0x38, 0x07, 0x0D, 0x85
-// };
-// 
-// private static readonly byte[] _standardPublicKey = new byte[] // == PublicKeyBox.GenerateKeyPair(_standardPrivateKey);
-// {
-//         0x72, 0xF1, 0xA4, 0xA4, 0xC4, 0x8E, 0x44, 0xDA, 0x0C, 0x42, 0x31, 0x0F,
-//         0x80, 0x0E, 0x96, 0x62, 0x4E, 0x6D, 0xC6, 0xA6, 0x41, 0xA9, 0xD4, 0x1C,
-//         0x3B, 0x50, 0x39, 0xD8, 0xDF, 0xAD, 0xC2, 0x7E
-// };
+// Android in-memory public key replacemet:
+// 1) Set up Wi-Fi Remote ADB Shell on rooted device
+// 2) Download GDB binary for your phone and place it at `/data/local/tmp/gdb` with `adb push`
+// 3) Execute `adb shell`, then `su` inside it
+// 4) Paste this GDB script in your adb shell:
+/*
+cat > /data/local/tmp/pattern_patch.gdb <<'EOF'
+python
+import os
+
+def hex_to_bytes(hex_string):
+    hex_string = hex_string.replace(" ", "").replace("\n", "")
+    return bytes(bytearray(int(hex_string[i:i + 2], 16) for i in range(0, len(hex_string), 2)))
+
+pid = int (os.environ["PID"])
+
+anchor = hex_to_bytes("1AD5000000000000")
+
+replacement = hex_to_bytes("5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+
+chunk_size = 0x4000
+
+def patch_pattern_in_process(pattern, pattern_replacement, offset= 0, limit= None):
+    if not pattern:
+        return 0
+
+    maps_path = "/proc/%d/maps" % pid
+    mem_path = "/proc/%d/mem" % pid
+
+    try:
+        maps_file = open(maps_path, "r")
+    except IOError as error:
+        print("cannot open maps:", error)
+        return 0
+
+    try:
+        mem_file = open(mem_path, "rb+")
+    except IOError as error:
+        maps_file.close()
+        print("cannot open mem:", error)
+        return 0
+
+    overlap = len(pattern) - 1 if len(pattern) > 1 else 0
+    patched_count = 0
+
+    for line in maps_file:
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+
+        addr_range = parts[0]
+        perms = parts[1]
+
+        if "r" not in perms:
+            continue
+
+        start_str, end_str = addr_range.split("-")
+        region_start = int (start_str, 16)
+        region_end = int (end_str, 16)
+
+        current_address = region_start
+
+        while current_address<region_end:
+            size = min(chunk_size, region_end - current_address)
+
+            try:
+                mem_file.seek(current_address)
+                data = mem_file.read(size)
+            except IOError:
+                break
+
+            if not data:
+                break
+
+            search_offset = 0
+
+            while True:
+                index = data.find(pattern, search_offset)
+                if index == -1:
+                    break
+
+                found_address = current_address + index
+                patch_start = found_address + offset
+
+                if patch_start< 0:
+                    print("found pattern at 0x%x but patch_start < 0" % found_address)
+                    maps_file.close()
+                    mem_file.close()
+                    return patched_count
+
+                try:
+                    mem_file.seek(patch_start)
+                    mem_file.write(pattern_replacement)
+                    patched_count += 1
+                    print("pattern at 0x%x, patched 0x%x .. 0x%x"
+                          % (found_address, patch_start, patch_start + len(pattern_replacement)))
+                except IOError as error:
+                    print("write failed:", error)
+                    maps_file.close()
+                    mem_file.close()
+                    return patched_count
+
+                if limit is not None and patched_count >= limit:
+                    maps_file.close()
+                    mem_file.close()
+                    return patched_count
+
+                search_offset = index + 1
+
+            if len(data) <= overlap:
+                break
+
+            current_address += len(data) - overlap
+
+    if patched_count == 0:
+        print("pattern not found")
+
+    maps_file.close()
+    mem_file.close()
+    return patched_count
+
+
+def patch_before_anchor():
+    # patch len(replacement) bytes immediately before the anchor, only once
+    patch_pattern_in_process(anchor, replacement, offset= -len(replacement), limit= 1)
+
+
+patch_before_anchor()
+end
+EOF
+
+export PID =$(ps -A | grep 'hayday' | awk '{print $2}')
+export TRACER_PID =$(grep TracerPid /proc/$PID/status | awk '{print $2}')
+/data/local/tmp/gdb -q -n -batch \
+    -ex "source /data/local/tmp/pattern_patch.gdb" \
+    /system/bin/app_process32 $TRACER_PID
+
+*/
 
 public record ProxyConfiguration(string UpstreamHost, int UpstreamPort, string ListenAddress, int ListenPort, ProtocolConfiguration Protocol);
 
 public class Proxy(ProxyConfiguration configuration)
 {
+    public static readonly byte[] StandardPrivateKey = [0x18, 0x91, 0xD4, 0x01, 0xFA, 0xDB, 0x51, 0xD2, 0x5D, 0x3A, 0x91, 0x74, 0xD4, 0x72, 0xA9, 0xF6, 0x91, 0xA4, 0x5B, 0x97, 0x42, 0x85, 0xD4, 0x77, 0x29, 0xC4, 0x5C, 0x65, 0x38, 0x07, 0x0D, 0x85];
+
     // https://github.com/ReversedCell/ScDocumentation/wiki/Encryption-Setup
     // https://github.com/ReversedCell/ScDocumentation/wiki/Protocol
 
@@ -50,24 +177,35 @@ public class Proxy(ProxyConfiguration configuration)
         }
     }
 
-    private static async ValueTask MessageReceivedAsync(IMessage message, Direction direction, SupercellStream source, SupercellStream destination, CancellationToken cancellationToken = default)
+    private static async ValueTask<bool> HandleMessageReceivedAsync(IMessage message, Direction direction, SupercellStream source, SupercellStream destination, CancellationToken cancellationToken = default)
     {
         switch (message)
         {
             case ClientHelloMessage clientHelloMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {clientHelloMessage}");
-                return;
+                return false;
             case ServerHelloMessage serverHelloMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {serverHelloMessage}");
-                await source.SetupEncryptionAsync(serverHelloMessage.SessionKey, cancellationToken);
-                await destination.SetupEncryptionAsync(serverHelloMessage.SessionKey, cancellationToken);
-                return;
+                await source.SetupEncryptionAsync(Side.Server, serverHelloMessage.SessionKey, cancellationToken);
+                return false;
             case LoginMessage loginMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {loginMessage}");
-                return;
+                return false;
         }
 
         Console.WriteLine($"[{DateTime.Now:T}] {direction} => {message}");
+
+        return false;
+    }
+
+    private static async ValueTask HandleMessageSentAsync(IMessage message, Direction direction, SupercellStream source, SupercellStream destination, CancellationToken cancellationToken = default)
+    {
+        switch (message)
+        {
+            case ServerHelloMessage serverHelloMessage:
+                await destination.SetupEncryptionAsync(Side.Client, serverHelloMessage.SessionKey, cancellationToken);
+                return;
+        }
     }
 
     private static async Task PumpAsync(SupercellStream source, SupercellStream destination, Direction direction, CancellationToken cancellationToken = default)
@@ -75,11 +213,15 @@ public class Proxy(ProxyConfiguration configuration)
         while (!cancellationToken.IsCancellationRequested)
         {
             var message = await source.ReadMessageAsync(cancellationToken);
-            await MessageReceivedAsync(message, direction, source, destination, cancellationToken);
+            var cancelled = await HandleMessageReceivedAsync(message, direction, source, destination, cancellationToken);
+
+            if (cancelled)
+                continue;
 
             try
             {
                 await destination.WriteMessageAsync(message, cancellationToken);
+                await HandleMessageSentAsync(message, direction, source, destination, cancellationToken);
             }
             catch (IOException ioException) when (ioException.InnerException is SocketException socketException)
             {
@@ -106,12 +248,20 @@ public class Proxy(ProxyConfiguration configuration)
 
         try
         {
-            await Task.WhenAll(PumpAsync(serverboundStream, clientboundStream, Direction.Serverbound, cancellationToken), PumpAsync(clientboundStream, serverboundStream, Direction.Clientbound, cancellationToken));
-        }
+            var serverboundPumpTask = PumpAsync(serverboundStream, clientboundStream, Direction.Serverbound, cancellationToken);
+            var clientboundPumpTask = PumpAsync(clientboundStream, serverboundStream, Direction.Clientbound, cancellationToken);
 
+            var completedTask = await Task.WhenAny(serverboundPumpTask, clientboundPumpTask);
+            await completedTask; // propagate exceptions
+
+            if (completedTask == serverboundPumpTask)
+                await clientboundPumpTask;
+            else
+                await serverboundPumpTask;
+        }
         catch (Exception exception)
         {
-            Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
+            Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception}");
         }
     }
 }
