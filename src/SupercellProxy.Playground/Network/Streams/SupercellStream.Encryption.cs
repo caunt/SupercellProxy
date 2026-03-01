@@ -28,16 +28,16 @@ public partial class SupercellStream
             remotePublicKey: with is Side.Server ? await HayDayApi.GetServerPublicKeyAsync(cancellationToken) : default(Memory<byte>));
     }
 
-    private static MemoryStream DecryptServerboundHandshake(Encryption encryption, byte[] payloadByteArray)
+    private static MemoryStream DecryptServerboundHandshake(Encryption encryption, byte[] payload)
     {
-        var payloadMemory = payloadByteArray.AsMemory();
+        var payloadMemory = payload.AsMemory();
 
         encryption.RemotePublicKey = payloadMemory[..32];
-        var encryptedPayload = payloadMemory[32..];
+        var ciphertext = payloadMemory[32..];
 
         var temporaryNonce = new Nonce(clientPublicKey: encryption.RemotePublicKey.Span, serverPublicKey: encryption.LocalPublicKey.Span);
-        var decryptedPlaintext = NaClV3Crypto.BoxOpen(encryptedPayload.Span, temporaryNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
-        var plaintextMemory = decryptedPlaintext.AsMemory();
+        var plaintext = NaClV3Crypto.BoxOpen(ciphertext.Span, temporaryNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
+        var plaintextMemory = plaintext.AsMemory();
 
         var receivedSessionKey = plaintextMemory[..encryption.SessionKey.Length];
 
@@ -49,22 +49,22 @@ public partial class SupercellStream
         encryption.ReceiveNonce = new Nonce(nonceBytes: serverNonce.Span);
 
         var payloadStart = payloadOffset + 24;
-        var payloadLength = decryptedPlaintext.Length - payloadStart - PromonPadSize;
+        var payloadLength = plaintext.Length - payloadStart - PromonPadSize;
 
-        return new MemoryStream(decryptedPlaintext, index: payloadStart, count: payloadLength, writable: false);
+        return new MemoryStream(plaintext, index: payloadStart, count: payloadLength, writable: false);
     }
 
-    private static MemoryStream DecryptClientboundHandshake(Encryption encryption, byte[] payloadByteArray)
+    private static MemoryStream DecryptClientboundHandshake(Encryption encryption, byte[] payload)
     {
         encryption.SendNonce ??= new Nonce();
 
         var handshakeNonce = new Nonce(nonceBytes: encryption.SendNonce.Span, clientPublicKey: encryption.LocalPublicKey.Span, serverPublicKey: encryption.RemotePublicKey.Span);
-        var decryptedPlaintext = NaClV3Crypto.BoxOpen(payloadByteArray, handshakeNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
+        var plaintext = NaClV3Crypto.BoxOpen(payload, handshakeNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
 
-        encryption.ReceiveNonce = new Nonce(nonceBytes: decryptedPlaintext.AsSpan(..24));
-        encryption.SharedKey = decryptedPlaintext.AsMemory(24..56);
+        encryption.ReceiveNonce = new Nonce(nonceBytes: plaintext.AsSpan(..24));
+        encryption.SharedKey = plaintext.AsMemory(24..56);
 
-        return new MemoryStream(decryptedPlaintext, index: 56, count: decryptedPlaintext.Length - 56, writable: false);
+        return new MemoryStream(plaintext, index: 56, count: plaintext.Length - 56, writable: false);
     }
 
     private static MemoryStream EncryptServerboundHandshake(Encryption encryption, byte[] payload)
@@ -110,7 +110,7 @@ public partial class SupercellStream
         if (_encryption is null)
             throw new InvalidOperationException("Encryption is not set up.");
 
-        var payloadByteArray = memoryStream.TryGetBuffer(out var streamBuffer) && streamBuffer.Array is { } bufferArray && streamBuffer.Offset == 0 && streamBuffer.Count == bufferArray.Length ? bufferArray : memoryStream.ToArray();
+        var payload = memoryStream.TryGetBuffer(out var streamBuffer) && streamBuffer.Array is { } buffer && streamBuffer.Offset == 0 && streamBuffer.Count == buffer.Length ? buffer : memoryStream.ToArray();
 
         if (!_encryption.SharedKey.IsEmpty)
         {
@@ -118,12 +118,12 @@ public partial class SupercellStream
                 throw new InvalidOperationException("Receive nonce is not set.");
 
             _encryption.ReceiveNonce.Increment();
-            return new MemoryStream(NaClV3Crypto.SecretBoxOpen(payloadByteArray, _encryption.ReceiveNonce.Span, _encryption.SharedKey.Span), writable: false);
+            return new MemoryStream(NaClV3Crypto.SecretBoxOpen(payload, _encryption.ReceiveNonce.Span, _encryption.SharedKey.Span), writable: false);
         }
 
         return _encryption.With is Side.Server
-            ? DecryptClientboundHandshake(_encryption, payloadByteArray)
-            : DecryptServerboundHandshake(_encryption, payloadByteArray);
+            ? DecryptClientboundHandshake(_encryption, payload)
+            : DecryptServerboundHandshake(_encryption, payload);
     }
 
     private MemoryStream Encrypt(MemoryStream memoryStream)
@@ -131,7 +131,7 @@ public partial class SupercellStream
         if (_encryption is null)
             throw new InvalidOperationException("Encryption is not set up.");
 
-        var payloadByteArray = memoryStream.TryGetBuffer(out var streamBuffer) && streamBuffer.Array is { } bufferArray && streamBuffer.Offset == 0 && streamBuffer.Count == bufferArray.Length ? bufferArray : memoryStream.ToArray();
+        var payload = memoryStream.TryGetBuffer(out var streamBuffer) && streamBuffer.Array is { } buffer && streamBuffer.Offset == 0 && streamBuffer.Count == buffer.Length ? buffer : memoryStream.ToArray();
 
         if (!_encryption.SharedKey.IsEmpty)
         {
@@ -139,12 +139,12 @@ public partial class SupercellStream
                 throw new InvalidOperationException("Send nonce is not set.");
 
             _encryption.SendNonce.Increment();
-            return new MemoryStream(NaClV3Crypto.SecretBox(payloadByteArray, _encryption.SendNonce.Span, _encryption.SharedKey.Span), writable: false);
+            return new MemoryStream(NaClV3Crypto.SecretBox(payload, _encryption.SendNonce.Span, _encryption.SharedKey.Span), writable: false);
         }
 
         return _encryption.With is Side.Server
-            ? EncryptServerboundHandshake(_encryption, payloadByteArray)
-            : EncryptClientboundHandshake(_encryption, payloadByteArray);
+            ? EncryptServerboundHandshake(_encryption, payload)
+            : EncryptClientboundHandshake(_encryption, payload);
     }
 
     private class Encryption(Side with, Memory<byte> localPrivateKey, Memory<byte> sessionKey, Memory<byte> remotePublicKey = default)
