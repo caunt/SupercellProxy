@@ -191,6 +191,14 @@ public class Proxy(ProxyConfiguration configuration)
             case LoginMessage loginMessage:
                 Console.WriteLine($"[{DateTime.Now:T}] {loginMessage}");
                 return false;
+            case PassthroughMessage passthroughMessage:
+                Console.WriteLine($"[{DateTime.Now:T}] {direction} => {passthroughMessage}");
+                var fileName = $"packet_{passthroughMessage.Id}.bin";
+
+                if (!File.Exists(fileName))
+                    await File.WriteAllBytesAsync(fileName, passthroughMessage.Data, cancellationToken);
+
+                return false;
         }
 
         Console.WriteLine($"[{DateTime.Now:T}] {direction} => {message}");
