@@ -15,7 +15,6 @@ namespace SupercellProxy.Playground.Network.Sides;
 // They introduced a "standard" key pair for modded servers at Crypto8.StandardKeyPair:
 // standard proxy private key: 1891D401FADB51D25D3A9174D472A9F691A45B974285D47729C45C6538070D85
 // standard proxy public key: 72F1A4A4C48E44DA0C42310F800E96624E6DC6A641A9D41C3B5039D8DFADC27E
-// standard proxy public key encoded: 5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 // We are also using second approach, by patching the app's memory to replace the server public key with the standard proxy public key encoded by PublicKeyCodec.Encode()
 
