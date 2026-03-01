@@ -22,136 +22,64 @@ namespace SupercellProxy.Playground.Network.Sides;
 // 3) Execute `adb shell`, then `su` inside it
 // 4) Paste this GDB script in your adb shell:
 /*
-cat > /data/local/tmp/pattern_patch.gdb <<'EOF'
+
+
+
+export PID=$(ps -A | grep 'hayday' | awk '{print $2}')
+
+/data/local/tmp/gdb -q -n -batch -x /dev/stdin <<'EOF'
 python
-import os
+import os, time
 
-def hex_to_bytes(hex_string):
-    hex_string = hex_string.replace(" ", "").replace("\n", "")
-    return bytes(bytearray(int(hex_string[i:i + 2], 16) for i in range(0, len(hex_string), 2)))
+processId = os.environ["PID"]
+anchorBytes = bytes.fromhex("1AD5000000000000")
+replacementBytes = bytes.fromhex("5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
 
-pid = int (os.environ["PID"])
+def execute_patch():
+    overlapSize = len(anchorBytes) - 1
 
-anchor = hex_to_bytes("1AD5000000000000")
-
-replacement = hex_to_bytes("5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-
-chunk_size = 0x4000
-
-def patch_pattern_in_process(pattern, pattern_replacement, offset= 0, limit= None):
-    if not pattern:
-        return 0
-
-    maps_path = "/proc/%d/maps" % pid
-    mem_path = "/proc/%d/mem" % pid
-
-    try:
-        maps_file = open(maps_path, "r")
-    except IOError as error:
-        print("cannot open maps:", error)
-        return 0
-
-    try:
-        mem_file = open(mem_path, "rb+")
-    except IOError as error:
-        maps_file.close()
-        print("cannot open mem:", error)
-        return 0
-
-    overlap = len(pattern) - 1 if len(pattern) > 1 else 0
-    patched_count = 0
-
-    for line in maps_file:
-        parts = line.split()
-        if len(parts) < 2:
+    with open("/proc/%s/maps" % processId, "r") as mapsFile, open("/proc/%s/mem" % processId, "rb+") as memoryFile:
+        for currentLine in mapsFile:
+            lineParts = currentLine.split()
+            if len(lineParts) < 2 or "r" not in lineParts[1]:
             continue
 
-        addr_range = parts[0]
-        perms = parts[1]
+            startString, endString = lineParts[0].split("-")
+            currentAddress = int(startString, 16)
+            regionEnd = int(endString, 16)
 
-        if "r" not in perms:
-            continue
-
-        start_str, end_str = addr_range.split("-")
-        region_start = int (start_str, 16)
-        region_end = int (end_str, 16)
-
-        current_address = region_start
-
-        while current_address<region_end:
-            size = min(chunk_size, region_end - current_address)
-
+            while currentAddress < regionEnd:
             try:
-                mem_file.seek(current_address)
-                data = mem_file.read(size)
+                    memoryFile.seek(currentAddress)
+                    memoryData = memoryFile.read(min(0x4000, regionEnd - currentAddress))
             except IOError:
                 break
 
-            if not data:
+                if not memoryData or len(memoryData) <= overlapSize:
                 break
 
-            search_offset = 0
+                matchIndex = memoryData.find(anchorBytes)
+                if matchIndex != -1:
+                    patchAddress = currentAddress + matchIndex - len(replacementBytes)
 
-            while True:
-                index = data.find(pattern, search_offset)
-                if index == -1:
-                    break
-
-                found_address = current_address + index
-                patch_start = found_address + offset
-
-                if patch_start< 0:
-                    print("found pattern at 0x%x but patch_start < 0" % found_address)
-                    maps_file.close()
-                    mem_file.close()
-                    return patched_count
-
+                    for retryAttempt in range(5):
                 try:
-                    mem_file.seek(patch_start)
-                    mem_file.write(pattern_replacement)
-                    patched_count += 1
-                    print("pattern at 0x%x, patched 0x%x .. 0x%x"
-                          % (found_address, patch_start, patch_start + len(pattern_replacement)))
-                except IOError as error:
-                    print("write failed:", error)
-                    maps_file.close()
-                    mem_file.close()
-                    return patched_count
+                            memoryFile.seek(patchAddress)
+                            memoryFile.write(replacementBytes)
+                            memoryFile.flush()
+                            print("pattern at 0x%x, patched 0x%x .. 0x%x" % (currentAddress + matchIndex, patchAddress, patchAddress + len(replacementBytes)))
+                            return
+                        except IOError:
+                            time.sleep(0.05)
+                    return
 
-                if limit is not None and patched_count >= limit:
-                    maps_file.close()
-                    mem_file.close()
-                    return patched_count
+                currentAddress += len(memoryData) - overlapSize
 
-                search_offset = index + 1
-
-            if len(data) <= overlap:
-                break
-
-            current_address += len(data) - overlap
-
-    if patched_count == 0:
-        print("pattern not found")
-
-    maps_file.close()
-    mem_file.close()
-    return patched_count
-
-
-def patch_before_anchor():
-    # patch len(replacement) bytes immediately before the anchor, only once
-    patch_pattern_in_process(anchor, replacement, offset= -len(replacement), limit= 1)
-
-
-patch_before_anchor()
+execute_patch()
 end
 EOF
 
-export PID =$(ps -A | grep 'hayday' | awk '{print $2}')
-export TRACER_PID =$(grep TracerPid /proc/$PID/status | awk '{print $2}')
-/data/local/tmp/gdb -q -n -batch \
-    -ex "source /data/local/tmp/pattern_patch.gdb" \
-    /system/bin/app_process32 $TRACER_PID
+
 
 */
 
