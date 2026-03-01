@@ -2,8 +2,6 @@
 
 ## Message Frame
 
-Every TCP message (plaintext or encrypted) uses a fixed 7-byte header.
-
 ```
 [0–1]  Message ID        (uint16, big-endian)
 [2–4]  Payload length    (24-bit, big-endian)
@@ -13,86 +11,60 @@ Every TCP message (plaintext or encrypted) uses a fixed 7-byte header.
 
 ## Crypto Primitives
 
-| Primitive   | Role                                           |
-|-------------|------------------------------------------------|
-| Curve25519  | ECDH — derives a 32-byte shared secret         |
-| HChaCha20   | Key derivation — 32-byte key from key + nonce  |
-| ChaCha20    | Stream cipher — encrypts the payload           |
-| Poly1305    | MAC — 16-byte authentication tag               |
-| Blake2b-24  | Nonce derivation — 24-byte hash                |
+| Primitive          | Role                                                         |
+|--------------------|--------------------------------------------------------------|
+| Curve25519         | ECDH — 32-byte shared secret                                 |
+| HChaCha20 ×**17**  | Key derivation — **17 double-rounds** (non-standard)         |
+| ChaCha20 ×**8**    | Stream cipher — **8 double-rounds** (non-standard)           |
+| Poly1305           | MAC — 16-byte authentication tag                             |
+| Blake2b-24         | Nonce derivation — 24-byte hash                              |
 
-> **Box** = Curve25519 ECDH + two HChaCha20 rounds + ChaCha20/Poly1305 (NaCl-compatible).  
-> **SecretBox** = HChaCha20 + ChaCha20/Poly1305 with a pre-shared symmetric key.
+> **Box** = Curve25519 ECDH → two HChaCha20 passes → ChaCha20/Poly1305.  
+> **SecretBox** = HChaCha20 → ChaCha20/Poly1305 with a pre-shared key.
 
-## Handshake Diagram
+## Handshake
 
 ```
 Client                                          Server
-  |                                               |
-  |──── ClientHello (10100) ──────────────────►  |  plaintext
-  |  ◄──────────────────── ServerHello (20100) ──|  plaintext
-  |                                               |
-  |  [generate ephemeral Curve25519 keypair]      |
-  |  [derive TempNonce, ServerboundNonce]          |
-  |                                               |
-  |──── LoginMessage (10101) ─────────────────►  |  Box-encrypted
-  |  ◄────────────── LoginOk (25220) / LoginFailed (20103) ──|  Box-encrypted
-  |                                               |
-  |  [extract SharedKey + ClientboundNonce]        |
-  |                                               |
+  |──── ClientHello (10100) ──────────────────► |  plaintext
+  |◄─────────────── ServerHello (20100) ──────── |  plaintext
+  |──── LoginMessage (10101) ─────────────────► |  Box
+  |◄─── LoginOk (25220) / LoginFailed (20103) ── |  Box
   |──── KeepAlive / game messages ─────────────► |  SecretBox
-  |  ◄──────────────────────── game messages ─── |  SecretBox
+  |◄──────────────────────── game messages ────── |  SecretBox
 ```
 
-## Step-by-Step Process
+## Steps
 
-### Step 1 — ClientHello sent (plaintext)
-Client sends protocol version, key version, game version, fingerprint SHA1, and device type.
+### 1 — ClientHello (plaintext, ID 10100)
+Client sends protocol/key/game version, fingerprint SHA1, and device type.
 
-### Step 2 — ServerHello received (plaintext)
-Server replies with a length-prefixed raw byte array: the session key. No encryption.
+### 2 — ServerHello (plaintext, ID 20100)
+Server sends a length-prefixed byte array: the session key. No encryption.
 
-### Step 3 — Ephemeral keypair generated
-Client creates 32 random bytes as a private key; derives Curve25519 public key.
+### 3 — Ephemeral keypair + nonces
+Client generates 32-byte random private key; derives Curve25519 public key.
 
-### Step 4 — TempNonce derived
-`TempNonce = Blake2b-24(ClientPublicKey ‖ ServerPublicKey)`. Server public key is version-specific (see `KEYS.md`).
+### 4 — TempNonce derived; ServerboundNonce generated
+`TempNonce = Blake2b-24(ClientPublicKey ‖ ServerPublicKey)`. `ServerboundNonce` = random 24 B, bit 0 cleared.
 
-### Step 5 — ServerboundNonce generated
-Client picks a random 24-byte nonce; its lowest bit is cleared to zero.
+### 5 — LoginMessage plaintext assembled
+Payload: `SessionKey ‖ ServerboundNonce ‖ login fields ‖ 508 zero-bytes`.
 
-### Step 6 — LoginMessage plaintext assembled
-Payload order: `SessionKey ‖ ServerboundNonce ‖ login fields ‖ 508 zero-bytes padding`.
+### 6 — Box key derivation
+`SharedSecret = Curve25519(ClientPrivKey, ServerPubKey)`. Two HChaCha20 rounds (×17 double-rounds each) derive subkey.
 
-### Step 7 — ECDH shared secret computed
-`SharedSecret = Curve25519(ClientPrivateKey, ServerPublicKey)`. Two HChaCha20 rounds derive a per-message subkey.
+### 7 — Box encryption + wire layout (ID 10101)
+ChaCha20 (×8 double-rounds) encrypts; Poly1305 tags it. Wire: `ClientPublicKey (32 B) ‖ MAC (16 B) ‖ ciphertext`.
 
-### Step 8 — LoginMessage Box-encrypted
-ChaCha20 encrypts the payload; Poly1305 produces a 16-byte authentication tag over it.
+### 8 — Server decrypts LoginMessage, sends response
+Server verifies MAC, reads SessionKey + ServerboundNonce, sends LoginOk (25220) or LoginFailed (20103) via Box.
 
-### Step 9 — LoginMessage wire layout
-`ClientPublicKey (32 B) ‖ Poly1305 MAC (16 B) ‖ ChaCha20 ciphertext`. ID 10101.
-
-### Step 10 — Server decrypts LoginMessage
-Server derives the same ECDH secret, verifies the MAC, and reads session key and ServerboundNonce.
-
-### Step 11 — Server encrypts response
-Server sends LoginOk (25220) or LoginFailed (20103), Box-encrypted using the established ECDH secret.
-
-### Step 12 — Response decryption nonce derived
+### 9 — Response decryption nonce derived
 `DecryptNonce = Blake2b-24(ServerboundNonce ‖ ClientPublicKey ‖ ServerPublicKey)`.
 
-### Step 13 — Server response decrypted
-Client calls BoxOpen with the derived nonce and verifies the Poly1305 MAC.
+### 10 — SharedKey and ClientboundNonce extracted
+BoxOpen output: bytes `0–23` = ClientboundNonce, `24–55` = SharedKey, `56+` = body.
 
-### Step 14 — SharedKey and ClientboundNonce extracted
-Plaintext: bytes `0–23` = new ClientboundNonce, bytes `24–55` = SharedKey, bytes `56+` = message body.
-
-### Step 15 — Subsequent client→server messages (SecretBox)
-ServerboundNonce increments by 2; payload encrypted with `SecretBox(SharedKey, ServerboundNonce)`.
-
-### Step 16 — Subsequent server→client messages (SecretBox)
-ClientboundNonce increments by 2; payload decrypted with `SecretBoxOpen(SharedKey, ClientboundNonce)`.
-
-### Step 17 — SecretBox wire layout
-Per-message subkey = `HChaCha20(SharedKey, Nonce[:16])`. Wire: `Poly1305 MAC (16 B) ‖ ciphertext`.
+### 11 — Established phase (SecretBox, all further messages)
+Nonce increments by 2 per message. Subkey = `HChaCha20(SharedKey, Nonce[:16])`. Wire: `MAC (16 B) ‖ ciphertext`.
