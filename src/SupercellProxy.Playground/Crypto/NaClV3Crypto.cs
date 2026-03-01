@@ -11,189 +11,189 @@ public static class NaClV3Crypto
     private const int HChaChaIterationsCount = 17;
     private const int ChaChaIterationsCount = 8;
 
-    private static ReadOnlySpan<byte> Curve25519BasePointData => [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    private static ReadOnlySpan<byte> Curve25519BasePoint => [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     private static readonly BigInteger Poly1305ClampConstant = BigInteger.Parse("0ffffffc0ffffffc0ffffffc0fffffff", NumberStyles.AllowHexSpecifier);
     private static readonly BigInteger Poly1305PrimeModulus = (BigInteger.One << 130) - 5;
     private static readonly BigInteger Curve25519PrimeModulus = BigInteger.Pow(2, 255) - 19;
     private static readonly BigInteger CurveConstantA24 = new(121665);
 
-    public static byte[] CryptoScalarMultBase(ReadOnlySpan<byte> secretKeyData)
+    public static byte[] CryptoScalarMultBase(ReadOnlySpan<byte> localPrivateKey)
     {
-        var resultDataArray = new byte[32];
-        CryptoScalarMult(secretKeyData, Curve25519BasePointData, resultDataArray);
-        return resultDataArray;
+        var result = new byte[32];
+        CryptoScalarMult(localPrivateKey, Curve25519BasePoint, result);
+        return result;
     }
 
-    public static byte[] HChaCha20(ReadOnlySpan<byte> keyData, ReadOnlySpan<byte> nonce16Data)
+    public static byte[] HChaCha20(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce16)
     {
-        var resultDataArray = new byte[32];
-        HChaCha20(keyData, nonce16Data, resultDataArray);
-        return resultDataArray;
+        var result = new byte[32];
+        HChaCha20(key, nonce16, result);
+        return result;
     }
 
-    public static byte[] Box(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
+    public static byte[] Box(ReadOnlySpan<byte> plaintext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> remotePublicKey, ReadOnlySpan<byte> localPrivateKey)
     {
-        var sharedSecretData = (stackalloc byte[32]);
-        CryptoScalarMult(clientSecretKeyData, serverPublicKeyData, sharedSecretData);
+        var sharedSecret = (stackalloc byte[32]);
+        CryptoScalarMult(localPrivateKey, remotePublicKey, sharedSecret);
 
-        var beforeNmData = (stackalloc byte[32]);
-        HChaCha20(sharedSecretData, (stackalloc byte[16]), beforeNmData);
+        var beforeNm = (stackalloc byte[32]);
+        HChaCha20(sharedSecret, (stackalloc byte[16]), beforeNm);
 
-        var subKeyData = (stackalloc byte[32]);
-        HChaCha20(beforeNmData, nonce24Data[..16], subKeyData);
+        var subKey = (stackalloc byte[32]);
+        HChaCha20(beforeNm, nonce24[..16], subKey);
 
-        var finalResultDataArray = new byte[16 + plainTextData.Length];
-        var messageAuthenticationCodeData = finalResultDataArray.AsSpan(0, 16);
-        var encryptedPayloadData = finalResultDataArray.AsSpan(16);
-        var polyKeyData = (stackalloc byte[32]);
+        var finalResult = new byte[16 + plaintext.Length];
+        var messageAuthenticationCode = finalResult.AsSpan(0, 16);
+        var encryptedPayload = finalResult.AsSpan(16);
+        var polyKey = (stackalloc byte[32]);
 
-        ChaCha20XorPadded(subKeyData, nonce24Data.Slice(16, 8), plainTextData, encryptedPayloadData, polyKeyData);
-        Poly1305(encryptedPayloadData, polyKeyData, messageAuthenticationCodeData);
+        ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), plaintext, encryptedPayload, polyKey);
+        Poly1305(encryptedPayload, polyKey, messageAuthenticationCode);
 
-        return finalResultDataArray;
+        return finalResult;
     }
 
-    public static byte[] BoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> serverPublicKeyData, ReadOnlySpan<byte> clientSecretKeyData)
+    public static byte[] BoxOpen(ReadOnlySpan<byte> ciphertext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> remotePublicKey, ReadOnlySpan<byte> localPrivateKey)
     {
-        var messageAuthenticationCodeData = cipherTextData[..16];
-        var encryptedPayloadData = cipherTextData[16..];
+        var messageAuthenticationCode = ciphertext[..16];
+        var encryptedPayload = ciphertext[16..];
 
-        var sharedSecretData = (stackalloc byte[32]);
-        CryptoScalarMult(clientSecretKeyData, serverPublicKeyData, sharedSecretData);
+        var sharedSecret = (stackalloc byte[32]);
+        CryptoScalarMult(localPrivateKey, remotePublicKey, sharedSecret);
 
-        var beforeNmData = (stackalloc byte[32]);
-        HChaCha20(sharedSecretData, (stackalloc byte[16]), beforeNmData);
+        var beforeNm = (stackalloc byte[32]);
+        HChaCha20(sharedSecret, (stackalloc byte[16]), beforeNm);
 
-        var subKeyData = (stackalloc byte[32]);
-        HChaCha20(beforeNmData, nonce24Data[..16], subKeyData);
+        var subKey = (stackalloc byte[32]);
+        HChaCha20(beforeNm, nonce24[..16], subKey);
 
-        var polyKeyData = (stackalloc byte[32]);
+        var polyKey = (stackalloc byte[32]);
         var keyStreamBlockSpan = (stackalloc byte[64]);
-        ChaCha20Block(subKeyData, 0, nonce24Data.Slice(16, 8), keyStreamBlockSpan);
-        keyStreamBlockSpan[..32].CopyTo(polyKeyData);
+        ChaCha20Block(subKey, 0, nonce24.Slice(16, 8), keyStreamBlockSpan);
+        keyStreamBlockSpan[..32].CopyTo(polyKey);
 
-        var expectedMessageAuthenticationCodeData = (stackalloc byte[16]);
-        Poly1305(encryptedPayloadData, polyKeyData, expectedMessageAuthenticationCodeData);
+        var expectedMessageAuthenticationCode = (stackalloc byte[16]);
+        Poly1305(encryptedPayload, polyKey, expectedMessageAuthenticationCode);
 
-        if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCodeData, messageAuthenticationCodeData))
+        if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCode, messageAuthenticationCode))
             throw new ArgumentException("MAC verification failed");
 
-        var fullDecryptedDataArray = new byte[encryptedPayloadData.Length];
-        ChaCha20XorPadded(subKeyData, nonce24Data.Slice(16, 8), encryptedPayloadData, fullDecryptedDataArray, (stackalloc byte[32]));
+        var fullDecrypted = new byte[encryptedPayload.Length];
+        ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), encryptedPayload, fullDecrypted, (stackalloc byte[32]));
 
-        return fullDecryptedDataArray;
+        return fullDecrypted;
     }
 
-    public static byte[] SecretBox(ReadOnlySpan<byte> plainTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
+    public static byte[] SecretBox(ReadOnlySpan<byte> plaintext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> key)
     {
-        var subKeyData = (stackalloc byte[32]);
-        HChaCha20(keyData, nonce24Data[..16], subKeyData);
+        var subKey = (stackalloc byte[32]);
+        HChaCha20(key, nonce24[..16], subKey);
 
-        var finalResultDataArray = new byte[16 + plainTextData.Length];
-        var messageAuthenticationCodeData = finalResultDataArray.AsSpan(0, 16);
-        var encryptedPayloadData = finalResultDataArray.AsSpan(16);
-        var polyKeyData = (stackalloc byte[32]);
+        var finalResult = new byte[16 + plaintext.Length];
+        var messageAuthenticationCode = finalResult.AsSpan(0, 16);
+        var encryptedPayload = finalResult.AsSpan(16);
+        var polyKey = (stackalloc byte[32]);
 
-        ChaCha20XorPadded(subKeyData, nonce24Data.Slice(16, 8), plainTextData, encryptedPayloadData, polyKeyData);
-        Poly1305(encryptedPayloadData, polyKeyData, messageAuthenticationCodeData);
+        ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), plaintext, encryptedPayload, polyKey);
+        Poly1305(encryptedPayload, polyKey, messageAuthenticationCode);
 
-        return finalResultDataArray;
+        return finalResult;
     }
 
-    public static byte[] SecretBoxOpen(ReadOnlySpan<byte> cipherTextData, ReadOnlySpan<byte> nonce24Data, ReadOnlySpan<byte> keyData)
+    public static byte[] SecretBoxOpen(ReadOnlySpan<byte> ciphertext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> key)
     {
-        var messageAuthenticationCodeData = cipherTextData[..16];
-        var encryptedPayloadData = cipherTextData[16..];
+        var messageAuthenticationCode = ciphertext[..16];
+        var encryptedPayload = ciphertext[16..];
 
-        var subKeyData = (stackalloc byte[32]);
-        HChaCha20(keyData, nonce24Data[..16], subKeyData);
+        var subKey = (stackalloc byte[32]);
+        HChaCha20(key, nonce24[..16], subKey);
 
-        var polyKeyData = (stackalloc byte[32]);
+        var polyKey = (stackalloc byte[32]);
         var keyStreamBlockSpan = (stackalloc byte[64]);
-        ChaCha20Block(subKeyData, 0, nonce24Data.Slice(16, 8), keyStreamBlockSpan);
-        keyStreamBlockSpan[..32].CopyTo(polyKeyData);
+        ChaCha20Block(subKey, 0, nonce24.Slice(16, 8), keyStreamBlockSpan);
+        keyStreamBlockSpan[..32].CopyTo(polyKey);
 
-        var expectedMessageAuthenticationCodeData = (stackalloc byte[16]);
-        Poly1305(encryptedPayloadData, polyKeyData, expectedMessageAuthenticationCodeData);
+        var expectedMessageAuthenticationCode = (stackalloc byte[16]);
+        Poly1305(encryptedPayload, polyKey, expectedMessageAuthenticationCode);
 
-        if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCodeData, messageAuthenticationCodeData))
+        if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCode, messageAuthenticationCode))
             throw new ArgumentException("MAC verification failed");
 
-        var fullDecryptedDataArray = new byte[encryptedPayloadData.Length];
-        ChaCha20XorPadded(subKeyData, nonce24Data.Slice(16, 8), encryptedPayloadData, fullDecryptedDataArray, (stackalloc byte[32]));
+        var fullDecrypted = new byte[encryptedPayload.Length];
+        ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), encryptedPayload, fullDecrypted, (stackalloc byte[32]));
 
-        return fullDecryptedDataArray;
+        return fullDecrypted;
     }
 
-    private static void QuarterRound(Span<uint> stateSpan, int indexA, int indexB, int indexC, int indexD)
+    private static void QuarterRound(Span<uint> span, int indexA, int indexB, int indexC, int indexD)
     {
-        stateSpan[indexA] = unchecked(stateSpan[indexA] + stateSpan[indexB]);
-        stateSpan[indexD] ^= stateSpan[indexA];
-        stateSpan[indexD] = BitOperations.RotateLeft(stateSpan[indexD], 16);
+        span[indexA] = unchecked(span[indexA] + span[indexB]);
+        span[indexD] ^= span[indexA];
+        span[indexD] = BitOperations.RotateLeft(span[indexD], 16);
 
-        stateSpan[indexC] = unchecked(stateSpan[indexC] + stateSpan[indexD]);
-        stateSpan[indexB] ^= stateSpan[indexC];
-        stateSpan[indexB] = BitOperations.RotateLeft(stateSpan[indexB], 12);
+        span[indexC] = unchecked(span[indexC] + span[indexD]);
+        span[indexB] ^= span[indexC];
+        span[indexB] = BitOperations.RotateLeft(span[indexB], 12);
 
-        stateSpan[indexA] = unchecked(stateSpan[indexA] + stateSpan[indexB]);
-        stateSpan[indexD] ^= stateSpan[indexA];
-        stateSpan[indexD] = BitOperations.RotateLeft(stateSpan[indexD], 8);
+        span[indexA] = unchecked(span[indexA] + span[indexB]);
+        span[indexD] ^= span[indexA];
+        span[indexD] = BitOperations.RotateLeft(span[indexD], 8);
 
-        stateSpan[indexC] = unchecked(stateSpan[indexC] + stateSpan[indexD]);
-        stateSpan[indexB] ^= stateSpan[indexC];
-        stateSpan[indexB] = BitOperations.RotateLeft(stateSpan[indexB], 7);
+        span[indexC] = unchecked(span[indexC] + span[indexD]);
+        span[indexB] ^= span[indexC];
+        span[indexB] = BitOperations.RotateLeft(span[indexB], 7);
     }
 
-    private static void DoubleRounds(Span<uint> stateSpan, int iterationsCount)
+    private static void DoubleRounds(Span<uint> span, int iterationsCount)
     {
         for (var currentIteration = 0; currentIteration < iterationsCount; currentIteration++)
         {
-            QuarterRound(stateSpan, 0, 4, 8, 12);
-            QuarterRound(stateSpan, 1, 5, 9, 13);
-            QuarterRound(stateSpan, 2, 6, 10, 14);
-            QuarterRound(stateSpan, 3, 7, 11, 15);
+            QuarterRound(span, 0, 4, 8, 12);
+            QuarterRound(span, 1, 5, 9, 13);
+            QuarterRound(span, 2, 6, 10, 14);
+            QuarterRound(span, 3, 7, 11, 15);
 
-            QuarterRound(stateSpan, 0, 5, 10, 15);
-            QuarterRound(stateSpan, 1, 6, 11, 12);
-            QuarterRound(stateSpan, 2, 7, 8, 13);
-            QuarterRound(stateSpan, 3, 4, 9, 14);
+            QuarterRound(span, 0, 5, 10, 15);
+            QuarterRound(span, 1, 6, 11, 12);
+            QuarterRound(span, 2, 7, 8, 13);
+            QuarterRound(span, 3, 4, 9, 14);
         }
     }
 
-    private static void HChaCha20(ReadOnlySpan<byte> keyData, ReadOnlySpan<byte> nonce16Data, Span<byte> resultData)
+    private static void HChaCha20(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce16, Span<byte> result)
     {
         var stateSpan = (stackalloc uint[16]);
         SigmaConstants.CopyTo(stateSpan[..4]);
 
         for (var keyIndex = 0; keyIndex < 8; keyIndex++)
-            stateSpan[4 + keyIndex] = BinaryPrimitives.ReadUInt32LittleEndian(keyData.Slice(keyIndex * 4, 4));
+            stateSpan[4 + keyIndex] = BinaryPrimitives.ReadUInt32LittleEndian(key.Slice(keyIndex * 4, 4));
 
         for (var nonceIndex = 0; nonceIndex < 4; nonceIndex++)
-            stateSpan[12 + nonceIndex] = BinaryPrimitives.ReadUInt32LittleEndian(nonce16Data.Slice(nonceIndex * 4, 4));
+            stateSpan[12 + nonceIndex] = BinaryPrimitives.ReadUInt32LittleEndian(nonce16.Slice(nonceIndex * 4, 4));
 
         DoubleRounds(stateSpan, HChaChaIterationsCount);
 
         for (var resultIndex = 0; resultIndex < 4; resultIndex++)
-            BinaryPrimitives.WriteUInt32LittleEndian(resultData.Slice(resultIndex * 4, 4), stateSpan[resultIndex]);
+            BinaryPrimitives.WriteUInt32LittleEndian(result.Slice(resultIndex * 4, 4), stateSpan[resultIndex]);
 
         for (var resultIndex = 0; resultIndex < 4; resultIndex++)
-            BinaryPrimitives.WriteUInt32LittleEndian(resultData.Slice(16 + resultIndex * 4, 4), stateSpan[12 + resultIndex]);
+            BinaryPrimitives.WriteUInt32LittleEndian(result.Slice(16 + resultIndex * 4, 4), stateSpan[12 + resultIndex]);
     }
 
-    private static void ChaCha20Block(ReadOnlySpan<byte> keyData, long counterValue, ReadOnlySpan<byte> nonce8Data, Span<byte> outputBlockSpan)
+    private static void ChaCha20Block(ReadOnlySpan<byte> key, long counterValue, ReadOnlySpan<byte> nonce8, Span<byte> output)
     {
         var initialStateSpan = (stackalloc uint[16]);
         SigmaConstants.CopyTo(initialStateSpan[..4]);
 
         for (var keyIndex = 0; keyIndex < 8; keyIndex++)
-            initialStateSpan[4 + keyIndex] = BinaryPrimitives.ReadUInt32LittleEndian(keyData.Slice(keyIndex * 4, 4));
+            initialStateSpan[4 + keyIndex] = BinaryPrimitives.ReadUInt32LittleEndian(key.Slice(keyIndex * 4, 4));
 
         initialStateSpan[12] = (uint)(counterValue & 0xFFFFFFFF);
         initialStateSpan[13] = (uint)((counterValue >> 32) & 0xFFFFFFFF);
 
         for (var nonceIndex = 0; nonceIndex < 2; nonceIndex++)
-            initialStateSpan[14 + nonceIndex] = BinaryPrimitives.ReadUInt32LittleEndian(nonce8Data.Slice(nonceIndex * 4, 4));
+            initialStateSpan[14 + nonceIndex] = BinaryPrimitives.ReadUInt32LittleEndian(nonce8.Slice(nonceIndex * 4, 4));
 
         var workingStateSpan = (stackalloc uint[16]);
         initialStateSpan.CopyTo(workingStateSpan);
@@ -202,75 +202,75 @@ public static class NaClV3Crypto
         for (var blockIndex = 0; blockIndex < 16; blockIndex++)
         {
             BinaryPrimitives.WriteUInt32LittleEndian(
-                outputBlockSpan.Slice(blockIndex * 4, 4),
+                output.Slice(blockIndex * 4, 4),
                 unchecked(workingStateSpan[blockIndex] + initialStateSpan[blockIndex])
             );
         }
     }
 
-    private static void ChaCha20XorPadded(ReadOnlySpan<byte> keyData, ReadOnlySpan<byte> nonce8Data, ReadOnlySpan<byte> inputData, Span<byte> outputData, Span<byte> polyKeyData)
+    private static void ChaCha20XorPadded(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce8, ReadOnlySpan<byte> input, Span<byte> output, Span<byte> polyKey)
     {
         var keyStreamBlockSpan = (stackalloc byte[64]);
-        ChaCha20Block(keyData, 0, nonce8Data, keyStreamBlockSpan);
+        ChaCha20Block(key, 0, nonce8, keyStreamBlockSpan);
 
-        keyStreamBlockSpan[..32].CopyTo(polyKeyData);
+        keyStreamBlockSpan[..32].CopyTo(polyKey);
 
         var inputOffsetIndex = 0;
-        var bytesToProcessCount = Math.Min(32, inputData.Length);
+        var bytesToProcessCount = Math.Min(32, input.Length);
 
         for (var byteIndex = 0; byteIndex < bytesToProcessCount; byteIndex++)
-            outputData[byteIndex] = (byte)(inputData[byteIndex] ^ keyStreamBlockSpan[32 + byteIndex]);
+            output[byteIndex] = (byte)(input[byteIndex] ^ keyStreamBlockSpan[32 + byteIndex]);
 
         inputOffsetIndex += bytesToProcessCount;
         var currentBlockIndex = 1L;
 
-        while (inputOffsetIndex < inputData.Length)
+        while (inputOffsetIndex < input.Length)
         {
-            ChaCha20Block(keyData, currentBlockIndex, nonce8Data, keyStreamBlockSpan);
-            bytesToProcessCount = Math.Min(64, inputData.Length - inputOffsetIndex);
+            ChaCha20Block(key, currentBlockIndex, nonce8, keyStreamBlockSpan);
+            bytesToProcessCount = Math.Min(64, input.Length - inputOffsetIndex);
 
             for (var byteIndex = 0; byteIndex < bytesToProcessCount; byteIndex++)
-                outputData[inputOffsetIndex + byteIndex] = (byte)(inputData[inputOffsetIndex + byteIndex] ^ keyStreamBlockSpan[byteIndex]);
+                output[inputOffsetIndex + byteIndex] = (byte)(input[inputOffsetIndex + byteIndex] ^ keyStreamBlockSpan[byteIndex]);
 
             inputOffsetIndex += bytesToProcessCount;
             currentBlockIndex++;
         }
     }
 
-    private static void Poly1305(ReadOnlySpan<byte> messageData, ReadOnlySpan<byte> keyData, Span<byte> macResultData)
+    private static void Poly1305(ReadOnlySpan<byte> message, ReadOnlySpan<byte> key, Span<byte> macResult)
     {
-        var clampedKeyBigInt = new BigInteger(keyData[..16], isUnsigned: true, isBigEndian: false) & Poly1305ClampConstant;
-        var secretStateBigInt = new BigInteger(keyData.Slice(16, 16), isUnsigned: true, isBigEndian: false);
+        var clampedKeyBigInt = new BigInteger(key[..16], isUnsigned: true, isBigEndian: false) & Poly1305ClampConstant;
+        var secretStateBigInt = new BigInteger(key.Slice(16, 16), isUnsigned: true, isBigEndian: false);
         var accumulatorBigInt = BigInteger.Zero;
 
-        for (var chunkStartIndex = 0; chunkStartIndex < messageData.Length; chunkStartIndex += 16)
+        for (var chunkStartIndex = 0; chunkStartIndex < message.Length; chunkStartIndex += 16)
         {
-            var currentChunkLength = Math.Min(16, messageData.Length - chunkStartIndex);
-            var chunkValueBigInt = new BigInteger(messageData.Slice(chunkStartIndex, currentChunkLength), isUnsigned: true, isBigEndian: false) + (BigInteger.One << (8 * currentChunkLength));
+            var currentChunkLength = Math.Min(16, message.Length - chunkStartIndex);
+            var chunkValueBigInt = new BigInteger(message.Slice(chunkStartIndex, currentChunkLength), isUnsigned: true, isBigEndian: false) + (BigInteger.One << (8 * currentChunkLength));
 
             accumulatorBigInt = ((accumulatorBigInt + chunkValueBigInt) * clampedKeyBigInt) % Poly1305PrimeModulus;
         }
 
         var finalCalculatedMac = (accumulatorBigInt + secretStateBigInt) & ((BigInteger.One << 128) - 1);
 
-        macResultData.Clear();
-        finalCalculatedMac.TryWriteBytes(macResultData, out _, isUnsigned: true, isBigEndian: false);
+        macResult.Clear();
+        finalCalculatedMac.TryWriteBytes(macResult, out _, isUnsigned: true, isBigEndian: false);
     }
 
-    private static void CryptoScalarMult(ReadOnlySpan<byte> clientSecretKeyData, ReadOnlySpan<byte> serverPublicKeyData, Span<byte> resultData)
+    private static void CryptoScalarMult(ReadOnlySpan<byte> localPrivateKey, ReadOnlySpan<byte> remotePublicKey, Span<byte> result)
     {
-        var clampedSecretKeyData = (stackalloc byte[32]);
-        clientSecretKeyData[..32].CopyTo(clampedSecretKeyData);
-        clampedSecretKeyData[0] &= 248;
-        clampedSecretKeyData[31] &= 127;
-        clampedSecretKeyData[31] |= 64;
+        var clampedPrivateKey = (stackalloc byte[32]);
+        localPrivateKey[..32].CopyTo(clampedPrivateKey);
+        clampedPrivateKey[0] &= 248;
+        clampedPrivateKey[31] &= 127;
+        clampedPrivateKey[31] |= 64;
 
-        var scalarValue = new BigInteger(clampedSecretKeyData, isUnsigned: true, isBigEndian: false);
+        var scalarValue = new BigInteger(clampedPrivateKey, isUnsigned: true, isBigEndian: false);
 
-        var clampedPublicKeyData = (stackalloc byte[32]);
-        serverPublicKeyData[..32].CopyTo(clampedPublicKeyData);
-        clampedPublicKeyData[31] &= 127;
-        var baseXCoordinate = new BigInteger(clampedPublicKeyData, isUnsigned: true, isBigEndian: false);
+        var clampedPublicKey = (stackalloc byte[32]);
+        remotePublicKey[..32].CopyTo(clampedPublicKey);
+        clampedPublicKey[31] &= 127;
+        var baseXCoordinate = new BigInteger(clampedPublicKey, isUnsigned: true, isBigEndian: false);
 
         var xCoordinate2 = BigInteger.One;
         var zCoordinate2 = BigInteger.Zero;
@@ -323,12 +323,12 @@ public static class NaClV3Crypto
         var zCoordinate2Inverse = BigInteger.ModPow(zCoordinate2, Curve25519PrimeModulus - 2, Curve25519PrimeModulus);
         var finalXCoordinate = Modulo(xCoordinate2 * zCoordinate2Inverse, Curve25519PrimeModulus);
 
-        finalXCoordinate.TryWriteBytes(resultData, out _, isUnsigned: true, isBigEndian: false);
+        finalXCoordinate.TryWriteBytes(result, out _, isUnsigned: true, isBigEndian: false);
     }
 
-    private static BigInteger Modulo(BigInteger valueData, BigInteger modulusData)
+    private static BigInteger Modulo(BigInteger value, BigInteger modulus)
     {
-        var remainderData = valueData % modulusData;
-        return remainderData.Sign < 0 ? remainderData + modulusData : remainderData;
+        var remainder = value % modulus;
+        return remainder.Sign < 0 ? remainder + modulus : remainder;
     }
 }
