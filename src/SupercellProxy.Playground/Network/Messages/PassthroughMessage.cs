@@ -1,5 +1,4 @@
 ﻿using SupercellProxy.Playground.Network.Streams;
-using System.Text;
 
 namespace SupercellProxy.Playground.Network.Messages;
 
@@ -32,20 +31,14 @@ public record PassthroughMessage : IMessage
 
     public override string ToString()
     {
-        var stringBuilder = new StringBuilder();
+        var maximumDataLength = 20;
+        var actualDataLength = Data.Length;
+        var lengthToConvert = Math.Min(actualDataLength, maximumDataLength);
 
-        stringBuilder.Append(nameof(PassthroughMessage));
-        stringBuilder.Append(" { ");
-        stringBuilder.Append("Id = ").Append(Id).Append(", ");
-        stringBuilder.Append("Version = ").Append(Version).Append(", ");
-        stringBuilder.Append("DataLength = ").Append(Data.Length).Append(", ");
-        stringBuilder.Append("Data = ").Append(Convert.ToHexString(Data.Span[..Math.Min(Data.Length, 20)]));
+        var hexDataString = Convert.ToHexString(Data.Span[..lengthToConvert]);
+        var truncationSuffix = actualDataLength > maximumDataLength ? "..." : string.Empty;
+        var hintSuffix = string.IsNullOrWhiteSpace(Hint) ? string.Empty : $", Hint = {Hint}";
 
-        if (!string.IsNullOrWhiteSpace(Hint))
-            stringBuilder.Append(", ").Append("Hint = ").Append(Hint);
-
-        stringBuilder.Append(" }");
-
-        return stringBuilder.ToString();
+        return $"{nameof(PassthroughMessage)} {{ Id = {Id}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix}{hintSuffix} }}";
     }
 }
