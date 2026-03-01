@@ -4,6 +4,8 @@ namespace SupercellProxy.Playground.Supercell;
 
 public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<AccountId>
 {
+    public static readonly AccountId Empty = default;
+
     private static ReadOnlySpan<char> ValidAlphabet => "0289PYLQGRJCUV";
 
     public int HighInt32 => highInt32;

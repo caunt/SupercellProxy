@@ -1,6 +1,7 @@
 using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
+using SupercellProxy.Playground.Supercell;
 using System.Text.Json.Nodes;
 
 namespace SupercellProxy.Playground.Network.Sides;
@@ -104,7 +105,7 @@ public partial class Client(ClientConfiguration configuration) : IAsyncDisposabl
 
             await stream.WriteMessageAsync(new LoginMessage
             {
-                AccountId = 0,
+                AccountId = AccountId.Empty,
                 PassToken = null,
                 ResourceSha = fingerprintSha1,
                 LoginVersion = 1119325,
