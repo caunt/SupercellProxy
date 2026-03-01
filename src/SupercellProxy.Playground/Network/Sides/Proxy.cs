@@ -195,6 +195,10 @@ public class Proxy(ProxyConfiguration configuration)
             else
                 await serverboundPumpTask;
         }
+        catch (EndOfStreamException exception)
+        {
+            Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
+        }
         catch (Exception exception)
         {
             Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception}");
