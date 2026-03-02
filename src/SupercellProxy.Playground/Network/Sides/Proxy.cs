@@ -1,7 +1,9 @@
+using SupercellProxy.Playground.Extensions;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 using System.Net;
 using System.Net.Sockets;
 
@@ -44,28 +46,28 @@ def execute_patch():
         for currentLine in mapsFile:
             lineParts = currentLine.split()
             if len(lineParts) < 2 or "r" not in lineParts[1]:
-            continue
+                continue
 
             startString, endString = lineParts[0].split("-")
             currentAddress = int(startString, 16)
             regionEnd = int(endString, 16)
 
             while currentAddress < regionEnd:
-            try:
+                try:
                     memoryFile.seek(currentAddress)
                     memoryData = memoryFile.read(min(0x4000, regionEnd - currentAddress))
-            except IOError:
-                break
+                except IOError:
+                    break
 
                 if not memoryData or len(memoryData) <= overlapSize:
-                break
+                    break
 
                 matchIndex = memoryData.find(anchorBytes)
                 if matchIndex != -1:
                     patchAddress = currentAddress + matchIndex - len(replacementBytes)
-
+                    
                     for retryAttempt in range(5):
-                try:
+                        try:
                             memoryFile.seek(patchAddress)
                             memoryFile.write(replacementBytes)
                             memoryFile.flush()
@@ -95,12 +97,25 @@ public class Proxy(ProxyConfiguration configuration)
     {
         var listener = new TcpListener(IPAddress.Parse(configuration.ListenAddress), configuration.ListenPort);
         listener.Start();
+
         Console.WriteLine($"[{DateTime.Now:T}] Listening on {configuration.ListenAddress}:{configuration.ListenPort}, upstream {configuration.UpstreamHost}:{configuration.UpstreamPort}");
 
         while (!cancellationToken.IsCancellationRequested)
         {
             var client = await listener.AcceptTcpClientAsync(cancellationToken);
-            _ = HandleClientAsync(client, configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
+            _ = Task.Run(async () =>
+            {
+                var clientState = await HandleClientAsync(client, configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
+                var completionTask = clientState.CompletionTask;
+
+                if (!AccountId.TryParse("#Q2V0U29JQ", out var accountId))
+                    return;
+
+                while (!completionTask.IsCompleted)
+                    await clientState.VisitHomeAsync(accountId, cancellationToken);
+
+                await completionTask;
+            }, cancellationToken);
         }
     }
 
@@ -108,27 +123,22 @@ public class Proxy(ProxyConfiguration configuration)
     {
         switch (message)
         {
-            case ClientHelloMessage clientHelloMessage:
-                Console.WriteLine($"[{DateTime.Now:T}] {clientHelloMessage}");
-                return false;
             case ServerHelloMessage serverHelloMessage:
-                Console.WriteLine($"[{DateTime.Now:T}] {serverHelloMessage}");
                 await source.SetupEncryptionAsync(Side.Server, serverHelloMessage.SessionKey, cancellationToken);
-                return false;
-            case LoginMessage loginMessage:
-                Console.WriteLine($"[{DateTime.Now:T}] {loginMessage}");
-                return false;
+                break;
             case PassthroughMessage passthroughMessage:
-                Console.WriteLine($"[{DateTime.Now:T}] {direction} => {passthroughMessage}");
                 var fileName = $"packet_{passthroughMessage.Id}.bin";
 
                 if (!File.Exists(fileName))
                     await File.WriteAllBytesAsync(fileName, passthroughMessage.Data, cancellationToken);
 
-                return false;
+                break;
         }
 
-        Console.WriteLine($"[{DateTime.Now:T}] {direction} => {message}");
+        if (message is PassthroughMessage)
+            Console.WriteLine($"[{DateTime.Now:T}] {direction} {message}");
+        else
+            Console.WriteLine($"[{DateTime.Now:T}] {message}");
 
         return false;
     }
@@ -169,38 +179,83 @@ public class Proxy(ProxyConfiguration configuration)
         }
     }
 
-    private static async Task HandleClientAsync(TcpClient client, string upstreamHost, int upstreamPort, CancellationToken cancellationToken = default)
+    private static async Task<ClientState> HandleClientAsync(TcpClient client, string upstreamHost, int upstreamPort, CancellationToken cancellationToken = default)
     {
-        using var clientConn = client;
-        var remote = clientConn.Client.RemoteEndPoint?.ToString() ?? "client";
-        Console.WriteLine($"[{DateTime.Now:T}] Incoming connection from {remote}");
+        Console.WriteLine($"[{DateTime.Now:T}] Incoming connection from {client.RemoteEndPoint}");
 
-        using var upstream = new TcpClient();
+        var upstream = new TcpClient();
         await upstream.ConnectAsync(upstreamHost, upstreamPort, cancellationToken);
 
-        await using var serverboundStream = new SupercellStream(clientConn.GetStream());
-        await using var clientboundStream = new SupercellStream(upstream.GetStream());
+        var serverboundStream = new SupercellStream(client.GetStream());
+        var clientboundStream = new SupercellStream(upstream.GetStream());
 
-        try
+        var serverboundPumpTask = PumpAsync(serverboundStream, clientboundStream, Direction.Serverbound, cancellationToken);
+        var clientboundPumpTask = PumpAsync(clientboundStream, serverboundStream, Direction.Clientbound, cancellationToken);
+
+        return new ClientState(client, upstream, serverboundPumpTask, clientboundPumpTask, serverboundStream, clientboundStream);
+    }
+
+    private record ClientState(TcpClient TcpClient, TcpClient TcpUpstream, Task ServerboundPumpTask, Task ClientboundPumpTask, SupercellStream ServerboundStream, SupercellStream ClientboundStream) : IAsyncDisposable
+    {
+        public string RemoteEndPoint { get; } = TcpClient.RemoteEndPoint;
+        public Task CompletionTask { get; init; } = Task.Run(async () =>
         {
-            var serverboundPumpTask = PumpAsync(serverboundStream, clientboundStream, Direction.Serverbound, cancellationToken);
-            var clientboundPumpTask = PumpAsync(clientboundStream, serverboundStream, Direction.Clientbound, cancellationToken);
+            var remoteEndPoint = TcpClient.RemoteEndPoint;
 
-            var completedTask = await Task.WhenAny(serverboundPumpTask, clientboundPumpTask);
-            await completedTask; // propagate exceptions
+            try
+            {
+                var completedTask = await Task.WhenAny(ServerboundPumpTask, ClientboundPumpTask);
+                await completedTask;
 
-            if (completedTask == serverboundPumpTask)
-                await clientboundPumpTask;
-            else
-                await serverboundPumpTask;
+                if (completedTask == ServerboundPumpTask)
+                    await ClientboundPumpTask;
+                else
+                    await ServerboundPumpTask;
+            }
+            catch (EndOfStreamException exception)
+            {
+                Console.WriteLine($"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}");
+            }
+        });
+
+        public async ValueTask VisitHomeAsync(AccountId accountId, CancellationToken cancellationToken = default)
+        {
+            Console.WriteLine($"[{DateTime.Now:T}] Visiting {accountId} home...");
+
+            await ServerboundStream.WriteMessageAsync(new VisitHome
+            {
+                Unknown0 = 0x01,
+                Unknown1 = 0x02
+            }, cancellationToken);
+
+            // await serverboundStream.WriteMessageAsync(new PassthroughMessage
+            // {
+            //     Id = 14484,
+            //     Version = 5213,
+            //     Data = Convert.FromHexString("00000000")
+            // }, cancellationToken);
+
+            await Task.Delay(10_000, cancellationToken);
         }
-        catch (EndOfStreamException exception)
+
+        public async ValueTask DisposeAsync()
         {
-            Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception.Message}");
+            await ServerboundStream.DisposeAsync();
+            await ClientboundStream.DisposeAsync();
+
+            TcpClient.Dispose();
+            TcpUpstream.Dispose();
+
+            await CompletionTask;
         }
-        catch (Exception exception)
+
+        public override string ToString()
         {
-            Console.WriteLine($"[{DateTime.Now:T}] {remote} closed: {exception}");
+            return RemoteEndPoint;
         }
     }
 }
