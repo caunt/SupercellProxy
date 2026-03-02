@@ -1,4 +1,5 @@
-﻿using SupercellProxy.Playground.Events;
+﻿using SupercellProxy.Playground.Crypto.Exceptions;
+using SupercellProxy.Playground.Events;
 using SupercellProxy.Playground.Events.Bus;
 using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Extensions;
@@ -13,6 +14,8 @@ namespace SupercellProxy.Playground.Network.Sides.Proxy;
 
 public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, SupercellStream ClientStream, SupercellStream ServerStream, EventBus EventBus, CancellationTokenSource CancellationTokenSource) : IAsyncDisposable
 {
+    private bool _suppressEndClientTurns = false;
+
     public string RemoteEndPoint { get; } = TcpClient.RemoteEndPoint;
     public Task CompletionTask { get; init; } = Task.Run(async () =>
     {
@@ -25,6 +28,10 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
         try
         {
             await completedTask;
+        }
+        catch (MacVerificationException exception) when (exception.IsPublicKeyBox)
+        {
+            Console.WriteLine($"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key");
         }
         catch (StreamClosedException exception)
         {
@@ -97,18 +104,19 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
         await EventBus.SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedEvent, cancellationToken);
         await EventBus.SubscribeAsync<MessageSentEvent>(OnMessageSentEvent, cancellationToken);
 
+        await Task.Delay(15_000, cancellationToken);
+
         try
         {
             var accountId = AccountId.Parse("#Q2V0U29JQ");
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(15_000, cancellationToken);
-
                 Console.WriteLine($"[{DateTime.Now:T}] Visiting {accountId} home...");
                 var otherHomeDataMessage = await VisitHomeAsync(accountId, cancellationToken);
 
-                Console.WriteLine($"[{DateTime.Now:T}] Received {otherHomeDataMessage} for {accountId}");
+                await Task.Delay(1_000, cancellationToken);
+                accountId--;
             }
         }
         finally
@@ -120,45 +128,47 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
 
     public async ValueTask<OtherHomeDataMessage> VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
     {
-        await WriteMessageAsync(new VisitHomeMessage
+        _suppressEndClientTurns = true;
+
+        try
         {
-            Unknown0 = 0x01,
-            Unknown1 = 0x02
-        }, Direction.Serverbound, cancellationToken);
+            await WriteMessageAsync(new VisitHomeMessage
+            {
+                Unknown0 = 0x01,
+                Unknown1 = 0x02
+            }, Direction.Serverbound, cancellationToken);
 
-        // await WriteMessageAsync(new EndClientTurnMessage
-        // {
-        // 
-        // }, Direction.Serverbound, cancellationToken);
+            await WriteMessageAsync(new VisitHomeTargetMessage
+            {
+                Unknown0 = 0x00,
+                Target = target
+            }, Direction.Serverbound, cancellationToken);
 
-        await WriteMessageAsync(new VisitHomeTargetMessage
+            var otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(timeout: TimeSpan.FromSeconds(15), cancellationToken);
+
+            do
+            {
+                try
+                {
+                    var endClientTurnMessage = await ExpectMessageAsync<EndClientTurnMessage>(timeout: TimeSpan.FromSeconds(3), cancellationToken);
+
+                    if (endClientTurnMessage.SubTick is 0)
+                        break;
+                }
+                catch (TimeoutException)
+                {
+                    break;
+                }
+
+            }
+            while (!cancellationToken.IsCancellationRequested);
+
+            return otherHomeDataMessage;
+        }
+        finally
         {
-            Unknown0 = 0x00,
-            Target = target
-        }, Direction.Serverbound, cancellationToken);
-
-        // await WriteMessageAsync(new PassthroughMessage
-        // {
-        //     Id = 38000,
-        //     Version = 5213,
-        //     Data = new byte[231]
-        // }, Direction.Serverbound, cancellationToken);
-        // 
-        // using var memoryStream = new MemoryStream();
-        // using var payloadStream = new SupercellStream(memoryStream);
-        // 
-        // payloadStream.WriteInt32(2);
-        // using (var gzipStream = new GZipStream(memoryStream, CompressionLevel.Optimal, leaveOpen: true))
-        //     gzipStream.Write("{}"u8);
-        // 
-        // await WriteMessageAsync(new PassthroughMessage
-        // {
-        //     Id = 17339,
-        //     Version = 5213,
-        //     Data = memoryStream.ToArray()
-        // }, Direction.Serverbound, cancellationToken);
-
-        return await ExpectMessageAsync<OtherHomeDataMessage>(TimeSpan.FromSeconds(15), cancellationToken);
+            _suppressEndClientTurns = false;
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -198,6 +208,9 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
             case VisitHomeTargetMessage visitHomeTargetMessage when visitHomeTargetMessage.Target == AccountId.Empty:
                 @event.IsCancelled = true;
                 break;
+            case EndClientTurnMessage when _suppressEndClientTurns:
+                @event.IsCancelled = true;
+                break;
             case PassthroughMessage passthroughMessage:
                 var fileName = $"packet_{passthroughMessage.Id}.bin";
 
@@ -235,7 +248,15 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
     {
         using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         linkedCancellationTokenSource.CancelAfter(timeout);
-        return await ExpectMessageAsync<TMessage>(linkedCancellationTokenSource.Token);
+
+        try
+        {
+            return await ExpectMessageAsync<TMessage>(linkedCancellationTokenSource.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            throw new TimeoutException($"Expected message of type {typeof(TMessage)} was not received within the timeout period of {timeout}");
+        }
     }
 
     private async Task<TMessage> ExpectMessageAsync<TMessage>(CancellationToken cancellationToken = default) where TMessage : class, IMessage
