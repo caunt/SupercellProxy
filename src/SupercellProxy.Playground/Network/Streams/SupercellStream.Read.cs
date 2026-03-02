@@ -193,28 +193,25 @@ public partial class SupercellStream
         return Encoding.UTF8.GetString(memory.Span);
     }
 
-    public int ReadVarInt()
+    public long ReadVarInt64()
     {
         var firstByte = ReadByte();
         var isNegative = (firstByte & 0x40) != 0;
-        var accumulator = firstByte & 0x3FL;
-        var consumedBitWidth = 6;
+        var result = (long)(firstByte & 0x3F);
+        var offset = 6;
 
         var currentByte = firstByte;
-        while ((currentByte & 0x80) != 0 && consumedBitWidth < 64)
+        while ((currentByte & 0x80) != 0)
         {
             currentByte = ReadByte();
-            accumulator |= (long)(currentByte & 0x7F) << consumedBitWidth;
-            consumedBitWidth += 7;
+            result |= (long)(currentByte & 0x7F) << offset;
+            offset += 7;
         }
 
         if (!isNegative)
-            return (int)accumulator;
+            return result;
 
-        var twoComplementBase = 1L << consumedBitWidth;
-        accumulator -= twoComplementBase;
-
-        return (int)accumulator;
+        return result | (-1L << offset);
     }
 
     public AccountId ReadAccountId()

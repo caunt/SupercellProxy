@@ -40,8 +40,18 @@ public static class MessageRegistry
 
         [14484] = new Entry(
             Version: 5213,
-            Type: typeof(VisitHome),
-            Factory: VisitHome.Create),
+            Type: typeof(VisitHomeMessage),
+            Factory: VisitHomeMessage.Create),
+
+        [18671] = new Entry(
+            Version: 5213,
+            Type: typeof(VisitHomeTargetMessage),
+            Factory: VisitHomeTargetMessage.Create),
+
+        [19132] = new Entry(
+            Version: 5213,
+            Type: typeof(EndClientTurnMessage),
+            Factory: EndClientTurnMessage.Create),
 
         [20100] = new Entry(
             Version: 0,

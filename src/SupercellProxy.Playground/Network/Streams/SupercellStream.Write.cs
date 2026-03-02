@@ -209,40 +209,46 @@ public partial class SupercellStream
         await stream.WriteAsync(memory, cancellationToken);
     }
 
-    public void WriteVarInt(int value)
+
+    public void WriteVarInt64(long value)
     {
         FlushWriteBoolean();
 
-        var temp = (value >> 25) & 0x40;
-        var flipped = value ^ (value >> 31);
+        var buffer = (stackalloc byte[10]);
+        var currentIndex = 0;
 
-        temp |= value & 0x3F;
+        var isNegative = value < 0;
+        var firstByte = (byte)(value & 0x3F);
+
+        if (isNegative)
+            firstByte |= 0x40;
+
         value >>= 6;
 
-        var small = (stackalloc byte[5]);
-        var index = 0;
-
-        if ((flipped >>= 6) == 0)
+        if (value == 0 || value == -1)
         {
-            small[index++] = (byte)temp;
-            stream.Write(small[..index]);
-            return;
+            buffer[currentIndex++] = firstByte;
+        }
+        else
+        {
+            buffer[currentIndex++] = (byte)(firstByte | 0x80);
+
+            while (true)
+            {
+                var nextByte = (byte)(value & 0x7F);
+                value >>= 7;
+
+                if (value == 0 || value == -1)
+                {
+                    buffer[currentIndex++] = nextByte;
+                    break;
+                }
+
+                buffer[currentIndex++] = (byte)(nextByte | 0x80);
+            }
         }
 
-        small[index++] = (byte)(temp | 0x80);
-
-        do
-        {
-            var b = (byte)(value & 0x7F);
-            value >>= 7;
-
-            if ((flipped >>= 7) != 0)
-                b |= 0x80;
-
-            small[index++] = b;
-        } while (flipped != 0);
-
-        stream.Write(small[..index]);
+        stream.Write(buffer[..currentIndex]);
     }
 
     public async ValueTask WriteVarIntAsync(int value, CancellationToken cancellationToken = default)

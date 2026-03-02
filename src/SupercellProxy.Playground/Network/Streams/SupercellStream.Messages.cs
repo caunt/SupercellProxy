@@ -1,4 +1,5 @@
 ﻿using Nito.AsyncEx;
+using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Network.Messages;
 using System.Buffers.Binary;
 
@@ -39,44 +40,58 @@ public partial class SupercellStream
     {
         using var disposable = _readLock.Lock();
 
-        var headerSpan = ReadExactly(stackalloc byte[7]);
+        try
+        {
+            var headerSpan = ReadExactly(stackalloc byte[7]);
 
-        var id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
-        var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
-        var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
+            var id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
+            var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
+            var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
 
-        var buffer = new byte[length];
-        _ = ReadExactly(buffer);
+            var buffer = new byte[length];
+            _ = ReadExactly(buffer);
 
-        var memoryStream = new MemoryStream(buffer);
+            var memoryStream = new MemoryStream(buffer);
 
-        if (_encryption is not null)
-            memoryStream = Decrypt(memoryStream);
+            if (_encryption is not null)
+                memoryStream = Decrypt(memoryStream);
 
-        return new MessageContainer(id, version, new SupercellStream(memoryStream));
+            return new MessageContainer(id, version, new SupercellStream(memoryStream));
+        }
+        catch (EndOfStreamException exception)
+        {
+            throw new StreamClosedException(innerException: exception);
+        }
     }
 
     public async ValueTask<MessageContainer> ReadContainerAsync(CancellationToken cancellationToken = default)
     {
         using var disposable = await _readLock.LockAsync(cancellationToken);
 
-        var headerMemory = RentExactly(7);
-        await ReadExactlyAsync(headerMemory, cancellationToken);
+        try
+        {
+            var headerMemory = RentExactly(7);
+            await ReadExactlyAsync(headerMemory, cancellationToken);
 
-        var headerSpan = headerMemory.Span;
-        var id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
-        var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
-        var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
+            var headerSpan = headerMemory.Span;
+            var id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
+            var length = (headerSpan[2] << 16) | (headerSpan[3] << 8) | headerSpan[4];
+            var version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
 
-        var buffer = new byte[length];
-        _ = await ReadExactlyAsync(buffer, cancellationToken);
+            var buffer = new byte[length];
+            _ = await ReadExactlyAsync(buffer, cancellationToken);
 
-        var memoryStream = new MemoryStream(buffer);
+            var memoryStream = new MemoryStream(buffer);
 
-        if (_encryption is not null)
-            memoryStream = Decrypt(memoryStream);
+            if (_encryption is not null)
+                memoryStream = Decrypt(memoryStream);
 
-        return new MessageContainer(id, version, new SupercellStream(memoryStream));
+            return new MessageContainer(id, version, new SupercellStream(memoryStream));
+        }
+        catch (EndOfStreamException exception)
+        {
+            throw new StreamClosedException(innerException: exception);
+        }
     }
 
     public void WriteContainer(MessageContainer messageContainer)
@@ -85,27 +100,34 @@ public partial class SupercellStream
 
         using var disposable = _writeLock.Lock();
 
-        var memoryStream = messageContainer.Payload.GetMemoryStream();
-        memoryStream.Position = 0;
+        try
+        {
+            var memoryStream = messageContainer.Payload.GetMemoryStream();
+            memoryStream.Position = 0;
 
-        if (_encryption is not null)
-            memoryStream = Encrypt(memoryStream);
+            if (_encryption is not null)
+                memoryStream = Encrypt(memoryStream);
 
-        var headerSpan = (stackalloc byte[7]);
+            var headerSpan = (stackalloc byte[7]);
 
-        BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
 
-        var length = memoryStream.Length;
+            var length = memoryStream.Length;
 
-        headerSpan[2] = (byte)(length >> 16);
-        headerSpan[3] = (byte)(length >> 8);
-        headerSpan[4] = (byte)length;
+            headerSpan[2] = (byte)(length >> 16);
+            headerSpan[3] = (byte)(length >> 8);
+            headerSpan[4] = (byte)length;
 
-        BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
 
-        Write(headerSpan);
+            Write(headerSpan);
 
-        memoryStream.CopyTo(stream);
+            memoryStream.CopyTo(stream);
+        }
+        catch (EndOfStreamException exception)
+        {
+            throw new StreamClosedException(innerException: exception);
+        }
     }
 
     public async ValueTask WriteContainerAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
@@ -114,27 +136,34 @@ public partial class SupercellStream
 
         using var disposable = await _writeLock.LockAsync(cancellationToken);
 
-        var memoryStream = messageContainer.Payload.GetMemoryStream();
-        memoryStream.Position = 0;
+        try
+        {
+            var memoryStream = messageContainer.Payload.GetMemoryStream();
+            memoryStream.Position = 0;
 
-        if (_encryption is not null)
-            memoryStream = Encrypt(memoryStream);
+            if (_encryption is not null)
+                memoryStream = Encrypt(memoryStream);
 
-        var headerMemory = RentExactly(7);
-        var headerSpan = headerMemory.Span;
+            var headerMemory = RentExactly(7);
+            var headerSpan = headerMemory.Span;
 
-        BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
 
-        var length = memoryStream.Length;
+            var length = memoryStream.Length;
 
-        headerSpan[2] = (byte)(length >> 16);
-        headerSpan[3] = (byte)(length >> 8);
-        headerSpan[4] = (byte)length;
+            headerSpan[2] = (byte)(length >> 16);
+            headerSpan[3] = (byte)(length >> 8);
+            headerSpan[4] = (byte)length;
 
-        BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
 
-        await WriteAsync(headerMemory, cancellationToken);
+            await WriteAsync(headerMemory, cancellationToken);
 
-        await memoryStream.CopyToAsync(stream, cancellationToken);
+            await memoryStream.CopyToAsync(stream, cancellationToken);
+        }
+        catch (EndOfStreamException exception)
+        {
+            throw new StreamClosedException(innerException: exception);
+        }
     }
 }

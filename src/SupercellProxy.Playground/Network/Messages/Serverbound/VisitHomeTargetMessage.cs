@@ -1,18 +1,19 @@
 ﻿using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
-public record VisitHomeMessage : IMessage
+public record VisitHomeTargetMessage : IMessage
 {
     public required byte Unknown0 { get; init; }
-    public required byte Unknown1 { get; init; }
+    public required AccountId Target { get; init; }
 
-    public static VisitHomeMessage Create(MessageContainer container)
+    public static VisitHomeTargetMessage Create(MessageContainer container)
     {
-        return new VisitHomeMessage
+        return new VisitHomeTargetMessage
         {
             Unknown0 = container.Payload.ReadByte(),
-            Unknown1 = container.Payload.ReadByte()
+            Target = container.Payload.ReadAccountId()
         };
     }
 
@@ -21,7 +22,7 @@ public record VisitHomeMessage : IMessage
         using var supercellStream = SupercellStream.Create();
 
         supercellStream.WriteByte(Unknown0);
-        supercellStream.WriteByte(Unknown1);
+        supercellStream.WriteAccountId(Target);
 
         return new MessageContainer(id, version, supercellStream);
     }

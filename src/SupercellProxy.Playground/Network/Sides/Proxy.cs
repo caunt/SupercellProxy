@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Extensions;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
@@ -105,14 +106,17 @@ public class Proxy(ProxyConfiguration configuration)
             var client = await listener.AcceptTcpClientAsync(cancellationToken);
             _ = Task.Run(async () =>
             {
-                var clientState = await HandleClientAsync(client, configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
+                await using var clientState = await HandleClientAsync(client, configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
                 var completionTask = clientState.CompletionTask;
 
                 if (!AccountId.TryParse("#Q2V0U29JQ", out var accountId))
                     return;
 
                 while (!completionTask.IsCompleted)
+                {
+                    await Task.Delay(10_000, cancellationToken);
                     await clientState.VisitHomeAsync(accountId, cancellationToken);
+                }
 
                 await completionTask;
             }, cancellationToken);
@@ -186,16 +190,16 @@ public class Proxy(ProxyConfiguration configuration)
         var upstream = new TcpClient();
         await upstream.ConnectAsync(upstreamHost, upstreamPort, cancellationToken);
 
-        var serverboundStream = new SupercellStream(client.GetStream());
-        var clientboundStream = new SupercellStream(upstream.GetStream());
+        var clientStream = new SupercellStream(client.GetStream());
+        var serverStream = new SupercellStream(upstream.GetStream());
 
-        var serverboundPumpTask = PumpAsync(serverboundStream, clientboundStream, Direction.Serverbound, cancellationToken);
-        var clientboundPumpTask = PumpAsync(clientboundStream, serverboundStream, Direction.Clientbound, cancellationToken);
+        var serverboundPumpTask = PumpAsync(clientStream, serverStream, Direction.Serverbound, cancellationToken);
+        var clientboundPumpTask = PumpAsync(serverStream, clientStream, Direction.Clientbound, cancellationToken);
 
-        return new ClientState(client, upstream, serverboundPumpTask, clientboundPumpTask, serverboundStream, clientboundStream);
+        return new ClientState(client, upstream, serverboundPumpTask, clientboundPumpTask, clientStream, serverStream);
     }
 
-    private record ClientState(TcpClient TcpClient, TcpClient TcpUpstream, Task ServerboundPumpTask, Task ClientboundPumpTask, SupercellStream ServerboundStream, SupercellStream ClientboundStream) : IAsyncDisposable
+    private record ClientState(TcpClient TcpClient, TcpClient TcpUpstream, Task ServerboundPumpTask, Task ClientboundPumpTask, SupercellStream ClientStream, SupercellStream ServerStream) : IAsyncDisposable
     {
         public string RemoteEndPoint { get; } = TcpClient.RemoteEndPoint;
         public Task CompletionTask { get; init; } = Task.Run(async () =>
@@ -212,7 +216,7 @@ public class Proxy(ProxyConfiguration configuration)
                 else
                     await ServerboundPumpTask;
             }
-            catch (EndOfStreamException exception)
+            catch (StreamClosedException exception)
             {
                 Console.WriteLine($"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}");
             }
@@ -222,30 +226,27 @@ public class Proxy(ProxyConfiguration configuration)
             }
         });
 
-        public async ValueTask VisitHomeAsync(AccountId accountId, CancellationToken cancellationToken = default)
+        public async ValueTask VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
         {
-            Console.WriteLine($"[{DateTime.Now:T}] Visiting {accountId} home...");
+            Console.WriteLine($"[{DateTime.Now:T}] Visiting {target} home...");
 
-            await ServerboundStream.WriteMessageAsync(new VisitHome
+            await ServerStream.WriteMessageAsync(new VisitHomeMessage
             {
                 Unknown0 = 0x01,
                 Unknown1 = 0x02
             }, cancellationToken);
 
-            // await serverboundStream.WriteMessageAsync(new PassthroughMessage
-            // {
-            //     Id = 14484,
-            //     Version = 5213,
-            //     Data = Convert.FromHexString("00000000")
-            // }, cancellationToken);
-
-            await Task.Delay(10_000, cancellationToken);
+            await ServerStream.WriteMessageAsync(new VisitHomeTargetMessage
+            {
+                Unknown0 = 0x00,
+                Target = target
+            }, cancellationToken);
         }
 
         public async ValueTask DisposeAsync()
         {
-            await ServerboundStream.DisposeAsync();
-            await ClientboundStream.DisposeAsync();
+            await ClientStream.DisposeAsync();
+            await ServerStream.DisposeAsync();
 
             TcpClient.Dispose();
             TcpUpstream.Dispose();
