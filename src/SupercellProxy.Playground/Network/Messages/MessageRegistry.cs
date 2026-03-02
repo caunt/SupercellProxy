@@ -10,13 +10,11 @@ public static class MessageRegistry
     private static readonly Dictionary<ushort, string> _hints = new()
     {
         [10518] = "open friend book",
-        [14484] = "VISIT_HOME",
         [14972] = "last helpers request",
         [20155] = "???",
         [20699] = "BaseHomeDataMessage",
         [21628] = "last helpers response",
         [24180] = "OWN_HOME_DATA",
-        [24489] = "OtherHomeDataMessage",
         [26199] = "LogicArrayList<FriendMeta *>",
         [40000] = "updateConversionValue"
     };
@@ -67,6 +65,11 @@ public static class MessageRegistry
             Version: 0,
             Type: typeof(KeepAliveOkMessage),
             Factory: KeepAliveOkMessage.Create),
+
+        [24489] = new Entry(
+            Version: 0,
+            Type: typeof(OtherHomeDataMessage),
+            Factory: OtherHomeDataMessage.Create),
 
         [25220] = new Entry(
             Version: 2,

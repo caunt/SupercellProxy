@@ -117,7 +117,9 @@ public class Proxy(ProxyConfiguration configuration)
                     await Task.Delay(10_000, cancellationToken);
 
                     Console.WriteLine($"[{DateTime.Now:T}] Visiting {accountId} home...");
-                    await clientState.VisitHomeAsync(accountId, cancellationToken);
+                    var otherHomeDataMessage = await clientState.VisitHomeAsync(accountId, cancellationToken);
+
+                    Console.WriteLine($"[{DateTime.Now:T}] Received {otherHomeDataMessage} for {accountId}");
                 }
 
                 await completionTask;
@@ -228,7 +230,7 @@ public class Proxy(ProxyConfiguration configuration)
             }
         });
 
-        public async ValueTask VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
+        public async ValueTask<OtherHomeDataMessage> VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
         {
             await ServerStream.WriteMessageAsync(new VisitHomeMessage
             {
@@ -241,6 +243,25 @@ public class Proxy(ProxyConfiguration configuration)
                 Unknown0 = 0x00,
                 Target = target
             }, cancellationToken);
+
+            var timeout = TimeSpan.FromSeconds(15);
+            var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            linkedCancellationTokenSource.CancelAfter(timeout);
+
+            while (!linkedCancellationTokenSource.IsCancellationRequested)
+            {
+                var message = await ClientStream.ReadMessageAsync(linkedCancellationTokenSource.Token);
+
+                if (message is not OtherHomeDataMessage otherHomeDataMessage)
+                {
+                    Console.WriteLine($"[{DateTime.Now:T}] Skipped {message}, waiting for OtherHomeDataMessage");
+                    continue;
+                }
+
+                return otherHomeDataMessage;
+            }
+
+            throw new TimeoutException($"Timed out waiting for OtherHomeDataMessage for target {target}");
         }
 
         public async ValueTask DisposeAsync()
