@@ -2,9 +2,9 @@
 
 namespace SupercellProxy.Playground.Supercell;
 
-public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<AccountId>
+public readonly struct LogicLong(int highInt32, int lowInt32) : IEquatable<LogicLong>
 {
-    public static readonly AccountId Empty = default;
+    public static readonly LogicLong Empty = default;
 
     private static ReadOnlySpan<char> ValidAlphabet => "0289PYLQGRJCUV";
 
@@ -30,15 +30,15 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
         }
     }
 
-    public static AccountId Parse(ReadOnlySpan<char> tagStringSpan)
+    public static LogicLong Parse(ReadOnlySpan<char> tagStringSpan)
     {
-        if (!TryParse(tagStringSpan, out var accountId))
+        if (!TryParse(tagStringSpan, out var logicLong))
             throw new FormatException($"The provided tag string '{tagStringSpan}' is not in a valid format.");
 
-        return accountId;
+        return logicLong;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out AccountId resultAccountId)
+    public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out LogicLong result)
     {
         var totalCalculatedValue = 0UL;
         var foundAnyValidDigits = false;
@@ -53,7 +53,7 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
 
             if (!TryGetAlphabetIndex(normalizedCharacter, out var alphabetIndex))
             {
-                resultAccountId = default;
+                result = default;
                 return false;
             }
 
@@ -61,7 +61,7 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
 
             if (nextCalculatedValue < totalCalculatedValue)
             {
-                resultAccountId = default;
+                result = default;
                 return false;
             }
 
@@ -70,7 +70,7 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
 
         if (!foundAnyValidDigits)
         {
-            resultAccountId = default;
+            result = default;
             return false;
         }
 
@@ -79,20 +79,20 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
 
         if (lowInternalId > uint.MaxValue)
         {
-            resultAccountId = default;
+            result = default;
             return false;
         }
 
-        resultAccountId = new AccountId((int)highInternalId, (int)lowInternalId);
+        result = new LogicLong((int)highInternalId, (int)lowInternalId);
         return true;
     }
 
-    public static IEnumerable<AccountId> ParseLazily(IEnumerable<string> inputTagStrings)
+    public static IEnumerable<LogicLong> ParseLazily(IEnumerable<string> inputTagStrings)
     {
         foreach (var currentTagString in inputTagStrings)
         {
-            if (currentTagString is not null && TryParse(currentTagString.AsSpan(), out var parsedAccountId))
-                yield return parsedAccountId;
+            if (currentTagString is not null && TryParse(currentTagString.AsSpan(), out var logicLong))
+                yield return logicLong;
         }
     }
 
@@ -170,7 +170,7 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
     public string ToFormattedString(bool includeHashPrefix = true)
     {
         if (!CanRepresentAsTag)
-            throw new InvalidOperationException("This account ID cannot be represented as a tag.");
+            throw new InvalidOperationException("This logic long cannot be represented as a tag.");
 
         var totalCalculatedValue = LowUInt32 * 256UL + HighUInt32;
 
@@ -209,37 +209,37 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
         });
     }
 
-    public bool Equals(AccountId otherAccountId) => highInt32 == otherAccountId.HighInt32 && lowInt32 == otherAccountId.LowInt32;
-    public override bool Equals(object? otherObject) => otherObject is AccountId otherAccountId && Equals(otherAccountId);
+    public bool Equals(LogicLong logicLong) => highInt32 == logicLong.HighInt32 && lowInt32 == logicLong.LowInt32;
+    public override bool Equals(object? otherObject) => otherObject is LogicLong logicLong && Equals(logicLong);
     public override int GetHashCode() => HashCode.Combine(highInt32, lowInt32);
     public override string ToString() => CanRepresentAsTag ? ToFormattedString() : $"{highInt32}-{lowInt32}";
 
-    public static bool operator ==(AccountId leftAccountId, AccountId rightAccountId) => leftAccountId.Equals(rightAccountId);
-    public static bool operator !=(AccountId leftAccountId, AccountId rightAccountId) => !leftAccountId.Equals(rightAccountId);
-    public static AccountId operator ++(AccountId accountId) => accountId + 1UL;
-    public static AccountId operator --(AccountId accountId) => accountId - 1UL;
+    public static bool operator ==(LogicLong leftLogicLong, LogicLong rightLogicLong) => leftLogicLong.Equals(rightLogicLong);
+    public static bool operator !=(LogicLong leftLogicLong, LogicLong rightLogicLong) => !leftLogicLong.Equals(rightLogicLong);
+    public static LogicLong operator ++(LogicLong logicLong) => logicLong + 1UL;
+    public static LogicLong operator --(LogicLong logicLong) => logicLong - 1UL;
 
-    public static AccountId operator +(AccountId leftAccountId, ulong rightValue)
+    public static LogicLong operator +(LogicLong leftLogicLong, ulong rightValue)
     {
         unchecked
         {
-            var addedValue = leftAccountId.AsUInt64 + rightValue;
+            var addedValue = leftLogicLong.AsUInt64 + rightValue;
             var newHighInt32 = (int)(addedValue >> 32);
             var newLowInt32 = (int)addedValue;
 
-            return new AccountId(newHighInt32, newLowInt32);
+            return new LogicLong(newHighInt32, newLowInt32);
         }
     }
 
-    public static AccountId operator -(AccountId leftAccountId, ulong rightValue)
+    public static LogicLong operator -(LogicLong leftLogicLong, ulong rightValue)
     {
         unchecked
         {
-            var subtractedValue = leftAccountId.AsUInt64 - rightValue;
+            var subtractedValue = leftLogicLong.AsUInt64 - rightValue;
             var newHighInt32 = (int)(subtractedValue >> 32);
             var newLowInt32 = (int)subtractedValue;
 
-            return new AccountId(newHighInt32, newLowInt32);
+            return new LogicLong(newHighInt32, newLowInt32);
         }
     }
 

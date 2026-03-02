@@ -104,7 +104,7 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
 
             await stream.WriteMessageAsync(new LoginMessage
             {
-                AccountId = AccountId.Empty,
+                AccountId = LogicLong.Empty,
                 PassToken = null,
                 ResourceSha = fingerprintSha1,
                 LoginVersion = 1119325,

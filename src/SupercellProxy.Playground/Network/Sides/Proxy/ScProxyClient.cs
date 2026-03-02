@@ -108,7 +108,7 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
 
         try
         {
-            var accountId = AccountId.Parse("#Q2V0U29JQ");
+            var accountId = LogicLong.Parse("#Q2V0U29JQ");
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -126,7 +126,7 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
         }
     }
 
-    public async ValueTask<OtherHomeDataMessage> VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
+    public async ValueTask<OtherHomeDataMessage> VisitHomeAsync(LogicLong target, CancellationToken cancellationToken = default)
     {
         _suppressEndClientTurns = true;
 
@@ -205,7 +205,7 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
             case ServerHelloMessage serverHelloMessage:
                 await @event.Source.SetupEncryptionAsync(Side.Server, serverHelloMessage.SessionKey, cancellationToken);
                 break;
-            case VisitHomeTargetMessage visitHomeTargetMessage when visitHomeTargetMessage.Target == AccountId.Empty:
+            case VisitHomeTargetMessage visitHomeTargetMessage when visitHomeTargetMessage.Target == LogicLong.Empty:
                 @event.IsCancelled = true;
                 break;
             case EndClientTurnMessage when _suppressEndClientTurns:

@@ -6,16 +6,16 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 public record LoginOkMessage : IMessage
 {
     public required int LoginResult { get; init; }
-    public required int Field2 { get; init; }
+    public required int Unknown0 { get; init; }
     public required int LoginVersion { get; init; }
     public required int ServerBuild { get; init; }
-    public required bool UnknownBool { get; init; }
-    public required AccountId AccountId { get; init; }
-    public required long HomeId { get; init; }
+    public required bool Unknown1 { get; init; }
+    public required LogicLong AccountId { get; init; }
+    public required LogicLong HomeId { get; init; }
     public required string CreationTimestamp { get; init; }
     public required string CreationTimestampTrunc { get; init; }
     public required string PassToken { get; init; }
-    public required string?[] UnknownStrings { get; init; }
+    public required string?[] Unknown2 { get; init; }
     public required string CountryCode { get; init; }
     public required string EventAssetsUrl { get; init; }
     public Memory<byte> UnknownData { get; init; }
@@ -25,16 +25,16 @@ public record LoginOkMessage : IMessage
         return new LoginOkMessage
         {
             LoginResult = container.Payload.ReadVarInt(),
-            Field2 = container.Payload.ReadVarInt(),
+            Unknown0 = container.Payload.ReadVarInt(),
             LoginVersion = container.Payload.ReadVarInt(),
             ServerBuild = container.Payload.ReadVarInt(),
-            UnknownBool = container.Payload.ReadBoolean(),
-            AccountId = container.Payload.ReadAccountId(),
-            HomeId = container.Payload.ReadInt64(),
+            Unknown1 = container.Payload.ReadBoolean(),
+            AccountId = container.Payload.ReadLogicLong(),
+            HomeId = container.Payload.ReadLogicLong(),
             CreationTimestamp = container.Payload.ReadString(),
             CreationTimestampTrunc = container.Payload.ReadString(),
             PassToken = container.Payload.ReadString(),
-            UnknownStrings =
+            Unknown2 =
             [
                 container.Payload.ReadOptionalString(),
                 container.Payload.ReadOptionalString(),
@@ -52,17 +52,17 @@ public record LoginOkMessage : IMessage
         using var supercellStream = SupercellStream.Create();
 
         supercellStream.WriteVarInt(LoginResult);
-        supercellStream.WriteVarInt(Field2);
+        supercellStream.WriteVarInt(Unknown0);
         supercellStream.WriteVarInt(LoginVersion);
         supercellStream.WriteVarInt(ServerBuild);
-        supercellStream.WriteBoolean(UnknownBool);
-        supercellStream.WriteAccountId(AccountId);
-        supercellStream.WriteInt64(HomeId);
+        supercellStream.WriteBoolean(Unknown1);
+        supercellStream.WriteLogicLong(AccountId);
+        supercellStream.WriteLogicLong(HomeId);
         supercellStream.WriteString(CreationTimestamp);
         supercellStream.WriteString(CreationTimestampTrunc);
         supercellStream.WriteString(PassToken);
 
-        foreach (var unknownString in UnknownStrings)
+        foreach (var unknownString in Unknown2)
             supercellStream.WriteOptionalString(unknownString);
 
         supercellStream.WriteString(CountryCode);

@@ -222,14 +222,14 @@ public partial class SupercellStream
         return accumulator;
     }
 
-    public AccountId ReadAccountId()
+    public LogicLong ReadLogicLong()
     {
-        return new AccountId(highInt32: ReadInt32(), lowInt32: ReadInt32());
+        return new LogicLong(highInt32: ReadInt32(), lowInt32: ReadInt32());
     }
 
-    public async ValueTask<AccountId> ReadAccountIdAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<LogicLong> ReadLogicLongAsync(CancellationToken cancellationToken = default)
     {
-        return new AccountId(highInt32: await ReadInt32Async(cancellationToken), lowInt32: await ReadInt32Async(cancellationToken));
+        return new LogicLong(highInt32: await ReadInt32Async(cancellationToken), lowInt32: await ReadInt32Async(cancellationToken));
     }
 
     private void ResetReadBoolean()

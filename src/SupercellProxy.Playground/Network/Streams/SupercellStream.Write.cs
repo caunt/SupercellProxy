@@ -248,16 +248,16 @@ public partial class SupercellStream
         stream.Write(byteBuffer[..currentIndex]);
     }
 
-    public void WriteAccountId(AccountId accountId)
+    public void WriteLogicLong(LogicLong logicLong)
     {
-        WriteInt32(accountId.HighInt32);
-        WriteInt32(accountId.LowInt32);
+        WriteInt32(logicLong.HighInt32);
+        WriteInt32(logicLong.LowInt32);
     }
 
-    public async ValueTask WriteAccountIdAsync(AccountId accountId, CancellationToken cancellationToken = default)
+    public async ValueTask WriteLogicLongAsync(LogicLong logicLong, CancellationToken cancellationToken = default)
     {
-        await WriteInt32Async(accountId.HighInt32, cancellationToken);
-        await WriteInt32Async(accountId.LowInt32, cancellationToken);
+        await WriteInt32Async(logicLong.HighInt32, cancellationToken);
+        await WriteInt32Async(logicLong.LowInt32, cancellationToken);
     }
 
     private void FlushWriteBoolean()

@@ -6,14 +6,14 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 public record VisitHomeTargetMessage : IMessage
 {
     public required byte Unknown0 { get; init; }
-    public required AccountId Target { get; init; }
+    public required LogicLong Target { get; init; }
 
     public static VisitHomeTargetMessage Create(MessageContainer container)
     {
         return new VisitHomeTargetMessage
         {
             Unknown0 = container.Payload.ReadByte(),
-            Target = container.Payload.ReadAccountId()
+            Target = container.Payload.ReadLogicLong()
         };
     }
 
@@ -22,7 +22,7 @@ public record VisitHomeTargetMessage : IMessage
         using var supercellStream = SupercellStream.Create();
 
         supercellStream.WriteByte(Unknown0);
-        supercellStream.WriteAccountId(Target);
+        supercellStream.WriteLogicLong(Target);
 
         return new MessageContainer(id, version, supercellStream);
     }
