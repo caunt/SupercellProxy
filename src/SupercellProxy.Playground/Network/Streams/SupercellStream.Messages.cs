@@ -2,6 +2,7 @@
 using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Network.Messages;
 using System.Buffers.Binary;
+using System.Net.Sockets;
 
 namespace SupercellProxy.Playground.Network.Streams;
 
@@ -15,7 +16,7 @@ public partial class SupercellStream
         await WriteContainerAsync(message.ToContainer(MessageRegistry.GetId(message), version: MessageRegistry.GetVersion(message)), cancellationToken);
     }
 
-    public async Task<T> ReadMessageAsync<T>(CancellationToken cancellationToken) where T : IMessage
+    public async Task<T> ReadMessageAsync<T>(CancellationToken cancellationToken = default) where T : IMessage
     {
         var genericMessage = await ReadMessageAsync(cancellationToken);
 
@@ -25,7 +26,7 @@ public partial class SupercellStream
         return message;
     }
 
-    public async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken)
+    public async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         var container = await ReadContainerAsync(cancellationToken);
         var message = MessageRegistry.Resolve(container);
@@ -124,7 +125,7 @@ public partial class SupercellStream
 
             memoryStream.CopyTo(stream);
         }
-        catch (EndOfStreamException exception)
+        catch (Exception exception) when (exception is EndOfStreamException or IOException { InnerException: SocketException })
         {
             throw new StreamClosedException(innerException: exception);
         }
@@ -161,7 +162,7 @@ public partial class SupercellStream
 
             await memoryStream.CopyToAsync(stream, cancellationToken);
         }
-        catch (EndOfStreamException exception)
+        catch (Exception exception) when (exception is EndOfStreamException or IOException { InnerException: SocketException })
         {
             throw new StreamClosedException(innerException: exception);
         }

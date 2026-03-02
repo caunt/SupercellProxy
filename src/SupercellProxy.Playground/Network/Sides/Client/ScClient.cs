@@ -1,14 +1,13 @@
 using SupercellProxy.Playground.Exceptions;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
+using SupercellProxy.Playground.Network.Sides.Configuration;
 using SupercellProxy.Playground.Supercell;
 using System.Text.Json.Nodes;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
-public record ClientConfiguration(string UpstreamHost, int UpstreamPort, ProtocolConfiguration Protocol);
-
-public partial class Client(ClientConfiguration configuration) : IAsyncDisposable
+public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 {
     private static readonly TimeSpan _keepAliveInterval = TimeSpan.FromSeconds(5);
 

@@ -32,8 +32,7 @@ public partial class SupercellStream
 
     public async ValueTask<Memory<byte>> ReadExactlyAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        ResetReadBoolean();
-        await stream.ReadExactlyAsync(buffer, cancellationToken);
+        await stream.ReadExactlyAsync(buffer, cancellationToken).AsTask().WaitAsync(cancellationToken);
         return buffer;
     }
 
@@ -191,6 +190,36 @@ public partial class SupercellStream
 
         var memory = await ReadExactlyAsync(RentExactly(length), cancellationToken);
         return Encoding.UTF8.GetString(memory.Span);
+    }
+
+    public int ReadVarInt()
+    {
+        var firstByte = ReadByte();
+        var isNegative = (firstByte & 0x40) != 0;
+        var accumulator = firstByte & 0x3F;
+        var consumedBitWidth = 6;
+
+        var currentByte = firstByte;
+        while ((currentByte & 0x80) != 0 && consumedBitWidth < 35)
+        {
+            currentByte = ReadByte();
+            accumulator |= (currentByte & 0x7F) << consumedBitWidth;
+            consumedBitWidth += 7;
+        }
+
+        if (isNegative)
+        {
+            if (consumedBitWidth == 34)
+            {
+                accumulator |= 1 << 31;
+            }
+            else
+            {
+                accumulator |= -1 << consumedBitWidth;
+            }
+        }
+
+        return accumulator;
     }
 
     public long ReadVarInt64()

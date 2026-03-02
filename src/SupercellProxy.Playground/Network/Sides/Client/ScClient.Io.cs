@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
-public partial class Client
+public partial class ScClient
 {
     private TcpClient? tcpClient;
     private NetworkStream? _networkStream;

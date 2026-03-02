@@ -26,7 +26,7 @@ public partial class SupercellStream
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
     {
         FlushWriteBoolean();
-        await stream.WriteAsync(source, cancellationToken);
+        await stream.WriteAsync(source, cancellationToken).AsTask().WaitAsync(cancellationToken);
     }
 
     public void WriteByteArray(ReadOnlySpan<byte> source)
@@ -209,6 +209,44 @@ public partial class SupercellStream
         await stream.WriteAsync(memory, cancellationToken);
     }
 
+    public void WriteVarInt(int valueToWrite)
+    {
+        FlushWriteBoolean();
+
+        var temporarySignByte = (valueToWrite >> 25) & 0x40;
+        long boundariesTracker = valueToWrite < 0 ? -(long)valueToWrite : valueToWrite;
+
+        temporarySignByte |= valueToWrite & 0x3F;
+        valueToWrite >>= 6;
+
+        var byteBuffer = (stackalloc byte[5]);
+        var currentIndex = 0;
+
+        if ((boundariesTracker >>= 6) == 0)
+        {
+            byteBuffer[currentIndex++] = (byte)temporarySignByte;
+            stream.Write(byteBuffer[..currentIndex]);
+            return;
+        }
+
+        byteBuffer[currentIndex++] = (byte)(temporarySignByte | 0x80);
+
+        do
+        {
+            var dataByte = (byte)(valueToWrite & 0x7F);
+            valueToWrite >>= 7;
+
+            if ((boundariesTracker >>= 7) != 0)
+                dataByte |= 0x80;
+
+            byteBuffer[currentIndex++] = dataByte;
+        } while (boundariesTracker != 0);
+
+        if (currentIndex == 5)
+            byteBuffer[4] &= 0x0F;
+
+        stream.Write(byteBuffer[..currentIndex]);
+    }
 
     public void WriteVarInt64(long value)
     {

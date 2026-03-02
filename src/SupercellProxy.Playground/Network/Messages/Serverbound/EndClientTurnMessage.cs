@@ -2,12 +2,12 @@
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
-public record ClientCommand(long Type, Memory<byte> Data);
+public record ClientCommand(int Type, Memory<byte> Data);
 
 /// <summary>
 /// Build EndClientTurnMessage (19132) payload
 // 
-// Format(from Ghidra vtable[2] decompilation of FUN_10060c660) :
+// Format(from Ghidra vtable[2] decompilation of FUN_10060c660) of v1.69.89:
 //       writeVarInt(checksum)       # main state checksum (offset 0xCC)
 //       writeVarInt(subtick)        # sub-tick counter (offset 0xC8)
 //       writeVarInt(sub_chk[0..7])  # 8 sub-checksums (offsets 0x90-0xAC)
@@ -20,25 +20,25 @@ public record ClientCommand(long Type, Memory<byte> Data);
 /// </summary>
 public record EndClientTurnMessage : IMessage
 {
-    public long Checksum { get; init; }
-    public long SubTick { get; init; }
-    public Memory<long> SubChecksums { get; init; } = new long[8];
+    public int Checksum { get; init; }
+    public int SubTick { get; init; }
+    public Memory<int> SubChecksums { get; init; } = new int[8];
     public Memory<ClientCommand> Commands { get; init; }
 
     public static EndClientTurnMessage Create(MessageContainer messageContainer)
     {
-        var checksum = messageContainer.Payload.ReadVarInt64();
-        var subTick = messageContainer.Payload.ReadVarInt64();
-        var subChecksums = new long[8];
+        var checksum = messageContainer.Payload.ReadVarInt();
+        var subTick = messageContainer.Payload.ReadVarInt();
+        var subChecksums = new int[8];
 
         for (int i = 0; i < subChecksums.Length; i++)
-            subChecksums[i] = messageContainer.Payload.ReadVarInt64();
+            subChecksums[i] = messageContainer.Payload.ReadVarInt();
 
-        var commands = new ClientCommand[messageContainer.Payload.ReadVarInt64()];
+        var commands = new ClientCommand[messageContainer.Payload.ReadVarInt()];
 
         for (int i = 0; i < commands.Length; i++)
         {
-            var commandType = messageContainer.Payload.ReadVarInt64();
+            var commandType = messageContainer.Payload.ReadVarInt();
 
             if (commands.Length is 1)
             {
@@ -74,17 +74,17 @@ public record EndClientTurnMessage : IMessage
     {
         var supercellStream = SupercellStream.Create();
 
-        supercellStream.WriteVarInt64(Checksum);
-        supercellStream.WriteVarInt64(SubTick);
+        supercellStream.WriteVarInt(Checksum);
+        supercellStream.WriteVarInt(SubTick);
 
         foreach (var subChecksum in SubChecksums.Span)
-            supercellStream.WriteVarInt64(subChecksum);
+            supercellStream.WriteVarInt(subChecksum);
 
-        supercellStream.WriteVarInt64(Commands.Length);
+        supercellStream.WriteVarInt(Commands.Length);
 
         foreach (var clientCommand in Commands.Span)
         {
-            supercellStream.WriteVarInt64(clientCommand.Type);
+            supercellStream.WriteVarInt(clientCommand.Type);
             supercellStream.Write(clientCommand.Data.Span);
         }
 

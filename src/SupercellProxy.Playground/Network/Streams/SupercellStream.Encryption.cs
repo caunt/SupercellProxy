@@ -1,5 +1,6 @@
 ﻿using SupercellProxy.Playground.Crypto;
 using SupercellProxy.Playground.Network.Sides;
+using SupercellProxy.Playground.Network.Sides.Proxy;
 using SupercellProxy.Playground.Supercell;
 using System.Security.Cryptography;
 
@@ -32,7 +33,7 @@ public partial class SupercellStream
         _encryption = new Encryption(
             with: with,
             sessionKey: sessionKey,
-            localPrivateKey: with is Side.Server ? RandomNumberGenerator.GetBytes(count: 32) : Proxy.StandardPrivateKey,
+            localPrivateKey: with is Side.Server ? RandomNumberGenerator.GetBytes(count: 32) : ScProxy.StandardPrivateKey,
             remotePublicKey: with is Side.Server ? await HayDayApi.GetServerPublicKeyAsync(cancellationToken) : default(Memory<byte>));
     }
 

@@ -1,9 +1,10 @@
-﻿using SupercellProxy.Playground.Network.Sides;
+﻿using SupercellProxy.Playground.Network.Sides.Configuration;
+using SupercellProxy.Playground.Network.Sides.Proxy;
 
 var upstreamHost = args.Length > 0 ? args[0] : "game.haydaygame.com";
 var upstreamPort = args.Length > 1 && int.TryParse(args[1], out var up) ? up : 9339;
 
-// var client = new Client(new ClientConfiguration(
+// var client = new ScClient(new ClientConfiguration(
 //     UpstreamHost: upstreamHost,
 //     UpstreamPort: upstreamPort,
 //     Protocol: new ProtocolConfiguration(
@@ -18,7 +19,7 @@ var upstreamPort = args.Length > 1 && int.TryParse(args[1], out var up) ? up : 9
 var listenAddress = args.Length > 2 ? args[2] : "0.0.0.0";
 var listenPort = args.Length > 3 && int.TryParse(args[3], out var lp) ? lp : 9339;
 
-var proxy = new Proxy(new ProxyConfiguration(
+var proxy = new ScProxy(new ProxyConfiguration(
     UpstreamHost: upstreamHost,
     UpstreamPort: upstreamPort,
     ListenAddress: listenAddress,
@@ -32,5 +33,5 @@ var proxy = new Proxy(new ProxyConfiguration(
 
 await proxy.RunAsync();
 
-// var server = new Server(listenAddress, listenPort);
+// var server = new ScServer(listenAddress, listenPort);
 // await server.RunAsync();

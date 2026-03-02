@@ -30,6 +30,14 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
         }
     }
 
+    public static AccountId Parse(ReadOnlySpan<char> tagStringSpan)
+    {
+        if (!TryParse(tagStringSpan, out var accountId))
+            throw new FormatException($"The provided tag string '{tagStringSpan}' is not in a valid format.");
+
+        return accountId;
+    }
+
     public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out AccountId resultAccountId)
     {
         var totalCalculatedValue = 0UL;

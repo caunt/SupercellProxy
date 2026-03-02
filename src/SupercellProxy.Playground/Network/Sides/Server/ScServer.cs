@@ -1,6 +1,6 @@
-﻿namespace SupercellProxy.Playground.Network.Sides;
+﻿namespace SupercellProxy.Playground.Network.Sides.Server;
 
-// public class Server(string listenAddress, int listenPort)
+// public class ScServer(string listenAddress, int listenPort)
 // {
 //     // https://github.com/ReversedCell/ScDocumentation/wiki/Encryption-Setup
 //     // https://github.com/ReversedCell/ScDocumentation/wiki/Protocol
