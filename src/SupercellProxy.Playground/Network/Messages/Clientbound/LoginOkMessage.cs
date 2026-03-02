@@ -5,10 +5,10 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record LoginOkMessage : IMessage
 {
-    public required long LoginResult { get; init; }
-    public required long Field2 { get; init; }
-    public required long LoginVersion { get; init; }
-    public required long ServerBuild { get; init; }
+    public required int LoginResult { get; init; }
+    public required int Field2 { get; init; }
+    public required int LoginVersion { get; init; }
+    public required int ServerBuild { get; init; }
     public required bool UnknownBool { get; init; }
     public required AccountId AccountId { get; init; }
     public required long HomeId { get; init; }
@@ -24,10 +24,10 @@ public record LoginOkMessage : IMessage
     {
         return new LoginOkMessage
         {
-            LoginResult = container.Payload.ReadVarInt64(),
-            Field2 = container.Payload.ReadVarInt64(),
-            LoginVersion = container.Payload.ReadVarInt64(),
-            ServerBuild = container.Payload.ReadVarInt64(),
+            LoginResult = container.Payload.ReadVarInt(),
+            Field2 = container.Payload.ReadVarInt(),
+            LoginVersion = container.Payload.ReadVarInt(),
+            ServerBuild = container.Payload.ReadVarInt(),
             UnknownBool = container.Payload.ReadBoolean(),
             AccountId = container.Payload.ReadAccountId(),
             HomeId = container.Payload.ReadInt64(),
@@ -51,10 +51,10 @@ public record LoginOkMessage : IMessage
     {
         using var supercellStream = SupercellStream.Create();
 
-        supercellStream.WriteVarInt64(LoginResult);
-        supercellStream.WriteVarInt64(Field2);
-        supercellStream.WriteVarInt64(LoginVersion);
-        supercellStream.WriteVarInt64(ServerBuild);
+        supercellStream.WriteVarInt(LoginResult);
+        supercellStream.WriteVarInt(Field2);
+        supercellStream.WriteVarInt(LoginVersion);
+        supercellStream.WriteVarInt(ServerBuild);
         supercellStream.WriteBoolean(UnknownBool);
         supercellStream.WriteAccountId(AccountId);
         supercellStream.WriteInt64(HomeId);

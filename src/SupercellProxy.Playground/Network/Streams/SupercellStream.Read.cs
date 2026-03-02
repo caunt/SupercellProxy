@@ -222,27 +222,6 @@ public partial class SupercellStream
         return accumulator;
     }
 
-    public long ReadVarInt64()
-    {
-        var firstByte = ReadByte();
-        var isNegative = (firstByte & 0x40) != 0;
-        var result = (long)(firstByte & 0x3F);
-        var offset = 6;
-
-        var currentByte = firstByte;
-        while ((currentByte & 0x80) != 0)
-        {
-            currentByte = ReadByte();
-            result |= (long)(currentByte & 0x7F) << offset;
-            offset += 7;
-        }
-
-        if (!isNegative)
-            return result;
-
-        return result | (-1L << offset);
-    }
-
     public AccountId ReadAccountId()
     {
         return new AccountId(highInt32: ReadInt32(), lowInt32: ReadInt32());
