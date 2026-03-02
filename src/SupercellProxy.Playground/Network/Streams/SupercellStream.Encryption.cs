@@ -16,6 +16,14 @@ public partial class SupercellStream
 
     private Encryption? _encryption;
 
+    /// <summary>
+    /// Initializes encryption for the current connection using the specified session key and connection side.
+    /// </summary>
+    /// <param name="with">Specifies the connection side, indicating whether encryption is being set up for the server or the client.</param>
+    /// <param name="sessionKey">The session key to verify during the handshake phase.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>A task that represents the asynchronous operation of setting up encryption.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if encryption has already been set up for this connection.</exception>
     public async ValueTask SetupEncryptionAsync(Side with, Memory<byte> sessionKey, CancellationToken cancellationToken = default)
     {
         if (_encryption is not null)
