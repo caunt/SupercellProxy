@@ -115,6 +115,8 @@ public class Proxy(ProxyConfiguration configuration)
                 while (!completionTask.IsCompleted)
                 {
                     await Task.Delay(10_000, cancellationToken);
+
+                    Console.WriteLine($"[{DateTime.Now:T}] Visiting {accountId} home...");
                     await clientState.VisitHomeAsync(accountId, cancellationToken);
                 }
 
@@ -228,8 +230,6 @@ public class Proxy(ProxyConfiguration configuration)
 
         public async ValueTask VisitHomeAsync(AccountId target, CancellationToken cancellationToken = default)
         {
-            Console.WriteLine($"[{DateTime.Now:T}] Visiting {target} home...");
-
             await ServerStream.WriteMessageAsync(new VisitHomeMessage
             {
                 Unknown0 = 0x01,
