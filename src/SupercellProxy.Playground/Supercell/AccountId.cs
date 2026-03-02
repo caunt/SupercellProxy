@@ -216,6 +216,32 @@ public readonly struct AccountId(int highInt32, int lowInt32) : IEquatable<Accou
 
     public static bool operator ==(AccountId leftAccountId, AccountId rightAccountId) => leftAccountId.Equals(rightAccountId);
     public static bool operator !=(AccountId leftAccountId, AccountId rightAccountId) => !leftAccountId.Equals(rightAccountId);
+    public static AccountId operator ++(AccountId accountId) => accountId + 1UL;
+    public static AccountId operator --(AccountId accountId) => accountId - 1UL;
+
+    public static AccountId operator +(AccountId leftAccountId, ulong rightValue)
+    {
+        unchecked
+        {
+            var addedValue = leftAccountId.AsUInt64 + rightValue;
+            var newHighInt32 = (int)(addedValue >> 32);
+            var newLowInt32 = (int)addedValue;
+
+            return new AccountId(newHighInt32, newLowInt32);
+        }
+    }
+
+    public static AccountId operator -(AccountId leftAccountId, ulong rightValue)
+    {
+        unchecked
+        {
+            var subtractedValue = leftAccountId.AsUInt64 - rightValue;
+            var newHighInt32 = (int)(subtractedValue >> 32);
+            var newLowInt32 = (int)subtractedValue;
+
+            return new AccountId(newHighInt32, newLowInt32);
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static char NormalizeTagCharacter(char inputCharacter)
