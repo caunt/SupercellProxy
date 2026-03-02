@@ -1,4 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using SupercellProxy.Playground.Crypto.Exceptions;
+using System.Buffers.Binary;
 using System.Globalization;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -77,7 +78,7 @@ public static class NaClV3Crypto
         Poly1305(encryptedPayload, polyKey, expectedMessageAuthenticationCode);
 
         if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCode, messageAuthenticationCode))
-            throw new ArgumentException("MAC verification failed");
+            throw new MacVerificationException(isPublicKeyBox: true, "MAC verification failed");
 
         var fullDecrypted = new byte[encryptedPayload.Length];
         ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), encryptedPayload, fullDecrypted, (stackalloc byte[32]));
@@ -118,7 +119,7 @@ public static class NaClV3Crypto
         Poly1305(encryptedPayload, polyKey, expectedMessageAuthenticationCode);
 
         if (!CryptographicOperations.FixedTimeEquals(expectedMessageAuthenticationCode, messageAuthenticationCode))
-            throw new ArgumentException("MAC verification failed");
+            throw new MacVerificationException("MAC verification failed");
 
         var fullDecrypted = new byte[encryptedPayload.Length];
         ChaCha20XorPadded(subKey, nonce24.Slice(16, 8), encryptedPayload, fullDecrypted, (stackalloc byte[32]));
