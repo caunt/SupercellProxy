@@ -38,6 +38,11 @@ public static class MessageRegistry
             Type: typeof(KeepAliveMessage),
             Factory: KeepAliveMessage.Create),
 
+        [14484] = new Entry(
+            Version: 5213,
+            Type: typeof(VisitHome),
+            Factory: VisitHome.Create),
+
         [20100] = new Entry(
             Version: 0,
             Type: typeof(ServerHelloMessage),
