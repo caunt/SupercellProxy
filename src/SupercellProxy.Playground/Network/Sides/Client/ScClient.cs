@@ -119,10 +119,8 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
                 Idfv = "",
                 PreferredLanguage = "",
                 ScidString = "",
-                UnknownBool = true,
-                ScIdToken = "",
-                UnknownInt = -1,
-                DataRef = -1
+                Unknown0 = true,
+                ScIdToken = ""
             }, cancellationToken);
 
             message = await stream.ReadMessageAsync(cancellationToken);
