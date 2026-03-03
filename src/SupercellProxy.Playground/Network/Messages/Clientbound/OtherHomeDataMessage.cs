@@ -4,6 +4,12 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 public record OtherHomeDataMessage : IMessage
 {
+    // LogicClientAvatar
+    // VarInt
+    // LogicClientAvatar
+    // Length-prefixed byte array - Home Data
+    // Length-prefixed byte array - Alliance Data
+    // Length-prefixed byte array - Global Eevnt / Calendar Data
     public required Memory<byte> UnknownData { get; init; }
 
     public static OtherHomeDataMessage Create(MessageContainer container)
