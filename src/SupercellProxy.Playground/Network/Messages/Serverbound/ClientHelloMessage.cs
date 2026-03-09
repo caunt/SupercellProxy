@@ -4,19 +4,19 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 public record ClientHelloMessage : IMessage
 {
-    public required int ProtocolVersion { get; init; }
-    public required int KeyVersion { get; init; }
+    public required int ProtocolVersion { get; set; }
+    public required int KeyVersion { get; set; }
 
-    public required int MajorVersion { get; init; }
-    public required int MinorVersion { get; init; }
-    public required int PatchVersion { get; init; }
+    public required int MajorVersion { get; set; }
+    public required int MinorVersion { get; set; }
+    public required int PatchVersion { get; set; }
 
-    public required string FingerprintSha1 { get; init; }
+    public required string FingerprintSha1 { get; set; }
 
-    public required int DeviceType { get; init; }
-    public required int AppStore { get; init; }
+    public required int DeviceType { get; set; }
+    public required int AppStore { get; set; }
 
-    public int Unknown1 { get; init; }
+    public int Unknown1 { get; set; }
 
     public static ClientHelloMessage Create(MessageContainer container)
     {
