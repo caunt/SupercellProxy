@@ -118,8 +118,6 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
                 if (!File.Exists("other_home_data_message.bin"))
                     await File.WriteAllBytesAsync("other_home_data_message.bin", otherHomeDataMessage.UnknownData, cancellationToken);
 
-                await File.WriteAllBytesAsync($"other_home_data_message_{Random.Shared.NextInt64(1_000, 10_000)}.bin", otherHomeDataMessage.UnknownData, cancellationToken);
-
                 await Task.Delay(1_000, cancellationToken);
                 accountId--;
             }
