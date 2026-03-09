@@ -46,7 +46,12 @@ public record LoginFailedMessage : IMessage
         /// <summary>
         /// Account has been locked. It can only be unlocked with a specific PIN.
         /// </summary>
-        Locked = 13
+        Locked = 13,
+
+        /// <summary>
+        /// Wrong AppStore sent in ClientHelloMessage.
+        /// </summary>
+        WrongStore = 15
     };
 
     public required Type ErrorCode { get; init; }
