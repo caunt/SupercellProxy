@@ -24,9 +24,11 @@ public record EndClientTurnMessage : IMessage
     public int SubTick { get; init; }
     public Memory<int> SubChecksums { get; init; } = new int[8];
     public Memory<ClientCommand> Commands { get; init; }
+    public Memory<byte> Fallback { get; init; }
 
     public static EndClientTurnMessage Create(MessageContainer messageContainer)
     {
+        var position = messageContainer.Payload.Position;
         var checksum = messageContainer.Payload.ReadVarInt();
         var subTick = messageContainer.Payload.ReadVarInt();
         var subChecksums = new int[8];
@@ -51,8 +53,15 @@ public record EndClientTurnMessage : IMessage
                     210 => 11,
                     355 => 5,
                     672 => 11,
-                    _ => throw new NotSupportedException($"We do not know the size of the command data yet. Command count: {commands.Length}, Position: {messageContainer.Payload.Position}, Length: {messageContainer.Payload.Length}")
+                    _ => -1
                 };
+
+                if (commandLength is -1)
+                {
+                    Console.WriteLine($"[{DateTime.Now:T}] We do not know the size of the {nameof(EndClientTurnMessage)} command data yet. Command count: {commands.Length}, Position: {messageContainer.Payload.Position}, Length: {messageContainer.Payload.Length}");
+                    messageContainer.Payload.Position = position;
+                    return new EndClientTurnMessage { Fallback = messageContainer.Payload.ReadToEnd() };
+                }
 
                 var commandData = new byte[commandLength];
                 messageContainer.Payload.ReadExactly(commandData);
@@ -73,6 +82,12 @@ public record EndClientTurnMessage : IMessage
     public MessageContainer ToContainer(ushort id, ushort messageVersion = 5213)
     {
         var supercellStream = SupercellStream.Create();
+
+        if (Fallback.Length > 0)
+        {
+            supercellStream.Write(Fallback.Span);
+            return new MessageContainer(id, messageVersion, supercellStream);
+        }
 
         supercellStream.WriteVarInt(Checksum);
         supercellStream.WriteVarInt(SubTick);
