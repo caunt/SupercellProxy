@@ -205,6 +205,12 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
 
     private async Task OnMessageReceivedEvent(MessageReceivedEvent @event, CancellationToken cancellationToken = default)
     {
+        var fileName = $"packet_{MessageRegistry.GetId(@event.Message)}.bin";
+
+        if (!File.Exists(fileName))
+            await File.WriteAllBytesAsync(fileName, @event.Message.ToContainer(MessageRegistry.GetId(@event.Message), MessageRegistry.GetVersion(@event.Message)).Payload.ToArray(), cancellationToken);
+
+
         switch (@event.Message)
         {
             case ServerHelloMessage serverHelloMessage:
@@ -216,22 +222,10 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
             case EndClientTurnMessage when _suppressEndClientTurns:
                 @event.IsCancelled = true;
                 break;
-            case PassthroughMessage passthroughMessage:
-                var fileName = $"packet_{passthroughMessage.Id}.bin";
-
-                if (!File.Exists(fileName))
-                    await File.WriteAllBytesAsync(fileName, passthroughMessage.Data, cancellationToken);
-
-                break;
         }
 
         if (@event.IsCancelled)
-        {
-            if (@event.Message is PassthroughMessage)
-                Console.WriteLine($"[{DateTime.Now:T}] CANCELLED {@event.Direction} {@event.Message}");
-            else
-                Console.WriteLine($"[{DateTime.Now:T}] CANCELLED {@event.Message}");
-        }
+            Console.WriteLine($"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}");
     }
 
     private async Task OnMessageSentEvent(MessageSentEvent @event, CancellationToken cancellationToken = default)
