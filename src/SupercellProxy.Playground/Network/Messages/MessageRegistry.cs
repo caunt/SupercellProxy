@@ -27,7 +27,7 @@ public static class MessageRegistry
             Factory: ClientHelloMessage.Create),
 
         [10101] = new Entry(
-            Version: 5209,
+            Version: 5213,
             Type: typeof(LoginMessage),
             Factory: LoginMessage.Create),
 
