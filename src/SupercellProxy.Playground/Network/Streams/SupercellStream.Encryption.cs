@@ -58,7 +58,10 @@ public partial class SupercellStream
         encryption.ReceiveNonce = new Nonce(nonceBytes: serverNonce.Span);
 
         var payloadStart = payloadOffset + 24;
-        var payloadLength = plaintext.Length - payloadStart - PromonPadSize;
+        var payloadLength = plaintext.Length - payloadStart;
+
+        if (payloadLength >= PromonPadSize && plaintextMemory.Span[^PromonPadSize..].SequenceEqual(stackalloc byte[PromonPadSize]))
+            payloadLength -= PromonPadSize;
 
         return new MemoryStream(plaintext, index: payloadStart, count: payloadLength, writable: false);
     }
