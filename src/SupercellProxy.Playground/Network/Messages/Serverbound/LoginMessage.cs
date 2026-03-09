@@ -5,36 +5,36 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 public record LoginMessage : IMessage
 {
-    public LogicLong AccountId { get; init; }
-    public string? PassToken { get; init; }
-    public string? ResourceSha { get; init; }
-    public required uint LoginVersion { get; init; }
+    public LogicLong AccountId { get; set; }
+    public string? PassToken { get; set; }
+    public string? ResourceSha { get; set; }
+    public required uint LoginVersion { get; set; }
 
-    public string? UdId { get; init; }
-    public string? OpenUdId { get; init; }
-    public string? MacAddress { get; init; }
+    public string? UdId { get; set; }
+    public string? OpenUdId { get; set; }
+    public string? MacAddress { get; set; }
 
-    public string? DeviceModel { get; init; }
+    public string? DeviceModel { get; set; }
 
-    public string? AdId { get; init; }
+    public string? AdId { get; set; }
 
-    public bool IsAdTracking { get; init; }
+    public bool IsAdTracking { get; set; }
 
-    public string? OsVersion { get; init; }
-    public required string Locale { get; init; }
-    public required string Idfv { get; init; }
+    public string? OsVersion { get; set; }
+    public required string Locale { get; set; }
+    public required string Idfv { get; set; }
 
-    public required string PreferredLanguage { get; init; }
+    public required string PreferredLanguage { get; set; }
 
-    public required string ScidString { get; init; }
-    public required bool Unknown0 { get; init; }
-    public required string ScIdToken { get; init; }
+    public required string ScidString { get; set; }
+    public required bool Unknown0 { get; set; }
+    public required string ScIdToken { get; set; }
 
-    public uint Unknown1 { get; init; }
+    public uint Unknown1 { get; set; }
 
-    public int DataReference { get; init; }
+    public int DataReference { get; set; }
 
-    public Memory<byte> Unknown2 { get; init; }
+    public Memory<byte> Unknown2 { get; set; }
 
     public static LoginMessage Create(MessageContainer container)
     {
