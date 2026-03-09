@@ -22,4 +22,9 @@ public record ServerHelloMessage : IMessage
 
         return new MessageContainer(id, version, supercellStream);
     }
+
+    public override string ToString()
+    {
+        return $"{nameof(ServerHelloMessage)} {{ {nameof(SessionKey)} = {Convert.ToHexString(SessionKey.Span)} }}";
+    }
 }
