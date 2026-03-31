@@ -37,7 +37,7 @@ public static class PublicKeyCodec
             var rotatedValue = (ushort)((inputWords[inputIndex] >> rotationCount) | (inputWords[inputIndex] << (16 - rotationCount)));
             outputWords[aIndex] = rotatedValue;
             // b, c and d indexes are left as zeroes
-            // should work anyway
+            // works anyway, verified with Hay Day client
         }
 
         return MemoryMarshal.AsBytes(outputWords.AsSpan());
