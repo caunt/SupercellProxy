@@ -61,7 +61,9 @@ jobs:
 
       - name: Publish Application (Host)
         if: ${{ !matrix.is_alpine }}
-        run: dotnet publish src/SupercellProxy.Playground/SupercellProxy.Playground.csproj -c Release -r ${{ matrix.rid }} -o ./publish/${{ matrix.rid }}
+        run: |
+          dotnet publish src/SupercellProxy.Playground/SupercellProxy.Playground.csproj -c Release -r ${{ matrix.rid }} -o ./publish/proxy/${{ matrix.rid }}
+          dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj -c Release -r ${{ matrix.rid }} -o ./publish/key-extractor/${{ matrix.rid }}
 
       - name: Publish Application (Alpine Container)
         if: ${{ matrix.is_alpine }}
@@ -74,13 +76,23 @@ jobs:
                    dotnet publish src/SupercellProxy.Playground/SupercellProxy.Playground.csproj \
                    -c Release \
                    -r ${{ matrix.rid }} \
-                   -o ./publish/${{ matrix.rid }}"
+                   -o ./publish/proxy/${{ matrix.rid }} && \
+                   dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj \
+                   -c Release \
+                   -r ${{ matrix.rid }} \
+                   -o ./publish/key-extractor/${{ matrix.rid }}"
 
-      - name: Upload Build Artifact
+      - name: Upload Proxy Build Artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ${{ matrix.rid }}
-          path: ./publish/${{ matrix.rid }}
+          name: proxy-${{ matrix.rid }}
+          path: ./publish/proxy/${{ matrix.rid }}
+
+      - name: Upload Key Extractor Build Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: key-extractor-${{ matrix.rid }}
+          path: ./publish/key-extractor/${{ matrix.rid }}
           
   compress_and_upload:
     name: Compress and Upload Release Archives
@@ -96,26 +108,34 @@ jobs:
         shell: bash
         run: |
           mkdir -p ./release-archives
-          cd ./artifacts
           
-          for rid_dir in */; do
-            rid=$(basename "$rid_dir")
-            
-            executableFileName="SupercellProxy.Playground"
-            if [[ "$rid" == *"win"* ]]; then
-              executableFileName="SupercellProxy.Playground.exe"
+          for project in proxy key-extractor; do
+            if [ "$project" = "proxy" ]; then
+              executableBaseName="SupercellProxy.Playground"
+            else
+              executableBaseName="SupercellProxy.PublicKeyExtractor"
             fi
             
-            architectureFilter="--x86"
-            if [[ "$rid" == *"arm64"* ]]; then
-                architectureFilter="--arm64"
-            elif [[ "$rid" == *"arm"* ]]; then
-                architectureFilter="--arm"
-            fi
-            
-            cd "$rid"
-            env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/${rid}.tar.xz" "$executableFileName"
-            cd ..
+            for rid_dir in ./artifacts/${project}-*/; do
+              [ -d "$rid_dir" ] || continue
+              rid=$(basename "$rid_dir" | sed "s/^${project}-//")
+              
+              executableFileName="$executableBaseName"
+              if [[ "$rid" == *"win"* ]]; then
+                executableFileName="${executableBaseName}.exe"
+              fi
+              
+              architectureFilter="--x86"
+              if [[ "$rid" == *"arm64"* ]]; then
+                  architectureFilter="--arm64"
+              elif [[ "$rid" == *"arm"* ]]; then
+                  architectureFilter="--arm"
+              fi
+              
+              cd "$rid_dir"
+              env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/${project}-${rid}.tar.xz" "$executableFileName"
+              cd "$OLDPWD"
+            done
           done
 
       - name: Upload Compressed Archives
