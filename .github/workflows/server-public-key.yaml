@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5
         with:
-          dotnet-version: '10'
+          dotnet-version: 'latest'
 
       - name: Get Server Public Key
         run: dotnet run --project src/SupercellProxy.PublicKeyExtractor -- "${{ inputs.file_url }}" | tee -a "$GITHUB_STEP_SUMMARY"
