@@ -1,4 +1,4 @@
-﻿using SupercellProxy.Playground.Crypto.Exceptions;
+using SupercellProxy.Playground.Crypto.Exceptions;
 using SupercellProxy.Playground.Events;
 using SupercellProxy.Playground.Events.Bus;
 using SupercellProxy.Playground.Exceptions;
@@ -259,7 +259,8 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
     private async Task<TMessage> ExpectMessageAsync<TMessage>(CancellationToken cancellationToken = default) where TMessage : class, IMessage
     {
         var taskCompletionSource = new TaskCompletionSource<TMessage>();
-        await EventBus.SubscribeAsync<MessageSentEvent>(OnMessageSentEvent, cancellationToken);
+        Func<MessageSentEvent, CancellationToken, Task> handler = OnMessageSentEvent;
+        await EventBus.SubscribeAsync<MessageSentEvent>(handler, cancellationToken);
 
         try
         {
@@ -267,7 +268,7 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
         }
         finally
         {
-            await EventBus.UnsubscribeAsync<MessageSentEvent>(OnMessageSentEvent, cancellationToken);
+            await EventBus.UnsubscribeAsync<MessageSentEvent>(handler, cancellationToken);
         }
 
         Task OnMessageSentEvent(MessageSentEvent @event, CancellationToken cancellationToken = default)

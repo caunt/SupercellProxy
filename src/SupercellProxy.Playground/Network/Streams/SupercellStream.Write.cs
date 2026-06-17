@@ -159,7 +159,7 @@ public partial class SupercellStream
         if (length is 0)
             return;
 
-        var span = (stackalloc byte[length]);
+        Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, span);
         stream.Write(span);
     }
@@ -172,7 +172,7 @@ public partial class SupercellStream
         if (length is 0)
             return;
 
-        var span = (stackalloc byte[length]);
+        Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, span);
         stream.Write(span);
     }
