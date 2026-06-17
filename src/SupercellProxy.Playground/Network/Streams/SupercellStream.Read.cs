@@ -148,7 +148,9 @@ public partial class SupercellStream
         if (length is 0)
             return string.Empty;
 
-        return Encoding.UTF8.GetString(ReadExactly(stackalloc byte[length]));
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        ReadExactly(buffer);
+        return Encoding.UTF8.GetString(buffer);
     }
 
     public string ReadString()
@@ -161,7 +163,9 @@ public partial class SupercellStream
         if (length is 0)
             return string.Empty;
 
-        return Encoding.UTF8.GetString(ReadExactly(stackalloc byte[length]));
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        ReadExactly(buffer);
+        return Encoding.UTF8.GetString(buffer);
     }
 
     public async ValueTask<string?> ReadOptionalStringAsync(CancellationToken cancellationToken = default)
