@@ -1,4 +1,4 @@
-﻿using DnsClient;
+using DnsClient;
 using SupercellProxy.Playground.Network.Sides.Configuration;
 using SupercellProxy.Playground.Network.Sides.Proxy;
 using System.Net;
@@ -36,8 +36,8 @@ var proxy = new ScProxy(new ProxyConfiguration(
     ListenPort: listenPort,
     Protocol: new ProtocolConfiguration(
         MajorVersion: 1,
-        MinorVersion: 69,
-        PatchVersion: 89,
+        MinorVersion: 71,
+        PatchVersion: 128,
         ProtocolVersion: 3,
         KeyVersion: 40)));
 
