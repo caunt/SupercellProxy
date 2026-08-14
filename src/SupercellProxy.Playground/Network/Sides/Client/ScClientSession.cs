@@ -6,13 +6,13 @@ namespace SupercellProxy.Playground.Network.Sides;
 
 internal sealed record ScClientSession
 {
-    internal const int DefaultAppStore = 2;
+    internal const AppStore DefaultAppStore = AppStore.GooglePlay;
 
     private const string FileName = "sc-client-session.json";
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
     public string? AccountId { get; init; }
-    public int AppStore { get; init; } = DefaultAppStore;
+    public AppStore AppStore { get; init; } = DefaultAppStore;
     public required string PassToken { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -40,7 +40,7 @@ internal sealed record ScClientSession
         return session;
     }
 
-    internal static async Task SaveAsync(LogicLong accountId, string passToken, int appStore, CancellationToken cancellationToken = default)
+    internal static async Task SaveAsync(LogicLong accountId, string passToken, AppStore appStore, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(AppContext.BaseDirectory, FileName);
         var temporaryPath = $"{path}.{Environment.ProcessId}.tmp";
@@ -85,7 +85,7 @@ internal sealed record ScClientSession
         if (AccountId is null && (AccountIdHigh is null || AccountIdLow is null || ParsedAccountId == LogicLong.Empty))
             throw new InvalidDataException($"Client session in {path} has an empty account ID.");
 
-        if (AppStore < 0)
+        if (AppStore == default || !Enum.IsDefined(AppStore))
             throw new InvalidDataException($"Client session in {path} has an invalid app store: {AppStore}.");
 
         if (string.IsNullOrWhiteSpace(PassToken))

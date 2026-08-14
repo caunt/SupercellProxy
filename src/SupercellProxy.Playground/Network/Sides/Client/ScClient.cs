@@ -302,19 +302,20 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                     UdId = "",
                     OpenUdId = "",
                     MacAddress = "",
-                    DeviceModel = "iPad9,1",
-                    AdId = "",
-                    IsAdTracking = false,
-                    OsVersion = "18.2",
-                    Locale = "",
-                    Idfv = "",
+                    DeviceModel = "POCOPHONE F1",
+                    AdvertisingId = "",
+                    IsAndroid = true,
+                    OsVersion = "10",
+                    UnknownString0 = "",
+                    AndroidId = "",
                     PreferredLanguage = "",
-                    ScidString = "",
-                    Unknown0 = true,
-                    ScIdToken = "",
-                    Unknown1 = uint.MaxValue,
-                    DataReference = -1,
-                    Unknown2 = new byte[8]
+                    UnknownString1 = "",
+                    AdvertisingTrackingEnabled = true,
+                    IdentifierForVendor = "",
+                    AppStore = appStore,
+                    CompressedData = null,
+                    StorefrontCountryCode = "",
+                    StorefrontIdentifier = ""
                 }, cancellationToken);
 
                 message = await stream.ReadMessageAsync(cancellationToken);

@@ -17,9 +17,13 @@ public class LoginException(LoginFailedMessage loginFailedMessage) : Exception(G
 
     private static string GetMessage(LoginFailedMessage loginFailedMessage)
     {
-        var error = loginFailedMessage.ErrorCode is LoginFailedMessage.Type.InvalidCredentials
-            ? $"{loginFailedMessage.ErrorCode} (account ID or pass token is invalid)"
-            : loginFailedMessage.ErrorCode.ToString();
+        var errorDescription = loginFailedMessage.ErrorCode switch
+        {
+            LoginFailedMessage.Type.InvalidCredentials => "account ID or pass token is invalid",
+            LoginFailedMessage.Type.InvalidToken => "pass token is invalid for this account",
+            _ => loginFailedMessage.ErrorCode.ToString()
+        };
+        var error = $"{(int)loginFailedMessage.ErrorCode} ({errorDescription})";
 
         return $"{error}{(string.IsNullOrWhiteSpace(loginFailedMessage.Reason) ? string.Empty : $" (reason: {loginFailedMessage.Reason})")}";
     }

@@ -27,7 +27,7 @@ public record LoginFailedMessage : IMessage
     public string? Unknown8 { get; init; }
     public string? Unknown9 { get; init; }
     public string?[]? AssetsUrls { get; init; }
-    public string? Unknown10 { get; init; }
+    public string? RedirectHost { get; init; }
 
     public IEnumerable<string> AssetsUrlsFiltered => AssetsUrls?.Where(url => !string.IsNullOrWhiteSpace(url)).WhereNotNull() ?? [];
     public ResourceFingerprint ResourceFingerprint
@@ -77,7 +77,7 @@ public record LoginFailedMessage : IMessage
         for (var i = 0; i < assetsUrls.Length; i++)
             assetsUrls[i] = container.Payload.ReadOptionalString();
 
-        var unknown10 = container.Payload.ReadOptionalString();
+        var redirectHost = container.Payload.ReadOptionalString();
 
         return new LoginFailedMessage
         {
@@ -95,7 +95,7 @@ public record LoginFailedMessage : IMessage
             Unknown8 = unknown8,
             Unknown9 = unknown9,
             AssetsUrls = assetsUrls,
-            Unknown10 = unknown10
+            RedirectHost = redirectHost
         };
     }
 
@@ -144,7 +144,7 @@ public record LoginFailedMessage : IMessage
                 supercellStream.WriteOptionalString(url);
         }
 
-        supercellStream.WriteOptionalString(Unknown10);
+        supercellStream.WriteOptionalString(RedirectHost);
 
         return new MessageContainer(id, version, supercellStream);
     }
@@ -184,9 +184,9 @@ public record LoginFailedMessage : IMessage
         TemporarilyBanned = 11,
 
         /// <summary>
-        /// Take a rest. This occurs when the connection to the server has been maintain for too long.
+        /// The client should reconnect to the host in <see cref="LoginFailedMessage.RedirectHost"/>.
         /// </summary>
-        TakeRest = 12,
+        Redirection = 12,
 
         /// <summary>
         /// Account has been locked. It can only be unlocked with a specific PIN.
@@ -194,8 +194,13 @@ public record LoginFailedMessage : IMessage
         Locked = 13,
 
         /// <summary>
-        /// Wrong AppStore sent in ClientHelloMessage.
+        /// The login token is invalid.
         /// </summary>
-        WrongStore = 15
+        InvalidToken = 15,
+
+        /// <summary>
+        /// The account is not bound.
+        /// </summary>
+        AccountNotBound = 16
     };
 }

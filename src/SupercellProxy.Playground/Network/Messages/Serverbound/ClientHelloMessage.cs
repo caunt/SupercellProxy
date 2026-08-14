@@ -1,4 +1,5 @@
 using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
@@ -14,7 +15,7 @@ public record ClientHelloMessage : IMessage
     public required string FingerprintSha1 { get; set; }
 
     public required int DeviceType { get; set; }
-    public required int AppStore { get; set; }
+    public required AppStore AppStore { get; set; }
 
     public int Unknown1 { get; set; }
 
@@ -32,7 +33,7 @@ public record ClientHelloMessage : IMessage
             FingerprintSha1 = container.Payload.ReadString(),
 
             DeviceType = container.Payload.ReadInt32(),
-            AppStore = container.Payload.ReadInt32(),
+            AppStore = (AppStore)container.Payload.ReadInt32(),
             Unknown1 = container.Payload.ReadInt32()
         };
     }
@@ -51,7 +52,7 @@ public record ClientHelloMessage : IMessage
         supercellStream.WriteString(FingerprintSha1);
 
         supercellStream.WriteInt32(DeviceType);
-        supercellStream.WriteInt32(AppStore);
+        supercellStream.WriteInt32((int)AppStore);
 
         supercellStream.WriteInt32(Unknown1);
 
