@@ -4,8 +4,6 @@ namespace SupercellProxy.Keys;
 
 internal sealed partial class KeysDocument
 {
-    private const int KeyWidth = 66;
-
     private readonly string content;
     private readonly string[] lines;
     private readonly string newLine;
@@ -42,16 +40,28 @@ internal sealed partial class KeysDocument
                 throw new InvalidDataException($"KEYS.md contains app ID {appId} more than once.");
 
             var headerIndex = NextNonEmptyLine(lines, headingIndex + 1);
+            var headers = headerIndex < 0 ? null : ParseTableCells(lines[headerIndex]);
+            var versionColumnIndex = headers is null
+                ? -1
+                : Array.FindIndex(headers, header =>
+                    string.Equals(header, "Version", StringComparison.OrdinalIgnoreCase));
+            var keyColumnIndex = headers is null
+                ? -1
+                : Array.FindIndex(headers, header =>
+                    string.Equals(header, "Key", StringComparison.OrdinalIgnoreCase));
 
-            if (headerIndex < 0 || !TableHeaderPattern().IsMatch(lines[headerIndex]))
+            if (headers is null || versionColumnIndex < 0 || keyColumnIndex < 0)
             {
                 throw new InvalidDataException(
                     $"The {heading.Groups["name"].Value} section does not contain a Version/Key table.");
             }
 
             var separatorIndex = NextNonEmptyLine(lines, headerIndex + 1);
+            var separators = separatorIndex < 0 ? null : ParseTableCells(lines[separatorIndex]);
 
-            if (separatorIndex < 0 || !TableSeparatorPattern().IsMatch(lines[separatorIndex]))
+            if (separators is null ||
+                separators.Length != headers.Length ||
+                separators.Any(separator => !TableSeparatorCellPattern().IsMatch(separator)))
             {
                 throw new InvalidDataException(
                     $"The {heading.Groups["name"].Value} table has an invalid separator row.");
@@ -66,16 +76,24 @@ internal sealed partial class KeysDocument
                    !string.IsNullOrWhiteSpace(lines[dataEndIndex]) &&
                    !lines[dataEndIndex].StartsWith("## ", StringComparison.Ordinal))
             {
-                var row = TableRowPattern().Match(lines[dataEndIndex]);
+                var cells = ParseTableCells(lines[dataEndIndex]);
 
-                if (!row.Success)
+                if (cells is null || cells.Length != headers.Length)
                 {
                     throw new InvalidDataException(
                         $"The {heading.Groups["name"].Value} table contains an invalid row at line " +
                         $"{dataEndIndex + 1}.");
                 }
 
-                var version = row.Groups["version"].Value.Trim();
+                var version = cells[versionColumnIndex];
+                var keyMatch = KeyCellPattern().Match(cells[keyColumnIndex]);
+
+                if (version.Length == 0 || !keyMatch.Success)
+                {
+                    throw new InvalidDataException(
+                        $"The {heading.Groups["name"].Value} table contains an invalid row at line " +
+                        $"{dataEndIndex + 1}.");
+                }
 
                 if (!versions.Add(version))
                 {
@@ -85,15 +103,11 @@ internal sealed partial class KeysDocument
 
                 entries.Add(new ExistingKeyEntry(
                     version,
-                    row.Groups["key"].Value,
-                    dataEndIndex));
+                    keyMatch.Groups["key"].Value,
+                    dataEndIndex,
+                    cells));
                 dataEndIndex++;
             }
-
-            var versionWidth = "Version".Length;
-
-            if (entries.Count > 0)
-                versionWidth = Math.Max(versionWidth, entries.Max(entry => entry.Version.Length));
 
             sections.Add(new KeysSection(
                 heading.Groups["name"].Value,
@@ -102,7 +116,10 @@ internal sealed partial class KeysDocument
                 separatorIndex,
                 dataStartIndex,
                 dataEndIndex,
-                versionWidth,
+                headers,
+                separators,
+                versionColumnIndex,
+                keyColumnIndex,
                 entries));
         }
 
@@ -121,7 +138,7 @@ internal sealed partial class KeysDocument
 
         var insertBefore = new Dictionary<int, List<GeneratedKeyEntry>>();
         var insertAfter = new Dictionary<int, List<GeneratedKeyEntry>>();
-        var renderedSections = new Dictionary<string, (KeysSection Section, int VersionWidth)>(
+        var renderedSections = new Dictionary<string, (KeysSection Section, int[] ColumnWidths)>(
             StringComparer.Ordinal);
 
         foreach (var section in Sections)
@@ -129,9 +146,26 @@ internal sealed partial class KeysDocument
             if (!updates.TryGetValue(section.AppStoreId, out var update) || update.NewKeys.Count == 0)
                 continue;
 
-            renderedSections[section.AppStoreId] = (
-                section,
-                Math.Max(section.VersionWidth, update.NewKeys.Max(key => key.Version.Length)));
+            var generatedCells = update.NewKeys
+                .Select(key => CreateGeneratedCells(section, key))
+                .ToArray();
+            var columnWidths = Enumerable.Range(0, section.Headers.Count)
+                .Select(columnIndex =>
+                {
+                    var existingWidth = section.Entries.Count == 0
+                        ? 0
+                        : section.Entries.Max(entry => entry.Cells[columnIndex].Length);
+                    var generatedWidth = generatedCells.Max(cells => cells[columnIndex].Length);
+
+                    return Math.Max(
+                        GetMinimumSeparatorWidth(section.Separators[columnIndex]),
+                        Math.Max(
+                            section.Headers[columnIndex].Length,
+                            Math.Max(existingWidth, generatedWidth)));
+                })
+                .ToArray();
+
+            renderedSections[section.AppStoreId] = (section, columnWidths);
 
             var sourceIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -196,7 +230,9 @@ internal sealed partial class KeysDocument
             foreach (var value in values.OrderBy(value => value.SourceIndex))
             {
                 var renderedSection = renderedSections[value.AppStoreId];
-                output.Add(FormatDataRow(value.Version, value.Key, renderedSection.VersionWidth));
+                output.Add(FormatTableRow(
+                    CreateGeneratedCells(renderedSection.Section, value),
+                    renderedSection.ColumnWidths));
             }
         }
 
@@ -207,30 +243,70 @@ internal sealed partial class KeysDocument
                 var section = renderedSection.Section;
 
                 if (lineIndex == section.HeaderIndex)
-                {
-                    return $"| {"Version".PadRight(renderedSection.VersionWidth)} " +
-                           $"| {"Key".PadRight(KeyWidth)} |";
-                }
+                    return FormatTableRow(section.Headers, renderedSection.ColumnWidths);
 
                 if (lineIndex == section.SeparatorIndex)
                 {
-                    return $"| {new string('-', renderedSection.VersionWidth)} " +
-                           $"| {new string('-', KeyWidth)} |";
+                    var cells = section.Separators
+                        .Select((separator, columnIndex) =>
+                            FormatSeparatorCell(separator, renderedSection.ColumnWidths[columnIndex]))
+                        .ToArray();
+
+                    return FormatTableRow(cells, renderedSection.ColumnWidths);
                 }
 
                 var entry = section.Entries.FirstOrDefault(entry => entry.LineIndex == lineIndex);
 
                 if (entry is not null)
-                    return FormatDataRow(entry.Version, entry.Key, renderedSection.VersionWidth);
+                    return FormatTableRow(entry.Cells, renderedSection.ColumnWidths);
             }
 
             return lines[lineIndex];
         }
     }
 
-    private static string FormatDataRow(string version, string key, int versionWidth)
+    private static string[] CreateGeneratedCells(KeysSection section, GeneratedKeyEntry key)
     {
-        return $"| {version.PadRight(versionWidth)} | `{key}` |";
+        var cells = Enumerable.Repeat(string.Empty, section.Headers.Count).ToArray();
+        cells[section.VersionColumnIndex] = key.Version;
+        cells[section.KeyColumnIndex] = $"`{key.Key}`";
+        return cells;
+    }
+
+    private static string FormatTableRow(IReadOnlyList<string> cells, IReadOnlyList<int> columnWidths)
+    {
+        return "| " + string.Join(
+            " | ",
+            cells.Select((cell, index) => cell.PadRight(columnWidths[index]))) + " |";
+    }
+
+    private static int GetMinimumSeparatorWidth(string separator)
+    {
+        return 3 + (separator.StartsWith(':') ? 1 : 0) + (separator.EndsWith(':') ? 1 : 0);
+    }
+
+    private static string FormatSeparatorCell(string separator, int width)
+    {
+        var left = separator.StartsWith(':');
+        var right = separator.EndsWith(':');
+        var colonCount = (left ? 1 : 0) + (right ? 1 : 0);
+
+        return (left ? ":" : string.Empty) +
+               new string('-', width - colonCount) +
+               (right ? ":" : string.Empty);
+    }
+
+    private static string[]? ParseTableCells(string line)
+    {
+        var trimmed = line.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] != '|' || trimmed[^1] != '|')
+            return null;
+
+        return trimmed[1..^1]
+            .Split('|', StringSplitOptions.None)
+            .Select(cell => cell.Trim())
+            .ToArray();
     }
 
     private static void AddInsertion(
@@ -261,15 +337,11 @@ internal sealed partial class KeysDocument
     [GeneratedRegex(@"^## \[(?<name>[^\]]+)\]\(https://decrypt\.day/app/id(?<id>\d+)\)\s*$", RegexOptions.CultureInvariant)]
     private static partial Regex HeadingPattern();
 
-    [GeneratedRegex(@"^\|\s*Version\s*\|\s*Key\s*\|\s*$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
-    private static partial Regex TableHeaderPattern();
+    [GeneratedRegex(@"^:?-{3,}:?$", RegexOptions.CultureInvariant)]
+    private static partial Regex TableSeparatorCellPattern();
 
-    [GeneratedRegex(@"^\|\s*:?-{3,}:?\s*\|\s*:?-{3,}:?\s*\|\s*$", RegexOptions.CultureInvariant)]
-    private static partial Regex TableSeparatorPattern();
-
-    [GeneratedRegex(@"^\|\s*(?<version>[^|]+?)\s*\|\s*`(?<key>[0-9A-Fa-f]{64})`\s*\|\s*$", RegexOptions.CultureInvariant)]
-    private static partial Regex TableRowPattern();
-
+    [GeneratedRegex(@"^`(?<key>[0-9A-Fa-f]{64})`$", RegexOptions.CultureInvariant)]
+    private static partial Regex KeyCellPattern();
 }
 
 internal sealed record KeysSection(
@@ -279,10 +351,17 @@ internal sealed record KeysSection(
     int SeparatorIndex,
     int DataStartIndex,
     int DataEndIndex,
-    int VersionWidth,
+    IReadOnlyList<string> Headers,
+    IReadOnlyList<string> Separators,
+    int VersionColumnIndex,
+    int KeyColumnIndex,
     IReadOnlyList<ExistingKeyEntry> Entries);
 
-internal sealed record ExistingKeyEntry(string Version, string Key, int LineIndex);
+internal sealed record ExistingKeyEntry(
+    string Version,
+    string Key,
+    int LineIndex,
+    IReadOnlyList<string> Cells);
 
 internal sealed record GeneratedKeyEntry(
     string AppStoreId,
