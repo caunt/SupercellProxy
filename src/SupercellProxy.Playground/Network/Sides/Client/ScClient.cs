@@ -146,7 +146,7 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
                     AccountId = LogicLong.Empty,
                     PassToken = null,
                     ResourceSha = fingerprintSha1,
-                    LoginVersion = 1119325,
+                    LoginVersion = 1122388,
                     UdId = "",
                     OpenUdId = "",
                     MacAddress = "",
@@ -159,7 +159,10 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
                     PreferredLanguage = "",
                     ScidString = "",
                     Unknown0 = true,
-                    ScIdToken = ""
+                    ScIdToken = "",
+                    Unknown1 = uint.MaxValue,
+                    DataReference = -1,
+                    Unknown2 = new byte[8]
                 }, cancellationToken);
 
                 message = await stream.ReadMessageAsync(cancellationToken);
