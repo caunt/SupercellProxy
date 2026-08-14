@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Network.Sides;
 
 internal sealed record ScClientSession
 {
-    internal const int DefaultAppStore = 1;
+    internal const int DefaultAppStore = 2;
 
     private const string FileName = "sc-client-session.json";
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };

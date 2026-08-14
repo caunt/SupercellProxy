@@ -280,7 +280,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
                     FingerprintSha1 = fingerprintSha1,
 
-                    DeviceType = 1,
+                    DeviceType = 2,
                     AppStore = appStore,
                     Unknown1 = -1
                 }, cancellationToken);
