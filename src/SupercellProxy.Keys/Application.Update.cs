@@ -5,6 +5,8 @@ namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
+    private const int MaximumDownloadRetries = 5;
+
     private static async Task<int> RunUpdateAsync(
         string[] args,
         CancellationToken cancellationToken)
@@ -195,10 +197,12 @@ internal static partial class Application
                 {
                     try
                     {
-                        await DownloadAsync(
+                        await DownloadWithRetryAsync(
                             decryptDayClient,
                             download,
                             temporaryPath,
+                            section.Name,
+                            version,
                             cancellationToken);
                     }
                     catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
@@ -207,7 +211,7 @@ internal static partial class Application
                             report,
                             section.Name,
                             version,
-                            $"Download failed: {NormalizeReason(exception.Message)}");
+                            $"Download failed {NormalizeReason(exception.Message)}");
                         continue;
                     }
 
@@ -259,6 +263,47 @@ internal static partial class Application
 
         await WriteAtomicallyAsync(keysPath, updated, cancellationToken);
         Console.WriteLine($"Added {report.Results.Count(result => result.Outcome == KeysUpdateOutcome.Updated)} key(s) to {keysPath}.");
+    }
+
+    private static async Task DownloadWithRetryAsync(
+        DecryptDayClient decryptDayClient,
+        IpaDownload download,
+        string temporaryPath,
+        string appName,
+        string version,
+        CancellationToken cancellationToken)
+    {
+        for (var retry = 0; ; retry++)
+        {
+            try
+            {
+                await DownloadAsync(
+                    decryptDayClient,
+                    download,
+                    temporaryPath,
+                    cancellationToken);
+                return;
+            }
+            catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
+            {
+                File.Delete(temporaryPath);
+                File.Delete(temporaryPath + ".part");
+
+                if (retry == MaximumDownloadRetries)
+                {
+                    throw new InvalidOperationException(
+                        $"after {MaximumDownloadRetries} retries. Last error: " +
+                        NormalizeReason(exception.Message),
+                        exception);
+                }
+
+                Console.Error.WriteLine(
+                    $"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} " +
+                    $"Retrying from the beginning with a fresh browser session " +
+                    $"(retry {retry + 1}/{MaximumDownloadRetries})...");
+                await Task.Delay(TimeSpan.FromSeconds((retry + 1) * 2), cancellationToken);
+            }
+        }
     }
 
     private static bool IsRecoverableUpdateFailure(
