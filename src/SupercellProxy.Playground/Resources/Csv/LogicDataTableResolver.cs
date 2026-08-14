@@ -23,12 +23,7 @@ public sealed class LogicDataTableResolver
         }
 
         dataTables = resolvedDataTables;
-        Tables = resolvedDataTables
-            .Select(dataTable => new LogicDataTableResource(dataTable.Key, dataTable.Value.Resource.Fingerprint.File, dataTable.Value.Resource.Fingerprint.Sha))
-            .ToArray();
     }
-
-    public IReadOnlyList<LogicDataTableResource> Tables { get; }
 
     public bool TryResolve(int globalId, out LogicDataTableReference? reference)
     {

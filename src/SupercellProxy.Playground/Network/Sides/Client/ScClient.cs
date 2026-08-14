@@ -113,18 +113,17 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
             throw new InvalidDataException($"{nameof(OtherFishingHomeDataMessage)} did not encode back to the received payload.");
 
         var roadsideShop = ResolveRoadsideShop(message, dataTableResolver);
-        var capture = new OtherFishingHomeCapture(
+        var capture = new RoadsideShopCapture(
             MessageRegistry.GetId<OtherFishingHomeDataMessage>(),
             nameof(OtherFishingHomeDataMessage),
             target.ToFormattedString(),
+            message.HomeOwnerAvatar?.Name,
             $"{configuration.Protocol.MajorVersion}.{configuration.Protocol.MinorVersion}.{configuration.Protocol.PatchVersion}",
             fingerprint.Version,
             fingerprint.Sha,
             encodedPayload.Length,
             Convert.ToHexStringLower(SHA256.HashData(encodedPayload)),
-            Convert.ToBase64String(encodedPayload),
-            message,
-            dataTableResolver.Tables,
+            roadsideShop.Length,
             roadsideShop);
 
         var fullOutputPath = Path.GetFullPath(outputPath);
@@ -152,15 +151,15 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
             return new RoadsideShopSlotCapture(
                 slot,
-                entry.BuyerId,
+                isEmpty,
                 entry.BuyerId?.ToFormattedString(),
                 entry.IsAdvertised,
                 entry.Price,
                 entry.Quantity,
                 entry.ItemGlobalId,
+                item?.Name,
                 item?.TableId,
                 item?.RowIndex,
-                item?.Name,
                 item?.File);
         }).ToArray();
     }
