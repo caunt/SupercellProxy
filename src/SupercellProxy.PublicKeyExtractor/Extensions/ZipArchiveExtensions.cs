@@ -45,7 +45,14 @@ public static class ZipArchiveExtensions
     public static byte[] GetIpaAppEntry(this byte[] source)
     {
         using var zipStream = new MemoryStream(source, writable: false);
-        using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
+        return zipStream.GetIpaAppEntry();
+    }
+
+    public static byte[] GetIpaAppEntry(this Stream source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        using var archive = new ZipArchive(source, ZipArchiveMode.Read, leaveOpen: true);
 
         var match = archive.Entries.FirstOrDefault(entry =>
         {

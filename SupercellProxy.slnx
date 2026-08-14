@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="src/SupercellProxy.Keys/SupercellProxy.Keys.csproj" />
   <Project Path="src/SupercellProxy.Playground/SupercellProxy.Playground.csproj" />
   <Project Path="src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj" />
 </Solution>

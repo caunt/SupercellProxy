@@ -1,24 +1,189 @@
-name: Get Server Public Key
+name: Update Server Public Keys
 
 on:
   workflow_dispatch:
-    inputs:
-      file_url:
-        description: 'Direct URL to any Supercell game IPA file or libg.so dump'
-        default: 'temp.sh'
-        required: true
-        type: string
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: server-public-key
+  cancel-in-progress: false
 
 jobs:
-  extract-server-public-key:
-    runs-on: macos-latest
+  discover-games:
+    name: Discover games
+    runs-on: ubuntu-latest
+    outputs:
+      games: ${{ steps.games.outputs.games }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
-          dotnet-version: 'latest'
+          ref: main
 
-      - name: Get Server Public Key
-        run: dotnet run --project src/SupercellProxy.PublicKeyExtractor -- "${{ inputs.file_url }}" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Read games from KEYS.md
+        id: games
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet build --configuration Release \
+            src/SupercellProxy.Keys/SupercellProxy.Keys.csproj
+          games=$(dotnet run --configuration Release --no-build \
+            --project src/SupercellProxy.Keys \
+            -- games KEYS.md --json)
+          echo "games=$games" >> "$GITHUB_OUTPUT"
+
+  update-game:
+    name: Update ${{ matrix.app_name }}
+    needs: discover-games
+    runs-on: macos-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        include: ${{ fromJSON(needs.discover-games.outputs.games) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Update game keys
+        id: update
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.app_id }}
+        run: |
+          set -euo pipefail
+          result_directory="$RUNNER_TEMP/server-public-key-$APP_ID"
+          mkdir -p "$result_directory"
+          dotnet run --configuration Release \
+            --project src/SupercellProxy.Keys \
+            -- update KEYS.md \
+            --app "$APP_ID" \
+            --summary "$result_directory/summary.md"
+
+      - name: Prepare game result
+        if: ${{ always() }}
+        shell: bash
+        env:
+          APP_ID: ${{ matrix.app_id }}
+          APP_NAME: ${{ matrix.app_name }}
+        run: |
+          set -euo pipefail
+          result_directory="$RUNNER_TEMP/server-public-key-$APP_ID"
+          mkdir -p "$result_directory"
+
+          if [ -f "$result_directory/summary.md" ]; then
+            cat "$result_directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '%s\n' \
+              "## $APP_NAME" \
+              '' \
+              '| App | Version | Outcome | Key | Reason |' \
+              '| --- | --- | --- | --- | --- |' \
+              "| $APP_NAME | — | Not updated | — | Updater ended before producing a report. |" \
+              > "$result_directory/summary.md"
+            cat "$result_directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          git diff --binary -- KEYS.md > "$result_directory/KEYS.patch"
+
+      - name: Upload game result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: server-public-key-${{ matrix.app_id }}
+          path: ${{ runner.temp }}/server-public-key-${{ matrix.app_id }}
+          if-no-files-found: error
+          retention-days: 1
+
+  merge-results:
+    name: Merge and commit results
+    needs: [discover-games, update-game]
+    if: ${{ always() && needs.discover-games.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+
+      - name: Download game results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: server-public-key-*
+          path: ./key-results
+          merge-multiple: false
+
+      - name: Merge game results
+        shell: bash
+        env:
+          GAMES_JSON: ${{ needs.discover-games.outputs.games }}
+        run: |
+          set -euo pipefail
+          echo '# Server public key update' >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+
+          while IFS=$'\t' read -r app_id app_name; do
+            result_directory="./key-results/server-public-key-$app_id"
+            summary_path="$result_directory/summary.md"
+            patch_path="$result_directory/KEYS.patch"
+
+            if [ -f "$summary_path" ]; then
+              cat "$summary_path" >> "$GITHUB_STEP_SUMMARY"
+              echo >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning title=Server public key update::$app_name did not upload a summary."
+              printf '%s\n' \
+                "## $app_name" \
+                '' \
+                '| App | Version | Outcome | Key | Reason |' \
+                '| --- | --- | --- | --- | --- |' \
+                "| $app_name | — | Not updated | — | Matrix job did not upload a result. |" \
+                '' >> "$GITHUB_STEP_SUMMARY"
+            fi
+
+            if [ -s "$patch_path" ]; then
+              git apply --check "$patch_path"
+              git apply "$patch_path"
+            elif [ ! -f "$patch_path" ]; then
+              echo "::warning title=Server public key update::$app_name did not upload a patch."
+            fi
+          done < <(jq -r '.[] | [.app_id, .app_name] | @tsv' <<< "$GAMES_JSON")
+
+      - name: Commit updated keys
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- KEYS.md; then
+            echo "No new keys; nothing to commit."
+            exit 0
+          fi
+
+          git add -- KEYS.md
+
+          if git diff --cached --quiet; then
+            echo "No staged key changes; nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update KEYS.md with latest app keys"
+          git push
