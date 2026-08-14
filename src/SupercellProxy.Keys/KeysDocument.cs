@@ -4,6 +4,8 @@ namespace SupercellProxy.Keys;
 
 internal sealed partial class KeysDocument
 {
+    private const int KeyWidth = 66;
+
     private readonly string content;
     private readonly string[] lines;
     private readonly string newLine;
@@ -57,7 +59,6 @@ internal sealed partial class KeysDocument
 
             var entries = new List<ExistingKeyEntry>();
             var versions = new HashSet<string>(StringComparer.Ordinal);
-            var rowVersionWidths = new List<int>();
             var dataStartIndex = separatorIndex + 1;
             var dataEndIndex = dataStartIndex;
 
@@ -86,27 +87,19 @@ internal sealed partial class KeysDocument
                     version,
                     row.Groups["key"].Value,
                     dataEndIndex));
-                var versionCell = lines[dataEndIndex].Split('|', StringSplitOptions.None)[1];
-                var surroundingSpaces =
-                    (versionCell.StartsWith(' ') ? 1 : 0) +
-                    (versionCell.EndsWith(' ') ? 1 : 0);
-                rowVersionWidths.Add(Math.Max(
-                    version.Length,
-                    versionCell.Length - surroundingSpaces));
                 dataEndIndex++;
             }
 
-            var separator = lines[separatorIndex].Split('|', StringSplitOptions.None);
-            var versionWidth = Math.Max(
-                "Version".Length,
-                separator.Length > 1 ? separator[1].Trim().Trim(':').Length : 0);
+            var versionWidth = "Version".Length;
 
             if (entries.Count > 0)
-                versionWidth = Math.Max(versionWidth, rowVersionWidths.Max());
+                versionWidth = Math.Max(versionWidth, entries.Max(entry => entry.Version.Length));
 
             sections.Add(new KeysSection(
                 heading.Groups["name"].Value,
                 appId,
+                headerIndex,
+                separatorIndex,
                 dataStartIndex,
                 dataEndIndex,
                 versionWidth,
@@ -128,11 +121,17 @@ internal sealed partial class KeysDocument
 
         var insertBefore = new Dictionary<int, List<GeneratedKeyEntry>>();
         var insertAfter = new Dictionary<int, List<GeneratedKeyEntry>>();
+        var renderedSections = new Dictionary<string, (KeysSection Section, int VersionWidth)>(
+            StringComparer.Ordinal);
 
         foreach (var section in Sections)
         {
             if (!updates.TryGetValue(section.AppStoreId, out var update) || update.NewKeys.Count == 0)
                 continue;
+
+            renderedSections[section.AppStoreId] = (
+                section,
+                Math.Max(section.VersionWidth, update.NewKeys.Max(key => key.Version.Length)));
 
             var sourceIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -180,7 +179,7 @@ internal sealed partial class KeysDocument
             if (index == lines.Length)
                 break;
 
-            result.Add(lines[index]);
+            result.Add(FormatExistingLine(index));
             AppendInsertions(result, insertAfter, index);
         }
 
@@ -196,12 +195,42 @@ internal sealed partial class KeysDocument
 
             foreach (var value in values.OrderBy(value => value.SourceIndex))
             {
-                var section = Sections.Single(section => section.AppStoreId == value.AppStoreId);
-                output.Add(
-                    $"| {value.Version.PadRight(Math.Max(section.VersionWidth, value.Version.Length))} " +
-                    $"| `{value.Key}` |");
+                var renderedSection = renderedSections[value.AppStoreId];
+                output.Add(FormatDataRow(value.Version, value.Key, renderedSection.VersionWidth));
             }
         }
+
+        string FormatExistingLine(int lineIndex)
+        {
+            foreach (var renderedSection in renderedSections.Values)
+            {
+                var section = renderedSection.Section;
+
+                if (lineIndex == section.HeaderIndex)
+                {
+                    return $"| {"Version".PadRight(renderedSection.VersionWidth)} " +
+                           $"| {"Key".PadRight(KeyWidth)} |";
+                }
+
+                if (lineIndex == section.SeparatorIndex)
+                {
+                    return $"| {new string('-', renderedSection.VersionWidth)} " +
+                           $"| {new string('-', KeyWidth)} |";
+                }
+
+                var entry = section.Entries.FirstOrDefault(entry => entry.LineIndex == lineIndex);
+
+                if (entry is not null)
+                    return FormatDataRow(entry.Version, entry.Key, renderedSection.VersionWidth);
+            }
+
+            return lines[lineIndex];
+        }
+    }
+
+    private static string FormatDataRow(string version, string key, int versionWidth)
+    {
+        return $"| {version.PadRight(versionWidth)} | `{key}` |";
     }
 
     private static void AddInsertion(
@@ -246,6 +275,8 @@ internal sealed partial class KeysDocument
 internal sealed record KeysSection(
     string Name,
     string AppStoreId,
+    int HeaderIndex,
+    int SeparatorIndex,
     int DataStartIndex,
     int DataEndIndex,
     int VersionWidth,
