@@ -1,5 +1,7 @@
 ﻿using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
+using SupercellProxy.Playground.Supercell;
+using SupercellProxy.Playground.Supercell.Commands;
 
 namespace SupercellProxy.Playground.Network.Messages;
 
@@ -89,8 +91,16 @@ public static class MessageRegistry
 
     public static IMessage Resolve(MessageContainer container)
     {
+        return Resolve(container, null);
+    }
+
+    public static IMessage Resolve(MessageContainer container, ILogicCommandDataResolver? dataResolver)
+    {
         if (!_map.TryGetValue(container.Id, out var entry))
             return PassthroughMessage.Create(container);
+
+        if (container.Id == GetId<EndClientTurnMessage>())
+            return EndClientTurnMessage.Create(container, LogicEnvironment.Production, dataResolver);
 
         return entry.Factory(container);
     }

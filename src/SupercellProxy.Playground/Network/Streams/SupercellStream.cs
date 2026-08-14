@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
+using SupercellProxy.Playground.Supercell.Commands;
 
 namespace SupercellProxy.Playground.Network.Streams;
 
@@ -9,6 +10,7 @@ public partial class SupercellStream(Stream stream, bool leaveOpen = true) : IAs
     public const int MaxPayloadLength = 0x1000000;
     public long Position { get => GetMemoryStream().Position; set => GetMemoryStream().Position = value; }
     public long Length => GetMemoryStream().Length;
+    public ILogicCommandDataResolver? CommandDataResolver { get; set; }
 
     public static SupercellStream Create()
     {

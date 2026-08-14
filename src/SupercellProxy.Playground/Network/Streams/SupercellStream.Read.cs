@@ -59,6 +59,37 @@ public partial class SupercellStream
         return buffer;
     }
 
+    public Memory<byte>? ReadOptionalByteArray()
+    {
+        var length = ReadInt32();
+
+        if (length < 0)
+            return null;
+
+        if (length is 0)
+            return Memory<byte>.Empty;
+
+        var buffer = new byte[length];
+        ReadExactly(buffer);
+        return buffer;
+    }
+
+    public Memory<byte> ReadVarIntByteArray()
+    {
+        var length = ReadVarInt();
+
+        if (length is 0)
+            return Memory<byte>.Empty;
+
+        if (length < 0 || length > MaxPayloadLength)
+            throw new InvalidDataException("Invalid variable-length byte array length.");
+
+        var buffer = new byte[length];
+        ReadExactly(buffer);
+
+        return buffer;
+    }
+
     public async ValueTask<Memory<byte>> ReadByteArrayAsync(CancellationToken cancellationToken = default)
     {
         var length = await ReadInt32Async(cancellationToken);
@@ -224,6 +255,32 @@ public partial class SupercellStream
         }
 
         return accumulator;
+    }
+
+    public long ReadVarLong()
+    {
+        var firstByte = ReadByte();
+        var isNegative = (firstByte & 0x40) != 0;
+        ulong accumulator = (uint)(firstByte & 0x3F);
+        var consumedBitWidth = 6;
+
+        var currentByte = firstByte;
+        while ((currentByte & 0x80) != 0 && consumedBitWidth < 64)
+        {
+            currentByte = ReadByte();
+            var availableBitWidth = Math.Min(7, 64 - consumedBitWidth);
+            var valueMask = (1 << availableBitWidth) - 1;
+            accumulator |= (ulong)(currentByte & valueMask) << consumedBitWidth;
+            consumedBitWidth += availableBitWidth;
+        }
+
+        if ((currentByte & 0x80) != 0)
+            throw new InvalidDataException("Variable-length long is too long.");
+
+        if (isNegative && consumedBitWidth < 64)
+            accumulator |= ulong.MaxValue << consumedBitWidth;
+
+        return unchecked((long)accumulator);
     }
 
     public LogicLong ReadLogicLong()

@@ -1,108 +1,148 @@
-﻿using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Supercell;
+using SupercellProxy.Playground.Supercell.Commands;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
-public record ClientCommand(int Type, Memory<byte> Data);
-
 /// <summary>
-/// Build EndClientTurnMessage (19132) payload
-// 
-// Format(from Ghidra vtable[2] decompilation of FUN_10060c660) of v1.69.89:
-//       writeVarInt(checksum)       # main state checksum (offset 0xCC)
-//       writeVarInt(subtick)        # sub-tick counter (offset 0xC8)
-//       writeVarInt(sub_chk[0..7])  # 8 sub-checksums (offsets 0x90-0xAC)
-//       writeVarInt(commandCount)   # number of commands
-//       [for each command:
-//         writeVarInt(cmd_type)     # command type ID
-//         bytes(cmd_data)           # command-specific encode
-//       ]
-// Note: DAT_101ac1d88=3 in this binary, so conditional sections are skipped
+/// EndClientTurnMessage (19132) wire representation.
 /// </summary>
 public record EndClientTurnMessage : IMessage
 {
+    public const int SubChecksumCount = 8;
+    public const int MaxCommandCount = 1024;
+
     public int Checksum { get; init; }
     public int SubTick { get; init; }
-    public Memory<int> SubChecksums { get; init; } = new int[8];
-    public Memory<ClientCommand> Commands { get; init; }
-    public Memory<byte> Fallback { get; init; }
+    public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
+    public Memory<LogicCommand> Commands { get; init; }
+    public LogicEnvironment Environment { get; init; } = LogicEnvironment.Production;
+    public Memory<LogicCommandData> DebugCommandData { get; init; }
+    public Memory<Memory<byte>> DevelopmentByteArrays { get; init; }
 
     public static EndClientTurnMessage Create(MessageContainer messageContainer)
     {
-        var position = messageContainer.Payload.Position;
-        var checksum = messageContainer.Payload.ReadVarInt();
-        var subTick = messageContainer.Payload.ReadVarInt();
-        var subChecksums = new int[8];
+        return Create(messageContainer, LogicEnvironment.Production);
+    }
 
-        for (int i = 0; i < subChecksums.Length; i++)
-            subChecksums[i] = messageContainer.Payload.ReadVarInt();
+    public static EndClientTurnMessage Create(MessageContainer messageContainer, LogicEnvironment environment)
+    {
+        return Create(messageContainer, environment, null);
+    }
 
-        var commands = new ClientCommand[messageContainer.Payload.ReadVarInt()];
+    public static EndClientTurnMessage Create(MessageContainer messageContainer, LogicEnvironment environment, ILogicCommandDataResolver? dataResolver)
+    {
+        var stream = messageContainer.Payload;
+        var checksum = stream.ReadVarInt();
+        var subTick = stream.ReadVarInt();
+        var subChecksums = new int[SubChecksumCount];
 
-        for (int i = 0; i < commands.Length; i++)
+        for (var i = 0; i < subChecksums.Length; i++)
+            subChecksums[i] = stream.ReadVarInt();
+
+        var commandCount = ReadCollectionCount(stream, MaxCommandCount, "command");
+        var commands = new LogicCommand[commandCount];
+
+        for (var i = 0; i < commands.Length; i++)
+            commands[i] = LogicCommandRegistry.Decode(stream, environment, dataResolver);
+
+        var debugCommandData = Array.Empty<LogicCommandData>();
+
+        if (environment is not LogicEnvironment.Production)
         {
-            var commandType = messageContainer.Payload.ReadVarInt();
+            var debugCommandDataCount = ReadPayloadBoundedCollectionCount(stream, "debug command data");
+            debugCommandData = new LogicCommandData[debugCommandDataCount];
 
-            if (commands.Length is 1)
-            {
-                commands[i] = new ClientCommand(commandType, messageContainer.Payload.ReadToEnd());
-            }
-            else
-            {
-                var commandLength = commandType switch
-                {
-                    210 => 11,
-                    355 => 5,
-                    672 => 11,
-                    _ => -1
-                };
-
-                if (commandLength is -1)
-                {
-                    Console.WriteLine($"[{DateTime.Now:T}] We do not know the size of the {nameof(EndClientTurnMessage)} command data yet. Command count: {commands.Length}, Position: {messageContainer.Payload.Position}, Length: {messageContainer.Payload.Length}");
-                    messageContainer.Payload.Position = position;
-                    return new EndClientTurnMessage { Fallback = messageContainer.Payload.ReadToEnd() };
-                }
-
-                var commandData = new byte[commandLength];
-                messageContainer.Payload.ReadExactly(commandData);
-
-                commands[i] = new ClientCommand(commandType, commandData);
-            }
+            for (var i = 0; i < debugCommandData.Length; i++)
+                debugCommandData[i] = LogicCommandData.Decode(stream);
         }
+
+        var developmentByteArrays = Array.Empty<Memory<byte>>();
+
+        if (environment is LogicEnvironment.Development)
+        {
+            var developmentByteArrayCount = ReadPayloadBoundedCollectionCount(stream, "development byte array");
+            developmentByteArrays = new Memory<byte>[developmentByteArrayCount];
+
+            for (var i = 0; i < developmentByteArrays.Length; i++)
+                developmentByteArrays[i] = stream.ReadVarIntByteArray();
+        }
+
+        if (stream.Position != stream.Length)
+            throw new InvalidDataException($"Unexpected trailing EndClientTurnMessage data at position {stream.Position} of {stream.Length}.");
 
         return new EndClientTurnMessage
         {
             Checksum = checksum,
             SubTick = subTick,
             SubChecksums = subChecksums,
-            Commands = commands
+            Commands = commands,
+            Environment = environment,
+            DebugCommandData = debugCommandData,
+            DevelopmentByteArrays = developmentByteArrays
         };
     }
 
     public MessageContainer ToContainer(ushort id, ushort messageVersion = 5213)
     {
-        var supercellStream = SupercellStream.Create();
+        if (SubChecksums.Length != SubChecksumCount)
+            throw new InvalidDataException($"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
 
-        if (Fallback.Length > 0)
-        {
-            supercellStream.Write(Fallback.Span);
-            return new MessageContainer(id, messageVersion, supercellStream);
-        }
+        if (Commands.Length > MaxCommandCount)
+            throw new InvalidDataException($"Invalid command count: {Commands.Length}.");
 
-        supercellStream.WriteVarInt(Checksum);
-        supercellStream.WriteVarInt(SubTick);
+        if (Environment is LogicEnvironment.Production && (DebugCommandData.Length > 0 || DevelopmentByteArrays.Length > 0))
+            throw new InvalidDataException("Production EndClientTurnMessage cannot contain diagnostic collections.");
+
+        if (Environment is not LogicEnvironment.Development && DevelopmentByteArrays.Length > 0)
+            throw new InvalidDataException("Development byte arrays are only encoded in the development environment.");
+
+        using var stream = SupercellStream.Create();
+
+        stream.WriteVarInt(Checksum);
+        stream.WriteVarInt(SubTick);
 
         foreach (var subChecksum in SubChecksums.Span)
-            supercellStream.WriteVarInt(subChecksum);
+            stream.WriteVarInt(subChecksum);
 
-        supercellStream.WriteVarInt(Commands.Length);
+        stream.WriteVarInt(Commands.Length);
 
-        foreach (var clientCommand in Commands.Span)
+        foreach (var command in Commands.Span)
+            LogicCommandRegistry.Encode(stream, command, Environment);
+
+        if (Environment is not LogicEnvironment.Production)
         {
-            supercellStream.WriteVarInt(clientCommand.Type);
-            supercellStream.Write(clientCommand.Data.Span);
+            stream.WriteVarInt(DebugCommandData.Length);
+
+            foreach (var commandData in DebugCommandData.Span)
+                commandData.Encode(stream);
         }
 
-        return new MessageContainer(id, messageVersion, supercellStream);
+        if (Environment is LogicEnvironment.Development)
+        {
+            stream.WriteVarInt(DevelopmentByteArrays.Length);
+
+            foreach (var byteArray in DevelopmentByteArrays.Span)
+                stream.WriteVarIntByteArray(byteArray.Span);
+        }
+
+        return new MessageContainer(id, messageVersion, stream);
+    }
+
+    private static int ReadCollectionCount(SupercellStream stream, int maximum, string name)
+    {
+        var count = stream.ReadVarInt();
+
+        if ((uint)count > maximum)
+            throw new InvalidDataException($"Invalid {name} count: {count}.");
+
+        return count;
+    }
+
+    private static int ReadPayloadBoundedCollectionCount(SupercellStream stream, string name)
+    {
+        var remainingPayloadLength = stream.Length - stream.Position;
+        var maximum = (int)Math.Min(int.MaxValue, remainingPayloadLength);
+        return ReadCollectionCount(stream, maximum, name);
     }
 }

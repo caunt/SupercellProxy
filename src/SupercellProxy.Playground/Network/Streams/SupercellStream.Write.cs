@@ -35,6 +35,26 @@ public partial class SupercellStream
         Write(source);
     }
 
+    public void WriteOptionalByteArray(ReadOnlyMemory<byte>? source = null)
+    {
+        if (source is null)
+        {
+            WriteInt32(-1);
+            return;
+        }
+
+        WriteByteArray(source.Value.Span);
+    }
+
+    public void WriteVarIntByteArray(ReadOnlySpan<byte> source)
+    {
+        if (source.Length > MaxPayloadLength)
+            throw new InvalidDataException("Variable-length byte array is too large.");
+
+        WriteVarInt(source.Length);
+        Write(source);
+    }
+
     public async ValueTask WriteByteArrayAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
     {
         await WriteInt32Async(source.Length, cancellationToken);
@@ -244,6 +264,47 @@ public partial class SupercellStream
 
         if (currentIndex == 5)
             byteBuffer[4] &= 0x0F;
+
+        stream.Write(byteBuffer[..currentIndex]);
+    }
+
+    public void WriteVarLong(long valueToWrite)
+    {
+        FlushWriteBoolean();
+
+        var temporarySignByte = (int)(valueToWrite >> 57) & 0x40;
+        var boundariesTracker = valueToWrite < 0
+            ? unchecked((ulong)(-(valueToWrite + 1))) + 1
+            : (ulong)valueToWrite;
+
+        temporarySignByte |= (int)valueToWrite & 0x3F;
+        valueToWrite >>= 6;
+
+        Span<byte> byteBuffer = stackalloc byte[10];
+        var currentIndex = 0;
+
+        if ((boundariesTracker >>= 6) == 0)
+        {
+            byteBuffer[currentIndex++] = (byte)temporarySignByte;
+            stream.Write(byteBuffer[..currentIndex]);
+            return;
+        }
+
+        byteBuffer[currentIndex++] = (byte)(temporarySignByte | 0x80);
+
+        do
+        {
+            var dataByte = (byte)(valueToWrite & 0x7F);
+            valueToWrite >>= 7;
+
+            if ((boundariesTracker >>= 7) != 0)
+                dataByte |= 0x80;
+
+            byteBuffer[currentIndex++] = dataByte;
+        } while (boundariesTracker != 0);
+
+        if (currentIndex == byteBuffer.Length)
+            byteBuffer[^1] &= 0x03;
 
         stream.Write(byteBuffer[..currentIndex]);
     }

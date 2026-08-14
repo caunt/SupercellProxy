@@ -47,6 +47,7 @@ public static class LogicDataTableRegistry
         [177] = "data/tea_stand_goods.csv",
         [184] = "data/limited_collection_tools.csv",
         [202] = "data/flowershop_goods.csv",
+        [218] = "data/mapgame_tasks.csv",
         [238] = "data/wok_kitchen_goods.csv",
         [239] = "data/fondue_pot_goods.csv",
         [240] = "data/deep_fryer_goods.csv",

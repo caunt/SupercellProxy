@@ -40,7 +40,7 @@ public partial class SupercellStream
     public async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         var container = await ReadContainerAsync(cancellationToken);
-        var message = MessageRegistry.Resolve(container);
+        var message = MessageRegistry.Resolve(container, CommandDataResolver);
 
         if (container.Payload.Position != container.Payload.Length)
             Console.WriteLine($"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}");

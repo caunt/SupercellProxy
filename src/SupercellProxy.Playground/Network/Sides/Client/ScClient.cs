@@ -33,6 +33,9 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
             Console.WriteLine(loginOkResult);
 
+            if (loginOkResult.Resources.Length > 0)
+                (await GetStreamAsync(cancellationToken)).CommandDataResolver = new LogicDataTableResolver(loginOkResult.Resources);
+
             var keepAliveTask = Task.Run(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
@@ -73,6 +76,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
         var fingerprint = loginOkResult.Fingerprint ?? throw new InvalidOperationException("The server did not provide a content fingerprint.");
         var dataTableResolver = new LogicDataTableResolver(loginOkResult.Resources);
         var stream = await GetStreamAsync(cancellationToken);
+        stream.CommandDataResolver = dataTableResolver;
 
         await stream.WriteMessageAsync(new VisitHomeMessage
         {

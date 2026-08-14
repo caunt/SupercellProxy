@@ -1,6 +1,9 @@
+using SupercellProxy.Playground.Supercell.Commands;
+using System.Diagnostics.CodeAnalysis;
+
 namespace SupercellProxy.Playground.Resources.Csv;
 
-public sealed class LogicDataTableResolver
+public sealed class LogicDataTableResolver : ILogicCommandDataResolver
 {
     private const int GlobalIdTableSize = 100000;
 
@@ -57,6 +60,42 @@ public sealed class LogicDataTableResolver
             name,
             dataTable.Resource.Fingerprint.File,
             dataTable.Resource.Fingerprint.Sha);
+        return true;
+    }
+
+    public bool TryResolveString(int globalId, string fieldName, [NotNullWhen(true)] out string? value)
+    {
+        value = null;
+
+        if (!TryResolveTableEntry(globalId, out var entry) ||
+            !entry.BaseRow.TryGetValue(fieldName, out var fieldValue) ||
+            fieldValue is not string stringValue)
+        {
+            return false;
+        }
+
+        value = stringValue;
+        return true;
+    }
+
+    private bool TryResolveTableEntry(int globalId, [NotNullWhen(true)] out SupercellCsvEntry? entry)
+    {
+        if (globalId < GlobalIdTableSize)
+        {
+            entry = null;
+            return false;
+        }
+
+        var tableId = globalId / GlobalIdTableSize;
+        var rowIndex = globalId % GlobalIdTableSize;
+
+        if (!dataTables.TryGetValue(tableId, out var dataTable) || rowIndex >= dataTable.Table.Entries.Count)
+        {
+            entry = null;
+            return false;
+        }
+
+        entry = dataTable.Table.Entries[rowIndex];
         return true;
     }
 }
