@@ -5,8 +5,9 @@ using SupercellProxy.Playground.Network.Sides.Proxy;
 using SupercellProxy.Playground.Supercell;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
 
-var runClient = args.FirstOrDefault() is "client";
+var runClient = true;
 var captureOtherFishingHome = runClient && args.ElementAtOrDefault(1) is "visit";
 var captureTarget = captureOtherFishingHome
     ? LogicLong.Parse(args.ElementAtOrDefault(2) ?? throw new ArgumentException("A target player tag is required."))
@@ -15,7 +16,7 @@ var capturePath = captureTarget is { } capturedTarget
     ? args.ElementAtOrDefault(3) ?? Path.Combine("bin", $"other-fishing-home-{capturedTarget.ToFormattedString(includeHashPrefix: false)}.json")
     : null;
 var connectionArguments = runClient
-    ? args[(captureOtherFishingHome ? Math.Min(args.Length, 4) : 1)..]
+    ? args[Math.Min(args.Length, captureOtherFishingHome ? 4 : 1)..]
     : args;
 var upstreamHost = connectionArguments.Length > 0
     ? connectionArguments[0]
@@ -73,20 +74,39 @@ static async Task<string> ResolveHostAsync(string host)
 
     try
     {
-        var response = await new LookupClient().QueryAsync(host, QueryType.A);
-        var address = response.Answers.ARecords().FirstOrDefault()?.Address;
+        var lookupClient = new LookupClient(new LookupClientOptions(IPAddress.Parse("1.1.1.1"))
+        {
+            Timeout = TimeSpan.FromSeconds(2),
+            Retries = 0
+        });
+        var dnsResponse = await lookupClient.QueryAsync(host, QueryType.A);
+        var address = dnsResponse.Answers.ARecords().FirstOrDefault()?.Address;
 
         if (address is not null)
             return address.ToString();
     }
     catch (Exception exception) when (exception is DnsResponseException or
                                                    OperationCanceledException or
-                                                   SocketException)
+                                                   SocketException or
+                                                   TimeoutException)
     {
-        // Fall back to the system resolver below.
+        // Fall back to Cloudflare DNS over HTTPS below.
     }
 
-    var addresses = await Dns.GetHostAddressesAsync(host);
-    return addresses.First(address => address.AddressFamily is AddressFamily.InterNetwork)
-        .ToString();
+    using var httpClient = new HttpClient();
+    using var request = new HttpRequestMessage(HttpMethod.Get,
+        $"https://1.1.1.1/dns-query?name={Uri.EscapeDataString(host)}&type=A");
+    request.Headers.Accept.ParseAdd("application/dns-json");
+
+    using var httpResponse = await httpClient.SendAsync(request);
+    httpResponse.EnsureSuccessStatusCode();
+
+    await using var content = await httpResponse.Content.ReadAsStreamAsync();
+    using var document = await JsonDocument.ParseAsync(content);
+
+    return document.RootElement.GetProperty("Answer")
+        .EnumerateArray()
+        .Select(answer => answer.GetProperty("data").GetString())
+        .First(address => IPAddress.TryParse(address, out var parsed) &&
+                          parsed.AddressFamily is AddressFamily.InterNetwork)!;
 }

@@ -16,6 +16,9 @@ internal sealed record ScClientSession
     public required string PassToken { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public byte[]? CompressedData { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AccountIdHigh { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -40,7 +43,7 @@ internal sealed record ScClientSession
         return session;
     }
 
-    internal static async Task SaveAsync(LogicLong accountId, string passToken, AppStore appStore, CancellationToken cancellationToken = default)
+    internal static async Task SaveAsync(LogicLong accountId, string passToken, AppStore appStore, Memory<byte>? compressedData, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(AppContext.BaseDirectory, FileName);
         var temporaryPath = $"{path}.{Environment.ProcessId}.tmp";
@@ -48,7 +51,8 @@ internal sealed record ScClientSession
         {
             AccountId = accountId.ToFormattedString(),
             AppStore = appStore,
-            PassToken = passToken
+            PassToken = passToken,
+            CompressedData = compressedData?.ToArray()
         };
 
         session.Validate(path);

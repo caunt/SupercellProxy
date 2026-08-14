@@ -14,6 +14,7 @@ namespace SupercellProxy.Playground.Network.Sides.Proxy;
 
 public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, SupercellStream ClientStream, SupercellStream ServerStream, EventBus EventBus, CancellationTokenSource CancellationTokenSource) : IAsyncDisposable
 {
+    private LoginMessage? _loginMessage;
     private bool _suppressEndClientTurns = false;
 
     public string RemoteEndPoint { get; } = TcpClient.RemoteEndPoint;
@@ -203,14 +204,11 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
 
     private async Task OnMessageReceivedEvent(MessageReceivedEvent @event, CancellationToken cancellationToken = default)
     {
-        var fileName = $"packet_{MessageRegistry.GetId(@event.Message)}.bin";
-
-        if (!File.Exists(fileName))
-            await File.WriteAllBytesAsync(fileName, @event.Message.ToContainer(MessageRegistry.GetId(@event.Message), MessageRegistry.GetVersion(@event.Message)).Payload.ToArray(), cancellationToken);
-
-
         switch (@event.Message)
         {
+            case LoginMessage loginMessage when @event.Direction is Direction.Serverbound:
+                _loginMessage = loginMessage;
+                break;
             case ServerHelloMessage serverHelloMessage:
                 await @event.Source.SetupEncryptionAsync(Side.Server, serverHelloMessage.SessionKey, cancellationToken);
                 break;
@@ -230,6 +228,9 @@ public record ScProxyClient(TcpClient TcpClient, TcpClient TcpUpstream, Supercel
     {
         switch (@event.Message)
         {
+            case LoginOkMessage loginOkMessage when @event.Direction is Direction.Clientbound && _loginMessage is { } loginMessage:
+                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, loginMessage.AppStore, loginMessage.CompressedData, cancellationToken);
+                break;
             case ServerHelloMessage serverHelloMessage:
                 await @event.Destination.SetupEncryptionAsync(Side.Client, serverHelloMessage.SessionKey, cancellationToken);
                 break;

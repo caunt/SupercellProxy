@@ -313,7 +313,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                     AdvertisingTrackingEnabled = true,
                     IdentifierForVendor = "",
                     AppStore = appStore,
-                    CompressedData = null,
+                    CompressedData = session?.CompressedData,
                     StorefrontCountryCode = "",
                     StorefrontIdentifier = ""
                 }, cancellationToken);
@@ -324,7 +324,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                 if (message is not LoginOkMessage loginOkMessage)
                     throw new InvalidOperationException($"Expected {nameof(LoginOkMessage)}, but received {message}.");
 
-                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, appStore, cancellationToken);
+                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, appStore, session?.CompressedData, cancellationToken);
                 return loginOkMessage;
             }
             catch
