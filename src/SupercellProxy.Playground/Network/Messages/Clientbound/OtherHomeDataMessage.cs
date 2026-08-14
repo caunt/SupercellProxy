@@ -26,8 +26,11 @@ public record OtherHomeDataMessage : IMessage
 
     public static OtherHomeDataMessage Create(MessageContainer container)
     {
-        var data = container.Payload.ReadToEnd();
+        return Decode(container.Payload.ReadToEnd());
+    }
 
+    internal static OtherHomeDataMessage Decode(Memory<byte> data)
+    {
         if (!TryDecode(data, out var message))
             return new OtherHomeDataMessage { Fallback = data };
 
@@ -471,7 +474,7 @@ public record DataReferenceValue(int GlobalDataId, int Value)
     }
 }
 
-public record RoadsideShopEntry(LogicLong? UnknownId, bool Unknown0, int Unknown1, int Unknown2, int Unknown3)
+public record RoadsideShopEntry(LogicLong? BuyerId, bool IsAdvertised, int Price, int Quantity, int ItemGlobalId)
 {
     internal static RoadsideShopEntry Decode(SupercellStream stream)
     {
@@ -485,11 +488,11 @@ public record RoadsideShopEntry(LogicLong? UnknownId, bool Unknown0, int Unknown
 
     internal void Encode(SupercellStream stream)
     {
-        LogicClientAvatar.WriteOptionalLogicLong(stream, UnknownId);
-        stream.WriteBoolean(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(Unknown2);
-        stream.WriteVarInt(Unknown3);
+        LogicClientAvatar.WriteOptionalLogicLong(stream, BuyerId);
+        stream.WriteBoolean(IsAdvertised);
+        stream.WriteVarInt(Price);
+        stream.WriteVarInt(Quantity);
+        stream.WriteVarInt(ItemGlobalId);
     }
 }
 

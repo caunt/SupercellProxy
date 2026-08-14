@@ -41,6 +41,11 @@ public static class MessageRegistry
             Type: typeof(VisitHomeMessage),
             Factory: VisitHomeMessage.Create),
 
+        [17703] = new Entry(
+            Version: 0,
+            Type: typeof(VisitOtherFishingHomeMessage),
+            Factory: VisitOtherFishingHomeMessage.Create),
+
         [18671] = new Entry(
             Version: 5213,
             Type: typeof(VisitHomeTargetMessage),
@@ -74,7 +79,12 @@ public static class MessageRegistry
         [25220] = new Entry(
             Version: 2,
             Type: typeof(LoginOkMessage),
-            Factory: LoginOkMessage.Create)
+            Factory: LoginOkMessage.Create),
+
+        [28917] = new Entry(
+            Version: 0,
+            Type: typeof(OtherFishingHomeDataMessage),
+            Factory: OtherFishingHomeDataMessage.Create)
     };
 
     public static IMessage Resolve(MessageContainer container)

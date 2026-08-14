@@ -2,11 +2,21 @@ using DnsClient;
 using SupercellProxy.Playground.Network.Sides;
 using SupercellProxy.Playground.Network.Sides.Configuration;
 using SupercellProxy.Playground.Network.Sides.Proxy;
+using SupercellProxy.Playground.Supercell;
 using System.Net;
 using System.Net.Sockets;
 
 var runClient = args.FirstOrDefault() is "client";
-var connectionArguments = runClient ? args[1..] : args;
+var captureOtherFishingHome = runClient && args.ElementAtOrDefault(1) is "visit";
+var captureTarget = captureOtherFishingHome
+    ? LogicLong.Parse(args.ElementAtOrDefault(2) ?? throw new ArgumentException("A target player tag is required."))
+    : (LogicLong?)null;
+var capturePath = captureTarget is { } capturedTarget
+    ? args.ElementAtOrDefault(3) ?? Path.Combine("bin", $"other-fishing-home-{capturedTarget.ToFormattedString(includeHashPrefix: false)}.json")
+    : null;
+var connectionArguments = runClient
+    ? args[(captureOtherFishingHome ? Math.Min(args.Length, 4) : 1)..]
+    : args;
 var upstreamHost = connectionArguments.Length > 0
     ? connectionArguments[0]
     : "game.haydaygame.com";
@@ -31,7 +41,10 @@ if (runClient)
         UpstreamPort: upstreamPort,
         Protocol: protocol));
 
-    await client.RunAsync();
+    if (captureTarget is { } target)
+        await client.CaptureOtherFishingHomeAsync(target, capturePath!);
+    else
+        await client.RunAsync();
     return;
 }
 

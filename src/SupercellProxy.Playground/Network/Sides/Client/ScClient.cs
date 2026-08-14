@@ -1,20 +1,29 @@
 using SupercellProxy.Playground.Exceptions;
+using SupercellProxy.Playground.Network.Captures;
+using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Sides.Configuration;
+using SupercellProxy.Playground.Network.Streams;
 using SupercellProxy.Playground.Resources;
+using SupercellProxy.Playground.Resources.Csv;
 using SupercellProxy.Playground.Supercell;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
-public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposable
+public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 {
     private static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(5);
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions CaptureJsonSerializerOptions = new() { WriteIndented = true };
 
     private readonly HttpClient _httpClient = new();
+    private TcpClient? tcpClient;
+    private NetworkStream? _networkStream;
+    private SupercellStream? _supercellStream;
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
@@ -56,6 +65,143 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
     {
         await DisconnectAsync();
         GC.SuppressFinalize(this);
+    }
+
+    public async Task CaptureOtherFishingHomeAsync(LogicLong target, string outputPath, CancellationToken cancellationToken = default)
+    {
+        var loginOkResult = await LoginAsync(cancellationToken);
+        var fingerprint = loginOkResult.Fingerprint ?? throw new InvalidOperationException("The server did not provide a content fingerprint.");
+        var dataTableResolver = new LogicDataTableResolver(loginOkResult.Resources);
+        var stream = await GetStreamAsync(cancellationToken);
+
+        await stream.WriteMessageAsync(new VisitHomeMessage
+        {
+            Unknown0 = 0x01,
+            Unknown1 = 0x02
+        }, cancellationToken);
+
+        await stream.WriteMessageAsync(new VisitHomeTargetMessage
+        {
+            Unknown0 = 0x00,
+            Target = target
+        }, cancellationToken);
+
+        var otherHomeDataMessage = await stream.ReadUntilMessageAsync<OtherHomeDataMessage>(cancellationToken);
+
+        if (!otherHomeDataMessage.Fallback.IsEmpty)
+            throw new InvalidDataException($"Failed to decode {nameof(OtherHomeDataMessage)}.");
+
+        await stream.WriteMessageAsync(new VisitHomeMessage
+        {
+            Unknown0 = 0x01,
+            Unknown1 = 0x02
+        }, cancellationToken);
+
+        await stream.WriteMessageAsync(new VisitOtherFishingHomeMessage
+        {
+            Target = target
+        }, cancellationToken);
+
+        var message = await stream.ReadUntilMessageAsync<OtherFishingHomeDataMessage>(cancellationToken);
+
+        if (!message.Fallback.IsEmpty)
+            throw new InvalidDataException($"Failed to decode {nameof(OtherFishingHomeDataMessage)}.");
+
+        var encodedPayload = message.UnknownData.ToArray();
+
+        if (!message.RawPayload.Span.SequenceEqual(encodedPayload))
+            throw new InvalidDataException($"{nameof(OtherFishingHomeDataMessage)} did not encode back to the received payload.");
+
+        var roadsideShop = ResolveRoadsideShop(message, dataTableResolver);
+        var capture = new OtherFishingHomeCapture(
+            MessageRegistry.GetId<OtherFishingHomeDataMessage>(),
+            nameof(OtherFishingHomeDataMessage),
+            target.ToFormattedString(),
+            $"{configuration.Protocol.MajorVersion}.{configuration.Protocol.MinorVersion}.{configuration.Protocol.PatchVersion}",
+            fingerprint.Version,
+            fingerprint.Sha,
+            encodedPayload.Length,
+            Convert.ToHexStringLower(SHA256.HashData(encodedPayload)),
+            Convert.ToBase64String(encodedPayload),
+            message,
+            dataTableResolver.Tables,
+            roadsideShop);
+
+        var fullOutputPath = Path.GetFullPath(outputPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(fullOutputPath) ?? throw new InvalidOperationException("The capture output path has no directory."));
+        await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(capture, CaptureJsonSerializerOptions), cancellationToken);
+
+        Console.WriteLine($"Captured {nameof(OtherFishingHomeDataMessage)} for {target} to {fullOutputPath}");
+    }
+
+    private static RoadsideShopSlotCapture[] ResolveRoadsideShop(OtherFishingHomeDataMessage message, LogicDataTableResolver dataTableResolver)
+    {
+        var roadsideShop = message.HomeOwnerAvatar?.RoadsideShop
+            ?? throw new InvalidDataException($"{nameof(OtherFishingHomeDataMessage)} has no home owner avatar.");
+
+        return roadsideShop.Select((entry, slot) =>
+        {
+            var isEmpty = entry.BuyerId is null &&
+                          !entry.IsAdvertised &&
+                          entry.Price is 0 &&
+                          entry.Quantity is 0 &&
+                          entry.ItemGlobalId is 0;
+
+            if (!dataTableResolver.TryResolve(entry.ItemGlobalId, out var item) && !isEmpty)
+                throw new InvalidDataException($"Roadside shop slot {slot} has unresolved item global ID {entry.ItemGlobalId}.");
+
+            return new RoadsideShopSlotCapture(
+                slot,
+                entry.BuyerId,
+                entry.BuyerId?.ToFormattedString(),
+                entry.IsAdvertised,
+                entry.Price,
+                entry.Quantity,
+                entry.ItemGlobalId,
+                item?.TableId,
+                item?.RowIndex,
+                item?.Name,
+                item?.File);
+        }).ToArray();
+    }
+
+    private async Task HandleIncomingMessageAsync(CancellationToken cancellationToken = default)
+    {
+        var stream = await GetStreamAsync(cancellationToken);
+        var message = await stream.ReadMessageAsync(cancellationToken);
+        Console.WriteLine($"Received message: {message}");
+    }
+
+    private async Task<SupercellStream> GetStreamAsync(CancellationToken cancellationToken = default)
+    {
+        if (_supercellStream is null)
+        {
+            tcpClient = new TcpClient();
+            await tcpClient.ConnectAsync(configuration.UpstreamHost, configuration.UpstreamPort, cancellationToken);
+
+            _networkStream = tcpClient.GetStream();
+            _supercellStream = new SupercellStream(_networkStream);
+        }
+
+        return _supercellStream;
+    }
+
+    private async Task DisconnectAsync(CancellationToken cancellationToken = default)
+    {
+        if (_supercellStream is not null)
+        {
+            await _supercellStream.DisposeAsync();
+            _supercellStream = null;
+        }
+
+        if (_networkStream is not null)
+        {
+            await _networkStream.DisposeAsync();
+            _networkStream = null;
+        }
+
+        tcpClient?.Dispose();
+        tcpClient = null;
     }
 
     private static void HandleGoods(Resource[] resources)
@@ -108,7 +254,7 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
             if (string.IsNullOrWhiteSpace(fingerprint.Sha))
                 throw new InvalidOperationException($"Failed to parse fingerprint from login failed message:\n{loginException.LoginFailedMessage.ResourceFingerprintData}", loginException);
 
-            return new LoginOkResult(await LoginCoreAsync(fingerprint.Sha, cancellationToken), resources);
+            return new LoginOkResult(await LoginCoreAsync(fingerprint.Sha, cancellationToken), fingerprint, resources);
         }
 
         async Task<LoginOkMessage> LoginCoreAsync(string fingerprintSha1, CancellationToken cancellationToken = default)
@@ -228,9 +374,9 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
         }
     }
 
-    private record LoginOkResult(LoginOkMessage LoginOkMessage, Resource[] Resources)
+    private record LoginOkResult(LoginOkMessage LoginOkMessage, ResourceFingerprint? Fingerprint, Resource[] Resources)
     {
-        public LoginOkResult(LoginOkMessage loginOkMessage) : this(loginOkMessage, [])
+        public LoginOkResult(LoginOkMessage loginOkMessage) : this(loginOkMessage, null, [])
         {
             // Empty
         }

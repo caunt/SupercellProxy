@@ -26,6 +26,17 @@ public partial class SupercellStream
         return message;
     }
 
+    public async Task<T> ReadUntilMessageAsync<T>(CancellationToken cancellationToken = default) where T : IMessage
+    {
+        while (true)
+        {
+            var message = await ReadMessageAsync(cancellationToken);
+
+            if (message is T expectedMessage)
+                return expectedMessage;
+        }
+    }
+
     public async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         var container = await ReadContainerAsync(cancellationToken);
