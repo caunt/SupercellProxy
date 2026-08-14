@@ -1,18 +1,29 @@
 using SupercellProxy.Playground.Supercell;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Playground.Network.Sides;
 
 internal sealed record ScClientSession
 {
+    internal const int DefaultAppStore = 1;
+
     private const string FileName = "sc-client-session.json";
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-    public required int AccountIdHigh { get; init; }
-    public required int AccountIdLow { get; init; }
+    public string? AccountId { get; init; }
+    public int AppStore { get; init; } = DefaultAppStore;
     public required string PassToken { get; init; }
 
-    internal LogicLong AccountId => new(AccountIdHigh, AccountIdLow);
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AccountIdHigh { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AccountIdLow { get; init; }
+
+    internal LogicLong ParsedAccountId => AccountId is not null
+        ? LogicLong.Parse(AccountId)
+        : new LogicLong(AccountIdHigh ?? 0, AccountIdLow ?? 0);
 
     internal static async Task<ScClientSession?> LoadAsync(CancellationToken cancellationToken = default)
     {
@@ -29,14 +40,14 @@ internal sealed record ScClientSession
         return session;
     }
 
-    internal static async Task SaveAsync(LogicLong accountId, string passToken, CancellationToken cancellationToken = default)
+    internal static async Task SaveAsync(LogicLong accountId, string passToken, int appStore, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(AppContext.BaseDirectory, FileName);
         var temporaryPath = $"{path}.{Environment.ProcessId}.tmp";
         var session = new ScClientSession
         {
-            AccountIdHigh = accountId.HighInt32,
-            AccountIdLow = accountId.LowInt32,
+            AccountId = accountId.ToFormattedString(),
+            AppStore = appStore,
             PassToken = passToken
         };
 
@@ -68,8 +79,14 @@ internal sealed record ScClientSession
 
     private void Validate(string path)
     {
-        if (AccountId == LogicLong.Empty)
+        if (AccountId is not null && (!LogicLong.TryParse(AccountId, out var parsedAccountId) || parsedAccountId == LogicLong.Empty))
+            throw new InvalidDataException($"Client session in {path} has an invalid account tag: {AccountId}.");
+
+        if (AccountId is null && (AccountIdHigh is null || AccountIdLow is null || ParsedAccountId == LogicLong.Empty))
             throw new InvalidDataException($"Client session in {path} has an empty account ID.");
+
+        if (AppStore < 0)
+            throw new InvalidDataException($"Client session in {path} has an invalid app store: {AppStore}.");
 
         if (string.IsNullOrWhiteSpace(PassToken))
             throw new InvalidDataException($"Client session in {path} has an empty pass token.");

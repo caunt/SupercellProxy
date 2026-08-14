@@ -242,6 +242,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
     private async Task<LoginOkResult> LoginAsync(CancellationToken cancellationToken = default)
     {
         var session = await ScClientSession.LoadAsync(cancellationToken);
+        var appStore = session?.AppStore ?? ScClientSession.DefaultAppStore;
 
         try
         {
@@ -280,7 +281,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                     FingerprintSha1 = fingerprintSha1,
 
                     DeviceType = 1,
-                    AppStore = 1,
+                    AppStore = appStore,
                     Unknown1 = -1
                 }, cancellationToken);
 
@@ -294,7 +295,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
                 await stream.WriteMessageAsync(new LoginMessage
                 {
-                    AccountId = session?.AccountId ?? LogicLong.Empty,
+                    AccountId = session?.ParsedAccountId ?? LogicLong.Empty,
                     PassToken = session?.PassToken,
                     ResourceSha = fingerprintSha1,
                     LoginVersion = 1122388,
@@ -322,7 +323,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                 if (message is not LoginOkMessage loginOkMessage)
                     throw new InvalidOperationException($"Expected {nameof(LoginOkMessage)}, but received {message}.");
 
-                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, cancellationToken);
+                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, appStore, cancellationToken);
                 return loginOkMessage;
             }
             catch
