@@ -241,6 +241,8 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
     private async Task<LoginOkResult> LoginAsync(CancellationToken cancellationToken = default)
     {
+        var session = await ScClientSession.LoadAsync(cancellationToken);
+
         try
         {
             // 1.67.170 => be514e02b198d18287af1405089a0e72b849ac69
@@ -292,8 +294,8 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
 
                 await stream.WriteMessageAsync(new LoginMessage
                 {
-                    AccountId = LogicLong.Empty,
-                    PassToken = null,
+                    AccountId = session?.AccountId ?? LogicLong.Empty,
+                    PassToken = session?.PassToken,
                     ResourceSha = fingerprintSha1,
                     LoginVersion = 1122388,
                     UdId = "",
@@ -320,6 +322,7 @@ public class ScClient(ClientConfiguration configuration) : IAsyncDisposable
                 if (message is not LoginOkMessage loginOkMessage)
                     throw new InvalidOperationException($"Expected {nameof(LoginOkMessage)}, but received {message}.");
 
+                await ScClientSession.SaveAsync(loginOkMessage.AccountId, loginOkMessage.PassToken, cancellationToken);
                 return loginOkMessage;
             }
             catch
