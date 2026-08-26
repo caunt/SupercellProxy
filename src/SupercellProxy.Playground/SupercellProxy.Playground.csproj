@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -14,4 +13,8 @@
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ExplorationNativeTurnCapture" />
+    <InternalsVisibleTo Include="ExplorationSessionValidation" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <MeziantouAnalysisMode>all-errors</MeziantouAnalysisMode>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSharpier.MsBuild" Version="1.3.0" PrivateAssets="all" />
+    <PackageReference
+      Include="Meziantou.Analyzer"
+      Version="3.0.177"
+      PrivateAssets="all"
+      IncludeAssets="runtime; build; native; contentfiles; analyzers"
+    />
+  </ItemGroup>
+</Project>

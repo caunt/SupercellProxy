@@ -2,16 +2,28 @@
 
 namespace SupercellProxy.Playground.Events.Bus;
 
+/// <summary>
+/// Represents <c>EventBus</c>.
+/// </summary>
 public class EventBus
 {
     private Delegate?[] eventDelegates = new Delegate?[16];
     private readonly AsyncLock subscriptionLock = new();
 
-    public async Task SubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asyncEventHandler, CancellationToken cancellationToken = default) where TEvent : IEvent
+    /// <summary>
+    /// Executes the <c>SubscribeAsync</c> operation.
+    /// </summary>
+    public async Task SubscribeAsync<TEvent>(
+        Func<TEvent, CancellationToken, Task> asyncEventHandler,
+        CancellationToken cancellationToken = default
+    )
+        where TEvent : IEvent
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
 
-        using var disposable = await subscriptionLock.LockAsync(cancellationToken);
+        using var disposable = await subscriptionLock
+            .LockAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         var currentDelegatesArray = Volatile.Read(ref eventDelegates);
 
@@ -34,11 +46,20 @@ public class EventBus
         }
     }
 
-    public async Task UnsubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asyncEventHandler, CancellationToken cancellationToken = default) where TEvent : IEvent
+    /// <summary>
+    /// Executes the <c>UnsubscribeAsync</c> operation.
+    /// </summary>
+    public async Task UnsubscribeAsync<TEvent>(
+        Func<TEvent, CancellationToken, Task> asyncEventHandler,
+        CancellationToken cancellationToken = default
+    )
+        where TEvent : IEvent
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
 
-        using var disposable = await subscriptionLock.LockAsync(cancellationToken);
+        using var disposable = await subscriptionLock
+            .LockAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         var currentDelegatesArray = Volatile.Read(ref eventDelegates);
 
@@ -54,7 +75,14 @@ public class EventBus
         }
     }
 
-    public async Task<TEvent> PublishAsync<TEvent>(TEvent eventItem, CancellationToken cancellationToken = default) where TEvent : IEvent
+    /// <summary>
+    /// Executes the <c>PublishAsync</c> operation.
+    /// </summary>
+    public async Task<TEvent> PublishAsync<TEvent>(
+        TEvent eventItem,
+        CancellationToken cancellationToken = default
+    )
+        where TEvent : IEvent
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
         var currentDelegatesArray = Volatile.Read(ref eventDelegates);
@@ -66,14 +94,20 @@ public class EventBus
             if (currentDelegates is not null)
             {
                 var invocationList = currentDelegates.GetInvocationList();
-                await Task.WhenAll(GetExecutionTasks(invocationList, eventItem, cancellationToken));
+                await Task.WhenAll(GetExecutionTasks(invocationList, eventItem, cancellationToken))
+                    .ConfigureAwait(false);
             }
         }
 
         return eventItem;
     }
 
-    private static IEnumerable<Task> GetExecutionTasks<TEvent>(Delegate[] invocationList, TEvent eventItem, CancellationToken cancellationToken = default) where TEvent : IEvent
+    private static IEnumerable<Task> GetExecutionTasks<TEvent>(
+        Delegate[] invocationList,
+        TEvent eventItem,
+        CancellationToken cancellationToken = default
+    )
+        where TEvent : IEvent
     {
         foreach (var individualDelegate in invocationList)
         {

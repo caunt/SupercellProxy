@@ -1,12 +1,15 @@
+using System.Globalization;
+using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-    private static async Task<int> RunGamesAsync(
-        string[] args,
-        CancellationToken cancellationToken)
+    private static async Task<int> RunGamesAsync(string[] args, CancellationToken cancellationToken)
     {
         if (args.Any(IsHelp))
             return PrintGamesHelp();
@@ -16,16 +19,16 @@ internal static partial class Application
 
         foreach (var argument in args)
         {
-            if (argument == "--json")
+            if (string.Equals(argument, "--json", StringComparison.Ordinal))
             {
                 if (outputJson)
-                    throw new ArgumentException("--json may only be specified once.");
+                    throw new ArgumentException("--json may only be specified once.", nameof(args));
 
                 outputJson = true;
             }
-            else if (argument.StartsWith("-", StringComparison.Ordinal))
+            else if (argument.StartsWith('-'))
             {
-                throw new ArgumentException($"Unknown option: {argument}");
+                throw new ArgumentException($"Unknown option: {argument}", nameof(args));
             }
             else
             {
@@ -34,7 +37,10 @@ internal static partial class Application
         }
 
         if (positionalArguments.Count > 1)
-            throw new ArgumentException("Usage: SupercellProxy.Keys games [FILE] [--json]");
+            throw new ArgumentException(
+                "Usage: SupercellProxy.Keys games [FILE] [--json]",
+                nameof(args)
+            );
 
         var keysPath = Path.GetFullPath(positionalArguments.FirstOrDefault() ?? "KEYS.md");
 
@@ -42,15 +48,20 @@ internal static partial class Application
             throw new FileNotFoundException("The keys document was not found.", keysPath);
 
         var document = KeysDocument.Parse(
-            await File.ReadAllTextAsync(keysPath, cancellationToken));
+            await File.ReadAllTextAsync(keysPath, cancellationToken).ConfigureAwait(false)
+        );
 
         if (outputJson)
         {
-            Console.WriteLine(JsonSerializer.Serialize(document.Sections.Select(section => new
-            {
-                app_id = section.AppStoreId,
-                app_name = section.Name
-            })));
+            Console.WriteLine(
+                JsonSerializer.Serialize(
+                    document.Sections.Select(static section => new
+                    {
+                        app_id = section.AppStoreId,
+                        app_name = section.Name,
+                    })
+                )
+            );
         }
         else
         {
@@ -65,6 +76,7 @@ internal static partial class Application
     {
         return PrintCommandHelp(
             "games [FILE] [--json]",
-            "List app sections from KEYS.md in document order");
+            "List app sections from KEYS.md in document order"
+        );
     }
 }

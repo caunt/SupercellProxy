@@ -1,49 +1,136 @@
-using Nito.Disposables.Internals;
-using SupercellProxy.Playground.Network.Streams;
-using SupercellProxy.Playground.Resources;
-using SupercellProxy.Playground.Supercell;
 using System.Text.Json;
+using Nito.Disposables.Internals;
+using SupercellProxy.Playground.Data.Assets;
+using SupercellProxy.Playground.Logic;
+using SupercellProxy.Playground.Network.Protocol;
+using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
+/// <summary>
+/// Represents the <c>LoginFailedMessage</c> protocol message.
+/// </summary>
 public record LoginFailedMessage : IMessage
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public required Type ErrorCode { get; init; }
-    public string? ResourceFingerprintData { get; init; }
+    /// <summary>
+    /// Gets or sets the <c>ErrorCode</c> value.
+    /// </summary>
+    public required LoginFailureType ErrorCode { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>GameAssetFingerprintData</c> value.
+    /// </summary>
+    public string? GameAssetFingerprintData { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Reason</c> value.
+    /// </summary>
     public string? Reason { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown1</c> value.
+    /// </summary>
     public int Unknown1 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown2</c> value.
+    /// </summary>
     public bool Unknown2 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>UpdateUrl</c> value.
+    /// </summary>
     public string? UpdateUrl { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown3</c> value.
+    /// </summary>
     public int Unknown3 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown4</c> value.
+    /// </summary>
     public int Unknown4 { get; init; }
-    public LogicLong Unknown5 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown5</c> value.
+    /// </summary>
+    public LongId Unknown5 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown6</c> value.
+    /// </summary>
     public string? Unknown6 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown7</c> value.
+    /// </summary>
     public string? Unknown7 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown8</c> value.
+    /// </summary>
     public string? Unknown8 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Unknown9</c> value.
+    /// </summary>
     public string? Unknown9 { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>AssetsUrls</c> value.
+    /// </summary>
     public string?[]? AssetsUrls { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>RedirectHost</c> value.
+    /// </summary>
     public string? RedirectHost { get; init; }
 
-    public IEnumerable<string> AssetsUrlsFiltered => AssetsUrls?.Where(url => !string.IsNullOrWhiteSpace(url)).WhereNotNull() ?? [];
-    public ResourceFingerprint ResourceFingerprint
+    /// <summary>
+    /// Gets the <c>AssetsUrlsFiltered</c> value.
+    /// </summary>
+    public IEnumerable<string> AssetsUrlsFiltered =>
+        AssetsUrls?.Where(static url => !string.IsNullOrWhiteSpace(url)).WhereNotNull() ?? [];
+
+    /// <summary>
+    /// Gets the <c>GameAssetFingerprint</c> value.
+    /// </summary>
+    public GameAssetFingerprint GameAssetFingerprint
     {
         get
         {
-            var resourceFingerprintData = ResourceFingerprintData ?? throw new InvalidOperationException($"{nameof(ResourceFingerprintData)} is null.");
-            var resourceFingerprint = JsonSerializer.Deserialize<ResourceFingerprint>(resourceFingerprintData, JsonSerializerOptions) ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ResourceFingerprint)} from {nameof(ResourceFingerprintData)}:\n{ResourceFingerprintData}");
+            var resourceFingerprintData =
+                GameAssetFingerprintData
+                ?? throw new InvalidOperationException(
+                    $"{nameof(GameAssetFingerprintData)} is null."
+                );
+            var resourceFingerprint =
+                JsonSerializer.Deserialize<GameAssetFingerprint>(
+                    resourceFingerprintData,
+                    JsonSerializerOptions
+                )
+                ?? throw new InvalidOperationException(
+                    $"Failed to deserialize {nameof(GameAssetFingerprint)} from {nameof(GameAssetFingerprintData)}:\n{GameAssetFingerprintData}"
+                );
 
             return resourceFingerprint;
         }
     }
 
+    /// <summary>
+    /// Creates a <c>LoginFailedMessage</c> from the supplied data.
+    /// </summary>
     public static LoginFailedMessage Create(MessageContainer container)
     {
-        var errorCode = (Type)container.Payload.ReadInt32();
+        var errorCode = System.Runtime.CompilerServices.Unsafe.BitCast<int, LoginFailureType>(
+            container.Payload.ReadInt32()
+        );
         var resourceFingerprintData = container.Payload.ReadOptionalString();
         var reason = container.Payload.ReadOptionalString();
         var unknown1 = container.Payload.ReadInt32();
@@ -51,14 +138,14 @@ public record LoginFailedMessage : IMessage
         var updateUrl = container.Payload.ReadOptionalString();
         var unknown3 = container.Payload.ReadVarInt();
         var unknown4 = container.Payload.ReadVarInt();
-        var unknown5 = LogicLong.Empty;
+        var unknown5 = LongId.Empty;
         var unknown6 = string.Empty;
         var unknown7 = string.Empty;
         var unknown8 = string.Empty;
         var unknown9 = string.Empty;
 
         if (container.Payload.ReadBoolean())
-            unknown5 = container.Payload.ReadLogicLong();
+            unknown5 = container.Payload.ReadLongId();
 
         if (container.Payload.ReadBoolean())
             unknown6 = container.Payload.ReadOptionalString();
@@ -82,7 +169,7 @@ public record LoginFailedMessage : IMessage
         return new LoginFailedMessage
         {
             ErrorCode = errorCode,
-            ResourceFingerprintData = resourceFingerprintData,
+            GameAssetFingerprintData = resourceFingerprintData,
             Reason = reason,
             Unknown1 = unknown1,
             Unknown2 = unknown2,
@@ -95,16 +182,21 @@ public record LoginFailedMessage : IMessage
             Unknown8 = unknown8,
             Unknown9 = unknown9,
             AssetsUrls = assetsUrls,
-            RedirectHost = redirectHost
+            RedirectHost = redirectHost,
         };
     }
 
-    public MessageContainer ToContainer(ushort id, ushort version = 2)
+    /// <summary>
+    /// Executes the <c>ToContainer</c> operation.
+    /// </summary>
+    public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
-        using var supercellStream = SupercellStream.Create();
+        using var supercellStream = MessageStream.Create();
 
-        supercellStream.WriteInt32((int)ErrorCode);
-        supercellStream.WriteOptionalString(ResourceFingerprintData);
+        supercellStream.WriteInt32(
+            System.Runtime.CompilerServices.Unsafe.BitCast<LoginFailureType, int>(ErrorCode)
+        );
+        supercellStream.WriteOptionalString(GameAssetFingerprintData);
         supercellStream.WriteOptionalString(Reason);
         supercellStream.WriteInt32(Unknown1);
         supercellStream.WriteBoolean(Unknown2);
@@ -112,10 +204,10 @@ public record LoginFailedMessage : IMessage
         supercellStream.WriteVarInt(Unknown3);
         supercellStream.WriteVarInt(Unknown4);
 
-        var hasUnknown5 = Unknown5 != LogicLong.Empty;
+        var hasUnknown5 = Unknown5 != LongId.Empty;
         supercellStream.WriteBoolean(hasUnknown5);
         if (hasUnknown5)
-            supercellStream.WriteLogicLong(Unknown5);
+            supercellStream.WriteLongId(Unknown5);
 
         var hasUnknown6 = !string.IsNullOrWhiteSpace(Unknown6);
         supercellStream.WriteBoolean(hasUnknown6);
@@ -148,59 +240,4 @@ public record LoginFailedMessage : IMessage
 
         return new MessageContainer(id, version, supercellStream);
     }
-
-    public enum Type : int
-    {
-        /// <summary>
-        /// Provided credentials are invalid. This occurs when the account ID or pass token is incorrect.
-        /// </summary>
-        InvalidCredentials = 2,
-
-        /// <summary>
-        /// Content version is outdated. This occurs when the client's fingerprint hash is not equal
-        /// to the server's fingerprint hash.
-        /// </summary>
-        OutdatedContent = 7,
-
-        /// <summary>
-        /// Client revision is outdated. This occurs when the client's version is not equal
-        /// to the server's expected version.
-        /// </summary>
-        OutdatedVersion = 8,
-
-        /// <summary>
-        /// Unknown reason 1.
-        /// </summary>
-        Unknown1 = 9,
-
-        /// <summary>
-        /// Server is in maintenance.
-        /// </summary>
-        Maintenance = 10,
-
-        /// <summary>
-        /// Temporarily banned.
-        /// </summary>
-        TemporarilyBanned = 11,
-
-        /// <summary>
-        /// The client should reconnect to the host in <see cref="LoginFailedMessage.RedirectHost"/>.
-        /// </summary>
-        Redirection = 12,
-
-        /// <summary>
-        /// Account has been locked. It can only be unlocked with a specific PIN.
-        /// </summary>
-        Locked = 13,
-
-        /// <summary>
-        /// The login token is invalid.
-        /// </summary>
-        InvalidToken = 15,
-
-        /// <summary>
-        /// The account is not bound.
-        /// </summary>
-        AccountNotBound = 16
-    };
 }

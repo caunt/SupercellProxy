@@ -1,34 +1,60 @@
-﻿using SupercellProxy.Playground.Network.Streams;
+﻿using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Messages;
 
+/// <summary>
+/// Represents the <c>PassthroughMessage</c> protocol message.
+/// </summary>
 public record PassthroughMessage : IMessage
 {
+    /// <summary>
+    /// Gets or sets the <c>Id</c> value.
+    /// </summary>
     public required ushort Id { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Version</c> value.
+    /// </summary>
     public required ushort Version { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Data</c> value.
+    /// </summary>
     public required Memory<byte> Data { get; set; }
 
+    /// <summary>
+    /// Gets the <c>Hint</c> value.
+    /// </summary>
     public string? Hint => MessageRegistry.GetHint(Id);
 
+    /// <summary>
+    /// Creates a <c>PassthroughMessage</c> from the supplied data.
+    /// </summary>
     public static PassthroughMessage Create(MessageContainer container)
     {
         return new PassthroughMessage
         {
             Id = container.Id,
             Version = container.Version,
-            Data = container.Payload.ReadToEnd()
+            Data = container.Payload.ReadToEnd(),
         };
     }
 
+    /// <summary>
+    /// Executes the <c>ToContainer</c> operation.
+    /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
-        using var supercellStream = SupercellStream.Create();
+        using var supercellStream = MessageStream.Create();
 
         supercellStream.Write(Data.Span);
 
         return new MessageContainer(id, version, supercellStream);
     }
 
+    /// <summary>
+    /// Executes the <c>ToString</c> operation.
+    /// </summary>
     public override string ToString()
     {
         var maximumDataLength = 20;

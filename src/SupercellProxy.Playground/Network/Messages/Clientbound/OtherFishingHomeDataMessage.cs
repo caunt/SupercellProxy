@@ -2,12 +2,21 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
+/// <summary>
+/// Represents the <c>OtherFishingHomeDataMessage</c> protocol message.
+/// </summary>
 public record OtherFishingHomeDataMessage : OtherHomeDataMessage
 {
+    /// <summary>
+    /// Gets or sets the <c>RawPayload</c> value.
+    /// </summary>
     [JsonIgnore]
     public Memory<byte> RawPayload { get; init; }
 
-    public new static OtherFishingHomeDataMessage Create(MessageContainer container)
+    /// <summary>
+    /// Creates a <c>OtherFishingHomeDataMessage</c> from the supplied data.
+    /// </summary>
+    public static new OtherFishingHomeDataMessage Create(MessageContainer container)
     {
         var rawPayload = container.Payload.ReadToEnd();
         var message = OtherHomeDataMessage.Decode(rawPayload);
@@ -21,7 +30,7 @@ public record OtherFishingHomeDataMessage : OtherHomeDataMessage
             CompressedAvatarDataJson = message.CompressedAvatarDataJson,
             CompressedHomeDataJson = message.CompressedHomeDataJson,
             Fallback = message.Fallback,
-            RawPayload = rawPayload
+            RawPayload = rawPayload,
         };
     }
 }

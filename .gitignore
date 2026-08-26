@@ -6,6 +6,12 @@
 # dotenv files
 .env
 
+# Local exploration workspaces, tools, sources, and findings
+exploration/
+
+# Proxy captures contain private session and gameplay traffic
+proxy-captures/
+
 # User-specific files
 *.rsuser
 *.suo

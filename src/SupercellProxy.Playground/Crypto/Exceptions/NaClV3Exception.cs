@@ -1,3 +1,7 @@
 ﻿namespace SupercellProxy.Playground.Crypto.Exceptions;
 
-public class NaClV3Exception(string? message = null, Exception? innerException = null) : Exception(message, innerException);
+/// <summary>
+/// Represents <c>NaClV3Exception</c>.
+/// </summary>
+public class NaClV3Exception(string? message = null, Exception? innerException = null)
+    : Exception(message, innerException);

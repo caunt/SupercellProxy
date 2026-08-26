@@ -1,5 +1,8 @@
-using SupercellProxy.Playground.Network.Streams;
+using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Messages;
 
-public record MessageContainer(ushort Id, ushort Version, SupercellStream Payload);
+/// <summary>
+/// Represents <c>MessageContainer</c>.
+/// </summary>
+public record MessageContainer(ushort Id, ushort Version, MessageStream Payload);

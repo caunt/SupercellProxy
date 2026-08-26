@@ -1,36 +1,41 @@
+using System.Globalization;
 using SupercellProxy.PublicKeyExtractor.Extensions;
 
 namespace SupercellProxy.PublicKeyExtractor;
 
+/// <summary>
+/// <para>Extracts an encoded server public key from client binaries and packages.</para>
+/// </summary>
 public static class ServerPublicKeyExtractor
 {
-    public static byte[] Extract(byte[] content)
+    /// <summary>
+    /// <para>Extracts a server public key from raw native executable bytes.</para>
+    /// </summary>
+    public static byte[] Extract(ReadOnlySpan<byte> content)
     {
-        ArgumentNullException.ThrowIfNull(content);
-
-        var binary = content.HasZipArchiveHeader()
-            ? content.GetIpaAppEntry()
-            : content;
-
-        return ExtractBinary(binary);
+        return ExtractBinary(content);
     }
 
-    public static byte[] ExtractFile(string path)
+    /// <summary>
+    /// <para>Extracts a server public key from a local file.</para>
+    /// </summary>
+    public static async ValueTask<byte[]> ExtractFileAsync(
+        string path,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-        using var stream = File.OpenRead(path);
-        Span<byte> header = stackalloc byte[4];
-        var headerLength = stream.Read(header);
-        stream.Position = 0;
-
-        var binary = header[..headerLength].HasZipArchiveHeader()
-            ? stream.GetIpaAppEntry()
-            : ReadAllBytes(stream);
-
+        var content = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
+        ReadOnlyMemory<byte> contentMemory = content;
+        var binary = content.HasZipArchiveHeader()
+            ? await contentMemory.GetIpaAppEntryAsync(cancellationToken).ConfigureAwait(false)
+            : content;
         return ExtractBinary(binary);
     }
 
+    /// <summary>
+    /// <para>Extracts a server public key from a native executable image.</para>
+    /// </summary>
     public static byte[] ExtractBinary(ReadOnlySpan<byte> binary)
     {
         const int KeyLength = 128;
@@ -40,8 +45,10 @@ public static class ServerPublicKeyExtractor
 
         foreach (var index in binary.IndexesOf([0x1A, 0xD5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
         {
-            if (index < KeyLength + ZeroesBeforeKey ||
-                !binary.SliceBefore(index - KeyLength, ZeroesBeforeKey).IsAllZeros())
+            if (
+                index < KeyLength + ZeroesBeforeKey
+                || !binary.SliceBefore(index - KeyLength, ZeroesBeforeKey).IsAllZeros()
+            )
             {
                 continue;
             }
@@ -49,9 +56,16 @@ public static class ServerPublicKeyExtractor
             if (foundIndex is not -1)
             {
                 throw new InvalidOperationException(
-                    $"Multiple possible server public keys found in the binary (expected 1):\n" +
-                    $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, KeyLength))}\n" +
-                    $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, KeyLength))}");
+                    "Multiple possible server public keys found in the binary (expected 1):\n"
+                        + string.Create(
+                            CultureInfo.InvariantCulture,
+                            $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, KeyLength))}\n"
+                        )
+                        + string.Create(
+                            CultureInfo.InvariantCulture,
+                            $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, KeyLength))}"
+                        )
+                );
             }
 
             foundIndex = index;
@@ -61,15 +75,5 @@ public static class ServerPublicKeyExtractor
             throw new InvalidOperationException("Could not find server public key in the binary.");
 
         return PublicKeyCodec.Decode(binary.SliceBefore(foundIndex, KeyLength)).ToArray();
-    }
-
-    private static byte[] ReadAllBytes(Stream stream)
-    {
-        if (stream.Length > int.MaxValue)
-            throw new IOException("Input is too large to fit in a single byte array.");
-
-        using var destination = new MemoryStream(capacity: (int)stream.Length);
-        stream.CopyTo(destination);
-        return destination.ToArray();
     }
 }

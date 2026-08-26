@@ -6,7 +6,7 @@ internal static class SvelteDataDecoder
 {
     public static JsonNode? Decode(JsonArray values)
     {
-        if (values.Count == 0)
+        if (values.Count is 0)
             return null;
 
         var cache = new JsonNode?[values.Count];

@@ -1,14 +1,16 @@
 using System.Globalization;
+using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-    private static readonly HttpClient HttpClient = new()
-    {
-        Timeout = TimeSpan.FromMinutes(30)
-    };
+    private static readonly string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromMinutes(30) };
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -17,7 +19,7 @@ internal static partial class Application
         ConsoleCancelEventHandler cancellationHandler = (_, eventArgs) =>
         {
             eventArgs.Cancel = true;
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource.CancelAfter(0);
         };
 
         Console.CancelKeyPress += cancellationHandler;
@@ -26,20 +28,26 @@ internal static partial class Application
         {
             try
             {
-                if (args.Length == 0 || IsHelp(args[0]))
+                if (args.Length is 0 || IsHelp(args[0]))
                     return PrintRootHelp();
 
                 return args[0] switch
                 {
-                    "download" => await RunDownloadAsync(args[1..], cancellationTokenSource.Token),
-                    "versions" => await RunVersionsAsync(args[1..], cancellationTokenSource.Token),
-                    "search" => await RunSearchAsync(args[1..], cancellationTokenSource.Token),
-                    "games" => await RunGamesAsync(args[1..], cancellationTokenSource.Token),
-                    "update" => await RunUpdateAsync(args[1..], cancellationTokenSource.Token),
-                    _ => throw new ArgumentException($"Unknown command: {args[0]}")
+                    "download" => await RunDownloadAsync(args[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(false),
+                    "versions" => await RunVersionsAsync(args[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(false),
+                    "search" => await RunSearchAsync(args[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(false),
+                    "games" => await RunGamesAsync(args[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(false),
+                    "update" => await RunUpdateAsync(args[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(false),
+                    _ => throw new ArgumentException($"Unknown command: {args[0]}", nameof(args)),
                 };
             }
-            catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
+            catch (OperationCanceledException)
+                when (cancellationTokenSource.IsCancellationRequested)
             {
                 Console.Error.WriteLine("Operation cancelled.");
                 return 130;
@@ -60,7 +68,8 @@ internal static partial class Application
         string value,
         AppStoreClient appStoreClient,
         DecryptDayClient decryptDayClient,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
@@ -70,19 +79,17 @@ internal static partial class Application
             return value;
 
         if (Uri.TryCreate(value, UriKind.Absolute, out var url))
-        {
-            var match = AppStoreIdPattern().Match(url.AbsolutePath);
+            return ResolveAppStoreUrl(url, value);
 
-            return match.Success
-                ? match.Groups[1].Value
-                : throw new ArgumentException("Could not find an App Store ID in the URL.", nameof(value));
-        }
-
-        var response = await appStoreClient.SearchAsync(value, cancellationToken);
+        var response = await appStoreClient
+            .SearchAsync(value, cancellationToken)
+            .ConfigureAwait(false);
         var normalizedValue = Normalize(value);
-        var exactMatches = response.Results
-            .Where(result => Normalize(result.Name) == normalizedValue ||
-                             result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))
+        var exactMatches = response
+            .Results.Where(result =>
+                string.Equals(Normalize(result.Name), normalizedValue, StringComparison.Ordinal)
+                || result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase)
+            )
             .ToArray();
 
         foreach (var result in exactMatches.Length > 0 ? exactMatches : response.Results)
@@ -91,20 +98,42 @@ internal static partial class Application
 
             try
             {
-                if ((await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)).Versions.Count == 0)
+                if (
+                    (
+                        await decryptDayClient
+                            .GetAppAsync(appStoreId, cancellationToken)
+                            .ConfigureAwait(false)
+                    )
+                        .Versions
+                        .Count
+                    is 0
+                )
                     continue;
 
                 Console.WriteLine(
-                    $"Selected search result: {result.Name} ({result.BundleId}, ID {appStoreId})");
+                    $"Selected search result: {result.Name} ({result.BundleId}, ID {appStoreId})"
+                );
                 return appStoreId;
             }
-            catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
+            catch (Exception exception)
+                when (exception is HttpRequestException or InvalidDataException)
             {
                 // This App Store result is not present in decrypt.day.
             }
         }
 
         throw new InvalidOperationException($"No apps found on decrypt.day for \"{value}\".");
+    }
+
+    private static string ResolveAppStoreUrl(Uri url, string value)
+    {
+        var match = AppStoreIdRegex.Match(url.AbsolutePath);
+        return match.Success
+            ? match.Groups[1].Value
+            : throw new ArgumentException(
+                "Could not find an App Store ID in the URL.",
+                nameof(value)
+            );
     }
 
     private static string Normalize(string value)
@@ -114,41 +143,48 @@ internal static partial class Application
 
     private static bool IsHelp(string value)
     {
-        return value is "-h" or "--help" or "help";
+        return string.Equals(value, "-h", StringComparison.Ordinal)
+            || string.Equals(value, "--help", StringComparison.Ordinal)
+            || string.Equals(value, "help", StringComparison.Ordinal);
     }
 
     private static void RequireOneArgument(string[] args, string usage)
     {
-        if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
-            throw new ArgumentException($"Usage: SupercellProxy.Keys {usage}");
+        if (args.Length is not 1 || string.IsNullOrWhiteSpace(args[0]))
+            throw new ArgumentException($"Usage: SupercellProxy.Keys {usage}", nameof(args));
     }
 
     private static int PrintRootHelp()
     {
-        return Print("""
-            Search and download decrypted IPAs from decrypt.day.
-
-            Usage:
-              SupercellProxy.Keys download APP [VERSION] [--output PATH]
-              SupercellProxy.Keys versions APP
-              SupercellProxy.Keys search QUERY
-              SupercellProxy.Keys games [FILE] [--json]
-              SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]
-            """);
+        return Print(
+            string.Join(
+                Environment.NewLine,
+                "Search and download decrypted IPAs from decrypt.day.",
+                string.Empty,
+                "Usage:",
+                "  SupercellProxy.Keys download APP [VERSION] [--output PATH]",
+                "  SupercellProxy.Keys versions APP",
+                "  SupercellProxy.Keys search QUERY",
+                "  SupercellProxy.Keys games [FILE] [--json]",
+                "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"
+            )
+        );
     }
 
     private static int PrintDownloadHelp()
     {
         return PrintCommandHelp(
             "download APP [VERSION] [--output PATH]",
-            "Download an IPA (defaults to the newest available version)");
+            "Download an IPA (defaults to the newest available version)"
+        );
     }
 
     private static int PrintCommandHelp(string usage, string description)
     {
         return Print(
-            $"{description}{Environment.NewLine}{Environment.NewLine}" +
-            $"Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}");
+            $"{description}{Environment.NewLine}{Environment.NewLine}"
+                + $"Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}"
+        );
     }
 
     private static int Print(string value)
@@ -157,6 +193,9 @@ internal static partial class Application
         return 0;
     }
 
-    [GeneratedRegex(@"(?:^|/)id(\d+)(?:/|$)", RegexOptions.CultureInvariant)]
-    private static partial Regex AppStoreIdPattern();
+    private static readonly Regex AppStoreIdRegex = new(
+        AppStoreIdPattern,
+        RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Compiled,
+        TimeSpan.FromSeconds(1)
+    );
 }

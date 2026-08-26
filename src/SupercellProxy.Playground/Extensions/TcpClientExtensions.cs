@@ -2,10 +2,17 @@
 
 namespace SupercellProxy.Playground.Extensions;
 
+/// <summary>
+/// Represents <c>TcpClientExtensions</c>.
+/// </summary>
 public static class TcpClientExtensions
 {
-    extension(TcpClient tcpClient)
+    /// <summary>
+    /// <para>Returns the connected remote endpoint.</para>
+    /// </summary>
+    public static string GetRemoteEndPoint(this TcpClient tcpClient)
     {
-        public string RemoteEndPoint => tcpClient.Client.RemoteEndPoint?.ToString() ?? throw new InvalidOperationException("RemoteEndPoint is null.");
+        return tcpClient.Client.RemoteEndPoint?.ToString()
+            ?? throw new InvalidOperationException("RemoteEndPoint is null.");
     }
 }

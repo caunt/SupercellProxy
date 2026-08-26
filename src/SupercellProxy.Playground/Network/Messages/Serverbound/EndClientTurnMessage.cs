@@ -1,36 +1,92 @@
-using SupercellProxy.Playground.Network.Streams;
-using SupercellProxy.Playground.Supercell;
-using SupercellProxy.Playground.Supercell.Commands;
+using System.Globalization;
+using SupercellProxy.Playground.Commands;
+using SupercellProxy.Playground.Logic;
+using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// EndClientTurnMessage (19132) wire representation.
+/// <para>EndClientTurnMessage (10224) wire representation.</para>
 /// </summary>
 public record EndClientTurnMessage : IMessage
 {
+    /// <summary>
+    /// Defines the <c>CurrentVersion</c> value.
+    /// </summary>
+    public const ushort CurrentVersion = 10;
+
+    /// <summary>
+    /// Defines the <c>SubChecksumCount</c> value.
+    /// </summary>
     public const int SubChecksumCount = 8;
+
+    /// <summary>
+    /// Defines the <c>MaxCommandCount</c> value.
+    /// </summary>
     public const int MaxCommandCount = 1024;
 
+    /// <summary>
+    /// Gets or sets the <c>Checksum</c> value.
+    /// </summary>
     public int Checksum { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>SubTick</c> value.
+    /// </summary>
     public int SubTick { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>SubChecksums</c> value.
+    /// </summary>
     public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
-    public Memory<LogicCommand> Commands { get; init; }
-    public LogicEnvironment Environment { get; init; } = LogicEnvironment.Production;
-    public Memory<LogicCommandData> DebugCommandData { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Commands</c> value.
+    /// </summary>
+    public Memory<Command> Commands { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>Environment</c> value.
+    /// </summary>
+    public CommandEnvironment Environment { get; init; } = CommandEnvironment.Production;
+
+    /// <summary>
+    /// Gets or sets the <c>DebugCommandData</c> value.
+    /// </summary>
+    public Memory<CommandData> DebugCommandData { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c>DevelopmentByteArrays</c> value.
+    /// </summary>
     public Memory<Memory<byte>> DevelopmentByteArrays { get; init; }
 
+    /// <summary>
+    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// </summary>
     public static EndClientTurnMessage Create(MessageContainer messageContainer)
     {
-        return Create(messageContainer, LogicEnvironment.Production);
+        return Create(messageContainer, CommandEnvironment.Production);
     }
 
-    public static EndClientTurnMessage Create(MessageContainer messageContainer, LogicEnvironment environment)
+    /// <summary>
+    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// </summary>
+    public static EndClientTurnMessage Create(
+        MessageContainer messageContainer,
+        CommandEnvironment environment
+    )
     {
-        return Create(messageContainer, environment, null);
+        return Create(messageContainer, environment, dataResolver: null);
     }
 
-    public static EndClientTurnMessage Create(MessageContainer messageContainer, LogicEnvironment environment, ILogicCommandDataResolver? dataResolver)
+    /// <summary>
+    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// </summary>
+    public static EndClientTurnMessage Create(
+        MessageContainer messageContainer,
+        CommandEnvironment environment,
+        ICommandDataResolver? dataResolver
+    )
     {
         var stream = messageContainer.Payload;
         var checksum = stream.ReadVarInt();
@@ -41,35 +97,21 @@ public record EndClientTurnMessage : IMessage
             subChecksums[i] = stream.ReadVarInt();
 
         var commandCount = ReadCollectionCount(stream, MaxCommandCount, "command");
-        var commands = new LogicCommand[commandCount];
+        var commands = new Command[commandCount];
 
         for (var i = 0; i < commands.Length; i++)
-            commands[i] = LogicCommandRegistry.Decode(stream, environment, dataResolver);
+            commands[i] = CommandRegistry.Decode(stream, environment, dataResolver);
 
-        var debugCommandData = Array.Empty<LogicCommandData>();
-
-        if (environment is not LogicEnvironment.Production)
-        {
-            var debugCommandDataCount = ReadPayloadBoundedCollectionCount(stream, "debug command data");
-            debugCommandData = new LogicCommandData[debugCommandDataCount];
-
-            for (var i = 0; i < debugCommandData.Length; i++)
-                debugCommandData[i] = LogicCommandData.Decode(stream);
-        }
-
-        var developmentByteArrays = Array.Empty<Memory<byte>>();
-
-        if (environment is LogicEnvironment.Development)
-        {
-            var developmentByteArrayCount = ReadPayloadBoundedCollectionCount(stream, "development byte array");
-            developmentByteArrays = new Memory<byte>[developmentByteArrayCount];
-
-            for (var i = 0; i < developmentByteArrays.Length; i++)
-                developmentByteArrays[i] = stream.ReadVarIntByteArray();
-        }
+        var debugCommandData = ReadDebugCommandData(stream, environment);
+        var developmentByteArrays = ReadDevelopmentByteArrays(stream, environment);
 
         if (stream.Position != stream.Length)
-            throw new InvalidDataException($"Unexpected trailing EndClientTurnMessage data at position {stream.Position} of {stream.Length}.");
+            throw new InvalidDataException(
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"Unexpected trailing EndClientTurnMessage data at position {stream.Position} of {stream.Length}."
+                )
+            );
 
         return new EndClientTurnMessage
         {
@@ -79,25 +121,69 @@ public record EndClientTurnMessage : IMessage
             Commands = commands,
             Environment = environment,
             DebugCommandData = debugCommandData,
-            DevelopmentByteArrays = developmentByteArrays
+            DevelopmentByteArrays = developmentByteArrays,
         };
     }
 
-    public MessageContainer ToContainer(ushort id, ushort messageVersion = 5213)
+    private static CommandData[] ReadDebugCommandData(
+        MessageStream stream,
+        CommandEnvironment environment
+    )
+    {
+        if (environment is CommandEnvironment.Production)
+            return [];
+
+        var values = new CommandData[
+            ReadPayloadBoundedCollectionCount(stream, "debug command data")
+        ];
+        for (var index = 0; index < values.Length; index++)
+            values[index] = CommandData.Decode(stream);
+        return values;
+    }
+
+    private static Memory<byte>[] ReadDevelopmentByteArrays(
+        MessageStream stream,
+        CommandEnvironment environment
+    )
+    {
+        if (environment is not CommandEnvironment.Development)
+            return [];
+
+        var values = new Memory<byte>[
+            ReadPayloadBoundedCollectionCount(stream, "development byte array")
+        ];
+        for (var index = 0; index < values.Length; index++)
+            values[index] = stream.ReadVarIntByteArray();
+        return values;
+    }
+
+    /// <summary>
+    /// Executes the <c>ToContainer</c> operation.
+    /// </summary>
+    public MessageContainer ToContainer(ushort id, ushort messageVersion = 0)
     {
         if (SubChecksums.Length != SubChecksumCount)
-            throw new InvalidDataException($"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
+            throw new InvalidDataException(
+                $"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums."
+            );
 
         if (Commands.Length > MaxCommandCount)
             throw new InvalidDataException($"Invalid command count: {Commands.Length}.");
 
-        if (Environment is LogicEnvironment.Production && (DebugCommandData.Length > 0 || DevelopmentByteArrays.Length > 0))
-            throw new InvalidDataException("Production EndClientTurnMessage cannot contain diagnostic collections.");
+        if (
+            Environment is CommandEnvironment.Production
+            && (DebugCommandData.Length > 0 || DevelopmentByteArrays.Length > 0)
+        )
+            throw new InvalidDataException(
+                "Production EndClientTurnMessage cannot contain diagnostic collections."
+            );
 
-        if (Environment is not LogicEnvironment.Development && DevelopmentByteArrays.Length > 0)
-            throw new InvalidDataException("Development byte arrays are only encoded in the development environment.");
+        if (Environment is not CommandEnvironment.Development && DevelopmentByteArrays.Length > 0)
+            throw new InvalidDataException(
+                "Development byte arrays are only encoded in the development environment."
+            );
 
-        using var stream = SupercellStream.Create();
+        using var stream = MessageStream.Create();
 
         stream.WriteVarInt(Checksum);
         stream.WriteVarInt(SubTick);
@@ -108,9 +194,9 @@ public record EndClientTurnMessage : IMessage
         stream.WriteVarInt(Commands.Length);
 
         foreach (var command in Commands.Span)
-            LogicCommandRegistry.Encode(stream, command, Environment);
+            CommandRegistry.Encode(stream, command, Environment);
 
-        if (Environment is not LogicEnvironment.Production)
+        if (Environment is not CommandEnvironment.Production)
         {
             stream.WriteVarInt(DebugCommandData.Length);
 
@@ -118,7 +204,7 @@ public record EndClientTurnMessage : IMessage
                 commandData.Encode(stream);
         }
 
-        if (Environment is LogicEnvironment.Development)
+        if (Environment is CommandEnvironment.Development)
         {
             stream.WriteVarInt(DevelopmentByteArrays.Length);
 
@@ -129,20 +215,22 @@ public record EndClientTurnMessage : IMessage
         return new MessageContainer(id, messageVersion, stream);
     }
 
-    private static int ReadCollectionCount(SupercellStream stream, int maximum, string name)
+    private static int ReadCollectionCount(MessageStream stream, int maximum, string name)
     {
         var count = stream.ReadVarInt();
 
-        if ((uint)count > maximum)
-            throw new InvalidDataException($"Invalid {name} count: {count}.");
+        if (uint.CreateTruncating(count) > maximum)
+            throw new InvalidDataException(
+                string.Create(CultureInfo.InvariantCulture, $"Invalid {name} count: {count}.")
+            );
 
         return count;
     }
 
-    private static int ReadPayloadBoundedCollectionCount(SupercellStream stream, string name)
+    private static int ReadPayloadBoundedCollectionCount(MessageStream stream, string name)
     {
         var remainingPayloadLength = stream.Length - stream.Position;
-        var maximum = (int)Math.Min(int.MaxValue, remainingPayloadLength);
+        var maximum = int.CreateTruncating(Math.Min(int.MaxValue, remainingPayloadLength));
         return ReadCollectionCount(stream, maximum, name);
     }
 }

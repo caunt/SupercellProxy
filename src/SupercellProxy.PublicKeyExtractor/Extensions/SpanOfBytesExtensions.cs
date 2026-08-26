@@ -2,14 +2,30 @@
 
 namespace SupercellProxy.PublicKeyExtractor.Extensions;
 
+/// <summary>
+/// <para>Provides byte-span search and validation helpers.</para>
+/// </summary>
 public static class SpanOfBytesExtensions
 {
-    public static ReadOnlySpan<byte> SliceBefore(this ReadOnlySpan<byte> input, int index, int count)
+    /// <summary>
+    /// <para>Returns a slice immediately preceding the specified index.</para>
+    /// </summary>
+    public static ReadOnlySpan<byte> SliceBefore(
+        this ReadOnlySpan<byte> input,
+        int index,
+        int count
+    )
     {
         return input.Slice(index - count, count);
     }
 
-    public static IEnumerable<int> IndexesOf(this ReadOnlySpan<byte> source, ReadOnlySpan<byte> pattern)
+    /// <summary>
+    /// <para>Finds all overlapping occurrences of a byte pattern.</para>
+    /// </summary>
+    public static IEnumerable<int> IndexesOf(
+        this ReadOnlySpan<byte> source,
+        ReadOnlySpan<byte> pattern
+    )
     {
         if (pattern.Length is 0)
             return [];
@@ -33,6 +49,9 @@ public static class SpanOfBytesExtensions
         return result;
     }
 
+    /// <summary>
+    /// <para>Determines whether every byte is zero.</para>
+    /// </summary>
     public static bool IsAllZeros(this ReadOnlySpan<byte> input)
     {
         var index = 0;
@@ -54,7 +73,7 @@ public static class SpanOfBytesExtensions
 
         while (index + sizeof(ulong) <= input.Length)
         {
-            if (BitConverter.ToUInt64(input.Slice(index, sizeof(ulong))) != 0UL)
+            if (BitConverter.ToUInt64(input.Slice(index, sizeof(ulong))) is not 0UL)
                 return false;
 
             index += sizeof(ulong);
@@ -62,7 +81,7 @@ public static class SpanOfBytesExtensions
 
         while (index < input.Length)
         {
-            if (input[index] != 0)
+            if (input[index] is not 0)
                 return false;
 
             index++;
