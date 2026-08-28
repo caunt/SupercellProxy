@@ -6,21 +6,34 @@ using SupercellProxy.Playground.Network.Protocol;
 namespace SupercellProxy.Playground.Network.Connections.Client.Exceptions;
 
 /// <summary>
-/// Represents <c>LoginException</c>.
+/// Represents <c language="csharp">LoginException</c>.
 /// </summary>
 /// <remarks>
 /// Initializes a new <see cref="LoginException"/> instance.
 /// </remarks>
-public class LoginException(LoginFailedMessage loginFailedMessage)
-    : Exception(GetMessage(loginFailedMessage))
+internal sealed class LoginException : Exception
 {
-    /// <summary>
-    /// Gets the <c>LoginFailedMessage</c> value.
-    /// </summary>
-    public LoginFailedMessage LoginFailedMessage { get; } = loginFailedMessage;
+    public LoginException() { }
+
+    public LoginException(string? message)
+        : base(message) { }
+
+    public LoginException(string? message, Exception? innerException)
+        : base(message, innerException) { }
+
+    public LoginException(LoginFailedMessage loginFailedMessage)
+        : base(GetMessage(loginFailedMessage))
+    {
+        LoginFailedMessage = loginFailedMessage;
+    }
 
     /// <summary>
-    /// Executes the <c>ThrowIfFailed</c> operation.
+    /// Gets the <c language="csharp">LoginFailedMessage</c> value.
+    /// </summary>
+    public LoginFailedMessage? LoginFailedMessage { get; }
+
+    /// <summary>
+    /// Executes the <c language="csharp">ThrowIfFailed</c> operation.
     /// </summary>
     public static void ThrowIfFailed(IMessage message)
     {
@@ -36,6 +49,14 @@ public class LoginException(LoginFailedMessage loginFailedMessage)
         {
             LoginFailureType.InvalidCredentials => "account ID or pass token is invalid",
             LoginFailureType.InvalidToken => "pass token is invalid for this account",
+            LoginFailureType.OutdatedContent
+            or LoginFailureType.OutdatedVersion
+            or LoginFailureType.Unknown1
+            or LoginFailureType.Maintenance
+            or LoginFailureType.TemporarilyBanned
+            or LoginFailureType.Redirection
+            or LoginFailureType.Locked
+            or LoginFailureType.AccountNotBound => loginFailedMessage.ErrorCode.ToString(),
             _ => loginFailedMessage.ErrorCode.ToString(),
         };
         var error = string.Create(

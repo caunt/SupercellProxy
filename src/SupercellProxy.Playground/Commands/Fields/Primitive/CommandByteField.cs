@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandByteField</c>.
+/// Represents <c language="csharp">CommandByteField</c>.
 /// </summary>
-public sealed record CommandByteField(sbyte Value) : CommandField
+internal sealed record CommandByteField(sbyte Value) : CommandField
 {
     internal override CommandFieldType FieldType => CommandFieldType.Byte;
 

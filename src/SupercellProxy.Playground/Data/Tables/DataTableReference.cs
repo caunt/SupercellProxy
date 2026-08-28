@@ -1,9 +1,9 @@
 namespace SupercellProxy.Playground.Data.Tables;
 
 /// <summary>
-/// Represents <c>DataTableReference</c>.
+/// Represents <c language="csharp">DataTableReference</c>.
 /// </summary>
-public sealed record DataTableReference(
+internal sealed record DataTableReference(
     int GlobalId,
     int TableId,
     int RowIndex,

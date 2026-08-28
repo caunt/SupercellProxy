@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -9,10 +10,8 @@ internal sealed record ExpansionReadyDataState(DataTableReference ExpansionData,
         DataTableResolver dataTableResolver
     )
     {
-        const string expansionsFile = "data/expansions.csv";
-
-        if (!dataTableResolver.TryGetTableId(expansionsFile, out var expansionTableId))
-            throw new InvalidDataException($"Unable to resolve {expansionsFile}.");
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Expansions, out var expansionTableId))
+            throw new InvalidDataException($"Unable to resolve {GameAssetFiles.Expansions}.");
 
         var states = new List<ExpansionReadyDataState>();
 

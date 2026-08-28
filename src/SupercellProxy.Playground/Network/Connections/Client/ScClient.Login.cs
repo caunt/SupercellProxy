@@ -1,31 +1,20 @@
-using System.Globalization;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using SupercellProxy.Playground.Commands;
-using SupercellProxy.Playground.Data.Assets;
-using SupercellProxy.Playground.Data.Tables;
-using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Home.Simulation;
-using SupercellProxy.Playground.Json;
 using SupercellProxy.Playground.Logic;
-using SupercellProxy.Playground.Network.Configuration;
 using SupercellProxy.Playground.Network.Connections.Client.Exceptions;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
 using SupercellProxy.Playground.Network.Protocol;
-using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Connections.Client;
 
-public partial class ScClient
+internal sealed partial class ScClient
 {
     private async Task<ScClientLoginResult> LoginAsync(
         CancellationToken cancellationToken = default
     )
     {
         var session = await ScClientSession
-            .LoadAsync(configuration.SessionPath, cancellationToken)
+            .LoadAsync(Configuration.SessionPath, cancellationToken)
             .ConfigureAwait(false);
         var appStore = session?.AppStore ?? ScClientSession.DefaultAppStore;
 
@@ -39,7 +28,7 @@ public partial class ScClient
             // fingerprint here because it must be detected dynamically from that response.
             return new ScClientLoginResult(
                 await LoginCoreAsync(
-                        fingerprintSha1: configuration.BootstrapFingerprintSha ?? string.Empty,
+                        fingerprintSha1: Configuration.BootstrapFingerprintSha ?? string.Empty,
                         includeSession: false,
                         session,
                         appStore,
@@ -49,35 +38,56 @@ public partial class ScClient
             );
         }
         catch (LoginException loginException)
-            when (loginException.LoginFailedMessage.ErrorCode is LoginFailureType.OutdatedContent)
+            when (loginException.LoginFailedMessage
+                    is { ErrorCode: LoginFailureType.OutdatedContent }
+            )
         {
-            var fingerprint = loginException.LoginFailedMessage.GameAssetFingerprint;
-            var resources = await GetAssetsAsync(
-                    fingerprint,
-                    loginException.LoginFailedMessage.AssetsUrlsFiltered,
+            return await RecoverOutdatedContentAsync(
+                    loginException,
+                    session,
+                    appStore,
                     cancellationToken
                 )
                 .ConfigureAwait(false);
-
-            if (string.IsNullOrWhiteSpace(fingerprint.Sha))
-                throw new InvalidOperationException(
-                    $"Failed to parse fingerprint from login failed message:\n{loginException.LoginFailedMessage.GameAssetFingerprintData}",
-                    loginException
-                );
-
-            return new ScClientLoginResult(
-                await LoginCoreAsync(
-                        fingerprint.Sha,
-                        includeSession: true,
-                        session,
-                        appStore,
-                        cancellationToken
-                    )
-                    .ConfigureAwait(false),
-                fingerprint,
-                resources
-            );
         }
+    }
+
+    private async Task<ScClientLoginResult> RecoverOutdatedContentAsync(
+        LoginException loginException,
+        ScClientSession? session,
+        AppStore appStore,
+        CancellationToken cancellationToken
+    )
+    {
+        var loginFailedMessage =
+            loginException.LoginFailedMessage
+            ?? throw new InvalidOperationException(
+                "The outdated-content login failure has no decoded message.",
+                loginException
+            );
+        var fingerprint = loginFailedMessage.GameAssetFingerprint;
+
+        if (string.IsNullOrWhiteSpace(fingerprint.Sha))
+            throw new InvalidOperationException(
+                $"Failed to parse fingerprint from login failed message:\n{loginFailedMessage.GameAssetFingerprintData}",
+                loginException
+            );
+
+        var resources = await GetAssetsAsync(
+                fingerprint,
+                loginFailedMessage.AssetsUrlsFiltered,
+                cancellationToken
+            )
+            .ConfigureAwait(false);
+        var loginOk = await LoginCoreAsync(
+                fingerprint.Sha,
+                includeSession: true,
+                session,
+                appStore,
+                cancellationToken
+            )
+            .ConfigureAwait(false);
+        return new ScClientLoginResult(loginOk, fingerprint, resources);
     }
 
     private async Task<LoginOkMessage> LoginCoreAsync(
@@ -131,7 +141,7 @@ public partial class ScClient
                     loginOkMessage.PassToken,
                     appStore,
                     session?.CompressedData,
-                    configuration.SessionPath,
+                    Configuration.SessionPath,
                     cancellationToken
                 )
                 .ConfigureAwait(false);
@@ -161,11 +171,11 @@ public partial class ScClient
     {
         return new ClientHelloMessage
         {
-            ProtocolVersion = configuration.Protocol.ProtocolVersion,
-            KeyVersion = configuration.Protocol.KeyVersion,
-            MajorVersion = configuration.Protocol.MajorVersion,
-            MinorVersion = configuration.Protocol.MinorVersion,
-            PatchVersion = configuration.Protocol.PatchVersion,
+            ProtocolVersion = Configuration.Protocol.ProtocolVersion,
+            KeyVersion = Configuration.Protocol.KeyVersion,
+            MajorVersion = Configuration.Protocol.MajorVersion,
+            MinorVersion = Configuration.Protocol.MinorVersion,
+            PatchVersion = Configuration.Protocol.PatchVersion,
             FingerprintSha1 = fingerprintSha1,
             DeviceType = 2,
             AppStore = appStore,

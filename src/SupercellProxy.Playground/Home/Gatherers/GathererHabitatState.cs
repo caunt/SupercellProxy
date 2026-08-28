@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -14,17 +15,24 @@ internal sealed record GathererHabitatState(
         DataTableResolver dataTableResolver
     )
     {
-        const string gathererHabitatsFile = "data/gatherer_habitats.csv";
-        const string gathererNestsFile = "data/gatherer_nests.csv";
-
-        if (!dataTableResolver.TryGetTableId(gathererHabitatsFile, out var gathererHabitatTableId))
+        if (
+            !dataTableResolver.TryGetTableId(
+                GameAssetFiles.GathererHabitats,
+                out var gathererHabitatTableId
+            )
+        )
             throw new InvalidOperationException(
-                $"{gathererHabitatsFile} is not registered as a native data table."
+                $"{GameAssetFiles.GathererHabitats} is not registered as a native data table."
             );
 
-        if (!dataTableResolver.TryGetTableId(gathererNestsFile, out var gathererNestTableId))
+        if (
+            !dataTableResolver.TryGetTableId(
+                GameAssetFiles.GathererNests,
+                out var gathererNestTableId
+            )
+        )
             throw new InvalidOperationException(
-                $"{gathererNestsFile} is not registered as a native data table."
+                $"{GameAssetFiles.GathererNests} is not registered as a native data table."
             );
 
         var nests = gameObjects
@@ -102,11 +110,13 @@ internal sealed record GathererHabitatState(
         DataTableResolver dataTableResolver
     )
     {
-        const string gathererNestsFile = "data/gatherer_nests.csv";
-
         if (
             !dataTableResolver.TryResolveString(habitatData.GlobalId, "Nest", out var nestName)
-            || !dataTableResolver.TryResolve(gathererNestsFile, nestName, out var nestData)
+            || !dataTableResolver.TryResolve(
+                GameAssetFiles.GathererNests,
+                nestName,
+                out var nestData
+            )
         )
         {
             throw new InvalidDataException(

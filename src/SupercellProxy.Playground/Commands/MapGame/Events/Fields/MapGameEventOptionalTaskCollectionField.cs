@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventOptionalTaskCollectionField</c>.
+/// Represents <c language="csharp">MapGameEventOptionalTaskCollectionField</c>.
 /// </summary>
-public sealed record MapGameEventOptionalTaskCollectionField(MapGameTaskCollection? Value)
+internal sealed record MapGameEventOptionalTaskCollectionField(MapGameTaskCollection? Value)
     : MapGameEventField
 {
     internal override MapGameEventFieldType FieldType =>

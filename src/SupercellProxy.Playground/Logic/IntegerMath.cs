@@ -1,9 +1,9 @@
 namespace SupercellProxy.Playground.Logic;
 
 /// <summary>
-/// Represents <c>IntegerMath</c>.
+/// Represents <c language="csharp">IntegerMath</c>.
 /// </summary>
-public static class IntegerMath
+internal static class IntegerMath
 {
     private static readonly sbyte[] AngleTable =
     [
@@ -234,7 +234,7 @@ public static class IntegerMath
     ];
 
     /// <summary>
-    /// Gets <c>Sine</c>.
+    /// Gets <c language="csharp">Sine</c>.
     /// </summary>
     public static int GetSine(int degrees)
     {
@@ -250,7 +250,7 @@ public static class IntegerMath
     }
 
     /// <summary>
-    /// Gets <c>VectorAngle</c>.
+    /// Gets <c language="csharp">VectorAngle</c>.
     /// </summary>
     public static int GetVectorAngle(int x, int y)
     {
@@ -296,7 +296,7 @@ public static class IntegerMath
     }
 
     /// <summary>
-    /// Gets <c>AngleDifference</c>.
+    /// Gets <c language="csharp">AngleDifference</c>.
     /// </summary>
     public static int GetAngleDifference(int degrees)
     {
@@ -309,7 +309,7 @@ public static class IntegerMath
     }
 
     /// <summary>
-    /// Gets <c>SquareRoot</c>.
+    /// Gets <c language="csharp">SquareRoot</c>.
     /// </summary>
     public static int GetSquareRoot(int value)
     {
@@ -341,11 +341,50 @@ public static class IntegerMath
         return int.CreateTruncating(result);
     }
 
+    /// Calculates a 64-bit integer square root.
+    public static ulong GetSquareRoot64(ulong value)
+    {
+        var remainder = value;
+        var result = 0UL;
+        var bit = 1UL << 62;
+
+        while (bit > remainder)
+            bit >>= 2;
+
+        while (bit is not 0)
+        {
+            if (remainder >= result + bit)
+            {
+                remainder -= result + bit;
+                result = (result >> 1) + bit;
+            }
+            else
+            {
+                result >>= 1;
+            }
+
+            bit >>= 2;
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Calculates the native integer length of the vector formed by <paramref name="x"/> and <paramref name="y"/>.
     /// </summary>
     public static int GetVectorLength(int x, int y)
     {
-        return GetSquareRoot(unchecked(x * x + y * y));
+        const int maximumComponent = 46340;
+
+        if (
+            x is < -maximumComponent or > maximumComponent
+            || y is < -maximumComponent or > maximumComponent
+        )
+            return GetSquareRoot(int.MaxValue);
+
+        var squaredLength = long.CreateChecked(x) * x + long.CreateChecked(y) * y;
+        return GetSquareRoot(
+            squaredLength >= int.MaxValue ? int.MaxValue : int.CreateChecked(squaredLength)
+        );
     }
 }

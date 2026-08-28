@@ -4,225 +4,225 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Home;
 
 /// <summary>
-/// Represents <c>ClientAvatar</c>.
+/// Represents <c language="csharp">ClientAvatar</c>.
 /// </summary>
-public record ClientAvatar
+internal sealed record ClientAvatar
 {
     private const int InventoryArrayCount = 93;
     private const int InventoryMapCount = 3;
 
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>AvatarVersion</c> value.
+    /// Gets or sets the <c language="csharp">AvatarVersion</c> value.
     /// </summary>
     public int AvatarVersion { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown3</c> value.
+    /// Gets or sets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Name</c> value.
+    /// Gets or sets the <c language="csharp">Name</c> value.
     /// </summary>
     public string? Name { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>HomeId</c> value.
+    /// Gets or sets the <c language="csharp">HomeId</c> value.
     /// </summary>
     public LongId HomeId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>AccountId</c> value.
+    /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     public LongId AccountId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>InventoryValues</c> value.
+    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
     /// </summary>
     public int[][] InventoryValues { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>InventoryMaps</c> value.
+    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
     /// </summary>
     public DataReferenceValue[][] InventoryMaps { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>DeprecatedInventoryDataCount</c> value.
+    /// Gets or sets the <c language="csharp">DeprecatedInventoryDataCount</c> value.
     /// </summary>
     public int DeprecatedInventoryDataCount { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>InventoryUnknown0</c> value.
+    /// Gets or sets the <c language="csharp">InventoryUnknown0</c> value.
     /// </summary>
     public int InventoryUnknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>RoadsideShop</c> value.
+    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
     /// </summary>
     public RoadsideShopEntry[] RoadsideShop { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>Neighborhood</c> value.
+    /// Gets or sets the <c language="csharp">Neighborhood</c> value.
     /// </summary>
     public NeighborhoodData? Neighborhood { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>MailEntries</c> value.
+    /// Gets or sets the <c language="csharp">MailEntries</c> value.
     /// </summary>
     public MailEntry[] MailEntries { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownValues0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownValues0</c> value.
     /// </summary>
     public int[] UnknownValues0 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownEntries0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownEntries0</c> value.
     /// </summary>
     public AvatarEntryA[] UnknownEntries0 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>TrainStationReady</c> value.
+    /// Gets or sets the <c language="csharp">TrainStationReady</c> value.
     /// </summary>
     public bool TrainStationReady { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>IsMuted</c> value.
+    /// Gets or sets the <c language="csharp">IsMuted</c> value.
     /// </summary>
     public bool IsMuted { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CanEditFarm</c> value.
+    /// Gets or sets the <c language="csharp">CanEditFarm</c> value.
     /// </summary>
     public bool CanEditFarm { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownEntries1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownEntries1</c> value.
     /// </summary>
     public AvatarEntryB[] UnknownEntries1 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>PickedPassengers</c> value.
+    /// Gets or sets the <c language="csharp">PickedPassengers</c> value.
     /// </summary>
     public PickedPassenger[] PickedPassengers { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownEntries2</c> value.
+    /// Gets or sets the <c language="csharp">UnknownEntries2</c> value.
     /// </summary>
     public AvatarEntryC[] UnknownEntries2 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownEntries3</c> value.
+    /// Gets or sets the <c language="csharp">UnknownEntries3</c> value.
     /// </summary>
     public AvatarEntryC[] UnknownEntries3 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownNullableListCount</c> value.
+    /// Gets or sets the <c language="csharp">UnknownNullableListCount</c> value.
     /// </summary>
     public int UnknownNullableListCount { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownOptionalId0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownOptionalId0</c> value.
     /// </summary>
     public LongId? UnknownOptionalId0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownOptionalId1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownOptionalId1</c> value.
     /// </summary>
     public LongId? UnknownOptionalId1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>LeagueType</c> value.
+    /// Gets or sets the <c language="csharp">LeagueType</c> value.
     /// </summary>
     public int LeagueType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownLeagueValue</c> value.
+    /// Gets or sets the <c language="csharp">UnknownLeagueValue</c> value.
     /// </summary>
     public int UnknownLeagueValue { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>LeagueScore</c> value.
+    /// Gets or sets the <c language="csharp">LeagueScore</c> value.
     /// </summary>
     public int LeagueScore { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownValues1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownValues1</c> value.
     /// </summary>
     public int[] UnknownValues1 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>UnknownManager0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownManager0</c> value.
     /// </summary>
     public AvatarManagerA UnknownManager0 { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c>UnknownManager1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownManager1</c> value.
     /// </summary>
     public AvatarStringManager UnknownManager1 { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c>UnknownValues2</c> value.
+    /// Gets or sets the <c language="csharp">UnknownValues2</c> value.
     /// </summary>
     public int[] UnknownValues2 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c>MapGameId</c> value.
+    /// Gets or sets the <c language="csharp">MapGameId</c> value.
     /// </summary>
     public LongId? MapGameId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownOptionalId3</c> value.
+    /// Gets or sets the <c language="csharp">UnknownOptionalId3</c> value.
     /// </summary>
     public LongId? UnknownOptionalId3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown4</c> value.
+    /// Gets or sets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown5</c> value.
+    /// Gets or sets the <c language="csharp">Unknown5</c> value.
     /// </summary>
     public int Unknown5 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
     /// </summary>
     public string? UnknownString0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>StorePromotionAllowed</c> value.
+    /// Gets or sets the <c language="csharp">StorePromotionAllowed</c> value.
     /// </summary>
     public bool StorePromotionAllowed { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
     /// </summary>
     public string? UnknownString1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownBoolean1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
     public bool UnknownBoolean1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownManager2</c> value.
+    /// Gets or sets the <c language="csharp">UnknownManager2</c> value.
     /// </summary>
     public AvatarManagerB UnknownManager2 { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c>Settings</c> value.
+    /// Gets or sets the <c language="csharp">Settings</c> value.
     /// </summary>
     public AvatarSettings? Settings { get; init; }
 

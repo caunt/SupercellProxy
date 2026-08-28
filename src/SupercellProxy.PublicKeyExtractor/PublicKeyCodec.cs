@@ -5,7 +5,7 @@ namespace SupercellProxy.PublicKeyExtractor;
 /// <summary>
 /// <para>Encodes and decodes the native server-public-key representation.</para>
 /// </summary>
-public static class PublicKeyCodec
+internal static class PublicKeyCodec
 {
     /// <summary>
     /// <para>Decodes a native key table into a 32-byte public key.</para>

@@ -5,90 +5,90 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>One shop event in server command 355.</para>
 /// </summary>
-public sealed record ShopEvent
+internal sealed record ShopEvent
 {
     /// <summary>
-    /// Gets or sets the <c>BinaryData</c> value.
+    /// Gets or sets the <c language="csharp">BinaryData</c> value.
     /// </summary>
     public Memory<byte>? BinaryData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>TextData</c> value.
+    /// Gets or sets the <c language="csharp">TextData</c> value.
     /// </summary>
     public string TextData { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the <c>EventId</c> value.
+    /// Gets or sets the <c language="csharp">EventId</c> value.
     /// </summary>
     public int EventId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
     /// </summary>
     public string UnknownString0 { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the <c>EventType</c> value.
+    /// Gets or sets the <c language="csharp">EventType</c> value.
     /// </summary>
     public int EventType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown2</c> value.
+    /// Gets or sets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public int Unknown2 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown3</c> value.
+    /// Gets or sets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown4</c> value.
+    /// Gets or sets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown5</c> value.
+    /// Gets or sets the <c language="csharp">Unknown5</c> value.
     /// </summary>
     public int Unknown5 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown6</c> value.
+    /// Gets or sets the <c language="csharp">Unknown6</c> value.
     /// </summary>
     public int Unknown6 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown7</c> value.
+    /// Gets or sets the <c language="csharp">Unknown7</c> value.
     /// </summary>
     public int Unknown7 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown8</c> value.
+    /// Gets or sets the <c language="csharp">Unknown8</c> value.
     /// </summary>
     public int Unknown8 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown9</c> value.
+    /// Gets or sets the <c language="csharp">Unknown9</c> value.
     /// </summary>
     public int Unknown9 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown10</c> value.
+    /// Gets or sets the <c language="csharp">Unknown10</c> value.
     /// </summary>
     public int Unknown10 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
     /// </summary>
     public string UnknownString1 { get; init; } = string.Empty;
 

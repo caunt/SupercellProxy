@@ -1,13 +1,14 @@
 using System.Globalization;
 using System.Text.Json;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
 
 internal sealed class FieldState
 {
-    private readonly DataTableReference emptyFieldData;
-    private readonly DataTableResolver dataTableResolver;
+    private readonly DataTableReference _emptyFieldData;
+    private readonly DataTableResolver _dataTableResolver;
 
     private FieldState(
         GameObjectState gameObject,
@@ -16,8 +17,8 @@ internal sealed class FieldState
     )
     {
         GameObject = gameObject;
-        this.emptyFieldData = emptyFieldData;
-        this.dataTableResolver = dataTableResolver;
+        this._emptyFieldData = emptyFieldData;
+        this._dataTableResolver = dataTableResolver;
         HasGrowthTimer =
             gameObject.Snapshot.Timer.ValueKind
                 is not JsonValueKind.Undefined
@@ -31,27 +32,27 @@ internal sealed class FieldState
 
     public int GlobalId => GameObject.GlobalId;
     public GameObjectState GameObject { get; }
-    public DataTableReference Data => GameObject.Data;
+    public DataTableReference CropData => GameObject.Data;
+    public DataTableReference GameplayData =>
+        IsHarvestStarted || IsHarvestGainApplied ? _emptyFieldData : CropData;
     public TimerSnapshot GrowthTimer { get; private set; }
-    public bool IsEmpty => Data.GlobalId == emptyFieldData.GlobalId;
+    public bool IsEmpty => CropData.GlobalId == _emptyFieldData.GlobalId;
     public bool HasGrowthTimer { get; private set; }
     public int HarvestCount { get; private set; }
     public int ExperienceReward { get; private set; }
     public int InstantCompleteCost { get; private set; }
     public bool IsHarvestReady { get; private set; }
     public bool IsHarvestStarted { get; private set; }
-    public bool IsHarvestGainCompleted { get; private set; }
+    public bool IsHarvestGainApplied { get; private set; }
 
     public static FieldState[] Resolve(
         GameObjectState[] gameObjects,
         DataTableResolver dataTableResolver
     )
     {
-        const string fieldsFile = "data/fields.csv";
-
-        if (!dataTableResolver.TryGetTableId(fieldsFile, out var fieldTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Fields, out var fieldTableId))
             throw new InvalidOperationException(
-                $"{fieldsFile} is not registered as a native data table."
+                $"{GameAssetFiles.Fields} is not registered as a native data table."
             );
 
         if (
@@ -61,7 +62,9 @@ internal sealed class FieldState
             ) || emptyFieldData.Name is not "EmptyField"
         )
         {
-            throw new InvalidDataException($"{fieldsFile} does not start with EmptyField.");
+            throw new InvalidDataException(
+                $"{GameAssetFiles.Fields} does not start with EmptyField."
+            );
         }
 
         return gameObjects
@@ -85,7 +88,7 @@ internal sealed class FieldState
                 )
             );
 
-        if (IsHarvestStarted || IsHarvestGainCompleted)
+        if (IsHarvestStarted || IsHarvestGainApplied)
             throw new InvalidOperationException(
                 string.Create(
                     CultureInfo.InvariantCulture,
@@ -96,14 +99,14 @@ internal sealed class FieldState
         IsHarvestStarted = true;
     }
 
-    internal void CompleteGain()
+    internal void ApplyHarvestGain()
     {
         if (IsEmpty)
             throw new InvalidOperationException(
                 string.Create(CultureInfo.InvariantCulture, $"Field {GlobalId} is empty.")
             );
 
-        if (IsHarvestGainCompleted)
+        if (IsHarvestGainApplied)
             throw new InvalidOperationException(
                 string.Create(
                     CultureInfo.InvariantCulture,
@@ -127,7 +130,7 @@ internal sealed class FieldState
                 )
             );
 
-        IsHarvestGainCompleted = true;
+        IsHarvestGainApplied = true;
     }
 
     internal void AdvanceSubTick()
@@ -144,35 +147,9 @@ internal sealed class FieldState
         IsHarvestReady = !IsEmpty && GrowthTimer.IsComplete;
     }
 
-    internal void CompleteHarvest()
-    {
-        if (IsEmpty)
-            throw new InvalidOperationException(
-                string.Create(CultureInfo.InvariantCulture, $"Field {GlobalId} is empty.")
-            );
-
-        if (!IsHarvestGainCompleted)
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"Field {GlobalId} has not completed its harvest gain."
-                )
-            );
-
-        GameObject.ChangeData(emptyFieldData, dataTableResolver);
-        HasGrowthTimer = false;
-        GrowthTimer = default;
-        HarvestCount = 0;
-        ExperienceReward = 0;
-        InstantCompleteCost = 0;
-        IsHarvestReady = false;
-        IsHarvestStarted = false;
-        IsHarvestGainCompleted = false;
-    }
-
     internal FieldState CreateEmptyReplacement(int globalId)
     {
-        if (!IsHarvestGainCompleted)
+        if (!IsHarvestGainApplied)
             throw new InvalidOperationException(
                 string.Create(
                     CultureInfo.InvariantCulture,
@@ -182,18 +159,18 @@ internal sealed class FieldState
 
         var snapshot = GameObject.Snapshot with
         {
-            DataGlobalId = emptyFieldData.GlobalId,
+            DataGlobalId = _emptyFieldData.GlobalId,
             Timer = default,
         };
-        var dimensions = GameObjectDimensionsResolver.Resolve(emptyFieldData, dataTableResolver);
+        var dimensions = GameObjectDimensionsResolver.Resolve(_emptyFieldData, _dataTableResolver);
         var gameObject = new GameObjectState(
             globalId,
             snapshot,
-            emptyFieldData,
+            _emptyFieldData,
             dimensions.Width,
             dimensions.Height
         );
-        return new FieldState(gameObject, emptyFieldData, dataTableResolver);
+        return new FieldState(gameObject, _emptyFieldData, _dataTableResolver);
     }
 
     private int ResolveCropValue(string fieldName)
@@ -201,8 +178,8 @@ internal sealed class FieldState
         if (IsEmpty)
             return 0;
 
-        if (!dataTableResolver.TryResolveInt(Data.GlobalId, fieldName, out var value))
-            throw new InvalidDataException($"Field data {Data.Name} has no {fieldName} value.");
+        if (!_dataTableResolver.TryResolveInt(CropData.GlobalId, fieldName, out var value))
+            throw new InvalidDataException($"Field data {CropData.Name} has no {fieldName} value.");
 
         return value;
     }

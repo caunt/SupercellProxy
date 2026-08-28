@@ -5,10 +5,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Diagnostic command state included outside production environments.</para>
 /// </summary>
-public sealed record CommandData
+internal sealed record CommandData
 {
     /// <summary>
-    /// Defines the <c>ValueCount</c> value.
+    /// Defines the <c language="csharp">ValueCount</c> value.
     /// </summary>
     public const int ValueCount = 128;
 
@@ -29,17 +29,17 @@ public sealed record CommandData
     }
 
     /// <summary>
-    /// Gets the <c>Values</c> value.
+    /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
     public ReadOnlyMemory<int> Values { get; }
 
     /// <summary>
-    /// Gets the <c>Text</c> value.
+    /// Gets the <c language="csharp">Text</c> value.
     /// </summary>
     public string Text { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 

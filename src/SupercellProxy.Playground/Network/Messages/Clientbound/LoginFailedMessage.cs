@@ -8,9 +8,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>LoginFailedMessage</c> protocol message.
+/// Represents the <c language="csharp">LoginFailedMessage</c> protocol message.
 /// </summary>
-public record LoginFailedMessage : IMessage
+internal sealed record LoginFailedMessage : IMessage
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -18,88 +18,88 @@ public record LoginFailedMessage : IMessage
     };
 
     /// <summary>
-    /// Gets or sets the <c>ErrorCode</c> value.
+    /// Gets or sets the <c language="csharp">ErrorCode</c> value.
     /// </summary>
     public required LoginFailureType ErrorCode { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>GameAssetFingerprintData</c> value.
+    /// Gets or sets the <c language="csharp">GameAssetFingerprintData</c> value.
     /// </summary>
     public string? GameAssetFingerprintData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Reason</c> value.
+    /// Gets or sets the <c language="csharp">Reason</c> value.
     /// </summary>
     public string? Reason { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown2</c> value.
+    /// Gets or sets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public bool Unknown2 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UpdateUrl</c> value.
+    /// Gets or sets the <c language="csharp">UpdateUrl</c> value.
     /// </summary>
     public string? UpdateUrl { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown3</c> value.
+    /// Gets or sets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown4</c> value.
+    /// Gets or sets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown5</c> value.
+    /// Gets or sets the <c language="csharp">Unknown5</c> value.
     /// </summary>
     public LongId Unknown5 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown6</c> value.
+    /// Gets or sets the <c language="csharp">Unknown6</c> value.
     /// </summary>
     public string? Unknown6 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown7</c> value.
+    /// Gets or sets the <c language="csharp">Unknown7</c> value.
     /// </summary>
     public string? Unknown7 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown8</c> value.
+    /// Gets or sets the <c language="csharp">Unknown8</c> value.
     /// </summary>
     public string? Unknown8 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown9</c> value.
+    /// Gets or sets the <c language="csharp">Unknown9</c> value.
     /// </summary>
     public string? Unknown9 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>AssetsUrls</c> value.
+    /// Gets or sets the <c language="csharp">AssetsUrls</c> value.
     /// </summary>
     public string?[]? AssetsUrls { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>RedirectHost</c> value.
+    /// Gets or sets the <c language="csharp">RedirectHost</c> value.
     /// </summary>
     public string? RedirectHost { get; init; }
 
     /// <summary>
-    /// Gets the <c>AssetsUrlsFiltered</c> value.
+    /// Gets the <c language="csharp">AssetsUrlsFiltered</c> value.
     /// </summary>
     public IEnumerable<string> AssetsUrlsFiltered =>
         AssetsUrls?.Where(static url => !string.IsNullOrWhiteSpace(url)).WhereNotNull() ?? [];
 
     /// <summary>
-    /// Gets the <c>GameAssetFingerprint</c> value.
+    /// Gets the <c language="csharp">GameAssetFingerprint</c> value.
     /// </summary>
     public GameAssetFingerprint GameAssetFingerprint
     {
@@ -124,7 +124,7 @@ public record LoginFailedMessage : IMessage
     }
 
     /// <summary>
-    /// Creates a <c>LoginFailedMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">LoginFailedMessage</c> from the supplied data.
     /// </summary>
     public static LoginFailedMessage Create(MessageContainer container)
     {
@@ -187,7 +187,7 @@ public record LoginFailedMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

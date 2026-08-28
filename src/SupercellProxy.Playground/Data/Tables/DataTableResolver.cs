@@ -5,24 +5,21 @@ using SupercellProxy.Playground.Data.Assets;
 namespace SupercellProxy.Playground.Data.Tables;
 
 /// <summary>
-/// Represents <c>DataTableResolver</c>.
+/// Represents <c language="csharp">DataTableResolver</c>.
 /// </summary>
-public sealed class DataTableResolver : ICommandDataResolver
+internal sealed class DataTableResolver : ICommandDataResolver
 {
     /// <summary>
-    /// Defines the <c>GlobalIdTableSize</c> value.
+    /// Defines the <c language="csharp">GlobalIdTableSize</c> value.
     /// </summary>
     public const int GlobalIdTableSize = 100000;
 
-    private readonly IReadOnlyDictionary<
-        int,
-        (GameAsset GameAsset, GameDataTable Table)
-    > dataTables;
-    private readonly IReadOnlyDictionary<string, GameAsset> resourcesByFile;
-    private readonly IReadOnlyDictionary<string, int> tableIdsByFile;
+    private readonly Dictionary<int, (GameAsset GameAsset, GameDataTable Table)> _dataTables;
+    private readonly Dictionary<string, GameAsset> _resourcesByFile;
+    private readonly Dictionary<string, int> _tableIdsByFile;
 
     /// <summary>
-    /// Gets the <c>HighestTableId</c> value.
+    /// Gets the <c language="csharp">HighestTableId</c> value.
     /// </summary>
     public int HighestTableId { get; }
 
@@ -31,7 +28,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     public DataTableResolver(IEnumerable<GameAsset> resources)
     {
-        resourcesByFile = resources.ToDictionary(
+        _resourcesByFile = resources.ToDictionary(
             static resource => resource.Fingerprint.File,
             StringComparer.Ordinal
         );
@@ -39,7 +36,7 @@ public sealed class DataTableResolver : ICommandDataResolver
 
         foreach (var (tableId, file) in DataTableRegistry.Create(resources))
         {
-            if (!resourcesByFile.TryGetValue(file, out var resource))
+            if (!_resourcesByFile.TryGetValue(file, out var resource))
                 throw new InvalidOperationException($"GameAsset {file} was not downloaded.");
 
             if (!resource.TryGetTable(out var table))
@@ -48,9 +45,9 @@ public sealed class DataTableResolver : ICommandDataResolver
             resolvedDataTables.Add(tableId, (resource, table));
         }
 
-        dataTables = resolvedDataTables;
+        _dataTables = resolvedDataTables;
         HighestTableId = resolvedDataTables.Keys.Max();
-        tableIdsByFile = resolvedDataTables.ToDictionary(
+        _tableIdsByFile = resolvedDataTables.ToDictionary(
             static entry => entry.Value.GameAsset.Fingerprint.File,
             static entry => entry.Key,
             StringComparer.Ordinal
@@ -58,23 +55,23 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>GetTableId</c> operation.
+    /// Attempts the <c language="csharp">GetTableId</c> operation.
     /// </summary>
     public bool TryGetTableId(string file, out int tableId)
     {
-        return tableIdsByFile.TryGetValue(file, out tableId);
+        return _tableIdsByFile.TryGetValue(file, out tableId);
     }
 
     /// <summary>
-    /// Attempts the <c>GetTableEntryCount</c> operation.
+    /// Attempts the <c language="csharp">GetTableEntryCount</c> operation.
     /// </summary>
     public bool TryGetTableEntryCount(string file, out int count)
     {
         count = default;
 
         if (
-            !tableIdsByFile.TryGetValue(file, out var tableId)
-            || !dataTables.TryGetValue(tableId, out var dataTable)
+            !_tableIdsByFile.TryGetValue(file, out var tableId)
+            || !_dataTables.TryGetValue(tableId, out var dataTable)
         )
         {
             return false;
@@ -85,7 +82,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>Resolve</c> operation.
+    /// Attempts the <c language="csharp">Resolve</c> operation.
     /// </summary>
     public bool TryResolve(int globalId, [NotNullWhen(true)] out DataTableReference? reference)
     {
@@ -99,7 +96,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         var rowIndex = globalId % GlobalIdTableSize;
 
         if (
-            !dataTables.TryGetValue(tableId, out var dataTable)
+            !_dataTables.TryGetValue(tableId, out var dataTable)
             || rowIndex >= dataTable.Table.Entries.Count
         )
         {
@@ -127,7 +124,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>Resolve</c> operation.
+    /// Attempts the <c language="csharp">Resolve</c> operation.
     /// </summary>
     public bool TryResolve(
         string file,
@@ -138,8 +135,8 @@ public sealed class DataTableResolver : ICommandDataResolver
         reference = null;
 
         if (
-            !tableIdsByFile.TryGetValue(file, out var tableId)
-            || !dataTables.TryGetValue(tableId, out var dataTable)
+            !_tableIdsByFile.TryGetValue(file, out var tableId)
+            || !_dataTables.TryGetValue(tableId, out var dataTable)
         )
             return false;
 
@@ -163,7 +160,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveString</c> operation.
+    /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
     public bool TryResolveString(
         int globalId,
@@ -187,7 +184,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveString</c> operation.
+    /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
     public bool TryResolveString(
         int globalId,
@@ -222,7 +219,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveString</c> operation.
+    /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
     public bool TryResolveString(
         string file,
@@ -258,7 +255,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveInt</c> operation.
+    /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
     public bool TryResolveInt(int globalId, string fieldName, out int value)
     {
@@ -278,7 +275,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveInt</c> operation.
+    /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
     public bool TryResolveInt(string file, int physicalRowIndex, string fieldName, out int value)
     {
@@ -300,14 +297,14 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveInt</c> operation.
+    /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
     public bool TryResolveInt(string file, string name, string fieldName, out int value)
     {
         value = default;
 
         if (
-            !resourcesByFile.TryGetValue(file, out var resource)
+            !_resourcesByFile.TryGetValue(file, out var resource)
             || !resource.TryGetTable(out var table)
         )
             return false;
@@ -335,7 +332,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveInt</c> operation.
+    /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
     public bool TryResolveInt(
         string file,
@@ -368,7 +365,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveValueCount</c> operation.
+    /// Attempts the <c language="csharp">ResolveValueCount</c> operation.
     /// </summary>
     public bool TryResolveValueCount(string file, string name, string fieldName, out int count)
     {
@@ -387,7 +384,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolvePhysicalRowCount</c> operation.
+    /// Attempts the <c language="csharp">ResolvePhysicalRowCount</c> operation.
     /// </summary>
     public bool TryResolvePhysicalRowCount(string file, out int count)
     {
@@ -401,7 +398,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveBoolean</c> operation.
+    /// Attempts the <c language="csharp">ResolveBoolean</c> operation.
     /// </summary>
     public bool TryResolveBoolean(int globalId, string fieldName, out bool value)
     {
@@ -421,7 +418,26 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveBoolean</c> operation.
+    /// Attempts to resolve a Boolean field from a named row in any loaded data-table resource,
+    /// including resources that do not have a global table identifier.
+    /// </summary>
+    public bool TryResolveBoolean(string file, string name, string fieldName, out bool value)
+    {
+        value = default;
+
+        if (
+            !TryResolveTableEntry(file, name, out var entry)
+            || !entry.BaseRow.TryGetValue(fieldName, out var fieldValue)
+            || fieldValue is not bool booleanValue
+        )
+            return false;
+
+        value = booleanValue;
+        return true;
+    }
+
+    /// <summary>
+    /// Attempts the <c language="csharp">ResolveBoolean</c> operation.
     /// </summary>
     public bool TryResolveBoolean(int globalId, string fieldName, int valueIndex, out bool value)
     {
@@ -448,7 +464,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveInt</c> operation.
+    /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
     public bool TryResolveInt(int globalId, string fieldName, int valueIndex, out int value)
     {
@@ -475,7 +491,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Attempts the <c>ResolveValueCount</c> operation.
+    /// Attempts the <c language="csharp">ResolveValueCount</c> operation.
     /// </summary>
     public bool TryResolveValueCount(int globalId, string fieldName, out int count)
     {
@@ -512,7 +528,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         var rowIndex = globalId % GlobalIdTableSize;
 
         if (
-            !dataTables.TryGetValue(tableId, out var dataTable)
+            !_dataTables.TryGetValue(tableId, out var dataTable)
             || rowIndex >= dataTable.Table.Entries.Count
         )
         {
@@ -556,7 +572,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         entry = null;
 
         if (
-            !resourcesByFile.TryGetValue(file, out var resource)
+            !_resourcesByFile.TryGetValue(file, out var resource)
             || !resource.TryGetTable(out var table)
         )
             return false;
@@ -585,7 +601,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         rows = null;
 
         if (
-            !resourcesByFile.TryGetValue(file, out var resource)
+            !_resourcesByFile.TryGetValue(file, out var resource)
             || !resource.TryGetTable(out var table)
         )
             return false;

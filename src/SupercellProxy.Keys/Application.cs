@@ -1,15 +1,11 @@
 using System.Globalization;
-using System.IO.Compression;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-    private static readonly string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
+    private const string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromMinutes(30) };
 
     public static async Task<int> RunAsync(string[] args)
@@ -49,12 +45,14 @@ internal static partial class Application
             catch (OperationCanceledException)
                 when (cancellationTokenSource.IsCancellationRequested)
             {
-                Console.Error.WriteLine("Operation cancelled.");
+                await Console.Error.WriteLineAsync("Operation cancelled.").ConfigureAwait(false);
                 return 130;
             }
             catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                Console.Error.WriteLine($"Error: {exception.Message}");
+                await Console
+                    .Error.WriteLineAsync($"Error: {exception.Message}")
+                    .ConfigureAwait(false);
                 return 1;
             }
         }
@@ -193,9 +191,10 @@ internal static partial class Application
         return 0;
     }
 
-    private static readonly Regex AppStoreIdRegex = new(
+    [GeneratedRegex(
         AppStoreIdPattern,
-        RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Compiled,
-        TimeSpan.FromSeconds(1)
-    );
+        RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture,
+        matchTimeoutMilliseconds: 1_000
+    )]
+    private static partial Regex AppStoreIdRegex { get; }
 }

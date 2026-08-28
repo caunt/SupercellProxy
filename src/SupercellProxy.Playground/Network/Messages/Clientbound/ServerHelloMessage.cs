@@ -3,17 +3,17 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>ServerHelloMessage</c> protocol message.
+/// Represents the <c language="csharp">ServerHelloMessage</c> protocol message.
 /// </summary>
-public record ServerHelloMessage : IMessage
+internal sealed record ServerHelloMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>SessionKey</c> value.
+    /// Gets or sets the <c language="csharp">SessionKey</c> value.
     /// </summary>
     public required Memory<byte> SessionKey { get; init; }
 
     /// <summary>
-    /// Creates a <c>ServerHelloMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">ServerHelloMessage</c> from the supplied data.
     /// </summary>
     public static ServerHelloMessage Create(MessageContainer container)
     {
@@ -21,7 +21,7 @@ public record ServerHelloMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
@@ -33,7 +33,7 @@ public record ServerHelloMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToString</c> operation.
+    /// Executes the <c language="csharp">ToString</c> operation.
     /// </summary>
     public override string ToString()
     {

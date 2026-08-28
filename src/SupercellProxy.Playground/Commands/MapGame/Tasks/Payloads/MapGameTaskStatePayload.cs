@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameTaskStatePayload</c>.
 /// </summary>
-public abstract record MapGameTaskStatePayload
+internal abstract record MapGameTaskStatePayload
 {
     internal abstract void Encode(MessageStream stream);
 

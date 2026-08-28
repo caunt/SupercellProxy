@@ -1,107 +1,45 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using SupercellProxy.Playground.Events.Bus;
+using SupercellProxy.Playground.Crypto.Exceptions;
 using SupercellProxy.Playground.Extensions;
 using SupercellProxy.Playground.Network.Configuration;
-using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Connections.Proxy;
 
-// There are multiple ways to implement a proxy that can decrypt packets:
-// 1) Get the 'client private key' from the app and give it to the proxy (not sure but maybe 'snonce' needed as well).
-// 2) Replace the 'server public key' in the app with 'proxy public key', re-encrypt packets on the proxy.
-
-// CoCSharp.Proxy uses second approach - https://github.com/FICTURE7/CoCSharp/blob/d8602264fd185a9236197502eb40aa57019bf4be/src/CoCSharp.Proxy/MessageProcessorNaClProxy.cs#L99
-// They introduced a "standard" key pair for modded servers at Crypto8.StandardKeyPair:
-// standard proxy private key: 1891D401FADB51D25D3A9174D472A9F691A45B974285D47729C45C6538070D85
-// standard proxy public key: 72F1A4A4C48E44DA0C42310F800E96624E6DC6A641A9D41C3B5039D8DFADC27E
-
-// We are also using second approach, by patching the app's memory to replace the server public key with the standard proxy public key encoded by PublicKeyCodec.Encode()
-
-// Android in-memory public key replacemet:
-// 1) Set up Wi-Fi Remote ADB Shell on rooted device
-// 2) Download GDB binary for your phone and place it at `/data/local/tmp/gdb` with `adb push`
-// 3) Execute `adb shell`, then `su` inside it
-// 4) Paste this GDB script in your adb shell:
-/*
-
-
-
-export PID=$(ps -A | grep 'hayday' | awk '{print $2}')
-
-/data/local/tmp/gdb -q -n -batch -x /dev/stdin <<'EOF'
-python
-import os, time
-
-processId = os.environ["PID"]
-anchorBytes = bytes.fromhex("1AD5000000000000")
-replacementBytes = bytes.fromhex("5E2E00002929000047620000DA440000841800003CC400007400000029660000CDA90000A9B10000D4A000001CD40000A076000060E700006EFD0000EC27000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-
-def execute_patch():
-    overlapSize = len(anchorBytes) - 1
-
-    with open("/proc/%s/maps" % processId, "r") as mapsFile, open("/proc/%s/mem" % processId, "rb+") as memoryFile:
-        for currentLine in mapsFile:
-            lineParts = currentLine.split()
-            if len(lineParts) < 2 or "r" not in lineParts[1]:
-                continue
-
-            startString, endString = lineParts[0].split("-")
-            currentAddress = int(startString, 16)
-            regionEnd = int(endString, 16)
-
-            while currentAddress < regionEnd:
-                try:
-                    memoryFile.seek(currentAddress)
-                    memoryData = memoryFile.read(min(0x4000, regionEnd - currentAddress))
-                except IOError:
-                    break
-
-                if not memoryData or len(memoryData) <= overlapSize:
-                    break
-
-                matchIndex = memoryData.find(anchorBytes)
-                if matchIndex != -1:
-                    patchAddress = currentAddress + matchIndex - len(replacementBytes)
-                    
-                    for retryAttempt in range(5):
-                        try:
-                            memoryFile.seek(patchAddress)
-                            memoryFile.write(replacementBytes)
-                            memoryFile.flush()
-                            print("pattern at 0x%x, patched 0x%x .. 0x%x" % (currentAddress + matchIndex, patchAddress, patchAddress + len(replacementBytes)))
-                            return
-                        except IOError:
-                            time.sleep(0.05)
-                    return
-
-                currentAddress += len(memoryData) - overlapSize
-
-execute_patch()
-end
-EOF
-
-
-
-*/
-
 /// <summary>
-/// Represents <c>ScProxy</c>.
+/// Represents <c language="csharp">ScProxy</c>.
 /// </summary>
 /// <remarks>
 /// Initializes a new <see cref="ScProxy"/> instance.
 /// </remarks>
-public class ScProxy(ProxyConfiguration configuration)
+internal sealed class ScProxy(ProxyConfiguration configuration)
 {
-    private static readonly string CaptureRootDirectoryPath = Path.Combine(
-        AppContext.BaseDirectory,
-        "proxy-captures"
-    );
-    private readonly ProxyConfiguration configuration = configuration;
+    private readonly ProxyConfiguration _configuration = configuration;
+
+    /// Runs the proxy using command-line connection arguments.
+    public static async Task RunAsync(
+        string[] arguments,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (upstreamHost, upstreamPort) = await ConnectionAddress
+            .ResolveAsync(arguments, cancellationToken)
+            .ConfigureAwait(false);
+        var proxy = new ScProxy(
+            new ProxyConfiguration(
+                upstreamHost,
+                upstreamPort,
+                arguments.ElementAtOrDefault(2) ?? ConnectionAddress.DefaultListenHost,
+                ConnectionAddress.ParsePort(arguments.ElementAtOrDefault(3)),
+                ProtocolConfiguration.Current
+            )
+        );
+        await proxy.RunAsync(cancellationToken).ConfigureAwait(false);
+    }
 
     /// <summary>
-    /// Defines the <c>StandardPrivateKey</c> value.
+    /// Defines the <c language="csharp">StandardPrivateKey</c> value.
     /// </summary>
     public static readonly byte[] StandardPrivateKey =
     [
@@ -140,20 +78,20 @@ public class ScProxy(ProxyConfiguration configuration)
     ];
 
     /// <summary>
-    /// Executes the <c>RunAsync</c> operation.
+    /// Executes the <c language="csharp">RunAsync</c> operation.
     /// </summary>
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
-        var listener = new TcpListener(
-            IPAddress.Parse(configuration.ListenAddress),
-            configuration.ListenPort
+        using var listener = new TcpListener(
+            IPAddress.Parse(_configuration.ListenAddress),
+            _configuration.ListenPort
         );
         listener.Start();
 
         Console.WriteLine(
             string.Create(
                 CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] Listening on {configuration.ListenAddress}:{configuration.ListenPort}, upstream {configuration.UpstreamHost}:{configuration.UpstreamPort}"
+                $"[{DateTime.Now:T}] Listening on {_configuration.ListenAddress}:{_configuration.ListenPort}, upstream {_configuration.UpstreamHost}:{_configuration.UpstreamPort}"
             )
         );
 
@@ -167,15 +105,22 @@ public class ScProxy(ProxyConfiguration configuration)
                 {
                     try
                     {
-                        using (client)
-                            await RunClientAsync(client, cancellationToken).ConfigureAwait(false);
+                        await RunClientAsync(client, cancellationToken).ConfigureAwait(false);
                     }
                     catch (Exception exception)
+                        when (exception
+                                is IOException
+                                    or SocketException
+                                    or InvalidDataException
+                                    or OperationCanceledException
+                                    or TimeoutException
+                                    or NaClV3Exception
+                        )
                     {
                         Console.WriteLine(exception);
                     }
                 },
-                cancellationToken
+                CancellationToken.None
             );
         }
     }
@@ -185,10 +130,28 @@ public class ScProxy(ProxyConfiguration configuration)
         CancellationToken cancellationToken = default
     )
     {
-        var client = await BuildClientAsync(
+        Console.WriteLine(
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] Incoming connection from {tcpClient.GetRemoteEndPoint()}"
+            )
+        );
+        var trafficCapture = new ProxyTrafficCapture(
+            ProxyTrafficCapture.RootDirectoryPath,
+            tcpClient.GetRemoteEndPoint()
+        );
+        Console.WriteLine(
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] Saving proxy traffic to {trafficCapture.DirectoryPath}"
+            )
+        );
+        var client = await ScProxyClient
+            .ConnectAsync(
                 tcpClient,
-                configuration.UpstreamHost,
-                configuration.UpstreamPort,
+                _configuration.UpstreamHost,
+                _configuration.UpstreamPort,
+                trafficCapture,
                 cancellationToken
             )
             .ConfigureAwait(false);
@@ -207,53 +170,5 @@ public class ScProxy(ProxyConfiguration configuration)
                 await client.CompletionTask.ConfigureAwait(false);
             }
         }
-    }
-
-    private static async Task<ScProxyClient> BuildClientAsync(
-        TcpClient client,
-        string upstreamHost,
-        int upstreamPort,
-        CancellationToken cancellationToken = default
-    )
-    {
-        Console.WriteLine(
-            string.Create(
-                CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] Incoming connection from {client.GetRemoteEndPoint()}"
-            )
-        );
-
-        var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-            cancellationToken
-        );
-
-        var upstream = new TcpClient();
-        await upstream
-            .ConnectAsync(upstreamHost, upstreamPort, linkedCancellationTokenSource.Token)
-            .ConfigureAwait(false);
-
-        var clientStream = new MessageStream(client.GetStream());
-        var serverStream = new MessageStream(upstream.GetStream());
-
-        var trafficCapture = new ProxyTrafficCapture(
-            CaptureRootDirectoryPath,
-            client.GetRemoteEndPoint()
-        );
-        Console.WriteLine(
-            string.Create(
-                CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] Saving proxy traffic to {trafficCapture.DirectoryPath}"
-            )
-        );
-
-        return new ScProxyClient(
-            client,
-            upstream,
-            clientStream,
-            serverStream,
-            new EventBus(),
-            linkedCancellationTokenSource,
-            trafficCapture
-        );
     }
 }

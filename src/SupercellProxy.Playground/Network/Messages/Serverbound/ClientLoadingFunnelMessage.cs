@@ -6,20 +6,20 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 /// <summary>
 /// <para>Reports the client loading state after login.</para>
 /// </summary>
-public sealed record ClientLoadingFunnelMessage : IMessage
+internal sealed record ClientLoadingFunnelMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; init; } = -1;
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
     /// </summary>
     public string UnknownString0 { get; init; } = string.Empty;
 
     /// <summary>
-    /// Creates a <c>ClientLoadingFunnelMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">ClientLoadingFunnelMessage</c> from the supplied data.
     /// </summary>
     public static ClientLoadingFunnelMessage Create(MessageContainer container)
     {
@@ -42,7 +42,7 @@ public sealed record ClientLoadingFunnelMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

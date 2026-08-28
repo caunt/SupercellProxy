@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -10,17 +11,17 @@ internal sealed record PersonState(
     int MovementSpeed,
     int IdleTime,
     int State,
-    int ChecksumState0,
+    int Timer,
     int NextPoint,
     int GoodAmount,
     DataTableReference Good,
-    int ChecksumState1,
-    int ChecksumState2,
+    int TargetX,
+    int TargetY,
     int PaymentObjectAmount,
     DataTableReference PaymentObject,
-    int ChecksumState3,
-    bool ChecksumFlag0,
-    bool ChecksumFlag1,
+    int ExperienceReward,
+    bool MovementComplete,
+    bool Active,
     IntPair ChecksumPair0,
     IntPair ChecksumPair1,
     IntPair ChecksumPair2,
@@ -35,11 +36,9 @@ internal sealed record PersonState(
         DataTableResolver dataTableResolver
     )
     {
-        const string peopleFile = "data/people.csv";
-
-        if (!dataTableResolver.TryGetTableId(peopleFile, out var peopleTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.People, out var peopleTableId))
             throw new InvalidOperationException(
-                $"{peopleFile} is not registered as a native data table."
+                $"{GameAssetFiles.People} is not registered as a native data table."
             );
 
         return gameObjects
@@ -68,8 +67,8 @@ internal sealed record PersonState(
 
         return this with
         {
-            ChecksumState3 = constantExperience,
-            ChecksumFlag1 = true,
+            ExperienceReward = constantExperience,
+            Active = true,
         };
     }
 
@@ -120,8 +119,8 @@ internal sealed record PersonState(
             snapshot.PaymentObjectAmount,
             paymentObject,
             0,
-            ChecksumFlag0: false,
-            ChecksumFlag1: false,
+            MovementComplete: false,
+            Active: false,
             default,
             default,
             default,
@@ -169,7 +168,7 @@ internal sealed record PersonState(
 
     internal PersonState UpdateOne(PersonState[] people, PersonRouteState routes, GameRandom random)
     {
-        if (!ChecksumFlag1)
+        if (!Active)
             return this;
 
         if (State is not 1)
@@ -180,15 +179,15 @@ internal sealed record PersonState(
                 )
             );
 
-        var timer = unchecked(ChecksumState0 - 1);
-        var targetX = ChecksumState1;
-        var targetY = ChecksumState2;
+        var timer = unchecked(Timer - 1);
+        var targetX = TargetX;
+        var targetY = TargetY;
 
         if (targetX is -1 && timer < 1)
             (targetX, targetY) = SelectTarget(people, routes, random);
 
         if (targetX is -1)
-            return this with { ChecksumState0 = timer };
+            return this with { Timer = timer };
 
         var currentX = GameObject.PositionX;
         var currentY = GameObject.PositionY;
@@ -214,9 +213,9 @@ internal sealed record PersonState(
 
         return this with
         {
-            ChecksumState0 = timer,
-            ChecksumState1 = targetX,
-            ChecksumState2 = targetY,
+            Timer = timer,
+            TargetX = targetX,
+            TargetY = targetY,
         };
     }
 
@@ -226,10 +225,10 @@ internal sealed record PersonState(
         GameRandom random
     )
     {
-        const int InitialSeparation = 0x2aa;
-        const int RelaxedSeparation = 0x155;
-        const int RelaxedAttempt = 150;
-        const int MaximumAttempts = 300;
+        const int initialSeparation = 0x2aa;
+        const int relaxedSeparation = 0x155;
+        const int relaxedAttempt = 150;
+        const int maximumAttempts = 300;
 
         var entry = routes.EntryRoute[^1];
         var exit = routes.ExitRoute[0];
@@ -243,12 +242,12 @@ internal sealed record PersonState(
         var targetX = 0;
         var targetY = 0;
 
-        for (var attempt = 0; attempt < MaximumAttempts; attempt++)
+        for (var attempt = 0; attempt < maximumAttempts; attempt++)
         {
-            targetX = unchecked(entry.First - 0x200 + random.NextInt(rangeX));
+            targetX = unchecked(entry.First - GameObjectState.TileSize + random.NextInt(rangeX));
             targetY = unchecked(entry.Second - 0x533 + random.NextInt(0x533));
             var minimumSeparation =
-                attempt < RelaxedAttempt ? InitialSeparation : RelaxedSeparation;
+                attempt < relaxedAttempt ? initialSeparation : relaxedSeparation;
             var separated = true;
 
             foreach (var person in people)
@@ -256,8 +255,8 @@ internal sealed record PersonState(
                 if (ReferenceEquals(person.GameObject, GameObject))
                     continue;
 
-                var deltaX = unchecked(targetX - person.ChecksumState1);
-                var deltaY = unchecked(targetY - person.ChecksumState2);
+                var deltaX = unchecked(targetX - person.TargetX);
+                var deltaY = unchecked(targetY - person.TargetY);
 
                 if (IntegerMath.GetVectorLength(deltaX, deltaY) >= minimumSeparation)
                     continue;

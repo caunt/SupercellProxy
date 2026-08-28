@@ -4,54 +4,54 @@ namespace SupercellProxy.Playground.Data.Tables;
 
 internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers)
 {
-    private readonly Dictionary<string, object?> currentValues = CreateInitialState(headers);
-    private readonly List<IReadOnlyDictionary<string, object?>> continuationRows = [];
-    private readonly List<IReadOnlyDictionary<string, object?>> snapshots = [];
-    private IReadOnlyDictionary<string, object?>? baseRow;
+    private readonly Dictionary<string, object?> _currentValues = CreateInitialState(headers);
+    private readonly List<IReadOnlyDictionary<string, object?>> _continuationRows = [];
+    private readonly List<IReadOnlyDictionary<string, object?>> _snapshots = [];
+    private ReadOnlyDictionary<string, object?>? _baseRow;
 
     public void ApplyBaseRow(Dictionary<string, object?> values)
     {
-        if (baseRow is not null)
+        if (_baseRow is not null)
             throw new InvalidOperationException("Base row has already been applied.");
 
         ApplyValues(values);
-        baseRow = CreateReadOnlyCopy(values);
-        snapshots.Add(CreateReadOnlyCopy(currentValues));
+        _baseRow = CreateReadOnlyCopy(values);
+        _snapshots.Add(CreateReadOnlyCopy(_currentValues));
     }
 
     public void ApplyContinuationRow(Dictionary<string, object?> values)
     {
-        if (baseRow is null)
+        if (_baseRow is null)
             throw new InvalidOperationException(
                 "Cannot apply a continuation row before a base row."
             );
 
         ApplyValues(values);
-        continuationRows.Add(CreateReadOnlyCopy(values));
-        snapshots.Add(CreateReadOnlyCopy(currentValues));
+        _continuationRows.Add(CreateReadOnlyCopy(values));
+        _snapshots.Add(CreateReadOnlyCopy(_currentValues));
     }
 
     public GameDataTableEntry Build()
     {
-        if (baseRow is null)
+        if (_baseRow is null)
             throw new InvalidOperationException("Cannot build an entry without a base row.");
 
         var name =
-            baseRow.TryGetValue("Name", out var value) && value is string parsedName
+            _baseRow.TryGetValue("Name", out var value) && value is string parsedName
                 ? parsedName
                 : string.Empty;
         return new GameDataTableEntry(
             name,
-            baseRow,
-            continuationRows.AsReadOnly(),
-            snapshots.AsReadOnly()
+            _baseRow,
+            _continuationRows.AsReadOnly(),
+            _snapshots.AsReadOnly()
         );
     }
 
     private void ApplyValues(Dictionary<string, object?> values)
     {
         foreach (var pair in values)
-            currentValues[pair.Key] = pair.Value;
+            _currentValues[pair.Key] = pair.Value;
     }
 
     private static Dictionary<string, object?> CreateInitialState(IReadOnlyList<string> headers)
@@ -64,7 +64,7 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers)
         return state;
     }
 
-    private static IReadOnlyDictionary<string, object?> CreateReadOnlyCopy(
+    private static ReadOnlyDictionary<string, object?> CreateReadOnlyCopy(
         Dictionary<string, object?> source
     )
     {

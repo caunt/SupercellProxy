@@ -5,10 +5,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native text-or-binary structure used by map-game event 39.</para>
 /// </summary>
-public sealed record MapGameEventProfileData
+internal sealed record MapGameEventProfileData
 {
     /// <summary>
-    /// Defines the <c>UnknownValueCount</c> value.
+    /// Defines the <c language="csharp">UnknownValueCount</c> value.
     /// </summary>
     public const int UnknownValueCount = 11;
 
@@ -52,42 +52,42 @@ public sealed record MapGameEventProfileData
     }
 
     /// <summary>
-    /// Gets the <c>UsesBinaryData</c> value.
+    /// Gets the <c language="csharp">UsesBinaryData</c> value.
     /// </summary>
     public bool UsesBinaryData { get; }
 
     /// <summary>
-    /// Gets the <c>BinaryData</c> value.
+    /// Gets the <c language="csharp">BinaryData</c> value.
     /// </summary>
     public ReadOnlyMemory<byte>? BinaryData { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalTextData</c> value.
+    /// Gets the <c language="csharp">OptionalTextData</c> value.
     /// </summary>
     public string? OptionalTextData { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownString0</c> value.
+    /// Gets the <c language="csharp">UnknownString0</c> value.
     /// </summary>
     public string UnknownString0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownValues</c> value.
+    /// Gets the <c language="csharp">UnknownValues</c> value.
     /// </summary>
     public ReadOnlyMemory<int> UnknownValues { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownString1</c> value.
+    /// Gets the <c language="csharp">UnknownString1</c> value.
     /// </summary>
     public string UnknownString1 { get; }
 

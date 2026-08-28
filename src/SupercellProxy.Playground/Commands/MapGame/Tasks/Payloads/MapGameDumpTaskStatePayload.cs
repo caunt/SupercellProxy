@@ -4,9 +4,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameDumpTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameDumpTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
+internal sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameDumpTaskStatePayload"/> instance.
@@ -29,32 +29,32 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     }
 
     /// <summary>
-    /// Gets the <c>Values</c> value.
+    /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair> Values { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalValues</c> value.
+    /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public bool Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId</c> value.
+    /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     public LongId? UnknownLongId { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalId0</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalId0</c> value.
     /// </summary>
     public int UnknownGlobalId0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalId1</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalId1</c> value.
     /// </summary>
     public int UnknownGlobalId1 { get; }
 

@@ -3,22 +3,22 @@
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// Represents the <c>VisitHomeMessage</c> protocol message.
+/// Represents the <c language="csharp">VisitHomeMessage</c> protocol message.
 /// </summary>
-public record VisitHomeMessage : IMessage
+internal sealed record VisitHomeMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public required byte Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public required byte Unknown1 { get; init; }
 
     /// <summary>
-    /// Creates a <c>VisitHomeMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">VisitHomeMessage</c> from the supplied data.
     /// </summary>
     public static VisitHomeMessage Create(MessageContainer container)
     {
@@ -30,7 +30,7 @@ public record VisitHomeMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

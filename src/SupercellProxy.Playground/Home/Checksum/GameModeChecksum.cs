@@ -1,22 +1,20 @@
-using SupercellProxy.Playground.Home.Simulation;
-
 namespace SupercellProxy.Playground.Home.Checksum;
 
 internal static class GameModeChecksum
 {
-    public static TurnChecksum Calculate(HarvestState state)
+    public static TurnChecksum Calculate(HomeState state)
     {
         var encoder = new ChecksumEncoder();
-        encoder.WriteBoolean(HarvestState.ChecksumEnabled);
+        encoder.WriteBoolean(HomeState.ChecksumEnabled);
 
-        if (!HarvestState.ChecksumEnabled)
+        if (!HomeState.ChecksumEnabled)
             return new TurnChecksum(encoder.Checksum, new int[8]);
 
         encoder.WriteVarInt(state.ServerTimestamp);
-        encoder.WriteVarInt(HarvestState.GameMode);
+        encoder.WriteVarInt(HomeState.GameMode);
         encoder.WriteVarInt(state.Tick.SubTick);
-        encoder.WriteBoolean(HarvestState.FullChecksumEnabled);
-        encoder.WriteBoolean(HarvestState.DebugChecksumEnabled);
+        encoder.WriteBoolean(HomeState.FullChecksumEnabled);
+        encoder.WriteBoolean(HomeState.DebugChecksumEnabled);
 
         var subChecksums = new int[8];
         subChecksums[0] = encoder.Checksum;
@@ -34,7 +32,7 @@ internal static class GameModeChecksum
         subChecksums[3] = encoder.Checksum;
         encoder.Reset();
 
-        if (HarvestState.FullChecksumEnabled || HarvestState.DebugChecksumEnabled)
+        if (HomeState.FullChecksumEnabled || HomeState.DebugChecksumEnabled)
             throw new InvalidOperationException(
                 "The enabled full/debug checksum path is not implemented."
             );
@@ -55,13 +53,13 @@ internal static class GameModeChecksum
         return new TurnChecksum(encoder.Checksum, subChecksums);
     }
 
-    public static void EncodeTick(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeTick(ChecksumEncoder encoder, HomeState state)
     {
         encoder.WriteVarInt(state.Tick.SubTick);
         encoder.WriteVarInt(state.Tick.Tick);
     }
 
-    public static void EncodeRandom(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeRandom(ChecksumEncoder encoder, HomeState state)
     {
         encoder.WriteInt32(state.Random.State);
     }

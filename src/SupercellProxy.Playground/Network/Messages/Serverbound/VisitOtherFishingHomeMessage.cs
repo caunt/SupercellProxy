@@ -4,17 +4,17 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// Represents the <c>VisitOtherFishingHomeMessage</c> protocol message.
+/// Represents the <c language="csharp">VisitOtherFishingHomeMessage</c> protocol message.
 /// </summary>
-public record VisitOtherFishingHomeMessage : IMessage
+internal sealed record VisitOtherFishingHomeMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>Target</c> value.
+    /// Gets or sets the <c language="csharp">Target</c> value.
     /// </summary>
     public required LongId Target { get; init; }
 
     /// <summary>
-    /// Creates a <c>VisitOtherFishingHomeMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">VisitOtherFishingHomeMessage</c> from the supplied data.
     /// </summary>
     public static VisitOtherFishingHomeMessage Create(MessageContainer container)
     {
@@ -22,7 +22,7 @@ public record VisitOtherFishingHomeMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

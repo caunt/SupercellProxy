@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -16,11 +17,14 @@ internal sealed record HelperCharacterState(
         DataTableResolver dataTableResolver
     )
     {
-        const string helperCharactersFile = "data/helper_characters.csv";
-
-        if (!dataTableResolver.TryGetTableId(helperCharactersFile, out var helperCharacterTableId))
+        if (
+            !dataTableResolver.TryGetTableId(
+                GameAssetFiles.HelperCharacters,
+                out var helperCharacterTableId
+            )
+        )
             throw new InvalidOperationException(
-                $"{helperCharactersFile} is not registered as a native data table."
+                $"{GameAssetFiles.HelperCharacters} is not registered as a native data table."
             );
 
         return gameObjects

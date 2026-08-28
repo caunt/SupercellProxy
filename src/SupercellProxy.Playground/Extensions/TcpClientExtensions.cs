@@ -3,9 +3,9 @@
 namespace SupercellProxy.Playground.Extensions;
 
 /// <summary>
-/// Represents <c>TcpClientExtensions</c>.
+/// Represents <c language="csharp">TcpClientExtensions</c>.
 /// </summary>
-public static class TcpClientExtensions
+internal static class TcpClientExtensions
 {
     /// <summary>
     /// <para>Returns the connected remote endpoint.</para>

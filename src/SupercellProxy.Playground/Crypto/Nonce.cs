@@ -7,14 +7,14 @@ using Blake2Fast;
 namespace SupercellProxy.Playground.Crypto;
 
 /// <summary>
-/// Represents <c>Nonce</c>.
+/// Represents <c language="csharp">Nonce</c>.
 /// </summary>
-public class Nonce
+internal sealed class Nonce
 {
     private NonceBuffer _bytes;
 
     /// <summary>
-    /// Gets the <c>Span</c> value.
+    /// Gets the <c language="csharp">Span</c> value.
     /// </summary>
     public Span<byte> Span => _bytes;
 
@@ -43,9 +43,9 @@ public class Nonce
         }
         else
         {
-            const int DigestLength = 24;
+            const int digestLength = 24;
 
-            var blake2bHasher = Blake2b.CreateIncrementalHasher(DigestLength);
+            var blake2bHasher = Blake2b.CreateIncrementalHasher(digestLength);
             var isNonceProvided = !Unsafe.IsNullRef(ref MemoryMarshal.GetReference(nonceBytes));
 
             if (isNonceProvided)
@@ -57,7 +57,7 @@ public class Nonce
             if (!blake2bHasher.TryFinish(_bytes, out var length))
                 throw new InvalidOperationException("Failed to compute nonce hash.");
 
-            if (length is not DigestLength)
+            if (length is not digestLength)
                 throw new InvalidOperationException(
                     string.Create(
                         CultureInfo.InvariantCulture,
@@ -68,7 +68,7 @@ public class Nonce
     }
 
     /// <summary>
-    /// Executes the <c>Increment</c> operation.
+    /// Executes the <c language="csharp">Increment</c> operation.
     /// </summary>
     public void Increment(int carryValue = 2)
     {

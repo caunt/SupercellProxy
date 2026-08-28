@@ -1,14 +1,14 @@
 ﻿namespace SupercellProxy.Playground.Events.Bus;
 
 /// <summary>
-/// Represents <c>EventTypeIndex</c>.
+/// Represents <c language="csharp">EventTypeIndex</c>.
 /// </summary>
-public static class EventTypeIndex
+internal static class EventTypeIndex
 {
-    private static int _currentIndex = -1;
+    private static int s_currentIndex = -1;
 
     /// <summary>
-    /// Gets the <c>NextIndex</c> value.
+    /// Gets the <c language="csharp">NextIndex</c> value.
     /// </summary>
-    public static int NextIndex => Interlocked.Increment(ref _currentIndex);
+    public static int NextIndex => Interlocked.Increment(ref s_currentIndex);
 }

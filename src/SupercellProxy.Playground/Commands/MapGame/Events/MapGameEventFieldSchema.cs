@@ -1,4 +1,3 @@
-using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Commands;

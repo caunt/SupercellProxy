@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventOptionalVarIntArrayField</c>.
+/// Represents <c language="csharp">MapGameEventOptionalVarIntArrayField</c>.
 /// </summary>
-public sealed record MapGameEventOptionalVarIntArrayField : MapGameEventField
+internal sealed record MapGameEventOptionalVarIntArrayField : MapGameEventField
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameEventOptionalVarIntArrayField"/> instance.
@@ -14,7 +14,7 @@ public sealed record MapGameEventOptionalVarIntArrayField : MapGameEventField
         Values = values?.ToArray();
 
     /// <summary>
-    /// Gets the <c>Values</c> value.
+    /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
     public ReadOnlyMemory<int>? Values { get; }
     internal override MapGameEventFieldType FieldType => MapGameEventFieldType.OptionalVarIntArray;

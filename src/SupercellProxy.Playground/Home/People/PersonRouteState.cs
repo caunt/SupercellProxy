@@ -1,12 +1,11 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
-using SupercellProxy.Playground.Logic;
 
 namespace SupercellProxy.Playground.Home;
 
 internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRoute)
 {
-    private const string GameConfigFile = "data/game_config.csv";
     private const string StringValueField = "StringValue";
 
     public static PersonRouteState Resolve(DataTableResolver dataTableResolver)
@@ -21,7 +20,7 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
     {
         if (
             !dataTableResolver.TryResolveValueCount(
-                GameConfigFile,
+                GameAssetFiles.GameConfig,
                 routeName,
                 StringValueField,
                 out var pointCount
@@ -29,7 +28,9 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
             || pointCount < 1
         )
         {
-            throw new InvalidDataException($"{GameConfigFile} has no {routeName} points.");
+            throw new InvalidDataException(
+                $"{GameAssetFiles.GameConfig} has no {routeName} points."
+            );
         }
 
         var points = new IntPair[pointCount];
@@ -38,7 +39,7 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
         {
             if (
                 !dataTableResolver.TryResolveString(
-                    GameConfigFile,
+                    GameAssetFiles.GameConfig,
                     routeName,
                     StringValueField,
                     i,
@@ -48,7 +49,7 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
                 throw new InvalidDataException(
                     string.Create(
                         CultureInfo.InvariantCulture,
-                        $"{GameConfigFile} has an invalid {routeName} point at index {i}."
+                        $"{GameAssetFiles.GameConfig} has an invalid {routeName} point at index {i}."
                     )
                 );
 
@@ -66,7 +67,7 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
             throw new InvalidDataException(
                 string.Create(
                     CultureInfo.InvariantCulture,
-                    $"{GameConfigFile} has a malformed {routeName} point at index {index}."
+                    $"{GameAssetFiles.GameConfig} has a malformed {routeName} point at index {index}."
                 )
             );
 
@@ -94,30 +95,24 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
         if (
             wholeText.IsEmpty
             || fractionText.Length > 2
-            || !int.TryParse(
-                wholeText,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out var whole
-            )
+            || !int.TryParse(wholeText, CultureInfo.InvariantCulture, out var whole)
             || (
                 !fractionText.IsEmpty
-                && !int.TryParse(
-                    fractionText,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    out _
-                )
+                && !int.TryParse(fractionText, CultureInfo.InvariantCulture, out _)
             )
         )
         {
             throw new InvalidDataException(
                 string.Create(
                     CultureInfo.InvariantCulture,
-                    $"{GameConfigFile} has a malformed {routeName} coordinate at index {index}."
+                    $"{GameAssetFiles.GameConfig} has a malformed {routeName} coordinate at index {index}."
                 )
             );
         }
 
-        var fraction = fractionText.IsEmpty ? 0 : int.Parse(fractionText);
+        var fraction = fractionText.IsEmpty
+            ? 0
+            : int.Parse(fractionText, NumberStyles.None, CultureInfo.InvariantCulture);
 
         if (fractionText.Length is 1)
             fraction = checked(fraction * 10);
@@ -127,6 +122,8 @@ internal sealed record PersonRouteState(IntPair[] EntryRoute, IntPair[] ExitRout
         if (negative)
             hundredths = checked(-hundredths);
 
-        return checked(int.CreateChecked((long.CreateChecked(hundredths) * 0x200 / 100)));
+        return checked(
+            int.CreateChecked(long.CreateChecked(hundredths) * GameObjectState.TileSize / 100)
+        );
     }
 }

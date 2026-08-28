@@ -4,9 +4,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventOptionalLongIdField</c>.
+/// Represents <c language="csharp">MapGameEventOptionalLongIdField</c>.
 /// </summary>
-public sealed record MapGameEventOptionalLongIdField(LongId? Value) : MapGameEventField
+internal sealed record MapGameEventOptionalLongIdField(LongId? Value) : MapGameEventField
 {
     internal override MapGameEventFieldType FieldType => MapGameEventFieldType.OptionalLongId;
 

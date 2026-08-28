@@ -5,7 +5,7 @@ namespace SupercellProxy.PublicKeyExtractor.Extensions;
 /// <summary>
 /// <para>Provides ZIP and IPA archive inspection helpers.</para>
 /// </summary>
-public static class ZipArchiveExtensions
+internal static class ZipArchiveExtensions
 {
     /// <summary>
     /// <para>Determines whether the input begins with a recognized ZIP header.</para>

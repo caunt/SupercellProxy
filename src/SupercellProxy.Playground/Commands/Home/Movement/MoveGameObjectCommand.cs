@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Moves an existing game object after validating its object-table category.</para>
 /// </summary>
-public sealed record MoveGameObjectCommand : Command
+internal sealed record MoveGameObjectCommand : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 124;
 
@@ -21,11 +21,11 @@ public sealed record MoveGameObjectCommand : Command
         int objectTableId,
         int logicX,
         int logicY,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         GameObjectGlobalId = gameObjectGlobalId;
         ObjectTableId = objectTableId;
@@ -34,27 +34,27 @@ public sealed record MoveGameObjectCommand : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>GameObjectGlobalId</c> value.
+    /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
     /// </summary>
     public int GameObjectGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>ObjectTableId</c> value.
+    /// Gets the <c language="csharp">ObjectTableId</c> value.
     /// </summary>
     public int ObjectTableId { get; }
 
     /// <summary>
-    /// Gets the <c>PositionX</c> value.
+    /// Gets the <c language="csharp">PositionX</c> value.
     /// </summary>
     public int PositionX { get; }
 
     /// <summary>
-    /// Gets the <c>PositionY</c> value.
+    /// Gets the <c language="csharp">PositionY</c> value.
     /// </summary>
     public int PositionY { get; }
 
@@ -74,7 +74,7 @@ public sealed record MoveGameObjectCommand : Command
             objectTableId,
             logicX,
             logicY,
-            fields.ExecuteSubTick,
+            fields.ExecutionPhaseCounter,
             fields.DebugData0,
             fields.DebugData1
         );

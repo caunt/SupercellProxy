@@ -1,6 +1,13 @@
 <Project>
   <PropertyGroup>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <AnalysisModeStyle>AllEnabledByDefault</AnalysisModeStyle>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <EnableCodeStyleSeverity>true</EnableCodeStyleSeverity>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <MeziantouAnalysisMode>all-errors</MeziantouAnalysisMode>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>

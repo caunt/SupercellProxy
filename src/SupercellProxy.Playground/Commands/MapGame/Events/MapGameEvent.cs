@@ -1,5 +1,4 @@
 using System.Globalization;
-using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Commands;
@@ -7,16 +6,16 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>One polymorphic native map-game event carried by server command 274.</para>
 /// </summary>
-public sealed record MapGameEvent
+internal sealed record MapGameEvent
 {
-    private static readonly Dictionary<int, MapGameEventFieldSchema[]> _schemas = CreateSchemas();
+    private static readonly Dictionary<int, MapGameEventFieldSchema[]> Schemas = CreateSchemas();
 
     /// <summary>
     /// Initializes a new <see cref="MapGameEvent"/> instance.
     /// </summary>
     public MapGameEvent(int type, ReadOnlyMemory<MapGameEventField> fields)
     {
-        if (!_schemas.TryGetValue(type, out var schemas))
+        if (!Schemas.TryGetValue(type, out var schemas))
             throw new NotSupportedException(
                 string.Create(
                     CultureInfo.InvariantCulture,
@@ -48,12 +47,12 @@ public sealed record MapGameEvent
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public int Type { get; }
 
     /// <summary>
-    /// Gets the <c>Fields</c> value.
+    /// Gets the <c language="csharp">Fields</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameEventField> Fields { get; }
 
@@ -61,7 +60,7 @@ public sealed record MapGameEvent
     {
         var type = stream.ReadVarInt();
 
-        if (!_schemas.TryGetValue(type, out var schemas))
+        if (!Schemas.TryGetValue(type, out var schemas))
             throw new NotSupportedException(
                 string.Create(
                     CultureInfo.InvariantCulture,

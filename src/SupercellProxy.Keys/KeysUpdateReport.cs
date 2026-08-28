@@ -4,23 +4,23 @@ namespace SupercellProxy.Keys;
 
 internal sealed class KeysUpdateReport
 {
-    private readonly List<KeysUpdateResult> results = [];
+    private readonly List<KeysUpdateResult> _results = [];
 
-    public IReadOnlyList<KeysUpdateResult> Results => results;
+    public IReadOnlyList<KeysUpdateResult> Results => _results;
 
     public void Add(KeysUpdateResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
-        results.Add(result);
+        _results.Add(result);
     }
 
     public string ToMarkdown()
     {
-        var updated = results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
-        var notUpdated = results.Count - updated;
-        var warnings = results.Count(static result => result.IsWarning);
+        var updated = _results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
+        var notUpdated = _results.Count - updated;
+        var warnings = _results.Count(static result => result.IsWarning);
         var markdown = new StringBuilder();
-        var appNames = results
+        var appNames = _results
             .Where(static result => result.AppName is not "Updater")
             .Select(static result => result.AppName)
             .Distinct(StringComparer.Ordinal)
@@ -42,7 +42,7 @@ internal sealed class KeysUpdateReport
             .AppendLine("| App | Version | Outcome | Key | Reason |")
             .AppendLine("| --- | --- | --- | --- | --- |");
 
-        foreach (var result in results)
+        foreach (var result in _results)
         {
             markdown
                 .Append("| ")
@@ -58,7 +58,7 @@ internal sealed class KeysUpdateReport
                 .AppendLine(" |");
         }
 
-        if (results.Count is 0)
+        if (_results.Count is 0)
             markdown.AppendLine("| — | — | Not updated | — | No apps were processed. |");
 
         return markdown.ToString();

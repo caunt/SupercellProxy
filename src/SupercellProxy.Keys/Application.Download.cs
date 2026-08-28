@@ -1,9 +1,4 @@
-using System.Globalization;
 using System.IO.Compression;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
 
@@ -147,7 +142,7 @@ internal static partial class Application
         CancellationToken cancellationToken
     )
     {
-        const int BufferSize = 131_072;
+        const int bufferSize = 131_072;
 
         var outputDirectory =
             Path.GetDirectoryName(outputPath)
@@ -163,7 +158,7 @@ internal static partial class Application
                 FileMode.Create,
                 FileAccess.Write,
                 FileShare.None,
-                BufferSize,
+                bufferSize,
                 FileOptions.Asynchronous | FileOptions.SequentialScan
             );
             await using (output.ConfigureAwait(false))

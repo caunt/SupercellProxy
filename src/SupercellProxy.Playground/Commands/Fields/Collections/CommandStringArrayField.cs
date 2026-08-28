@@ -4,9 +4,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandStringArrayField</c>.
+/// Represents <c language="csharp">CommandStringArrayField</c>.
 /// </summary>
-public sealed record CommandStringArrayField : CommandField
+internal sealed record CommandStringArrayField : CommandField
 {
     /// <summary>
     /// Initializes a new <see cref="CommandStringArrayField"/> instance.
@@ -14,7 +14,7 @@ public sealed record CommandStringArrayField : CommandField
     public CommandStringArrayField(ReadOnlyMemory<string> values) => Values = values.ToArray();
 
     /// <summary>
-    /// Gets the <c>Values</c> value.
+    /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
     public ReadOnlyMemory<string> Values { get; }
     internal override CommandFieldType FieldType => CommandFieldType.StringArray;

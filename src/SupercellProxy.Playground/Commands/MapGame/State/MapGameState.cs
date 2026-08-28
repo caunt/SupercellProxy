@@ -5,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native map-game state structure encoded by the shared 1.72.84 helper at 0x10064b114.</para>
 /// </summary>
-public sealed record MapGameState
+internal sealed record MapGameState
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameState"/> instance.
@@ -26,27 +26,27 @@ public sealed record MapGameState
     }
 
     /// <summary>
-    /// Gets the <c>Pawns</c> value.
+    /// Gets the <c language="csharp">Pawns</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGamePawn> Pawns { get; }
 
     /// <summary>
-    /// Gets the <c>TaskGroups</c> value.
+    /// Gets the <c language="csharp">TaskGroups</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameTaskGroup> TaskGroups { get; }
 
     /// <summary>
-    /// Gets the <c>Configuration</c> value.
+    /// Gets the <c language="csharp">Configuration</c> value.
     /// </summary>
     public MapGameConfiguration Configuration { get; }
 
     /// <summary>
-    /// Gets the <c>Entries</c> value.
+    /// Gets the <c language="csharp">Entries</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameStateEntry> Entries { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalId</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     public int UnknownGlobalId { get; }
 

@@ -4,11 +4,11 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Home;
 
 /// <summary>
-/// Represents <c>RoadsideShopEntry</c>.
+/// Represents <c language="csharp">RoadsideShopEntry</c>.
 /// </summary>
-public record RoadsideShopEntry(
+internal sealed record RoadsideShopEntry(
     LongId? BuyerId,
-    bool IsAdvertised,
+    bool IsSold,
     int Price,
     int Quantity,
     int ItemGlobalId
@@ -26,7 +26,7 @@ public record RoadsideShopEntry(
     internal void Encode(MessageStream stream)
     {
         stream.WriteOptionalLongId(BuyerId);
-        stream.WriteBoolean(IsAdvertised);
+        stream.WriteBoolean(IsSold);
         stream.WriteVarInt(Price);
         stream.WriteVarInt(Quantity);
         stream.WriteVarInt(ItemGlobalId);

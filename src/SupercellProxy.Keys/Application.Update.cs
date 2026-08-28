@@ -1,8 +1,5 @@
 using System.Globalization;
-using System.IO.Compression;
 using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
@@ -355,14 +352,16 @@ internal static partial class Application
                     );
                 }
 
-                Console.Error.WriteLine(
-                    $"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
-                        + "Retrying from the beginning with a fresh browser session "
-                        + string.Create(
-                            CultureInfo.InvariantCulture,
-                            $"(retry {retry + 1}/{MaximumDownloadRetries})..."
-                        )
-                );
+                await Console
+                    .Error.WriteLineAsync(
+                        $"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
+                            + "Retrying from the beginning with a fresh browser session "
+                            + string.Create(
+                                CultureInfo.InvariantCulture,
+                                $"(retry {retry + 1}/{MaximumDownloadRetries})..."
+                            )
+                    )
+                    .ConfigureAwait(false);
                 await Task.Delay(
                         TimeSpan.FromSeconds((retry + 1) * 2),
                         TimeProvider.System,

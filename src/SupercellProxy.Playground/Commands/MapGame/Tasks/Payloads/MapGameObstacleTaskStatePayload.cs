@@ -4,9 +4,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameObstacleTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameObstacleTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
+internal sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameObstacleTaskStatePayload"/> instance.
@@ -25,22 +25,22 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
     }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean0</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
     /// </summary>
     public bool UnknownBoolean0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean1</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
     public bool UnknownBoolean1 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId</c> value.
+    /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     public LongId? UnknownLongId { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalValues</c> value.
+    /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
 

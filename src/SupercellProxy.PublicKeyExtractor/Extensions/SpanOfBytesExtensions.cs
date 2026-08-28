@@ -5,7 +5,7 @@ namespace SupercellProxy.PublicKeyExtractor.Extensions;
 /// <summary>
 /// <para>Provides byte-span search and validation helpers.</para>
 /// </summary>
-public static class SpanOfBytesExtensions
+internal static class SpanOfBytesExtensions
 {
     /// <summary>
     /// <para>Returns a slice immediately preceding the specified index.</para>

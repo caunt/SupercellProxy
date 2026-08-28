@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -6,14 +7,11 @@ namespace SupercellProxy.Playground.Home;
 
 internal sealed class BuilderState
 {
-    private const string BuildersFile = "data/builders.csv";
-    private const int UpdateMilliseconds = 33;
-
-    private readonly BuilderConfiguration[] configurations;
+    private readonly BuilderConfiguration[] _configurations;
 
     private BuilderState(BuilderConfiguration[] configurations)
     {
-        this.configurations = configurations;
+        this._configurations = configurations;
     }
 
     public bool Exists { get; private set; }
@@ -25,10 +23,12 @@ internal sealed class BuilderState
     public static BuilderState Create(DataTableResolver dataTableResolver)
     {
         if (
-            !dataTableResolver.TryResolvePhysicalRowCount(BuildersFile, out var rowCount)
+            !dataTableResolver.TryResolvePhysicalRowCount(GameAssetFiles.Builders, out var rowCount)
             || rowCount < 1
         )
-            throw new InvalidDataException($"{BuildersFile} contains no builder configurations.");
+            throw new InvalidDataException(
+                $"{GameAssetFiles.Builders} contains no builder configurations."
+            );
 
         var resolvedConfigurations = new BuilderConfiguration[rowCount];
 
@@ -36,19 +36,19 @@ internal sealed class BuilderState
         {
             if (
                 !dataTableResolver.TryResolveInt(
-                    BuildersFile,
+                    GameAssetFiles.Builders,
                     row,
                     "WalkSpeed",
                     out var movementSpeed
                 )
                 || !dataTableResolver.TryResolveInt(
-                    BuildersFile,
+                    GameAssetFiles.Builders,
                     row,
                     "IdleTimeMinMS",
                     out var idleMinimum
                 )
                 || !dataTableResolver.TryResolveInt(
-                    BuildersFile,
+                    GameAssetFiles.Builders,
                     row,
                     "IdleTimeMaxMS",
                     out var idleMaximum
@@ -85,7 +85,7 @@ internal sealed class BuilderState
                 "The native builder spawn route contains fewer than two points."
             );
 
-        DataRow = random.NextInt(configurations.Length);
+        DataRow = random.NextInt(_configurations.Length);
         var distance = 0;
 
         for (var i = 1; i < route.Count; i++)
@@ -100,8 +100,8 @@ internal sealed class BuilderState
         }
 
         TransitUpdatesRemaining = checked(
-            (distance + configurations[DataRow].MovementSpeed - 1)
-            / configurations[DataRow].MovementSpeed
+            (distance + _configurations[DataRow].MovementSpeed - 1)
+            / _configurations[DataRow].MovementSpeed
         );
         Exists = true;
     }
@@ -117,7 +117,7 @@ internal sealed class BuilderState
 
             if (TransitUpdatesRemaining is 0)
             {
-                var configuration = configurations[DataRow];
+                var configuration = _configurations[DataRow];
                 StateMilliseconds = checked(
                     configuration.IdleMinimumMilliseconds
                     + random.NextInt(
@@ -131,7 +131,7 @@ internal sealed class BuilderState
             return;
         }
 
-        StateMilliseconds = checked(StateMilliseconds - UpdateMilliseconds);
+        StateMilliseconds = checked(StateMilliseconds - GameTick.UpdateMilliseconds);
 
         if (StateMilliseconds <= 0)
             throw new NotSupportedException(

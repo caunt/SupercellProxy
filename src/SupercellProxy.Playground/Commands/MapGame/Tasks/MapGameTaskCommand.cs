@@ -7,10 +7,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Commands whose native 1.72.84 bodies contain the shared optional map-game task structure.</para>
 /// </summary>
-public sealed record MapGameTaskCommand : Command
+internal sealed record MapGameTaskCommand : Command
 {
     /// <summary>
-    /// Defines the <c>CommandTypes</c> value.
+    /// Defines the <c language="csharp">CommandTypes</c> value.
     /// </summary>
     public static readonly int[] CommandTypes =
     [
@@ -28,7 +28,7 @@ public sealed record MapGameTaskCommand : Command
         312,
         314,
     ];
-    private static readonly HashSet<int> _typesWithOptionalValues = [284, 291, 310];
+    private static readonly HashSet<int> TypesWithOptionalValues = [284, 291, 310];
 
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCommand"/> instance.
@@ -37,11 +37,11 @@ public sealed record MapGameTaskCommand : Command
         int type,
         MapGameTask? task,
         ReadOnlyMemory<int>? optionalValues = null,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         if (!CommandTypes.Contains(type))
             throw new NotSupportedException(
@@ -51,7 +51,7 @@ public sealed record MapGameTaskCommand : Command
                 )
             );
 
-        if (!_typesWithOptionalValues.Contains(type) && optionalValues is not null)
+        if (!TypesWithOptionalValues.Contains(type) && optionalValues is not null)
             throw new InvalidDataException(
                 string.Create(
                     CultureInfo.InvariantCulture,
@@ -65,17 +65,17 @@ public sealed record MapGameTaskCommand : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type { get; }
 
     /// <summary>
-    /// Gets the <c>Task</c> value.
+    /// Gets the <c language="csharp">Task</c> value.
     /// </summary>
     public MapGameTask? Task { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalValues</c> value.
+    /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
     public ReadOnlyMemory<int>? OptionalValues { get; }
 
@@ -90,14 +90,14 @@ public sealed record MapGameTaskCommand : Command
         var task = stream.ReadBoolean() ? MapGameTask.Decode(stream, dataResolver) : null;
         ReadOnlyMemory<int>? optionalValues = null;
 
-        if (_typesWithOptionalValues.Contains(type) && stream.ReadBoolean())
+        if (TypesWithOptionalValues.Contains(type) && stream.ReadBoolean())
             optionalValues = CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream);
 
         return new MapGameTaskCommand(
             type,
             task,
             optionalValues,
-            commandFields.ExecuteSubTick,
+            commandFields.ExecutionPhaseCounter,
             commandFields.DebugData0,
             commandFields.DebugData1
         );
@@ -109,7 +109,7 @@ public sealed record MapGameTaskCommand : Command
         stream.WriteBoolean(Task is not null);
         Task?.Encode(stream);
 
-        if (!_typesWithOptionalValues.Contains(Type))
+        if (!TypesWithOptionalValues.Contains(Type))
             return;
 
         stream.WriteBoolean(OptionalValues is not null);

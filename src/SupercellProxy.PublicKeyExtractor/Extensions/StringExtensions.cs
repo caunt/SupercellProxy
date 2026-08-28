@@ -3,7 +3,7 @@
 /// <summary>
 /// <para>Provides content-loading helpers for paths and URLs.</para>
 /// </summary>
-public static class StringExtensions
+internal static class StringExtensions
 {
     /// <summary>
     /// <para>Reads bytes from a local path or supported URL.</para>

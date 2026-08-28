@@ -6,18 +6,18 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Base wire representation shared by commands issued by the server.</para>
 /// </summary>
-public abstract record ServerCommand : Command
+internal abstract record ServerCommand : Command
 {
     /// <summary>
     /// Initializes a new <see cref="ServerCommand"/> instance.
     /// </summary>
     protected ServerCommand(
         int serverCommandId,
-        int executeSubTick,
+        int executionPhaseCounter,
         CommandData? debugData0,
         CommandData? debugData1
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         if (serverCommandId is -1)
             throw new InvalidDataException("Server command ID cannot be -1.");
@@ -26,12 +26,12 @@ public abstract record ServerCommand : Command
     }
 
     /// <summary>
-    /// Gets the <c>ServerCommandId</c> value.
+    /// Gets the <c language="csharp">ServerCommandId</c> value.
     /// </summary>
     public int ServerCommandId { get; }
 
     /// <summary>
-    /// Executes the <c>EncodeServerCommand</c> operation.
+    /// Executes the <c language="csharp">EncodeServerCommand</c> operation.
     /// </summary>
     protected void EncodeServerCommand(MessageStream stream, CommandEnvironment environment)
     {
@@ -44,7 +44,7 @@ public abstract record ServerCommand : Command
     /// </summary>
     protected static (
         int ServerCommandId,
-        (int ExecuteSubTick, CommandData? DebugData0, CommandData? DebugData1) CommandFields
+        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) CommandFields
     ) DecodeServerCommand(MessageStream stream, CommandEnvironment environment)
     {
         var serverCommandId = stream.ReadVarInt();

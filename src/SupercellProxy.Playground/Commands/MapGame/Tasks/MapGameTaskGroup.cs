@@ -5,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native variable-long key and task collection inside a map-game state.</para>
 /// </summary>
-public sealed record MapGameTaskGroup
+internal sealed record MapGameTaskGroup
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskGroup"/> instance.
@@ -17,12 +17,12 @@ public sealed record MapGameTaskGroup
     }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public long Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Tasks</c> value.
+    /// Gets the <c language="csharp">Tasks</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameTask> Tasks { get; }
 

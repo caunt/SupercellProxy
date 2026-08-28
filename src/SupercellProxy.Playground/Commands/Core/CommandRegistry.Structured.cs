@@ -1,6 +1,6 @@
 namespace SupercellProxy.Playground.Commands;
 
-public static partial class CommandRegistry
+internal static partial class CommandRegistry
 {
     private static void AddStructuredCommands(Dictionary<int, CommandRegistryEntry> entries)
     {

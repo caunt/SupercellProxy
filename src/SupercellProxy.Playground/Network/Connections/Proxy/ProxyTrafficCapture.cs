@@ -5,10 +5,14 @@ using SupercellProxy.Playground.Network.Messages;
 namespace SupercellProxy.Playground.Network.Connections.Proxy;
 
 /// <summary>
-/// Represents <c>ProxyTrafficCapture</c>.
+/// Represents <c language="csharp">ProxyTrafficCapture</c>.
 /// </summary>
-public sealed class ProxyTrafficCapture
+internal sealed class ProxyTrafficCapture
 {
+    /// Gets the default root directory for captured proxy traffic.
+    public static string RootDirectoryPath { get; } =
+        Path.Combine(AppContext.BaseDirectory, "proxy-captures");
+
     private readonly string _directoryPath;
     private long _sequence;
 
@@ -29,12 +33,12 @@ public sealed class ProxyTrafficCapture
     }
 
     /// <summary>
-    /// Gets the <c>DirectoryPath</c> value.
+    /// Gets the <c language="csharp">DirectoryPath</c> value.
     /// </summary>
     public string DirectoryPath => _directoryPath;
 
     /// <summary>
-    /// Executes the <c>SaveAsync</c> operation.
+    /// Executes the <c language="csharp">SaveAsync</c> operation.
     /// </summary>
     public async ValueTask SaveAsync(
         string stage,
@@ -57,7 +61,7 @@ public sealed class ProxyTrafficCapture
 
         var fileName = string.Create(
             CultureInfo.InvariantCulture,
-            $"{sequence:D8}-{stage}-{direction.ToString().ToLowerInvariant()}-{container.Id}-{container.Version}-{messageName}.bin"
+            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin"
         );
         var filePath = Path.Combine(_directoryPath, fileName);
 
@@ -75,6 +79,14 @@ public sealed class ProxyTrafficCapture
             await file.WriteAsync(frame, cancellationToken).ConfigureAwait(false);
         }
     }
+
+    internal static string GetDirectionName(Direction direction) =>
+        direction switch
+        {
+            Direction.Clientbound => "clientbound",
+            Direction.Serverbound => "serverbound",
+            _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+        };
 
     private static string SanitizeFileName(string value)
     {

@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -11,49 +12,49 @@ internal sealed record PeopleSpawnerState(
     int[] PersonGlobalIds,
     int MinimumSpawnTime,
     int MaximumSpawnTime,
+    int GiftCount,
+    int NextDailyRefreshTimestamp,
     int ExperienceMultiplier,
     int ConstantExperience
 )
 {
-    private const string PeopleFile = "data/people.csv";
-    private const string PeopleSpawnersFile = "data/people_spawners.csv";
-    private int legacySpawnTimer;
-    private int legacySpawnInterval;
+    private int _elapsedInterval;
+    private int _selectedInterval;
+    private int _updateCount;
     public bool CleanupCompleted { get; private set; }
     public bool RemovalPassCompleted { get; private set; }
+    public int FirstUpdateTimer { get; private set; }
+    public int FirstUpdateInterval { get; private set; }
+    public int FirstUpdateRandomCalls { get; private set; }
 
     public bool IsPersonRegistered(int globalId)
     {
         return !RemovalPassCompleted || !RemovedPersonGlobalIds.Contains(globalId);
     }
 
-    public void UpdatePeople(
-        PersonState[] people,
-        PersonRouteState routes,
-        GameRandom random,
-        bool completeRemovalPass = true
-    )
+    public void UpdatePeople(PersonState[] people, PersonRouteState routes, GameRandom random)
     {
-        for (var i = 0; i < people.Length; i++)
-        {
-            if (IsPersonRegistered(people[i].GameObject.GlobalId))
-                people[i] = people[i].UpdateOne(people, routes, random);
-        }
+        var registeredIndices = Enumerable
+            .Range(0, people.Length)
+            .Where(index => IsPersonRegistered(people[index].GameObject.GlobalId))
+            .ToArray();
+        var registeredPeople = registeredIndices.Select(index => people[index]).ToArray();
 
-        if (completeRemovalPass && CleanupCompleted)
-            RemovalPassCompleted = true;
+        for (var i = 0; i < registeredPeople.Length; i++)
+        {
+            var updatedPerson = registeredPeople[i].UpdateOne(registeredPeople, routes, random);
+            registeredPeople[i] = updatedPerson;
+            people[registeredIndices[i]] = updatedPerson;
+        }
     }
 
-    public void Update(
-        int currentTime,
-        GameRandom random,
-        PersonState[] people,
-        bool completeRemovalPass = true
-    )
+    public void Update(int currentTime, GameRandom random, PersonState[] people)
     {
+        var initialRandomCalls = random.Calls;
         if (!CleanupCompleted)
         {
             CleanupCompleted = true;
+            RemovalPassCompleted = true;
 
             for (var i = 0; i < people.Length; i++)
             {
@@ -63,12 +64,18 @@ internal sealed record PeopleSpawnerState(
                         .CompletePostLoadSetup(ExperienceMultiplier, ConstantExperience);
                 }
             }
-
-            RemovalPassCompleted = completeRemovalPass;
         }
 
-        AdvanceLegacySpawnInterval(random);
+        AdvanceSelectedInterval(random);
         Initialize(currentTime, random);
+
+        _updateCount++;
+        if (_updateCount is 1)
+        {
+            FirstUpdateTimer = _elapsedInterval;
+            FirstUpdateInterval = _selectedInterval;
+            FirstUpdateRandomCalls = random.Calls - initialRandomCalls;
+        }
     }
 
     public static PeopleSpawnerState Resolve(
@@ -76,8 +83,10 @@ internal sealed record PeopleSpawnerState(
         DataTableResolver dataTableResolver
     )
     {
-        var peopleSpawnerTableId = ResolveTableId(dataTableResolver, PeopleSpawnersFile);
-        var peopleTableId = ResolveTableId(dataTableResolver, PeopleFile);
+        EnsureSupportedRewardConfiguration(dataTableResolver);
+
+        var peopleSpawnerTableId = ResolveTableId(dataTableResolver, GameAssetFiles.PeopleSpawners);
+        var peopleTableId = ResolveTableId(dataTableResolver, GameAssetFiles.People);
 
         var gameObject = gameObjects.Single(gameObject =>
             gameObject.Data.TableId == peopleSpawnerTableId
@@ -114,17 +123,34 @@ internal sealed record PeopleSpawnerState(
             personGlobalIds,
             minimumSpawnTime / GameTick.UpdatesPerSecond,
             maximumSpawnTime / GameTick.UpdatesPerSecond,
+            snapshot.GiftCount,
+            snapshot.NextDailyRefreshTimestamp,
             experienceMultiplier,
             constantExperience
         );
-        state.legacySpawnTimer = snapshot.Timer.ValueKind switch
-        {
-            System.Text.Json.JsonValueKind.Number when snapshot.Timer.TryGetInt32(out var timer) =>
-                timer,
-            _ => 0,
-        };
-        state.legacySpawnInterval = minimumSpawnTime;
+        state._elapsedInterval = snapshot.Timer.TryGetInt32(out var timer) ? timer : 0;
+        state._selectedInterval = minimumSpawnTime;
         return state;
+    }
+
+    private static void EnsureSupportedRewardConfiguration(DataTableResolver resolver)
+    {
+        if (
+            !resolver.TryResolveBoolean(
+                GameAssetFiles.GameConfig,
+                "EnableFarmVisitorRequestNewRewardSystem",
+                "BooleanValue",
+                out var newRewardSystemEnabled
+            )
+        )
+            throw new InvalidDataException(
+                "Unable to resolve the farm-visitor reward-system configuration."
+            );
+
+        if (newRewardSystemEnabled)
+            throw new NotSupportedException(
+                "The farm-visitor gift interval configuration is not implemented."
+            );
     }
 
     private static int ResolveTableId(DataTableResolver resolver, string file)
@@ -284,16 +310,16 @@ internal sealed record PeopleSpawnerState(
         }
     }
 
-    private void AdvanceLegacySpawnInterval(GameRandom random)
+    private void AdvanceSelectedInterval(GameRandom random)
     {
-        legacySpawnTimer = unchecked(legacySpawnTimer + 1);
+        _elapsedInterval = unchecked(_elapsedInterval + 1);
 
-        if (legacySpawnTimer < legacySpawnInterval)
+        if (_elapsedInterval < _selectedInterval)
             return;
 
-        legacySpawnTimer = 0;
+        _elapsedInterval = 0;
         var minimum = checked(MinimumSpawnTime * GameTick.UpdatesPerSecond);
         var maximum = checked(MaximumSpawnTime * GameTick.UpdatesPerSecond);
-        legacySpawnInterval = minimum + random.NextInt(maximum - minimum);
+        _selectedInterval = minimum + random.NextInt(maximum - minimum);
     }
 }

@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandOptionalStructureField</c>.
+/// Represents <c language="csharp">CommandOptionalStructureField</c>.
 /// </summary>
-public sealed record CommandOptionalStructureField : CommandField
+internal sealed record CommandOptionalStructureField : CommandField
 {
     /// <summary>
     /// Initializes a new <see cref="CommandOptionalStructureField"/> instance.
@@ -16,7 +16,7 @@ public sealed record CommandOptionalStructureField : CommandField
     }
 
     /// <summary>
-    /// Gets the <c>Fields</c> value.
+    /// Gets the <c language="csharp">Fields</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandField>? Fields { get; }
     internal override CommandFieldType FieldType => CommandFieldType.OptionalStructure;

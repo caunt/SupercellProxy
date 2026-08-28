@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native optional logic-long and three-value map-game configuration entry.</para>
 /// </summary>
-public sealed record MapGameConfigurationEntry(
+internal sealed record MapGameConfigurationEntry(
     LongId? UnknownLongId,
     int Unknown0,
     int Unknown1,

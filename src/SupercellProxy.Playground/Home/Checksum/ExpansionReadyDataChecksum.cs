@@ -1,10 +1,8 @@
-using SupercellProxy.Playground.Home.Simulation;
-
 namespace SupercellProxy.Playground.Home.Checksum;
 
 internal static class ExpansionReadyDataChecksum
 {
-    public static void Encode(ChecksumEncoder encoder, HarvestState state)
+    public static void Encode(ChecksumEncoder encoder, HomeState state)
     {
         encoder.WriteVarInt(state.ExpansionReadyDatas.Length);
 

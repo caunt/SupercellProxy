@@ -4,22 +4,22 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// Represents the <c>VisitHomeTargetMessage</c> protocol message.
+/// Represents the <c language="csharp">VisitHomeTargetMessage</c> protocol message.
 /// </summary>
-public record VisitHomeTargetMessage : IMessage
+internal sealed record VisitHomeTargetMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public required byte Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Target</c> value.
+    /// Gets or sets the <c language="csharp">Target</c> value.
     /// </summary>
     public required LongId Target { get; init; }
 
     /// <summary>
-    /// Creates a <c>VisitHomeTargetMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">VisitHomeTargetMessage</c> from the supplied data.
     /// </summary>
     public static VisitHomeTargetMessage Create(MessageContainer container)
     {
@@ -31,7 +31,7 @@ public record VisitHomeTargetMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

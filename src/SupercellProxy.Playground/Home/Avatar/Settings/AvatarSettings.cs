@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Home;
 
 /// <summary>
-/// Represents <c>AvatarSettings</c>.
+/// Represents <c language="csharp">AvatarSettings</c>.
 /// </summary>
-public record AvatarSettings(int Version, AvatarSetting[] Entries, bool Unknown0)
+internal sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool Unknown0)
 {
     private AvatarSettings(int version, ReadOnlySpan<AvatarSetting> entries, bool unknown0)
         : this(version, entries.ToArray(), unknown0) { }

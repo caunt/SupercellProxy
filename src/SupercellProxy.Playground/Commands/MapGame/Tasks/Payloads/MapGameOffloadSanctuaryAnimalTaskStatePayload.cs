@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameOffloadSanctuaryAnimalTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameOffloadSanctuaryAnimalTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int Unknown0)
+internal sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int Unknown0)
     : MapGameTaskStatePayload
 {
     internal static MapGameOffloadSanctuaryAnimalTaskStatePayload Decode(MessageStream stream)

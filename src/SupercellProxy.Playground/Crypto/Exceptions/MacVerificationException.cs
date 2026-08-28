@@ -1,25 +1,30 @@
 ﻿namespace SupercellProxy.Playground.Crypto.Exceptions;
 
 /// <summary>
-/// Represents <c>MacVerificationException</c>.
+/// Represents <c language="csharp">MacVerificationException</c>.
 /// </summary>
-public class MacVerificationException(string? message = null, Exception? innerException = null)
-    : NaClV3Exception(message, innerException)
+internal sealed class MacVerificationException : NaClV3Exception
 {
+    internal const string DefaultMessage = "MAC verification failed";
+
     /// <summary>
-    /// Gets or sets the <c>IsPublicKeyBox</c> value.
+    /// Gets or sets the <c language="csharp">IsPublicKeyBox</c> value.
     /// </summary>
     public bool IsPublicKeyBox { get; set; }
 
     /// <summary>
     /// Initializes a new <see cref="MacVerificationException"/> instance.
     /// </summary>
-    public MacVerificationException(
-        bool isPublicKeyBox,
-        string? message = null,
-        Exception? innerException = null
-    )
-        : this(message, innerException)
+    public MacVerificationException() { }
+
+    public MacVerificationException(string? message)
+        : base(message) { }
+
+    public MacVerificationException(string? message, Exception? innerException)
+        : base(message, innerException) { }
+
+    public MacVerificationException(bool isPublicKeyBox, string? message = null)
+        : base(message)
     {
         IsPublicKeyBox = isPublicKeyBox;
     }

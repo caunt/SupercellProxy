@@ -5,7 +5,7 @@ namespace SupercellProxy.Keys;
 internal sealed class AppStoreClient(HttpClient client)
 {
     private const string Country = "us";
-    private readonly HttpClient client = client;
+    private readonly HttpClient _client = client;
 
     public async Task<AppStoreSearchResponse> SearchAsync(
         string query,
@@ -18,7 +18,7 @@ internal sealed class AppStoreClient(HttpClient client)
             $"https://itunes.apple.com/search?entity=software,iPadSoftware&country={Country}&limit=20"
             + $"&term={Uri.EscapeDataString(query)}";
 
-        using var response = await client
+        using var response = await _client
             .SendWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url),
                 cancellationToken
@@ -33,7 +33,7 @@ internal sealed class AppStoreClient(HttpClient client)
         await using (content.ConfigureAwait(false))
         {
             return await JsonSerializer
-                    .DeserializeAsync<AppStoreSearchResponse>(
+                    .DeserializeAsync<AppStoreSearchResponse?>(
                         content,
                         cancellationToken: cancellationToken
                     )

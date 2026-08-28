@@ -4,9 +4,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandOptionalLongIdField</c>.
+/// Represents <c language="csharp">CommandOptionalLongIdField</c>.
 /// </summary>
-public sealed record CommandOptionalLongIdField(LongId? Value) : CommandField
+internal sealed record CommandOptionalLongIdField(LongId? Value) : CommandField
 {
     internal override CommandFieldType FieldType => CommandFieldType.OptionalLongId;
 

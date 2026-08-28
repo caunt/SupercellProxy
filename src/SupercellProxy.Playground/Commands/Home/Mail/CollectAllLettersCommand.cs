@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Collects all eligible letters.</para>
 /// </summary>
-public sealed record CollectAllLettersCommand : Command
+internal sealed record CollectAllLettersCommand : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 672;
 
@@ -17,14 +17,14 @@ public sealed record CollectAllLettersCommand : Command
     /// Initializes a new <see cref="CollectAllLettersCommand"/> instance.
     /// </summary>
     public CollectAllLettersCommand(
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1) { }
+        : base(executionPhaseCounter, debugData0, debugData1) { }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
@@ -35,7 +35,7 @@ public sealed record CollectAllLettersCommand : Command
     {
         var fields = DecodeCommand(stream, environment);
         return new CollectAllLettersCommand(
-            fields.ExecuteSubTick,
+            fields.ExecutionPhaseCounter,
             fields.DebugData0,
             fields.DebugData1
         );

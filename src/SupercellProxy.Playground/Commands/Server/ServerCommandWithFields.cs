@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>A server command with a native-proven primitive field sequence and unknown semantic field names.</para>
 /// </summary>
-public sealed record ServerCommandWithFields : ServerCommand
+internal sealed record ServerCommandWithFields : ServerCommand
 {
     private readonly bool _baseFirst;
 
@@ -17,11 +17,11 @@ public sealed record ServerCommandWithFields : ServerCommand
         int type,
         ReadOnlyMemory<CommandField> fields,
         int serverCommandId,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(serverCommandId, executeSubTick, debugData0, debugData1)
+        : base(serverCommandId, executionPhaseCounter, debugData0, debugData1)
     {
         _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, isServerCommand: true);
         Type = type;
@@ -33,13 +33,17 @@ public sealed record ServerCommandWithFields : ServerCommand
         ReadOnlyMemory<CommandField> fields,
         (
             int ServerCommandId,
-            (int ExecuteSubTick, CommandData? DebugData0, CommandData? DebugData1) CommandFields
+            (
+                int ExecutionPhaseCounter,
+                CommandData? DebugData0,
+                CommandData? DebugData1
+            ) CommandFields
         ) commandFields,
         bool baseFirst
     )
         : base(
             commandFields.ServerCommandId,
-            commandFields.CommandFields.ExecuteSubTick,
+            commandFields.CommandFields.ExecutionPhaseCounter,
             commandFields.CommandFields.DebugData0,
             commandFields.CommandFields.DebugData1
         )
@@ -50,12 +54,12 @@ public sealed record ServerCommandWithFields : ServerCommand
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type { get; }
 
     /// <summary>
-    /// Gets the <c>Fields</c> value.
+    /// Gets the <c language="csharp">Fields</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandField> Fields { get; }
 
@@ -69,7 +73,11 @@ public sealed record ServerCommandWithFields : ServerCommand
     {
         var commandFields = default((
             int ServerCommandId,
-            (int ExecuteSubTick, CommandData? DebugData0, CommandData? DebugData1) CommandFields
+            (
+                int ExecutionPhaseCounter,
+                CommandData? DebugData0,
+                CommandData? DebugData1
+            ) CommandFields
         ));
         var fields = Array.Empty<CommandField>();
 

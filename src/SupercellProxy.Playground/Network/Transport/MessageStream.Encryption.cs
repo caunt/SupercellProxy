@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using SupercellProxy.Playground.Crypto;
-using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Configuration;
 using SupercellProxy.Playground.Network.Connections;
 using SupercellProxy.Playground.Network.Connections.Proxy;
@@ -12,9 +11,11 @@ namespace SupercellProxy.Playground.Network.Transport;
 /// https://github.com/ReversedCell/ScDocumentation/wiki/Encryption-Setup
 /// https://github.com/ReversedCell/ScDocumentation/wiki/Protocol
 /// </summary>
-public partial class MessageStream
+internal sealed partial class MessageStream
 {
+    private const string EncryptionNotSetMessage = "Encryption is not set up.";
     private const int PromonPadSize = 508;
+    private const string ReceiveNonceNotSetMessage = "Receive nonce is not set.";
 
     private Encryption? _encryption;
 
@@ -153,7 +154,7 @@ public partial class MessageStream
     private static MemoryStream EncryptClientboundHandshake(Encryption encryption, byte[] payload)
     {
         if (encryption.ReceiveNonce is null)
-            throw new InvalidOperationException("Receive nonce is not set.");
+            throw new InvalidOperationException(ReceiveNonceNotSetMessage);
 
         encryption.SharedKey = RandomNumberGenerator.GetBytes(count: 32);
         encryption.SendNonce = new Nonce(nonceBytes: RandomNumberGenerator.GetBytes(count: 24));
@@ -176,7 +177,7 @@ public partial class MessageStream
     private MemoryStream Decrypt(MemoryStream memoryStream)
     {
         if (_encryption is null)
-            throw new InvalidOperationException("Encryption is not set up.");
+            throw new InvalidOperationException(EncryptionNotSetMessage);
 
         var payload =
             memoryStream.TryGetBuffer(out var streamBuffer)
@@ -189,7 +190,7 @@ public partial class MessageStream
         if (!_encryption.SharedKey.IsEmpty)
         {
             if (_encryption.ReceiveNonce is null)
-                throw new InvalidOperationException("Receive nonce is not set.");
+                throw new InvalidOperationException(ReceiveNonceNotSetMessage);
 
             _encryption.ReceiveNonce.Increment();
             return new MemoryStream(
@@ -210,7 +211,7 @@ public partial class MessageStream
     private MemoryStream Encrypt(MemoryStream memoryStream)
     {
         if (_encryption is null)
-            throw new InvalidOperationException("Encryption is not set up.");
+            throw new InvalidOperationException(EncryptionNotSetMessage);
 
         var payload =
             memoryStream.TryGetBuffer(out var streamBuffer)

@@ -9,41 +9,87 @@ using SupercellProxy.Playground.Network.Connections.Client;
 using SupercellProxy.Playground.Network.Messages;
 using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
-using SupercellProxy.Playground.Network.Protocol;
 using SupercellProxy.Playground.Network.Transport;
 using SupercellProxy.Playground.Network.Transport.Exceptions;
 
 namespace SupercellProxy.Playground.Network.Connections.Proxy;
 
 /// <summary>
-/// Represents <c>ScProxyClient</c>.
+/// Represents <c language="csharp">ScProxyClient</c>.
 /// </summary>
-public record ScProxyClient(
-    TcpClient TcpClient,
-    TcpClient TcpUpstream,
-    MessageStream ClientStream,
-    MessageStream ServerStream,
-    EventBus EventBus,
-    CancellationTokenSource CancellationTokenSource,
-    ProxyTrafficCapture TrafficCapture
-) : IAsyncDisposable
+internal sealed class ScProxyClient : IAsyncDisposable
 {
+    private MessageStream? _serverStream;
     private LoginMessage? _loginMessage;
-    private bool _suppressEndClientTurns = false;
+    private bool _suppressEndClientTurns;
     private bool _started;
 
-    /// <summary>
-    /// Gets the <c>RemoteEndPoint</c> value.
-    /// </summary>
-    public string RemoteEndPoint { get; } = TcpClient.GetRemoteEndPoint();
+    private ScProxyClient(
+        TcpClient tcpClient,
+        ProxyTrafficCapture trafficCapture,
+        CancellationToken cancellationToken
+    )
+    {
+        TcpClient = tcpClient;
+        TcpUpstream = new TcpClient();
+        ClientStream = new MessageStream(tcpClient.GetStream());
+        EventBus = new EventBus();
+        CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken
+        );
+        TrafficCapture = trafficCapture;
+        RemoteEndPoint = tcpClient.GetRemoteEndPoint();
+    }
+
+    public TcpClient TcpClient { get; }
+    public TcpClient TcpUpstream { get; }
+    public MessageStream ClientStream { get; }
+    public MessageStream ServerStream =>
+        _serverStream ?? throw new InvalidOperationException("The upstream stream is unavailable.");
+    public EventBus EventBus { get; }
+    public CancellationTokenSource CancellationTokenSource { get; }
+    public ProxyTrafficCapture TrafficCapture { get; }
+
+    public static async Task<ScProxyClient> ConnectAsync(
+        TcpClient tcpClient,
+        string upstreamHost,
+        int upstreamPort,
+        ProxyTrafficCapture trafficCapture,
+        CancellationToken cancellationToken
+    )
+    {
+        var client = new ScProxyClient(tcpClient, trafficCapture, cancellationToken);
+        try
+        {
+            await client
+                .TcpUpstream.ConnectAsync(
+                    upstreamHost,
+                    upstreamPort,
+                    client.CancellationTokenSource.Token
+                )
+                .ConfigureAwait(false);
+            client._serverStream = new MessageStream(client.TcpUpstream.GetStream());
+            return client;
+        }
+        catch
+        {
+            await client.DisposeAsync().ConfigureAwait(false);
+            throw;
+        }
+    }
 
     /// <summary>
-    /// Gets the <c>CompletionTask</c> value.
+    /// Gets the <c language="csharp">RemoteEndPoint</c> value.
+    /// </summary>
+    public string RemoteEndPoint { get; }
+
+    /// <summary>
+    /// Gets the <c language="csharp">CompletionTask</c> value.
     /// </summary>
     public Task CompletionTask { get; private set; } = Task.CompletedTask;
 
     /// <summary>
-    /// Executes the <c>RunAsync</c> operation.
+    /// Executes the <c language="csharp">RunAsync</c> operation.
     /// </summary>
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -110,6 +156,14 @@ public record ScProxyClient(
             );
         }
         catch (Exception exception)
+            when (exception
+                    is IOException
+                        or SocketException
+                        or InvalidDataException
+                        or OperationCanceledException
+                        or TimeoutException
+                        or NaClV3Exception
+            )
         {
             Console.WriteLine(
                 string.Create(
@@ -120,19 +174,28 @@ public record ScProxyClient(
         }
         finally
         {
-            await CancellationTokenSource.CancelAsync().ConfigureAwait(false);
+            await StopPumpsAsync(completedTask, serverboundPumpTask, clientboundPumpTask)
+                .ConfigureAwait(false);
+        }
+    }
 
-            try
-            {
-                if (completedTask == serverboundPumpTask)
-                    await clientboundPumpTask.ConfigureAwait(false);
-                else
-                    await serverboundPumpTask.ConfigureAwait(false);
-            }
-            catch (TaskCanceledException)
-            {
-                // Ignored
-            }
+    private async Task StopPumpsAsync(
+        Task completedTask,
+        Task serverboundPumpTask,
+        Task clientboundPumpTask
+    )
+    {
+        await CancellationTokenSource.CancelAsync().ConfigureAwait(false);
+
+        try
+        {
+            await (
+                completedTask == serverboundPumpTask ? clientboundPumpTask : serverboundPumpTask
+            ).ConfigureAwait(false);
+        }
+        catch (TaskCanceledException)
+        {
+            // The remaining pump observed the shared cancellation.
         }
     }
 
@@ -182,7 +245,7 @@ public record ScProxyClient(
             await TrafficCapture
                 .SaveAsync("incoming", direction, container, "frame", cancellationToken)
                 .ConfigureAwait(false);
-            return MessageRegistry.Resolve(container, source.CommandDataResolver);
+            return source.ResolveMessage(container);
         }
         catch (StreamClosedException exception)
         {
@@ -220,7 +283,7 @@ public record ScProxyClient(
     }
 
     /// <summary>
-    /// Executes the <c>VisitHomeAsync</c> operation.
+    /// Executes the <c language="csharp">VisitHomeAsync</c> operation.
     /// </summary>
     public async ValueTask<OtherHomeDataMessage> VisitHomeAsync(
         LongId target,
@@ -279,15 +342,16 @@ public record ScProxyClient(
     }
 
     /// <summary>
-    /// Executes the <c>DisposeAsync</c> operation.
+    /// Executes the <c language="csharp">DisposeAsync</c> operation.
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        await ClientStream.DisposeAsync().ConfigureAwait(false);
-        await ServerStream.DisposeAsync().ConfigureAwait(false);
+        ClientStream.Dispose();
+        _serverStream?.Dispose();
 
         TcpClient.Dispose();
         TcpUpstream.Dispose();
+        CancellationTokenSource.Dispose();
 
         await CompletionTask.ConfigureAwait(false);
 
@@ -295,7 +359,7 @@ public record ScProxyClient(
     }
 
     /// <summary>
-    /// Executes the <c>ToString</c> operation.
+    /// Executes the <c language="csharp">ToString</c> operation.
     /// </summary>
     public override string ToString()
     {
@@ -361,6 +425,8 @@ public record ScProxyClient(
             case EndClientTurnMessage when _suppressEndClientTurns:
                 @event.IsCancelled = true;
                 break;
+            default:
+                break;
         }
 
         if (@event.IsCancelled)
@@ -399,6 +465,8 @@ public record ScProxyClient(
                         cancellationToken
                     )
                     .ConfigureAwait(false);
+                break;
+            default:
                 break;
         }
 
@@ -454,7 +522,8 @@ public record ScProxyClient(
         where TMessage : class, IMessage
     {
         var taskCompletionSource = new TaskCompletionSource<TMessage>();
-        Func<MessageSentEvent, CancellationToken, Task> handler = OnMessageSentEventAsync;
+        Func<MessageSentEvent, CancellationToken, Task> handler = async (@event, _) =>
+            await CompleteExpectedMessageAsync(@event, taskCompletionSource).ConfigureAwait(false);
         await EventBus.SubscribeAsync(handler, cancellationToken).ConfigureAwait(false);
 
         try
@@ -467,24 +536,17 @@ public record ScProxyClient(
         {
             await EventBus.UnsubscribeAsync(handler, cancellationToken).ConfigureAwait(false);
         }
+    }
 
-        Task OnMessageSentEventAsync(
-            MessageSentEvent @event,
-            CancellationToken cancellationToken = default
-        )
-        {
-            try
-            {
-                if (@event.Message is not TMessage message)
-                    return Task.CompletedTask;
+    private static async Task CompleteExpectedMessageAsync<TMessage>(
+        MessageSentEvent @event,
+        TaskCompletionSource<TMessage> taskCompletionSource
+    )
+        where TMessage : class, IMessage
+    {
+        if (@event.Message is TMessage message)
+            taskCompletionSource.TrySetResult(message);
 
-                taskCompletionSource.TrySetResult(message);
-                return Task.CompletedTask;
-            }
-            catch (Exception exception)
-            {
-                return Task.FromException(exception);
-            }
-        }
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

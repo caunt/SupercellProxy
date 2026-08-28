@@ -7,7 +7,7 @@ namespace SupercellProxy.Playground.Events;
 /// <summary>
 /// <para>Describes a message received by a proxy stream and its cancellation state.</para>
 /// </summary>
-public record MessageReceivedEvent(
+internal sealed record MessageReceivedEvent(
     IMessage Message,
     Direction Direction,
     MessageStream Source,
@@ -15,7 +15,7 @@ public record MessageReceivedEvent(
 ) : IEvent
 {
     /// <summary>
-    /// Gets or sets the <c>IsCancelled</c> value.
+    /// Gets or sets the <c language="csharp">IsCancelled</c> value.
     /// </summary>
     public bool IsCancelled { get; set; }
 }

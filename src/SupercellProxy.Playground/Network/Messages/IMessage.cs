@@ -1,12 +1,12 @@
 namespace SupercellProxy.Playground.Network.Messages;
 
 /// <summary>
-/// Defines the <c>IMessage</c> contract.
+/// Defines the <c language="csharp">IMessage</c> contract.
 /// </summary>
-public interface IMessage
+internal interface IMessage
 {
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0);
 }

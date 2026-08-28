@@ -8,13 +8,15 @@ namespace SupercellProxy.Playground.Commands;
 /// Maps native command IDs to typed wire models.
 /// Rejects entries that do not match the registered schema.
 /// </summary>
-public static partial class CommandRegistry
+internal static partial class CommandRegistry
 {
-    private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> _lazyEntries = new(
+    internal const int HomeLoadedCommandType = 530;
+
+    private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> LazyEntries = new(
         CreateEntries
     );
-    private static readonly HashSet<int> _nonProductionCommandTypes = [7, 84, 85];
-    private static Dictionary<int, CommandRegistryEntry> Entries => _lazyEntries.Value;
+    private static readonly HashSet<int> NonProductionCommandTypes = [7, 84, 85];
+    private static Dictionary<int, CommandRegistryEntry> Entries => LazyEntries.Value;
 
     private static Dictionary<int, CommandRegistryEntry> CreateEntries()
     {
@@ -41,11 +43,8 @@ public static partial class CommandRegistry
                     IsServerCommand: false,
                     BaseFirst: true,
                     FieldSchemas: null,
-                    Factory: (
-                        MessageStream stream,
-                        CommandEnvironment environment,
-                        ICommandDataResolver? _
-                    ) => CommandWithNoFields.Decode(commandType, stream, environment)
+                    Factory: (stream, environment, _) =>
+                        CommandWithNoFields.Decode(commandType, stream, environment)
                 )
             );
         }
@@ -60,11 +59,8 @@ public static partial class CommandRegistry
                     IsServerCommand: false,
                     BaseFirst: true,
                     FieldSchemas: null,
-                    Factory: (
-                        MessageStream stream,
-                        CommandEnvironment environment,
-                        ICommandDataResolver? dataResolver
-                    ) => MapGameTaskCommand.Decode(commandType2, stream, environment, dataResolver)
+                    Factory: (stream, environment, dataResolver) =>
+                        MapGameTaskCommand.Decode(commandType2, stream, environment, dataResolver)
                 )
             );
         }
@@ -225,7 +221,7 @@ public static partial class CommandRegistry
     {
         if (
             environment is CommandEnvironment.Production
-            && _nonProductionCommandTypes.Contains(commandType)
+            && NonProductionCommandTypes.Contains(commandType)
         )
             throw new NotSupportedException(
                 string.Create(

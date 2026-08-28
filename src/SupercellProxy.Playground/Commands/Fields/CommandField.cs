@@ -1,4 +1,3 @@
-using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Commands;
@@ -6,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>One typed field in a command whose native semantic field names are unavailable.</para>
 /// </summary>
-public abstract record CommandField
+internal abstract record CommandField
 {
     internal abstract CommandFieldType FieldType { get; }
 
@@ -45,6 +44,10 @@ public abstract record CommandField
                 stream
             ),
             CommandFieldType.OptionalInt32String => CommandOptionalInt32StringField.Decode(stream),
+            CommandFieldType.OptionalStructure or CommandFieldType.StructureArray =>
+                throw new InvalidDataException(
+                    $"Logic command field type {fieldType} requires its registered field schema."
+                ),
             _ => throw new InvalidDataException(
                 $"Unsupported logic command field type: {fieldType}."
             ),

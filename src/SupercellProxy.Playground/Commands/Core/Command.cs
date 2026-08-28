@@ -6,46 +6,51 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Base wire representation shared by Hay Day logic commands.</para>
 /// </summary>
-public abstract record Command
+internal abstract record Command
 {
     /// <summary>
     /// Initializes a new <see cref="Command"/> instance.
     /// </summary>
-    protected Command(int executeSubTick, CommandData? debugData0, CommandData? debugData1)
+    protected Command(int executionPhaseCounter, CommandData? debugData0, CommandData? debugData1)
     {
-        ExecuteSubTick = executeSubTick;
+        ExecutionPhaseCounter = executionPhaseCounter;
         DebugData0 = debugData0;
         DebugData1 = debugData1;
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public abstract int Type { get; }
 
     /// <summary>
-    /// Gets the <c>ExecuteSubTick</c> value.
+    /// Gets the <c language="csharp">ExecutionPhaseCounter</c> value.
     /// </summary>
-    public int ExecuteSubTick { get; }
+    public int ExecutionPhaseCounter { get; private set; }
+
+    internal void SetExecutionPhaseCounter(int executionPhaseCounter)
+    {
+        ExecutionPhaseCounter = executionPhaseCounter;
+    }
 
     /// <summary>
-    /// Gets the <c>DebugData0</c> value.
+    /// Gets the <c language="csharp">DebugData0</c> value.
     /// </summary>
     public CommandData? DebugData0 { get; }
 
     /// <summary>
-    /// Gets the <c>DebugData1</c> value.
+    /// Gets the <c language="csharp">DebugData1</c> value.
     /// </summary>
     public CommandData? DebugData1 { get; }
 
     internal abstract void EncodeBody(MessageStream stream, CommandEnvironment environment);
 
     /// <summary>
-    /// Executes the <c>EncodeCommand</c> operation.
+    /// Executes the <c language="csharp">EncodeCommand</c> operation.
     /// </summary>
     protected void EncodeCommand(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVarInt(ExecuteSubTick);
+        stream.WriteVarInt(ExecutionPhaseCounter);
 
         if (environment is CommandEnvironment.Production)
             return;
@@ -60,19 +65,19 @@ public abstract record Command
     /// <para>Decodes the common logic-command header.</para>
     /// </summary>
     protected static (
-        int ExecuteSubTick,
+        int ExecutionPhaseCounter,
         CommandData? DebugData0,
         CommandData? DebugData1
     ) DecodeCommand(MessageStream stream, CommandEnvironment environment)
     {
-        var executeSubTick = stream.ReadVarInt();
+        var executionPhaseCounter = stream.ReadVarInt();
 
         if (environment is CommandEnvironment.Production)
-            return (executeSubTick, null, null);
+            return (executionPhaseCounter, null, null);
 
         var debugData0 = stream.ReadBoolean() ? CommandData.Decode(stream) : null;
         var debugData1 = stream.ReadBoolean() ? CommandData.Decode(stream) : null;
 
-        return (executeSubTick, debugData0, debugData1);
+        return (executionPhaseCounter, debugData0, debugData1);
     }
 }

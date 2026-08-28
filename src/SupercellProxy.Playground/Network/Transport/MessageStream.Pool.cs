@@ -1,11 +1,11 @@
 namespace SupercellProxy.Playground.Network.Transport;
 
-public partial class MessageStream
+internal sealed partial class MessageStream
 {
     private readonly byte[] _buffer = new byte[65536];
 
     /// <summary>
-    /// Executes the <c>RentExactly</c> operation.
+    /// Executes the <c language="csharp">RentExactly</c> operation.
     /// </summary>
     public Memory<byte> RentExactly(int length)
     {

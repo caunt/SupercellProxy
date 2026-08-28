@@ -11,8 +11,8 @@ namespace SupercellProxy.Keys;
 internal sealed class DecryptDayClient(HttpClient client)
 {
     private const string ApiUserAgent = "PlayCover/3.0 CFNetwork/1494.0.7 Darwin/23.4.0";
-    private readonly HttpClient client = client;
-    private readonly Dictionary<string, DecryptDayAppDetail> details = new(
+    private readonly HttpClient _client = client;
+    private readonly Dictionary<string, DecryptDayAppDetail> _details = new(
         StringComparer.OrdinalIgnoreCase
     );
 
@@ -62,10 +62,10 @@ internal sealed class DecryptDayClient(HttpClient client)
         CancellationToken cancellationToken
     )
     {
-        if (details.TryGetValue(appStoreId, out var cached))
+        if (_details.TryGetValue(appStoreId, out var cached))
             return cached;
 
-        using var response = await client
+        using var response = await _client
             .SendWithRetryAsync(() => CreateMetadataRequest(appStoreId), cancellationToken)
             .ConfigureAwait(false);
 
@@ -103,8 +103,8 @@ internal sealed class DecryptDayClient(HttpClient client)
             var versions = (root["versions"] as JsonArray ?? [])
                 .OfType<JsonObject>()
                 .Select(static version => GetString(version, "name"))
+                .OfType<string>()
                 .Where(static version => !string.IsNullOrWhiteSpace(version))
-                .Select(static version => version!)
                 .ToArray();
             var id =
                 GetString(app, "id")
@@ -113,7 +113,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 );
             var detail = new DecryptDayAppDetail(id, bundleId, versions);
 
-            details[appStoreId] = detail;
+            _details[appStoreId] = detail;
             return detail;
         }
 
@@ -127,7 +127,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         CancellationToken cancellationToken
     )
     {
-        using var response = await client
+        using var response = await _client
             .SendWithRetryAsync(
                 () => CreateFileRequest(appStoreId, decryptDayId, version),
                 cancellationToken
@@ -269,22 +269,19 @@ internal sealed class DecryptDayClient(HttpClient client)
         CancellationToken cancellationToken
     )
     {
-        Console.Error.WriteLine("Solving decrypt.day verification in headless CloakBrowser...");
+        await Console
+            .Error.WriteLineAsync("Solving decrypt.day verification in headless CloakBrowser...")
+            .ConfigureAwait(false);
         await EnsureMacCloakBrowserAsync(cancellationToken).ConfigureAwait(false);
 
-        Console.Error.WriteLine("Loading decrypt.day download page...");
+        await Console
+            .Error.WriteLineAsync("Loading decrypt.day download page...")
+            .ConfigureAwait(false);
 
         for (var attempt = 1; attempt <= MaximumBrowserAttempts; attempt++)
         {
             var browser = await CloakLauncher
-                .LaunchAsync(
-                    new LaunchOptions
-                    {
-                        Headless = true,
-                        Humanize = true,
-                        Locale = "en-US",
-                    }
-                )
+                .LaunchAsync(CreateBrowserLaunchOptions())
                 .ConfigureAwait(false);
             await using (browser.ConfigureAwait(false))
             {
@@ -315,14 +312,16 @@ internal sealed class DecryptDayClient(HttpClient client)
                         );
                     }
 
-                    Console.Error.WriteLine(
-                        "decrypt.day did not show its download controls for browser identity "
-                            + string.Create(
-                                CultureInfo.InvariantCulture,
-                                $"{attempt}/{MaximumBrowserAttempts}: \"{title}\" ({location}). "
-                            )
-                            + "Relaunching with a fresh identity..."
-                    );
+                    await Console
+                        .Error.WriteLineAsync(
+                            "decrypt.day did not show its download controls for browser identity "
+                                + string.Create(
+                                    CultureInfo.InvariantCulture,
+                                    $"{attempt}/{MaximumBrowserAttempts}: \"{title}\" ({location}). "
+                                )
+                                + "Relaunching with a fresh identity..."
+                        )
+                        .ConfigureAwait(false);
                 }
             }
         }
@@ -349,9 +348,11 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         if (!page.Url.Contains("/dl/", StringComparison.Ordinal))
         {
-            Console.Error.WriteLine(
-                "decrypt.day initialized the app page; reopening the file in the same browser session..."
-            );
+            await Console
+                .Error.WriteLineAsync(
+                    "decrypt.day initialized the app page; reopening the file in the same browser session..."
+                )
+                .ConfigureAwait(false);
 
             await page.GotoAsync(
                     download.Url.AbsoluteUri,
@@ -367,7 +368,9 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         var downloadButton = await CompleteVerificationAsync(page).ConfigureAwait(false);
 
-        Console.Error.WriteLine("Verification complete; starting IPA transfer...");
+        await Console
+            .Error.WriteLineAsync("Verification complete; starting IPA transfer...")
+            .ConfigureAwait(false);
 
         var browserDownload = await page.RunAndWaitForDownloadAsync(
                 async () =>
@@ -393,7 +396,9 @@ internal sealed class DecryptDayClient(HttpClient client)
                 new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 60_000 }
             )
             .ConfigureAwait(false);
-        Console.Error.WriteLine("Running Turnstile verification...");
+        await Console
+            .Error.WriteLineAsync("Running Turnstile verification...")
+            .ConfigureAwait(false);
         await Assertions
             .Expect(verificationButton)
             .ToBeEnabledAsync(new LocatorAssertionsToBeEnabledOptions { Timeout = 60_000 })
@@ -475,9 +480,11 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         try
         {
-            Console.Error.WriteLine(
-                "Preparing CloakBrowser Chromium with the macOS system extractor..."
-            );
+            await Console
+                .Error.WriteLineAsync(
+                    "Preparing CloakBrowser Chromium with the macOS system extractor..."
+                )
+                .ConfigureAwait(false);
             await DownloadBrowserArchiveAsync(version, archivePath, cancellationToken)
                 .ConfigureAwait(false);
             Directory.CreateDirectory(binaryDirectory);
@@ -563,5 +570,15 @@ internal sealed class DecryptDayClient(HttpClient client)
         var error = await errorTask.ConfigureAwait(false);
         if (process.ExitCode is not 0)
             throw new InvalidOperationException($"CloakBrowser extraction failed: {error.Trim()}");
+    }
+
+    private static LaunchOptions CreateBrowserLaunchOptions()
+    {
+        return new LaunchOptions
+        {
+            Headless = true,
+            Humanize = true,
+            Locale = "en-US",
+        };
     }
 }

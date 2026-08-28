@@ -5,9 +5,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Events;
 
 /// <summary>
-/// Represents <c>MessageSentEvent</c>.
+/// Represents <c language="csharp">MessageSentEvent</c>.
 /// </summary>
-public record MessageSentEvent(
+internal sealed record MessageSentEvent(
     IMessage Message,
     Direction Direction,
     MessageStream Source,

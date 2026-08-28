@@ -1,5 +1,4 @@
 using System.Globalization;
-using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
 namespace SupercellProxy.Playground.Home;
@@ -8,6 +7,11 @@ internal sealed partial class AmbientAnimalState
 {
     private void Update(GameRandom random)
     {
+        InitializeSpawnerBounds();
+        var effectivePosition = ResolveAbsolutePosition(GameObject);
+        _effectivePositionX = effectivePosition.X;
+        _effectivePositionY = effectivePosition.Y;
+
         if (BeginUpdate(random))
             return;
 
@@ -17,14 +21,14 @@ internal sealed partial class AmbientAnimalState
         if (UpdateMovementState(random))
             return;
 
-        var extraBoundary = Behavior < 2 ? birdExtraTiles << 9 : 0;
-        var maximumAnimalX = maximumX + extraBoundary;
-        var maximumAnimalY = maximumY + extraBoundary;
+        var extraBoundary = Behavior < 2 ? _birdExtraTiles << 9 : 0;
+        var maximumAnimalX = _maximumX + extraBoundary;
+        var maximumAnimalY = _maximumY + extraBoundary;
         var adjustedMaximumY = Behavior is 2 ? maximumAnimalY - 500 : maximumAnimalY;
 
         if (Behavior is not 4 && IsOutsideMovementBounds(maximumAnimalX, adjustedMaximumY))
         {
-            ChecksumFlag0 = true;
+            IsRemoved = true;
             return;
         }
 
@@ -43,33 +47,33 @@ internal sealed partial class AmbientAnimalState
 
     private bool BeginUpdate(GameRandom random)
     {
-        if (ChecksumFlag0)
+        if (IsRemoved)
             return true;
 
-        ChecksumState2--;
-        ChecksumState13--;
-        ChecksumState16--;
+        MovementTimer--;
+        AvoidanceLinger--;
+        MirrorTimer--;
         MovementX = 0;
         MovementY = 0;
 
         if (Behavior is 4)
         {
-            var lifetime = ChecksumState5;
-            ChecksumState5++;
+            var lifetime = PhaseTimer;
+            PhaseTimer++;
             if (lifetime > 108)
             {
-                ChecksumFlag0 = true;
+                IsRemoved = true;
                 return true;
             }
         }
 
-        if (ChecksumByte0 is 4)
+        if (MovementState is 4)
         {
             UpdateLandingMovement();
             return true;
         }
 
-        if (ChecksumByte0 is not 5)
+        if (MovementState is not 5)
             return false;
 
         UpdateTakeoffMovement();
@@ -79,34 +83,34 @@ internal sealed partial class AmbientAnimalState
     private bool UpdateBehaviorThreeState(GameRandom random)
     {
         RefreshAttractionTarget();
-        if (ChecksumByte0 is not 3)
+        if (MovementState is not 3)
         {
-            var stateTimer = ChecksumState5;
-            ChecksumState5++;
+            var stateTimer = PhaseTimer;
+            PhaseTimer++;
             if (stateTimer > 16)
             {
-                ChecksumByte0 = 3;
-                ChecksumState2 = random.NextInt(70) + 20;
-                ChecksumState14 = -1;
+                MovementState = 3;
+                MovementTimer = random.NextInt(70) + 20;
+                CachedAvoidanceIndex = -1;
                 RefreshAvoidanceTarget();
                 Heading = ResolveBehaviorThreeHeading(random);
             }
         }
 
-        if (ChecksumByte0 is 3 && (GameObject.PositionX < -0x200 || isInsideAttractionTarget))
+        if (MovementState is 3 && (_effectivePositionX < -0x200 || _isInsideAttractionTarget))
         {
-            ChecksumFlag0 = true;
+            IsRemoved = true;
             return true;
         }
 
-        if (ChecksumByte0 is 3 && redirectRefreshPending)
+        if (MovementState is 3 && _redirectRefreshPending)
         {
-            var redirectTimer = ChecksumState5;
-            ChecksumState5++;
+            var redirectTimer = PhaseTimer;
+            PhaseTimer++;
             if (redirectTimer > 18)
             {
-                redirectRefreshPending = false;
-                ChecksumState2 = random.NextInt(70) + 20;
+                _redirectRefreshPending = false;
+                MovementTimer = random.NextInt(70) + 20;
             }
         }
 
@@ -115,31 +119,42 @@ internal sealed partial class AmbientAnimalState
 
     private bool IsOutsideMovementBounds(int maximumAnimalX, int adjustedMaximumY)
     {
-        return GameObject.PositionX < minimumX
-            || GameObject.PositionX > maximumAnimalX
-            || GameObject.PositionY < minimumY
-            || GameObject.PositionY > adjustedMaximumY;
+        return _effectivePositionX < _minimumX
+            || _effectivePositionX > maximumAnimalX
+            || _effectivePositionY < _minimumY
+            || _effectivePositionY > adjustedMaximumY;
     }
 
     private bool UpdateMovementState(GameRandom random)
     {
-        if (Behavior is 0 && ChecksumByte0 is 1 && DestinationX is 0 && DestinationY is 0)
+        if (Behavior is 0 && MovementState is 1 && DestinationX is 0 && DestinationY is 0)
         {
             Heading += HeadingStep;
             return false;
         }
 
-        if (Behavior is 0 && ChecksumByte0 is 2 && DestinationX is 0 && DestinationY is 0)
+        if (Behavior is 0 && MovementState is 2 && DestinationX is 0 && DestinationY is 0)
         {
             Heading -= HeadingStep;
             return false;
         }
 
-        if (ChecksumByte0 is not 3)
+        if (MovementState is not 3)
             return false;
-        if (Behavior is 3)
-            return false;
-        if (ChecksumState2 > 0)
+        if (Behavior is 2 or 3)
+        {
+            if (MovementTimer <= 0)
+                return false;
+
+            if (ApplyPrimarySourceAvoidance())
+            {
+                PhaseTimer = 0;
+                MovementState = 0;
+            }
+
+            return true;
+        }
+        if (MovementTimer > 0)
             return Behavior is 0 or 1;
         if (Behavior is 1)
         {
@@ -149,14 +164,14 @@ internal sealed partial class AmbientAnimalState
 
         if (Behavior is 0)
         {
-            ChecksumState6 = random.NextInt(8) + 2;
-            ChecksumState4 = 25;
-            ChecksumState1 = 8;
+            AltitudeStep = random.NextInt(8) + 2;
+            AltitudeStepChangeTimer = 25;
+            Altitude = 8;
         }
         else
         {
-            ChecksumByte0 = 0;
-            ChecksumState5 = 0;
+            MovementState = 0;
+            PhaseTimer = 0;
         }
 
         return false;
@@ -165,77 +180,80 @@ internal sealed partial class AmbientAnimalState
     private void UpdateRandomizedMovement(GameRandom random)
     {
         RefreshAvoidanceTarget();
+        if (Behavior is not 1 && ApplyPrimarySourceAvoidance())
+            _hasAvoidanceTarget = true;
         RefreshAttractionTarget();
-        if (ChecksumState2 < 1)
+
+        if (MovementTimer < 1)
         {
-            ChecksumByte0 = sbyte.CreateTruncating(GetMovementState(random));
+            MovementState = sbyte.CreateTruncating(GetMovementState(random));
             HeadingStep = GetHeadingStep(random);
-            ChecksumState2 = GetSpeedChangeTimer(random);
+            MovementTimer = GetSpeedChangeTimer(random);
         }
 
-        var speedChangeTimer = ChecksumState3;
-        ChecksumState3--;
-        if (ChecksumState3 is 0 || speedChangeTimer < 1)
+        var speedChangeTimer = SpeedChangeTimer;
+        SpeedChangeTimer--;
+        if (SpeedChangeTimer is 0 || speedChangeTimer < 1)
         {
             Speed += GetSpeedChange(random);
             ClampSpeed();
-            ChecksumState3 = GetNextSpeedChangeTimer(random);
+            SpeedChangeTimer = GetNextSpeedChangeTimer(random);
         }
 
-        var headingChangeTimer = ChecksumState4;
-        ChecksumState4--;
-        if (ChecksumState4 is 0 || headingChangeTimer < 1)
+        var altitudeStepChangeTimer = AltitudeStepChangeTimer;
+        AltitudeStepChangeTimer--;
+        if (AltitudeStepChangeTimer is 0 || altitudeStepChangeTimer < 1)
         {
-            ChecksumState6 = Math.Clamp(
-                ChecksumState6 + GetHeadingChange(random),
+            AltitudeStep = Math.Clamp(
+                AltitudeStep + GetAltitudeStepChange(random),
                 Behavior is 1 ? -16 : -8,
                 Behavior is 1 ? 16 : 8
             );
-            ChecksumState4 = GetNextHeadingChangeTimer(random);
+            AltitudeStepChangeTimer = GetNextAltitudeStepChangeTimer(random);
         }
 
         var angle = Heading / 8;
         MovementX = IntegerMath.GetSine(angle + 90) * Speed / 1024;
         MovementY = IntegerMath.GetSine(angle) * Speed / 1024;
-        if (ChecksumState13 < 1 && !hasAvoidanceTarget)
+        if (AvoidanceLinger < 1 && !_hasAvoidanceTarget)
         {
-            MovementX += ChecksumState11;
-            MovementY += ChecksumState12;
+            MovementX += CleanupDriftX;
+            MovementY += CleanupDriftY;
         }
     }
 
     private bool ApplyAvoidanceMovement(GameRandom random)
     {
-        if (ChecksumState13 < 1 && !hasAvoidanceTarget || !hasAvoidanceTarget && Behavior >= 2)
+        if (AvoidanceLinger < 1 && !_hasAvoidanceTarget || !_hasAvoidanceTarget && Behavior >= 2)
             return false;
         if (Behavior is 2 or 3)
         {
-            var targetAngle = IntegerMath.GetVectorAngle(-ChecksumState7, -ChecksumState8);
+            var targetAngle = IntegerMath.GetVectorAngle(-AvoidanceX, -AvoidanceY);
             var movementAngle = IntegerMath.GetVectorAngle(MovementX, MovementY);
             var difference = Math.Abs(IntegerMath.GetAngleDifference(targetAngle - movementAngle));
             if (difference >= 120)
                 return false;
 
-            Redirect(random, ChecksumState7, ChecksumState8);
+            Redirect(random, AvoidanceX, AvoidanceY);
             return true;
         }
 
-        AddNormalizedMovement(ChecksumState7, ChecksumState8, 5);
-        attractionPoints = [];
+        AddNormalizedMovement(AvoidanceX, AvoidanceY, 5);
+        _attractionPoints = [];
         return false;
     }
 
     private bool ApplyBehaviorThreeBoundaryRedirect(GameRandom random)
     {
-        if (Behavior is not 3 || ChecksumFlag3)
+        if (Behavior is not 3 || ZoneCleanup)
             return false;
-        if (MovementY < 0 && GameObject.PositionY + MovementY < 0)
+        if (MovementY < 0 && _effectivePositionY + MovementY < 0)
         {
             Redirect(random, 0, 0x100);
             return true;
         }
 
-        if (MovementX <= 0 || GameObject.PositionX + MovementX <= 0x6000)
+        if (MovementX <= 0 || _effectivePositionX + MovementX <= 0x6000)
             return false;
 
         Redirect(random, -0x100, 0);
@@ -245,32 +263,32 @@ internal sealed partial class AmbientAnimalState
     private bool ApplyAttractionOrBehaviorTwoRedirect(GameRandom random)
     {
         if (
-            hasAttractionTarget
-            && !isInsideAttractionTarget
+            HasAttractionTarget
+            && !_isInsideAttractionTarget
             && Behavior is not 3
-            && !hasAvoidanceTarget
-            && ChecksumByte0 is not 3
+            && !_hasAvoidanceTarget
+            && MovementState is not 3
         )
         {
-            AddNormalizedMovement(TargetY, ChecksumState10, 4);
+            AddNormalizedMovement(AttractionX, AttractionY, 4);
             return false;
         }
 
         if (Behavior is not 2)
             return false;
-        if (MovementX < 0 && GameObject.PositionX + MovementX < 0)
+        if (MovementX < 0 && _effectivePositionX + MovementX < 0)
         {
             Redirect(random, 0x100, 0);
             return true;
         }
 
-        if (MovementY < 0 && GameObject.PositionY + MovementY < 0)
+        if (MovementY < 0 && _effectivePositionY + MovementY < 0)
         {
             Redirect(random, 0, 0x100);
             return true;
         }
 
-        if (MovementX <= 0 || GameObject.PositionX + MovementX <= 0x6000)
+        if (MovementX <= 0 || _effectivePositionX + MovementX <= 0x6000)
             return false;
 
         Redirect(random, -0x100, 0);
@@ -281,30 +299,30 @@ internal sealed partial class AmbientAnimalState
     {
         if (Behavior is 0)
         {
-            ChecksumState0 = Math.Clamp(
-                (ChecksumState0 + (MovementX - MovementY) / 3) * 9 / 10,
+            SteeringState = Math.Clamp(
+                (SteeringState + (MovementX - MovementY) / 3) * 9 / 10,
                 -80,
                 80
             );
         }
 
-        var previousAltitude = ChecksumState1;
-        ChecksumState1 = Math.Clamp(ChecksumState1 + ChecksumState6, 0, 792);
-        if (Behavior is 1 && previousAltitude is not 0 && ChecksumState1 is 0)
+        var previousAltitude = Altitude;
+        Altitude = Math.Clamp(Altitude + AltitudeStep, 0, 792);
+        if (Behavior is 1 && previousAltitude is not 0 && Altitude is 0)
         {
-            ChecksumState4 = 90;
-            ChecksumState6 = 0;
+            AltitudeStepChangeTimer = 90;
+            AltitudeStep = 0;
         }
 
         RefreshLandingTarget();
-        if (ChecksumState1 is 0)
+        if (Altitude is 0)
             UpdateGroundMovement(random);
 
         UpdateMirroring();
-        ChecksumFlag1 = isInsideLandingTarget;
-        ChecksumState11 = 0;
-        ChecksumState12 = 0;
-        GameObject.MoveTo(GameObject.PositionX + MovementX, GameObject.PositionY + MovementY);
+        WasInsideLandingTarget = _isInsideLandingTarget;
+        CleanupDriftX = 0;
+        CleanupDriftY = 0;
+        GameObject.MoveTo(_effectivePositionX + MovementX, _effectivePositionY + MovementY);
     }
 
     private int GetMovementState(GameRandom random)
@@ -381,7 +399,7 @@ internal sealed partial class AmbientAnimalState
             ),
         };
 
-        return change * speedMultiplier / 100;
+        return change * _speedMultiplier / 100;
     }
 
     private void ClampSpeed()
@@ -400,7 +418,7 @@ internal sealed partial class AmbientAnimalState
                 )
             ),
         };
-        Speed = Speed * speedMultiplier / 100;
+        Speed = Speed * _speedMultiplier / 100;
     }
 
     private int GetNextSpeedChangeTimer(GameRandom random)
@@ -419,12 +437,12 @@ internal sealed partial class AmbientAnimalState
         };
     }
 
-    private int GetHeadingChange(GameRandom random)
+    private int GetAltitudeStepChange(GameRandom random)
     {
         return Behavior switch
         {
             0 => random.NextInt(10) - 4,
-            1 => GetBirdHeadingChange(random),
+            1 => GetBirdAltitudeStepChange(random),
             2 or 3 or 4 => 0,
             _ => throw new InvalidOperationException(
                 string.Create(
@@ -435,18 +453,18 @@ internal sealed partial class AmbientAnimalState
         };
     }
 
-    private int GetBirdHeadingChange(GameRandom random)
+    private int GetBirdAltitudeStepChange(GameRandom random)
     {
         if (random.NextInt(3) is 0)
             return random.NextInt(19) - 10;
 
-        if (ChecksumState1 < 400)
+        if (Altitude < 400)
             return random.NextInt(6) is 0 ? -14 : 14;
 
         return random.NextInt(6) is 0 ? 14 : -14;
     }
 
-    private int GetNextHeadingChangeTimer(GameRandom random)
+    private int GetNextAltitudeStepChangeTimer(GameRandom random)
     {
         return Behavior switch
         {
@@ -464,29 +482,29 @@ internal sealed partial class AmbientAnimalState
 
     private void Redirect(GameRandom random, int x, int y)
     {
-        ChecksumByte0 = 3;
+        MovementState = 3;
         Speed = 16;
-        ChecksumState2 = GetRedirectDuration(random);
+        MovementTimer = GetRedirectDuration(random);
         Heading = (random.NextInt(180) + IntegerMath.GetVectorAngle(x, y) - 90) << 3;
-        var previousRedirectCount = ChecksumState15;
-        ChecksumState15 = unchecked(ChecksumState15 + 1);
+        var previousRedirectCount = RedirectCount;
+        RedirectCount = unchecked(RedirectCount + 1);
 
         if (Behavior is 3)
-            redirectRefreshPending = true;
+            _redirectRefreshPending = true;
         else if (previousRedirectCount > 9)
-            attractionPoints = [];
+            _attractionPoints = [];
     }
 
     private int ResolveBehaviorThreeHeading(GameRandom random)
     {
-        if (hasAvoidanceTarget)
-            return IntegerMath.GetVectorAngle(ChecksumState7, ChecksumState8) << 3;
+        if (_hasAvoidanceTarget)
+            return IntegerMath.GetVectorAngle(AvoidanceX, AvoidanceY) << 3;
 
-        if (!ChecksumFlag3)
+        if (!ZoneCleanup)
             return random.NextInt(360) << 3;
 
-        return hasAttractionTarget
-            ? IntegerMath.GetVectorAngle(TargetY, ChecksumState10) << 3
+        return HasAttractionTarget
+            ? IntegerMath.GetVectorAngle(AttractionX, AttractionY) << 3
             : 180 << 3;
     }
 
@@ -509,29 +527,29 @@ internal sealed partial class AmbientAnimalState
 
     private void UpdateLandingMovement()
     {
-        var landingTimer = ChecksumState5;
-        ChecksumState5++;
+        var landingTimer = PhaseTimer;
+        PhaseTimer++;
 
         if (landingTimer > 83)
         {
-            ChecksumByte0 = 3;
+            MovementState = 3;
             DestinationX = 0;
             DestinationY = 0;
             return;
         }
 
-        MovementX = ChecksumState9 / 85;
-        MovementY = TargetX / 85;
-        GameObject.MoveTo(GameObject.PositionX + MovementX, GameObject.PositionY + MovementY);
+        MovementX = LandingX / 85;
+        MovementY = LandingY / 85;
+        GameObject.MoveTo(_effectivePositionX + MovementX, _effectivePositionY + MovementY);
     }
 
     private void BeginTakeoff(GameRandom random)
     {
-        ChecksumState5 = 0;
-        ChecksumByte0 = 5;
-        ChecksumState1 = 8;
-        ChecksumState6 = random.NextInt(8) + 2;
-        ChecksumState4 = 25;
+        PhaseTimer = 0;
+        MovementState = 5;
+        Altitude = 8;
+        AltitudeStep = random.NextInt(8) + 2;
+        AltitudeStepChangeTimer = 25;
 
         var heading = random.NextInt(360);
 
@@ -543,20 +561,20 @@ internal sealed partial class AmbientAnimalState
 
     private void UpdateTakeoffMovement()
     {
-        ChecksumState5++;
+        PhaseTimer++;
         Heading += HeadingStep;
 
-        var progress = ChecksumState5 * 4096 / 110;
+        var progress = PhaseTimer * 4096 / 110;
         var movementSpeed = Speed * progress / 4096 + 1;
         var angle = Heading / 8;
         MovementX = IntegerMath.GetSine(angle + 90) * movementSpeed / 1024;
         MovementY = IntegerMath.GetSine(angle) * movementSpeed / 1024;
-        GameObject.MoveTo(GameObject.PositionX + MovementX, GameObject.PositionY + MovementY);
+        GameObject.MoveTo(_effectivePositionX + MovementX, _effectivePositionY + MovementY);
 
         UpdateMirroring();
 
-        if (ChecksumState5 >= 110)
-            ChecksumByte0 = 0;
+        if (PhaseTimer >= 110)
+            MovementState = 0;
     }
 
     private static bool IsDisallowedTakeoffHeading(int heading)
@@ -569,44 +587,44 @@ internal sealed partial class AmbientAnimalState
         if (Behavior is 0)
         {
             if (
-                (landingPoints.Count is 0 || isInsideLandingTarget && !ChecksumFlag1)
-                && GameObject.PositionX + MovementX > 0
-                && !hasAvoidanceTarget
+                (_landingPoints.Count is 0 || _isInsideLandingTarget && !WasInsideLandingTarget)
+                && _effectivePositionX + MovementX > 0
+                && !_hasAvoidanceTarget
             )
             {
-                ChecksumByte0 = 3;
-                ChecksumState2 = GetRedirectDuration(random);
+                MovementState = 3;
+                MovementTimer = GetRedirectDuration(random);
                 return;
             }
 
-            ChecksumState6 = random.NextInt(8) + 2;
-            ChecksumState4 = 25;
-            ChecksumState1 = 8;
+            AltitudeStep = random.NextInt(8) + 2;
+            AltitudeStepChangeTimer = 25;
+            Altitude = 8;
             return;
         }
 
-        var destinationReached = isInsideLandingTarget && IsLandingDestinationReached();
+        var destinationReached = _isInsideLandingTarget && IsLandingDestinationReached();
 
         if (
             Behavior is not 1
-            || !isInsideLandingTarget
-            || ChecksumFlag1 && !destinationReached
-            || GameObject.PositionX + MovementX <= 0
-            || hasAvoidanceTarget
+            || !_isInsideLandingTarget
+            || WasInsideLandingTarget && !destinationReached
+            || _effectivePositionX + MovementX <= 0
+            || _hasAvoidanceTarget
         )
         {
             return;
         }
 
-        var targetAngle = IntegerMath.GetVectorAngle(ChecksumState9, TargetX);
+        var targetAngle = IntegerMath.GetVectorAngle(LandingX, LandingY);
         var angleDifference = Math.Abs(IntegerMath.GetAngleDifference(Heading / 8 - targetAngle));
 
         if (angleDifference >= 30)
             return;
 
-        ChecksumByte0 = 4;
-        ChecksumState5 = 0;
-        ChecksumState2 = GetRedirectDuration(random);
+        MovementState = 4;
+        PhaseTimer = 0;
+        MovementTimer = GetRedirectDuration(random);
     }
 
     private bool IsLandingDestinationReached()
@@ -614,12 +632,12 @@ internal sealed partial class AmbientAnimalState
         if (DestinationX is 0 && DestinationY is 0)
             return false;
 
-        var x = ChecksumState9 + GameObject.PositionX + MovementX;
-        var y = TargetX + GameObject.PositionY + MovementY;
+        var x = LandingX + _effectivePositionX + MovementX;
+        var y = LandingY + _effectivePositionY + MovementY;
         var reached = Math.Abs(x - DestinationX) < 100 && Math.Abs(y - DestinationY) < 100;
 
         if (reached)
-            ChecksumState6 = -32;
+            AltitudeStep = -32;
 
         return reached;
     }

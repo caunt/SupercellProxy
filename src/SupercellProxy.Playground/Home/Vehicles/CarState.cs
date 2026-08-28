@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -21,11 +22,9 @@ internal sealed record CarState(
         DataTableResolver dataTableResolver
     )
     {
-        const string carsFile = "data/cars.csv";
-
-        if (!dataTableResolver.TryGetTableId(carsFile, out var carTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Cars, out var carTableId))
             throw new InvalidOperationException(
-                $"{carsFile} is not registered as a native data table."
+                $"{GameAssetFiles.Cars} is not registered as a native data table."
             );
 
         return gameObjects

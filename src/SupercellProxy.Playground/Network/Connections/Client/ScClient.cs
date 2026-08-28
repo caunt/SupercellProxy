@@ -1,43 +1,116 @@
 using System.Globalization;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
+using System.Text.Json;
 using SupercellProxy.Playground.Commands;
-using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Home.Simulation;
-using SupercellProxy.Playground.Json;
 using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Configuration;
 using SupercellProxy.Playground.Network.Connections.Client.Exceptions;
 using SupercellProxy.Playground.Network.Messages;
-using SupercellProxy.Playground.Network.Messages.Clientbound;
 using SupercellProxy.Playground.Network.Messages.Serverbound;
-using SupercellProxy.Playground.Network.Protocol;
 using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Connections.Client;
 
 /// <summary>
-/// Represents <c>ScClient</c>.
+/// Represents <c language="csharp">ScClient</c>.
 /// </summary>
 /// <remarks>
 /// Initializes a new <see cref="ScClient"/> instance.
 /// </remarks>
-public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposable
+internal sealed partial class ScClient : IAsyncDisposable
 {
-    private readonly ClientConfiguration configuration = configuration;
+    private readonly ClientConfiguration? _configuration;
     private static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(5);
-    private const int HarvestGainDelaySubTicks = 56;
-    private const int HarvestCompletionDelaySubTicks = 10;
-    private const int ClientTurnIntervalSubTicks = 300;
     private readonly HttpClient _httpClient = new();
-    private TcpClient? tcpClient;
+    private TcpClient? _tcpClient;
     private NetworkStream? _networkStream;
     private MessageStream? _supercellStream;
 
+    /// Initializes an online client with the supplied connection configuration.
+    public ScClient(ClientConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        _configuration = configuration;
+    }
+
+    /// Initializes a client over an existing message stream.
+    internal ScClient(MessageStream messageStream)
+    {
+        ArgumentNullException.ThrowIfNull(messageStream);
+        _supercellStream = messageStream;
+    }
+
+    /// Runs the client operation selected by command-line arguments.
+    public static async Task RunAsync(
+        string[] arguments,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var operation = ParseOperation(arguments.ElementAtOrDefault(2));
+        var (upstreamHost, upstreamPort) = await ConnectionAddress
+            .ResolveAsync(arguments, cancellationToken)
+            .ConfigureAwait(false);
+        var client = new ScClient(
+            new ClientConfiguration(
+                upstreamHost,
+                upstreamPort,
+                ProtocolConfiguration.Current,
+                arguments.ElementAtOrDefault(3)
+            )
+        );
+        await using (client.ConfigureAwait(false))
+        {
+            switch (operation)
+            {
+                case ClientOperation.Run:
+                    await client.RunAsync(cancellationToken).ConfigureAwait(false);
+                    break;
+                case ClientOperation.Harvest:
+                    var result = await client
+                        .HarvestFieldAsync(
+                            ParseOptionalInt(arguments.ElementAtOrDefault(4)),
+                            cancellationToken
+                        )
+                        .ConfigureAwait(false);
+                    Console.WriteLine(JsonSerializer.Serialize(result));
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported client operation: {operation}."
+                    );
+            }
+        }
+    }
+
+    private static ClientOperation ParseOperation(string? value)
+    {
+        return
+            Enum.TryParse<ClientOperation>(value, ignoreCase: true, out var operation)
+            && Enum.IsDefined(operation)
+            ? operation
+            : ClientOperation.Run;
+    }
+
+    private static int? ParseOptionalInt(string? value)
+    {
+        if (value is null)
+            return null;
+
+        return int.TryParse(value, CultureInfo.InvariantCulture, out var result)
+            ? result
+            : throw new ArgumentException($"Invalid integer value: {value}.", nameof(value));
+    }
+
+    private ClientConfiguration Configuration =>
+        _configuration
+        ?? throw new InvalidOperationException(
+            "This client was created without an online connection configuration."
+        );
+
     /// <summary>
-    /// Executes the <c>RunAsync</c> operation.
+    /// Executes the <c language="csharp">RunAsync</c> operation.
     /// </summary>
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
@@ -45,7 +118,7 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
         {
             var loginOkResult = await LoginAsync(cancellationToken).ConfigureAwait(false);
 
-            Console.WriteLine("Logged in.");
+            Console.WriteLine(ApplicationText.ClientLoggedIn);
 
             if (loginOkResult.Resources.Length > 0)
                 (
@@ -82,21 +155,22 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
         }
         catch (EndOfStreamException)
         {
-            Console.WriteLine("Connection closed by remote host.");
+            Console.WriteLine(ApplicationText.ClientConnectionClosed);
         }
     }
 
     /// <summary>
-    /// Executes the <c>DisposeAsync</c> operation.
+    /// Executes the <c language="csharp">DisposeAsync</c> operation.
     /// </summary>
     public async ValueTask DisposeAsync()
     {
         await DisconnectAsync().ConfigureAwait(false);
+        _httpClient.Dispose();
         GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// Gets <c>ReadyFieldsAsync</c>.
+    /// Gets <c language="csharp">ReadyFieldsAsync</c>.
     /// </summary>
     public async Task<HarvestField[]> GetReadyFieldsAsync(
         CancellationToken cancellationToken = default
@@ -104,9 +178,8 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
     {
         try
         {
-            var harvest = await OpenGatedHarvestStateAsync(cancellationToken).ConfigureAwait(false);
-            await PrepareHarvestStateAsync(harvest, cancellationToken).ConfigureAwait(false);
-            return harvest.Executor.GetReadyFields();
+            await EnsureHomeReadyAsync(cancellationToken).ConfigureAwait(false);
+            return FieldPlots.GetReady();
         }
         finally
         {
@@ -115,7 +188,7 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
     }
 
     /// <summary>
-    /// Executes the <c>ValidateSynchronizationAsync</c> operation.
+    /// Executes the <c language="csharp">ValidateSynchronizationAsync</c> operation.
     /// </summary>
     public async Task ValidateSynchronizationAsync(
         int subTick,
@@ -124,56 +197,23 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
     {
         try
         {
-            var harvest = await OpenGatedHarvestStateAsync(cancellationToken).ConfigureAwait(false);
-            await SynchronizeServerCommandsAsync(
-                    harvest.Executor,
-                    harvest.Stream,
-                    harvest.PendingServerCommands,
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
+            await EnsureHomeReadyAsync(cancellationToken).ConfigureAwait(false);
+            var state = HomeTurns.State;
 
-            var homeLoadedTurn = harvest.Executor.ExecuteHomeLoadedCommand();
-            await SendTurnAsync(
-                    harvest.Executor,
-                    harvest.Stream,
-                    harvest.PendingServerCommands,
-                    homeLoadedTurn,
-                    "home-loaded initialization",
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
-            await SynchronizeServerCommandsAsync(
-                    harvest.Executor,
-                    harvest.Stream,
-                    harvest.PendingServerCommands,
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
-
-            harvest.State.AdvanceInitialSimulation();
-
-            if (subTick < harvest.State.Tick.SubTick)
+            if (subTick < state.Tick.SubTick)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(subTick),
                     string.Create(
                         CultureInfo.InvariantCulture,
-                        $"The first synchronization boundary is sub-tick {harvest.State.Tick.SubTick}."
+                        $"The first synchronization boundary is sub-tick {state.Tick.SubTick}."
                     )
                 );
             }
 
-            harvest.Executor.AdvanceSimulationTo(subTick);
-            await SendTurnAsync(
-                    harvest.Executor,
-                    harvest.Stream,
-                    harvest.PendingServerCommands,
-                    harvest.Executor.CreateEmptyTurn(),
-                    "synchronization validation",
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
+            var turn = HomeTurns.CreateSynchronizationTurn(subTick);
+            await SendClientTurnAsync(turn, cancellationToken).ConfigureAwait(false);
+            HomeTurns.ConfirmTurnSent(turn);
         }
         finally
         {
@@ -189,14 +229,14 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
         CancellationToken cancellationToken = default
     )
     {
-        Console.WriteLine("Loading authoritative home state for harvesting...");
-        ScClientPendingHarvest firstHarvest;
+        Console.WriteLine(ApplicationText.ClientLoadingHarvestState);
+        FieldHarvestVerification firstHarvest;
 
         try
         {
-            var harvest = await OpenGatedHarvestStateAsync(cancellationToken).ConfigureAwait(false);
-            await PrepareHarvestStateAsync(harvest, cancellationToken).ConfigureAwait(false);
-            firstHarvest = await ExecuteHarvestAsync(harvest, fieldGlobalId, cancellationToken)
+            await EnsureHomeReadyAsync(cancellationToken).ConfigureAwait(false);
+            firstHarvest = await FieldPlots
+                .HarvestAsync(fieldGlobalId, SendClientTurnAsync, cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
@@ -204,387 +244,13 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
             await DisconnectAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        Console.WriteLine(
-            "Restarting ScClient from its saved session to verify the authoritative harvest state..."
-        );
-        var verificationClient = new ScClient(configuration);
+        Console.WriteLine(ApplicationText.ClientRestartingForHarvestVerification);
+        var verificationClient = new ScClient(Configuration);
         await using (verificationClient.ConfigureAwait(false))
         {
-            var verification = await verificationClient
-                .OpenGatedHarvestStateAsync(cancellationToken)
-                .ConfigureAwait(false);
-            return VerifyHarvest(firstHarvest, verification);
+            await verificationClient.EnsureHomeReadyAsync(cancellationToken).ConfigureAwait(false);
+            return FieldPlots.Verify(firstHarvest, verificationClient.FieldPlots);
         }
-    }
-
-    private static async Task PrepareHarvestStateAsync(
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) harvest,
-        CancellationToken cancellationToken
-    )
-    {
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-
-        var homeLoadedTurn = harvest.Executor.ExecuteHomeLoadedCommand();
-        await SendTurnAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                homeLoadedTurn,
-                "home-loaded initialization",
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        harvest.State.AdvanceInitialSimulation();
-
-        await SendTurnAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                harvest.Executor.CreateEmptyTurn(),
-                "initial simulation synchronization",
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-    }
-
-    private static async Task<ScClientPendingHarvest> ExecuteHarvestAsync(
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) harvest,
-        int? fieldGlobalId,
-        CancellationToken cancellationToken
-    )
-    {
-        var state = harvest.State;
-        var executor = harvest.Executor;
-        var field = fieldGlobalId is { } requestedFieldGlobalId
-            ? executor.SelectReadyField(requestedFieldGlobalId)
-            : executor.SelectReadyField();
-        var fieldPositionX = field.GameObject.PositionX;
-        var fieldPositionY = field.GameObject.PositionY;
-        var crop = field.Data;
-        var harvestCount = field.HarvestCount;
-        var experienceReward = field.ExperienceReward;
-        var cropCountBefore = executor.GetInventoryCount(crop);
-        var experienceBefore = executor.GetInventoryCount(state.ExperienceData);
-
-        var startSubTick = state.Tick.SubTick;
-        var gainSubTick = checked(startSubTick + HarvestGainDelaySubTicks);
-        var completionSubTick = checked(gainSubTick + HarvestCompletionDelaySubTicks);
-        var continuationTurnSubTick = checked(startSubTick + ClientTurnIntervalSubTicks);
-        var synchronizationSubTick = checked(continuationTurnSubTick + ClientTurnIntervalSubTicks);
-
-        _ = executor.QueueHarvest(field, startSubTick, gainSubTick, completionSubTick);
-        await SendHarvestStartAsync(harvest, field.GlobalId, startSubTick, cancellationToken)
-            .ConfigureAwait(false);
-        await SendHarvestContinuationAsync(
-                harvest,
-                field.GlobalId,
-                gainSubTick,
-                completionSubTick,
-                continuationTurnSubTick,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        var synchronizedSubTick = await SendHarvestSynchronizationAsync(
-                harvest,
-                synchronizationSubTick,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-
-        return new ScClientPendingHarvest(
-            field.GlobalId,
-            fieldPositionX,
-            fieldPositionY,
-            crop,
-            harvestCount,
-            experienceReward,
-            cropCountBefore,
-            experienceBefore,
-            gainSubTick,
-            completionSubTick,
-            synchronizedSubTick
-        );
-    }
-
-    private static async Task SendHarvestStartAsync(
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) harvest,
-        int fieldGlobalId,
-        int startSubTick,
-        CancellationToken cancellationToken
-    )
-    {
-        var turn = harvest.Executor.CreateClientCommandTurn();
-        EnsureHarvestStartCommand(turn, fieldGlobalId, startSubTick);
-        await SendTurnAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                turn,
-                "harvest start",
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-    }
-
-    private static async Task SendHarvestContinuationAsync(
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) harvest,
-        int fieldGlobalId,
-        int gainSubTick,
-        int completionSubTick,
-        int continuationTurnSubTick,
-        CancellationToken cancellationToken
-    )
-    {
-        harvest.Executor.AdvanceSimulationTo(continuationTurnSubTick);
-        var turn = harvest.Executor.CreateClientCommandTurn();
-        EnsureHarvestContinuationCommands(
-            turn,
-            fieldGlobalId,
-            gainSubTick,
-            completionSubTick,
-            continuationTurnSubTick
-        );
-        await SendTurnAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                turn,
-                "harvest gain and completion",
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-    }
-
-    private static async Task<int> SendHarvestSynchronizationAsync(
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) harvest,
-        int synchronizationSubTick,
-        CancellationToken cancellationToken
-    )
-    {
-        harvest.Executor.AdvanceSimulationTo(synchronizationSubTick);
-        var turn = harvest.Executor.CreateEmptyTurn();
-        await SendTurnAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                turn,
-                "post-harvest synchronization",
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        await SynchronizeServerCommandsAsync(
-                harvest.Executor,
-                harvest.Stream,
-                harvest.PendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        return turn.SubTick;
-    }
-
-    private static HarvestResult VerifyHarvest(
-        ScClientPendingHarvest harvest,
-        (
-            HarvestState State,
-            HarvestExecutor Executor,
-            MessageStream Stream,
-            Queue<ServerCommand> PendingServerCommands
-        ) verification
-    )
-    {
-        var verificationField = verification.State.Fields.Single(candidate =>
-            candidate.GameObject.PositionX == harvest.FieldPositionX
-            && candidate.GameObject.PositionY == harvest.FieldPositionY
-        );
-        var cropCountAfter = verification.Executor.GetInventoryCount(harvest.Crop);
-        var experienceAfter = verification.Executor.GetInventoryCount(
-            verification.State.ExperienceData
-        );
-
-        if (!verificationField.IsEmpty)
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The server did not empty harvested field {harvest.FieldGlobalId}."
-                )
-            );
-
-        if (cropCountAfter != checked(harvest.CropCountBefore + harvest.HarvestCount))
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The server crop count for {harvest.Crop.Name} changed from {harvest.CropCountBefore} to {cropCountAfter}; expected {harvest.CropCountBefore + harvest.HarvestCount}."
-                )
-            );
-
-        if (experienceAfter != checked(harvest.ExperienceBefore + harvest.ExperienceReward))
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The server experience changed from {harvest.ExperienceBefore} to {experienceAfter}; expected {harvest.ExperienceBefore + harvest.ExperienceReward}."
-                )
-            );
-
-        return new HarvestResult(
-            harvest.FieldGlobalId,
-            harvest.Crop,
-            harvest.CropCountBefore,
-            cropCountAfter,
-            harvest.ExperienceBefore,
-            experienceAfter,
-            verificationField.IsEmpty,
-            harvest.GainSubTick,
-            harvest.CompletionSubTick,
-            harvest.SynchronizedSubTick
-        );
-    }
-
-    private async Task<(
-        HarvestState State,
-        HarvestExecutor Executor,
-        MessageStream Stream,
-        Queue<ServerCommand> PendingServerCommands
-    )> OpenGatedHarvestStateAsync(CancellationToken cancellationToken)
-    {
-        var loginOkResult = await LoginAsync(cancellationToken).ConfigureAwait(false);
-        var dataTableResolver = new DataTableResolver(loginOkResult.Resources);
-        var stream = await GetStreamAsync(cancellationToken).ConfigureAwait(false);
-        stream.CommandDataResolver = dataTableResolver;
-        var pendingServerCommands = new Queue<ServerCommand>();
-        var ownHomeDataMessage = await WaitForKeepAliveAndOwnHomeDataAsync(
-                stream,
-                pendingServerCommands,
-                cancellationToken
-            )
-            .ConfigureAwait(false);
-        var state = HarvestState.Create(ownHomeDataMessage, dataTableResolver);
-
-        return (state, new HarvestExecutor(state), stream, pendingServerCommands);
-    }
-
-    private static async Task WaitForKeepAliveAsync(
-        MessageStream stream,
-        Queue<ServerCommand> pendingServerCommands,
-        CancellationToken cancellationToken
-    )
-    {
-        Console.WriteLine("Waiting for a keep-alive round trip before the next turn...");
-        await Task.Delay(KeepAliveInterval, TimeProvider.System, cancellationToken)
-            .ConfigureAwait(false);
-        await stream
-            .WriteMessageAsync(new KeepAliveMessage(), cancellationToken)
-            .ConfigureAwait(false);
-
-        while (true)
-        {
-            var message = await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(false);
-
-            if (message is KeepAliveOkMessage)
-                break;
-
-            if (message is OutOfSyncMessage)
-                throw CreateOutOfSyncException();
-
-            if (message is AvailableServerCommandMessage availableServerCommandMessage)
-            {
-                if (availableServerCommandMessage.Command is not ServerCommand serverCommand)
-                    throw new InvalidDataException(
-                        string.Create(
-                            CultureInfo.InvariantCulture,
-                            $"Available command {availableServerCommandMessage.Command.Type} is not a server command."
-                        )
-                    );
-
-                pendingServerCommands.Enqueue(serverCommand);
-            }
-
-            Console.WriteLine(
-                $"Received before keep-alive acknowledgement: {message.GetType().Name}"
-            );
-        }
-
-        Console.WriteLine("Keep-alive round trip completed.");
-    }
-
-    private static async Task SendTurnAsync(
-        HarvestExecutor executor,
-        MessageStream stream,
-        Queue<ServerCommand> pendingServerCommands,
-        EndClientTurnMessage turn,
-        string description,
-        CancellationToken cancellationToken
-    )
-    {
-        ValidateTurnRoundTrip(turn, stream.CommandDataResolver);
-        Console.WriteLine(
-            string.Create(
-                CultureInfo.InvariantCulture,
-                $"Sending {description} turn with commands {string.Join(',', turn.Commands.ToArray().Select(static command => command.Type))} at sub-tick {turn.SubTick}..."
-            )
-        );
-        await stream.WriteMessageAsync(turn, cancellationToken).ConfigureAwait(false);
-        executor.ConfirmTurnSent(turn);
-        await WaitForKeepAliveAsync(stream, pendingServerCommands, cancellationToken)
-            .ConfigureAwait(false);
     }
 
     private static void ValidateTurnRoundTrip(
@@ -608,184 +274,5 @@ public partial class ScClient(ClientConfiguration configuration) : IAsyncDisposa
             throw new InvalidDataException(
                 $"{nameof(EndClientTurnMessage)} did not round-trip byte-exactly before sending."
             );
-    }
-
-    private static void EnsureHarvestStartCommand(
-        EndClientTurnMessage turn,
-        int fieldGlobalId,
-        int startSubTick
-    )
-    {
-        if (turn.SubTick != startSubTick)
-        {
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The harvest start turn is at sub-tick {turn.SubTick}; expected {startSubTick}."
-                )
-            );
-        }
-
-        if (
-            turn.Commands.Length is not 1
-            || turn.Commands.Span[0] is not StartHarvestFieldCommand start
-        )
-        {
-            throw new InvalidOperationException(
-                "The harvest start turn must contain only command 544."
-            );
-        }
-
-        if (start.FieldGlobalId != fieldGlobalId || start.ExecuteSubTick != startSubTick)
-        {
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The harvest start command does not target field {fieldGlobalId} at sub-tick {startSubTick}."
-                )
-            );
-        }
-    }
-
-    private static void EnsureHarvestContinuationCommands(
-        EndClientTurnMessage turn,
-        int fieldGlobalId,
-        int gainSubTick,
-        int completionSubTick,
-        int turnSubTick
-    )
-    {
-        if (turn.SubTick != turnSubTick)
-        {
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The harvest continuation turn is at sub-tick {turn.SubTick}; expected {turnSubTick}."
-                )
-            );
-        }
-
-        if (
-            turn.Commands.Length is not 2
-            || turn.Commands.Span[0] is not HarvestFieldGainCommand gain
-            || turn.Commands.Span[1] is not HarvestFieldCommand completion
-        )
-        {
-            throw new InvalidOperationException(
-                "The harvest continuation turn must contain only commands 657 and 506 in that order."
-            );
-        }
-
-        if (gain.FieldGlobalId != fieldGlobalId || completion.FieldGlobalId != fieldGlobalId)
-        {
-            throw new InvalidOperationException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"The harvest continuation commands do not consistently target field {fieldGlobalId}."
-                )
-            );
-        }
-
-        if (gain.ExecuteSubTick != gainSubTick || completion.ExecuteSubTick != completionSubTick)
-        {
-            throw new InvalidOperationException(
-                "The harvest continuation turn does not preserve the scheduled execution sub-ticks."
-            );
-        }
-    }
-
-    private static async Task<int> SynchronizeServerCommandsAsync(
-        HarvestExecutor executor,
-        MessageStream stream,
-        Queue<ServerCommand> pendingServerCommands,
-        CancellationToken cancellationToken
-    )
-    {
-        var synchronizedCommandCount = 0;
-
-        while (pendingServerCommands.Count > 0)
-        {
-            var command = pendingServerCommands.Peek();
-            executor.ExecuteServerCommand(command);
-            _ = pendingServerCommands.Dequeue();
-            synchronizedCommandCount++;
-
-            var turn = executor.CreateServerCommandTurn();
-            await SendTurnAsync(
-                    executor,
-                    stream,
-                    pendingServerCommands,
-                    turn,
-                    "server-command synchronization",
-                    cancellationToken
-                )
-                .ConfigureAwait(false);
-        }
-
-        return synchronizedCommandCount;
-    }
-
-    private static async Task<OwnHomeDataMessage> WaitForKeepAliveAndOwnHomeDataAsync(
-        MessageStream stream,
-        Queue<ServerCommand> pendingServerCommands,
-        CancellationToken cancellationToken
-    )
-    {
-        Console.WriteLine(
-            "Waiting for a keep-alive round trip before loading authoritative home state..."
-        );
-        await Task.Delay(KeepAliveInterval, TimeProvider.System, cancellationToken)
-            .ConfigureAwait(false);
-        await stream
-            .WriteMessageAsync(new KeepAliveMessage(), cancellationToken)
-            .ConfigureAwait(false);
-
-        OwnHomeDataMessage? ownHomeDataMessage = null;
-        var keepAliveAcknowledged = false;
-
-        while (!keepAliveAcknowledged || ownHomeDataMessage is null)
-        {
-            var message = await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(false);
-
-            switch (message)
-            {
-                case KeepAliveOkMessage:
-                    keepAliveAcknowledged = true;
-                    break;
-                case OwnHomeDataMessage ownHome:
-                    ownHomeDataMessage = ownHome;
-                    break;
-                case OutOfSyncMessage:
-                    throw CreateOutOfSyncException();
-                case AvailableServerCommandMessage availableServerCommandMessage:
-                    if (availableServerCommandMessage.Command is not ServerCommand serverCommand)
-                        throw new InvalidDataException(
-                            string.Create(
-                                CultureInfo.InvariantCulture,
-                                $"Available command {availableServerCommandMessage.Command.Type} is not a server command."
-                            )
-                        );
-
-                    pendingServerCommands.Enqueue(serverCommand);
-                    break;
-            }
-
-            Console.WriteLine(
-                $"Received before gated authoritative home state: {message.GetType().Name}"
-            );
-        }
-
-        Console.WriteLine(
-            "Keep-alive round trip completed before authoritative state initialization."
-        );
-        return ownHomeDataMessage;
-    }
-
-    private static InvalidOperationException CreateOutOfSyncException()
-    {
-        return new InvalidOperationException(
-            "The server rejected the preceding turn as out of sync. "
-                + "Server diagnostic state was not included in the exception message."
-        );
     }
 }

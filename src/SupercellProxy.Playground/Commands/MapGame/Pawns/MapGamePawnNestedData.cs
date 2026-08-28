@@ -5,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native three-value structure embedded in a map-game pawn. Its semantic field names are not present in the stripped client.</para>
 /// </summary>
-public sealed record MapGamePawnNestedData(int Unknown0, int Unknown1, int Unknown2)
+internal sealed record MapGamePawnNestedData(int Unknown0, int Unknown1, int Unknown2)
 {
     internal static MapGamePawnNestedData Decode(MessageStream stream)
     {

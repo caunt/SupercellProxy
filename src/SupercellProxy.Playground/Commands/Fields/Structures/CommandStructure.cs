@@ -1,9 +1,9 @@
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandStructure</c>.
+/// Represents <c language="csharp">CommandStructure</c>.
 /// </summary>
-public sealed record CommandStructure
+internal sealed record CommandStructure
 {
     /// <summary>
     /// Initializes a new <see cref="CommandStructure"/> instance.
@@ -14,7 +14,7 @@ public sealed record CommandStructure
     }
 
     /// <summary>
-    /// Gets the <c>Fields</c> value.
+    /// Gets the <c language="csharp">Fields</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandField> Fields { get; }
 }

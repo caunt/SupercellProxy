@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventOptionalStateField</c>.
+/// Represents <c language="csharp">MapGameEventOptionalStateField</c>.
 /// </summary>
-public sealed record MapGameEventOptionalStateField(MapGameState? Value) : MapGameEventField
+internal sealed record MapGameEventOptionalStateField(MapGameState? Value) : MapGameEventField
 {
     internal override MapGameEventFieldType FieldType => MapGameEventFieldType.OptionalState;
 

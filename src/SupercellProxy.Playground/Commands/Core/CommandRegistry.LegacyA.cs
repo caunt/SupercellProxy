@@ -1,6 +1,6 @@
 namespace SupercellProxy.Playground.Commands;
 
-public static partial class CommandRegistry
+internal static partial class CommandRegistry
 {
     private static readonly CommandPrimitiveSchema[] LegacyPrimitiveSchemasA =
     [
@@ -35,7 +35,7 @@ public static partial class CommandRegistry
             baseFirst: false
         ),
         new CommandPrimitiveSchema(
-            new int[89]
+            new int[88]
             {
                 6,
                 15,
@@ -45,7 +45,6 @@ public static partial class CommandRegistry
                 20,
                 26,
                 29,
-                34,
                 42,
                 43,
                 45,

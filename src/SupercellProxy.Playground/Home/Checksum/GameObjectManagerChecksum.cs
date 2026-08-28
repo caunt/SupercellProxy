@@ -1,6 +1,4 @@
 using System.Globalization;
-using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Home.Simulation;
 
 namespace SupercellProxy.Playground.Home.Checksum;
 
@@ -22,7 +20,7 @@ internal static class GameObjectManagerChecksum
         2,
     };
 
-    private static readonly IReadOnlySet<int> SecondaryBaseTableIds = new HashSet<int>
+    private static readonly HashSet<int> SecondaryBaseTableIds = new()
     {
         3,
         5,
@@ -36,7 +34,7 @@ internal static class GameObjectManagerChecksum
         112,
     };
 
-    private static readonly IReadOnlySet<int> SecondaryUpgradeableTableIds = new HashSet<int>
+    private static readonly HashSet<int> SecondaryUpgradeableTableIds = new()
     {
         6,
         10,
@@ -60,7 +58,7 @@ internal static class GameObjectManagerChecksum
         321,
     };
 
-    public static void EncodeSecondary(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeSecondary(ChecksumEncoder encoder, HomeState state)
     {
         var gameObjects = state
             .GameObjects.Where(gameObject =>
@@ -90,7 +88,7 @@ internal static class GameObjectManagerChecksum
         }
     }
 
-    public static void EncodeFull(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeFull(ChecksumEncoder encoder, HomeState state)
     {
         var gameObjects = state
             .GameObjects.Where(gameObject =>
@@ -129,7 +127,7 @@ internal static class GameObjectManagerChecksum
         }
     }
 
-    private static void EncodeSecondaryGameObject(
+    internal static void EncodeSecondaryGameObject(
         ChecksumEncoder encoder,
         GameObjectState gameObject,
         IReadOnlyDictionary<int, CarState> cars,

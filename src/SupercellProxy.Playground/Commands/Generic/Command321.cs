@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Logic command 321. The native class and semantic field names are not present in the stripped client.</para>
 /// </summary>
-public sealed record Command321 : Command
+internal sealed record Command321 : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 321;
 
@@ -19,28 +19,28 @@ public sealed record Command321 : Command
     public Command321(
         MapGamePawn? pawn,
         MapGameTaskCollection? taskCollection,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         Pawn = pawn;
         TaskCollection = taskCollection;
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>Pawn</c> value.
+    /// Gets the <c language="csharp">Pawn</c> value.
     /// </summary>
     public MapGamePawn? Pawn { get; }
 
     /// <summary>
-    /// Gets the <c>TaskCollection</c> value.
+    /// Gets the <c language="csharp">TaskCollection</c> value.
     /// </summary>
     public MapGameTaskCollection? TaskCollection { get; }
 
@@ -59,7 +59,7 @@ public sealed record Command321 : Command
         return new Command321(
             pawn,
             taskCollection,
-            commandFields.ExecuteSubTick,
+            commandFields.ExecutionPhaseCounter,
             commandFields.DebugData0,
             commandFields.DebugData1
         );

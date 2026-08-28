@@ -5,122 +5,122 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// Represents the <c>LoginMessage</c> protocol message.
+/// Represents the <c language="csharp">LoginMessage</c> protocol message.
 /// </summary>
-public record LoginMessage : IMessage
+internal sealed record LoginMessage : IMessage
 {
     /// <summary>
-    /// Defines the <c>CurrentLoginVersion</c> value.
+    /// Defines the <c language="csharp">CurrentLoginVersion</c> value.
     /// </summary>
     public const int CurrentLoginVersion = 1122388;
 
     /// <summary>
-    /// Gets or sets the <c>AccountId</c> value.
+    /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     public LongId AccountId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>PassToken</c> value.
+    /// Gets or sets the <c language="csharp">PassToken</c> value.
     /// </summary>
     public string? PassToken { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>ResourceSha</c> value.
+    /// Gets or sets the <c language="csharp">ResourceSha</c> value.
     /// </summary>
     public string? ResourceSha { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>LoginVersion</c> value.
+    /// Gets or sets the <c language="csharp">LoginVersion</c> value.
     /// </summary>
     public required int LoginVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>UdId</c> value.
+    /// Gets or sets the <c language="csharp">UdId</c> value.
     /// </summary>
     public string? UdId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>OpenUdId</c> value.
+    /// Gets or sets the <c language="csharp">OpenUdId</c> value.
     /// </summary>
     public string? OpenUdId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>MacAddress</c> value.
+    /// Gets or sets the <c language="csharp">MacAddress</c> value.
     /// </summary>
     public string? MacAddress { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>DeviceModel</c> value.
+    /// Gets or sets the <c language="csharp">DeviceModel</c> value.
     /// </summary>
     public string? DeviceModel { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>AdvertisingId</c> value.
+    /// Gets or sets the <c language="csharp">AdvertisingId</c> value.
     /// </summary>
     public string? AdvertisingId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>IsAndroid</c> value.
+    /// Gets or sets the <c language="csharp">IsAndroid</c> value.
     /// </summary>
     public bool IsAndroid { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>OsVersion</c> value.
+    /// Gets or sets the <c language="csharp">OsVersion</c> value.
     /// </summary>
     public string? OsVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString0</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
     /// </summary>
     public required string UnknownString0 { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>AndroidId</c> value.
+    /// Gets or sets the <c language="csharp">AndroidId</c> value.
     /// </summary>
     public required string AndroidId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>PreferredLanguage</c> value.
+    /// Gets or sets the <c language="csharp">PreferredLanguage</c> value.
     /// </summary>
     public required string PreferredLanguage { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownString1</c> value.
+    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
     /// </summary>
     public required string UnknownString1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>AdvertisingTrackingEnabled</c> value.
+    /// Gets or sets the <c language="csharp">AdvertisingTrackingEnabled</c> value.
     /// </summary>
     public required bool AdvertisingTrackingEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>IdentifierForVendor</c> value.
+    /// Gets or sets the <c language="csharp">IdentifierForVendor</c> value.
     /// </summary>
     public required string IdentifierForVendor { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>AppStore</c> value.
+    /// Gets or sets the <c language="csharp">AppStore</c> value.
     /// </summary>
     public required AppStore AppStore { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>CompressedData</c> value.
+    /// Gets or sets the <c language="csharp">CompressedData</c> value.
     /// </summary>
     public Memory<byte>? CompressedData { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>StorefrontCountryCode</c> value.
+    /// Gets or sets the <c language="csharp">StorefrontCountryCode</c> value.
     /// </summary>
     public required string StorefrontCountryCode { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>StorefrontIdentifier</c> value.
+    /// Gets or sets the <c language="csharp">StorefrontIdentifier</c> value.
     /// </summary>
     public required string StorefrontIdentifier { get; set; }
 
     /// <summary>
-    /// Creates a <c>LoginMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">LoginMessage</c> from the supplied data.
     /// </summary>
     public static LoginMessage Create(MessageContainer container)
     {
@@ -153,7 +153,7 @@ public record LoginMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -22,11 +23,9 @@ internal sealed record GathererState(
         DataTableResolver dataTableResolver
     )
     {
-        const string gatherersFile = "data/gatherers.csv";
-
-        if (!dataTableResolver.TryGetTableId(gatherersFile, out var gathererTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Gatherers, out var gathererTableId))
             throw new InvalidOperationException(
-                $"{gatherersFile} is not registered as a native data table."
+                $"{GameAssetFiles.Gatherers} is not registered as a native data table."
             );
 
         return gameObjects

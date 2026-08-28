@@ -1,57 +1,57 @@
 namespace SupercellProxy.Playground.Network.Protocol;
 
 /// <summary>
-/// Defines the supported <c>LoginFailureType</c> values.
+/// Defines the supported <c language="csharp">LoginFailureType</c> values.
 /// </summary>
-public enum LoginFailureType
+internal enum LoginFailureType
 {
     /// <summary>
-    /// Identifies the <c>InvalidCredentials</c> option.
+    /// Identifies the <c language="csharp">InvalidCredentials</c> option.
     /// </summary>
     InvalidCredentials = 2,
 
     /// <summary>
-    /// Identifies the <c>OutdatedContent</c> option.
+    /// Identifies the <c language="csharp">OutdatedContent</c> option.
     /// </summary>
     OutdatedContent = 7,
 
     /// <summary>
-    /// Identifies the <c>OutdatedVersion</c> option.
+    /// Identifies the <c language="csharp">OutdatedVersion</c> option.
     /// </summary>
     OutdatedVersion = 8,
 
     /// <summary>
-    /// Identifies the <c>Unknown1</c> option.
+    /// Identifies the <c language="csharp">Unknown1</c> option.
     /// </summary>
     Unknown1 = 9,
 
     /// <summary>
-    /// Identifies the <c>Maintenance</c> option.
+    /// Identifies the <c language="csharp">Maintenance</c> option.
     /// </summary>
     Maintenance = 10,
 
     /// <summary>
-    /// Identifies the <c>TemporarilyBanned</c> option.
+    /// Identifies the <c language="csharp">TemporarilyBanned</c> option.
     /// </summary>
     TemporarilyBanned = 11,
 
     /// <summary>
-    /// Identifies the <c>Redirection</c> option.
+    /// Identifies the <c language="csharp">Redirection</c> option.
     /// </summary>
     Redirection = 12,
 
     /// <summary>
-    /// Identifies the <c>Locked</c> option.
+    /// Identifies the <c language="csharp">Locked</c> option.
     /// </summary>
     Locked = 13,
 
     /// <summary>
-    /// Identifies the <c>InvalidToken</c> option.
+    /// Identifies the <c language="csharp">InvalidToken</c> option.
     /// </summary>
     InvalidToken = 15,
 
     /// <summary>
-    /// Identifies the <c>AccountNotBound</c> option.
+    /// Identifies the <c language="csharp">AccountNotBound</c> option.
     /// </summary>
     AccountNotBound = 16,
 }

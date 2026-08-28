@@ -8,60 +8,60 @@ namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 /// <summary>
 /// <para>EndClientTurnMessage (10224) wire representation.</para>
 /// </summary>
-public record EndClientTurnMessage : IMessage
+internal sealed record EndClientTurnMessage : IMessage
 {
     /// <summary>
-    /// Defines the <c>CurrentVersion</c> value.
+    /// Defines the <c language="csharp">CurrentVersion</c> value.
     /// </summary>
     public const ushort CurrentVersion = 10;
 
     /// <summary>
-    /// Defines the <c>SubChecksumCount</c> value.
+    /// Defines the <c language="csharp">SubChecksumCount</c> value.
     /// </summary>
     public const int SubChecksumCount = 8;
 
     /// <summary>
-    /// Defines the <c>MaxCommandCount</c> value.
+    /// Defines the <c language="csharp">MaxCommandCount</c> value.
     /// </summary>
     public const int MaxCommandCount = 1024;
 
     /// <summary>
-    /// Gets or sets the <c>Checksum</c> value.
+    /// Gets or sets the <c language="csharp">Checksum</c> value.
     /// </summary>
     public int Checksum { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>SubTick</c> value.
+    /// Gets or sets the <c language="csharp">SubTick</c> value.
     /// </summary>
     public int SubTick { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>SubChecksums</c> value.
+    /// Gets or sets the <c language="csharp">SubChecksums</c> value.
     /// </summary>
     public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
 
     /// <summary>
-    /// Gets or sets the <c>Commands</c> value.
+    /// Gets or sets the <c language="csharp">Commands</c> value.
     /// </summary>
     public Memory<Command> Commands { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Environment</c> value.
+    /// Gets or sets the <c language="csharp">Environment</c> value.
     /// </summary>
     public CommandEnvironment Environment { get; init; } = CommandEnvironment.Production;
 
     /// <summary>
-    /// Gets or sets the <c>DebugCommandData</c> value.
+    /// Gets or sets the <c language="csharp">DebugCommandData</c> value.
     /// </summary>
     public Memory<CommandData> DebugCommandData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>DevelopmentByteArrays</c> value.
+    /// Gets or sets the <c language="csharp">DevelopmentByteArrays</c> value.
     /// </summary>
     public Memory<Memory<byte>> DevelopmentByteArrays { get; init; }
 
     /// <summary>
-    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
     /// </summary>
     public static EndClientTurnMessage Create(MessageContainer messageContainer)
     {
@@ -69,7 +69,7 @@ public record EndClientTurnMessage : IMessage
     }
 
     /// <summary>
-    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
     /// </summary>
     public static EndClientTurnMessage Create(
         MessageContainer messageContainer,
@@ -80,7 +80,7 @@ public record EndClientTurnMessage : IMessage
     }
 
     /// <summary>
-    /// Creates a <c>EndClientTurnMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
     /// </summary>
     public static EndClientTurnMessage Create(
         MessageContainer messageContainer,
@@ -158,7 +158,7 @@ public record EndClientTurnMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort messageVersion = 0)
     {

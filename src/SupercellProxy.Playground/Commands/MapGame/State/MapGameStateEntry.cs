@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native data-reference entry inside a map-game state.</para>
 /// </summary>
-public sealed record MapGameStateEntry
+internal sealed record MapGameStateEntry
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameStateEntry"/> instance.
@@ -29,32 +29,32 @@ public sealed record MapGameStateEntry
     }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalId</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     public int UnknownGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId</c> value.
+    /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     public LongId? UnknownLongId { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown2</c> value.
+    /// Gets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public int Unknown2 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongIds</c> value.
+    /// Gets the <c language="csharp">UnknownLongIds</c> value.
     /// </summary>
     public ReadOnlyMemory<LongId> UnknownLongIds { get; }
 

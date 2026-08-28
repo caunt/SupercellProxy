@@ -5,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native value and task collection embedded in logic command 321.</para>
 /// </summary>
-public sealed record MapGameTaskCollection
+internal sealed record MapGameTaskCollection
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCollection"/> instance.
@@ -17,12 +17,12 @@ public sealed record MapGameTaskCollection
     }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Tasks</c> value.
+    /// Gets the <c language="csharp">Tasks</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameTask> Tasks { get; }
 

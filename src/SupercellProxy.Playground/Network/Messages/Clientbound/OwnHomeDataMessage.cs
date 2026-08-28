@@ -8,45 +8,45 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 /// <summary>
 /// <para>OwnHomeDataMessage (24180) authoritative home snapshot.</para>
 /// </summary>
-public sealed record OwnHomeDataMessage : IMessage
+internal sealed record OwnHomeDataMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>ServerTimestamp</c> value.
+    /// Gets or sets the <c language="csharp">ServerTimestamp</c> value.
     /// </summary>
     public int ServerTimestamp { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ClientAvatar</c> value.
+    /// Gets or sets the <c language="csharp">ClientAvatar</c> value.
     /// </summary>
     public ClientAvatar ClientAvatar { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c>UnknownCompressedJson</c> value.
+    /// Gets or sets the <c language="csharp">UnknownCompressedJson</c> value.
     /// </summary>
     public Memory<byte>? UnknownCompressedJson { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CompressedAvatarDataJson</c> value.
+    /// Gets or sets the <c language="csharp">CompressedAvatarDataJson</c> value.
     /// </summary>
     public Memory<byte>? CompressedAvatarDataJson { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CompressedHomeDataJson</c> value.
+    /// Gets or sets the <c language="csharp">CompressedHomeDataJson</c> value.
     /// </summary>
     public Memory<byte>? CompressedHomeDataJson { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>AvatarData</c> value.
+    /// Gets or sets the <c language="csharp">AvatarData</c> value.
     /// </summary>
     public AvatarDataSnapshot AvatarData { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c>Home</c> value.
+    /// Gets or sets the <c language="csharp">Home</c> value.
     /// </summary>
     public HomeSnapshot Home { get; init; } = new();
 
     /// <summary>
-    /// Creates a <c>OwnHomeDataMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">OwnHomeDataMessage</c> from the supplied data.
     /// </summary>
     public static OwnHomeDataMessage Create(MessageContainer container)
     {
@@ -83,7 +83,7 @@ public sealed record OwnHomeDataMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

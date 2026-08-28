@@ -1,12 +1,11 @@
 using System.Globalization;
 using SupercellProxy.Playground.Data.Tables;
-using SupercellProxy.Playground.Network.Messages.Clientbound;
 
 namespace SupercellProxy.Playground.Home;
 
 internal sealed class InventoryState
 {
-    private readonly Dictionary<int, int>[] dataReferenceValues;
+    private readonly Dictionary<int, int>[] _dataReferenceValues;
 
     private InventoryState(
         int[][] values,
@@ -16,13 +15,13 @@ internal sealed class InventoryState
     )
     {
         Values = values;
-        this.dataReferenceValues = dataReferenceValues;
+        this._dataReferenceValues = dataReferenceValues;
         DeprecatedDataCount = deprecatedDataCount;
         Unknown0 = unknown0;
     }
 
     public int[][] Values { get; }
-    public IReadOnlyDictionary<int, int>[] DataReferenceValues => dataReferenceValues;
+    public IReadOnlyDictionary<int, int>[] DataReferenceValues => _dataReferenceValues;
     public int DeprecatedDataCount { get; }
     public int Unknown0 { get; }
 
@@ -46,14 +45,14 @@ internal sealed class InventoryState
     public bool TryGetValue(int inventoryIndex, DataTableReference data, out int value)
     {
         ValidateInventoryIndex(inventoryIndex);
-        return dataReferenceValues[inventoryIndex].TryGetValue(data.GlobalId, out value);
+        return _dataReferenceValues[inventoryIndex].TryGetValue(data.GlobalId, out value);
     }
 
     public int GetTotalValue(DataTableReference data)
     {
         var total = 0;
 
-        foreach (var values in dataReferenceValues)
+        foreach (var values in _dataReferenceValues)
         {
             if (values.TryGetValue(data.GlobalId, out var value))
                 total = checked(total + value);
@@ -65,7 +64,7 @@ internal sealed class InventoryState
     internal void Add(int inventoryIndex, DataTableReference data, int amount)
     {
         var newValue = GetValueAfterAdding(inventoryIndex, data, amount);
-        var values = dataReferenceValues[inventoryIndex];
+        var values = _dataReferenceValues[inventoryIndex];
 
         if (newValue is 0)
             values.Remove(data.GlobalId);
@@ -82,7 +81,7 @@ internal sealed class InventoryState
     {
         ValidateInventoryIndex(inventoryIndex);
 
-        var values = dataReferenceValues[inventoryIndex];
+        var values = _dataReferenceValues[inventoryIndex];
         values.TryGetValue(data.GlobalId, out var currentValue);
         var newValue = checked(currentValue + amount);
 
@@ -121,7 +120,7 @@ internal sealed class InventoryState
     {
         if (
             uint.CreateTruncating(inventoryIndex)
-            >= uint.CreateTruncating(dataReferenceValues.Length)
+            >= uint.CreateTruncating(_dataReferenceValues.Length)
         )
             throw new ArgumentOutOfRangeException(nameof(inventoryIndex));
     }

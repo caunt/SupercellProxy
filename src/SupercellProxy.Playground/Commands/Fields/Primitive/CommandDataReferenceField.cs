@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandDataReferenceField</c>.
+/// Represents <c language="csharp">CommandDataReferenceField</c>.
 /// </summary>
-public sealed record CommandDataReferenceField(int GlobalId) : CommandField
+internal sealed record CommandDataReferenceField(int GlobalId) : CommandField
 {
     internal override CommandFieldType FieldType => CommandFieldType.DataReference;
 

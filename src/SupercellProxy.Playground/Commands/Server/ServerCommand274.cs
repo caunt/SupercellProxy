@@ -7,15 +7,15 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Server command 274 containing the native map-game event stream.</para>
 /// </summary>
-public sealed record ServerCommand274 : ServerCommand
+internal sealed record ServerCommand274 : ServerCommand
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 274;
 
     /// <summary>
-    /// Defines the <c>MaxEventCount</c> value.
+    /// Defines the <c language="csharp">MaxEventCount</c> value.
     /// </summary>
     public const int MaxEventCount = 1024;
 
@@ -27,11 +27,11 @@ public sealed record ServerCommand274 : ServerCommand
         LongId? unknownLongId1,
         ReadOnlyMemory<MapGameEvent> events,
         int serverCommandId,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(serverCommandId, executeSubTick, debugData0, debugData1)
+        : base(serverCommandId, executionPhaseCounter, debugData0, debugData1)
     {
         if (events.Length > MaxEventCount)
             throw new InvalidDataException($"Invalid map-game event count: {events.Length}.");
@@ -42,22 +42,22 @@ public sealed record ServerCommand274 : ServerCommand
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>UnknownLongId0</c> value.
+    /// Gets the <c language="csharp">UnknownLongId0</c> value.
     /// </summary>
     public LongId? UnknownLongId0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId1</c> value.
+    /// Gets the <c language="csharp">UnknownLongId1</c> value.
     /// </summary>
     public LongId? UnknownLongId1 { get; }
 
     /// <summary>
-    /// Gets the <c>Events</c> value.
+    /// Gets the <c language="csharp">Events</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameEvent> Events { get; }
 
@@ -90,7 +90,7 @@ public sealed record ServerCommand274 : ServerCommand
             unknownLongId1,
             events,
             commandFields.ServerCommandId,
-            commandFields.CommandFields.ExecuteSubTick,
+            commandFields.CommandFields.ExecutionPhaseCounter,
             commandFields.CommandFields.DebugData0,
             commandFields.CommandFields.DebugData1
         );

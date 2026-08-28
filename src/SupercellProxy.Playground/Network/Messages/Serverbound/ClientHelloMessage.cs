@@ -1,61 +1,60 @@
-using SupercellProxy.Playground.Logic;
 using SupercellProxy.Playground.Network.Protocol;
 using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Messages.Serverbound;
 
 /// <summary>
-/// Represents the <c>ClientHelloMessage</c> protocol message.
+/// Represents the <c language="csharp">ClientHelloMessage</c> protocol message.
 /// </summary>
-public record ClientHelloMessage : IMessage
+internal sealed record ClientHelloMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>ProtocolVersion</c> value.
+    /// Gets or sets the <c language="csharp">ProtocolVersion</c> value.
     /// </summary>
     public required int ProtocolVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>KeyVersion</c> value.
+    /// Gets or sets the <c language="csharp">KeyVersion</c> value.
     /// </summary>
     public required int KeyVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>MajorVersion</c> value.
+    /// Gets or sets the <c language="csharp">MajorVersion</c> value.
     /// </summary>
     public required int MajorVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>MinorVersion</c> value.
+    /// Gets or sets the <c language="csharp">MinorVersion</c> value.
     /// </summary>
     public required int MinorVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>PatchVersion</c> value.
+    /// Gets or sets the <c language="csharp">PatchVersion</c> value.
     /// </summary>
     public required int PatchVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>FingerprintSha1</c> value.
+    /// Gets or sets the <c language="csharp">FingerprintSha1</c> value.
     /// </summary>
     public required string FingerprintSha1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>DeviceType</c> value.
+    /// Gets or sets the <c language="csharp">DeviceType</c> value.
     /// </summary>
     public required int DeviceType { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>AppStore</c> value.
+    /// Gets or sets the <c language="csharp">AppStore</c> value.
     /// </summary>
     public required AppStore AppStore { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; set; }
 
     /// <summary>
-    /// Creates a <c>ClientHelloMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">ClientHelloMessage</c> from the supplied data.
     /// </summary>
     public static ClientHelloMessage Create(MessageContainer container)
     {
@@ -79,7 +78,7 @@ public record ClientHelloMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

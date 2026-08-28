@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Server command 210. The native class and field names are not present in the stripped client.</para>
 /// </summary>
-public sealed record ServerCommand210 : ServerCommand
+internal sealed record ServerCommand210 : ServerCommand
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 210;
 
@@ -20,28 +20,28 @@ public sealed record ServerCommand210 : ServerCommand
         int unknown0,
         LongId unknown1,
         int serverCommandId,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(serverCommandId, executeSubTick, debugData0, debugData1)
+        : base(serverCommandId, executionPhaseCounter, debugData0, debugData1)
     {
         Unknown0 = unknown0;
         Unknown1 = unknown1;
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public LongId Unknown1 { get; }
 
@@ -55,7 +55,7 @@ public sealed record ServerCommand210 : ServerCommand
             unknown0,
             unknown1,
             fields.ServerCommandId,
-            fields.CommandFields.ExecuteSubTick,
+            fields.CommandFields.ExecutionPhaseCounter,
             fields.CommandFields.DebugData0,
             fields.CommandFields.DebugData1
         );

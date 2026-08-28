@@ -1,10 +1,3 @@
-using System.Globalization;
-using System.IO.Compression;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using SupercellProxy.PublicKeyExtractor;
-
 namespace SupercellProxy.Keys;
 
 internal static partial class Application

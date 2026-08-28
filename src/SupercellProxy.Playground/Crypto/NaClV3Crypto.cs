@@ -7,9 +7,9 @@ using SupercellProxy.Playground.Crypto.Exceptions;
 namespace SupercellProxy.Playground.Crypto;
 
 /// <summary>
-/// Represents <c>NaClV3Crypto</c>.
+/// Represents <c language="csharp">NaClV3Crypto</c>.
 /// </summary>
-public static class NaClV3Crypto
+internal static class NaClV3Crypto
 {
     private static ReadOnlySpan<uint> SigmaConstants =>
         [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
@@ -62,7 +62,7 @@ public static class NaClV3Crypto
     private static readonly BigInteger CurveConstantA24 = new(121665);
 
     /// <summary>
-    /// Executes the <c>CryptoScalarMultBase</c> operation.
+    /// Executes the <c language="csharp">CryptoScalarMultBase</c> operation.
     /// </summary>
     public static byte[] CryptoScalarMultBase(ReadOnlySpan<byte> localPrivateKey)
     {
@@ -72,7 +72,7 @@ public static class NaClV3Crypto
     }
 
     /// <summary>
-    /// Executes the <c>HChaCha20</c> operation.
+    /// Executes the <c language="csharp">HChaCha20</c> operation.
     /// </summary>
     public static byte[] HChaCha20(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce16)
     {
@@ -82,7 +82,7 @@ public static class NaClV3Crypto
     }
 
     /// <summary>
-    /// Executes the <c>Box</c> operation.
+    /// Executes the <c language="csharp">Box</c> operation.
     /// </summary>
     public static byte[] Box(
         ReadOnlySpan<byte> plaintext,
@@ -112,7 +112,7 @@ public static class NaClV3Crypto
     }
 
     /// <summary>
-    /// Executes the <c>BoxOpen</c> operation.
+    /// Executes the <c language="csharp">BoxOpen</c> operation.
     /// </summary>
     public static byte[] BoxOpen(
         ReadOnlySpan<byte> ciphertext,
@@ -147,7 +147,10 @@ public static class NaClV3Crypto
                 messageAuthenticationCode
             )
         )
-            throw new MacVerificationException(isPublicKeyBox: true, "MAC verification failed");
+            throw new MacVerificationException(
+                isPublicKeyBox: true,
+                MacVerificationException.DefaultMessage
+            );
 
         var fullDecrypted = new byte[encryptedPayload.Length];
         ChaCha20XorPadded(
@@ -162,7 +165,7 @@ public static class NaClV3Crypto
     }
 
     /// <summary>
-    /// Executes the <c>SecretBox</c> operation.
+    /// Executes the <c language="csharp">SecretBox</c> operation.
     /// </summary>
     public static byte[] SecretBox(
         ReadOnlySpan<byte> plaintext,
@@ -185,7 +188,7 @@ public static class NaClV3Crypto
     }
 
     /// <summary>
-    /// Executes the <c>SecretBoxOpen</c> operation.
+    /// Executes the <c language="csharp">SecretBoxOpen</c> operation.
     /// </summary>
     public static byte[] SecretBoxOpen(
         ReadOnlySpan<byte> ciphertext,
@@ -213,7 +216,7 @@ public static class NaClV3Crypto
                 messageAuthenticationCode
             )
         )
-            throw new MacVerificationException("MAC verification failed");
+            throw new MacVerificationException(MacVerificationException.DefaultMessage);
 
         var fullDecrypted = new byte[encryptedPayload.Length];
         ChaCha20XorPadded(

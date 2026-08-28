@@ -6,35 +6,35 @@ namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 /// <summary>
 /// <para>OutOfSyncMessage (23626) wire representation.</para>
 /// </summary>
-public sealed record OutOfSyncMessage : IMessage
+internal sealed record OutOfSyncMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>HasDiagnostics</c> value.
+    /// Gets or sets the <c language="csharp">HasDiagnostics</c> value.
     /// </summary>
     public bool HasDiagnostics { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ServerChecksum</c> value.
+    /// Gets or sets the <c language="csharp">ServerChecksum</c> value.
     /// </summary>
     public string? ServerChecksum { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ClientChecksum</c> value.
+    /// Gets or sets the <c language="csharp">ClientChecksum</c> value.
     /// </summary>
     public string? ClientChecksum { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ServerState</c> value.
+    /// Gets or sets the <c language="csharp">ServerState</c> value.
     /// </summary>
     public string? ServerState { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ClientState</c> value.
+    /// Gets or sets the <c language="csharp">ClientState</c> value.
     /// </summary>
     public string? ClientState { get; init; }
 
     /// <summary>
-    /// Creates a <c>OutOfSyncMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">OutOfSyncMessage</c> from the supplied data.
     /// </summary>
     public static OutOfSyncMessage Create(MessageContainer container)
     {
@@ -60,7 +60,7 @@ public sealed record OutOfSyncMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

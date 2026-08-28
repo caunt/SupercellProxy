@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Logic command 247. The stripped client does not expose semantic field names.</para>
 /// </summary>
-public sealed record Command247 : Command
+internal sealed record Command247 : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 247;
 
@@ -21,11 +21,11 @@ public sealed record Command247 : Command
         ReadOnlyMemory<int> globalIds,
         int unknown0,
         ReadOnlyMemory<int> diagnosticValues,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         if (diagnosticValues.Length is not 0 && diagnosticValues.Length != globalIds.Length)
             throw new InvalidDataException(
@@ -39,27 +39,27 @@ public sealed record Command247 : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>GlobalId</c> value.
+    /// Gets the <c language="csharp">GlobalId</c> value.
     /// </summary>
     public int GlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>GlobalIds</c> value.
+    /// Gets the <c language="csharp">GlobalIds</c> value.
     /// </summary>
     public ReadOnlyMemory<int> GlobalIds { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>DiagnosticValues</c> value.
+    /// Gets the <c language="csharp">DiagnosticValues</c> value.
     /// </summary>
     public ReadOnlyMemory<int> DiagnosticValues { get; }
 
@@ -82,7 +82,7 @@ public sealed record Command247 : Command
             globalIds,
             unknown0,
             diagnosticValues,
-            commandFields.ExecuteSubTick,
+            commandFields.ExecutionPhaseCounter,
             commandFields.DebugData0,
             commandFields.DebugData1
         );

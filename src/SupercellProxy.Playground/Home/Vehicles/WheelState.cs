@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -31,11 +32,9 @@ internal sealed record WheelState(
         GameRandom constructorRandom
     )
     {
-        const string wheelCarsFile = "data/wheel_cars.csv";
-
-        if (!dataTableResolver.TryGetTableId(wheelCarsFile, out var wheelCarTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.WheelCars, out var wheelCarTableId))
             throw new InvalidOperationException(
-                $"{wheelCarsFile} is not registered as a native data table."
+                $"{GameAssetFiles.WheelCars} is not registered as a native data table."
             );
 
         return gameObjects

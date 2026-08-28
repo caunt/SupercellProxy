@@ -7,7 +7,7 @@ namespace SupercellProxy.Playground.Commands;
 /// Native map-game pawn structure encoded by the shared 1.72.84 helper at 0x10065c78c.
 /// Semantic names for the stripped fields are not yet proven.
 /// </summary>
-public sealed record MapGamePawn
+internal sealed record MapGamePawn
 {
     /// <summary>
     /// Initializes a new <see cref="MapGamePawn"/> instance.
@@ -44,67 +44,67 @@ public sealed record MapGamePawn
     }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId0</c> value.
+    /// Gets the <c language="csharp">UnknownLongId0</c> value.
     /// </summary>
     public LongId? UnknownLongId0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownLongId1</c> value.
+    /// Gets the <c language="csharp">UnknownLongId1</c> value.
     /// </summary>
     public LongId? UnknownLongId1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown2</c> value.
+    /// Gets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public int Unknown2 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown3</c> value.
+    /// Gets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown4</c> value.
+    /// Gets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownValues</c> value.
+    /// Gets the <c language="csharp">UnknownValues</c> value.
     /// </summary>
     public ReadOnlyMemory<int> UnknownValues { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalIds</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalIds</c> value.
     /// </summary>
     public ReadOnlyMemory<int> UnknownGlobalIds { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownString</c> value.
+    /// Gets the <c language="csharp">UnknownString</c> value.
     /// </summary>
     public string? UnknownString { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownNestedData</c> value.
+    /// Gets the <c language="csharp">UnknownNestedData</c> value.
     /// </summary>
     public MapGamePawnNestedData? UnknownNestedData { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownGlobalId</c> value.
+    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     public int UnknownGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownPairs</c> value.
+    /// Gets the <c language="csharp">UnknownPairs</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair> UnknownPairs { get; }
 

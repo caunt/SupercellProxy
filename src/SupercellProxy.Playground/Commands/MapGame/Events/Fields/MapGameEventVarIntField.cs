@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventVarIntField</c>.
+/// Represents <c language="csharp">MapGameEventVarIntField</c>.
 /// </summary>
-public sealed record MapGameEventVarIntField(int Value) : MapGameEventField
+internal sealed record MapGameEventVarIntField(int Value) : MapGameEventField
 {
     internal override MapGameEventFieldType FieldType => MapGameEventFieldType.VarInt;
 

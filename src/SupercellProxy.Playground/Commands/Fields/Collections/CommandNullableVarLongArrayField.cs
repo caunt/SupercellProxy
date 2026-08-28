@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>CommandNullableVarLongArrayField</c>.
+/// Represents <c language="csharp">CommandNullableVarLongArrayField</c>.
 /// </summary>
-public sealed record CommandNullableVarLongArrayField : CommandField
+internal sealed record CommandNullableVarLongArrayField : CommandField
 {
     /// <summary>
     /// Initializes a new <see cref="CommandNullableVarLongArrayField"/> instance.
@@ -14,7 +14,7 @@ public sealed record CommandNullableVarLongArrayField : CommandField
         Values = values?.ToArray();
 
     /// <summary>
-    /// Gets the <c>Values</c> value.
+    /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
     public ReadOnlyMemory<long>? Values { get; }
     internal override CommandFieldType FieldType => CommandFieldType.NullableVarLongArray;

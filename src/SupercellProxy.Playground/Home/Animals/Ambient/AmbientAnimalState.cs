@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -6,23 +7,30 @@ namespace SupercellProxy.Playground.Home;
 
 internal sealed partial class AmbientAnimalState
 {
-    private readonly int speedMultiplier;
-    private readonly int minimumX;
-    private readonly int maximumX;
-    private readonly int minimumY;
-    private readonly int maximumY;
-    private readonly int birdExtraTiles;
-    private IReadOnlyList<AmbientAnimalSpawnerPoint> avoidancePoints = [];
-    private IReadOnlyList<AmbientAnimalSpawnerPoint> attractionPoints = [];
-    private IReadOnlyList<AmbientAnimalSpawnerPoint> landingPoints = [];
-    private int avoidanceScanCounter = 2;
-    private int attractionScanCounter = 4;
-    private int landingScanCounter;
-    private bool hasAvoidanceTarget;
-    private bool hasAttractionTarget;
-    private bool isInsideAttractionTarget;
-    private bool isInsideLandingTarget;
-    private bool redirectRefreshPending;
+    private readonly int _speedMultiplier;
+    private readonly int _configuredMinimumX;
+    private readonly int _configuredMaximumX;
+    private readonly int _configuredMinimumY;
+    private readonly int _configuredMaximumY;
+    private readonly int _birdExtraTiles;
+    private readonly GameObjectState? _primarySource;
+    private IReadOnlyList<AmbientAnimalSpawnerPoint> _avoidancePoints = [];
+    private IReadOnlyList<AmbientAnimalSpawnerPoint> _attractionPoints = [];
+    private IReadOnlyList<AmbientAnimalSpawnerPoint> _landingPoints = [];
+    private int _avoidanceScanCounter = 2;
+    private int _attractionScanCounter = 4;
+    private int _landingScanCounter;
+    private int _minimumX;
+    private int _maximumX;
+    private int _minimumY;
+    private int _maximumY;
+    private int _effectivePositionX;
+    private int _effectivePositionY;
+    private bool _initialized;
+    private bool _hasAvoidanceTarget;
+    private bool _isInsideAttractionTarget;
+    private bool _isInsideLandingTarget;
+    private bool _redirectRefreshPending;
 
     private AmbientAnimalState(
         GameObjectState gameObject,
@@ -33,17 +41,19 @@ internal sealed partial class AmbientAnimalState
         int minimumY,
         int maximumY,
         int birdExtraTiles,
+        GameObjectState? primarySource,
         GameRandom constructorRandom
     )
     {
         GameObject = gameObject;
         Behavior = behavior;
-        this.speedMultiplier = speedMultiplier;
-        this.minimumX = minimumX;
-        this.maximumX = maximumX;
-        this.minimumY = minimumY;
-        this.maximumY = maximumY;
-        this.birdExtraTiles = birdExtraTiles;
+        this._speedMultiplier = speedMultiplier;
+        _configuredMinimumX = minimumX;
+        _configuredMaximumX = maximumX;
+        _configuredMinimumY = minimumY;
+        _configuredMaximumY = maximumY;
+        this._birdExtraTiles = birdExtraTiles;
+        this._primarySource = primarySource;
 
         var initialSpeed = behavior switch
         {
@@ -59,42 +69,42 @@ internal sealed partial class AmbientAnimalState
         };
 
         Heading = constructorRandom.NextInt(360) << 3;
-        ChecksumState1 = behavior is 0 ? 160 : 8;
+        Altitude = behavior is 0 ? 160 : 8;
         Speed = initialSpeed * speedMultiplier / 100;
-        ChecksumState14 = -1;
+        CachedAvoidanceIndex = -1;
     }
 
     public GameObjectState GameObject { get; }
     public int Behavior { get; }
     public int Heading { get; private set; }
-    public int ChecksumState0 { get; private set; }
-    public int ChecksumState1 { get; private set; }
+    public int SteeringState { get; private set; }
+    public int Altitude { get; private set; }
     public int Speed { get; private set; }
-    public int ChecksumState2 { get; private set; }
-    public int ChecksumState3 { get; private set; }
-    public int ChecksumState4 { get; private set; }
-    public int ChecksumState5 { get; private set; }
+    public int MovementTimer { get; private set; }
+    public int SpeedChangeTimer { get; private set; }
+    public int AltitudeStepChangeTimer { get; private set; }
+    public int PhaseTimer { get; private set; }
     public int HeadingStep { get; private set; }
-    public int ChecksumState6 { get; private set; }
-    public int ChecksumState7 { get; private set; }
-    public int ChecksumState8 { get; private set; }
-    public int ChecksumState9 { get; private set; }
-    public int TargetX { get; private set; }
-    public int TargetY { get; private set; }
-    public int ChecksumState10 { get; private set; }
-    public int ChecksumState11 { get; private set; }
-    public int ChecksumState12 { get; private set; }
-    public int ChecksumState13 { get; private set; }
-    public int ChecksumState14 { get; private set; }
-    public int ChecksumState15 { get; private set; }
-    public int ChecksumState16 { get; private set; }
+    public int AltitudeStep { get; private set; }
+    public int AvoidanceX { get; private set; }
+    public int AvoidanceY { get; private set; }
+    public int LandingX { get; private set; }
+    public int LandingY { get; private set; }
+    public int AttractionX { get; private set; }
+    public int AttractionY { get; private set; }
+    public int CleanupDriftX { get; private set; }
+    public int CleanupDriftY { get; private set; }
+    public int AvoidanceLinger { get; private set; }
+    public int CachedAvoidanceIndex { get; private set; }
+    public int RedirectCount { get; private set; }
+    public int MirrorTimer { get; private set; }
     public int MovementX { get; private set; }
     public int MovementY { get; private set; }
-    public bool ChecksumFlag0 { get; private set; }
-    public bool ChecksumFlag1 { get; private set; }
-    public bool ChecksumFlag2 { get; private set; }
-    public bool ChecksumFlag3 { get; private set; }
-    public sbyte ChecksumByte0 { get; private set; }
+    public bool IsRemoved { get; private set; }
+    public bool WasInsideLandingTarget { get; private set; }
+    public bool HasAttractionTarget { get; private set; }
+    public bool ZoneCleanup { get; private set; }
+    public sbyte MovementState { get; private set; }
     public int DestinationX { get; private set; }
     public int DestinationY { get; private set; }
 
@@ -106,7 +116,7 @@ internal sealed partial class AmbientAnimalState
     {
         if (
             !dataTableResolver.TryResolve(
-                "data/ambient_animal_spawners.csv",
+                GameAssetFiles.AmbientAnimalSpawners,
                 "AmbientAnimalSpawner",
                 out var spawnerData
             )
@@ -138,6 +148,7 @@ internal sealed partial class AmbientAnimalState
                     spawnMinimumY,
                     spawnMaximumY,
                     birdExtraTiles,
+                    gameObjects.FirstOrDefault(static candidate => candidate.Data.TableId is 2),
                     constructorRandom
                 )
             )
@@ -159,10 +170,30 @@ internal sealed partial class AmbientAnimalState
         );
     }
 
-    public static void Update(AmbientAnimalState[] animals, GameRandom random)
+    public static void Update(
+        AmbientAnimalState[] animals,
+        GameRandom random,
+        Action<AmbientAnimalState, int, int, int[]>? recordUpdate = null
+    )
     {
         foreach (var animal in animals)
-            animal.Update(random);
+        {
+            var callsBefore = random.Calls;
+            List<int>? upperBounds = recordUpdate is null ? null : [];
+            random.NextIntObserved = upperBounds is null
+                ? null
+                : (upperBound, _) => upperBounds.Add(upperBound);
+            try
+            {
+                animal.Update(random);
+            }
+            finally
+            {
+                random.NextIntObserved = null;
+            }
+
+            recordUpdate?.Invoke(animal, callsBefore, random.Calls, upperBounds?.ToArray() ?? []);
+        }
     }
 
     internal static AmbientAnimalState CreateSpawned(
@@ -170,28 +201,17 @@ internal sealed partial class AmbientAnimalState
         int behavior,
         int x,
         int y,
-        int homeTileMapWidth,
-        int homeTileMapHeight,
         AmbientAnimalState template,
         DataTableResolver dataTableResolver,
         GameRandom random,
-        bool headTowardHomeCenter,
+        int destinationX,
+        int destinationY,
         IReadOnlyList<AmbientAnimalSpawnerPoint> avoidancePoints,
         IReadOnlyList<AmbientAnimalSpawnerPoint> attractionPoints,
         IReadOnlyList<AmbientAnimalSpawnerPoint> landingPoints
     )
     {
-        const string ambientAnimalsFile = "data/ambient_animals.csv";
-
-        if (
-            !dataTableResolver.TryGetTableId(ambientAnimalsFile, out var tableId)
-            || !dataTableResolver.TryGetTableEntryCount(ambientAnimalsFile, out var dataCount)
-            || dataCount is 0
-        )
-        {
-            throw new InvalidDataException("Ambient-animal data is unavailable.");
-        }
-
+        var (tableId, dataCount) = ResolveSpawnDataTable(dataTableResolver);
         var dataIndex = random.NextInt(dataCount);
 
         for (var checkedData = 0; checkedData < dataCount; checkedData++)
@@ -206,12 +226,11 @@ internal sealed partial class AmbientAnimalState
                     behavior,
                     x,
                     y,
-                    homeTileMapWidth,
-                    homeTileMapHeight,
                     template,
                     dataTableResolver,
                     random,
-                    headTowardHomeCenter,
+                    destinationX,
+                    destinationY,
                     avoidancePoints,
                     attractionPoints,
                     landingPoints,
@@ -230,17 +249,33 @@ internal sealed partial class AmbientAnimalState
         );
     }
 
+    private static (int TableId, int DataCount) ResolveSpawnDataTable(
+        DataTableResolver dataTableResolver
+    )
+    {
+        if (
+            !dataTableResolver.TryGetTableId(GameAssetFiles.AmbientAnimals, out var tableId)
+            || !dataTableResolver.TryGetTableEntryCount(
+                GameAssetFiles.AmbientAnimals,
+                out var dataCount
+            )
+            || dataCount is 0
+        )
+            throw new InvalidDataException("Ambient-animal data is unavailable.");
+
+        return (tableId, dataCount);
+    }
+
     private static AmbientAnimalState CreateSpawnedFromData(
         int globalId,
         int behavior,
         int x,
         int y,
-        int homeTileMapWidth,
-        int homeTileMapHeight,
         AmbientAnimalState template,
         DataTableResolver dataTableResolver,
         GameRandom random,
-        bool headTowardHomeCenter,
+        int destinationX,
+        int destinationY,
         IReadOnlyList<AmbientAnimalSpawnerPoint> avoidancePoints,
         IReadOnlyList<AmbientAnimalSpawnerPoint> attractionPoints,
         IReadOnlyList<AmbientAnimalSpawnerPoint> landingPoints,
@@ -283,22 +318,18 @@ internal sealed partial class AmbientAnimalState
             gameObject,
             behavior,
             speedMultiplier,
-            template.minimumX,
-            template.maximumX,
-            template.minimumY,
-            template.maximumY,
-            template.birdExtraTiles,
+            template._minimumX,
+            template._maximumX,
+            template._minimumY,
+            template._maximumY,
+            template._birdExtraTiles,
+            template._primarySource,
             random
         );
 
-        if (headTowardHomeCenter)
-        {
-            spawned.Heading =
-                IntegerMath.GetVectorAngle(
-                    homeTileMapWidth * 0x100 - x,
-                    homeTileMapHeight * 0x100 - y
-                ) << 3;
-        }
+        spawned.DestinationX = destinationX;
+        spawned.DestinationY = destinationY;
+        spawned.Heading = IntegerMath.GetVectorAngle(destinationX - x, destinationY - y) << 3;
 
         spawned.ConfigureSpawnerPoints(avoidancePoints, attractionPoints, landingPoints);
         return spawned;
@@ -313,60 +344,71 @@ internal sealed partial class AmbientAnimalState
         ArgumentNullException.ThrowIfNull(avoidance);
         ArgumentNullException.ThrowIfNull(attraction);
         ArgumentNullException.ThrowIfNull(landing);
-        avoidancePoints = avoidance;
-        attractionPoints = attraction;
-        landingPoints = landing;
+        _avoidancePoints = avoidance;
+        _attractionPoints = attraction;
+        _landingPoints = landing;
     }
 
     public void ResetSpawnerPointCache()
     {
-        ChecksumState14 = -1;
+        CachedAvoidanceIndex = -1;
     }
 
-    internal void ApplySpawnerZoneCleanup(int homeTileMapWidth, int homeTileMapHeight)
+    private void InitializeSpawnerBounds()
     {
-        if (Behavior is 3 or 4)
+        if (_initialized)
+            return;
+
+        _minimumX = _configuredMinimumX;
+        _maximumX = _configuredMaximumX;
+        _minimumY = _configuredMinimumY;
+        _maximumY = _configuredMaximumY;
+        _initialized = true;
+    }
+
+    internal void ApplySpawnerZoneCleanup(int horizontalTileExtent, int verticalTileExtent)
+    {
+        if (Behavior is < 2 or > 4)
         {
-            ChecksumFlag3 = true;
+            ZoneCleanup = true;
             return;
         }
 
-        attractionPoints = [];
+        _attractionPoints = [];
 
         if (Behavior is not 2)
-            avoidancePoints = [];
+            _avoidancePoints = [];
 
-        if ((ChecksumByte0 is 3 && !redirectRefreshPending) || Behavior is 1 || ChecksumByte0 is 4)
-        {
+        if (MovementState is 3 && !_redirectRefreshPending)
             return;
-        }
 
-        int x;
-        int y;
+        if (Behavior is 1 || MovementState is 4)
+            return;
 
-        if (Behavior is 2)
-        {
-            x = unchecked(homeTileMapWidth * 0x100 - GameObject.PositionX);
-            y = unchecked(homeTileMapHeight * 0x200 - GameObject.PositionY + 0x1e00);
-        }
-        else
-        {
-            x = unchecked(GameObject.PositionX - homeTileMapWidth * 0x100);
-            y = unchecked(GameObject.PositionY - homeTileMapHeight * 0x100);
-        }
-
-        var length = IntegerMath.GetVectorLength(x, y);
+        var position = ResolveAbsolutePosition(GameObject);
+        var cleanupX = Behavior is 2
+            ? unchecked((horizontalTileExtent << 8) - position.X)
+            : unchecked(position.X - (horizontalTileExtent << 8));
+        var cleanupY = Behavior is 2
+            ? unchecked((verticalTileExtent << 9) - position.Y + 0x1e00)
+            : unchecked(position.Y - (verticalTileExtent << 8));
+        var length = IntegerMath.GetVectorLength(cleanupX, cleanupY);
 
         if (length is 0)
         {
-            ChecksumState11 = 0x200;
-            ChecksumState12 = 0x200;
+            CleanupDriftX = 0x200;
+            CleanupDriftY = 0x200;
             return;
         }
 
-        var behaviorShift = Behavior is 2 ? 1 : 0;
-        ChecksumState11 = unchecked(((x << 4) / length) << behaviorShift);
-        ChecksumState12 = unchecked(((y << 4) / length) << behaviorShift);
+        CleanupDriftX = unchecked(cleanupX << 4) / length;
+        CleanupDriftY = unchecked(cleanupY << 4) / length;
+
+        if (Behavior is 2)
+        {
+            CleanupDriftX = unchecked(CleanupDriftX << 1);
+            CleanupDriftY = unchecked(CleanupDriftY << 1);
+        }
     }
 
     private static AmbientAnimalState Create(
@@ -377,6 +419,7 @@ internal sealed partial class AmbientAnimalState
         int minimumY,
         int maximumY,
         int birdExtraTiles,
+        GameObjectState? primarySource,
         GameRandom constructorRandom
     )
     {
@@ -404,6 +447,7 @@ internal sealed partial class AmbientAnimalState
             minimumY,
             maximumY,
             birdExtraTiles,
+            primarySource,
             constructorRandom
         );
     }

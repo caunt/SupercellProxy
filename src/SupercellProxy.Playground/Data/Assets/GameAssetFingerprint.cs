@@ -1,9 +1,9 @@
 ﻿namespace SupercellProxy.Playground.Data.Assets;
 
 /// <summary>
-/// Represents <c>GameAssetFingerprint</c>.
+/// Represents <c language="csharp">GameAssetFingerprint</c>.
 /// </summary>
-public sealed record GameAssetFingerprint(
+internal sealed record GameAssetFingerprint(
     IReadOnlyList<GameAssetFingerprintEntry> Files,
     string Sha,
     string Version

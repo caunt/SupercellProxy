@@ -4,18 +4,18 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameSanctuaryAnimalTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameSanctuaryAnimalTaskStatePayload</c>.
 /// </summary>
-/// <param name="Unknown0">The <c>Unknown0</c> value.</param>
-/// <param name="Unknown1">The <c>Unknown1</c> value.</param>
-/// <param name="UnknownGlobalId0">The <c>UnknownGlobalId0</c> value.</param>
-/// <param name="UnknownBoolean0">The <c>UnknownBoolean0</c> value.</param>
-/// <param name="UnknownBoolean1">The <c>UnknownBoolean1</c> value.</param>
-/// <param name="UnknownBoolean2">The <c>UnknownBoolean2</c> value.</param>
-/// <param name="Unknown2">The <c>Unknown2</c> value.</param>
-/// <param name="Unknown3">The <c>Unknown3</c> value.</param>
-/// <param name="UnknownPair0">The <c>UnknownPair0</c> value.</param>
-public sealed record MapGameSanctuaryAnimalTaskStatePayload(
+/// <param name="Unknown0">The <c language="csharp">Unknown0</c> value.</param>
+/// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
+/// <param name="UnknownGlobalId0">The <c language="csharp">UnknownGlobalId0</c> value.</param>
+/// <param name="UnknownBoolean0">The <c language="csharp">UnknownBoolean0</c> value.</param>
+/// <param name="UnknownBoolean1">The <c language="csharp">UnknownBoolean1</c> value.</param>
+/// <param name="UnknownBoolean2">The <c language="csharp">UnknownBoolean2</c> value.</param>
+/// <param name="Unknown2">The <c language="csharp">Unknown2</c> value.</param>
+/// <param name="Unknown3">The <c language="csharp">Unknown3</c> value.</param>
+/// <param name="UnknownPair0">The <c language="csharp">UnknownPair0</c> value.</param>
+internal sealed record MapGameSanctuaryAnimalTaskStatePayload(
     int Unknown0,
     int Unknown1,
     int UnknownGlobalId0,

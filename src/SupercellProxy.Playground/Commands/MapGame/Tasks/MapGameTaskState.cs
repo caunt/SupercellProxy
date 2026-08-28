@@ -7,7 +7,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>One polymorphic state inside a map-game task. Its payload type comes from the live TaskType CSV field.</para>
 /// </summary>
-public sealed record MapGameTaskState(
+internal sealed record MapGameTaskState(
     int TaskGlobalId,
     LongId? Unknown0,
     bool UnknownBoolean0,

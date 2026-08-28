@@ -4,5 +4,6 @@ internal enum RunMode
 {
     Proxy,
     Client,
+    Replay,
     Server,
 }

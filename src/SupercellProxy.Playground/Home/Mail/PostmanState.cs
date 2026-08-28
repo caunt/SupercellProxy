@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -21,11 +22,9 @@ internal sealed class PostmanState
         DataTableResolver dataTableResolver
     )
     {
-        const string postmanFile = "data/postman.csv";
-
-        if (!dataTableResolver.TryGetTableId(postmanFile, out var postmanTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Postman, out var postmanTableId))
             throw new InvalidOperationException(
-                $"{postmanFile} is not registered as a native data table."
+                $"{GameAssetFiles.Postman} is not registered as a native data table."
             );
 
         var postman =

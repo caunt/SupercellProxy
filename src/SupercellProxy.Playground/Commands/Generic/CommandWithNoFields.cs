@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// A command whose native class adds no fields to <see cref="Command"/>.
 /// </summary>
-public sealed record CommandWithNoFields : Command
+internal sealed record CommandWithNoFields : Command
 {
     internal static readonly int[] CommandTypes =
     [
@@ -26,7 +26,7 @@ public sealed record CommandWithNoFields : Command
         527,
         528,
         529,
-        530,
+        CommandRegistry.HomeLoadedCommandType,
         533,
         536,
         537,
@@ -104,17 +104,17 @@ public sealed record CommandWithNoFields : Command
     /// </summary>
     public CommandWithNoFields(
         int type,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         Type = type;
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type { get; }
 
@@ -127,7 +127,7 @@ public sealed record CommandWithNoFields : Command
         var fields = DecodeCommand(stream, environment);
         return new CommandWithNoFields(
             type,
-            fields.ExecuteSubTick,
+            fields.ExecutionPhaseCounter,
             fields.DebugData0,
             fields.DebugData1
         );

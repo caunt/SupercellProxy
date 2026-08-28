@@ -4,24 +4,24 @@ using SupercellProxy.Playground.Logic;
 
 namespace SupercellProxy.Playground.Network.Transport;
 
-public partial class MessageStream
+internal sealed partial class MessageStream
 {
     /// <summary>
-    /// Gets the <c>CanRead</c> value.
+    /// Gets the <c language="csharp">CanRead</c> value.
     /// </summary>
-    public bool CanRead => stream.CanRead;
+    public bool CanRead => _stream.CanRead;
 
     private int _booleanReadOffset;
     private byte _booleanReadAdditionalValue;
 
     /// <summary>
-    /// Reads <c>Byte</c> from the stream.
+    /// Reads <c language="csharp">Byte</c> from the stream.
     /// </summary>
     public byte ReadByte()
     {
         ResetReadBoolean();
 
-        var value = stream.ReadByte();
+        var value = _stream.ReadByte();
 
         if (value < 0)
             throw new EndOfStreamException();
@@ -30,24 +30,24 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Exactly</c> from the stream.
+    /// Reads <c language="csharp">Exactly</c> from the stream.
     /// </summary>
     public Span<byte> ReadExactly(Span<byte> buffer)
     {
         ResetReadBoolean();
-        stream.ReadExactly(buffer);
+        _stream.ReadExactly(buffer);
         return buffer;
     }
 
     /// <summary>
-    /// Reads <c>ExactlyAsync</c> from the stream.
+    /// Reads <c language="csharp">ExactlyAsync</c> from the stream.
     /// </summary>
     public async ValueTask<Memory<byte>> ReadExactlyAsync(
         Memory<byte> buffer,
         CancellationToken cancellationToken = default
     )
     {
-        await stream
+        await _stream
             .ReadExactlyAsync(buffer, cancellationToken)
             .AsTask()
             .WaitAsync(cancellationToken)
@@ -56,7 +56,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>ToEnd</c> from the stream.
+    /// Reads <c language="csharp">ToEnd</c> from the stream.
     /// </summary>
     public Memory<byte> ReadToEnd()
     {
@@ -66,7 +66,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>ByteArray</c> from the stream.
+    /// Reads <c language="csharp">ByteArray</c> from the stream.
     /// </summary>
     public Memory<byte> ReadByteArray()
     {
@@ -85,7 +85,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>OptionalByteArray</c> from the stream.
+    /// Reads <c language="csharp">OptionalByteArray</c> from the stream.
     /// </summary>
     public Memory<byte>? ReadOptionalByteArray()
     {
@@ -103,7 +103,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>VarIntByteArray</c> from the stream.
+    /// Reads <c language="csharp">VarIntByteArray</c> from the stream.
     /// </summary>
     public Memory<byte> ReadVarIntByteArray()
     {
@@ -122,7 +122,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Boolean</c> from the stream.
+    /// Reads <c language="csharp">Boolean</c> from the stream.
     /// </summary>
     public bool ReadBoolean()
     {
@@ -136,7 +136,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>UInt16</c> from the stream.
+    /// Reads <c language="csharp">UInt16</c> from the stream.
     /// </summary>
     public ushort ReadUInt16()
     {
@@ -144,7 +144,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Int32</c> from the stream.
+    /// Reads <c language="csharp">Int32</c> from the stream.
     /// </summary>
     public int ReadInt32()
     {
@@ -152,7 +152,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>UInt32</c> from the stream.
+    /// Reads <c language="csharp">UInt32</c> from the stream.
     /// </summary>
     public uint ReadUInt32()
     {
@@ -160,7 +160,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Int64</c> from the stream.
+    /// Reads <c language="csharp">Int64</c> from the stream.
     /// </summary>
     public long ReadInt64()
     {
@@ -168,7 +168,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>UInt64</c> from the stream.
+    /// Reads <c language="csharp">UInt64</c> from the stream.
     /// </summary>
     public ulong ReadUInt64()
     {
@@ -176,7 +176,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>OptionalString</c> from the stream.
+    /// Reads <c language="csharp">OptionalString</c> from the stream.
     /// </summary>
     public string? ReadOptionalString()
     {
@@ -194,7 +194,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>String</c> from the stream.
+    /// Reads <c language="csharp">String</c> from the stream.
     /// </summary>
     public string ReadString()
     {
@@ -212,7 +212,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>VarInt</c> from the stream.
+    /// Reads <c language="csharp">VarInt</c> from the stream.
     /// </summary>
     public int ReadVarInt()
     {
@@ -245,7 +245,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>VarLong</c> from the stream.
+    /// Reads <c language="csharp">VarLong</c> from the stream.
     /// </summary>
     public long ReadVarLong()
     {
@@ -274,7 +274,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>LongId</c> from the stream.
+    /// Reads <c language="csharp">LongId</c> from the stream.
     /// </summary>
     public LongId ReadLongId()
     {
@@ -282,7 +282,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>OptionalLongId</c> from the stream.
+    /// Reads <c language="csharp">OptionalLongId</c> from the stream.
     /// </summary>
     public LongId? ReadOptionalLongId()
     {
@@ -290,7 +290,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Array</c> from the stream.
+    /// Reads <c language="csharp">Array</c> from the stream.
     /// </summary>
     public T[] ReadArray<T>(Func<MessageStream, T> decode)
     {
@@ -309,7 +309,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>Values</c> from the stream.
+    /// Reads <c language="csharp">Values</c> from the stream.
     /// </summary>
     public int[] ReadVarIntArray(int count)
     {

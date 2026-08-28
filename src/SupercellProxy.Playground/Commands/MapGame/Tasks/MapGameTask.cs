@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// Native map-game task structure encoded by the shared 1.72.84 helper at 0x100668c08.
 /// Semantic names for the stripped scalar fields are not yet proven.
 /// </summary>
-public sealed record MapGameTask
+internal sealed record MapGameTask
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameTask"/> instance.
@@ -45,72 +45,72 @@ public sealed record MapGameTask
     }
 
     /// <summary>
-    /// Gets the <c>TaskGlobalId</c> value.
+    /// Gets the <c language="csharp">TaskGlobalId</c> value.
     /// </summary>
     public int TaskGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown2</c> value.
+    /// Gets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public int Unknown2 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown3</c> value.
+    /// Gets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown4</c> value.
+    /// Gets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownPair0</c> value.
+    /// Gets the <c language="csharp">UnknownPair0</c> value.
     /// </summary>
     public CommandVarIntPair UnknownPair0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownPair1</c> value.
+    /// Gets the <c language="csharp">UnknownPair1</c> value.
     /// </summary>
     public CommandVarIntPair UnknownPair1 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean0</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
     /// </summary>
     public bool UnknownBoolean0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean1</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
     public bool UnknownBoolean1 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean2</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean2</c> value.
     /// </summary>
     public bool UnknownBoolean2 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownPairs0</c> value.
+    /// Gets the <c language="csharp">UnknownPairs0</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandVarIntPair> UnknownPairs0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownPairs1</c> value.
+    /// Gets the <c language="csharp">UnknownPairs1</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandVarIntPair> UnknownPairs1 { get; }
 
     /// <summary>
-    /// Gets the <c>States</c> value.
+    /// Gets the <c language="csharp">States</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameTaskState> States { get; }
 

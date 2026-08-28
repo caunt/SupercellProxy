@@ -4,18 +4,18 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Home;
 
 /// <summary>
-/// Represents <c>NeighborhoodData</c>.
+/// Represents <c language="csharp">NeighborhoodData</c>.
 /// </summary>
-/// <param name="NeighborhoodId">The <c>NeighborhoodId</c> value.</param>
-/// <param name="NeighborhoodName">The <c>NeighborhoodName</c> value.</param>
-/// <param name="NeighborhoodRole">The <c>NeighborhoodRole</c> value.</param>
-/// <param name="BadgeUnknown0">The <c>BadgeUnknown0</c> value.</param>
-/// <param name="BadgeUnknown1">The <c>BadgeUnknown1</c> value.</param>
-/// <param name="BadgeUnknown2">The <c>BadgeUnknown2</c> value.</param>
-/// <param name="Unknown0">The <c>Unknown0</c> value.</param>
-/// <param name="Unknown1">The <c>Unknown1</c> value.</param>
-/// <param name="Unknown2">The <c>Unknown2</c> value.</param>
-public record NeighborhoodData(
+/// <param name="NeighborhoodId">The <c language="csharp">NeighborhoodId</c> value.</param>
+/// <param name="NeighborhoodName">The <c language="csharp">NeighborhoodName</c> value.</param>
+/// <param name="NeighborhoodRole">The <c language="csharp">NeighborhoodRole</c> value.</param>
+/// <param name="BadgeUnknown0">The <c language="csharp">BadgeUnknown0</c> value.</param>
+/// <param name="BadgeUnknown1">The <c language="csharp">BadgeUnknown1</c> value.</param>
+/// <param name="BadgeUnknown2">The <c language="csharp">BadgeUnknown2</c> value.</param>
+/// <param name="Unknown0">The <c language="csharp">Unknown0</c> value.</param>
+/// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
+/// <param name="Unknown2">The <c language="csharp">Unknown2</c> value.</param>
+internal sealed record NeighborhoodData(
     LongId NeighborhoodId,
     string? NeighborhoodName,
     int NeighborhoodRole,

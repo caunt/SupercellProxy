@@ -7,13 +7,13 @@ using SupercellProxy.Playground.Network.Transport.Exceptions;
 
 namespace SupercellProxy.Playground.Network.Transport;
 
-public partial class MessageStream
+internal sealed partial class MessageStream
 {
     private readonly AsyncLock _readLock = new();
     private readonly AsyncLock _writeLock = new();
 
     /// <summary>
-    /// Writes <c>MessageAsync</c> to the stream.
+    /// Writes <c language="csharp">MessageAsync</c> to the stream.
     /// </summary>
     public async Task WriteMessageAsync<T>(T message, CancellationToken cancellationToken = default)
         where T : IMessage
@@ -29,7 +29,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>MessageAsync</c> from the stream.
+    /// Reads <c language="csharp">MessageAsync</c> from the stream.
     /// </summary>
     public async Task<T> ReadMessageAsync<T>(CancellationToken cancellationToken = default)
         where T : IMessage
@@ -45,26 +45,34 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>UntilMessageAsync</c> from the stream.
+    /// Reads <c language="csharp">UntilMessageAsync</c> from the stream.
     /// </summary>
     public async Task<T> ReadUntilMessageAsync<T>(CancellationToken cancellationToken = default)
         where T : IMessage
     {
-        while (true)
-        {
-            var message = await ReadMessageAsync(cancellationToken).ConfigureAwait(false);
+        IMessage message;
 
-            if (message is T expectedMessage)
-                return expectedMessage;
-        }
+        do
+        {
+            message = await ReadMessageAsync(cancellationToken).ConfigureAwait(false);
+        } while (message is not T);
+
+        return message is T expectedMessage
+            ? expectedMessage
+            : throw new InvalidOperationException("Message loop ended without the expected type.");
     }
 
     /// <summary>
-    /// Reads <c>MessageAsync</c> from the stream.
+    /// Reads <c language="csharp">MessageAsync</c> from the stream.
     /// </summary>
     public async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         var container = await ReadContainerAsync(cancellationToken).ConfigureAwait(false);
+        return ResolveMessage(container);
+    }
+
+    internal IMessage ResolveMessage(MessageContainer container)
+    {
         var message = MessageRegistry.Resolve(container, CommandDataResolver);
 
         if (container.Payload.Position != container.Payload.Length)
@@ -79,7 +87,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Reads <c>ContainerAsync</c> from the stream.
+    /// Reads <c language="csharp">ContainerAsync</c> from the stream.
     /// </summary>
     public async ValueTask<MessageContainer> ReadContainerAsync(
         CancellationToken cancellationToken = default
@@ -100,21 +108,36 @@ public partial class MessageStream
             var buffer = new byte[length];
             _ = await ReadExactlyAsync(buffer, cancellationToken).ConfigureAwait(false);
 
-            var memoryStream = new MemoryStream(buffer);
-
+            Memory<byte> payload = buffer;
             if (_encryption is not null)
-                memoryStream = Decrypt(memoryStream);
+            {
+                var encryptedStream = new MemoryStream(buffer);
+                await using (encryptedStream.ConfigureAwait(false))
+                {
+                    var decryptedStream = Decrypt(encryptedStream);
+                    await using (decryptedStream.ConfigureAwait(false))
+                        payload = decryptedStream.ToArray();
+                }
+            }
 
-            return new MessageContainer(id, version, new MessageStream(memoryStream));
+            var messageStream = Create(payload);
+            try
+            {
+                return new MessageContainer(id, version, messageStream);
+            }
+            finally
+            {
+                messageStream.Dispose();
+            }
         }
         catch (EndOfStreamException exception)
         {
-            throw new StreamClosedException(innerException: exception);
+            throw new StreamClosedException(StreamClosedException.DefaultMessage, exception);
         }
     }
 
     /// <summary>
-    /// Writes <c>ContainerAsync</c> to the stream.
+    /// Writes <c language="csharp">ContainerAsync</c> to the stream.
     /// </summary>
     public async ValueTask WriteContainerAsync(
         MessageContainer messageContainer,
@@ -152,7 +175,7 @@ public partial class MessageStream
 
             await WriteAsync(headerMemory, cancellationToken).ConfigureAwait(false);
 
-            await memoryStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
+            await memoryStream.CopyToAsync(_stream, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception)
             when (exception
@@ -160,7 +183,7 @@ public partial class MessageStream
                         or IOException { InnerException: SocketException }
             )
         {
-            throw new StreamClosedException(innerException: exception);
+            throw new StreamClosedException(StreamClosedException.DefaultMessage, exception);
         }
     }
 }

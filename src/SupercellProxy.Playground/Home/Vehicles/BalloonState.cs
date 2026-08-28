@@ -1,3 +1,4 @@
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -5,15 +6,13 @@ namespace SupercellProxy.Playground.Home;
 
 internal sealed record BalloonState(GameObjectState GameObject, int Heading)
 {
-    private const string BalloonsFile = "data/balloons.csv";
-
     public static BalloonState[] Resolve(
         GameObjectState[] gameObjects,
         DataTableResolver dataTableResolver,
         GameRandom random
     )
     {
-        if (!dataTableResolver.TryGetTableId(BalloonsFile, out var tableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Balloons, out var tableId))
             return [];
 
         return gameObjects

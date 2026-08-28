@@ -1,17 +1,17 @@
 ﻿namespace SupercellProxy.Playground.Network.Connections;
 
 /// <summary>
-/// Defines the supported <c>Side</c> values.
+/// Defines the supported <c language="csharp">Side</c> values.
 /// </summary>
-public enum Side
+internal enum Side
 {
     /// <summary>
-    /// Identifies the <c>Client</c> option.
+    /// Identifies the <c language="csharp">Client</c> option.
     /// </summary>
     Client,
 
     /// <summary>
-    /// Identifies the <c>Server</c> option.
+    /// Identifies the <c language="csharp">Server</c> option.
     /// </summary>
     Server,
 }

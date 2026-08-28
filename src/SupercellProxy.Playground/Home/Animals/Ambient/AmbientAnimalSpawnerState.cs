@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 using SupercellProxy.Playground.Logic;
 
@@ -6,6 +7,7 @@ namespace SupercellProxy.Playground.Home;
 
 internal sealed class AmbientAnimalSpawnerState
 {
+    private const string DataName = "AmbientAnimalSpawner";
     private static readonly int[] CommonTableIds =
     [
         6,
@@ -57,18 +59,18 @@ internal sealed class AmbientAnimalSpawnerState
         [50, 100, 1500, 2500, 200, 1, 2, -1, -1, -1, 25, 60],
         [50, 100, 1500, 2500, 40, 12, 3, -1, -1, -1, 25, 60],
         [50, 100, 3000, 4500, 50, 50, 4, -1, -1, -1, 25, 60],
-        [50, 100, 3000, 4500, 30, 20, 5, 1, 3, 4, 25, 60],
+        [50, 100, 3000, 4500, 30, 20, 0, 1, 3, 4, 25, 60],
     ];
 
-    private readonly GameObjectState[] gameObjects;
-    private readonly DataTableResolver dataTableResolver;
-    private readonly AmbientAnimalState[] ambientAnimals;
-    private readonly List<AmbientAnimalState> spawnedAmbientAnimals = [];
-    private readonly HashSet<int> removedAmbientAnimalGlobalIds = [];
-    private readonly int homeTileMapWidth;
-    private readonly int homeTileMapHeight;
-    private int nextAmbientAnimalGlobalId;
-    private int periodicSpawnCounter;
+    private readonly GameObjectState[] _gameObjects;
+    private readonly DataTableResolver _dataTableResolver;
+    private readonly AmbientAnimalState[] _ambientAnimals;
+    private readonly List<AmbientAnimalState> _spawnedAmbientAnimals = [];
+    private readonly HashSet<int> _removedAmbientAnimalGlobalIds = [];
+    private readonly int _homeTileMapWidth;
+    private readonly int _homeTileMapHeight;
+    private int _nextAmbientAnimalGlobalId;
+    private int _periodicSpawnCounter;
 
     private AmbientAnimalSpawnerState(
         GameObjectState gameObject,
@@ -81,12 +83,12 @@ internal sealed class AmbientAnimalSpawnerState
     )
     {
         GameObject = gameObject;
-        this.gameObjects = gameObjects;
-        this.dataTableResolver = dataTableResolver;
-        this.ambientAnimals = ambientAnimals;
-        this.homeTileMapWidth = homeTileMapWidth;
-        this.homeTileMapHeight = homeTileMapHeight;
-        nextAmbientAnimalGlobalId =
+        this._gameObjects = gameObjects;
+        this._dataTableResolver = dataTableResolver;
+        this._ambientAnimals = ambientAnimals;
+        this._homeTileMapWidth = homeTileMapWidth;
+        this._homeTileMapHeight = homeTileMapHeight;
+        _nextAmbientAnimalGlobalId =
             45 * DataTableResolver.GlobalIdTableSize
             + ambientAnimals.Max(static animal =>
                 animal.GameObject.GlobalId % DataTableResolver.GlobalIdTableSize
@@ -162,7 +164,7 @@ internal sealed class AmbientAnimalSpawnerState
         Initialized = true;
         RefreshPoints(random);
 
-        ActiveZones[SelectedZone].ChecksumState3++;
+        ActiveZones[SelectedZone].SpawnDelayCounter++;
         ChecksumState0++;
     }
 
@@ -173,15 +175,15 @@ internal sealed class AmbientAnimalSpawnerState
         if (!Initialized)
         {
             Initialize(random);
-            periodicSpawnCounter = 1;
+            _periodicSpawnCounter = 1;
             return;
         }
 
         RefreshPoints(random);
 
-        var registeredAmbientAnimals = ambientAnimals
-            .Where(animal => !removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId))
-            .Concat(spawnedAmbientAnimals)
+        var registeredAmbientAnimals = _ambientAnimals
+            .Where(animal => !_removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId))
+            .Concat(_spawnedAmbientAnimals)
             .ToArray();
         var lifecycle = ActiveZones[SelectedZone]
             .AdvanceLifecycle(SelectedConfiguration, registeredAmbientAnimals.Length);
@@ -192,7 +194,7 @@ internal sealed class AmbientAnimalSpawnerState
         if (lifecycle.CleanupRequired)
         {
             foreach (var animal in registeredAmbientAnimals)
-                animal.ApplySpawnerZoneCleanup(homeTileMapWidth, homeTileMapHeight);
+                animal.ApplySpawnerZoneCleanup(_homeTileMapWidth, _homeTileMapHeight);
         }
 
         if (lifecycle.Complete)
@@ -201,9 +203,9 @@ internal sealed class AmbientAnimalSpawnerState
         ChecksumState0 = unchecked(ChecksumState0 + 1);
         UpdatePeriodicSpawning(
             random,
-            ambientAnimals.Count(animal =>
-                !removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId)
-            ) + spawnedAmbientAnimals.Count
+            _ambientAnimals.Count(animal =>
+                !_removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId)
+            ) + _spawnedAmbientAnimals.Count
         );
     }
 
@@ -212,24 +214,24 @@ internal sealed class AmbientAnimalSpawnerState
         ArgumentNullException.ThrowIfNull(random);
 
         foreach (
-            var animal in ambientAnimals.Where(animal =>
-                !removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId)
+            var animal in _ambientAnimals.Where(animal =>
+                !_removedAmbientAnimalGlobalIds.Contains(animal.GameObject.GlobalId)
             )
         )
         {
             AmbientAnimalState.Update([animal], random);
         }
 
-        foreach (var animal in spawnedAmbientAnimals)
+        foreach (var animal in _spawnedAmbientAnimals)
             AmbientAnimalState.Update([animal], random);
     }
 
     internal void CompleteRegisteredAnimalRemoval()
     {
-        foreach (var animal in ambientAnimals.Where(static animal => animal.ChecksumFlag0))
-            removedAmbientAnimalGlobalIds.Add(animal.GameObject.GlobalId);
+        foreach (var animal in _ambientAnimals.Where(static animal => animal.IsRemoved))
+            _removedAmbientAnimalGlobalIds.Add(animal.GameObject.GlobalId);
 
-        spawnedAmbientAnimals.RemoveAll(static animal => animal.ChecksumFlag0);
+        _spawnedAmbientAnimals.RemoveAll(static animal => animal.IsRemoved);
     }
 
     private void SpawnAmbientAnimal(GameRandom random)
@@ -253,27 +255,13 @@ internal sealed class AmbientAnimalSpawnerState
 
         if (behavior is 1)
         {
-            var edgePosition = ResolveBehaviorOneSpawnPosition(random);
-            CreateSpawnedAmbientAnimal(
-                behavior,
-                edgePosition.X,
-                edgePosition.Y,
-                random,
-                headTowardHomeCenter: true
-            );
+            SpawnBehaviorOne(random);
             return;
         }
 
         if (behavior is 2)
         {
-            var edgePosition = ResolveBehaviorTwoSpawnPosition(random);
-            CreateSpawnedAmbientAnimal(
-                behavior,
-                edgePosition.X,
-                edgePosition.Y,
-                random,
-                headTowardHomeCenter: true
-            );
+            SpawnBehaviorTwo(random);
             return;
         }
 
@@ -294,30 +282,36 @@ internal sealed class AmbientAnimalSpawnerState
         SpawnBehaviorZero(random);
     }
 
+    private void SpawnBehaviorOne(GameRandom random)
+    {
+        var position = ResolveBehaviorOneSpawnPosition(random);
+        CreateSpawnedAmbientAnimal(1, position.X, position.Y, random, 0, 0);
+    }
+
+    private void SpawnBehaviorTwo(GameRandom random)
+    {
+        var position = ResolveBehaviorTwoSpawnPosition(random);
+        CreateSpawnedAmbientAnimal(2, position.X, position.Y, random, 0, 0);
+    }
+
     private void SpawnBehaviorFour(GameRandom random)
     {
         var edgePosition = ResolveBehaviorFourSpawnPosition(random);
         var boatBlocksSpawn =
-            gameObjects
+            _gameObjects
                 .FirstOrDefault(static gameObject => gameObject.Data.TableId is 58)
                 ?.Snapshot.State
             is 3
                 or 5;
         if (!boatBlocksSpawn)
         {
-            CreateSpawnedAmbientAnimal(
-                4,
-                edgePosition.X,
-                edgePosition.Y,
-                random,
-                headTowardHomeCenter: true
-            );
+            CreateSpawnedAmbientAnimal(4, edgePosition.X, edgePosition.Y, random, 0, 0);
         }
     }
 
     private void SpawnBehaviorZero(GameRandom random)
     {
-        var forests = gameObjects
+        var forests = _gameObjects
             .Where(static gameObject => gameObject.Data.TableId is 5)
             .ToArray();
         if (forests.Length is 0)
@@ -329,7 +323,7 @@ internal sealed class AmbientAnimalSpawnerState
         for (var checkedForest = 0; checkedForest < forests.Length; checkedForest++, forestIndex++)
         {
             var candidate = forests[forestIndex % forests.Length];
-            dataTableResolver.TryResolveInt(candidate.Data.GlobalId, "Type", out var type);
+            _dataTableResolver.TryResolveInt(candidate.Data.GlobalId, "Type", out var type);
 
             if (type is 0)
             {
@@ -350,41 +344,44 @@ internal sealed class AmbientAnimalSpawnerState
             y = unchecked(y + current.PositionY);
         }
 
-        CreateSpawnedAmbientAnimal(0, x, y, random, headTowardHomeCenter: true);
+        CreateSpawnedAmbientAnimal(0, x, y, random, 0, 0);
     }
 
     private (int X, int Y) ResolveBehaviorOneSpawnPosition(GameRandom random)
     {
-        const string spawnerFile = "data/ambient_animal_spawners.csv";
-        const string spawnerName = "AmbientAnimalSpawner";
-
-        if (homeTileMapWidth <= 12 || homeTileMapHeight <= 12)
+        if (_homeTileMapWidth <= 12 || _homeTileMapHeight <= 12)
             throw new InvalidDataException(
                 string.Create(
                     CultureInfo.InvariantCulture,
-                    $"The {homeTileMapWidth}x{homeTileMapHeight} home is too small for an ambient-animal edge spawn."
+                    $"The {_homeTileMapWidth}x{_homeTileMapHeight} home is too small for an ambient-animal edge spawn."
                 )
             );
 
-        if (!dataTableResolver.TryResolve(spawnerFile, spawnerName, out var spawnerData))
+        if (
+            !_dataTableResolver.TryResolve(
+                GameAssetFiles.AmbientAnimalSpawners,
+                DataName,
+                out var spawnerData
+            )
+        )
             throw new InvalidDataException("Unable to resolve AmbientAnimalSpawner.");
 
         var edge = random.NextInt(4);
 
         if (
-            !dataTableResolver.TryResolveInt(
+            !_dataTableResolver.TryResolveInt(
                 spawnerData.GlobalId,
                 "EdgeSpawnTileX",
                 edge,
                 out var x
             )
-            || !dataTableResolver.TryResolveInt(
+            || !_dataTableResolver.TryResolveInt(
                 spawnerData.GlobalId,
                 "EdgeSpawnTileY",
                 edge,
                 out var y
             )
-            || !dataTableResolver.TryResolveInt(
+            || !_dataTableResolver.TryResolveInt(
                 spawnerData.GlobalId,
                 "BirdExtraTiles",
                 out var birdExtraTiles
@@ -400,9 +397,9 @@ internal sealed class AmbientAnimalSpawnerState
         }
 
         if (edge is 2 or 3)
-            x = random.NextInt(homeTileMapWidth - 12) + 6;
+            x = random.NextInt(_homeTileMapWidth - 12) + 6;
         else
-            y = random.NextInt(homeTileMapHeight - 12) + 6;
+            y = random.NextInt(_homeTileMapHeight - 12) + 6;
 
         if (edge is 1)
             x = checked(x + birdExtraTiles);
@@ -417,29 +414,32 @@ internal sealed class AmbientAnimalSpawnerState
         var upperHalf = random.NextInt(2) is not 0;
         var x = -0x300 - ((random.NextInt(11) * 0x200 + 0x400) >> 1);
         var y =
-            random.NextInt(homeTileMapHeight << 7) + homeTileMapHeight * (upperHalf ? 0x140 : 0x40);
+            random.NextInt(_homeTileMapHeight << 7)
+            + _homeTileMapHeight * (upperHalf ? 0x140 : 0x40);
         return (x, y);
     }
 
     private (int X, int Y) ResolveBehaviorTwoSpawnPosition(GameRandom random)
     {
-        const string spawnerFile = "data/ambient_animal_spawners.csv";
-        const string spawnerName = "AmbientAnimalSpawner";
         const int edge = 3;
 
-        if (homeTileMapWidth <= 12)
+        if (_homeTileMapWidth <= 12)
         {
             throw new InvalidDataException(
                 string.Create(
                     CultureInfo.InvariantCulture,
-                    $"The {homeTileMapWidth}-tile-wide home is too small for an ambient-animal edge spawn."
+                    $"The {_homeTileMapWidth}-tile-wide home is too small for an ambient-animal edge spawn."
                 )
             );
         }
 
         if (
-            !dataTableResolver.TryResolve(spawnerFile, spawnerName, out var spawnerData)
-            || !dataTableResolver.TryResolveInt(
+            !_dataTableResolver.TryResolve(
+                GameAssetFiles.AmbientAnimalSpawners,
+                DataName,
+                out var spawnerData
+            )
+            || !_dataTableResolver.TryResolveInt(
                 spawnerData.GlobalId,
                 "EdgeSpawnTileY",
                 edge,
@@ -452,19 +452,19 @@ internal sealed class AmbientAnimalSpawnerState
             );
         }
 
-        var x = random.NextInt(homeTileMapWidth - 12) + 6;
+        var x = random.NextInt(_homeTileMapWidth - 12) + 6;
         return (checked(x << 9), checked((y - 2) << 9));
     }
 
     private (int X, int Y) ResolveBehaviorThreeSpawnPosition(GameRandom random)
     {
-        var forestSources = gameObjects
+        var forestSources = _gameObjects
             .Where(gameObject => gameObject.Data.TableId is 5 && ResolveForestType(gameObject) is 2)
             .ToArray();
-        var decorationSources = gameObjects
+        var decorationSources = _gameObjects
             .Where(gameObject =>
                 gameObject.Data.TableId is 3
-                && dataTableResolver.TryResolveBoolean(
+                && _dataTableResolver.TryResolveBoolean(
                     gameObject.Data.GlobalId,
                     "SpawnsFrogs",
                     out var spawnsFrogs
@@ -495,8 +495,8 @@ internal sealed class AmbientAnimalSpawnerState
             x = -0x300;
             var upperHalf = random.NextInt(2) is not 0;
             y =
-                random.NextInt(homeTileMapHeight << 7)
-                + homeTileMapHeight * (upperHalf ? 0x140 : 0x40);
+                random.NextInt(_homeTileMapHeight << 7)
+                + _homeTileMapHeight * (upperHalf ? 0x140 : 0x40);
         }
         else
         {
@@ -518,27 +518,30 @@ internal sealed class AmbientAnimalSpawnerState
 
     private void UpdatePeriodicSpawning(GameRandom random, int ambientAnimalCount)
     {
-        var previousCounter = periodicSpawnCounter;
-        periodicSpawnCounter = unchecked(periodicSpawnCounter + 1);
+        var previousCounter = _periodicSpawnCounter;
+        _periodicSpawnCounter = unchecked(_periodicSpawnCounter + 1);
 
         if (previousCounter < 500)
             return;
 
-        periodicSpawnCounter = 0;
+        _periodicSpawnCounter = 0;
 
         if (ambientAnimalCount >= 60 || SelectedZone is not 0)
             return;
 
         var zone = ActiveZones[SelectedZone];
 
-        if (zone.ChecksumState1 is not 0 && zone.ChecksumState5 >= zone.ChecksumState1)
+        if (
+            zone.CleanupDelayThreshold is not 0
+            && zone.CleanupDelayCounter >= zone.CleanupDelayThreshold
+        )
             return;
 
-        var decorations = gameObjects
+        var decorations = _gameObjects
             .Where(static gameObject => gameObject.Data.TableId is 3)
             .ToArray();
         var attractorCount = decorations.Count(gameObject =>
-            dataTableResolver.TryResolveBoolean(
+            _dataTableResolver.TryResolveBoolean(
                 gameObject.Data.GlobalId,
                 "AttractsButterflies",
                 out var attractsButterflies
@@ -558,32 +561,26 @@ internal sealed class AmbientAnimalSpawnerState
                 continue;
 
             var (x, y) = ResolveAbsolutePosition(decoration);
-            CreateSpawnedAmbientAnimal(
-                0,
-                unchecked(x + 100),
-                unchecked(y + 100),
-                random,
-                headTowardHomeCenter: false
-            );
+            CreateSpawnedAmbientAnimal(0, unchecked(x + 100), unchecked(y + 100), random, 0, 0);
             ambientAnimalCount++;
         }
     }
 
     private GameObjectState? FindAttractingDecoration(
-        IReadOnlyList<GameObjectState> decorations,
+        GameObjectState[] decorations,
         GameRandom random
     )
     {
-        var decorationIndex = random.NextInt(decorations.Count);
+        var decorationIndex = random.NextInt(decorations.Length);
         for (
             var checkedDecoration = 0;
-            checkedDecoration < decorations.Count;
+            checkedDecoration < decorations.Length;
             checkedDecoration++, decorationIndex++
         )
         {
-            var candidate = decorations[decorationIndex % decorations.Count];
+            var candidate = decorations[decorationIndex % decorations.Length];
             if (
-                dataTableResolver.TryResolveBoolean(
+                _dataTableResolver.TryResolveBoolean(
                     candidate.Data.GlobalId,
                     "AttractsButterflies",
                     out var attractsButterflies
@@ -602,33 +599,33 @@ internal sealed class AmbientAnimalSpawnerState
         int x,
         int y,
         GameRandom random,
-        bool headTowardHomeCenter
+        int destinationX,
+        int destinationY
     )
     {
-        if (nextAmbientAnimalGlobalId % DataTableResolver.GlobalIdTableSize is 0)
+        if (_nextAmbientAnimalGlobalId % DataTableResolver.GlobalIdTableSize is 0)
             throw new InvalidOperationException("Ambient-animal instance IDs are exhausted.");
 
         var template =
-            ambientAnimals.FirstOrDefault(static animal => animal.Behavior is 0)
+            _ambientAnimals.FirstOrDefault(static animal => animal.Behavior is 0)
             ?? throw new InvalidDataException(
                 "The home has no behavior-0 ambient-animal template."
             );
         var spawned = AmbientAnimalState.CreateSpawned(
-            nextAmbientAnimalGlobalId++,
+            _nextAmbientAnimalGlobalId++,
             behavior,
             x,
             y,
-            homeTileMapWidth,
-            homeTileMapHeight,
             template,
-            dataTableResolver,
+            _dataTableResolver,
             random,
-            headTowardHomeCenter,
+            destinationX,
+            destinationY,
             Points0[behavior],
             Points1[behavior],
             Points2[behavior]
         );
-        spawnedAmbientAnimals.Add(spawned);
+        _spawnedAmbientAnimals.Add(spawned);
     }
 
     private static (int X, int Y) ResolveAbsolutePosition(GameObjectState gameObject)
@@ -678,13 +675,13 @@ internal sealed class AmbientAnimalSpawnerState
     private void StartSelectedZone(GameRandom random)
     {
         var zone = ActiveZones[SelectedZone];
-        zone.ChecksumState0 =
+        zone.SpawnDelayThreshold =
             SelectedConfiguration[0]
             + random.NextInt(SelectedConfiguration[1] - SelectedConfiguration[0]);
 
         if ((SelectedConfiguration[2] | SelectedConfiguration[3]) is not 0)
         {
-            zone.ChecksumState1 =
+            zone.CleanupDelayThreshold =
                 SelectedConfiguration[2]
                 + random.NextInt(SelectedConfiguration[3] - SelectedConfiguration[2]);
         }
@@ -718,13 +715,13 @@ internal sealed class AmbientAnimalSpawnerState
         RebuildPoints(random);
         RefreshPending = false;
 
-        foreach (var animal in ambientAnimals)
+        foreach (var animal in _ambientAnimals)
             animal.ResetSpawnerPointCache();
     }
 
     private void BindAnimalPoints()
     {
-        foreach (var animal in ambientAnimals)
+        foreach (var animal in _ambientAnimals)
         {
             if (uint.CreateTruncating(animal.Behavior) >= Points0.Length)
                 throw new InvalidDataException(
@@ -773,7 +770,7 @@ internal sealed class AmbientAnimalSpawnerState
 
     private void AddFallbackForestPoint(GameRandom random)
     {
-        var forests = gameObjects
+        var forests = _gameObjects
             .Where(static gameObject => gameObject.Data.TableId is 5)
             .ToArray();
 
@@ -815,7 +812,7 @@ internal sealed class AmbientAnimalSpawnerState
     private int ResolveForestType(GameObjectState gameObject)
     {
         // Native integer accessors map empty CSV cells to zero.
-        return dataTableResolver.TryResolveInt(gameObject.Data.GlobalId, "Type", out var type)
+        return _dataTableResolver.TryResolveInt(gameObject.Data.GlobalId, "Type", out var type)
             ? type
             : 0;
     }
@@ -844,7 +841,7 @@ internal sealed class AmbientAnimalSpawnerState
             radiusSquared,
             gameObject =>
             {
-                dataTableResolver.TryResolveBoolean(
+                _dataTableResolver.TryResolveBoolean(
                     gameObject.Data.GlobalId,
                     fieldName,
                     out var value
@@ -871,12 +868,16 @@ internal sealed class AmbientAnimalSpawnerState
     )
     {
         foreach (var tableId in tableIds)
-        foreach (
-            var gameObject in gameObjects.Where(gameObject => gameObject.Data.TableId == tableId)
-        )
         {
-            if (predicate(gameObject))
-                destination.Add(CreatePoint(gameObject, radiusSquared));
+            foreach (
+                var gameObject in _gameObjects.Where(gameObject =>
+                    gameObject.Data.TableId == tableId
+                )
+            )
+            {
+                if (predicate(gameObject))
+                    destination.Add(CreatePoint(gameObject, radiusSquared));
+            }
         }
     }
 

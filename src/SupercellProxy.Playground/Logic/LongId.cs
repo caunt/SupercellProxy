@@ -4,58 +4,58 @@ using System.Runtime.InteropServices;
 namespace SupercellProxy.Playground.Logic;
 
 /// <summary>
-/// Represents <c>LongId</c>.
+/// Represents <c language="csharp">LongId</c>.
 /// </summary>
 /// <remarks>
 /// Initializes a new <see cref="LongId"/> instance.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
+internal readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
 {
     /// <summary>
-    /// Defines the <c>Empty</c> value.
+    /// Defines the <c language="csharp">Empty</c> value.
     /// </summary>
-    public static readonly LongId Empty = default;
+    public static readonly LongId Empty;
 
     private static ReadOnlySpan<char> ValidAlphabet => "0289PYLQGRJCUV";
 
     /// <summary>
-    /// Gets the <c>HighInt32</c> value.
+    /// Gets the <c language="csharp">HighInt32</c> value.
     /// </summary>
     public int HighInt32 { get; } = highInt32;
 
     /// <summary>
-    /// Gets the <c>LowInt32</c> value.
+    /// Gets the <c language="csharp">LowInt32</c> value.
     /// </summary>
     public int LowInt32 { get; } = lowInt32;
 
     /// <summary>
-    /// Gets the <c>HighUInt32</c> value.
+    /// Gets the <c language="csharp">HighUInt32</c> value.
     /// </summary>
     public uint HighUInt32 => uint.CreateTruncating(HighInt32);
 
     /// <summary>
-    /// Gets the <c>LowUInt32</c> value.
+    /// Gets the <c language="csharp">LowUInt32</c> value.
     /// </summary>
     public uint LowUInt32 => uint.CreateTruncating(LowInt32);
 
     /// <summary>
-    /// Gets the <c>AsInt64</c> value.
+    /// Gets the <c language="csharp">AsInt64</c> value.
     /// </summary>
     public long AsInt64 => (long.CreateTruncating(HighInt32) << 32) | LowUInt32;
 
     /// <summary>
-    /// Gets the <c>AsUInt64</c> value.
+    /// Gets the <c language="csharp">AsUInt64</c> value.
     /// </summary>
     public ulong AsUInt64 => (ulong.CreateTruncating(HighUInt32) << 32) | LowUInt32;
 
     /// <summary>
-    /// Gets the <c>CanRepresentAsTag</c> value.
+    /// Gets the <c language="csharp">CanRepresentAsTag</c> value.
     /// </summary>
     public bool CanRepresentAsTag => HighUInt32 <= 255;
 
     /// <summary>
-    /// Gets the <c>TagInternalId</c> value.
+    /// Gets the <c language="csharp">TagInternalId</c> value.
     /// </summary>
     public ulong TagInternalId
     {
@@ -71,7 +71,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c>Parse</c> operation.
+    /// Executes the <c language="csharp">Parse</c> operation.
     /// </summary>
     public static LongId Parse(ReadOnlySpan<char> tagStringSpan)
     {
@@ -84,7 +84,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Attempts the <c>Parse</c> operation.
+    /// Attempts the <c language="csharp">Parse</c> operation.
     /// </summary>
     public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out LongId result)
     {
@@ -140,7 +140,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c>ParseLazily</c> operation.
+    /// Executes the <c language="csharp">ParseLazily</c> operation.
     /// </summary>
     public static IEnumerable<LongId> ParseLazily(IEnumerable<string> inputTagStrings)
     {
@@ -155,7 +155,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Attempts the <c>Format</c> operation.
+    /// Attempts the <c language="csharp">Format</c> operation.
     /// </summary>
     public bool TryFormat(
         Span<char> destinationSpan,
@@ -239,7 +239,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c>ToFormattedString</c> operation.
+    /// Executes the <c language="csharp">ToFormattedString</c> operation.
     /// </summary>
     public string ToFormattedString(bool includeHashPrefix = true)
     {
@@ -294,53 +294,53 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c>Equals</c> operation.
+    /// Executes the <c language="csharp">Equals</c> operation.
     /// </summary>
     public bool Equals(LongId logicLong) =>
         HighInt32 == logicLong.HighInt32 && LowInt32 == logicLong.LowInt32;
 
     /// <summary>
-    /// Executes the <c>Equals</c> operation.
+    /// Executes the <c language="csharp">Equals</c> operation.
     /// </summary>
     public override bool Equals(
         [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] object? otherObject
     ) => otherObject is LongId logicLong && Equals(logicLong);
 
     /// <summary>
-    /// Gets <c>HashCode</c>.
+    /// Gets <c language="csharp">HashCode</c>.
     /// </summary>
     public override int GetHashCode() => HashCode.Combine(HighInt32, LowInt32);
 
     /// <summary>
-    /// Executes the <c>ToString</c> operation.
+    /// Executes the <c language="csharp">ToString</c> operation.
     /// </summary>
     public override string ToString() =>
         CanRepresentAsTag ? ToFormattedString() : $"{HighInt32}-{LowInt32}";
 
     /// <summary>
-    /// Applies the <c>==</c> operator.
+    /// Applies the <c language="csharp">==</c> operator.
     /// </summary>
     public static bool operator ==(LongId leftLongId, LongId rightLongId) =>
         leftLongId.Equals(rightLongId);
 
     /// <summary>
-    /// Applies the <c>!=</c> operator.
+    /// Applies the <c language="csharp">!=</c> operator.
     /// </summary>
     public static bool operator !=(LongId leftLongId, LongId rightLongId) =>
         !leftLongId.Equals(rightLongId);
 
     /// <summary>
-    /// Applies the <c>++</c> operator.
+    /// Applies the <c language="csharp">++</c> operator.
     /// </summary>
     public static LongId operator ++(LongId logicLong) => logicLong + 1UL;
 
     /// <summary>
-    /// Applies the <c>--</c> operator.
+    /// Applies the <c language="csharp">--</c> operator.
     /// </summary>
     public static LongId operator --(LongId logicLong) => logicLong - 1UL;
 
     /// <summary>
-    /// Applies the <c>+</c> operator.
+    /// Applies the <c language="csharp">+</c> operator.
     /// </summary>
     public static LongId operator +(LongId leftLongId, ulong rightValue)
     {
@@ -355,7 +355,7 @@ public readonly struct LongId(int highInt32, int lowInt32) : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Applies the <c>-</c> operator.
+    /// Applies the <c language="csharp">-</c> operator.
     /// </summary>
     public static LongId operator -(LongId leftLongId, ulong rightValue)
     {

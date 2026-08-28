@@ -1,6 +1,3 @@
-using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Logic;
-
 namespace SupercellProxy.Playground.Home.Checksum;
 
 internal static class GameObjectChecksum
@@ -46,8 +43,8 @@ internal static class GameObjectChecksum
         EncodeSecondaryBase(encoder, field.GameObject);
         encoder.WriteVarInt(field.GrowthTimer.StartSeconds);
         encoder.WriteVarInt(field.GrowthTimer.TicksLeft);
-        encoder.WriteBoolean(field.IsHarvestReady);
-        encoder.WriteBoolean(field.IsHarvestGainCompleted);
+        encoder.WriteBoolean(field.IsHarvestStarted);
+        encoder.WriteBoolean(field.IsHarvestGainApplied);
     }
 
     public static void EncodeSecondaryAmbientAnimal(
@@ -57,34 +54,34 @@ internal static class GameObjectChecksum
     {
         EncodeSecondaryBase(encoder, animal.GameObject);
         encoder.WriteVarInt(animal.Heading);
-        encoder.WriteVarInt(animal.ChecksumState0);
-        encoder.WriteVarInt(animal.ChecksumState1);
+        encoder.WriteVarInt(animal.SteeringState);
+        encoder.WriteVarInt(animal.Altitude);
         encoder.WriteVarInt(animal.Speed);
-        encoder.WriteVarInt(animal.ChecksumState2);
-        encoder.WriteVarInt(animal.ChecksumState3);
-        encoder.WriteVarInt(animal.ChecksumState4);
-        encoder.WriteVarInt(animal.ChecksumState5);
+        encoder.WriteVarInt(animal.MovementTimer);
+        encoder.WriteVarInt(animal.SpeedChangeTimer);
+        encoder.WriteVarInt(animal.AltitudeStepChangeTimer);
+        encoder.WriteVarInt(animal.PhaseTimer);
         encoder.WriteVarInt(animal.HeadingStep);
-        encoder.WriteVarInt(animal.ChecksumState6);
-        encoder.WriteVarInt(animal.ChecksumByte0);
+        encoder.WriteVarInt(animal.AltitudeStep);
+        encoder.WriteVarInt(animal.MovementState);
         encoder.WriteVarInt(animal.Behavior);
-        encoder.WriteVarInt(animal.ChecksumState7);
-        encoder.WriteVarInt(animal.ChecksumState8);
-        encoder.WriteVarInt(animal.ChecksumState9);
-        encoder.WriteVarInt(animal.TargetX);
-        encoder.WriteVarInt(animal.TargetY);
-        encoder.WriteVarInt(animal.ChecksumState10);
-        encoder.WriteVarInt(animal.ChecksumState11);
-        encoder.WriteVarInt(animal.ChecksumState12);
-        encoder.WriteVarInt(animal.ChecksumState13);
-        encoder.WriteVarInt(animal.ChecksumState15);
-        encoder.WriteVarInt(animal.ChecksumState16);
-        encoder.WriteBoolean(animal.ChecksumFlag0);
-        encoder.WriteBoolean(animal.ChecksumFlag1);
-        encoder.WriteBoolean(animal.ChecksumFlag2);
-        encoder.WriteBoolean(animal.ChecksumFlag3);
+        encoder.WriteVarInt(animal.AvoidanceX);
+        encoder.WriteVarInt(animal.AvoidanceY);
+        encoder.WriteVarInt(animal.LandingX);
+        encoder.WriteVarInt(animal.LandingY);
+        encoder.WriteVarInt(animal.AttractionX);
+        encoder.WriteVarInt(animal.AttractionY);
+        encoder.WriteVarInt(animal.CleanupDriftX);
+        encoder.WriteVarInt(animal.CleanupDriftY);
+        encoder.WriteVarInt(animal.AvoidanceLinger);
+        encoder.WriteVarInt(animal.RedirectCount);
+        encoder.WriteVarInt(animal.MirrorTimer);
+        encoder.WriteBoolean(animal.IsRemoved);
+        encoder.WriteBoolean(animal.WasInsideLandingTarget);
+        encoder.WriteBoolean(animal.HasAttractionTarget);
+        encoder.WriteBoolean(animal.ZoneCleanup);
         EncodeIntPair(encoder, new IntPair(animal.MovementX, animal.MovementY));
-        encoder.WriteVarInt(animal.ChecksumState14);
+        encoder.WriteVarInt(animal.CachedAvoidanceIndex);
     }
 
     public static void EncodeSecondaryAmbientAnimalSpawner(
@@ -243,19 +240,21 @@ internal static class GameObjectChecksum
     )
     {
         EncodeSecondaryBase(encoder, photographer.GameObject);
-        encoder.WriteVarInt(photographer.State);
-        encoder.WriteVarInt(photographer.ChecksumState0);
+        encoder.WriteVarInt(
+            Convert.ToInt32(photographer.State, System.Globalization.CultureInfo.InvariantCulture)
+        );
+        encoder.WriteVarInt(photographer.StateTimer);
         encoder.WriteVarInt(photographer.NextPoint);
-        encoder.WriteVarInt(photographer.ChecksumState1);
-        encoder.WriteVarInt(photographer.ChecksumState2);
-        encoder.WriteBoolean(photographer.ChecksumFlag0);
-        encoder.WriteBoolean(photographer.ChecksumFlag1);
-        EncodeIntPair(encoder, photographer.ChecksumPair0);
-        EncodeIntPair(encoder, photographer.ChecksumPair1);
-        EncodeIntPair(encoder, photographer.ChecksumPair2);
-        encoder.WriteBoolean(photographer.HasParent);
-        EncodeIntPairs(encoder, photographer.ChecksumPoints0);
-        EncodeIntPairs(encoder, photographer.ChecksumPoints1);
+        encoder.WriteVarInt(photographer.RuntimeStateA);
+        encoder.WriteVarInt(photographer.RuntimeStateB);
+        encoder.WriteBoolean(photographer.PathComplete);
+        encoder.WriteBoolean(photographer.LifecycleEnabled);
+        EncodeIntPair(encoder, photographer.MovementVector);
+        EncodeIntPair(encoder, photographer.CandidateMovementVector);
+        EncodeIntPair(encoder, photographer.PersistentMovementVector);
+        encoder.WriteBoolean(PhotographerState.HasManager);
+        EncodeIntPairs(encoder, photographer.EntryRoute);
+        EncodeIntPairs(encoder, photographer.ExitRoute);
     }
 
     public static void EncodeSecondaryPerson(ChecksumEncoder encoder, PersonState person)
@@ -273,17 +272,17 @@ internal static class GameObjectChecksum
     private static void EncodePersonFields(ChecksumEncoder encoder, PersonState person)
     {
         encoder.WriteVarInt(person.State);
-        encoder.WriteVarInt(person.ChecksumState0);
+        encoder.WriteVarInt(person.Timer);
         encoder.WriteVarInt(person.NextPoint);
         encoder.WriteVarInt(person.GoodAmount);
         encoder.WriteVarInt(person.Good.GlobalId);
-        encoder.WriteVarInt(person.ChecksumState1);
-        encoder.WriteVarInt(person.ChecksumState2);
+        encoder.WriteVarInt(person.TargetX);
+        encoder.WriteVarInt(person.TargetY);
         encoder.WriteVarInt(person.PaymentObjectAmount);
         encoder.WriteVarInt(person.PaymentObject.GlobalId);
-        encoder.WriteVarInt(person.ChecksumState3);
-        encoder.WriteBoolean(person.ChecksumFlag0);
-        encoder.WriteBoolean(person.ChecksumFlag1);
+        encoder.WriteVarInt(person.ExperienceReward);
+        encoder.WriteBoolean(person.MovementComplete);
+        encoder.WriteBoolean(person.Active);
     }
 
     public static void EncodeSecondaryOrderTable(
@@ -323,12 +322,16 @@ internal static class GameObjectChecksum
         encoder.WriteVarInt(wheel.SlotCount);
 
         foreach (var row in wheel.Prizes)
-        foreach (var prize in row)
-            encoder.WriteVarInt(prize);
+        {
+            foreach (var prize in row)
+                encoder.WriteVarInt(prize);
+        }
 
         foreach (var row in wheel.Amounts)
-        foreach (var amount in row)
-            encoder.WriteVarInt(amount);
+        {
+            foreach (var amount in row)
+                encoder.WriteVarInt(amount);
+        }
     }
 
     public static void EncodeSecondarySpawner(ChecksumEncoder encoder, SpawnerState spawner)
@@ -398,15 +401,15 @@ internal static class GameObjectChecksum
         AmbientAnimalSpawnerZoneState zone
     )
     {
-        encoder.WriteBoolean(zone.ChecksumFlag0);
-        encoder.WriteVarInt(zone.ChecksumState0);
-        encoder.WriteVarInt(zone.ChecksumState1);
-        encoder.WriteVarInt(zone.ChecksumState2);
-        encoder.WriteVarInt(zone.ChecksumState3);
-        encoder.WriteVarInt(zone.ChecksumState4);
-        encoder.WriteVarInt(zone.ChecksumState5);
-        encoder.WriteVarInt(zone.ChecksumState6);
-        encoder.WriteVarInt(zone.ChecksumState7);
+        encoder.WriteBoolean(zone.SpawnCycleActive);
+        encoder.WriteVarInt(zone.SpawnDelayThreshold);
+        encoder.WriteVarInt(zone.CleanupDelayThreshold);
+        encoder.WriteVarInt(zone.SpawnActivationCounter);
+        encoder.WriteVarInt(zone.SpawnDelayCounter);
+        encoder.WriteVarInt(zone.SpawnAttemptCounter);
+        encoder.WriteVarInt(zone.CleanupDelayCounter);
+        encoder.WriteVarInt(zone.CleanupActivationInterval);
+        encoder.WriteVarInt(zone.CleanupPassCounter);
     }
 
     private static void EncodeBoosterList(ChecksumEncoder encoder, BoosterSnapshot[]? boosters)

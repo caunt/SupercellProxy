@@ -8,28 +8,28 @@ internal sealed partial class AmbientAnimalState
 {
     private void UpdateMirroring()
     {
-        if (MovementX == MovementY || Behavior is 0 || (Behavior is not 1 && ChecksumState16 >= 1))
+        if (MovementX == MovementY || Behavior is 0 || (Behavior is not 1 && MirrorTimer >= 1))
             return;
 
         GameObject.SetMirrored(MovementX <= MovementY);
-        ChecksumState16 = 20;
+        MirrorTimer = 20;
     }
 
     private void RefreshAvoidanceTarget()
     {
-        var previousCounter = avoidanceScanCounter;
-        avoidanceScanCounter++;
+        var previousCounter = _avoidanceScanCounter;
+        _avoidanceScanCounter++;
 
         if (previousCounter < 5)
             return;
 
-        avoidanceScanCounter = 0;
+        _avoidanceScanCounter = 0;
 
-        if (ChecksumState14 >= 0 && ChecksumState14 < avoidancePoints.Count)
+        if (CachedAvoidanceIndex >= 0 && CachedAvoidanceIndex < _avoidancePoints.Count)
         {
-            var selected = avoidancePoints[ChecksumState14];
-            var selectedX = GameObject.PositionX - selected.X;
-            var selectedY = GameObject.PositionY - selected.Y;
+            var selected = _avoidancePoints[CachedAvoidanceIndex];
+            var selectedX = _effectivePositionX - selected.X;
+            var selectedY = _effectivePositionY - selected.Y;
 
             if (
                 long.CreateTruncating(selectedX) * selectedX
@@ -37,24 +37,24 @@ internal sealed partial class AmbientAnimalState
                 < selected.RadiusSquared
             )
             {
-                ChecksumState7 = selectedX;
-                ChecksumState8 = selectedY;
-                ChecksumState13 = 8;
-                hasAvoidanceTarget = true;
+                AvoidanceX = selectedX;
+                AvoidanceY = selectedY;
+                AvoidanceLinger = 8;
+                _hasAvoidanceTarget = true;
                 return;
             }
 
-            ChecksumState14 = -1;
+            CachedAvoidanceIndex = -1;
         }
 
         var nearestDistance = 0x40000000L;
         var nearestIndex = -1;
 
-        for (var index = 0; index < avoidancePoints.Count; index++)
+        for (var index = 0; index < _avoidancePoints.Count; index++)
         {
-            var point = avoidancePoints[index];
-            var x = GameObject.PositionX - point.X;
-            var y = GameObject.PositionY - point.Y;
+            var point = _avoidancePoints[index];
+            var x = _effectivePositionX - point.X;
+            var y = _effectivePositionY - point.Y;
             var distance = long.CreateTruncating(x) * x + long.CreateTruncating(y) * y;
 
             if (distance >= point.RadiusSquared || distance >= nearestDistance)
@@ -62,62 +62,79 @@ internal sealed partial class AmbientAnimalState
 
             nearestDistance = distance;
             nearestIndex = index;
-            ChecksumState7 = x;
-            ChecksumState8 = y;
-            ChecksumState13 = 8;
+            AvoidanceX = x;
+            AvoidanceY = y;
+            AvoidanceLinger = 8;
         }
 
-        ChecksumState14 = nearestIndex;
-        hasAvoidanceTarget = nearestIndex >= 0;
+        CachedAvoidanceIndex = nearestIndex;
+        _hasAvoidanceTarget = nearestIndex >= 0;
     }
 
     private void RefreshAttractionTarget()
     {
-        var previousCounter = attractionScanCounter;
-        attractionScanCounter++;
+        var previousCounter = _attractionScanCounter;
+        _attractionScanCounter++;
 
         if (previousCounter < 5)
             return;
 
-        attractionScanCounter = 0;
-        hasAttractionTarget = false;
-        ChecksumFlag2 = false;
-        isInsideAttractionTarget = false;
-        const long SelectionDistanceThreshold = 0x40000000;
-        var nearestDistance = SelectionDistanceThreshold;
+        _attractionScanCounter = 0;
+        HasAttractionTarget = false;
+        _isInsideAttractionTarget = false;
+        const long selectionDistanceThreshold = 0x40000000;
+        var nearestDistance = selectionDistanceThreshold;
 
-        foreach (var point in attractionPoints)
+        foreach (var point in _attractionPoints)
         {
-            var x = point.X - GameObject.PositionX;
-            var y = point.Y - GameObject.PositionY;
+            var x = point.X - _effectivePositionX;
+            var y = point.Y - _effectivePositionY;
             var selectionDistance = long.CreateTruncating(x) * x + long.CreateTruncating(y) * y;
 
             if (selectionDistance < nearestDistance)
             {
                 nearestDistance = selectionDistance;
-                TargetY = x;
-                ChecksumState10 = y;
-                hasAttractionTarget = true;
-                ChecksumFlag2 = true;
+                AttractionX = x;
+                AttractionY = y;
+                HasAttractionTarget = true;
             }
 
             if (selectionDistance < point.RadiusSquared)
-                isInsideAttractionTarget = true;
+                _isInsideAttractionTarget = true;
         }
+    }
+
+    private bool ApplyPrimarySourceAvoidance()
+    {
+        if (_primarySource is null || _primarySource.Snapshot.State is not 2 and not 3)
+            return false;
+
+        var animalPosition = ResolveAbsolutePosition(GameObject);
+        var sourcePosition = ResolveAbsolutePosition(_primarySource);
+        var x = unchecked(animalPosition.X - sourcePosition.X);
+        var y = unchecked(animalPosition.Y - sourcePosition.Y);
+
+        if (long.CreateTruncating(x) * x + long.CreateTruncating(y) * y >= 0x400000)
+            return false;
+
+        AvoidanceX = x;
+        AvoidanceY = y;
+        AvoidanceLinger = 8;
+        return true;
     }
 
     private void RefreshLandingTarget()
     {
-        var previousCounter = landingScanCounter;
-        landingScanCounter++;
+        var previousCounter = _landingScanCounter;
+        _landingScanCounter++;
 
         if (previousCounter < 5)
             return;
 
-        landingScanCounter = 0;
-        isInsideLandingTarget = false;
+        _landingScanCounter = 0;
+        _isInsideLandingTarget = false;
 
-        foreach (var point in landingPoints)
+        foreach (var point in _landingPoints)
         {
             if (DestinationX is not 0 || DestinationY is not 0)
             {
@@ -125,15 +142,15 @@ internal sealed partial class AmbientAnimalState
                     continue;
             }
 
-            var x = point.X - (GameObject.PositionX + MovementX);
-            var y = point.Y - (GameObject.PositionY + MovementY);
+            var x = point.X - (_effectivePositionX + MovementX);
+            var y = point.Y - (_effectivePositionY + MovementY);
 
             if (long.CreateTruncating(x) * x + long.CreateTruncating(y) * y >= point.RadiusSquared)
                 continue;
 
-            ChecksumState9 = x + 60;
-            TargetX = y + 60;
-            isInsideLandingTarget = true;
+            LandingX = x + 60;
+            LandingY = y + 60;
+            _isInsideLandingTarget = true;
             return;
         }
     }
@@ -147,6 +164,20 @@ internal sealed partial class AmbientAnimalState
 
         MovementX += (x << shift) / length;
         MovementY += (y << shift) / length;
+    }
+
+    private static (int X, int Y) ResolveAbsolutePosition(GameObjectState gameObject)
+    {
+        var x = 0;
+        var y = 0;
+
+        for (var current = gameObject; current is not null; current = current.Parent)
+        {
+            x = unchecked(x + current.PositionX);
+            y = unchecked(y + current.PositionY);
+        }
+
+        return (x, y);
     }
 
     private static int ResolveSpawnerCoordinate(

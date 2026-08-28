@@ -5,7 +5,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Native map-game configuration structure. Semantic names for its stripped scalar fields are not yet proven.</para>
 /// </summary>
-public sealed record MapGameConfiguration
+internal sealed record MapGameConfiguration
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameConfiguration"/> instance.
@@ -36,52 +36,52 @@ public sealed record MapGameConfiguration
     }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown2</c> value.
+    /// Gets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public int Unknown2 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown3</c> value.
+    /// Gets the <c language="csharp">Unknown3</c> value.
     /// </summary>
     public int Unknown3 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown4</c> value.
+    /// Gets the <c language="csharp">Unknown4</c> value.
     /// </summary>
     public int Unknown4 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown5</c> value.
+    /// Gets the <c language="csharp">Unknown5</c> value.
     /// </summary>
     public int Unknown5 { get; }
 
     /// <summary>
-    /// Gets the <c>Entries</c> value.
+    /// Gets the <c language="csharp">Entries</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameConfigurationEntry> Entries { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown6</c> value.
+    /// Gets the <c language="csharp">Unknown6</c> value.
     /// </summary>
     public int Unknown6 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown7</c> value.
+    /// Gets the <c language="csharp">Unknown7</c> value.
     /// </summary>
     public int Unknown7 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown8</c> value.
+    /// Gets the <c language="csharp">Unknown8</c> value.
     /// </summary>
     public int Unknown8 { get; }
 

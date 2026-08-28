@@ -1,43 +1,26 @@
 using System.Globalization;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using SupercellProxy.Playground.Commands;
 using SupercellProxy.Playground.Data.Assets;
-using SupercellProxy.Playground.Data.Tables;
-using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Home.Simulation;
-using SupercellProxy.Playground.Json;
-using SupercellProxy.Playground.Logic;
-using SupercellProxy.Playground.Network.Configuration;
-using SupercellProxy.Playground.Network.Connections.Client.Exceptions;
-using SupercellProxy.Playground.Network.Messages;
-using SupercellProxy.Playground.Network.Messages.Clientbound;
-using SupercellProxy.Playground.Network.Messages.Serverbound;
-using SupercellProxy.Playground.Network.Protocol;
-using SupercellProxy.Playground.Network.Transport;
 
 namespace SupercellProxy.Playground.Network.Connections.Client;
 
-public partial class ScClient
+internal sealed partial class ScClient
 {
     private static void HandleGoods(GameAsset[] resources)
     {
-        const string ProcessingBuildingsFileName = "processing_buildings.csv";
-
         var processingBuildingsResource =
             resources.FirstOrDefault(static resource =>
                 resource.Fingerprint.File.EndsWith(
-                    ProcessingBuildingsFileName,
+                    GameAssetFiles.ProcessingBuildings,
                     StringComparison.Ordinal
                 )
             )
             ?? throw new InvalidOperationException(
-                $"{ProcessingBuildingsFileName} not found in resources."
+                $"{GameAssetFiles.ProcessingBuildings} not found in resources."
             );
 
         if (!processingBuildingsResource.TryGetTable(out var processingBuildings))
             throw new InvalidOperationException(
-                $"Failed to parse {ProcessingBuildingsFileName} from resources."
+                $"Failed to parse {GameAssetFiles.ProcessingBuildings} from resources."
             );
 
         for (var i = 0; i < processingBuildings.Entries.Count; i++)
@@ -105,7 +88,7 @@ public partial class ScClient
     )
     {
         var assetsDirectory = Directory.CreateDirectory(
-            Path.Combine(AppContext.BaseDirectory, "Assets", fingerprint.Version, fingerprint.Sha)
+            Path.Combine(GameAsset.RootDirectoryPath, fingerprint.Version, fingerprint.Sha)
         );
         var resources = new List<GameAsset>();
 
@@ -172,11 +155,11 @@ public partial class ScClient
     {
         try
         {
+            var assetUri = new Uri(
+                $"{downloadUrl.Trim('/')}/{fingerprint.Sha.Trim('/')}/{file.File.Trim('/')}"
+            );
             using var response = await _httpClient
-                .GetAsync(
-                    $"{downloadUrl.Trim('/')}/{fingerprint.Sha.Trim('/')}/{file.File.Trim('/')}",
-                    cancellationToken
-                )
+                .GetAsync(assetUri, cancellationToken)
                 .ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var fileStream = File.Create(filePath);

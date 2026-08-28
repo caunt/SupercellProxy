@@ -4,82 +4,82 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>LoginOkMessage</c> protocol message.
+/// Represents the <c language="csharp">LoginOkMessage</c> protocol message.
 /// </summary>
-public record LoginOkMessage : IMessage
+internal sealed record LoginOkMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>LoginResult</c> value.
+    /// Gets or sets the <c language="csharp">LoginResult</c> value.
     /// </summary>
     public required int LoginResult { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown0</c> value.
+    /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public required int Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>LoginVersion</c> value.
+    /// Gets or sets the <c language="csharp">LoginVersion</c> value.
     /// </summary>
     public required int LoginVersion { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>ServerBuild</c> value.
+    /// Gets or sets the <c language="csharp">ServerBuild</c> value.
     /// </summary>
     public required int ServerBuild { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown1</c> value.
+    /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public required bool Unknown1 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>AccountId</c> value.
+    /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     public required LongId AccountId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>HomeId</c> value.
+    /// Gets or sets the <c language="csharp">HomeId</c> value.
     /// </summary>
     public required LongId HomeId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CreationTimestamp</c> value.
+    /// Gets or sets the <c language="csharp">CreationTimestamp</c> value.
     /// </summary>
     public required string CreationTimestamp { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CreationTimestampTrunc</c> value.
+    /// Gets or sets the <c language="csharp">CreationTimestampTrunc</c> value.
     /// </summary>
     public required string CreationTimestampTrunc { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>PassToken</c> value.
+    /// Gets or sets the <c language="csharp">PassToken</c> value.
     /// </summary>
     public required string PassToken { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Unknown2</c> value.
+    /// Gets or sets the <c language="csharp">Unknown2</c> value.
     /// </summary>
     public required string?[] Unknown2 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>CountryCode</c> value.
+    /// Gets or sets the <c language="csharp">CountryCode</c> value.
     /// </summary>
     public required string CountryCode { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>EventAssetsUrl</c> value.
+    /// Gets or sets the <c language="csharp">EventAssetsUrl</c> value.
     /// </summary>
     public required string EventAssetsUrl { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>UnknownData</c> value.
+    /// Gets or sets the <c language="csharp">UnknownData</c> value.
     /// </summary>
     public Memory<byte> UnknownData { get; init; }
 
     /// <summary>
-    /// Creates a <c>LoginOkMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">LoginOkMessage</c> from the supplied data.
     /// </summary>
     public static LoginOkMessage Create(MessageContainer container)
     {
@@ -109,7 +109,7 @@ public record LoginOkMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

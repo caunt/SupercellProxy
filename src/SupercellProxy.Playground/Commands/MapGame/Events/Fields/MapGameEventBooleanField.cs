@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameEventBooleanField</c>.
+/// Represents <c language="csharp">MapGameEventBooleanField</c>.
 /// </summary>
-public sealed record MapGameEventBooleanField(bool Value) : MapGameEventField
+internal sealed record MapGameEventBooleanField(bool Value) : MapGameEventField
 {
     internal override MapGameEventFieldType FieldType => MapGameEventFieldType.Boolean;
 

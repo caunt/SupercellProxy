@@ -7,10 +7,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Logic command 599. The stripped client does not expose semantic field names.</para>
 /// </summary>
-public sealed record Command599 : Command
+internal sealed record Command599 : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 599;
 
@@ -22,11 +22,11 @@ public sealed record Command599 : Command
         int unknown1,
         ReadOnlyMemory<byte> payload,
         CommandInt32Pair? optionalPair,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         Unknown0 = unknown0;
         Unknown1 = unknown1;
@@ -35,27 +35,27 @@ public sealed record Command599 : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown1</c> value.
+    /// Gets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; }
 
     /// <summary>
-    /// Gets the <c>Payload</c> value.
+    /// Gets the <c language="csharp">Payload</c> value.
     /// </summary>
     public ReadOnlyMemory<byte> Payload { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalPair</c> value.
+    /// Gets the <c language="csharp">OptionalPair</c> value.
     /// </summary>
     public CommandInt32Pair? OptionalPair { get; }
 
@@ -85,7 +85,7 @@ public sealed record Command599 : Command
             unknown1,
             payload,
             optionalPair,
-            commandFields.ExecuteSubTick,
+            commandFields.ExecutionPhaseCounter,
             commandFields.DebugData0,
             commandFields.DebugData1
         );

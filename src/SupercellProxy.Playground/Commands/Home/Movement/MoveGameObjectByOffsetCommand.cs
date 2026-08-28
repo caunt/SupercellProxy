@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Moves an existing game object by a logic-coordinate offset after validating its prior tile and data.</para>
 /// </summary>
-public sealed record MoveGameObjectByOffsetCommand : Command
+internal sealed record MoveGameObjectByOffsetCommand : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 3;
 
@@ -24,11 +24,11 @@ public sealed record MoveGameObjectByOffsetCommand : Command
         int expectedTileY,
         int expectedDataGlobalId,
         bool mirrored,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         GameObjectGlobalId = gameObjectGlobalId;
         OffsetX = logicOffsetX;
@@ -40,42 +40,42 @@ public sealed record MoveGameObjectByOffsetCommand : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>GameObjectGlobalId</c> value.
+    /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
     /// </summary>
     public int GameObjectGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>OffsetX</c> value.
+    /// Gets the <c language="csharp">OffsetX</c> value.
     /// </summary>
     public int OffsetX { get; }
 
     /// <summary>
-    /// Gets the <c>OffsetY</c> value.
+    /// Gets the <c language="csharp">OffsetY</c> value.
     /// </summary>
     public int OffsetY { get; }
 
     /// <summary>
-    /// Gets the <c>ExpectedTileX</c> value.
+    /// Gets the <c language="csharp">ExpectedTileX</c> value.
     /// </summary>
     public int ExpectedTileX { get; }
 
     /// <summary>
-    /// Gets the <c>ExpectedTileY</c> value.
+    /// Gets the <c language="csharp">ExpectedTileY</c> value.
     /// </summary>
     public int ExpectedTileY { get; }
 
     /// <summary>
-    /// Gets the <c>ExpectedDataGlobalId</c> value.
+    /// Gets the <c language="csharp">ExpectedDataGlobalId</c> value.
     /// </summary>
     public int ExpectedDataGlobalId { get; }
 
     /// <summary>
-    /// Gets the <c>Mirrored</c> value.
+    /// Gets the <c language="csharp">Mirrored</c> value.
     /// </summary>
     public bool Mirrored { get; }
 
@@ -101,7 +101,7 @@ public sealed record MoveGameObjectByOffsetCommand : Command
             expectedTileY,
             expectedDataGlobalId,
             mirrored,
-            fields.ExecuteSubTick,
+            fields.ExecutionPhaseCounter,
             fields.DebugData0,
             fields.DebugData1
         );

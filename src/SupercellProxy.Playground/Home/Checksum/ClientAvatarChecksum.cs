@@ -1,15 +1,12 @@
 using System.Globalization;
-using SupercellProxy.Playground.Data.Tables;
-using SupercellProxy.Playground.Home;
-using SupercellProxy.Playground.Home.Simulation;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Logic;
-using SupercellProxy.Playground.Network.Messages.Clientbound;
 
 namespace SupercellProxy.Playground.Home.Checksum;
 
 internal static class ClientAvatarChecksum
 {
-    public static void EncodeAbbreviated(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeAbbreviated(ChecksumEncoder encoder, HomeState state)
     {
         EnsureNoUnsupportedFarmPassCapacityModifiers(state);
 
@@ -26,29 +23,29 @@ internal static class ClientAvatarChecksum
         WriteCurrentChecksum(encoder);
     }
 
-    private static void EncodeStorageCapacities(ChecksumEncoder encoder, HarvestState state)
+    private static void EncodeStorageCapacities(ChecksumEncoder encoder, HomeState state)
     {
         encoder.WriteVarInt(
-            ResolveGroupedCapacity(state, "SiloRank", "data/silos.csv", "Silo", "Capacity")
+            ResolveGroupedCapacity(state, "SiloRank", GameAssetFiles.Silos, "Silo", "Capacity")
         );
         encoder.WriteVarInt(
             ResolveGroupedCapacity(
                 state,
                 "WarehouseRank",
-                "data/warehouses.csv",
+                GameAssetFiles.Warehouses,
                 "Shed",
                 "Capacity"
             )
         );
     }
 
-    private static void EncodeHelperCapacities(ChecksumEncoder encoder, HarvestState state)
+    private static void EncodeHelperCapacities(ChecksumEncoder encoder, HomeState state)
     {
         encoder.WriteVarInt(
             ResolveGroupedCapacity(
                 state,
                 "TackleBoxRank",
-                "data/tackle_box.csv",
+                GameAssetFiles.TackleBox,
                 "TackleBox",
                 "Capacity"
             )
@@ -57,7 +54,7 @@ internal static class ClientAvatarChecksum
             ResolveGroupedCapacity(
                 state,
                 "LobsterPoolRank",
-                "data/lobster_pool.csv",
+                GameAssetFiles.LobsterPool,
                 "LobsterPool",
                 "Capacity"
             )
@@ -66,7 +63,7 @@ internal static class ClientAvatarChecksum
             ResolveGroupedCapacity(
                 state,
                 "DuckSalonRank",
-                "data/duck_salon.csv",
+                GameAssetFiles.DuckSalon,
                 "DuckSalon",
                 "Capacity"
             )
@@ -75,32 +72,32 @@ internal static class ClientAvatarChecksum
         encoder.WriteVarInt(
             ResolveCapacity(
                 state,
-                "data/money.csv",
+                GameAssetFiles.Money,
                 "ExpLevel",
-                "data/exp_levels.csv",
+                GameAssetFiles.ExperienceLevels,
                 "CaretakerStorageCapacity"
             )
         );
         encoder.WriteVarInt(
             ResolveCapacity(
                 state,
-                "data/money.csv",
+                GameAssetFiles.Money,
                 "ExpLevel",
-                "data/exp_levels.csv",
+                GameAssetFiles.ExperienceLevels,
                 "MillerStorageCapacity"
             )
         );
     }
 
     private static int ResolveGroupedCapacity(
-        HarvestState state,
+        HomeState state,
         string rankName,
         string capacityFile,
         string capacityName,
         string capacityField
     )
     {
-        if (!state.DataTableResolver.TryResolve("data/money.csv", rankName, out var rankData))
+        if (!state.DataTableResolver.TryResolve(GameAssetFiles.Money, rankName, out var rankData))
             throw new InvalidDataException($"Missing native capacity data for {capacityName}.");
 
         var rank = state.Inventory.GetTotalValue(rankData);
@@ -129,7 +126,7 @@ internal static class ClientAvatarChecksum
         return capacity;
     }
 
-    public static void EncodeFull(ChecksumEncoder encoder, HarvestState state)
+    public static void EncodeFull(ChecksumEncoder encoder, HomeState state)
     {
         EncodeFull(encoder, state.ClientAvatar, state.Inventory, state.ShopEventManager.Snapshot);
     }
@@ -288,7 +285,7 @@ internal static class ClientAvatarChecksum
             static (entryEncoder, entry) =>
             {
                 EncodeOptionalLongId(entryEncoder, entry.BuyerId);
-                entryEncoder.WriteBoolean(entry.IsAdvertised);
+                entryEncoder.WriteBoolean(entry.IsSold);
                 entryEncoder.WriteVarInt(entry.Price);
                 entryEncoder.WriteVarInt(entry.Quantity);
                 entryEncoder.WriteVarInt(entry.ItemGlobalId);
@@ -579,7 +576,7 @@ internal static class ClientAvatarChecksum
     }
 
     private static int ResolveCapacity(
-        HarvestState state,
+        HomeState state,
         string rankFile,
         string rankName,
         string capacityFile,
@@ -617,7 +614,7 @@ internal static class ClientAvatarChecksum
         return capacity;
     }
 
-    private static void EnsureNoUnsupportedFarmPassCapacityModifiers(HarvestState state)
+    private static void EnsureNoUnsupportedFarmPassCapacityModifiers(HomeState state)
     {
         var farmPass = state.AvatarData.AvatarDataObjects.Common.FarmPassManager;
 

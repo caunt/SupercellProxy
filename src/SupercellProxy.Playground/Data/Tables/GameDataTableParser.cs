@@ -1,16 +1,15 @@
-﻿using System.Collections.ObjectModel;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 namespace SupercellProxy.Playground.Data.Tables;
 
 /// <summary>
-/// Represents <c>GameDataTableParser</c>.
+/// Represents <c language="csharp">GameDataTableParser</c>.
 /// </summary>
-public static class GameDataTableParser
+internal static class GameDataTableParser
 {
     /// <summary>
-    /// Executes the <c>Parse</c> operation.
+    /// Executes the <c language="csharp">Parse</c> operation.
     /// </summary>
     public static GameDataTable Parse(string csvText)
     {
@@ -203,9 +202,9 @@ public static class GameDataTableParser
     }
 
     private static Dictionary<string, object?> ParseSparseValues(
-        IReadOnlyList<string> headers,
-        IReadOnlyList<string> types,
-        IReadOnlyList<string> row
+        List<string> headers,
+        List<string> types,
+        List<string> row
     )
     {
         var values = new Dictionary<string, object?>(headers.Count, StringComparer.Ordinal);
@@ -225,28 +224,28 @@ public static class GameDataTableParser
 
     private static object ParseValue(string cellText, string declaredType)
     {
-        var normalizedType = declaredType.Trim().ToLowerInvariant();
+        var normalizedType = declaredType.Trim().ToUpperInvariant();
 
         return normalizedType switch
         {
-            "int" => int.Parse(cellText.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture),
-            "long" => long.Parse(
+            "INT" => int.Parse(cellText.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture),
+            "LONG" => long.Parse(
                 cellText.Trim(),
                 NumberStyles.Integer,
                 CultureInfo.InvariantCulture
             ),
-            "float" => float.Parse(
+            "FLOAT" => float.Parse(
                 cellText.Trim(),
                 NumberStyles.Float | NumberStyles.AllowThousands,
                 CultureInfo.InvariantCulture
             ),
-            "double" => double.Parse(
+            "DOUBLE" => double.Parse(
                 cellText.Trim(),
                 NumberStyles.Float | NumberStyles.AllowThousands,
                 CultureInfo.InvariantCulture
             ),
-            "boolean" or "bool" => ParseBoolean(cellText),
-            "string" => cellText,
+            "BOOLEAN" or "BOOL" => ParseBoolean(cellText),
+            "STRING" => cellText,
             _ => cellText,
         };
     }

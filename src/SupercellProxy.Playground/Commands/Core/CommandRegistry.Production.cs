@@ -1,11 +1,11 @@
 namespace SupercellProxy.Playground.Commands;
 
-public static partial class CommandRegistry
+internal static partial class CommandRegistry
 {
     private static readonly CommandPrimitiveSchema[] ProductionPrimitiveSchemas =
     [
         new CommandPrimitiveSchema(
-            new int[43]
+            new int[41]
             {
                 502,
                 511,
@@ -41,9 +41,7 @@ public static partial class CommandRegistry
                 627,
                 629,
                 632,
-                649,
                 651,
-                654,
                 656,
                 665,
                 667,

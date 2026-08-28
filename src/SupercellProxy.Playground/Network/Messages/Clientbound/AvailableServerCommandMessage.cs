@@ -6,12 +6,12 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>AvailableServerCommandMessage</c> protocol message.
+/// Represents the <c language="csharp">AvailableServerCommandMessage</c> protocol message.
 /// </summary>
-public sealed record AvailableServerCommandMessage(Command Command) : IMessage
+internal sealed record AvailableServerCommandMessage(Command Command) : IMessage
 {
     /// <summary>
-    /// Creates a <c>AvailableServerCommandMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">AvailableServerCommandMessage</c> from the supplied data.
     /// </summary>
     public static AvailableServerCommandMessage Create(MessageContainer container)
     {
@@ -22,27 +22,41 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
             container.Payload.CommandDataResolver
         );
 
-        using var encoded = MessageStream.Create();
-        CommandRegistry.Encode(encoded, command, CommandEnvironment.Production);
+        var encoded = MessageStream.Create();
+        try
+        {
+            CommandRegistry.Encode(encoded, command, CommandEnvironment.Production);
 
-        if (!payload.AsSpan().SequenceEqual(encoded.ToArray()))
-            throw new InvalidDataException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"Server command {command.Type} did not encode back to the received payload."
-                )
-            );
+            if (!payload.AsSpan().SequenceEqual(encoded.ToArray()))
+                throw new InvalidDataException(
+                    string.Create(
+                        CultureInfo.InvariantCulture,
+                        $"Server command {command.Type} did not encode back to the received payload."
+                    )
+                );
+        }
+        finally
+        {
+            encoded.Dispose();
+        }
 
         return new AvailableServerCommandMessage(command);
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
         var stream = MessageStream.Create();
-        CommandRegistry.Encode(stream, Command, CommandEnvironment.Production);
-        return new MessageContainer(id, version, stream);
+        try
+        {
+            CommandRegistry.Encode(stream, Command, CommandEnvironment.Production);
+            return new MessageContainer(id, version, stream);
+        }
+        finally
+        {
+            stream.Dispose();
+        }
     }
 }

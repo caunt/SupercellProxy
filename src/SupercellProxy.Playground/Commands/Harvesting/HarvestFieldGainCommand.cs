@@ -6,10 +6,10 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>Starts the gain phase of harvesting a crop from a field.</para>
 /// </summary>
-public sealed record HarvestFieldGainCommand : Command
+internal sealed record HarvestFieldGainCommand : Command
 {
     /// <summary>
-    /// Defines the <c>CommandType</c> value.
+    /// Defines the <c language="csharp">CommandType</c> value.
     /// </summary>
     public const int CommandType = 657;
 
@@ -18,22 +18,22 @@ public sealed record HarvestFieldGainCommand : Command
     /// </summary>
     public HarvestFieldGainCommand(
         int fieldGlobalId,
-        int executeSubTick = -1,
+        int executionPhaseCounter = 0,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         FieldGlobalId = fieldGlobalId;
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type => CommandType;
 
     /// <summary>
-    /// Gets the <c>FieldGlobalId</c> value.
+    /// Gets the <c language="csharp">FieldGlobalId</c> value.
     /// </summary>
     public int FieldGlobalId { get; }
 
@@ -45,7 +45,7 @@ public sealed record HarvestFieldGainCommand : Command
         var fields = DecodeCommand(stream, environment);
         return new HarvestFieldGainCommand(
             stream.ReadVarInt(),
-            fields.ExecuteSubTick,
+            fields.ExecutionPhaseCounter,
             fields.DebugData0,
             fields.DebugData1
         );

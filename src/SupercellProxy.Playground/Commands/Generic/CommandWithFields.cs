@@ -6,7 +6,7 @@ namespace SupercellProxy.Playground.Commands;
 /// <summary>
 /// <para>A command with a native-proven primitive field sequence and unknown semantic field names.</para>
 /// </summary>
-public sealed record CommandWithFields : Command
+internal sealed record CommandWithFields : Command
 {
     private readonly bool _baseFirst;
 
@@ -16,11 +16,11 @@ public sealed record CommandWithFields : Command
     public CommandWithFields(
         int type,
         ReadOnlyMemory<CommandField> fields,
-        int executeSubTick = -1,
+        int executionPhaseCounter = -1,
         CommandData? debugData0 = null,
         CommandData? debugData1 = null
     )
-        : base(executeSubTick, debugData0, debugData1)
+        : base(executionPhaseCounter, debugData0, debugData1)
     {
         _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, isServerCommand: false);
         Type = type;
@@ -30,10 +30,14 @@ public sealed record CommandWithFields : Command
     private CommandWithFields(
         int type,
         ReadOnlyMemory<CommandField> fields,
-        (int ExecuteSubTick, CommandData? DebugData0, CommandData? DebugData1) commandFields,
+        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields,
         bool baseFirst
     )
-        : base(commandFields.ExecuteSubTick, commandFields.DebugData0, commandFields.DebugData1)
+        : base(
+            commandFields.ExecutionPhaseCounter,
+            commandFields.DebugData0,
+            commandFields.DebugData1
+        )
     {
         _baseFirst = baseFirst;
         Type = type;
@@ -41,12 +45,12 @@ public sealed record CommandWithFields : Command
     }
 
     /// <summary>
-    /// Gets the <c>Type</c> value.
+    /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
     public override int Type { get; }
 
     /// <summary>
-    /// Gets the <c>Fields</c> value.
+    /// Gets the <c language="csharp">Fields</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandField> Fields { get; }
 
@@ -59,7 +63,7 @@ public sealed record CommandWithFields : Command
     )
     {
         var commandFields = default((
-            int ExecuteSubTick,
+            int ExecutionPhaseCounter,
             CommandData? DebugData0,
             CommandData? DebugData1
         ));

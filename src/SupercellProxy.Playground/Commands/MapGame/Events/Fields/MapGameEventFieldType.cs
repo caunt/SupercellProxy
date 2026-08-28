@@ -1,5 +1,3 @@
-using SupercellProxy.Playground.Logic;
-
 namespace SupercellProxy.Playground.Commands;
 
 internal enum MapGameEventFieldType

@@ -3,9 +3,9 @@ using SupercellProxy.Playground.Network.Transport;
 namespace SupercellProxy.Playground.Commands;
 
 /// <summary>
-/// Represents <c>MapGameGasStationTaskStatePayload</c>.
+/// Represents <c language="csharp">MapGameGasStationTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
+internal sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameGasStationTaskStatePayload"/> instance.
@@ -24,22 +24,22 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean0</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
     /// </summary>
     public bool UnknownBoolean0 { get; }
 
     /// <summary>
-    /// Gets the <c>UnknownBoolean1</c> value.
+    /// Gets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
     public bool UnknownBoolean1 { get; }
 
     /// <summary>
-    /// Gets the <c>Unknown0</c> value.
+    /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
 
     /// <summary>
-    /// Gets the <c>OptionalValues</c> value.
+    /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
 

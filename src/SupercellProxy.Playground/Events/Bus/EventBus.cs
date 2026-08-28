@@ -3,15 +3,15 @@
 namespace SupercellProxy.Playground.Events.Bus;
 
 /// <summary>
-/// Represents <c>EventBus</c>.
+/// Represents <c language="csharp">EventBus</c>.
 /// </summary>
-public class EventBus
+internal sealed class EventBus
 {
-    private Delegate?[] eventDelegates = new Delegate?[16];
-    private readonly AsyncLock subscriptionLock = new();
+    private Delegate?[] _eventDelegates = new Delegate?[16];
+    private readonly AsyncLock _subscriptionLock = new();
 
     /// <summary>
-    /// Executes the <c>SubscribeAsync</c> operation.
+    /// Executes the <c language="csharp">SubscribeAsync</c> operation.
     /// </summary>
     public async Task SubscribeAsync<TEvent>(
         Func<TEvent, CancellationToken, Task> asyncEventHandler,
@@ -21,11 +21,11 @@ public class EventBus
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
 
-        using var disposable = await subscriptionLock
+        using var disposable = await _subscriptionLock
             .LockAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var currentDelegatesArray = Volatile.Read(ref eventDelegates);
+        var currentDelegatesArray = Volatile.Read(ref _eventDelegates);
 
         if (eventIndex >= currentDelegatesArray.Length)
         {
@@ -35,7 +35,7 @@ public class EventBus
 
             newDelegatesArray[eventIndex] = asyncEventHandler;
 
-            Volatile.Write(ref eventDelegates, newDelegatesArray);
+            Volatile.Write(ref _eventDelegates, newDelegatesArray);
         }
         else
         {
@@ -47,7 +47,7 @@ public class EventBus
     }
 
     /// <summary>
-    /// Executes the <c>UnsubscribeAsync</c> operation.
+    /// Executes the <c language="csharp">UnsubscribeAsync</c> operation.
     /// </summary>
     public async Task UnsubscribeAsync<TEvent>(
         Func<TEvent, CancellationToken, Task> asyncEventHandler,
@@ -57,11 +57,11 @@ public class EventBus
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
 
-        using var disposable = await subscriptionLock
+        using var disposable = await _subscriptionLock
             .LockAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var currentDelegatesArray = Volatile.Read(ref eventDelegates);
+        var currentDelegatesArray = Volatile.Read(ref _eventDelegates);
 
         if (eventIndex < currentDelegatesArray.Length)
         {
@@ -76,7 +76,7 @@ public class EventBus
     }
 
     /// <summary>
-    /// Executes the <c>PublishAsync</c> operation.
+    /// Executes the <c language="csharp">PublishAsync</c> operation.
     /// </summary>
     public async Task<TEvent> PublishAsync<TEvent>(
         TEvent eventItem,
@@ -85,7 +85,7 @@ public class EventBus
         where TEvent : IEvent
     {
         var eventIndex = EventTypeCache<TEvent>.Index;
-        var currentDelegatesArray = Volatile.Read(ref eventDelegates);
+        var currentDelegatesArray = Volatile.Read(ref _eventDelegates);
 
         if (eventIndex < currentDelegatesArray.Length)
         {
@@ -113,19 +113,18 @@ public class EventBus
         {
             if (individualDelegate is Func<TEvent, CancellationToken, Task> typedAsyncAction)
             {
-                Task executionTask;
-
-                try
-                {
-                    executionTask = typedAsyncAction(eventItem, cancellationToken);
-                }
-                catch (Exception caughtException)
-                {
-                    executionTask = Task.FromException(caughtException);
-                }
-
-                yield return executionTask;
+                yield return InvokeAsync(typedAsyncAction, eventItem, cancellationToken);
             }
         }
+    }
+
+    private static async Task InvokeAsync<TEvent>(
+        Func<TEvent, CancellationToken, Task> asyncEventHandler,
+        TEvent eventItem,
+        CancellationToken cancellationToken
+    )
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+        await asyncEventHandler(eventItem, cancellationToken).ConfigureAwait(false);
     }
 }

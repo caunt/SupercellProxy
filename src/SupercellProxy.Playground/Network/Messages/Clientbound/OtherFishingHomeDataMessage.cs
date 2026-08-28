@@ -3,18 +3,18 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>OtherFishingHomeDataMessage</c> protocol message.
+/// Represents the <c language="csharp">OtherFishingHomeDataMessage</c> protocol message.
 /// </summary>
-public record OtherFishingHomeDataMessage : OtherHomeDataMessage
+internal sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage
 {
     /// <summary>
-    /// Gets or sets the <c>RawPayload</c> value.
+    /// Gets or sets the <c language="csharp">RawPayload</c> value.
     /// </summary>
     [JsonIgnore]
     public Memory<byte> RawPayload { get; init; }
 
     /// <summary>
-    /// Creates a <c>OtherFishingHomeDataMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">OtherFishingHomeDataMessage</c> from the supplied data.
     /// </summary>
     public static new OtherFishingHomeDataMessage Create(MessageContainer container)
     {

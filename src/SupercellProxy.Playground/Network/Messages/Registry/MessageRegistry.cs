@@ -6,11 +6,14 @@ using SupercellProxy.Playground.Network.Messages.Serverbound;
 namespace SupercellProxy.Playground.Network.Messages;
 
 /// <summary>
-/// Represents <c>MessageRegistry</c>.
+/// Represents <c language="csharp">MessageRegistry</c>.
 /// </summary>
-public static class MessageRegistry
+internal static class MessageRegistry
 {
-    private static readonly Dictionary<ushort, string> _hints = new()
+    /// Identifies the clientbound loading-complete gate used to initialize home turns.
+    public const ushort HomeInitializationMessageType = 27439;
+
+    private static readonly Dictionary<ushort, string> Hints = new()
     {
         [10518] = "open friend book",
         [14972] = "last helpers request",
@@ -22,7 +25,7 @@ public static class MessageRegistry
         [40000] = "updateConversionValue",
     };
 
-    private static readonly Dictionary<ushort, MessageRegistryEntry> _map = new()
+    private static readonly Dictionary<ushort, MessageRegistryEntry> Map = new()
     {
         [10100] = new MessageRegistryEntry(
             Version: 0,
@@ -90,6 +93,12 @@ public static class MessageRegistry
             Factory: KeepAliveOkMessage.Create
         ),
 
+        [20155] = new MessageRegistryEntry(
+            Version: 0,
+            Type: typeof(Clientbound20155Message),
+            Factory: Clientbound20155Message.Create
+        ),
+
         [20187] = new MessageRegistryEntry(
             Version: 0,
             Type: typeof(AvailableServerCommandMessage),
@@ -120,6 +129,12 @@ public static class MessageRegistry
             Factory: LoginOkMessage.Create
         ),
 
+        [26199] = new MessageRegistryEntry(
+            Version: 0,
+            Type: typeof(Clientbound26199Message),
+            Factory: Clientbound26199Message.Create
+        ),
+
         [28917] = new MessageRegistryEntry(
             Version: 0,
             Type: typeof(OtherFishingHomeDataMessage),
@@ -128,7 +143,7 @@ public static class MessageRegistry
     };
 
     /// <summary>
-    /// Resolves <c>MessageRegistry</c> from retained game data.
+    /// Resolves <c language="csharp">MessageRegistry</c> from retained game data.
     /// </summary>
     public static IMessage Resolve(MessageContainer container)
     {
@@ -136,11 +151,11 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Resolves <c>MessageRegistry</c> from retained game data.
+    /// Resolves <c language="csharp">MessageRegistry</c> from retained game data.
     /// </summary>
     public static IMessage Resolve(MessageContainer container, ICommandDataResolver? dataResolver)
     {
-        if (!_map.TryGetValue(container.Id, out var entry))
+        if (!Map.TryGetValue(container.Id, out var entry))
             return PassthroughMessage.Create(container);
 
         if (container.Id == GetId<EndClientTurnMessage>())
@@ -154,15 +169,15 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Gets <c>Hint</c>.
+    /// Gets <c language="csharp">Hint</c>.
     /// </summary>
     public static string? GetHint(ushort id)
     {
-        return _hints.TryGetValue(id, out var hint) ? hint : null;
+        return Hints.TryGetValue(id, out var hint) ? hint : null;
     }
 
     /// <summary>
-    /// Gets <c>Id</c>.
+    /// Gets <c language="csharp">Id</c>.
     /// </summary>
     public static ushort GetId<T>(T message)
         where T : IMessage
@@ -174,7 +189,7 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Gets <c>Id</c>.
+    /// Gets <c language="csharp">Id</c>.
     /// </summary>
     public static ushort GetId<T>()
         where T : IMessage
@@ -183,16 +198,16 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Gets <c>Id</c>.
+    /// Gets <c language="csharp">Id</c>.
     /// </summary>
     public static ushort GetId(Type type)
     {
         var entry = GetEntry(type);
-        return _map.First(kv => kv.Value == entry).Key;
+        return Map.First(kv => kv.Value == entry).Key;
     }
 
     /// <summary>
-    /// Gets <c>Version</c>.
+    /// Gets <c language="csharp">Version</c>.
     /// </summary>
     public static ushort GetVersion<T>(T message)
         where T : IMessage
@@ -204,7 +219,7 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Gets <c>Version</c>.
+    /// Gets <c language="csharp">Version</c>.
     /// </summary>
     public static ushort GetVersion<T>()
         where T : IMessage
@@ -213,22 +228,16 @@ public static class MessageRegistry
     }
 
     /// <summary>
-    /// Gets <c>Version</c>.
+    /// Gets <c language="csharp">Version</c>.
     /// </summary>
     public static ushort GetVersion(Type type)
     {
         return GetEntry(type).Version;
     }
 
-    private static MessageRegistryEntry GetEntry<T>()
-        where T : IMessage
-    {
-        return GetEntry(typeof(T));
-    }
-
     private static MessageRegistryEntry GetEntry(Type type)
     {
-        return _map.Values.FirstOrDefault(entry => entry.Type == type)
+        return Map.Values.FirstOrDefault(entry => entry.Type == type)
             ?? throw new InvalidOperationException($"Message type {type} is not registered.");
     }
 }

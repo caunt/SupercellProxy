@@ -3,32 +3,32 @@
 namespace SupercellProxy.Playground.Network.Messages;
 
 /// <summary>
-/// Represents the <c>PassthroughMessage</c> protocol message.
+/// Represents the <c language="csharp">PassthroughMessage</c> protocol message.
 /// </summary>
-public record PassthroughMessage : IMessage
+internal sealed record PassthroughMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c>Id</c> value.
+    /// Gets or sets the <c language="csharp">Id</c> value.
     /// </summary>
     public required ushort Id { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Version</c> value.
+    /// Gets or sets the <c language="csharp">Version</c> value.
     /// </summary>
     public required ushort Version { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c>Data</c> value.
+    /// Gets or sets the <c language="csharp">Data</c> value.
     /// </summary>
     public required Memory<byte> Data { get; set; }
 
     /// <summary>
-    /// Gets the <c>Hint</c> value.
+    /// Gets the <c language="csharp">Hint</c> value.
     /// </summary>
     public string? Hint => MessageRegistry.GetHint(Id);
 
     /// <summary>
-    /// Creates a <c>PassthroughMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">PassthroughMessage</c> from the supplied data.
     /// </summary>
     public static PassthroughMessage Create(MessageContainer container)
     {
@@ -41,7 +41,7 @@ public record PassthroughMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {
@@ -53,7 +53,7 @@ public record PassthroughMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToString</c> operation.
+    /// Executes the <c language="csharp">ToString</c> operation.
     /// </summary>
     public override string ToString()
     {

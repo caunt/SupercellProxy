@@ -1,4 +1,3 @@
-using System.Text;
 using SupercellProxy.Playground.Logic;
 
 namespace SupercellProxy.Playground.Home.Checksum;

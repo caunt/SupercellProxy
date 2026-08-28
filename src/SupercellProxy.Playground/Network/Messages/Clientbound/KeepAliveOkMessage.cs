@@ -3,12 +3,12 @@
 namespace SupercellProxy.Playground.Network.Messages.Clientbound;
 
 /// <summary>
-/// Represents the <c>KeepAliveOkMessage</c> protocol message.
+/// Represents the <c language="csharp">KeepAliveOkMessage</c> protocol message.
 /// </summary>
-public record KeepAliveOkMessage : IMessage
+internal sealed record KeepAliveOkMessage : IMessage
 {
     /// <summary>
-    /// Creates a <c>KeepAliveOkMessage</c> from the supplied data.
+    /// Creates a <c language="csharp">KeepAliveOkMessage</c> from the supplied data.
     /// </summary>
     public static KeepAliveOkMessage Create(MessageContainer container)
     {
@@ -16,7 +16,7 @@ public record KeepAliveOkMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c>ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToContainer</c> operation.
     /// </summary>
     public MessageContainer ToContainer(ushort id, ushort version = 0)
     {

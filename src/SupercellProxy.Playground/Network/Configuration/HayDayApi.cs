@@ -3,24 +3,24 @@ using System.Text.RegularExpressions;
 namespace SupercellProxy.Playground.Network.Configuration;
 
 /// <summary>
-/// Represents <c>HayDayApi</c>.
+/// Represents <c language="csharp">HayDayApi</c>.
 /// </summary>
-public static partial class HayDayApi
+internal static partial class HayDayApi
 {
     private static readonly HttpClient HttpClient = new();
+    private static readonly Uri KeysUri = new(
+        "https://raw.githubusercontent.com/caunt/SupercellProxy/refs/heads/main/KEYS.md"
+    );
 
     /// <summary>
-    /// Gets <c>ServerPublicKeyAsync</c>.
+    /// Gets <c language="csharp">ServerPublicKeyAsync</c>.
     /// </summary>
     public static async ValueTask<byte[]> GetServerPublicKeyAsync(
         CancellationToken cancellationToken = default
     )
     {
         var content = await HttpClient
-            .GetStringAsync(
-                "https://raw.githubusercontent.com/caunt/SupercellProxy/refs/heads/main/KEYS.md",
-                cancellationToken
-            )
+            .GetStringAsync(KeysUri, cancellationToken)
             .ConfigureAwait(false);
         var hayDayMatch = HayDayPublicKeyRegex.Match(content);
 

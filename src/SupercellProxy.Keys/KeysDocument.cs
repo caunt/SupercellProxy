@@ -3,30 +3,37 @@ using System.Text.RegularExpressions;
 
 namespace SupercellProxy.Keys;
 
-internal sealed class KeysDocument
+internal sealed partial class KeysDocument
 {
-    private static readonly string HeadingPatternText =
+    private const string HeadingPatternText =
         @"^## \[(?<name>[^\]]+)\]\(https://decrypt\.day/app/id(?<id>\d+)\)\s*$";
-    private static readonly string KeyCellPatternText = @"^`(?<key>[0-9A-Fa-f]{64})`$";
-    private static readonly string TableSeparatorCellPatternText = @"^:?-{3,}:?$";
-    private static readonly Regex HeadingRegex = new(
+    private const string KeyCellPatternText = @"^`(?<key>[0-9A-Fa-f]{64})`$";
+    private const string TableSeparatorCellPatternText = @"^:?-{3,}:?$";
+
+    [GeneratedRegex(
         HeadingPatternText,
-        RegexOptions.CultureInvariant | RegexOptions.Compiled,
-        TimeSpan.FromSeconds(1)
-    );
-    private static readonly Regex KeyCellRegex = new(
+        RegexOptions.CultureInvariant,
+        matchTimeoutMilliseconds: 1_000
+    )]
+    private static partial Regex HeadingRegex { get; }
+
+    [GeneratedRegex(
         KeyCellPatternText,
-        RegexOptions.CultureInvariant | RegexOptions.Compiled,
-        TimeSpan.FromSeconds(1)
-    );
-    private static readonly Regex TableSeparatorCellRegex = new(
+        RegexOptions.CultureInvariant,
+        matchTimeoutMilliseconds: 1_000
+    )]
+    private static partial Regex KeyCellRegex { get; }
+
+    [GeneratedRegex(
         TableSeparatorCellPatternText,
-        RegexOptions.CultureInvariant | RegexOptions.Compiled,
-        TimeSpan.FromSeconds(1)
-    );
-    private readonly string content;
-    private readonly string[] lines;
-    private readonly string newLine;
+        RegexOptions.CultureInvariant,
+        matchTimeoutMilliseconds: 1_000
+    )]
+    private static partial Regex TableSeparatorCellRegex { get; }
+
+    private readonly string _content;
+    private readonly string[] _lines;
+    private readonly string _newLine;
 
     private KeysDocument(
         string content,
@@ -35,9 +42,9 @@ internal sealed class KeysDocument
         IReadOnlyList<KeysSection> sections
     )
     {
-        this.content = content;
-        this.lines = lines;
-        this.newLine = newLine;
+        this._content = content;
+        this._lines = lines;
+        this._newLine = newLine;
         Sections = sections;
     }
 
@@ -74,7 +81,7 @@ internal sealed class KeysDocument
         string[] parsedLines,
         int headingIndex,
         Match heading,
-        ISet<string> appIds
+        HashSet<string> appIds
     )
     {
         var appId = heading.Groups["id"].Value;
@@ -190,26 +197,26 @@ internal sealed class KeysDocument
         ArgumentNullException.ThrowIfNull(updates);
 
         if (updates.Values.All(static update => update.NewKeys.Count is 0))
-            return content;
+            return _content;
 
         var (insertBefore, insertAfter, renderedSections) = PrepareRenderState(updates);
 
         var result = new List<string>(
-            lines.Length + updates.Values.Sum(static update => update.NewKeys.Count)
+            _lines.Length + updates.Values.Sum(static update => update.NewKeys.Count)
         );
 
-        for (var index = 0; index <= lines.Length; index++)
+        for (var index = 0; index <= _lines.Length; index++)
         {
             AppendInsertions(result, insertBefore, index);
 
-            if (index == lines.Length)
+            if (index == _lines.Length)
                 break;
 
             result.Add(FormatExistingLine(index));
             AppendInsertions(result, insertAfter, index);
         }
 
-        return string.Join(newLine, result);
+        return string.Join(_newLine, result);
 
         void AppendInsertions(
             ICollection<string> output,
@@ -262,7 +269,7 @@ internal sealed class KeysDocument
                     return FormatTableRow(entry.Cells, renderedSection.ColumnWidths);
             }
 
-            return lines[lineIndex];
+            return _lines[lineIndex];
         }
     }
 
@@ -291,7 +298,7 @@ internal sealed class KeysDocument
         KeysSectionUpdate update,
         IDictionary<int, List<GeneratedKeyEntry>> insertBefore,
         IDictionary<int, List<GeneratedKeyEntry>> insertAfter,
-        IDictionary<string, (KeysSection Section, int[] ColumnWidths)> renderedSections
+        Dictionary<string, (KeysSection Section, int[] ColumnWidths)> renderedSections
     )
     {
         var generatedCells = update
@@ -364,10 +371,7 @@ internal sealed class KeysDocument
         return cells;
     }
 
-    private static string FormatTableRow(
-        IReadOnlyList<string> cells,
-        IReadOnlyList<int> columnWidths
-    )
+    private static string FormatTableRow(IReadOnlyList<string> cells, int[] columnWidths)
     {
         return "| "
             + string.Join(" | ", cells.Select((cell, index) => cell.PadRight(columnWidths[index])))
@@ -418,9 +422,9 @@ internal sealed class KeysDocument
         values.Add(key);
     }
 
-    private static int NextNonEmptyLine(IReadOnlyList<string> values, int startIndex)
+    private static int NextNonEmptyLine(string[] values, int startIndex)
     {
-        for (var index = startIndex; index < values.Count; index++)
+        for (var index = startIndex; index < values.Length; index++)
         {
             if (!string.IsNullOrWhiteSpace(values[index]))
                 return index;

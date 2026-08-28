@@ -4,36 +4,36 @@ using SupercellProxy.Playground.Logic;
 
 namespace SupercellProxy.Playground.Network.Transport;
 
-public partial class MessageStream
+internal sealed partial class MessageStream
 {
     /// <summary>
-    /// Gets the <c>CanWrite</c> value.
+    /// Gets the <c language="csharp">CanWrite</c> value.
     /// </summary>
-    public bool CanWrite => stream.CanWrite;
+    public bool CanWrite => _stream.CanWrite;
 
     private int _booleanWriteOffset;
     private byte _booleanWriteAccumulator;
 
     /// <summary>
-    /// Writes <c>Byte</c> to the stream.
+    /// Writes <c language="csharp">Byte</c> to the stream.
     /// </summary>
     public void WriteByte(byte value)
     {
         FlushWriteBoolean();
-        stream.WriteByte(value);
+        _stream.WriteByte(value);
     }
 
     /// <summary>
-    /// Writes <c></c> to the stream.
+    /// Writes <c language="csharp"></c> to the stream.
     /// </summary>
     public void Write(ReadOnlySpan<byte> source)
     {
         FlushWriteBoolean();
-        stream.Write(source);
+        _stream.Write(source);
     }
 
     /// <summary>
-    /// Writes <c>Async</c> to the stream.
+    /// Writes <c language="csharp">Async</c> to the stream.
     /// </summary>
     public async ValueTask WriteAsync(
         ReadOnlyMemory<byte> source,
@@ -41,7 +41,7 @@ public partial class MessageStream
     )
     {
         FlushWriteBoolean();
-        await stream
+        await _stream
             .WriteAsync(source, cancellationToken)
             .AsTask()
             .WaitAsync(cancellationToken)
@@ -49,7 +49,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>ByteArray</c> to the stream.
+    /// Writes <c language="csharp">ByteArray</c> to the stream.
     /// </summary>
     public void WriteByteArray(ReadOnlySpan<byte> source)
     {
@@ -58,7 +58,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>OptionalByteArray</c> to the stream.
+    /// Writes <c language="csharp">OptionalByteArray</c> to the stream.
     /// </summary>
     public void WriteOptionalByteArray(ReadOnlyMemory<byte>? source = null)
     {
@@ -72,7 +72,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>VarIntByteArray</c> to the stream.
+    /// Writes <c language="csharp">VarIntByteArray</c> to the stream.
     /// </summary>
     public void WriteVarIntByteArray(ReadOnlySpan<byte> source)
     {
@@ -84,7 +84,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>Boolean</c> to the stream.
+    /// Writes <c language="csharp">Boolean</c> to the stream.
     /// </summary>
     public void WriteBoolean(bool value)
     {
@@ -97,11 +97,11 @@ public partial class MessageStream
         _booleanWriteOffset = (_booleanWriteOffset + 1) & 7;
 
         if (_booleanWriteOffset is 0)
-            stream.WriteByte(_booleanWriteAccumulator);
+            _stream.WriteByte(_booleanWriteAccumulator);
     }
 
     /// <summary>
-    /// Writes <c>UInt16</c> to the stream.
+    /// Writes <c language="csharp">UInt16</c> to the stream.
     /// </summary>
     public void WriteUInt16(ushort value)
     {
@@ -109,11 +109,11 @@ public partial class MessageStream
 
         var span = (stackalloc byte[sizeof(ushort)]);
         BinaryPrimitives.WriteUInt16BigEndian(span, value);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>Int32</c> to the stream.
+    /// Writes <c language="csharp">Int32</c> to the stream.
     /// </summary>
     public void WriteInt32(int value)
     {
@@ -121,11 +121,11 @@ public partial class MessageStream
 
         var span = (stackalloc byte[sizeof(int)]);
         BinaryPrimitives.WriteInt32BigEndian(span, value);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>UInt32</c> to the stream.
+    /// Writes <c language="csharp">UInt32</c> to the stream.
     /// </summary>
     public void WriteUInt32(uint value)
     {
@@ -133,11 +133,11 @@ public partial class MessageStream
 
         var span = (stackalloc byte[sizeof(uint)]);
         BinaryPrimitives.WriteUInt32BigEndian(span, value);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>Int64</c> to the stream.
+    /// Writes <c language="csharp">Int64</c> to the stream.
     /// </summary>
     public void WriteInt64(long value)
     {
@@ -145,11 +145,11 @@ public partial class MessageStream
 
         var span = (stackalloc byte[sizeof(long)]);
         BinaryPrimitives.WriteInt64BigEndian(span, value);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>UInt64</c> to the stream.
+    /// Writes <c language="csharp">UInt64</c> to the stream.
     /// </summary>
     public void WriteUInt64(ulong value)
     {
@@ -157,11 +157,11 @@ public partial class MessageStream
 
         var span = (stackalloc byte[sizeof(ulong)]);
         BinaryPrimitives.WriteUInt64BigEndian(span, value);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>OptionalString</c> to the stream.
+    /// Writes <c language="csharp">OptionalString</c> to the stream.
     /// </summary>
     public void WriteOptionalString(string? value = null)
     {
@@ -179,11 +179,11 @@ public partial class MessageStream
 
         Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, span);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>String</c> to the stream.
+    /// Writes <c language="csharp">String</c> to the stream.
     /// </summary>
     public void WriteString(string value)
     {
@@ -195,11 +195,11 @@ public partial class MessageStream
 
         Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         Encoding.UTF8.GetBytes(value, span);
-        stream.Write(span);
+        _stream.Write(span);
     }
 
     /// <summary>
-    /// Writes <c>VarInt</c> to the stream.
+    /// Writes <c language="csharp">VarInt</c> to the stream.
     /// </summary>
     public void WriteVarInt(int valueToWrite)
     {
@@ -218,7 +218,7 @@ public partial class MessageStream
         if ((boundariesTracker >>= 6) == 0)
         {
             byteBuffer[currentIndex++] = byte.CreateTruncating(temporarySignByte);
-            stream.Write(byteBuffer[..currentIndex]);
+            _stream.Write(byteBuffer[..currentIndex]);
             return;
         }
 
@@ -238,11 +238,11 @@ public partial class MessageStream
         if (currentIndex is 5)
             byteBuffer[4] &= 0x0F;
 
-        stream.Write(byteBuffer[..currentIndex]);
+        _stream.Write(byteBuffer[..currentIndex]);
     }
 
     /// <summary>
-    /// Writes <c>VarLong</c> to the stream.
+    /// Writes <c language="csharp">VarLong</c> to the stream.
     /// </summary>
     public void WriteVarLong(long valueToWrite)
     {
@@ -263,7 +263,7 @@ public partial class MessageStream
         if ((boundariesTracker >>= 6) == 0)
         {
             byteBuffer[currentIndex++] = byte.CreateTruncating(temporarySignByte);
-            stream.Write(byteBuffer[..currentIndex]);
+            _stream.Write(byteBuffer[..currentIndex]);
             return;
         }
 
@@ -283,11 +283,11 @@ public partial class MessageStream
         if (currentIndex == byteBuffer.Length)
             byteBuffer[^1] &= 0x03;
 
-        stream.Write(byteBuffer[..currentIndex]);
+        _stream.Write(byteBuffer[..currentIndex]);
     }
 
     /// <summary>
-    /// Writes <c>LongId</c> to the stream.
+    /// Writes <c language="csharp">LongId</c> to the stream.
     /// </summary>
     public void WriteLongId(LongId logicLong)
     {
@@ -296,7 +296,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>OptionalLongId</c> to the stream.
+    /// Writes <c language="csharp">OptionalLongId</c> to the stream.
     /// </summary>
     public void WriteOptionalLongId(LongId? value)
     {
@@ -307,7 +307,7 @@ public partial class MessageStream
     }
 
     /// <summary>
-    /// Writes <c>Array</c> to the stream.
+    /// Writes <c language="csharp">Array</c> to the stream.
     /// </summary>
     public void WriteArray<T>(ReadOnlySpan<T> values, Action<MessageStream, T> encode)
     {
@@ -322,7 +322,7 @@ public partial class MessageStream
         if (_booleanWriteOffset <= 0)
             return;
 
-        stream.WriteByte(_booleanWriteAccumulator);
+        _stream.WriteByte(_booleanWriteAccumulator);
 
         _booleanWriteOffset = 0;
         _booleanWriteAccumulator = 0;

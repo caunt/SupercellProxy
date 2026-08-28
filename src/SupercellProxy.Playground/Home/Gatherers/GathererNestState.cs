@@ -1,4 +1,5 @@
 using System.Globalization;
+using SupercellProxy.Playground.Data.Assets;
 using SupercellProxy.Playground.Data.Tables;
 
 namespace SupercellProxy.Playground.Home;
@@ -14,17 +15,19 @@ internal sealed record GathererNestState(
         DataTableResolver dataTableResolver
     )
     {
-        const string gathererNestsFile = "data/gatherer_nests.csv";
-        const string gatherersFile = "data/gatherers.csv";
-
-        if (!dataTableResolver.TryGetTableId(gathererNestsFile, out var gathererNestTableId))
+        if (
+            !dataTableResolver.TryGetTableId(
+                GameAssetFiles.GathererNests,
+                out var gathererNestTableId
+            )
+        )
             throw new InvalidOperationException(
-                $"{gathererNestsFile} is not registered as a native data table."
+                $"{GameAssetFiles.GathererNests} is not registered as a native data table."
             );
 
-        if (!dataTableResolver.TryGetTableId(gatherersFile, out var gathererTableId))
+        if (!dataTableResolver.TryGetTableId(GameAssetFiles.Gatherers, out var gathererTableId))
             throw new InvalidOperationException(
-                $"{gatherersFile} is not registered as a native data table."
+                $"{GameAssetFiles.Gatherers} is not registered as a native data table."
             );
 
         var gatherers = gameObjects
@@ -97,11 +100,13 @@ internal sealed record GathererNestState(
         DataTableResolver dataTableResolver
     )
     {
-        const string gatherersFile = "data/gatherers.csv";
-
         if (
             !dataTableResolver.TryResolveString(nestData.GlobalId, "Gatherer", out var gathererName)
-            || !dataTableResolver.TryResolve(gatherersFile, gathererName, out var gathererData)
+            || !dataTableResolver.TryResolve(
+                GameAssetFiles.Gatherers,
+                gathererName,
+                out var gathererData
+            )
         )
         {
             throw new InvalidDataException(
