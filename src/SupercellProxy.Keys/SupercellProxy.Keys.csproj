@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloakBrowser" Version="0.5.9" />
+    <PackageReference Include="CloakBrowser" Version="0.5.10" />
   </ItemGroup>
 
   <ItemGroup>
