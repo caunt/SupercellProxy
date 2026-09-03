@@ -152,18 +152,18 @@ internal static partial class Application
             {
                 var reason = $"Metadata request failed: {NormalizeReason(exception.Message)}";
                 AddWarning(report, section.Name, version: null, reason);
-                updates[section.AppStoreId] = new KeysSectionUpdate([], []);
+                updates[section.AppStoreId] = new KeysSectionUpdate([]);
                 return;
             }
 
-            var sourceVersions = app.Versions.Distinct(StringComparer.Ordinal).ToArray();
+            var sourceVersions = app.Versions;
             var existing = section.Entries.ToDictionary(
                 static entry => entry.Version,
                 StringComparer.Ordinal
             );
             var generated = new List<GeneratedKeyEntry>();
 
-            if (sourceVersions.Length is 0)
+            if (sourceVersions.Count is 0)
             {
                 AddWarning(
                     report,
@@ -171,23 +171,21 @@ internal static partial class Application
                     version: null,
                     "decrypt.day returned no versions."
                 );
-                updates[section.AppStoreId] = new KeysSectionUpdate(sourceVersions, generated);
+                updates[section.AppStoreId] = new KeysSectionUpdate(generated);
                 return;
             }
 
-            for (var sourceIndex = 0; sourceIndex < sourceVersions.Length; sourceIndex++)
-                await UpdateVersionAsync(sourceIndex).ConfigureAwait(false);
+            foreach (var version in sourceVersions)
+                await UpdateVersionAsync(version).ConfigureAwait(false);
 
-            async Task UpdateVersionAsync(int sourceIndex)
+            async Task UpdateVersionAsync(AppVersion version)
             {
-                var version = sourceVersions[sourceIndex];
-
-                if (existing.TryGetValue(version, out var existingEntry))
+                if (existing.TryGetValue(version.Value, out var existingEntry))
                 {
                     report.Add(
                         new KeysUpdateResult(
                             section.Name,
-                            version,
+                            version.Value,
                             KeysUpdateOutcome.NotUpdated,
                             existingEntry.Key,
                             "Already present"
@@ -203,11 +201,11 @@ internal static partial class Application
                 if (key is null)
                     return;
 
-                generated.Add(new GeneratedKeyEntry(section.AppStoreId, version, key, sourceIndex));
+                generated.Add(new GeneratedKeyEntry(version.Value, key));
                 report.Add(
                     new KeysUpdateResult(
                         section.Name,
-                        version,
+                        version.Value,
                         KeysUpdateOutcome.Updated,
                         key,
                         "Added to KEYS.md"
@@ -225,7 +223,7 @@ internal static partial class Application
                             AddWarning(
                                 report,
                                 section.Name,
-                                version,
+                                version.Value,
                                 "No free, login-free IPA is available."
                             );
                         return authorized;
@@ -236,7 +234,7 @@ internal static partial class Application
                         AddWarning(
                             report,
                             section.Name,
-                            version,
+                            version.Value,
                             $"Authorization failed: {NormalizeReason(exception.Message)}"
                         );
                         return null;
@@ -258,7 +256,7 @@ internal static partial class Application
                                     authorizedDownload,
                                     temporaryPath,
                                     section.Name,
-                                    version,
+                                    version.Value,
                                     cancellationToken
                                 )
                                 .ConfigureAwait(false);
@@ -269,7 +267,7 @@ internal static partial class Application
                             AddWarning(
                                 report,
                                 section.Name,
-                                version,
+                                version.Value,
                                 $"Download failed {NormalizeReason(exception.Message)}"
                             );
                             return null;
@@ -289,7 +287,7 @@ internal static partial class Application
                             AddWarning(
                                 report,
                                 section.Name,
-                                version,
+                                version.Value,
                                 $"Extraction failed: {NormalizeReason(exception.Message)}"
                             );
                             return null;
@@ -303,20 +301,26 @@ internal static partial class Application
                 }
             }
 
-            updates[section.AppStoreId] = new KeysSectionUpdate(sourceVersions, generated);
+            updates[section.AppStoreId] = new KeysSectionUpdate(generated);
         }
 
         var updated = document.Render(updates);
 
         if (string.Equals(updated, original, StringComparison.Ordinal))
         {
-            Console.WriteLine("No new keys were found; KEYS.md was not changed.");
+            Console.WriteLine("No new keys or key-table maintenance changes were found.");
             return;
         }
 
         await WriteAtomicallyAsync(keysPath, updated, cancellationToken).ConfigureAwait(false);
+        var addedKeyCount = report.Results.Count(static result =>
+            result.Outcome is KeysUpdateOutcome.Updated
+        );
         Console.WriteLine(
-            $"Added {report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated)} key(s) to {keysPath}."
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"Updated {keysPath}; added {addedKeyCount} new key(s)."
+            )
         );
     }
 

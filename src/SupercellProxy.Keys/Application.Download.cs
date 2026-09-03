@@ -111,13 +111,19 @@ internal static partial class Application
         var app = await decryptDayClient
             .GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(false);
-        IReadOnlyList<string> candidateVersions;
+        IReadOnlyList<AppVersion> candidateVersions;
         if (requestedVersion is null)
             candidateVersions = app.Versions;
-        else if (app.Versions.Contains(requestedVersion, StringComparer.Ordinal))
-            candidateVersions = [requestedVersion];
         else
-            throw new InvalidOperationException($"Version {requestedVersion} not found.");
+        {
+            var normalizedVersion = AppVersion.Normalize(requestedVersion);
+            var candidateVersion = app.Versions.SingleOrDefault(version =>
+                string.Equals(version.Value, normalizedVersion, StringComparison.Ordinal)
+            );
+            candidateVersions = candidateVersion is null
+                ? throw new InvalidOperationException($"Version {requestedVersion} not found.")
+                : [candidateVersion];
+        }
 
         foreach (var version in candidateVersions)
         {

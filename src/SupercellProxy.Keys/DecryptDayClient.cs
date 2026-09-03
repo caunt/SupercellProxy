@@ -20,25 +20,31 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         var detail = await GetDetailAsync(NormalizeAppStoreId(appStoreId), cancellationToken)
             .ConfigureAwait(false);
-        return new IpaApp(detail.BundleId, detail.Versions);
+        return new IpaApp(detail.BundleId, AppVersion.CreateMany(detail.Versions));
     }
 
     public async Task<IpaDownload?> TryAuthorizeAsync(
         string appStoreId,
-        string version,
+        AppVersion version,
         CancellationToken cancellationToken
     )
     {
         var id = NormalizeAppStoreId(appStoreId);
         var detail = await GetDetailAsync(id, cancellationToken).ConfigureAwait(false);
-        var fileId = await GetFileIdAsync(id, detail.Id, version, cancellationToken)
-            .ConfigureAwait(false);
+        string? fileId = null;
+        foreach (var sourceName in version.SourceNames)
+        {
+            fileId = await GetFileIdAsync(id, detail.Id, sourceName, cancellationToken)
+                .ConfigureAwait(false);
+            if (fileId is not null)
+                break;
+        }
 
         if (fileId is null)
             return null;
 
         return new IpaDownload(
-            version,
+            version.Value,
             new Uri($"https://decrypt.day/app/id{id}/dl/{Uri.EscapeDataString(fileId)}")
         );
     }

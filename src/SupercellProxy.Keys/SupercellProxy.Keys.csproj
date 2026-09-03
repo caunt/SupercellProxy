@@ -15,4 +15,8 @@
   <ItemGroup>
     <ProjectReference Include="../SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SupercellProxy.Keys.Tests" />
+  </ItemGroup>
 </Project>

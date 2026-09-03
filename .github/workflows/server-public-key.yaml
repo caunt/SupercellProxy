@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           dotnet build --configuration Release \
             src/SupercellProxy.Keys/SupercellProxy.Keys.csproj
-          games=$(dotnet run --configuration Release --no-build \
+          games=$(dotnet run --configuration Release \
             --project src/SupercellProxy.Keys \
             -- games KEYS.md --json)
           echo "games=$games" >> "$GITHUB_OUTPUT"

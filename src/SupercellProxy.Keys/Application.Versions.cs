@@ -30,7 +30,7 @@ internal static partial class Application
         Console.WriteLine($"Downloadable versions: {app.Versions.Count}");
 
         foreach (var version in app.Versions.Reverse())
-            Console.WriteLine(version);
+            Console.WriteLine(version.Value);
 
         return 0;
     }
