@@ -60,6 +60,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public int BoughtSpinsDaily { get; init; }
 
+    /// <summary>Gets the Boy's pending interval-offer state.</summary>
+    public int BoyOffer { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">BrokenParts</c> value.
     /// </summary>
@@ -141,6 +144,16 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">FlashFruitIndex</c> value.
     /// </summary>
     public int FlashFruitIndex { get; init; }
+
+    /// <summary>Gets the quantities generated for the Boy's current offers.</summary>
+    public int[] FoundItemAmounts { get; init; } = [];
+
+    /// <summary>Gets the good selected for the Boy's current search.</summary>
+    [JsonPropertyName("FoundItemID")]
+    public int FoundItemGlobalIdentifier { get; init; }
+
+    /// <summary>Gets the prices generated for the Boy's current offers.</summary>
+    public int[] FoundItemPrices { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
@@ -448,6 +461,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained Seed value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Seed { get; init; }
+
+    /// <summary>Gets the selected index in the Boy's current offer.</summary>
+    [JsonPropertyName("SelectedOfferIndex")]
+    public int? SelectedBoyOfferIndex { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Orders</c> value.

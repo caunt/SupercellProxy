@@ -110,6 +110,9 @@ public static class CommandRegistry
     /// </summary>
     public const int CollectWheelRewardCommandType = 80;
 
+    /// <summary>Provides the Complete Boy Interaction Command Type.</summary>
+    public const int CompleteBoyInteractionCommandType = 653;
+
     /// <summary>
     /// Provides the Complete Construction Command Type value or operation.
     /// </summary>
@@ -139,6 +142,9 @@ public static class CommandRegistry
     /// Provides the Fill Boat Crate Command Type value or operation.
     /// </summary>
     public const int FillBoatCrateCommandType = 634;
+
+    /// <summary>Provides the Hire Boy Command Type.</summary>
+    public const int HireBoyCommandType = 68;
 
     /// <summary>
     /// Provides the Home Loaded Command Type value or operation.
@@ -230,6 +236,9 @@ public static class CommandRegistry
     /// </summary>
     public const int RecordStorageSignpostRankCommandType = 594;
 
+    /// <summary>Provides the Reject Boy Offer Command Type.</summary>
+    public const int RejectBoyOfferCommandType = 583;
+
     /// <summary>
     /// Provides the Remote Order Completion Server Command Type value or operation.
     /// </summary>
@@ -264,10 +273,16 @@ public static class CommandRegistry
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
 
+    /// <summary>Provides the Search With Boy Command Type.</summary>
+    public const int SearchWithBoyCommandType = 71;
+
     /// <summary>
     /// Provides the Select Boat Order Command Type value or operation.
     /// </summary>
     public const int SelectBoatOrderCommandType = 570;
+
+    /// <summary>Provides the Select Boy Offer Command Type.</summary>
+    public const int SelectBoyOfferCommandType = 70;
 
     /// <summary>
     /// Provides the Select Livestock Animal Command Type value or operation.
@@ -278,6 +293,9 @@ public static class CommandRegistry
     /// Provides the Server Command148 Type value or operation.
     /// </summary>
     public const int ServerCommand148Type = 148;
+
+    /// <summary>Provides the Set Boy Offer Flag Command Type.</summary>
+    public const int SetBoyOfferFlagCommandType = 132;
 
     /// <summary>
     /// Provides the Start Building Production Command Type value or operation.

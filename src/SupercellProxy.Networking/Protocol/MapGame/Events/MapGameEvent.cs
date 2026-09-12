@@ -11,6 +11,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
+    /// <summary>Identifies a shared map-game state synchronization event.</summary>
+    public const int StateSynchronizationType = 1;
+
     private static readonly Dictionary<int, MapGameEventFieldSchema[]> Schemas = CreateSchemas();
 
     /// <summary>
@@ -100,7 +103,7 @@ public sealed record MapGameEvent
 
         void AddFirstSchemas()
         {
-            schemas[key: 1] =
+            schemas[key: StateSynchronizationType] =
             [
                 optionalLongIdentifier,
                 variableInt,
