@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
@@ -18,6 +19,7 @@ namespace SupercellProxy.Capture;
 
 internal sealed partial class CaptureSessionImportService : IHostedLifecycleService
 {
+    private readonly CaptureCommandDataResolver _commandDataResolver;
     private readonly CaptureFarmSelection _farmSelection;
     private readonly ILogger<CaptureSessionImportService> _logger;
     private readonly ProxyOptions _options;
@@ -26,10 +28,12 @@ internal sealed partial class CaptureSessionImportService : IHostedLifecycleServ
     internal CaptureSessionImportService(
         IOptions<ProxyOptions> options,
         ProtocolClientFactory protocolClients,
+        CaptureCommandDataResolver commandDataResolver,
         CaptureFarmSelection farmSelection,
         ILogger<CaptureSessionImportService> logger
     )
     {
+        _commandDataResolver = commandDataResolver;
         _farmSelection = farmSelection;
         _logger = logger;
         _options = options.Value;
@@ -48,6 +52,9 @@ internal sealed partial class CaptureSessionImportService : IHostedLifecycleServ
 
     public async Task StartingAsync(CancellationToken cancellationToken)
     {
+        await LoadCurrentCommandDataResolverAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
+
         ClientSessionLedger ledger = new(_options.SessionLedgerPath);
 
         string? archivePath = await ledger.ArchiveUnversionedAsync(cancellationToken)
@@ -168,6 +175,9 @@ internal sealed partial class CaptureSessionImportService : IHostedLifecycleServ
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Session import rejected {Source}")]
     private static partial void LogImportRejected(ILogger logger, string source, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Loaded the current game-asset catalog for proxy command decoding")]
+    private static partial void LogLoadedCommandDataResolver(ILogger logger);
 
     private static async Task<CapturedLoginExchange> ReadLoginExchangeAsync(string loginFile, CancellationToken cancellationToken)
     {
@@ -304,6 +314,25 @@ internal sealed partial class CaptureSessionImportService : IHostedLifecycleServ
         }
 
         return importedSessionCount;
+    }
+
+    private async Task LoadCurrentCommandDataResolverAsync(CancellationToken cancellationToken)
+    {
+        if (_options.AssetDirectory is not null)
+            return;
+
+        ClientConfiguration configuration = new(_options.UpstreamHost, _options.UpstreamPort, _options.Protocol);
+        ProtocolClient client = _protocolClients.Create(configuration);
+
+        await using (client.ConfigureAwait(continueOnCapturedContext: false))
+        {
+            DataTableResolver resolver = await client.LoadCatalogAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+
+            _commandDataResolver.Initialize(resolver);
+        }
+
+        LogLoadedCommandDataResolver(_logger);
     }
 
     private async Task ValidateSelectedProxySessionAsync(ClientSessionLedger ledger, CancellationToken cancellationToken)

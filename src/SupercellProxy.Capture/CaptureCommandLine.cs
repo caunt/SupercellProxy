@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Hosting;
+using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Proxy;
 
 namespace SupercellProxy.Capture;
@@ -19,7 +20,7 @@ internal static class CaptureCommandLine
         Description = "Select a saved session by an optional farm-name fragment",
     };
 
-    private static readonly Option<string?> AssetDirectoryOption = new(name: "--asset-directory", aliases: ["-d"]) { Description = "Directory containing versioned game assets" };
+    private static readonly Option<string?> AssetDirectoryOption = new(name: "--asset-directory", aliases: ["-d"]) { Description = "Explicit game-asset fingerprint directory; omitted downloads the current catalog" };
     private static readonly Option<string?> CaptureDirectoryOption = new(name: "--capture-directory", aliases: ["-c"]) { Description = "Directory containing retained and newly recorded captures" };
     private static readonly Option<int?> KeyVersionOption = new(name: "--key-version") { Description = "Protocol key version" };
     private static readonly Option<string?> LedgerOption = new(name: "--ledger", aliases: ["-l"]) { Description = "Client session ledger path" };
@@ -108,13 +109,17 @@ internal static class CaptureCommandLine
             HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
             CaptureFarmSelection selection = new(Specified: parseResult.GetResult(FarmOption) is not null, FarmNameFragment: parseResult.GetValue(FarmOption));
+            CaptureCommandDataResolver commandDataResolver = new();
 
             OptionsBuilder<ProxyOptions> proxyOptions = builder.Services
                 .AddSingleton(selection)
+                .AddSingleton(commandDataResolver)
+                .AddSingleton<ICommandDataResolver>(commandDataResolver)
                 .AddSingleton<IHostedService>(
                     static provider => new CaptureSessionImportService(
                         provider.GetRequiredService<IOptions<ProxyOptions>>(),
                         provider.GetRequiredService<ProtocolClientFactory>(),
+                        provider.GetRequiredService<CaptureCommandDataResolver>(),
                         provider.GetRequiredService<CaptureFarmSelection>(),
                         provider.GetRequiredService<ILogger<CaptureSessionImportService>>()
                     )

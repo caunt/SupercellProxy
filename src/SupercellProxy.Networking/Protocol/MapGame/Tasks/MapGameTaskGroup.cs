@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// <para>Native variable-long key and task collection inside a map-game state.</para>
+/// <para>Native fixed-width 64-bit key and task collection inside a map-game state.</para>
 /// </summary>
 public sealed record MapGameTaskGroup
 {
@@ -34,7 +34,7 @@ public sealed record MapGameTaskGroup
     public static MapGameTaskGroup Decode(MessageStream stream, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        long unknown0 = stream.ReadVariableLong();
+        long unknown0 = stream.ReadInt64();
         int taskCount = MapGameFieldCodec.ReadCount(stream, name: "task-group task");
         MapGameTask[] tasks = new MapGameTask[taskCount];
 
@@ -50,7 +50,7 @@ public sealed record MapGameTaskGroup
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableLong(Unknown0);
+        stream.WriteInt64(Unknown0);
         stream.WriteVariableInt(Tasks.Length);
 
         foreach (MapGameTask task in Tasks.Span)
