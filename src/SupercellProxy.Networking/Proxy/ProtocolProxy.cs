@@ -154,6 +154,7 @@ public sealed class ProtocolProxy(
                 configuration.SessionAccountIdentifier,
                 serverKeys,
                 _commandDataResolver,
+                logger,
                 cancellationToken
             )
             .ConfigureAwait(continueOnCapturedContext: false);

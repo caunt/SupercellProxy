@@ -1,5 +1,8 @@
+using Microsoft.Extensions.Logging;
+
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Events;
+using SupercellProxy.Networking.Hosting;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.Homes;
@@ -9,7 +12,7 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
 
-internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? sessionAccountIdentifier)
+internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? sessionAccountIdentifier, ILogger? logger, string remoteEndPoint)
 {
     private LoginMessage? _loginMessage;
     private LoginOkMessage? _loginOkMessage;
@@ -33,6 +36,14 @@ internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? 
                             await sessionLedger.GetSessionAsync(accountIdentifier, cancellationToken)
                                 .ConfigureAwait(continueOnCapturedContext: false)
                             ?? throw new InvalidDataException($"The selected proxy session does not exist in {sessionLedger.FilePath}.");
+
+                        if (logger is not null)
+                        {
+                            ConnectionLog.Write(
+                                logger,
+                                $"Replacing the session for incoming client {remoteEndPoint} with farm {session.FarmName} ({session.AccountIdentifier.ToFormattedString()})."
+                            );
+                        }
 
                         loginMessage.AccountIdentifier = session.AccountIdentifier;
                         loginMessage.PassToken = session.PassToken;

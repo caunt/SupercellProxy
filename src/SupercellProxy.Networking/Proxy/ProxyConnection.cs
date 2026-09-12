@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Net.Sockets;
 
+using Microsoft.Extensions.Logging;
+
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
@@ -26,11 +28,11 @@ public sealed class ProxyConnection : IAsyncDisposable
         ProxyCaptureWriter trafficCapture,
         ClientSessionLedger sessionLedger,
         string? sessionAccountIdentifier,
+        ILogger? logger,
         CancellationToken cancellationToken
     )
     {
         SocketClient = socketClient;
-        _handshake = new ProxyHandshake(sessionLedger, sessionAccountIdentifier);
         _homeVisitor = new ProxyHomeVisitor(this);
         SocketUpstream = new TcpClient();
         ClientStream = new MessageStream(socketClient.GetStream());
@@ -38,6 +40,7 @@ public sealed class ProxyConnection : IAsyncDisposable
         CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         TrafficCapture = trafficCapture;
         RemoteEndPoint = socketClient.GetRemoteEndPoint();
+        _handshake = new ProxyHandshake(sessionLedger, sessionAccountIdentifier, logger, RemoteEndPoint);
     }
 
     /// <summary>
@@ -100,12 +103,13 @@ public sealed class ProxyConnection : IAsyncDisposable
         string? sessionAccountIdentifier = null,
         IServerPublicKeySource? serverKeys = null,
         ICommandDataResolver? commandDataResolver = null,
+        ILogger? logger = null,
         CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(socketClient);
         ArgumentNullException.ThrowIfNull(sessionLedger);
-        ProxyConnection client = new(socketClient, trafficCapture, sessionLedger, sessionAccountIdentifier, cancellationToken);
+        ProxyConnection client = new(socketClient, trafficCapture, sessionLedger, sessionAccountIdentifier, logger, cancellationToken);
 
         try
         {
