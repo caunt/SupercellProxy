@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace SupercellProxy.PublicKeyExtractor;
 
@@ -12,27 +12,25 @@ internal static class PublicKeyCodec
     /// </summary>
     public static Span<byte> Decode(ReadOnlySpan<byte> input)
     {
-        var inputWords = MemoryMarshal.Cast<byte, ushort>(input);
-        var outputWords = new ushort[16];
+        ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
+        ushort[] outputWords = new ushort[16];
 
         for (
-            int outputIndex = 0, aIndex = 0, bIndex = 1, cIndex = 63, dIndex = 63;
-            outputIndex < 16;
+            int outputIndex = 0, aIndex = 0, bIndex = 1, cIndex = 63, dIndex = 63; outputIndex < 16;
             outputIndex++, aIndex += 2, bIndex += 2, cIndex -= 2, dIndex -= 1
         )
         {
-            var wordA = inputWords[aIndex];
-            var wordB = inputWords[bIndex];
-            var wordC = inputWords[cIndex];
-            var wordD = inputWords[dIndex];
+            ushort wordA = inputWords[aIndex];
+            ushort wordB = inputWords[bIndex];
+            ushort wordC = inputWords[cIndex];
+            ushort wordD = inputWords[dIndex];
 
-            var x = ushort.CreateTruncating((((wordB ^ wordC) | (wordC ^ wordA)) & 0xFFFF));
-            var rotationCount = 11 - (outputIndex & 7);
-            var rotatedValue = ushort.CreateTruncating(
-                ((x << rotationCount) | (x >> (16 - rotationCount)))
-            );
+            ushort horizontalCoordinate = ushort.CreateTruncating(((wordB ^ wordC) | (wordC ^ wordA)) & 0xFFFF);
+            int rotationCount = 11 - (outputIndex & 7);
 
-            outputWords[outputIndex] = ushort.CreateTruncating((rotatedValue ^ wordD));
+            ushort rotatedValue = ushort.CreateTruncating((horizontalCoordinate << rotationCount) | (horizontalCoordinate >> (16 - rotationCount)));
+
+            outputWords[outputIndex] = ushort.CreateTruncating(rotatedValue ^ wordD);
         }
 
         return MemoryMarshal.AsBytes(outputWords.AsSpan());
@@ -43,22 +41,18 @@ internal static class PublicKeyCodec
     /// </summary>
     public static Span<byte> Encode(ReadOnlySpan<byte> input)
     {
-        var inputWords = MemoryMarshal.Cast<byte, ushort>(input);
-        var outputWords = new ushort[64];
+        ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
+        ushort[] outputWords = new ushort[64];
 
         for (
-            int inputIndex = 0, aIndex = 0, cIndex = 63;
-            inputIndex < 16;
+            int inputIndex = 0, aIndex = 0, cIndex = 63; inputIndex < 16;
             inputIndex++, aIndex += 2, cIndex -= 2
         )
         {
-            var rotationCount = 11 - (inputIndex & 7);
-            var rotatedValue = ushort.CreateTruncating(
-                (
-                    (inputWords[inputIndex] >> rotationCount)
-                    | (inputWords[inputIndex] << (16 - rotationCount))
-                )
-            );
+            int rotationCount = 11 - (inputIndex & 7);
+
+            ushort rotatedValue = ushort.CreateTruncating((inputWords[inputIndex] >> rotationCount) | (inputWords[inputIndex] << (16 - rotationCount)));
+
             outputWords[aIndex] = rotatedValue;
             // b, c and d indexes are left as zeroes
             // works anyway, verified with Hay Day client

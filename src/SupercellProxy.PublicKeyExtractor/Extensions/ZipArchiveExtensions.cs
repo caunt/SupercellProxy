@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 
 namespace SupercellProxy.PublicKeyExtractor.Extensions;
 
@@ -7,67 +7,113 @@ namespace SupercellProxy.PublicKeyExtractor.Extensions;
 /// </summary>
 internal static class ZipArchiveExtensions
 {
+
     /// <summary>
-    /// <para>Determines whether the input begins with a recognized ZIP header.</para>
+    /// <para>Reads the primary application executable from IPA bytes.</para>
     /// </summary>
-    public static bool HasZipArchiveHeader(this ReadOnlySpan<byte> source)
+    public static async ValueTask<byte[]> GetIpaAppEntryAsync(this ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
     {
-        if (source.Length < 4)
-            return false;
+        MemoryStream zipStream = new(source.ToArray(), writable: false);
 
-        if (source[0] is not 0x50 || source[1] is not 0x4B)
-            return false;
+        await using (zipStream.ConfigureAwait(continueOnCapturedContext: false))
+            return await zipStream.GetIpaAppEntryAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+    }
 
-        if (source[2] is 0x03 && source[3] is 0x04)
-            return true;
+    /// <summary>
+    /// <para>Reads the primary application executable from an IPA stream.</para>
+    /// </summary>
+    public static async ValueTask<byte[]> GetIpaAppEntryAsync(this Stream source, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
 
-        if (source[2] is 0x05 && source[3] is 0x06)
-            return true;
+        ZipArchive archive = new(source, ZipArchiveMode.Read, leaveOpen: true);
 
-        if (source[2] is 0x07 && source[3] is 0x08)
-            return true;
+        await using (archive.ConfigureAwait(continueOnCapturedContext: false))
+        {
+            ZipArchiveEntry match =
+                archive.Entries.FirstOrDefault(
+                    static entry =>
+                {
+                    string fullName = entry.FullName;
 
-        return false;
+                    if (!fullName.StartsWith(value: "Payload/", StringComparison.OrdinalIgnoreCase))
+                        return false;
+
+                    int lastSlashIndex = fullName.LastIndexOf(value: '/');
+
+                    if (lastSlashIndex < 0)
+                        return false;
+
+                    int appIndex = fullName.LastIndexOf(value: ".app/", lastSlashIndex, StringComparison.OrdinalIgnoreCase);
+
+                    if (appIndex < 0)
+                        return false;
+
+                    int parentSlashIndex = fullName.LastIndexOf(value: '/', appIndex - 1);
+
+                    if (parentSlashIndex < 0)
+                        return false;
+
+                    string expectedExecutableName = fullName[(parentSlashIndex + 1)..appIndex];
+
+                    return string.Equals(entry.Name, expectedExecutableName, StringComparison.OrdinalIgnoreCase);
+                }
+                )
+                ?? throw new FileNotFoundException(message: "Main app executable was not found in the IPA file (expected Payload/<App>.app/<App>).");
+
+            if (match.Length > int.MaxValue)
+                throw new IOException(message: "Entry is too large to fit in a single byte array.");
+
+            Stream entryStream = await match.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            await using (entryStream.ConfigureAwait(continueOnCapturedContext: false))
+            {
+                MemoryStream resultStream = new(capacity: int.CreateTruncating(match.Length));
+
+                await using (resultStream.ConfigureAwait(continueOnCapturedContext: false))
+                {
+                    await entryStream
+                        .CopyToAsync(resultStream, cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    return resultStream.ToArray();
+                }
+            }
+        }
     }
 
     /// <summary>
     /// <para>Reads a named file from a ZIP archive.</para>
     /// </summary>
-    public static async ValueTask<byte[]> GetZipArchiveFileEntryAsync(
-        this ReadOnlyMemory<byte> source,
-        string fileName,
-        CancellationToken cancellationToken = default
-    )
+    public static async ValueTask<byte[]> GetZipArchiveFileEntryAsync(this ReadOnlyMemory<byte> source, string fileName, CancellationToken cancellationToken = default)
     {
-        var zipStream = new MemoryStream(source.ToArray(), writable: false);
-        await using (zipStream.ConfigureAwait(false))
+        MemoryStream zipStream = new(source.ToArray(), writable: false);
+
+        await using (zipStream.ConfigureAwait(continueOnCapturedContext: false))
         {
-            var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: false);
-            await using (archive.ConfigureAwait(false))
+            ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: false);
+
+            await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
-                var match =
-                    archive.Entries.FirstOrDefault(entry =>
-                        !string.IsNullOrEmpty(entry.Name)
-                        && string.Equals(entry.Name, fileName, StringComparison.OrdinalIgnoreCase)
-                    )
-                    ?? throw new FileNotFoundException(
-                        $"Entry named '{fileName}' was not found in the ZIP archive."
-                    );
+                ZipArchiveEntry match =
+                    archive.Entries.FirstOrDefault(entry => !string.IsNullOrEmpty(entry.Name) && string.Equals(entry.Name, fileName, StringComparison.OrdinalIgnoreCase))
+                    ?? throw new FileNotFoundException($"Entry named '{fileName}' was not found in the ZIP archive.");
 
                 if (match.Length > int.MaxValue)
-                    throw new IOException("Entry is too large to fit in a single byte array.");
+                    throw new IOException(message: "Entry is too large to fit in a single byte array.");
 
-                var entryStream = await match.OpenAsync(cancellationToken).ConfigureAwait(false);
-                await using (entryStream.ConfigureAwait(false))
+                Stream entryStream = await match.OpenAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+                await using (entryStream.ConfigureAwait(continueOnCapturedContext: false))
                 {
-                    var resultStream = new MemoryStream(
-                        capacity: int.CreateTruncating(Math.Min(match.Length, int.MaxValue))
-                    );
-                    await using (resultStream.ConfigureAwait(false))
+                    MemoryStream resultStream = new(capacity: int.CreateTruncating(Math.Min(match.Length, int.MaxValue)));
+
+                    await using (resultStream.ConfigureAwait(continueOnCapturedContext: false))
                     {
                         await entryStream
                             .CopyToAsync(resultStream, cancellationToken)
-                            .ConfigureAwait(false);
+                            .ConfigureAwait(continueOnCapturedContext: false);
+
                         return resultStream.ToArray();
                     }
                 }
@@ -76,86 +122,10 @@ internal static class ZipArchiveExtensions
     }
 
     /// <summary>
-    /// <para>Reads the primary application executable from IPA bytes.</para>
+    /// <para>Determines whether the input begins with a recognized ZIP header.</para>
     /// </summary>
-    public static async ValueTask<byte[]> GetIpaAppEntryAsync(
-        this ReadOnlyMemory<byte> source,
-        CancellationToken cancellationToken = default
-    )
+    public static bool HasZipArchiveHeader(this ReadOnlySpan<byte> source)
     {
-        var zipStream = new MemoryStream(source.ToArray(), writable: false);
-        await using (zipStream.ConfigureAwait(false))
-        {
-            return await zipStream.GetIpaAppEntryAsync(cancellationToken).ConfigureAwait(false);
-        }
-    }
-
-    /// <summary>
-    /// <para>Reads the primary application executable from an IPA stream.</para>
-    /// </summary>
-    public static async ValueTask<byte[]> GetIpaAppEntryAsync(
-        this Stream source,
-        CancellationToken cancellationToken = default
-    )
-    {
-        ArgumentNullException.ThrowIfNull(source);
-
-        var archive = new ZipArchive(source, ZipArchiveMode.Read, leaveOpen: true);
-        await using (archive.ConfigureAwait(false))
-        {
-            var match =
-                archive.Entries.FirstOrDefault(static entry =>
-                {
-                    var fullName = entry.FullName;
-
-                    if (!fullName.StartsWith("Payload/", StringComparison.OrdinalIgnoreCase))
-                        return false;
-
-                    var lastSlashIndex = fullName.LastIndexOf('/');
-
-                    if (lastSlashIndex < 0)
-                        return false;
-
-                    var appIndex = fullName.LastIndexOf(
-                        ".app/",
-                        lastSlashIndex,
-                        StringComparison.OrdinalIgnoreCase
-                    );
-
-                    if (appIndex < 0)
-                        return false;
-
-                    var parentSlashIndex = fullName.LastIndexOf('/', appIndex - 1);
-
-                    if (parentSlashIndex < 0)
-                        return false;
-
-                    var expectedExecutableName = fullName[(parentSlashIndex + 1)..appIndex];
-                    return string.Equals(
-                        entry.Name,
-                        expectedExecutableName,
-                        StringComparison.OrdinalIgnoreCase
-                    );
-                })
-                ?? throw new FileNotFoundException(
-                    "Main app executable was not found in the IPA file (expected Payload/<App>.app/<App>)."
-                );
-
-            if (match.Length > int.MaxValue)
-                throw new IOException("Entry is too large to fit in a single byte array.");
-
-            var entryStream = await match.OpenAsync(cancellationToken).ConfigureAwait(false);
-            await using (entryStream.ConfigureAwait(false))
-            {
-                var resultStream = new MemoryStream(capacity: int.CreateTruncating(match.Length));
-                await using (resultStream.ConfigureAwait(false))
-                {
-                    await entryStream
-                        .CopyToAsync(resultStream, cancellationToken)
-                        .ConfigureAwait(false);
-                    return resultStream.ToArray();
-                }
-            }
-        }
+        return source.Length >= 4 && source[index: 0] is 0x50 && source[index: 1] is 0x4B && ((source[index: 2] is 0x03 && source[index: 3] is 0x04) || (source[index: 2] is 0x05 && source[index: 3] is 0x06) || (source[index: 2] is 0x07 && source[index: 3] is 0x08));
     }
 }

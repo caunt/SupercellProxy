@@ -1,4 +1,4 @@
-﻿namespace SupercellProxy.PublicKeyExtractor.Extensions;
+namespace SupercellProxy.PublicKeyExtractor.Extensions;
 
 /// <summary>
 /// <para>Provides content-loading helpers for paths and URLs.</para>
@@ -8,44 +8,59 @@ internal static class StringExtensions
     /// <summary>
     /// <para>Reads bytes from a local path or supported URL.</para>
     /// </summary>
-    public static async ValueTask<byte[]> ReadContentAsync(
-        this string input,
-        CancellationToken cancellationToken = default
-    )
+    public static async ValueTask<byte[]> ReadContentAsync(this string input, CancellationToken cancellationToken = default)
     {
-        if (Uri.TryCreate(input, UriKind.Absolute, out var parsedUri))
+        if (Uri.TryCreate(input, UriKind.Absolute, out Uri? parsedAddress))
         {
-            var scheme = parsedUri.Scheme;
+            string scheme = parsedAddress.Scheme;
 
-            if (
-                string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-            )
+            if (string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase))
             {
-                using var httpClient = new HttpClient();
+                using HttpClient webClient = new();
 
-                if (string.Equals(parsedUri.Host, "temp.sh", StringComparison.Ordinal))
+                if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
                 {
-                    var response = await httpClient
-                        .PostAsync(parsedUri, content: null, cancellationToken)
-                        .ConfigureAwait(false);
+                    HttpResponseMessage response = await webClient
+                        .PostAsync(parsedAddress, content: null, cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
                     return await response
                         .Content.ReadAsByteArrayAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                        .ConfigureAwait(continueOnCapturedContext: false);
                 }
 
-                return await httpClient
-                    .GetByteArrayAsync(parsedUri, cancellationToken)
-                    .ConfigureAwait(false);
+                return await webClient
+                    .GetByteArrayAsync(parsedAddress, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+            }
+
+            if (string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                using HttpClient webClient = new();
+
+                if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
+                {
+                    HttpResponseMessage response = await webClient
+                        .PostAsync(parsedAddress, content: null, cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    return await response
+                        .Content.ReadAsByteArrayAsync(cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+                }
+
+                return await webClient
+                    .GetByteArrayAsync(parsedAddress, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
             }
 
             if (string.Equals(scheme, Uri.UriSchemeFile, StringComparison.OrdinalIgnoreCase))
             {
-                return await File.ReadAllBytesAsync(parsedUri.LocalPath, cancellationToken)
-                    .ConfigureAwait(false);
+                return await File.ReadAllBytesAsync(parsedAddress.LocalPath, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        return await File.ReadAllBytesAsync(input, cancellationToken).ConfigureAwait(false);
+        return await File.ReadAllBytesAsync(input, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 }

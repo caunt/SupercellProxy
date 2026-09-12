@@ -59,10 +59,15 @@ jobs:
             sudo apt-get install -y clang zlib1g-dev
           fi
 
+      - name: Verify Public Solution
+        if: ${{ !matrix.is_alpine }}
+        run: dotnet build SupercellProxy.Public.slnf -c Release
+
       - name: Publish Application (Host)
         if: ${{ !matrix.is_alpine }}
         run: |
-          dotnet publish src/SupercellProxy.Playground/SupercellProxy.Playground.csproj -c Release -r ${{ matrix.rid }} -o ./publish/proxy/${{ matrix.rid }}
+          dotnet publish src/SupercellProxy.Capture/SupercellProxy.Capture.csproj -c Release -r ${{ matrix.rid }} -o ./publish/proxy/${{ matrix.rid }}
+          dotnet publish src/SupercellProxy.Server/SupercellProxy.Server.csproj -c Release -r ${{ matrix.rid }} -o ./publish/server/${{ matrix.rid }}
           dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj -c Release -r ${{ matrix.rid }} -o ./publish/key-extractor/${{ matrix.rid }}
 
       - name: Publish Application (Alpine Container)
@@ -73,10 +78,12 @@ jobs:
             --workdir /workspace \
             mcr.microsoft.com/dotnet/sdk:10.0-alpine \
             sh -c "apk add --no-cache clang build-base zlib-dev && \
-                   dotnet publish src/SupercellProxy.Playground/SupercellProxy.Playground.csproj \
+                   dotnet publish src/SupercellProxy.Capture/SupercellProxy.Capture.csproj \
                    -c Release \
                    -r ${{ matrix.rid }} \
                    -o ./publish/proxy/${{ matrix.rid }} && \
+                   dotnet publish src/SupercellProxy.Server/SupercellProxy.Server.csproj \
+                   -c Release -r ${{ matrix.rid }} -o ./publish/server/${{ matrix.rid }} && \
                    dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj \
                    -c Release \
                    -r ${{ matrix.rid }} \
@@ -87,6 +94,12 @@ jobs:
         with:
           name: proxy-${{ matrix.rid }}
           path: ./publish/proxy/${{ matrix.rid }}
+
+      - name: Upload Server Build Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: server-${{ matrix.rid }}
+          path: ./publish/server/${{ matrix.rid }}
 
       - name: Upload Key Extractor Build Artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -109,21 +122,10 @@ jobs:
         run: |
           mkdir -p ./release-archives
           
-          for project in proxy key-extractor; do
-            if [ "$project" = "proxy" ]; then
-              executableBaseName="SupercellProxy.Playground"
-            else
-              executableBaseName="SupercellProxy.PublicKeyExtractor"
-            fi
-            
+          for project in proxy server key-extractor; do
             for rid_dir in ./artifacts/${project}-*/; do
               [ -d "$rid_dir" ] || continue
               rid=$(basename "$rid_dir" | sed "s/^${project}-//")
-              
-              executableFileName="$executableBaseName"
-              if [[ "$rid" == *"win"* ]]; then
-                executableFileName="${executableBaseName}.exe"
-              fi
               
               architectureFilter="--x86"
               if [[ "$rid" == *"arm64"* ]]; then
@@ -133,7 +135,7 @@ jobs:
               fi
               
               cd "$rid_dir"
-              env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/${project}-${rid}.tar.xz" "$executableFileName"
+              env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/${project}-${rid}.tar.xz" .
               cd "$OLDPWD"
             done
           done

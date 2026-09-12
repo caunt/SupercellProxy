@@ -1,4 +1,5 @@
 using SupercellProxy.Keys;
 
-var exitCode = await Application.RunAsync(args).ConfigureAwait(false);
+int exitCode = await Application.RunAsync(args).ConfigureAwait(continueOnCapturedContext: false);
+
 return exitCode;

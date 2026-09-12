@@ -1,5 +1,7 @@
 using System.Text;
 
+using SupercellProxy.Keys.Models;
+
 namespace SupercellProxy.Keys;
 
 internal sealed class KeysUpdateReport
@@ -16,50 +18,51 @@ internal sealed class KeysUpdateReport
 
     public string ToMarkdown()
     {
-        var updated = _results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
-        var notUpdated = _results.Count - updated;
-        var warnings = _results.Count(static result => result.IsWarning);
-        var markdown = new StringBuilder();
-        var appNames = _results
+        int updated = _results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
+        int notUpdated = _results.Count - updated;
+        int warnings = _results.Count(static result => result.IsWarning);
+        StringBuilder markdown = new();
+
+        string[] appNames = [.. _results
             .Where(static result => result.AppName is not "Updater")
             .Select(static result => result.AppName)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var title = appNames.Length is 1 ? appNames[0] : "Server public key update";
+            .Distinct(StringComparer.Ordinal)];
 
-        markdown
-            .Append("## ")
+        string title = appNames.Length is 1 ? appNames[0] : "Server public key update";
+
+        markdown = markdown
+            .Append(value: "## ")
             .AppendLine(EscapeMarkdown(title))
             .AppendLine()
-            .Append("Updated **")
+            .Append(value: "Updated **")
             .Append(updated)
-            .Append("**; not updated **")
+            .Append(value: "**; not updated **")
             .Append(notUpdated)
-            .Append("**; warnings **")
+            .Append(value: "**; warnings **")
             .Append(warnings)
-            .AppendLine("**.")
+            .AppendLine(value: "**.")
             .AppendLine()
-            .AppendLine("| App | Version | Outcome | Key | Reason |")
-            .AppendLine("| --- | --- | --- | --- | --- |");
+            .AppendLine(value: "| App | Version | Outcome | Key | Reason |")
+            .AppendLine(value: "| --- | --- | --- | --- | --- |");
 
-        foreach (var result in _results)
+        foreach (KeysUpdateResult result in _results)
         {
-            markdown
-                .Append("| ")
+            markdown = markdown
+                .Append(value: "| ")
                 .Append(EscapeMarkdown(result.AppName))
-                .Append(" | ")
+                .Append(value: " | ")
                 .Append(EscapeMarkdown(result.Version ?? "—"))
-                .Append(" | ")
+                .Append(value: " | ")
                 .Append(result.Outcome is KeysUpdateOutcome.Updated ? "Updated" : "Not updated")
-                .Append(" | ")
+                .Append(value: " | ")
                 .Append(result.Key is null ? "—" : $"`{result.Key}`")
-                .Append(" | ")
+                .Append(value: " | ")
                 .Append(EscapeMarkdown(result.Reason))
-                .AppendLine(" |");
+                .AppendLine(value: " |");
         }
 
         if (_results.Count is 0)
-            markdown.AppendLine("| — | — | Not updated | — | No apps were processed. |");
+            markdown = markdown.AppendLine(value: "| — | — | Not updated | — | No apps were processed. |");
 
         return markdown.ToString();
     }
@@ -67,9 +70,9 @@ internal sealed class KeysUpdateReport
     private static string EscapeMarkdown(string value)
     {
         return value
-            .Replace("\\", "\\\\", StringComparison.Ordinal)
-            .Replace("|", "\\|", StringComparison.Ordinal)
-            .Replace('\r', ' ')
-            .Replace('\n', ' ');
+            .Replace(oldValue: "\\", newValue: "\\\\", StringComparison.Ordinal)
+            .Replace(oldValue: "|", newValue: "\\|", StringComparison.Ordinal)
+            .Replace(oldChar: '\r', newChar: ' ')
+            .Replace(oldChar: '\n', newChar: ' ');
     }
 }

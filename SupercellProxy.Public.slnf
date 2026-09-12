@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "SupercellProxy.slnx",
+    "projects": [
+      "src/SupercellProxy.Networking/SupercellProxy.Networking.csproj",
+      "src/SupercellProxy.Capture/SupercellProxy.Capture.csproj",
+      "src/SupercellProxy.Server/SupercellProxy.Server.csproj",
+      "src/SupercellProxy.Keys/SupercellProxy.Keys.csproj",
+      "src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj"
+    ]
+  }
+}

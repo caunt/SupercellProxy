@@ -1,5 +1,10 @@
 <Solution>
+  <Project Path="src/SupercellProxy.Networking/SupercellProxy.Networking.csproj" />
+  <Project Path="src/SupercellProxy.Capture/SupercellProxy.Capture.csproj" />
+  <Project Path="src/SupercellProxy.Server/SupercellProxy.Server.csproj" />
+  <Project Path="src/SupercellProxy.Simulation/SupercellProxy.Simulation.csproj" />
+  <Project Path="src/SupercellProxy.Buyer/SupercellProxy.Buyer.csproj" />
+  <Project Path="src/SupercellProxy.Diagnostics/SupercellProxy.Diagnostics.csproj" />
   <Project Path="src/SupercellProxy.Keys/SupercellProxy.Keys.csproj" />
-  <Project Path="src/SupercellProxy.Playground/SupercellProxy.Playground.csproj" />
   <Project Path="src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj" />
 </Solution>

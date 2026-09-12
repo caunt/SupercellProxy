@@ -5,14 +5,9 @@ namespace SupercellProxy.PublicKeyExtractor;
 
 internal static class ApplicationText
 {
-    private static readonly ResourceManager ResourceManager = new(
-        "SupercellProxy.PublicKeyExtractor.ApplicationText",
-        typeof(ApplicationText).Assembly
-    );
+    private static readonly ResourceManager ResourceManager = new(baseName: "SupercellProxy.PublicKeyExtractor.ApplicationText", typeof(ApplicationText).Assembly);
 
     public static string InputRequired =>
         ResourceManager.GetString(nameof(InputRequired), CultureInfo.CurrentUICulture)
-        ?? throw new MissingManifestResourceException(
-            $"The {nameof(InputRequired)} resource is missing."
-        );
+        ?? throw new MissingManifestResourceException($"The {nameof(InputRequired)} resource is missing.");
 }

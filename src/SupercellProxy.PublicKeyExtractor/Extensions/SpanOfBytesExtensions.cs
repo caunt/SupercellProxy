@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace SupercellProxy.PublicKeyExtractor.Extensions;
 
@@ -7,35 +7,21 @@ namespace SupercellProxy.PublicKeyExtractor.Extensions;
 /// </summary>
 internal static class SpanOfBytesExtensions
 {
-    /// <summary>
-    /// <para>Returns a slice immediately preceding the specified index.</para>
-    /// </summary>
-    public static ReadOnlySpan<byte> SliceBefore(
-        this ReadOnlySpan<byte> input,
-        int index,
-        int count
-    )
-    {
-        return input.Slice(index - count, count);
-    }
 
     /// <summary>
     /// <para>Finds all overlapping occurrences of a byte pattern.</para>
     /// </summary>
-    public static IEnumerable<int> IndexesOf(
-        this ReadOnlySpan<byte> source,
-        ReadOnlySpan<byte> pattern
-    )
+    public static IEnumerable<int> IndexesOf(this ReadOnlySpan<byte> source, ReadOnlySpan<byte> pattern)
     {
         if (pattern.Length is 0)
             return [];
 
-        var result = new List<int>(2);
-        var start = 0;
+        List<int> result = new(capacity: 2);
+        int start = 0;
 
         while (start <= source.Length - pattern.Length)
         {
-            var index = source[start..].IndexOf(pattern);
+            int index = source[start..].IndexOf(pattern);
 
             if (index < 0)
                 break;
@@ -54,13 +40,13 @@ internal static class SpanOfBytesExtensions
     /// </summary>
     public static bool IsAllZeros(this ReadOnlySpan<byte> input)
     {
-        var index = 0;
+        int index = 0;
 
         if (Vector.IsHardwareAccelerated && input.Length >= Vector<byte>.Count)
         {
-            var zeroVector = Vector<byte>.Zero;
-            var vectorSize = Vector<byte>.Count;
-            var lastVectorStart = input.Length - (input.Length % vectorSize);
+            Vector<byte> zeroVector = Vector<byte>.Zero;
+            int vectorSize = Vector<byte>.Count;
+            int lastVectorStart = input.Length - (input.Length % vectorSize);
 
             while (index < lastVectorStart)
             {
@@ -88,5 +74,13 @@ internal static class SpanOfBytesExtensions
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// <para>Returns a slice immediately preceding the specified index.</para>
+    /// </summary>
+    public static ReadOnlySpan<byte> SliceBefore(this ReadOnlySpan<byte> input, int index, int count)
+    {
+        return input.Slice(index - count, count);
     }
 }

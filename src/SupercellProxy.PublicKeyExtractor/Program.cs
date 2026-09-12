@@ -1,4 +1,4 @@
-﻿using SupercellProxy.PublicKeyExtractor;
+using SupercellProxy.PublicKeyExtractor;
 using SupercellProxy.PublicKeyExtractor.Extensions;
 
 byte[] binary;
@@ -6,17 +6,19 @@ byte[] binary;
 if (args.Length < 1)
 {
     Console.WriteLine(ApplicationText.InputRequired);
+
     return 1;
 }
 
 try
 {
-    var input = args[0];
-    binary = await input.ReadContentAsync(CancellationToken.None).ConfigureAwait(false);
+    string input = args[0];
+    binary = await input.ReadContentAsync(CancellationToken.None).ConfigureAwait(continueOnCapturedContext: false);
 }
 catch (Exception exception) when (IsContentReadFailure(exception))
 {
     Console.WriteLine($"Could not read content: {exception.Message}");
+
     return 2;
 }
 
@@ -27,23 +29,25 @@ try
         ReadOnlyMemory<byte> binaryMemory = binary;
         binary = await binaryMemory
             .GetIpaAppEntryAsync(CancellationToken.None)
-            .ConfigureAwait(false);
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 }
 catch (Exception exception) when (exception is InvalidDataException or IOException)
 {
     Console.WriteLine($"Could not get binary from IPA: {exception.Message}");
+
     return 3;
 }
 
 try
 {
-    var serverPublicKey = ServerPublicKeyExtractor.ExtractBinary(binary);
+    byte[] serverPublicKey = ServerPublicKeyExtractor.ExtractBinary(binary);
     Console.WriteLine(Convert.ToHexString(serverPublicKey));
 }
 catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
 {
     Console.WriteLine($"Could not extract server public key:\n{exception}");
+
     return 4;
 }
 

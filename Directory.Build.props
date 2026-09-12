@@ -1,31 +1,5 @@
 <Project>
-  <PropertyGroup>
-    <AnalysisLevel>latest-all</AnalysisLevel>
-    <AnalysisModeStyle>AllEnabledByDefault</AnalysisModeStyle>
-    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    <EnableCodeStyleSeverity>true</EnableCodeStyleSeverity>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <MeziantouAnalysisMode>all-errors</MeziantouAnalysisMode>
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="CSharpier.MsBuild" Version="1.3.0" PrivateAssets="all" />
-    <PackageReference
-      Include="Meziantou.Analyzer"
-      Version="3.0.224"
-      PrivateAssets="all"
-      IncludeAssets="runtime; build; native; contentfiles; analyzers"
-    />
+    <PackageReference Include="NetAgents.Analyzers" Version="26.9.12.1775" PrivateAssets="all" />
   </ItemGroup>
 </Project>
