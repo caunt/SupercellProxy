@@ -40,9 +40,7 @@ dotnet run --project src/SupercellProxy.Server -- --ListenAddress 127.0.0.1 --Li
 
 Hosts support standard .NET configuration and Ctrl+C shutdown. Authenticated protocol clients select an account from the JSON session ledger with `SessionAccountIdentifier`; Capture uses the same optional setting to inject a retained account into proxied logins. The ledger defaults to `sc-client-session-ledger.json` beside the executable and accepts a `SessionLedgerPath` override.
 
-Before its listener starts, Capture imports complete login and own-home exchanges from its retained `CaptureDirectory`. New accounts are validated against the configured upstream before being saved; rejected or incomplete captures produce warnings without preventing startup. Successful logins observed by the running proxy are retained after matching own-home data supplies the farm name. Capture defaults to a `proxy-captures` directory beside its executable. Session credentials remain plain JSON using normal platform file permissions.
-
-The versioned ledger stores one tag-string `AccountId`, `FarmName`, `AppStore`, `PassToken`, and optional scalar `SessionToken` and `SessionRefreshToken` per account. An unversioned ledger from the initial implementation is archived beside the executable and rebuilt from retained captures.
+Before its listener starts, Capture imports a nearby legacy `sc-client-session.json` and successful login exchanges from its retained `CaptureDirectory`. New accounts are validated against the configured upstream before being saved; rejected or incomplete captures produce warnings without preventing startup. Successful logins observed by the running proxy are added immediately. Capture defaults to a `proxy-captures` directory beside its executable. Session credentials remain plain JSON using normal platform file permissions.
 
 Asset-cache and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the surviving capture collection under `exploration/captures/replay` and retained assets under `exploration/subjects/game-assets/replay`.
 
