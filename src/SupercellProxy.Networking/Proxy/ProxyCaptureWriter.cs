@@ -34,8 +34,7 @@ public sealed class ProxyCaptureWriter
         TrySetDirectoryPermissions(_directoryPath);
     }
     /// Gets the default root directory for captured proxy traffic.
-    public static string RootDirectoryPath { get; } =
-        Path.Combine(AppContext.BaseDirectory, path2: "proxy-captures");
+    public static string RootDirectoryPath { get; } = UserDataPaths.CaptureDirectoryPath;
 
     /// <summary>
     /// Gets the <c language="csharp">DirectoryPath</c> value.

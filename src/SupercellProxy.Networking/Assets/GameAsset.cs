@@ -17,8 +17,7 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
         [];
 
     /// Gets the root directory used for downloaded game assets.
-    public static string RootDirectoryPath { get; } =
-        Path.Combine(AppContext.BaseDirectory, path2: "Assets");
+    public static string RootDirectoryPath { get; } = UserDataPaths.AssetDirectoryPath;
 
     /// <summary>
     /// Gets the <c language="csharp">AsAscii</c> value.

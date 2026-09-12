@@ -13,7 +13,7 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Sessions;
 
 /// <summary>Loads, validates, provides, and atomically updates multiple account sessions.</summary>
-/// <remarks>Initializes a ledger at the supplied path or beside the application.</remarks>
+/// <remarks>Initializes a ledger at the supplied path or in the shared per-user application-data directory.</remarks>
 public sealed class ClientSessionLedger(string? ledgerPath = null)
 {
 
@@ -165,7 +165,7 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
     private static string ResolvePath(string? ledgerPath)
     {
         return ledgerPath is null
-            ? Path.Combine(Environment.CurrentDirectory, DefaultFileName)
+            ? UserDataPaths.SessionLedgerFilePath
             : Path.GetFullPath(ledgerPath);
     }
 
@@ -213,6 +213,11 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
 
     private async Task SaveCoreAsync(ClientSession[] sessions, CancellationToken cancellationToken)
     {
+        string directory = Path.GetDirectoryName(FilePath)
+            ?? throw new InvalidOperationException($"The client session ledger path has no parent directory: {FilePath}");
+
+        new DirectoryInfo(directory).Create();
+
         string temporaryPath = string.Create(CultureInfo.InvariantCulture, $"{FilePath}.{Environment.ProcessId}.{Guid.NewGuid():N}.tmp");
 
         try
