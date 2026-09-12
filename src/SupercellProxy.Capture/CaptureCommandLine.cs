@@ -13,7 +13,7 @@ namespace SupercellProxy.Capture;
 
 internal static class CaptureCommandLine
 {
-    private static readonly Option<string?> AccountOption = new(name: "--account", aliases: ["-a"])
+    private static readonly Option<string?> FarmOption = new(name: "--farm", aliases: ["-f"])
     {
         Arity = ArgumentArity.ZeroOrOne,
         Description = "Select a saved session by an optional farm-name fragment",
@@ -83,7 +83,7 @@ internal static class CaptureCommandLine
     private static RootCommand CreateCommand()
     {
         RootCommand command = new(description: "Capture and proxy Supercell protocol traffic");
-        command.Options.Add(AccountOption);
+        command.Options.Add(FarmOption);
         command.Options.Add(AssetDirectoryOption);
         command.Options.Add(CaptureDirectoryOption);
         command.Options.Add(KeyVersionOption);
@@ -107,7 +107,7 @@ internal static class CaptureCommandLine
         {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder();
 
-            CaptureAccountSelection selection = new(Specified: parseResult.GetResult(AccountOption) is not null, FarmNameFragment: parseResult.GetValue(AccountOption));
+            CaptureFarmSelection selection = new(Specified: parseResult.GetResult(FarmOption) is not null, FarmNameFragment: parseResult.GetValue(FarmOption));
 
             OptionsBuilder<ProxyOptions> proxyOptions = builder.Services
                 .AddSingleton(selection)
@@ -115,7 +115,7 @@ internal static class CaptureCommandLine
                     static provider => new CaptureSessionImportService(
                         provider.GetRequiredService<IOptions<ProxyOptions>>(),
                         provider.GetRequiredService<ProtocolClientFactory>(),
-                        provider.GetRequiredService<CaptureAccountSelection>(),
+                        provider.GetRequiredService<CaptureFarmSelection>(),
                         provider.GetRequiredService<ILogger<CaptureSessionImportService>>()
                     )
                 )

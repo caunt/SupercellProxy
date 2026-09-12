@@ -18,7 +18,7 @@ namespace SupercellProxy.Capture;
 
 internal sealed class CaptureSessionImportService : IHostedLifecycleService
 {
-    private readonly CaptureAccountSelection _accountSelection;
+    private readonly CaptureFarmSelection _farmSelection;
     private readonly ILogger<CaptureSessionImportService> _logger;
     private readonly ProxyOptions _options;
     private readonly ProtocolClientFactory _protocolClients;
@@ -26,11 +26,11 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
     internal CaptureSessionImportService(
         IOptions<ProxyOptions> options,
         ProtocolClientFactory protocolClients,
-        CaptureAccountSelection accountSelection,
+        CaptureFarmSelection farmSelection,
         ILogger<CaptureSessionImportService> logger
     )
     {
-        _accountSelection = accountSelection;
+        _farmSelection = farmSelection;
         _logger = logger;
         _options = options.Value;
         _protocolClients = protocolClients;
@@ -64,15 +64,15 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         importedSessionCount += await ImportRetainedCapturesAsync(ledger, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        if (_accountSelection.Specified)
+        if (_farmSelection.Specified)
         {
             ClientSessionSelector selector = new(Console.In, Console.Out);
 
             ClientSession selected = await selector
                 .SelectAsync(
                     ledger,
-                    accountOptionSpecified: true,
-                    _accountSelection.FarmNameFragment,
+                    farmOptionSpecified: true,
+                    _farmSelection.FarmNameFragment,
                     selectionRequired: false,
                     Console.IsInputRedirected,
                     cancellationToken

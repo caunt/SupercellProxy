@@ -21,7 +21,7 @@ public sealed class ClientSessionSelector
     /// <returns>The selected session, or null when selection is optional and was not requested.</returns>
     public async Task<ClientSession?> SelectAsync(
         ClientSessionLedger ledger,
-        bool accountOptionSpecified,
+        bool farmOptionSpecified,
         string? farmNameFragment,
         bool selectionRequired,
         bool inputRedirected,
@@ -30,7 +30,7 @@ public sealed class ClientSessionSelector
     {
         ArgumentNullException.ThrowIfNull(ledger);
 
-        if (!accountOptionSpecified && !selectionRequired)
+        if (!farmOptionSpecified && !selectionRequired)
             return null;
 
         ClientSession[] sessions = await ledger.GetSessionsAsync(cancellationToken)
@@ -65,7 +65,7 @@ public sealed class ClientSessionSelector
     private async Task<ClientSession> PromptAsync(ClientSession[] sessions, bool inputRedirected, CancellationToken cancellationToken)
     {
         if (inputRedirected)
-            throw new InvalidOperationException(message: "Interactive session selection is unavailable; pass --account FARM_NAME.");
+            throw new InvalidOperationException(message: "Interactive session selection is unavailable; pass --farm FARM_NAME.");
 
         await _output.WriteLineAsync(value: "Select a session:").ConfigureAwait(continueOnCapturedContext: false);
 
@@ -85,7 +85,7 @@ public sealed class ClientSessionSelector
             await _output.WriteAsync(string.Create(CultureInfo.InvariantCulture, $"Choose 1-{sessions.Length}: "))
                 .ConfigureAwait(continueOnCapturedContext: false);
             await _output.FlushAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            string? value = await _input.ReadLineAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false) ?? throw new InvalidOperationException(message: "Interactive session selection ended; pass --account FARM_NAME.");
+            string? value = await _input.ReadLineAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false) ?? throw new InvalidOperationException(message: "Interactive session selection ended; pass --farm FARM_NAME.");
 
             bool validSelection = int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int selected)
                 && selected >= 1
