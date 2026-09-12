@@ -16,9 +16,6 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
     private static readonly ConditionalWeakTable<GameAsset, Lazy<GameDataTable>> ParsedTables =
         [];
 
-    /// Gets the root directory used for downloaded game assets.
-    public static string RootDirectoryPath { get; } = UserDataPaths.AssetDirectoryPath;
-
     /// <summary>
     /// Gets the <c language="csharp">AsAscii</c> value.
     /// </summary>

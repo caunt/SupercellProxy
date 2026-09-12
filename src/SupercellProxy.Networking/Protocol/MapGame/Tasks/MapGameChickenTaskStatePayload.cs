@@ -23,7 +23,9 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
         Unknown0 = unknown0;
         UnknownBoolean0 = unknownBoolean0;
         UnknownLongIdentifier = unknownLongIdentifier;
-        OptionalValues = optionalValues?.ToArray();
+        OptionalValues = optionalValues is null
+            ? null
+            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
         LongIdentifiers = logicLongs.ToArray();
     }
 

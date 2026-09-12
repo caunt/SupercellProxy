@@ -37,7 +37,7 @@ public sealed record MapGameEventProfileData
             throw new InvalidDataException($"A map-game event profile must contain exactly {UnknownValueCount} trailing values.");
 
         UsesBinaryData = usesBinaryData;
-        BinaryData = binaryData?.ToArray();
+        BinaryData = binaryData is null ? null : (ReadOnlyMemory<byte>?)binaryData.Value.ToArray();
         OptionalTextData = optionalTextData;
         Unknown0 = unknown0;
         Unknown1 = unknown1;

@@ -6,7 +6,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
     internal async Task<GameAsset[]> GetAssetsAsync(GameAssetFingerprint fingerprint, IEnumerable<string> downloadUrls, CancellationToken cancellationToken = default)
     {
-        DirectoryInfo assetsDirectory = Directory.CreateDirectory(Path.Combine(assetDirectory() ?? GameAsset.RootDirectoryPath, fingerprint.Version, fingerprint.Sha));
+        DirectoryInfo assetsDirectory = Directory.CreateDirectory(Path.Combine(assetDirectory() ?? UserDataPaths.AssetDirectoryPath, fingerprint.Version, fingerprint.Sha));
 
         GameAsset?[] resources = new GameAsset?[fingerprint.Files.Count];
         bool[] downloadedAssets = new bool[fingerprint.Files.Count];

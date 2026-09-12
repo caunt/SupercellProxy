@@ -50,11 +50,11 @@ public static class MapGameFieldCodec
     /// <summary>
     /// Provides the Read Optional Data Reference Var Int Pairs value or operation.
     /// </summary>
-    public static CommandDataReferenceVariableIntPair[]? ReadOptionalDataReferenceVariableIntPairs(MessageStream stream)
+    public static ReadOnlyMemory<CommandDataReferenceVariableIntPair>? ReadOptionalDataReferenceVariableIntPairs(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return stream.ReadBoolean() ? ReadDataReferenceVariableIntPairs(stream) : null;
+        return !stream.ReadBoolean() ? null : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)ReadDataReferenceVariableIntPairs(stream);
     }
 
     /// <summary>

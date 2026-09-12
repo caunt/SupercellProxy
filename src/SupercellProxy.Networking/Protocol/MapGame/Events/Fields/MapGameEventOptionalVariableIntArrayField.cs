@@ -14,7 +14,7 @@ public sealed record MapGameEventOptionalVariableIntArrayField : MapGameEventFie
     /// </summary>
     public MapGameEventOptionalVariableIntArrayField(ReadOnlyMemory<int>? values)
     {
-        Values = values?.ToArray();
+        Values = values is null ? null : (ReadOnlyMemory<int>?)values.Value.ToArray();
     }
 
     /// <summary>

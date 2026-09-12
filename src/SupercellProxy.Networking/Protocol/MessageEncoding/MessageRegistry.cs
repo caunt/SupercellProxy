@@ -275,6 +275,8 @@ public static class MessageRegistry
             ? PassthroughMessage.Create(container)
             : container.Identifier == GetIdentifier<EndClientTurnMessage>()
             ? EndClientTurnMessage.Create(container, CommandEnvironment.Production, dataResolver)
+            : container.Identifier == GetIdentifier<AvailableServerCommandMessage>()
+            ? AvailableServerCommandMessage.Create(container, dataResolver)
             : entry.Factory(container);
     }
 

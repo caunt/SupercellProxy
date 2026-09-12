@@ -22,7 +22,9 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     )
     {
         Values = values.ToArray();
-        OptionalValues = optionalValues?.ToArray();
+        OptionalValues = optionalValues is null
+            ? null
+            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
         Unknown0 = unknown0;
         UnknownLongIdentifier = unknownLongIdentifier;
         UnknownGlobalIdentifier0 = unknownGlobalIdentifier0;

@@ -17,7 +17,9 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
         UnknownBoolean0 = unknownBoolean0;
         UnknownBoolean1 = unknownBoolean1;
         Unknown0 = unknown0;
-        OptionalValues = optionalValues?.ToArray();
+        OptionalValues = optionalValues is null
+            ? null
+            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
     }
 
     /// <summary>

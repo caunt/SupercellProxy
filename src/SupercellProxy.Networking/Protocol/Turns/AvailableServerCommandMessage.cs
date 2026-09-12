@@ -17,10 +17,18 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
     /// </summary>
     public static AvailableServerCommandMessage Create(MessageContainer container)
     {
+        return Create(container, dataResolver: null);
+    }
+
+    /// <summary>
+    /// Creates a <c language="csharp">AvailableServerCommandMessage</c> from the supplied data.
+    /// </summary>
+    public static AvailableServerCommandMessage Create(MessageContainer container, ICommandDataResolver? dataResolver)
+    {
         ArgumentNullException.ThrowIfNull(container);
         byte[] payload = container.Payload.ToArray();
 
-        Command command = CommandRegistry.Decode(container.Payload, CommandEnvironment.Production, container.Payload.CommandDataResolver);
+        Command command = CommandRegistry.Decode(container.Payload, CommandEnvironment.Production, dataResolver ?? container.Payload.CommandDataResolver);
 
         AvailableServerCommandMessage message = new(command);
         // Container serialization finalizes any trailing packed boolean before comparison.

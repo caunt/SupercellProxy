@@ -53,7 +53,7 @@ public sealed record MapGameTaskCommand : Command
 
         Type = type;
         Task = task;
-        OptionalValues = optionalValues?.ToArray();
+        OptionalValues = optionalValues is null ? null : (ReadOnlyMemory<int>?)optionalValues.Value.ToArray();
     }
 
     /// <summary>

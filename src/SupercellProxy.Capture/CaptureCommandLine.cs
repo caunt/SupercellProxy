@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using SupercellProxy.Networking;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Hosting;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
@@ -124,7 +125,7 @@ internal static class CaptureCommandLine
                         provider.GetRequiredService<ILogger<CaptureSessionImportService>>()
                     )
                 )
-                .AddProtocolProxy(static options => options.CaptureDirectory = ProxyCaptureWriter.RootDirectoryPath)
+                .AddProtocolProxy(static options => options.CaptureDirectory = UserDataPaths.CaptureDirectoryPath)
                 .Bind(builder.Configuration)
                 .Configure(options => ApplyCommandLine(options, parseResult));
 

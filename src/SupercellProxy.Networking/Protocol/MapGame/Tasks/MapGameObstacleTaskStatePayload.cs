@@ -22,7 +22,9 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
         UnknownBoolean0 = unknownBoolean0;
         UnknownBoolean1 = unknownBoolean1;
         UnknownLongIdentifier = unknownLongIdentifier;
-        OptionalValues = optionalValues?.ToArray();
+        OptionalValues = optionalValues is null
+            ? null
+            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
     }
 
     /// <summary>
