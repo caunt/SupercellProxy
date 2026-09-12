@@ -8,6 +8,7 @@ using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Turns;
+using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -20,10 +21,16 @@ public sealed class ProxyConnection : IAsyncDisposable
     private MessageStream? _serverStream;
     private bool _started;
 
-    private ProxyConnection(TcpClient socketClient, ProxyCaptureWriter trafficCapture, string? sessionPath, CancellationToken cancellationToken)
+    private ProxyConnection(
+        TcpClient socketClient,
+        ProxyCaptureWriter trafficCapture,
+        ClientSessionLedger sessionLedger,
+        string? sessionAccountIdentifier,
+        CancellationToken cancellationToken
+    )
     {
         SocketClient = socketClient;
-        _handshake = new ProxyHandshake(sessionPath);
+        _handshake = new ProxyHandshake(sessionLedger, sessionAccountIdentifier);
         _homeVisitor = new ProxyHomeVisitor(this);
         SocketUpstream = new TcpClient();
         ClientStream = new MessageStream(socketClient.GetStream());
@@ -89,14 +96,16 @@ public sealed class ProxyConnection : IAsyncDisposable
         string upstreamHost,
         int upstreamPort,
         ProxyCaptureWriter trafficCapture,
-        CancellationToken cancellationToken,
-        string? sessionPath = null,
+        ClientSessionLedger sessionLedger,
+        string? sessionAccountIdentifier = null,
         IServerPublicKeySource? serverKeys = null,
-        ICommandDataResolver? commandDataResolver = null
+        ICommandDataResolver? commandDataResolver = null,
+        CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(socketClient);
-        ProxyConnection client = new(socketClient, trafficCapture, sessionPath, cancellationToken);
+        ArgumentNullException.ThrowIfNull(sessionLedger);
+        ProxyConnection client = new(socketClient, trafficCapture, sessionLedger, sessionAccountIdentifier, cancellationToken);
 
         try
         {

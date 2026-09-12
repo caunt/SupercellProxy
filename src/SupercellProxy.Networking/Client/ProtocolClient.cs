@@ -141,6 +141,21 @@ public sealed class ProtocolClient : IAsyncDisposable
         return Stream.WriteMessageAsync(message, cancellationToken);
     }
 
+    /// <summary>Authenticates a supplied session without persisting it or starting normal gameplay traffic.</summary>
+    /// <returns>The validated session, including any refreshed session-token material.</returns>
+    public async Task<ClientSession> ValidateSessionAsync(ClientSession session, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _authenticator.ValidateSessionAsync(session, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+        finally
+        {
+            await DisconnectAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        }
+    }
+
     internal async Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
         _login = null;

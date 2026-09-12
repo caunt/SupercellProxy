@@ -11,7 +11,8 @@ public sealed record ProxyConfiguration(
     string ListenAddress,
     int ListenPort,
     ProtocolConfiguration Protocol,
-    string? SessionPath = null,
+    string? SessionAccountIdentifier = null,
+    string? SessionLedgerPath = null,
     string? CaptureDirectory = null,
     string? AssetDirectory = null
 );

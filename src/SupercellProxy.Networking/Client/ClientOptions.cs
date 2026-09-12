@@ -15,8 +15,11 @@ public sealed class ClientOptions
     /// <summary>Gets or sets the upstream hostname or IP address.</summary>
     public string UpstreamHost { get; set; } = ConnectionAddressResolver.DefaultUpstreamHost;
 
-    /// <summary>Gets or sets the optional account session file.</summary>
-    public string? SessionPath { get; set; }
+    /// <summary>Gets or sets the account tag selected from the session ledger.</summary>
+    public string SessionAccountIdentifier { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the optional client session ledger path.</summary>
+    public string? SessionLedgerPath { get; set; }
 
     /// <summary>Gets or sets the upstream TCP port.</summary>
     public int UpstreamPort { get; set; } = ConnectionAddressResolver.DefaultPort;
@@ -26,6 +29,6 @@ public sealed class ClientOptions
 
     internal ClientConfiguration ToConfiguration()
     {
-        return new(UpstreamHost, UpstreamPort, Protocol, SessionPath, BootstrapFingerprintSha, AssetDirectory);
+        return new(UpstreamHost, UpstreamPort, Protocol, SessionAccountIdentifier, SessionLedgerPath, BootstrapFingerprintSha, AssetDirectory);
     }
 }

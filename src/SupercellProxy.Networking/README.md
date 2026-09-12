@@ -33,11 +33,11 @@ Namespaces follow directories. The two `GameAssetFiles.cs` parts share `Supercel
 - `AddProtocolProxy()` registers the proxy and returns an `OptionsBuilder<ProxyOptions>`.
 - `AddServerPlaceholder()` returns an `OptionsBuilder<ServerOptions>`; its configuration overload binds the supplied `IConfiguration` directly.
 - `ProtocolClientFactory.Create` creates a caller-owned client from an immutable `ClientConfiguration` or an existing `MessageStream`.
-- `Sessions.ClientSessionStore` loads and atomically saves `ClientSession` records using the established session-file format.
+- `Sessions.ClientSessionLedger` validates, lists, selects, and atomically saves multiple `ClientSession` records keyed by account ID. `ClientSessionStore` remains available for legacy single-file migration.
 
-The client authenticates, configures asset-dependent codecs, exchanges messages, and sends keep-alives. Its internal authenticator and asset cache share the connection's dependencies and lifetime. Consuming a message does not apply its commands or calculate game checksums.
+Authenticated clients require `SessionAccountIdentifier` and load that account from the ledger at `SessionLedgerPath`, which defaults beside the executable. The client authenticates, configures asset-dependent codecs, exchanges messages, sends keep-alives, and saves refreshed session-token material after successful authentication. Its internal authenticator and asset cache share the connection's dependencies and lifetime. Consuming a message does not apply its commands or calculate game checksums.
 
-`ProxyConnection` owns both sockets and the forwarding pumps. `ProxyHandshake` handles authentication exchange; `ProxyHomeVisitor` coordinates a temporary visit and response matching. Capture is enabled through `ProxyOptions.CaptureDirectory` by the Capture host. A null capture directory disables recording.
+`ProxyConnection` owns both sockets and the forwarding pumps. `ProxyHandshake` handles authentication exchange, optional ledger-account injection, and immediate retention of successful live logins; `ProxyHomeVisitor` coordinates a temporary visit and response matching. Capture is enabled through `ProxyOptions.CaptureDirectory` by the Capture host. A null capture directory disables recording.
 
 ## Encoding and direction
 

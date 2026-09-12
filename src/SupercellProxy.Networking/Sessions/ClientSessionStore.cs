@@ -108,7 +108,7 @@ public static class ClientSessionStore
         }
     }
 
-    private static ClientSession Normalize(ClientSession session, string path)
+    internal static ClientSession Normalize(ClientSession session, string path)
     {
         if (session.CompressedData is null)
         {
@@ -146,25 +146,7 @@ public static class ClientSessionStore
             });
     }
 
-    private static string ResolvePath(string? sessionPath)
-    {
-        return sessionPath is null
-            ? Path.Combine(AppContext.BaseDirectory, FileName)
-            : Path.GetFullPath(sessionPath);
-    }
-
-    private static async Task<string?> RetainRefreshTokenAsync(string path, LongIdentifier accountIdentifier, string passToken, CancellationToken cancellationToken)
-    {
-        ClientSession? existing = await LoadAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
-        bool matchesSession = existing is not null
-            && existing.ParsedAccountIdentifier == accountIdentifier
-            && string.Equals(existing.PassToken, passToken, StringComparison.Ordinal);
-
-        return matchesSession ? existing?.SessionRefreshToken : null;
-    }
-
-    private static void Validate(ClientSession session, string path)
+    internal static void Validate(ClientSession session, string path)
     {
         bool invalidTag = session.AccountIdentifier is not null
             && (
@@ -189,6 +171,24 @@ public static class ClientSessionStore
 
         if (session.SessionRefreshToken is not null && string.IsNullOrWhiteSpace(session.SessionRefreshToken))
             throw new InvalidDataException($"Client session in {path} has an empty Supercell ID refresh token.");
+    }
+
+    private static string ResolvePath(string? sessionPath)
+    {
+        return sessionPath is null
+            ? Path.Combine(AppContext.BaseDirectory, FileName)
+            : Path.GetFullPath(sessionPath);
+    }
+
+    private static async Task<string?> RetainRefreshTokenAsync(string path, LongIdentifier accountIdentifier, string passToken, CancellationToken cancellationToken)
+    {
+        ClientSession? existing = await LoadAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        bool matchesSession = existing is not null
+            && existing.ParsedAccountIdentifier == accountIdentifier
+            && string.Equals(existing.PassToken, passToken, StringComparison.Ordinal);
+
+        return matchesSession ? existing?.SessionRefreshToken : null;
     }
 
 }

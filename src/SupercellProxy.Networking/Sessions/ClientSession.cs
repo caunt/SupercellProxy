@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Sessions;
 
@@ -69,5 +71,32 @@ public sealed record ClientSession
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SessionToken { get; init; }
+
+    /// <summary>Creates a session from a completed login exchange.</summary>
+    /// <exception cref="LoginException">The login result is a failure.</exception>
+    /// <exception cref="InvalidDataException">The login result is not a supported authentication outcome.</exception>
+    /// <exception cref="UnauthorizedAccessException">The response identifies different credentials from the request.</exception>
+    public static ClientSession FromLoginOutcome(LoginMessage loginMessage, IMessage loginResult)
+    {
+        ArgumentNullException.ThrowIfNull(loginMessage);
+        ArgumentNullException.ThrowIfNull(loginResult);
+
+        LoginException.ThrowIfFailed(loginResult);
+
+        LoginOkMessage loginOkMessage = loginResult as LoginOkMessage
+            ?? throw new InvalidDataException($"Expected {nameof(LoginOkMessage)}, but received {loginResult.GetType().Name}.");
+
+        return loginMessage.AccountIdentifier != LongIdentifier.Empty && loginMessage.AccountIdentifier != loginOkMessage.AccountIdentifier
+            ? throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested session.")
+            : loginMessage.PassToken is not null && !string.Equals(loginMessage.PassToken, loginOkMessage.PassToken, StringComparison.Ordinal)
+            ? throw new UnauthorizedAccessException(message: "Authentication returned a different pass token from the requested session.")
+            : new ClientSession
+            {
+                AccountIdentifier = loginOkMessage.AccountIdentifier.ToFormattedString(),
+                AppStore = loginMessage.AppStore,
+                PassToken = loginOkMessage.PassToken,
+                CompressedData = loginMessage.SessionToken?.Encode(),
+            };
+    }
 
 }

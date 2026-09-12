@@ -11,15 +11,11 @@ namespace SupercellProxy.Networking.Client;
 
 internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRefresher sessionTokens, GameAssetCache assets)
 {
-
-    /// <summary>
-    /// Provides the Load Catalog Async value or operation.
-    /// </summary>
     internal async Task<DataTableResolver> LoadCatalogAsync(CancellationToken cancellationToken)
     {
         try
         {
-            LoginOkMessage unexpectedLogin = await LoginCoreAsync(string.Empty, includeSession: false, session: null, ClientSession.DefaultAppStore, cancellationToken)
+            LoginOkMessage unexpectedLogin = await LoginCoreAsync(string.Empty, includeSession: false, session: null, ClientSession.DefaultAppStore, requestOwnHome: false, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             throw new InvalidDataException($"Catalog bootstrap returned {unexpectedLogin.GetType().Name} without asset metadata.");
@@ -32,41 +28,52 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
 
             return new DataTableResolver(resources);
         }
-
     }
 
     internal async Task<ClientLoginResult> LoginAsync(CancellationToken cancellationToken = default)
     {
-        ClientSession? session = await ClientSessionStore.LoadAsync(client.Configuration.SessionPath, cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+        LongIdentifier accountIdentifier = ParseSelectedAccountIdentifier();
+        ClientSessionLedger ledger = new(client.Configuration.SessionLedgerPath);
 
-        AppStore appStore = session?.AppStore ?? ClientSession.DefaultAppStore;
+        ClientSession session = await ledger.GetSessionAsync(accountIdentifier, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false)
+            ?? throw new InvalidDataException($"Client session {client.Configuration.SessionAccountIdentifier} is not present in {ledger.FilePath}.");
 
         try
         {
-            // 1.67.170 => be514e02b198d18287af1405089a0e72b849ac69
-            // 1.67.175 => fdb648cea5e3494c3cafc32eca103331d85c5bfd
-            // 1.69.89  => 0c95746ec8ced89978f4b9fded2fdbc95b3daf18
-            // This bootstrap fingerprint is deliberately stale. Its only purpose is to provoke
-            // the single expected OutdatedContent LoginFailed; never hardcode the current
-            // fingerprint here because it must be detected dynamically from that response.
-            return new ClientLoginResult(
-                await LoginCoreAsync(
-                        fingerprintSha1: client.Configuration.BootstrapFingerprintSha ?? string.Empty,
-                        includeSession: false,
-                        session,
-                        appStore,
-                        cancellationToken
-                    )
-                    .ConfigureAwait(continueOnCapturedContext: false)
-            );
-        }
-        catch (LoginException loginException)
-            when (loginException.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent })
-        {
-            return await RecoverOutdatedContentAsync(loginException, session, appStore, cancellationToken)
+            AuthenticatedClientLogin authenticated = await LoginWithSessionAsync(session, loadAssets: true, requestOwnHome: true, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
+            await ledger.UpdateRefreshDataAsync(authenticated.Session, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+
+            return authenticated.Result;
         }
+        catch
+        {
+            await client.DisconnectAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            throw;
+        }
+    }
+
+    internal async Task<ClientSession> ValidateSessionAsync(ClientSession session, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        const string description = "the supplied client session";
+        ClientSession normalized = ClientSessionStore.Normalize(session, description);
+        ClientSessionStore.Validate(normalized, description);
+
+        AuthenticatedClientLogin authenticated = await LoginWithSessionAsync(normalized, loadAssets: false, requestOwnHome: false, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
+
+        return authenticated.Session;
+    }
+
+    private static bool CanForceRefresh(LoginException exception, ClientSession session)
+    {
+        return exception.LoginFailedMessage is { ErrorCode: LoginFailureType.InvalidToken }
+            && session.CompressedData is not null;
     }
 
     private static LoginMessage CreateLoginMessage(string fingerprintSha1, bool includeSession, ClientSession? session, AppStore appStore)
@@ -119,10 +126,10 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
         }
 
         if (session is not null && login.AccountIdentifier != session.ParsedAccountIdentifier)
-            throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested session; the session file was not changed.");
+            throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested ledger session.");
 
         if (session is not null && !string.Equals(login.PassToken, session.PassToken, StringComparison.Ordinal))
-            throw new UnauthorizedAccessException(message: "Authentication returned a different pass token from the requested session; the session file was not changed.");
+            throw new UnauthorizedAccessException(message: "Authentication returned a different pass token from the requested ledger session.");
     }
 
     private ClientHelloMessage CreateClientHelloMessage(string fingerprintSha1, AppStore appStore)
@@ -146,6 +153,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
         bool includeSession,
         ClientSession? session,
         AppStore appStore,
+        bool requestOwnHome,
         CancellationToken cancellationToken = default
     )
     {
@@ -171,21 +179,12 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
 
             ValidateAccountIdentity(session, loginOkMessage, includeSession);
 
-            await ClientSessionStore.SaveAsync(
-                    loginOkMessage.AccountIdentifier,
-                    session?.PassToken ?? loginOkMessage.PassToken,
-                    appStore,
-                    session?.CompressedData is { } compressed
-                        ? compressed.AsMemory()
-                        : (Memory<byte>?)null,
-                    client.Configuration.SessionPath,
-                    session?.SessionRefreshToken,
-                    cancellationToken
-                )
-                .ConfigureAwait(continueOnCapturedContext: false);
-            await stream
-                .WriteMessageAsync(new RequestOwnHomeMessage(), cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            if (requestOwnHome)
+            {
+                await stream
+                    .WriteMessageAsync(new RequestOwnHomeMessage(), cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+            }
 
             return loginOkMessage;
         }
@@ -197,7 +196,43 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
         }
     }
 
-    private async Task<ClientLoginResult> RecoverOutdatedContentAsync(LoginException loginException, ClientSession? session, AppStore appStore, CancellationToken cancellationToken)
+    private async Task<AuthenticatedClientLogin> LoginWithSessionAsync(ClientSession session, bool loadAssets, bool requestOwnHome, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // The bootstrap value is deliberately stale. It only obtains the current
+            // fingerprint from the expected OutdatedContent response before authentication.
+            LoginOkMessage unexpectedLogin = await LoginCoreAsync(
+                    client.Configuration.BootstrapFingerprintSha ?? string.Empty,
+                    includeSession: false,
+                    session: null,
+                    session.AppStore,
+                    requestOwnHome: false,
+                    cancellationToken
+                )
+                .ConfigureAwait(continueOnCapturedContext: false);
+
+            throw new InvalidDataException($"Session validation returned unexpected {unexpectedLogin.GetType().Name} without current asset metadata.");
+        }
+        catch (LoginException loginException)
+            when (loginException.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent })
+        {
+            return await RecoverOutdatedContentAsync(loginException, session, loadAssets, requestOwnHome, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+    }
+
+    private LongIdentifier ParseSelectedAccountIdentifier()
+    {
+        bool validAccountIdentifier = LongIdentifier.TryParse(client.Configuration.SessionAccountIdentifier, out LongIdentifier accountIdentifier)
+            && accountIdentifier != LongIdentifier.Empty;
+
+        return validAccountIdentifier
+            ? accountIdentifier
+            : throw new InvalidDataException(message: "A valid nonempty session account identifier must be configured.");
+    }
+
+    private async Task<AuthenticatedClientLogin> RecoverOutdatedContentAsync(LoginException loginException, ClientSession session, bool loadAssets, bool requestOwnHome, CancellationToken cancellationToken)
     {
         LoginFailedMessage loginFailedMessage =
             loginException.LoginFailedMessage
@@ -208,33 +243,34 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
         if (string.IsNullOrWhiteSpace(fingerprint.Sha))
             throw new InvalidOperationException($"Failed to parse fingerprint from login failed message:\n{loginFailedMessage.GameAssetFingerprintData}", loginException);
 
-        GameAsset[] resources = await assets.GetAssetsAsync(fingerprint, loginFailedMessage.AssetsUrlsFiltered, cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+        GameAsset[] resources = loadAssets
+            ? await assets.GetAssetsAsync(fingerprint, loginFailedMessage.AssetsUrlsFiltered, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false)
+            : [];
 
-        ClientSession? authenticatedSession = session is null
-            ? null
-            : await sessionTokens
-                .RefreshIfNeededAsync(session, force: false, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+        ClientSession authenticatedSession = await sessionTokens
+            .RefreshIfNeededAsync(session, force: false, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         LoginOkMessage loginOk;
 
         try
         {
-            loginOk = await LoginCoreAsync(fingerprint.Sha, includeSession: true, authenticatedSession, appStore, cancellationToken)
+            loginOk = await LoginCoreAsync(fingerprint.Sha, includeSession: true, authenticatedSession, authenticatedSession.AppStore, requestOwnHome, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (LoginException exception)
-            when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.InvalidToken } && authenticatedSession?.CompressedData is not null)
+            when (CanForceRefresh(exception, authenticatedSession))
         {
             authenticatedSession = await sessionTokens
                 .RefreshIfNeededAsync(authenticatedSession, force: true, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
-            loginOk = await LoginCoreAsync(fingerprint.Sha, includeSession: true, authenticatedSession, appStore, cancellationToken)
+            loginOk = await LoginCoreAsync(fingerprint.Sha, includeSession: true, authenticatedSession, authenticatedSession.AppStore, requestOwnHome, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        return new ClientLoginResult(loginOk, fingerprint, resources);
+        return new AuthenticatedClientLogin(new ClientLoginResult(loginOk, fingerprint, resources), authenticatedSession);
     }
 
+    private sealed record AuthenticatedClientLogin(ClientLoginResult Result, ClientSession Session);
 }

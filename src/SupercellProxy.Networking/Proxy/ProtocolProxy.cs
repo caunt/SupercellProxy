@@ -6,9 +6,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using SupercellProxy.Networking.Assets;
+using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Hosting;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -30,6 +32,7 @@ public sealed class ProtocolProxy(
     private readonly TaskCompletionSource<IPEndPoint> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private readonly ProxyConfiguration _configuration = options.Value.ToConfiguration();
+    private readonly ClientSessionLedger _sessionLedger = new(options.Value.SessionLedgerPath);
     private ICommandDataResolver? _commandDataResolver = commandDataResolver;
 
     /// <summary>Completes with the actual endpoint when the listener starts, including an assigned ephemeral port.</summary>
@@ -108,6 +111,10 @@ public sealed class ProtocolProxy(
             {
                 await RunClientAsync(socketClient, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
+            catch (LoginException exception)
+            {
+                ConnectionLog.Warning(logger, $"Login rejected: {exception.Message}");
+            }
             catch (Exception exception)
                 when (ProxyFailureClassifier.IsRecoverable(exception))
             {
@@ -137,10 +144,11 @@ public sealed class ProtocolProxy(
                 _configuration.UpstreamHost,
                 _configuration.UpstreamPort,
                 trafficCapture,
-                cancellationToken,
-                _configuration.SessionPath,
+                _sessionLedger,
+                _configuration.SessionAccountIdentifier,
                 serverKeys,
-                _commandDataResolver
+                _commandDataResolver,
+                cancellationToken
             )
             .ConfigureAwait(continueOnCapturedContext: false);
 
