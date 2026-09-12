@@ -34,15 +34,11 @@ Locally, with the private projects present, build the complete solution with `do
 ## Capture and server hosts
 
 ```bash
-dotnet run --project src/SupercellProxy.Capture -- --UpstreamHost 127.0.0.1 --UpstreamPort 9339 --ListenAddress 127.0.0.1 --ListenPort 9338 --CaptureDirectory /path/to/captures --SessionAccountIdentifier '#ACCOUNT' --SessionLedgerPath /path/to/sc-client-session-ledger.json
+dotnet run --project src/SupercellProxy.Capture -- --UpstreamHost 127.0.0.1 --UpstreamPort 9339 --ListenAddress 127.0.0.1 --ListenPort 9338 --CaptureDirectory /path/to/captures --SessionPath /path/to/session.json
 dotnet run --project src/SupercellProxy.Server -- --ListenAddress 127.0.0.1 --ListenPort 9339
 ```
 
-Hosts support standard .NET configuration and Ctrl+C shutdown. Authenticated protocol clients select an account from the JSON session ledger with `SessionAccountIdentifier`; Capture uses the same optional setting to inject a retained account into proxied logins. The ledger defaults to `sc-client-session-ledger.json` beside the executable and accepts a `SessionLedgerPath` override.
-
-Before its listener starts, Capture imports a nearby legacy `sc-client-session.json` and successful login exchanges from its retained `CaptureDirectory`. New accounts are validated against the configured upstream before being saved; rejected or incomplete captures produce warnings without preventing startup. Successful logins observed by the running proxy are added immediately. Capture defaults to a `proxy-captures` directory beside its executable. Session credentials remain plain JSON using normal platform file permissions.
-
-Asset-cache and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the surviving capture collection under `exploration/captures/replay` and retained assets under `exploration/subjects/game-assets/replay`.
+Hosts support standard .NET configuration and Ctrl+C shutdown. Capture’s optional `SessionPath` selects an existing session to inject into proxied logins. Capture defaults to a `proxy-captures` directory beside its executable. Session, asset-cache, and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the surviving capture collection under `exploration/captures/replay` and retained assets under `exploration/subjects/game-assets/replay`.
 
 ## Public protocol API
 
