@@ -3,100 +3,80 @@ using System.Text.Json.Serialization;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Sessions;
 
-/// <summary>Stores the account identity and authentication tokens used by protocol clients and proxies.</summary>
+/// <summary>Stores one authenticated game account and its session credentials.</summary>
 public sealed record ClientSession
 {
-    /// <summary>
-    /// Provides the Default App Store value or operation.
-    /// </summary>
+    /// <summary>Provides the default application store.</summary>
     public const AppStore DefaultAppStore = AppStore.GooglePlay;
 
-    /// <summary>
-    /// Gets the Account Id value.
-    /// </summary>
+    /// <summary>Gets the authenticated game account.</summary>
     [JsonPropertyName("AccountId")]
-    public string? AccountIdentifier { get; init; }
+    public required LongIdentifier AccountIdentifier { get; init; }
 
-    /// <summary>
-    /// Gets the Account Id High value.
-    /// </summary>
-    [JsonPropertyName("AccountIdHigh")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int? AccountIdentifierHigh { get; init; }
-
-    /// <summary>
-    /// Gets the Account Id Low value.
-    /// </summary>
-    [JsonPropertyName("AccountIdLow")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int? AccountIdentifierLow { get; init; }
-
-    /// <summary>
-    /// Gets the App Store value.
-    /// </summary>
+    /// <summary>Gets the application store used by the account.</summary>
     public AppStore AppStore { get; init; } = DefaultAppStore;
 
-    /// <summary>
-    /// Gets the Compressed Data value.
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public byte[]? CompressedData { get; init; }
+    /// <summary>Gets the in-game farm name.</summary>
+    public required string FarmName { get; init; }
 
-    /// <summary>
-    /// Gets the Parsed Account Id value.
-    /// </summary>
-    [JsonPropertyName("ParsedAccountId")]
-    public LongIdentifier ParsedAccountIdentifier =>
-        AccountIdentifier is not null
-            ? LongIdentifier.Parse(AccountIdentifier)
-            : new LongIdentifier(AccountIdentifierHigh ?? 0, AccountIdentifierLow ?? 0);
-
-    /// <summary>
-    /// Gets the Pass Token value.
-    /// </summary>
+    /// <summary>Gets the game-account pass token.</summary>
     public required string PassToken { get; init; }
 
-    /// <summary>
-    /// Gets the Session Refresh Token value.
-    /// </summary>
+    /// <summary>Gets the optional Supercell ID refresh token.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SessionRefreshToken { get; init; }
 
-    /// <summary>
-    /// Gets the Session Token value.
-    /// </summary>
+    /// <summary>Gets the optional decoded Supercell ID session token.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? SessionToken { get; init; }
+    public LoginSessionToken? SessionToken { get; init; }
 
-    /// <summary>Creates a session from a completed login exchange.</summary>
+    /// <summary>Creates a session from a successful login followed by matching own-home data.</summary>
     /// <exception cref="LoginException">The login result is a failure.</exception>
-    /// <exception cref="InvalidDataException">The login result is not a supported authentication outcome.</exception>
+    /// <exception cref="InvalidDataException">The login or home response does not describe one complete account.</exception>
     /// <exception cref="UnauthorizedAccessException">The response identifies different credentials from the request.</exception>
-    public static ClientSession FromLoginOutcome(LoginMessage loginMessage, IMessage loginResult)
+    public static ClientSession FromLoginOutcome(LoginMessage loginMessage, IMessage loginResult, OwnHomeDataMessage ownHomeDataMessage)
     {
         ArgumentNullException.ThrowIfNull(loginMessage);
         ArgumentNullException.ThrowIfNull(loginResult);
+        ArgumentNullException.ThrowIfNull(ownHomeDataMessage);
 
         LoginException.ThrowIfFailed(loginResult);
 
         LoginOkMessage loginOkMessage = loginResult as LoginOkMessage
             ?? throw new InvalidDataException($"Expected {nameof(LoginOkMessage)}, but received {loginResult.GetType().Name}.");
 
-        return loginMessage.AccountIdentifier != LongIdentifier.Empty && loginMessage.AccountIdentifier != loginOkMessage.AccountIdentifier
-            ? throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested session.")
-            : loginMessage.PassToken is not null && !string.Equals(loginMessage.PassToken, loginOkMessage.PassToken, StringComparison.Ordinal)
-            ? throw new UnauthorizedAccessException(message: "Authentication returned a different pass token from the requested session.")
+        bool mismatchedRequestAccount = loginMessage.AccountIdentifier != LongIdentifier.Empty
+            && loginMessage.AccountIdentifier != loginOkMessage.AccountIdentifier;
+
+        if (mismatchedRequestAccount)
+            throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested session.");
+
+        bool mismatchedPassToken = loginMessage.PassToken is not null
+            && !string.Equals(loginMessage.PassToken, loginOkMessage.PassToken, StringComparison.Ordinal);
+
+        if (mismatchedPassToken)
+            throw new UnauthorizedAccessException(message: "Authentication returned a different pass token from the requested session.");
+
+        if (ownHomeDataMessage.ClientAvatar.AccountIdentifier != loginOkMessage.AccountIdentifier)
+            throw new InvalidDataException(message: "Own-home data belongs to a different account from the successful login.");
+
+        string farmName = ownHomeDataMessage.ClientAvatar.FarmName
+            ?? throw new InvalidDataException(message: "Own-home data has no farm name.");
+
+        return string.IsNullOrWhiteSpace(farmName)
+            ? throw new InvalidDataException(message: "Own-home data has an empty farm name.")
             : new ClientSession
             {
-                AccountIdentifier = loginOkMessage.AccountIdentifier.ToFormattedString(),
+                AccountIdentifier = loginOkMessage.AccountIdentifier,
                 AppStore = loginMessage.AppStore,
+                FarmName = farmName,
                 PassToken = loginOkMessage.PassToken,
-                CompressedData = loginMessage.SessionToken?.Encode(),
+                SessionToken = loginMessage.SessionToken is { IsEmpty: false } sessionToken ? sessionToken : null,
             };
     }
-
 }

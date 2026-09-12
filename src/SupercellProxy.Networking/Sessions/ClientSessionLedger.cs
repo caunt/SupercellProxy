@@ -7,6 +7,7 @@ using Nito.AsyncEx;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Sessions;
@@ -15,27 +16,59 @@ namespace SupercellProxy.Networking.Sessions;
 /// <remarks>Initializes a ledger at the supplied path or beside the application.</remarks>
 public sealed class ClientSessionLedger(string? ledgerPath = null)
 {
+
+    /// <summary>Defines the current ledger document version.</summary>
+    public const int CurrentVersion = 1;
     /// <summary>Defines the default ledger file name.</summary>
     public const string DefaultFileName = "sc-client-session-ledger.json";
 
-    private static readonly ConcurrentDictionary<string, AsyncLock> FileGates = new(StringComparer.Ordinal);
+    private static readonly JsonSerializerOptions DocumentSerializerOptions = CreateSerializerOptions();
 
-    private static readonly JsonSerializerOptions DocumentSerializerOptions = new()
-    {
-        WriteIndented = true,
-    };
+    private static readonly ConcurrentDictionary<string, AsyncLock> FileGates = new(StringComparer.Ordinal);
 
     private readonly AsyncLock _fileGate = FileGates.GetOrAdd(ResolvePath(ledgerPath), static unusedParameter => new AsyncLock());
 
     /// <summary>Gets the resolved ledger path.</summary>
     public string FilePath { get; } = ResolvePath(ledgerPath);
 
+    /// <summary>Archives the unversioned malformed ledger emitted by the previous implementation.</summary>
+    /// <returns>The archive path, or null when no migration was required.</returns>
+    public async Task<string?> ArchiveUnversionedAsync(CancellationToken cancellationToken = default)
+    {
+        using IDisposable ledgerLock = await _fileGate.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        if (!File.Exists(FilePath))
+            return null;
+
+        FileStream stream = File.OpenRead(FilePath);
+        ClientSessionLedgerHeader header;
+
+        await using (stream.ConfigureAwait(continueOnCapturedContext: false))
+        {
+            header = await JsonSerializer
+                .DeserializeAsync<ClientSessionLedgerHeader>(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false)
+                ?? new ClientSessionLedgerHeader();
+        }
+
+        if (header.Version == CurrentVersion)
+            return null;
+
+        if (header.Version is not null)
+            throw new InvalidDataException($"Client session ledger in {FilePath} has unsupported version {header.Version}.");
+
+        string archivePath = string.Create(CultureInfo.InvariantCulture, $"{FilePath}.legacy-{DateTime.UtcNow:yyyyMMddTHHmmssZ}-{Guid.NewGuid():N}");
+        File.Move(FilePath, archivePath);
+
+        return archivePath;
+    }
+
     /// <summary>Gets one saved account session, or null when it has not been retained.</summary>
     public async Task<ClientSession?> GetSessionAsync(LongIdentifier accountIdentifier, CancellationToken cancellationToken = default)
     {
         ClientSession[] sessions = await GetSessionsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        return sessions.FirstOrDefault(session => session.ParsedAccountIdentifier == accountIdentifier);
+        return sessions.FirstOrDefault(session => session.AccountIdentifier == accountIdentifier);
     }
 
     /// <summary>Gets every saved session in stable account-ID order.</summary>
@@ -54,64 +87,79 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
 
         using IDisposable ledgerLock = await _fileGate.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        ClientSession normalized = ClientSessionStore.Normalize(session, FilePath);
-        ClientSessionStore.Validate(normalized, FilePath);
+        ClientSessionValidation.Validate(session, FilePath);
         ClientSession[] sessions = await LoadCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        if (sessions.Any(existing => existing.ParsedAccountIdentifier == normalized.ParsedAccountIdentifier))
+        if (sessions.Any(existing => existing.AccountIdentifier == session.AccountIdentifier))
             return false;
 
-        ClientSession[] updated = [.. sessions, normalized];
-        Array.Sort(updated, static (left, right) => left.ParsedAccountIdentifier.AsUInt64.CompareTo(right.ParsedAccountIdentifier.AsUInt64));
+        ClientSession[] updated = [.. sessions, session];
+        Array.Sort(updated, static (left, right) => left.AccountIdentifier.AsUInt64.CompareTo(right.AccountIdentifier.AsUInt64));
         await SaveCoreAsync(updated, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         return true;
     }
 
-    /// <summary>Validates a completed login outcome and adds its session unless the account is already retained.</summary>
+    /// <summary>Validates a completed login and own-home exchange and adds its session unless already retained.</summary>
     /// <exception cref="LoginException">The supplied login result is a failure.</exception>
-    public Task<bool> TryAddAsync(LoginMessage loginMessage, IMessage loginResult, CancellationToken cancellationToken = default)
+    public Task<bool> TryAddAsync(
+        LoginMessage loginMessage,
+        IMessage loginResult,
+        OwnHomeDataMessage ownHomeDataMessage,
+        CancellationToken cancellationToken = default
+    )
     {
-        return TryAddAsync(ClientSession.FromLoginOutcome(loginMessage, loginResult), cancellationToken);
+        return TryAddAsync(ClientSession.FromLoginOutcome(loginMessage, loginResult, ownHomeDataMessage), cancellationToken);
     }
 
-    /// <summary>Updates refreshable token material for an existing account.</summary>
-    public async Task UpdateRefreshDataAsync(ClientSession session, CancellationToken cancellationToken = default)
+    /// <summary>Updates mutable metadata and token material for an existing account.</summary>
+    public async Task UpdateSessionAsync(ClientSession session, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
 
         using IDisposable ledgerLock = await _fileGate.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        ClientSession normalized = ClientSessionStore.Normalize(session, FilePath);
-        ClientSessionStore.Validate(normalized, FilePath);
+        ClientSessionValidation.Validate(session, FilePath);
         ClientSession[] sessions = await LoadCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-        int index = Array.FindIndex(sessions, existing => existing.ParsedAccountIdentifier == normalized.ParsedAccountIdentifier);
+        int index = Array.FindIndex(sessions, existing => existing.AccountIdentifier == session.AccountIdentifier);
 
         if (index < 0)
-            throw new KeyNotFoundException($"Client session {normalized.AccountIdentifier} is not present in {FilePath}.");
+            throw new KeyNotFoundException($"Client session {session.AccountIdentifier.ToFormattedString()} is not present in {FilePath}.");
 
         ClientSession existing = sessions[index];
 
-        if (existing.AppStore != normalized.AppStore || !string.Equals(existing.PassToken, normalized.PassToken, StringComparison.Ordinal))
-            throw new UnauthorizedAccessException(message: "Refreshed session credentials do not match the retained account.");
+        if (existing.AppStore != session.AppStore || !string.Equals(existing.PassToken, session.PassToken, StringComparison.Ordinal))
+            throw new UnauthorizedAccessException(message: "Updated session credentials do not match the retained account.");
 
-        bool unchanged = string.Equals(existing.SessionToken, normalized.SessionToken, StringComparison.Ordinal)
-            && string.Equals(existing.SessionRefreshToken, normalized.SessionRefreshToken, StringComparison.Ordinal)
-            && ((existing.CompressedData is null && normalized.CompressedData is null)
-                || (existing.CompressedData is not null
-                    && normalized.CompressedData is not null
-                    && existing.CompressedData.AsSpan().SequenceEqual(normalized.CompressedData)));
+        ClientSession updated = existing with
+        {
+            FarmName = session.FarmName,
+            SessionToken = session.SessionToken ?? existing.SessionToken,
+            SessionRefreshToken = session.SessionRefreshToken ?? existing.SessionRefreshToken,
+        };
+
+        bool unchanged = string.Equals(existing.FarmName, updated.FarmName, StringComparison.Ordinal)
+            && string.Equals(existing.SessionToken?.Value, updated.SessionToken?.Value, StringComparison.Ordinal)
+            && string.Equals(existing.SessionRefreshToken, updated.SessionRefreshToken, StringComparison.Ordinal);
 
         if (unchanged)
             return;
 
-        sessions[index] = existing with
-        {
-            CompressedData = normalized.CompressedData,
-            SessionRefreshToken = normalized.SessionRefreshToken,
-            SessionToken = normalized.SessionToken,
-        };
+        sessions[index] = updated;
         await SaveCoreAsync(sessions, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+    }
+
+    private static JsonSerializerOptions CreateSerializerOptions()
+    {
+        JsonSerializerOptions options = new()
+        {
+            WriteIndented = true,
+        };
+
+        options.Converters.Add(new ClientSessionAccountIdentifierConverter());
+        options.Converters.Add(new ClientSessionTokenConverter());
+
+        return options;
     }
 
     private static string ResolvePath(string? ledgerPath)
@@ -135,6 +183,9 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
                 .ConfigureAwait(continueOnCapturedContext: false)
                 ?? throw new InvalidDataException($"Failed to deserialize client session ledger from {FilePath}.");
 
+            if (document.Version != CurrentVersion)
+                throw new InvalidDataException($"Client session ledger in {FilePath} has unsupported version {document.Version}.");
+
             ClientSession?[] storedSessions = document.Sessions
                 ?? throw new InvalidDataException($"Client session ledger in {FilePath} has no session collection.");
 
@@ -143,19 +194,18 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
 
             for (int index = 0; index < storedSessions.Length; index++)
             {
-                ClientSession storedSession = storedSessions[index]
+                ClientSession session = storedSessions[index]
                     ?? throw new InvalidDataException($"Client session ledger in {FilePath} contains a null session.");
 
-                ClientSession normalized = ClientSessionStore.Normalize(storedSession, FilePath);
-                ClientSessionStore.Validate(normalized, FilePath);
+                ClientSessionValidation.Validate(session, FilePath);
 
-                if (!accounts.Add(normalized.ParsedAccountIdentifier))
-                    throw new InvalidDataException($"Client session ledger in {FilePath} contains duplicate account {normalized.AccountIdentifier}.");
+                if (!accounts.Add(session.AccountIdentifier))
+                    throw new InvalidDataException($"Client session ledger in {FilePath} contains duplicate account {session.AccountIdentifier.ToFormattedString()}.");
 
-                sessions[index] = normalized;
+                sessions[index] = session;
             }
 
-            Array.Sort(sessions, static (left, right) => left.ParsedAccountIdentifier.AsUInt64.CompareTo(right.ParsedAccountIdentifier.AsUInt64));
+            Array.Sort(sessions, static (left, right) => left.AccountIdentifier.AsUInt64.CompareTo(right.AccountIdentifier.AsUInt64));
 
             return sessions;
         }
@@ -181,7 +231,16 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
             await using (stream.ConfigureAwait(continueOnCapturedContext: false))
             {
                 await JsonSerializer
-                    .SerializeAsync(stream, new ClientSessionLedgerDocument { Sessions = sessions }, DocumentSerializerOptions, cancellationToken)
+                    .SerializeAsync(
+                        stream,
+                        new ClientSessionLedgerDocument
+                        {
+                            Version = CurrentVersion,
+                            Sessions = sessions,
+                        },
+                        DocumentSerializerOptions,
+                        cancellationToken
+                    )
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Proxy;
 using SupercellProxy.Networking.Sessions;
@@ -42,13 +43,16 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
     {
         ClientSessionLedger ledger = new(_options.SessionLedgerPath);
 
+        string? archivePath = await ledger.ArchiveUnversionedAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
+
+        if (archivePath is not null)
+            CaptureSessionImportLog.Archived(_logger, ledger.FilePath, archivePath);
+
         ClientSession[] initialSessions = await ledger.GetSessionsAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         int importedSessionCount = 0;
-
-        importedSessionCount += await TryImportLegacySessionAsync(ledger, cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
 
         importedSessionCount += await ImportRetainedCapturesAsync(ledger, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -100,6 +104,28 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         return null;
     }
 
+    private static string? FindOwnHomeFile(string[] orderedFiles, int outcomeIndex)
+    {
+        ushort loginIdentifier = MessageRegistry.GetIdentifier<LoginMessage>();
+        ushort ownHomeIdentifier = MessageRegistry.GetIdentifier<OwnHomeDataMessage>();
+        string loginMarker = string.Create(CultureInfo.InvariantCulture, $"-outgoing-serverbound-{loginIdentifier}-");
+        string ownHomeMarker = string.Create(CultureInfo.InvariantCulture, $"-outgoing-clientbound-{ownHomeIdentifier}-");
+        string ownHomeName = MessageRegistry.Registrations[ownHomeIdentifier].CaptureName;
+
+        for (int index = outcomeIndex + 1; index < orderedFiles.Length; index++)
+        {
+            string name = Path.GetFileName(orderedFiles[index]);
+
+            if (name.Contains(loginMarker, StringComparison.Ordinal))
+                return null;
+
+            if (IsCapturedMessage(orderedFiles[index], ownHomeMarker, ownHomeName))
+                return orderedFiles[index];
+        }
+
+        return null;
+    }
+
     private static bool IsCapturedMessage(string path, string marker, string captureName)
     {
         string name = Path.GetFileName(path);
@@ -125,9 +151,18 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         string? outcomeFile = FindOutcomeFile(orderedFiles, loginIndex) ?? throw new InvalidDataException($"Retained login has no following login outcome: {loginFile}");
         IMessage loginMessage = await ReadMessageAsync(loginFile, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         IMessage outcome = await ReadMessageAsync(outcomeFile, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        LoginException.ThrowIfFailed(outcome);
+        int outcomeIndex = Array.IndexOf(orderedFiles, outcomeFile);
 
-        return loginMessage is LoginMessage login
-            ? new CapturedLoginExchange(login, outcome)
+        string ownHomeFile = FindOwnHomeFile(orderedFiles, outcomeIndex)
+            ?? throw new InvalidDataException($"Retained login has no following own-home data: {loginFile}");
+
+        IMessage ownHomeMessage = await ReadMessageAsync(ownHomeFile, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        return ownHomeMessage is not OwnHomeDataMessage ownHomeDataMessage
+            ? throw new InvalidDataException($"Retained own-home frame did not decode as {nameof(OwnHomeDataMessage)}: {ownHomeFile}")
+            : loginMessage is LoginMessage login
+            ? new CapturedLoginExchange(login, outcome, ownHomeDataMessage)
             : throw new InvalidDataException($"Retained login frame did not decode as {nameof(LoginMessage)}: {loginFile}");
     }
 
@@ -156,7 +191,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
 
     private async Task<bool> ImportCandidateAsync(ClientSessionLedger ledger, ClientSession candidate, CancellationToken cancellationToken)
     {
-        ClientSession? existing = await ledger.GetSessionAsync(candidate.ParsedAccountIdentifier, cancellationToken)
+        ClientSession? existing = await ledger.GetSessionAsync(candidate.AccountIdentifier, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         if (existing is not null)
@@ -166,7 +201,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
             _options.UpstreamHost,
             _options.UpstreamPort,
             _options.Protocol,
-            candidate.AccountIdentifier,
+            candidate.AccountIdentifier.ToFormattedString(),
             ledger.FilePath,
             BootstrapFingerprintSha: null,
             AssetDirectory: _options.AssetDirectory
@@ -219,7 +254,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
                 CapturedLoginExchange exchange = await ReadLoginExchangeAsync(loginFile, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
 
-                ClientSession candidate = ClientSession.FromLoginOutcome(exchange.Login, exchange.Outcome);
+                ClientSession candidate = ClientSession.FromLoginOutcome(exchange.Login, exchange.Outcome, exchange.OwnHomeData);
 
                 bool imported = await ImportCandidateAsync(ledger, candidate, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
@@ -236,29 +271,6 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         return importedSessionCount;
     }
 
-    private async Task<int> TryImportLegacySessionAsync(ClientSessionLedger ledger, CancellationToken cancellationToken)
-    {
-        try
-        {
-            ClientSession? legacySession = await ClientSessionStore.LoadAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-
-            if (legacySession is null)
-                return 0;
-
-            bool imported = await ImportCandidateAsync(ledger, legacySession, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-
-            return imported ? 1 : 0;
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            CaptureSessionImportLog.Warning(_logger, source: "legacy client session", exception);
-
-            return 0;
-        }
-    }
-
     private async Task ValidateSelectedProxySessionAsync(ClientSessionLedger ledger, CancellationToken cancellationToken)
     {
         if (_options.SessionAccountIdentifier is not { } selectedAccount)
@@ -273,7 +285,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         ClientSession? selectedSession = await ledger.GetSessionAsync(accountIdentifier, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        if (selectedSession?.ParsedAccountIdentifier != accountIdentifier)
+        if (selectedSession?.AccountIdentifier != accountIdentifier)
             throw new InvalidDataException($"The selected proxy session {selectedAccount} does not exist in {ledger.FilePath}.");
     }
 }

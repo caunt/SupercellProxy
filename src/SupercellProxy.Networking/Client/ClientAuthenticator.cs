@@ -44,7 +44,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
             AuthenticatedClientLogin authenticated = await LoginWithSessionAsync(session, loadAssets: true, requestOwnHome: true, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await ledger.UpdateRefreshDataAsync(authenticated.Session, cancellationToken)
+            await ledger.UpdateSessionAsync(authenticated.Session, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             return authenticated.Result;
@@ -61,10 +61,9 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
     {
         ArgumentNullException.ThrowIfNull(session);
         const string description = "the supplied client session";
-        ClientSession normalized = ClientSessionStore.Normalize(session, description);
-        ClientSessionStore.Validate(normalized, description);
+        ClientSessionValidation.Validate(session, description);
 
-        AuthenticatedClientLogin authenticated = await LoginWithSessionAsync(normalized, loadAssets: false, requestOwnHome: false, cancellationToken)
+        AuthenticatedClientLogin authenticated = await LoginWithSessionAsync(session, loadAssets: false, requestOwnHome: false, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         return authenticated.Session;
@@ -73,14 +72,14 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
     private static bool CanForceRefresh(LoginException exception, ClientSession session)
     {
         return exception.LoginFailedMessage is { ErrorCode: LoginFailureType.InvalidToken }
-            && session.CompressedData is not null;
+            && session.SessionToken is not null;
     }
 
     private static LoginMessage CreateLoginMessage(string fingerprintSha1, bool includeSession, ClientSession? session, AppStore appStore)
     {
         return new LoginMessage
         {
-            AccountIdentifier = includeSession ? session?.ParsedAccountIdentifier ?? LongIdentifier.Empty : LongIdentifier.Empty,
+            AccountIdentifier = includeSession ? session?.AccountIdentifier ?? LongIdentifier.Empty : LongIdentifier.Empty,
             PassToken = includeSession ? session?.PassToken : null,
             ResourceSha = fingerprintSha1,
             LoginVersion = LoginMessage.CurrentLoginVersion,
@@ -98,10 +97,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
             AdvertisingTrackingEnabled = true,
             IdentifierForVendor = "",
             AppStore = appStore,
-            SessionToken =
-                includeSession && session?.CompressedData is { } compressed
-                    ? LoginSessionToken.Decode(compressed)
-                    : null,
+            SessionToken = includeSession ? session?.SessionToken : null,
             StorefrontCountryCode = "",
             StorefrontIdentifier = "",
         };
@@ -125,7 +121,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, SessionTokenRef
             );
         }
 
-        if (session is not null && login.AccountIdentifier != session.ParsedAccountIdentifier)
+        if (session is not null && login.AccountIdentifier != session.AccountIdentifier)
             throw new UnauthorizedAccessException(message: "Authentication returned a different account from the requested ledger session.");
 
         if (session is not null && !string.Equals(login.PassToken, session.PassToken, StringComparison.Ordinal))

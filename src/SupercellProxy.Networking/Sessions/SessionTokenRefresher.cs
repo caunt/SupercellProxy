@@ -28,9 +28,7 @@ public sealed class SessionTokenRefresher(HttpClient webClient, TimeProvider tim
     {
         ArgumentNullException.ThrowIfNull(session);
 
-        LoginSessionToken? current = session.CompressedData is null
-            ? null
-            : LoginSessionToken.Decode(session.CompressedData);
+        LoginSessionToken? current = session.SessionToken;
 
         if (current is null && !force)
             return session;
@@ -46,8 +44,7 @@ public sealed class SessionTokenRefresher(HttpClient webClient, TimeProvider tim
 
         return session with
         {
-            SessionToken = refreshed.Value,
-            CompressedData = refreshed.Encode(),
+            SessionToken = refreshed,
         };
     }
 

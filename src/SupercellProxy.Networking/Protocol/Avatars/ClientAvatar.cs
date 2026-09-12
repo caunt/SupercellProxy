@@ -55,6 +55,11 @@ public sealed record ClientAvatar
     public int DeprecatedInventoryDataCount { get; init; }
 
     /// <summary>
+    /// Gets or sets the in-game farm name.
+    /// </summary>
+    public string? FarmName { get; init; }
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">HomeId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
@@ -105,11 +110,6 @@ public sealed record ClientAvatar
     /// Gets the Map Game Participants value.
     /// </summary>
     public MapGameParticipant[]? MapGameParticipants { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Name</c> value.
-    /// </summary>
-    public string? Name { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Neighborhood</c> value.
@@ -272,7 +272,7 @@ public sealed record ClientAvatar
             Unknown1 = unknown1,
             AvatarVersion = avatarVersion,
             Unknown3 = unknown3,
-            Name = name,
+            FarmName = name,
             HomeIdentifier = homeIdentifier,
             AccountIdentifier = accountIdentifier,
             InventoryValues = inventory.Values,
@@ -460,7 +460,7 @@ public sealed record ClientAvatar
         stream.WriteVariableInt(Unknown1);
         stream.WriteVariableInt(AvatarVersion);
         stream.WriteVariableInt(Unknown3);
-        stream.WriteOptionalString(Name);
+        stream.WriteOptionalString(FarmName);
         stream.WriteLongIdentifier(HomeIdentifier);
         stream.WriteLongIdentifier(AccountIdentifier);
 

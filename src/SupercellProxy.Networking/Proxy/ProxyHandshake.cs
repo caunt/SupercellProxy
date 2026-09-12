@@ -1,6 +1,8 @@
+using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
@@ -10,6 +12,7 @@ namespace SupercellProxy.Networking.Proxy;
 internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? sessionAccountIdentifier)
 {
     private LoginMessage? _loginMessage;
+    private LoginOkMessage? _loginOkMessage;
 
     internal async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken)
     {
@@ -31,12 +34,10 @@ internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? 
                                 .ConfigureAwait(continueOnCapturedContext: false)
                             ?? throw new InvalidDataException($"The selected proxy session does not exist in {sessionLedger.FilePath}.");
 
-                        loginMessage.AccountIdentifier = session.ParsedAccountIdentifier;
+                        loginMessage.AccountIdentifier = session.AccountIdentifier;
                         loginMessage.PassToken = session.PassToken;
                         loginMessage.AppStore = session.AppStore;
-                        loginMessage.SessionToken = session.CompressedData is { } compressed
-                            ? LoginSessionToken.Decode(compressed)
-                            : null;
+                        loginMessage.SessionToken = session.SessionToken;
                     }
 
                     _loginMessage = loginMessage;
@@ -60,17 +61,39 @@ internal sealed class ProxyHandshake(ClientSessionLedger sessionLedger, string? 
     {
         switch (@event.Message)
         {
-            case LoginOkMessage or LoginFailedMessage
-                when @event.Direction is MessageDirection.Clientbound && _loginMessage is { } loginMessage:
+            case LoginFailedMessage loginFailedMessage
+                when @event.Direction is MessageDirection.Clientbound && _loginMessage is not null:
                 {
                     _loginMessage = null;
+                    _loginOkMessage = null;
 
-                    bool sessionAdded = await sessionLedger
-                        .TryAddAsync(loginMessage, @event.Message, cancellationToken)
+                    throw new LoginException(loginFailedMessage);
+                }
+            case LoginOkMessage loginOkMessage
+                when @event.Direction is MessageDirection.Clientbound && _loginMessage is not null:
+                {
+                    _loginOkMessage = loginOkMessage;
+
+                    break;
+                }
+            case OwnHomeDataMessage ownHomeDataMessage
+                when @event.Direction is MessageDirection.Clientbound:
+                {
+                    if (_loginMessage is not { } loginMessage || _loginOkMessage is not { } loginOkMessage)
+                        break;
+
+                    _loginMessage = null;
+                    _loginOkMessage = null;
+                    ClientSession session = ClientSession.FromLoginOutcome(loginMessage, loginOkMessage, ownHomeDataMessage);
+
+                    bool sessionAdded = await sessionLedger.TryAddAsync(session, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
                     if (!sessionAdded)
-                        break;
+                    {
+                        await sessionLedger.UpdateSessionAsync(session, cancellationToken)
+                            .ConfigureAwait(continueOnCapturedContext: false);
+                    }
 
                     break;
                 }

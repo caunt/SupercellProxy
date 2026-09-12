@@ -3,34 +3,23 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Sessions;
 
 /// <summary>
-/// Represents a compressed ES256 session token or the login protocol's empty-string marker.
+/// Represents a decoded ES256 session token or the login protocol's empty-string marker.
 /// </summary>
 public sealed class LoginSessionToken
 {
     private const uint AdlerModulus = 65_521;
     private static readonly UTF8Encoding StrictUnicodeTransformationFormat8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
-    private readonly byte[] _encodedData;
+    private readonly byte[] _wireData;
 
-    [JsonConstructor]
-    private LoginSessionToken(string value)
-    {
-        LoginSessionToken decoded = Decode(value);
-        Value = decoded.Value;
-        _encodedData = decoded._encodedData;
-        Header = decoded.Header;
-        Claims = decoded.Claims;
-    }
-
-    private LoginSessionToken(string value, byte[] encodedData, LoginSessionHeader? header, LoginSessionClaims? claims)
+    private LoginSessionToken(string value, byte[] wireData, LoginSessionHeader? header, LoginSessionClaims? claims)
     {
         Value = value;
-        _encodedData = encodedData;
+        _wireData = wireData;
         Header = header;
         Claims = claims;
     }
@@ -41,7 +30,7 @@ public sealed class LoginSessionToken
     public LoginSessionClaims? Claims { get; }
 
     /// <summary>
-    /// Gets the token's expiration time in Unix seconds, or null for a compressed empty string.
+    /// Gets the token's expiration time in Unix seconds, or null for an empty-string marker.
     /// </summary>
     public long? ExpiresAt => Claims?.ExpiresAt;
 
@@ -54,12 +43,12 @@ public sealed class LoginSessionToken
     public long? InitialRefreshTokenIssuedAt => Claims?.InitialRefreshTokenIssuedAt;
 
     /// <summary>
-    /// Gets whether the login field contains a compressed empty string with no session token.
+    /// Gets whether the login field contains an empty-string marker with no session token.
     /// </summary>
     public bool IsEmpty => Value.Length is 0;
 
     /// <summary>
-    /// Gets the token's issue time in Unix seconds, or null for a compressed empty string.
+    /// Gets the token's issue time in Unix seconds, or null for an empty-string marker.
     /// </summary>
     public long? IssuedAt => Claims?.IssuedAt;
 
@@ -69,19 +58,19 @@ public sealed class LoginSessionToken
     public string Value { get; }
 
     /// <summary>
-    /// Decodes a JWT or an empty-string marker while retaining the original compressed bytes.
+    /// Decodes a JWT or an empty-string marker from the login protocol's wire representation.
     /// </summary>
-    public static LoginSessionToken Decode(ReadOnlyMemory<byte> compressedData)
+    public static LoginSessionToken Decode(ReadOnlyMemory<byte> wireData)
     {
-        if (compressedData.Length < sizeof(int) + 6)
+        if (wireData.Length < sizeof(int) + 6)
             throw new InvalidDataException(message: "Compressed login session token has no declared decoded length.");
 
-        int decodedLength = BinaryPrimitives.ReadInt32LittleEndian(compressedData.Span);
+        int decodedLength = BinaryPrimitives.ReadInt32LittleEndian(wireData.Span);
 
         if (decodedLength < 0)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Compressed login session token has invalid decoded length {decodedLength}."));
 
-        using MemoryStream input = new(compressedData[sizeof(int)..].ToArray(), writable: false);
+        using MemoryStream input = new(wireData[sizeof(int)..].ToArray(), writable: false);
 
         using SynchronousZLibReader zlib = new(input);
 
@@ -99,7 +88,7 @@ public sealed class LoginSessionToken
         if (zlib.ReadByte() is not -1)
             throw new InvalidDataException(message: "Compressed login session token exceeds its declared decoded length.");
 
-        uint expectedChecksum = BinaryPrimitives.ReadUInt32BigEndian(compressedData.Span[^4..]);
+        uint expectedChecksum = BinaryPrimitives.ReadUInt32BigEndian(wireData.Span[^4..]);
 
         if (CalculateAdler32(decoded) != expectedChecksum)
             throw new InvalidDataException(message: "Compressed login session token has an invalid zlib checksum.");
@@ -115,7 +104,7 @@ public sealed class LoginSessionToken
             throw new InvalidDataException(message: "Login session token is not valid UTF-8.", exception);
         }
 
-        return Parse(value, compressedData.ToArray());
+        return Parse(value, wireData.ToArray());
     }
 
     /// <summary>
@@ -123,19 +112,15 @@ public sealed class LoginSessionToken
     /// </summary>
     public static LoginSessionToken Decode(string value)
     {
-        if (string.IsNullOrWhiteSpace(value) && value is not "")
-            throw new InvalidDataException(message: "Login session token is empty.");
-
-        byte[] decoded = StrictUnicodeTransformationFormat8.GetBytes(value);
-        byte[] compressedData = Compress(decoded);
-
-        return Parse(value, compressedData);
+        return string.IsNullOrWhiteSpace(value) && value is not ""
+            ? throw new InvalidDataException(message: "Login session token is empty.")
+            : Parse(value, Compress(StrictUnicodeTransformationFormat8.GetBytes(value)));
     }
 
-    /// <summary>Encodes the token as a length-prefixed zlib payload, preserving its original wire bytes.</summary>
+    /// <summary>Encodes the decoded token as the login protocol's length-prefixed zlib payload.</summary>
     public byte[] Encode()
     {
-        return [.. _encodedData];
+        return [.. _wireData];
     }
 
     /// <summary>
@@ -216,10 +201,10 @@ public sealed class LoginSessionToken
         }
     }
 
-    private static LoginSessionToken Parse(string value, byte[] compressedData)
+    private static LoginSessionToken Parse(string value, byte[] wireData)
     {
         if (value.Length is 0)
-            return new LoginSessionToken(value, compressedData, header: null, claims: null);
+            return new LoginSessionToken(value, wireData, header: null, claims: null);
 
         string[] segments = value.Split(separator: '.');
 
@@ -236,7 +221,7 @@ public sealed class LoginSessionToken
             ? throw new InvalidDataException(message: "Login session token does not use ES256.")
             : claims.ExpiresAt <= claims.IssuedAt
             ? throw new InvalidDataException(message: "Login session token expiration does not follow its issue time.")
-            : new LoginSessionToken(value, compressedData, header, claims);
+            : new LoginSessionToken(value, wireData, header, claims);
     }
 
     private static TValue ParseSegment<TValue>(string segment, string name) where TValue : class
