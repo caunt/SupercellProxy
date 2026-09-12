@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Options;
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
-using SupercellProxy.Networking.Hosting;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
@@ -21,7 +19,7 @@ namespace SupercellProxy.Networking.Proxy;
 /// <remarks>
 /// Initializes a new <see cref="ProtocolProxy"/> instance.
 /// </remarks>
-public sealed class ProtocolProxy(
+public sealed partial class ProtocolProxy(
     IOptions<ProxyOptions> options,
     IServerPublicKeySource serverKeys,
     ILogger<ProtocolProxy> logger,
@@ -39,11 +37,6 @@ public sealed class ProtocolProxy(
     /// <summary>
     /// Executes the <c language="csharp">RunAsync</c> operation.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Reliability",
-        "CA2025:Ensure tasks complete before disposal",
-        Justification = "All accepted connection tasks are retained and awaited in finally before the linked lifetime is disposed."
-    )]
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
@@ -61,66 +54,63 @@ public sealed class ProtocolProxy(
         listener.Start();
 
         if (!_listening.TrySetResult((IPEndPoint)listener.LocalEndpoint))
-            ConnectionLog.Debug(logger, message: "The proxy listening endpoint was already reported.");
+            LogListeningEndpointAlreadyReported(logger);
 
-        ConnectionLog.Write(
-            logger,
-            string.Create(
-                CultureInfo.InvariantCulture,
-                $"[{timeProvider.GetLocalNow():T}] Listening on {configuration.ListenAddress}:{configuration.ListenPort}, upstream {configuration.UpstreamHost}:{configuration.UpstreamPort}"
-            )
-        );
+        LogListening(logger, configuration.ListenAddress, configuration.ListenPort, configuration.UpstreamHost, configuration.UpstreamPort);
 
         using CancellationTokenSource lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        List<Task> connections = [];
-
-        try
-        {
-            while (!lifetime.IsCancellationRequested)
-            {
-                TcpClient client = await listener
-                    .AcceptTcpClientAsync(lifetime.Token)
-                    .ConfigureAwait(continueOnCapturedContext: false);
-
-                for (int index = connections.Count - 1; index >= 0; index--)
-                {
-                    if (connections[index].IsCompletedSuccessfully)
-                        connections.RemoveAt(index);
-                }
-
-                connections.Add(HandleClientAsync(client, configuration, sessionLedger, lifetime.Token));
-            }
-        }
-        catch (OperationCanceledException) when (lifetime.IsCancellationRequested)
-        {
-            ConnectionLog.Debug(logger, message: "Proxy listener stopped.");
-        }
-        finally
-        {
-            await lifetime.CancelAsync().ConfigureAwait(continueOnCapturedContext: false);
-            listener.Stop();
-            await Task.WhenAll(connections).ConfigureAwait(continueOnCapturedContext: false);
-        }
+        await RunConnectionsAsync(listener, configuration, sessionLedger, lifetime).ConfigureAwait(continueOnCapturedContext: false);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Saving proxy traffic to {CaptureDirectory}")]
+    private static partial void LogCaptureDirectory(ILogger logger, string captureDirectory);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Proxy client stopped.")]
+    private static partial void LogClientStopped(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Connection {RemoteEndPoint} failed")]
+    private static partial void LogConnectionFailed(ILogger logger, string remoteEndPoint, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Connection {RemoteEndPoint} stopped.")]
+    private static partial void LogConnectionStopped(ILogger logger, string remoteEndPoint);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Incoming connection from {RemoteEndPoint}")]
+    private static partial void LogIncomingConnection(ILogger logger, string remoteEndPoint);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Proxy listener stopped.")]
+    private static partial void LogListenerStopped(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Listening on {ListenAddress}:{ListenPort}, upstream {UpstreamHost}:{UpstreamPort}")]
+    private static partial void LogListening(ILogger logger, string listenAddress, int listenPort, string upstreamHost, int upstreamPort);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "The proxy listening endpoint was already reported.")]
+    private static partial void LogListeningEndpointAlreadyReported(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Login rejected: {Reason}")]
+    private static partial void LogLoginRejected(ILogger logger, string reason);
 
     private async Task HandleClientAsync(TcpClient socketClient, ProxyConfiguration configuration, ClientSessionLedger sessionLedger, CancellationToken cancellationToken)
     {
+        string remoteEndPoint = socketClient.GetRemoteEndPoint();
+
         using (socketClient)
         {
             try
             {
                 await RunClientAsync(socketClient, configuration, sessionLedger, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                LogConnectionStopped(logger, remoteEndPoint);
+            }
             catch (LoginException exception)
             {
-                ConnectionLog.Warning(logger, $"Login rejected: {exception.Message}");
+                LogLoginRejected(logger, exception.Message);
             }
-            catch (Exception exception)
-                when (ProxyFailureClassifier.IsRecoverable(exception))
+            catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                if (!cancellationToken.IsCancellationRequested)
-                    ConnectionLog.Write(logger, exception.Message);
+                LogConnectionFailed(logger, remoteEndPoint, exception);
             }
         }
     }
@@ -132,17 +122,11 @@ public sealed class ProtocolProxy(
         CancellationToken cancellationToken = default
     )
     {
-        ConnectionLog.Write(
-            logger,
-            string.Create(CultureInfo.InvariantCulture, $"[{timeProvider.GetLocalNow():T}] Incoming connection from {socketClient.GetRemoteEndPoint()}")
-        );
+        string remoteEndPoint = socketClient.GetRemoteEndPoint();
+        LogIncomingConnection(logger, remoteEndPoint);
 
-        ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, socketClient.GetRemoteEndPoint(), timeProvider);
-
-        ConnectionLog.Write(
-            logger,
-            string.Create(CultureInfo.InvariantCulture, $"[{timeProvider.GetLocalNow():T}] Saving proxy traffic to {trafficCapture.DirectoryPath}")
-        );
+        ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, remoteEndPoint, timeProvider);
+        LogCaptureDirectory(logger, trafficCapture.DirectoryPath);
 
         ProxyConnection client = await ProxyConnection
             .ConnectAsync(
@@ -167,12 +151,45 @@ public sealed class ProtocolProxy(
             }
             catch (TaskCanceledException)
             {
-                ConnectionLog.Debug(logger, message: "Proxy client stopped.");
+                LogClientStopped(logger);
             }
             finally
             {
                 await client.CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
             }
+        }
+    }
+
+    private async Task RunConnectionsAsync(TcpListener listener, ProxyConfiguration configuration, ClientSessionLedger sessionLedger, CancellationTokenSource lifetime)
+    {
+        List<Task> connections = [];
+
+        try
+        {
+            while (!lifetime.IsCancellationRequested)
+            {
+                TcpClient client = await listener
+                    .AcceptTcpClientAsync(lifetime.Token)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+
+                for (int index = connections.Count - 1; index >= 0; index--)
+                {
+                    if (connections[index].IsCompletedSuccessfully)
+                        connections.RemoveAt(index);
+                }
+
+                connections.Add(HandleClientAsync(client, configuration, sessionLedger, lifetime.Token));
+            }
+        }
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested)
+        {
+            LogListenerStopped(logger);
+        }
+        finally
+        {
+            await lifetime.CancelAsync().ConfigureAwait(continueOnCapturedContext: false);
+            listener.Stop();
+            await Task.WhenAll(connections).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }

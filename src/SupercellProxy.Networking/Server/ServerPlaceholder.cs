@@ -1,9 +1,5 @@
-using System.Globalization;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using SupercellProxy.Networking.Hosting;
 
 namespace SupercellProxy.Networking.Server;
 
@@ -11,7 +7,7 @@ namespace SupercellProxy.Networking.Server;
 /// Hosts the entry point for a future local server.
 /// Protocol handling is not implemented yet.
 /// </summary>
-public sealed class ServerPlaceholder(IOptions<ServerOptions> options, ILogger<ServerPlaceholder> logger)
+public sealed partial class ServerPlaceholder(IOptions<ServerOptions> options, ILogger<ServerPlaceholder> logger)
 {
     private readonly string _listenAddress = options.Value.ListenAddress;
     private readonly int _listenPort = options.Value.ListenPort;
@@ -23,13 +19,11 @@ public sealed class ServerPlaceholder(IOptions<ServerOptions> options, ILogger<S
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ConnectionLog.Write(
-            logger,
-            string.Create(
-                CultureInfo.InvariantCulture,
-                $"Server placeholder configured for {_listenAddress}:{_listenPort}; protocol handling is not implemented."
-            )
-        );
+        LogConfigured(logger, _listenAddress, _listenPort);
+
         await Task.CompletedTask.ConfigureAwait(continueOnCapturedContext: false);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Server placeholder configured for {ListenAddress}:{ListenPort}; protocol handling is not implemented.")]
+    private static partial void LogConfigured(ILogger logger, string listenAddress, int listenPort);
 }

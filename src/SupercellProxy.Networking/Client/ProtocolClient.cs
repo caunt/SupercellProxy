@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Cryptography;
-using SupercellProxy.Networking.Hosting;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Sessions;
@@ -14,7 +13,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Client;
 
 /// <summary>Authenticates and exchanges protocol messages without executing game actions.</summary>
-public sealed class ProtocolClient : IAsyncDisposable
+public sealed partial class ProtocolClient : IAsyncDisposable
 {
     private readonly ClientAuthenticator _authenticator;
     private readonly ILogger<ProtocolClient> _logger;
@@ -75,13 +74,7 @@ public sealed class ProtocolClient : IAsyncDisposable
         if (_login is not null)
             return _login;
 
-        _logger.Log(
-            LogLevel.Debug,
-            new EventId(id: 1, name: "Connecting"),
-            state: "Authenticating protocol connection",
-            exception: null,
-            static (message, unusedParameter1) => message
-        );
+        LogAuthenticating(_logger);
         _login = await _authenticator.LoginAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         if (_login.Resources.Length > 0)
@@ -130,7 +123,7 @@ public sealed class ProtocolClient : IAsyncDisposable
             }
             catch (OperationCanceledException) when (lifetime.IsCancellationRequested)
             {
-                ConnectionLog.Debug(_logger, message: "Client heartbeat and receive loop stopped.");
+                LogLoopsStopped(_logger);
             }
         }
     }
@@ -187,6 +180,12 @@ public sealed class ProtocolClient : IAsyncDisposable
 
         return _supercellStream;
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Authenticating protocol connection")]
+    private static partial void LogAuthenticating(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Client heartbeat and receive loop stopped.")]
+    private static partial void LogLoopsStopped(ILogger logger);
 
     /// <summary>Disconnects and releases this client's transport and HTTP client.</summary>
     async ValueTask IAsyncDisposable.DisposeAsync()

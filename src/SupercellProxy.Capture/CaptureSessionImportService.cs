@@ -16,7 +16,7 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Capture;
 
-internal sealed class CaptureSessionImportService : IHostedLifecycleService
+internal sealed partial class CaptureSessionImportService : IHostedLifecycleService
 {
     private readonly CaptureFarmSelection _farmSelection;
     private readonly ILogger<CaptureSessionImportService> _logger;
@@ -54,7 +54,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
             .ConfigureAwait(continueOnCapturedContext: false);
 
         if (archivePath is not null)
-            CaptureSessionImportLog.Archived(_logger, ledger.FilePath, archivePath);
+            LogArchivedLedger(_logger, ledger.FilePath, archivePath);
 
         ClientSession[] initialSessions = await ledger.GetSessionsAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -86,7 +86,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         await ValidateSelectedProxySessionAsync(ledger, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        CaptureSessionImportLog.Completed(_logger, ledger.FilePath, initialSessions.Length, importedSessionCount);
+        LogImportCompleted(_logger, ledger.FilePath, initialSessions.Length, importedSessionCount);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -159,6 +159,15 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         return name.Contains(marker, StringComparison.Ordinal)
             && name.EndsWith($"-{captureName}.bin", StringComparison.Ordinal);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Archived incompatible session ledger {LedgerPath} to {ArchivePath}")]
+    private static partial void LogArchivedLedger(ILogger logger, string ledgerPath, string archivePath);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Session ledger {LedgerPath} started with {InitialCount} existing sessions and imported {ImportedCount} sessions")]
+    private static partial void LogImportCompleted(ILogger logger, string ledgerPath, int initialCount, int importedCount);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Session import rejected {Source}")]
+    private static partial void LogImportRejected(ILogger logger, string source, Exception exception);
 
     private static async Task<CapturedLoginExchange> ReadLoginExchangeAsync(string loginFile, CancellationToken cancellationToken)
     {
@@ -264,7 +273,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            CaptureSessionImportLog.Warning(_logger, captureDirectory, exception);
+            LogImportRejected(_logger, captureDirectory, exception);
 
             return 0;
         }
@@ -290,7 +299,7 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
-                CaptureSessionImportLog.Warning(_logger, loginFile, exception);
+                LogImportRejected(_logger, loginFile, exception);
             }
         }
 
