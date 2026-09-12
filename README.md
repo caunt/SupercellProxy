@@ -44,7 +44,7 @@ Before its listener starts, Capture downloads or reuses the current game-asset c
 
 The versioned ledger stores one tag-string `AccountId`, `FarmName`, `AppStore`, `PassToken`, and optional scalar `SessionToken` and `SessionRefreshToken` per account. An unversioned ledger from the initial implementation is archived beside the selected ledger and rebuilt from retained captures.
 
-Asset-cache and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the shared per-user capture collection and the newest complete fingerprint beneath the shared asset root. The 36 surviving immutable replay captures have also been migrated into that shared collection under their prefixed directory names; their matching assets remain under `exploration/subjects/game-assets/replay` for explicit historical verification.
+Asset-cache and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the surviving capture collection under `exploration/captures/replay` and retained assets under `exploration/subjects/game-assets/replay`.
 
 ## Public protocol API
 
