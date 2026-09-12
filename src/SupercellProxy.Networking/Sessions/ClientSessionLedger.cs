@@ -165,7 +165,7 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
     private static string ResolvePath(string? ledgerPath)
     {
         return ledgerPath is null
-            ? Path.Combine(AppContext.BaseDirectory, DefaultFileName)
+            ? Path.Combine(Environment.CurrentDirectory, DefaultFileName)
             : Path.GetFullPath(ledgerPath);
     }
 

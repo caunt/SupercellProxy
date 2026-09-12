@@ -34,15 +34,15 @@ Locally, with the private projects present, build the complete solution with `do
 ## Capture and server hosts
 
 ```bash
-dotnet run --project src/SupercellProxy.Capture -- --UpstreamHost 127.0.0.1 --UpstreamPort 9339 --ListenAddress 127.0.0.1 --ListenPort 9338 --CaptureDirectory /path/to/captures --SessionAccountIdentifier '#ACCOUNT' --SessionLedgerPath /path/to/sc-client-session-ledger.json
+dotnet run --project src/SupercellProxy.Capture -- -b 127.0.0.1 -p 9338 -u 127.0.0.1 --upstream-port 9339 -c /path/to/captures -a FARM_NAME
 dotnet run --project src/SupercellProxy.Server -- --ListenAddress 127.0.0.1 --ListenPort 9339
 ```
 
-Hosts support standard .NET configuration and Ctrl+C shutdown. Authenticated protocol clients select an account from the JSON session ledger with `SessionAccountIdentifier`; Capture uses the same optional setting to inject a retained account into proxied logins. The ledger defaults to `sc-client-session-ledger.json` beside the executable and accepts a `SessionLedgerPath` override.
+Hosts support appsettings and environment configuration alongside their command lines and Ctrl+C shutdown. Capture accepts `-a`/`--account` with an optional farm-name fragment; omitting the option leaves the downstream login unchanged. The ledger defaults to `sc-client-session-ledger.json` in the working directory and accepts `-l`/`--ledger` as an override.
 
 Before its listener starts, Capture imports complete login and own-home exchanges from its retained `CaptureDirectory`. New accounts are validated against the configured upstream before being saved; rejected or incomplete captures produce warnings without preventing startup. Successful logins observed by the running proxy are retained after matching own-home data supplies the farm name. Capture defaults to a `proxy-captures` directory beside its executable. Session credentials remain plain JSON using normal platform file permissions.
 
-The versioned ledger stores one tag-string `AccountId`, `FarmName`, `AppStore`, `PassToken`, and optional scalar `SessionToken` and `SessionRefreshToken` per account. An unversioned ledger from the initial implementation is archived beside the executable and rebuilt from retained captures.
+The versioned ledger stores one tag-string `AccountId`, `FarmName`, `AppStore`, `PassToken`, and optional scalar `SessionToken` and `SessionRefreshToken` per account. An unversioned ledger from the initial implementation is archived beside the selected ledger and rebuilt from retained captures.
 
 Asset-cache and capture formats remain compatible with retained local data. Playground and its build output have been removed. Private replay defaults to the surviving capture collection under `exploration/captures/replay` and retained assets under `exploration/subjects/game-assets/replay`.
 
@@ -62,7 +62,7 @@ var proxyOptions = builder.Services.AddProtocolProxy(options =>
 
 Networking groups messages, commands, and payloads by feature under `Protocol/`. See the [Networking directory guide](src/SupercellProxy.Networking/README.md) for ownership, namespaces, and the connection API.
 
-`MessageRegistry` and `CommandRegistry` expose read-only registration views. All message/command types and their nested payload models are public. Use `MessageRegistry.Resolve` to decode a `MessageContainer` and `IMessage.ToContainer` to encode a constructed contract. Supplied turn checksums are preserved. Asset-dependent command payloads use the public `ICommandDataResolver`/`DataTableResolver`; authenticated clients configure that context from downloaded game assets. Capture accepts `--AssetDirectory /path/to/version/fingerprint` to load the same public codec context; a hosted proxy can also receive `ICommandDataResolver` through DI. Unknown payload handling is preserved.
+`MessageRegistry` and `CommandRegistry` expose read-only registration views. All message/command types and their nested payload models are public. Use `MessageRegistry.Resolve` to decode a `MessageContainer` and `IMessage.ToContainer` to encode a constructed contract. Supplied turn checksums are preserved. Asset-dependent command payloads use the public `ICommandDataResolver`/`DataTableResolver`; authenticated clients configure that context from downloaded game assets. Capture accepts `-d`/`--asset-directory /path/to/version/fingerprint` to load the same public codec context; a hosted proxy can also receive `ICommandDataResolver` through DI. Unknown payload handling is preserved.
 
 Shared engineering rules are supplied by `NetAgents.Analyzers` through `Directory.Build.props`.
 

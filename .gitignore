@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Local session credentials
+sc-client-session-ledger.json
+sc-client-session-ledger.json.legacy-*
+
 # User-specific files
 *.rsuser
 *.suo

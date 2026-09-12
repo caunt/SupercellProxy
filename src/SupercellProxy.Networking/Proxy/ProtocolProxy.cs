@@ -31,8 +31,6 @@ public sealed class ProtocolProxy(
 {
     private readonly TaskCompletionSource<IPEndPoint> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    private readonly ProxyConfiguration _configuration = options.Value.ToConfiguration();
-    private readonly ClientSessionLedger _sessionLedger = new(options.Value.SessionLedgerPath);
     private ICommandDataResolver? _commandDataResolver = commandDataResolver;
 
     /// <summary>Completes with the actual endpoint when the listener starts, including an assigned ephemeral port.</summary>
@@ -48,14 +46,17 @@ public sealed class ProtocolProxy(
     )]
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
-        if (_configuration.AssetDirectory is { } directory)
+        ProxyConfiguration configuration = options.Value.ToConfiguration();
+        ClientSessionLedger sessionLedger = new(configuration.SessionLedgerPath);
+
+        if (configuration.AssetDirectory is { } directory)
         {
             _commandDataResolver = await GameAssetDirectory
                 .LoadAsync(directory, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        using TcpListener listener = new(IPAddress.Parse(_configuration.ListenAddress), _configuration.ListenPort);
+        using TcpListener listener = new(IPAddress.Parse(configuration.ListenAddress), configuration.ListenPort);
 
         listener.Start();
 
@@ -66,7 +67,7 @@ public sealed class ProtocolProxy(
             logger,
             string.Create(
                 CultureInfo.InvariantCulture,
-                $"[{timeProvider.GetLocalNow():T}] Listening on {_configuration.ListenAddress}:{_configuration.ListenPort}, upstream {_configuration.UpstreamHost}:{_configuration.UpstreamPort}"
+                $"[{timeProvider.GetLocalNow():T}] Listening on {configuration.ListenAddress}:{configuration.ListenPort}, upstream {configuration.UpstreamHost}:{configuration.UpstreamPort}"
             )
         );
 
@@ -88,7 +89,7 @@ public sealed class ProtocolProxy(
                         connections.RemoveAt(index);
                 }
 
-                connections.Add(HandleClientAsync(client, lifetime.Token));
+                connections.Add(HandleClientAsync(client, configuration, sessionLedger, lifetime.Token));
             }
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested)
@@ -103,13 +104,13 @@ public sealed class ProtocolProxy(
         }
     }
 
-    private async Task HandleClientAsync(TcpClient socketClient, CancellationToken cancellationToken)
+    private async Task HandleClientAsync(TcpClient socketClient, ProxyConfiguration configuration, ClientSessionLedger sessionLedger, CancellationToken cancellationToken)
     {
         using (socketClient)
         {
             try
             {
-                await RunClientAsync(socketClient, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await RunClientAsync(socketClient, configuration, sessionLedger, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (LoginException exception)
             {
@@ -124,14 +125,19 @@ public sealed class ProtocolProxy(
         }
     }
 
-    private async Task RunClientAsync(TcpClient socketClient, CancellationToken cancellationToken = default)
+    private async Task RunClientAsync(
+        TcpClient socketClient,
+        ProxyConfiguration configuration,
+        ClientSessionLedger sessionLedger,
+        CancellationToken cancellationToken = default
+    )
     {
         ConnectionLog.Write(
             logger,
             string.Create(CultureInfo.InvariantCulture, $"[{timeProvider.GetLocalNow():T}] Incoming connection from {socketClient.GetRemoteEndPoint()}")
         );
 
-        ProxyCaptureWriter trafficCapture = new(_configuration.CaptureDirectory, socketClient.GetRemoteEndPoint(), timeProvider);
+        ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, socketClient.GetRemoteEndPoint(), timeProvider);
 
         ConnectionLog.Write(
             logger,
@@ -141,11 +147,11 @@ public sealed class ProtocolProxy(
         ProxyConnection client = await ProxyConnection
             .ConnectAsync(
                 socketClient,
-                _configuration.UpstreamHost,
-                _configuration.UpstreamPort,
+                configuration.UpstreamHost,
+                configuration.UpstreamPort,
                 trafficCapture,
-                _sessionLedger,
-                _configuration.SessionAccountIdentifier,
+                sessionLedger,
+                configuration.SessionAccountIdentifier,
                 serverKeys,
                 _commandDataResolver,
                 cancellationToken

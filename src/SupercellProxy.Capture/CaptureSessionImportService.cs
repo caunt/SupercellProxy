@@ -18,12 +18,19 @@ namespace SupercellProxy.Capture;
 
 internal sealed class CaptureSessionImportService : IHostedLifecycleService
 {
+    private readonly CaptureAccountSelection _accountSelection;
     private readonly ILogger<CaptureSessionImportService> _logger;
     private readonly ProxyOptions _options;
     private readonly ProtocolClientFactory _protocolClients;
 
-    internal CaptureSessionImportService(IOptions<ProxyOptions> options, ProtocolClientFactory protocolClients, ILogger<CaptureSessionImportService> logger)
+    internal CaptureSessionImportService(
+        IOptions<ProxyOptions> options,
+        ProtocolClientFactory protocolClients,
+        CaptureAccountSelection accountSelection,
+        ILogger<CaptureSessionImportService> logger
+    )
     {
+        _accountSelection = accountSelection;
         _logger = logger;
         _options = options.Value;
         _protocolClients = protocolClients;
@@ -56,6 +63,25 @@ internal sealed class CaptureSessionImportService : IHostedLifecycleService
 
         importedSessionCount += await ImportRetainedCapturesAsync(ledger, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
+        if (_accountSelection.Specified)
+        {
+            ClientSessionSelector selector = new(Console.In, Console.Out);
+
+            ClientSession selected = await selector
+                .SelectAsync(
+                    ledger,
+                    accountOptionSpecified: true,
+                    _accountSelection.FarmNameFragment,
+                    selectionRequired: false,
+                    Console.IsInputRedirected,
+                    cancellationToken
+                )
+                .ConfigureAwait(continueOnCapturedContext: false)
+                ?? throw new InvalidOperationException(message: "Account selection did not return a session.");
+
+            _options.SessionAccountIdentifier = selected.AccountIdentifier.ToFormattedString();
+        }
 
         await ValidateSelectedProxySessionAsync(ledger, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
