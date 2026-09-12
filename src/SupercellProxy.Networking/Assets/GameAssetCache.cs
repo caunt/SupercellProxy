@@ -2,25 +2,46 @@ namespace SupercellProxy.Networking.Assets;
 
 internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDirectory)
 {
+    private const int MaximumConcurrentDownloads = 4;
 
     internal async Task<GameAsset[]> GetAssetsAsync(GameAssetFingerprint fingerprint, IEnumerable<string> downloadUrls, CancellationToken cancellationToken = default)
     {
         DirectoryInfo assetsDirectory = Directory.CreateDirectory(Path.Combine(assetDirectory() ?? GameAsset.RootDirectoryPath, fingerprint.Version, fingerprint.Sha));
 
-        List<GameAsset> resources = [];
+        GameAsset?[] resources = new GameAsset?[fingerprint.Files.Count];
+        bool[] downloadedAssets = new bool[fingerprint.Files.Count];
+        string[] addresses = [.. downloadUrls];
 
-        foreach (GameAssetFingerprintEntry file in fingerprint.Files)
-        {
-            string filePath = Path.Combine(assetsDirectory.FullName, file.File);
+        await Parallel
+            .ForAsync(
+                fromInclusive: 0,
+                fingerprint.Files.Count,
+                new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = MaximumConcurrentDownloads,
+                    CancellationToken = cancellationToken,
+                },
+                async (index, token) =>
+                {
+                    GameAssetFingerprintEntry file = fingerprint.Files[index];
+                    string filePath = Path.Combine(assetsDirectory.FullName, file.File);
+                    bool alreadyCached = File.Exists(filePath);
 
-            GameAsset? resource = await GetAssetAsync(fingerprint, file, filePath, downloadUrls, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+                    GameAsset? resource = await GetAssetAsync(fingerprint, file, filePath, addresses, token)
+                        .ConfigureAwait(continueOnCapturedContext: false);
 
-            if (resource is not null)
-                resources.Add(resource);
-        }
+                    resources[index] = resource;
+                    downloadedAssets[index] = !alreadyCached && resource is not null;
+                }
+            )
+            .ConfigureAwait(continueOnCapturedContext: false);
 
-        return [.. resources];
+        int downloadedAssetCount = downloadedAssets.Count(static downloaded => downloaded);
+
+        if (downloadedAssetCount > 0)
+            Console.WriteLine($"Downloaded {downloadedAssetCount} game assets.");
+
+        return [.. resources.OfType<GameAsset>()];
     }
 
     private static async Task<GameAsset> ReadAssetAsync(GameAssetFingerprintEntry file, string filePath, CancellationToken cancellationToken)
@@ -49,8 +70,6 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
             if (!downloaded)
                 continue;
-
-            Console.WriteLine($"Downloaded {file.File} from {downloadAddress}");
 
             return await ReadAssetAsync(file, filePath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
@@ -85,9 +104,16 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
             return true;
         }
+        catch (OperationCanceledException)
+        {
+            File.Delete(filePath);
+
+            throw;
+        }
         catch (Exception exception)
             when (exception is HttpRequestException or IOException)
         {
+            File.Delete(filePath);
             Console.WriteLine($"Failed to download {file.File} from {downloadAddress}: {exception.Message}");
 
             return false;

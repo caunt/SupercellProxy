@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using SupercellProxy.Networking.Client;
@@ -116,7 +117,15 @@ public static class NetworkingServiceCollectionExtensions
     /// <summary>Registers factories, HTTP, logging, and replaceable system time.</summary>
     public static IServiceCollection AddSupercellNetworking(this IServiceCollection services)
     {
-        services = services.AddLogging().AddHttpClient()
+        services = services
+            .AddLogging(
+                static logging =>
+                {
+                    if (logging.AddFilter(category: "System.Net.Http.HttpClient", LogLevel.Warning) is null)
+                        throw new InvalidOperationException(message: "Failed to configure HTTP client logging.");
+                }
+            )
+            .AddHttpClient()
             .AddHttpClient(name: "ServerKeys")
             .AddTypedClient<IServerPublicKeySource>(static web => new HayDayServerPublicKeySource(web))
             .Services;

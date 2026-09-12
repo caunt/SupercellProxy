@@ -127,7 +127,7 @@ internal static class CaptureCommandLine
 
             return 0;
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
             return 130;
         }
