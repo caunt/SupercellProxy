@@ -76,6 +76,16 @@ public static class CommandRegistry
     public const int ClearMovieTicketShopNotificationsCommandType = 564;
 
     /// <summary>
+    /// Provides the client command 33 type. The native semantics are unestablished; the proven wire shape is one variable int.
+    /// </summary>
+    public const int ClientCommand33Type = 33;
+
+    /// <summary>
+    /// Provides the client command 686 type. The native semantics are unestablished; the proven wire shape is one variable-int array.
+    /// </summary>
+    public const int ClientCommand686Type = 686;
+
+    /// <summary>
     /// Provides the Close Wheel Car Command Type value or operation.
     /// </summary>
     public const int CloseWheelCarCommandType = 590;
