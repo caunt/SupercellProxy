@@ -11,6 +11,12 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
+    /// <summary>Identifies the first replay-proven pawn/task event variant.</summary>
+    public const int PawnTaskType6 = 6;
+
+    /// <summary>Identifies the second replay-proven pawn/task event variant.</summary>
+    public const int PawnTaskType7 = 7;
+
     /// <summary>Identifies a shared map-game state synchronization event.</summary>
     public const int StateSynchronizationType = 1;
 
@@ -125,8 +131,8 @@ public sealed record MapGameEvent
             ];
             schemas[key: 4] = pawnAndTask;
             schemas[key: 5] = [logicLong, variableInt, variableInt];
-            schemas[key: 6] = pawnAndTask;
-            schemas[key: 7] = pawnAndTask;
+            schemas[key: PawnTaskType6] = pawnAndTask;
+            schemas[key: PawnTaskType7] = pawnAndTask;
             schemas[key: 8] = pawnAndTask;
             schemas[key: 9] = pawnAndTask;
             schemas[key: 10] = pawnAndTask;
