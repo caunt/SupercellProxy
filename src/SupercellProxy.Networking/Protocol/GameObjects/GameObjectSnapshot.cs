@@ -222,6 +222,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public int GiftGid { get; init; }
 
+    /// <summary>Gets the retained time-limited gift-mailbox slot.</summary>
+    [JsonPropertyName("slot4")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GiftMailboxSlotSnapshot? GiftMailboxSlot4 { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">GoodAmount</c> value.
     /// </summary>
