@@ -17,6 +17,9 @@ public sealed record MapGameEvent
     /// <summary>Identifies the second replay-proven pawn/task event variant.</summary>
     public const int PawnTaskType7 = 7;
 
+    /// <summary>Identifies the third replay-proven pawn/task event variant.</summary>
+    public const int PawnTaskType8 = 8;
+
     /// <summary>Identifies a shared map-game state synchronization event.</summary>
     public const int StateSynchronizationType = 1;
 
@@ -133,7 +136,7 @@ public sealed record MapGameEvent
             schemas[key: 5] = [logicLong, variableInt, variableInt];
             schemas[key: PawnTaskType6] = pawnAndTask;
             schemas[key: PawnTaskType7] = pawnAndTask;
-            schemas[key: 8] = pawnAndTask;
+            schemas[key: PawnTaskType8] = pawnAndTask;
             schemas[key: 9] = pawnAndTask;
             schemas[key: 10] = pawnAndTask;
             schemas[key: 11] = pawnAndTask;
