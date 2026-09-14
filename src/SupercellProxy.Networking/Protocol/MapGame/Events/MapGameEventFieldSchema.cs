@@ -32,7 +32,7 @@ public sealed record MapGameEventFieldSchema(
         {
             MapGameEventFieldType.VariableInt => new MapGameEventVariableIntField(stream.ReadVariableInt()),
             MapGameEventFieldType.Boolean => new MapGameEventBooleanField(stream.ReadBoolean()),
-            MapGameEventFieldType.Byte => new MapGameEventByteField(unchecked(sbyte.CreateTruncating(stream.ReadByte()))),
+            MapGameEventFieldType.Int32 => new MapGameEventInt32Field(stream.ReadInt32()),
             MapGameEventFieldType.LongIdentifier => new MapGameEventLongIdentifierField(stream.ReadLongIdentifier()),
             MapGameEventFieldType.OptionalLongIdentifier => new MapGameEventOptionalLongIdentifierField(MapGameFieldCodec.ReadOptionalLongIdentifier(stream)),
             MapGameEventFieldType.DataReference => new MapGameEventDataReferenceField(stream.ReadVariableInt(), ExpectedTableIdentifier),

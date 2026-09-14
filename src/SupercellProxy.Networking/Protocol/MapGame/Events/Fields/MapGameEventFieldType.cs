@@ -17,9 +17,9 @@ public enum MapGameEventFieldType
     Boolean,
 
     /// <summary>
-    /// Identifies the Byte wire value.
+    /// Identifies the Int32 wire value.
     /// </summary>
-    Byte,
+    Int32,
 
     /// <summary>
     /// Identifies the Long Id wire value.

@@ -4,20 +4,20 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MapGame.Events.Fields;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameEventByteField</c>.
+/// Represents <c language="csharp">MapGameEventInt32Field</c>.
 /// </summary>
-public sealed record MapGameEventByteField(sbyte Value) : MapGameEventField
+public sealed record MapGameEventInt32Field(int Value) : MapGameEventField
 {
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override MapGameEventFieldType FieldType => MapGameEventFieldType.Byte;
+    public override MapGameEventFieldType FieldType => MapGameEventFieldType.Int32;
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteByte(unchecked(byte.CreateTruncating(Value)));
+        stream.WriteInt32(Value);
     }
 }

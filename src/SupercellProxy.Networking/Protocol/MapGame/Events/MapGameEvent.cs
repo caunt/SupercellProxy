@@ -91,7 +91,7 @@ public sealed record MapGameEvent
     {
         MapGameEventFieldSchema variableInt = new(MapGameEventFieldType.VariableInt);
         MapGameEventFieldSchema boolean = new(MapGameEventFieldType.Boolean);
-        MapGameEventFieldSchema byteField = new(MapGameEventFieldType.Byte);
+        MapGameEventFieldSchema int32Field = new(MapGameEventFieldType.Int32);
         MapGameEventFieldSchema logicLong = new(MapGameEventFieldType.LongIdentifier);
         MapGameEventFieldSchema optionalLongIdentifier = new(MapGameEventFieldType.OptionalLongIdentifier);
         MapGameEventFieldSchema dataReference = new(MapGameEventFieldType.DataReference);
@@ -161,7 +161,7 @@ public sealed record MapGameEvent
         void AddRemainingSchemas()
         {
             schemas[key: 21] = [optionalPawn, optionalTask, optionalVariableIntArray];
-            schemas[key: 22] = [optionalLongIdentifier, variableInt, dataReference, byteField];
+            schemas[key: 22] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
             schemas[key: 23] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 24] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 25] = [optionalLongIdentifier, variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 162)];
