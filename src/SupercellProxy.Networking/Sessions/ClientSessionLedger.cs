@@ -79,6 +79,36 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
         return await LoadCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
+    /// <summary>Updates mutable metadata and token material for an existing account.</summary>
+    public async Task RecordLoginAsync(
+        LoginMessage loginMessage,
+        IMessage loginResult,
+        OwnHomeDataMessage ownHomeDataMessage,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ClientSession authenticated = ClientSession.FromLoginOutcome(loginMessage, loginResult, ownHomeDataMessage);
+        ClientSessionValidation.Validate(authenticated, FilePath);
+
+        using IDisposable ledgerLock = await _fileGate.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        ClientSession[] sessions = await LoadCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        int index = Array.FindIndex(sessions, existing => existing.AccountIdentifier == authenticated.AccountIdentifier);
+
+        if (index < 0)
+        {
+            sessions = [.. sessions, authenticated];
+            Array.Sort(sessions, static (left, right) => left.AccountIdentifier.AsUInt64.CompareTo(right.AccountIdentifier.AsUInt64));
+        }
+        else
+        {
+            // Only an authenticated login/home exchange may replace stable credentials.
+            sessions[index] = authenticated with { SessionRefreshToken = sessions[index].SessionRefreshToken };
+        }
+
+        await SaveCoreAsync(sessions, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+    }
+
     /// <summary>Adds a validated account session unless that account is already retained.</summary>
     /// <returns>True when the ledger changed; false for an existing account.</returns>
     public async Task<bool> TryAddAsync(ClientSession session, CancellationToken cancellationToken = default)
@@ -112,7 +142,7 @@ public sealed class ClientSessionLedger(string? ledgerPath = null)
         return TryAddAsync(ClientSession.FromLoginOutcome(loginMessage, loginResult, ownHomeDataMessage), cancellationToken);
     }
 
-    /// <summary>Updates mutable metadata and token material for an existing account.</summary>
+    /// <summary>Updates mutable metadata and token material without replacing stable credentials.</summary>
     public async Task UpdateSessionAsync(ClientSession session, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);

@@ -1,5 +1,5 @@
 # Supercell Games - Server Public Keys
-- Keys below are extracted with [this automated workflow](https://github.com/caunt/SupercellProxy/blob/main/.github/workflows/server-public-key.yaml) ([source code](https://github.com/caunt/SupercellProxy/blob/main/src/SupercellProxy.PublicKeyExtractor/EntryPoint.cs))
+- Keys below are extracted with [this automated workflow](https://github.com/caunt/SupercellProxy/blob/main/.github/workflows/server-public-key.yaml) ([source code](https://github.com/caunt/SupercellProxy/blob/main/src/SupercellProxy.Keys/Update/Application.cs))
 - Keys are changed on each Major version number increase.
 
 ## [Brawl Stars](https://decrypt.day/app/id1229016807)

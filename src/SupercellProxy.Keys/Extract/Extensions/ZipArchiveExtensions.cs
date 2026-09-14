@@ -1,6 +1,6 @@
 using System.IO.Compression;
 
-namespace SupercellProxy.PublicKeyExtractor.Extensions;
+namespace SupercellProxy.Keys.Extract.Extensions;
 
 /// <summary>
 /// <para>Provides ZIP and IPA archive inspection helpers.</para>

@@ -1,3 +1,18 @@
+# Solution projects
+
+```text
++-----------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Project                           | Purpose                                                                                                       |
++-----------------------------------+---------------------------------------------------------------------------------------------------------------+
+| SupercellProxy.Networking         | Public protocol, transport, cryptography, session, client, and proxy library.                                 |
+| SupercellProxy.Capture            | Git-ignored live capture host for protocol traffic plus native RNG, checksum, and turn recording.             |
+| SupercellProxy.Simulation         | Git-ignored managed port of game state, actions, turns, RNG, and checksums; native behavior is authoritative. |
+| SupercellProxy.Buyer              | Git-ignored Hay Day roadside-shop buyer built on Simulation.                                                  |
+| SupercellProxy.Replay             | Git-ignored replay, inspection, and verification of retained captures.                                        |
+| SupercellProxy.Keys               | Public tool that searches and downloads IPAs, extracts server public keys, and updates KEYS.md.               |
++-----------------------------------+---------------------------------------------------------------------------------------------------------------+
+```
+
 # Repository conventions
 
 - Never create unit test projects.

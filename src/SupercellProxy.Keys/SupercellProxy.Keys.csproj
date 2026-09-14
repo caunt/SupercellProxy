@@ -10,9 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="CloakBrowser" Version="0.5.10" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="../SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj" />
+    <InternalsVisibleTo Include="SupercellProxy.Capture" />
   </ItemGroup>
 </Project>

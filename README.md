@@ -9,8 +9,9 @@
 - mo\.co
 
 ## Supercell Games Public Server Keys
-[**Table of a public server keys**](https://github.com/caunt/SupercellProxy/blob/main/KEYS.md)  
-If the key you need is not there, try [this tool](https://github.com/caunt/SupercellProxy/tree/main/src/SupercellProxy.PublicKeyExtractor) that extracts the public server key.
+[**Table of public server keys**](https://github.com/caunt/SupercellProxy/blob/main/KEYS.md)
+
+If the key you need is not there, use [`SupercellProxy.Keys extract`](https://github.com/caunt/SupercellProxy/tree/main/src/SupercellProxy.Keys) to extract it from a native binary or IPA.
 
 ## Notes
 

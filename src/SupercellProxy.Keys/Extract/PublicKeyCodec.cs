@@ -1,17 +1,26 @@
 using System.Runtime.InteropServices;
 
-namespace SupercellProxy.PublicKeyExtractor;
+namespace SupercellProxy.Keys.Extract;
 
-/// <summary>
-/// <para>Encodes and decodes the native server-public-key representation.</para>
-/// </summary>
+/// <summary>Encodes and decodes the native server-public-key representation.</summary>
 internal static class PublicKeyCodec
 {
-    /// <summary>
-    /// <para>Decodes a native key table into a 32-byte public key.</para>
-    /// </summary>
+    /// <summary>Length of a decoded public key.</summary>
+    public const int DecodedLength = 32;
+
+    /// <summary>Length of the native encoded key table.</summary>
+    public const int EncodedLength = 128;
+
+    /// <summary>Zero-filled prefix used to locate the native key table.</summary>
+    public const int ZeroPrefixLength = 64;
+
+    /// <summary>Marker following the native key table.</summary>
+    public static ReadOnlySpan<byte> TableAnchor => [0x1a, 0xd5, 0, 0, 0, 0, 0, 0];
+
+    /// <summary>Decodes a native key table into a 32-byte public key.</summary>
     public static Span<byte> Decode(ReadOnlySpan<byte> input)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(value: input.Length, other: EncodedLength, paramName: nameof(input));
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[16];
 
@@ -36,11 +45,10 @@ internal static class PublicKeyCodec
         return MemoryMarshal.AsBytes(outputWords.AsSpan());
     }
 
-    /// <summary>
-    /// <para>Encodes a 32-byte public key into the native key table.</para>
-    /// </summary>
+    /// <summary>Encodes a 32-byte public key into the native key table.</summary>
     public static Span<byte> Encode(ReadOnlySpan<byte> input)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(value: input.Length, other: DecodedLength, paramName: nameof(input));
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[64];
 

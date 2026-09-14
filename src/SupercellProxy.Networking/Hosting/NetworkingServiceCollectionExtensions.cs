@@ -1,6 +1,5 @@
 using System.Net;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +11,6 @@ using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Proxy;
-using SupercellProxy.Networking.Server;
 
 namespace SupercellProxy.Networking.Hosting;
 
@@ -93,27 +91,6 @@ public static class NetworkingServiceCollectionExtensions
         return options;
     }
 
-    /// <summary>Registers the server placeholder and returns its typed endpoint options.</summary>
-    public static OptionsBuilder<ServerOptions> AddServerPlaceholder(this IServiceCollection services, Action<ServerOptions>? configure = null)
-    {
-        OptionsBuilder<ServerOptions> options = CreateServerOptions(services);
-
-        if (configure is not null)
-            options = options.Configure(configure);
-
-        RegisterServerWorker(options.Services);
-
-        return options;
-    }
-
-    /// <summary>Registers the server host and binds its typed options to configuration.</summary>
-    public static void AddServerPlaceholder(this IServiceCollection services, IConfiguration configuration)
-    {
-        ArgumentNullException.ThrowIfNull(configuration);
-        OptionsBuilder<ServerOptions> options = CreateServerOptions(services).Bind(configuration);
-        RegisterServerWorker(options.Services);
-    }
-
     /// <summary>Registers factories, HTTP, logging, and replaceable system time.</summary>
     public static IServiceCollection AddSupercellNetworking(this IServiceCollection services)
     {
@@ -135,26 +112,4 @@ public static class NetworkingServiceCollectionExtensions
         return services;
     }
 
-    private static OptionsBuilder<ServerOptions> CreateServerOptions(IServiceCollection services)
-    {
-        return services.AddSupercellNetworking()
-            .AddOptions<ServerOptions>()
-            .Validate(static value => IPAddress.TryParse(value.ListenAddress, out _), $"{nameof(ServerOptions.ListenAddress)} must be an IP address.")
-            .Validate(
-                static value => value.ListenPort is >= 0 and <= IPEndPoint.MaxPort,
-                $"{nameof(ServerOptions.ListenPort)} must be between 0 and {IPEndPoint.MaxPort}."
-            )
-            .ValidateOnStart();
-    }
-
-    private static void RegisterServerWorker(IServiceCollection services)
-    {
-        services.Add(ServiceDescriptor.Singleton<ServerPlaceholder, ServerPlaceholder>());
-        services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<IHostedService, ServerHostedService>(
-                static provider => new ServerHostedService(provider.GetRequiredService<ServerPlaceholder>(), provider.GetRequiredService<IHostApplicationLifetime>())
-            )
-        );
-
-    }
 }

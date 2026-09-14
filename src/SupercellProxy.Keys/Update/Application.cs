@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
 
+using SupercellProxy.Keys.Extract;
 using SupercellProxy.Keys.Models;
-using SupercellProxy.PublicKeyExtractor;
 
 namespace SupercellProxy.Keys;
 

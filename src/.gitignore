@@ -1,7 +1,8 @@
 # Local private implementations; public builds use SupercellProxy.Public.slnf.
 /SupercellProxy.Simulation/
 /SupercellProxy.Buyer/
-/SupercellProxy.Diagnostics/
+/SupercellProxy.Capture/
+/SupercellProxy.Replay/
 
 # Local sessions, captures, and game bundles.
 sc-client-session*.json

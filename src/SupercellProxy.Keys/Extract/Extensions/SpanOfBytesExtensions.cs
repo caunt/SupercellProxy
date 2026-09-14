@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace SupercellProxy.PublicKeyExtractor.Extensions;
+namespace SupercellProxy.Keys.Extract.Extensions;
 
 /// <summary>
 /// <para>Provides byte-span search and validation helpers.</para>

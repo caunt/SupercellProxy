@@ -1,8 +1,8 @@
 using System.Globalization;
 
-using SupercellProxy.PublicKeyExtractor.Extensions;
+using SupercellProxy.Keys.Extract.Extensions;
 
-namespace SupercellProxy.PublicKeyExtractor;
+namespace SupercellProxy.Keys.Extract;
 
 /// <summary>
 /// <para>Extracts an encoded server public key from client binaries and packages.</para>
@@ -22,22 +22,26 @@ internal static class ServerPublicKeyExtractor
     /// </summary>
     public static byte[] ExtractBinary(ReadOnlySpan<byte> binary)
     {
-        const int keyLength = 128;
-        const int zeroesBeforeKey = 64;
 
         int foundIndex = -1;
 
-        foreach (int index in binary.IndexesOf([0x1A, 0xD5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))
+        foreach (int index in binary.IndexesOf(PublicKeyCodec.TableAnchor))
         {
-            if (index < keyLength + zeroesBeforeKey || !binary.SliceBefore(index - keyLength, zeroesBeforeKey).IsAllZeros())
+            bool invalid = index < PublicKeyCodec.EncodedLength + PublicKeyCodec.ZeroPrefixLength
+                || !binary.SliceBefore(index - PublicKeyCodec.EncodedLength, PublicKeyCodec.ZeroPrefixLength).IsAllZeros();
+
+            if (invalid)
                 continue;
 
             if (foundIndex is not -1)
             {
                 throw new InvalidOperationException(
                     "Multiple possible server public keys found in the binary (expected 1):\n"
-                        + string.Create(CultureInfo.InvariantCulture, $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, keyLength))}\n")
-                        + string.Create(CultureInfo.InvariantCulture, $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, keyLength))}")
+                        + string.Create(
+                            CultureInfo.InvariantCulture,
+                            $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength))}\n"
+                        )
+                        + string.Create(CultureInfo.InvariantCulture, $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, PublicKeyCodec.EncodedLength))}")
                 );
             }
 
@@ -46,7 +50,7 @@ internal static class ServerPublicKeyExtractor
 
         return foundIndex is -1
             ? throw new InvalidOperationException(message: "Could not find server public key in the binary.")
-            : PublicKeyCodec.Decode(binary.SliceBefore(foundIndex, keyLength)).ToArray();
+            : PublicKeyCodec.Decode(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength)).ToArray();
     }
 
     /// <summary>

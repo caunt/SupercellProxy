@@ -2,10 +2,12 @@ using System.Globalization;
 using System.Net.Sockets;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
+using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -16,10 +18,11 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Proxy;
 
 /// <summary>Owns the downstream and upstream connections and forwards their protocol traffic.</summary>
-public sealed class ProxyConnection : IAsyncDisposable
+public sealed partial class ProxyConnection : IAsyncDisposable
 {
     private readonly ProxyHandshake _handshake;
     private readonly ProxyHomeVisitor _homeVisitor;
+    private readonly ILogger _logger;
     private MessageStream? _serverStream;
     private bool _started;
 
@@ -33,6 +36,7 @@ public sealed class ProxyConnection : IAsyncDisposable
     )
     {
         SocketClient = socketClient;
+        _logger = logger ?? NullLogger.Instance;
         _homeVisitor = new ProxyHomeVisitor(this);
         SocketUpstream = new TcpClient();
         ClientStream = new MessageStream(socketClient.GetStream());
@@ -200,6 +204,20 @@ public sealed class ProxyConnection : IAsyncDisposable
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Forwarding packet {Identifier}/{Version} without optional decoding: {Reason}")]
+    private static partial void LogUndecoded(ILogger logger, ushort identifier, ushort version, string reason);
+
+    private bool CanForwardUndecoded(ushort identifier, Exception exception)
+    {
+        return TrafficCapture.PreserveForwardedFrames
+            && exception is InvalidDataException or NotSupportedException or EndOfStreamException
+            && identifier != MessageRegistry.GetIdentifier<ClientHelloMessage>()
+            && identifier != MessageRegistry.GetIdentifier<ServerHelloMessage>()
+            && identifier != MessageRegistry.GetIdentifier<LoginMessage>()
+            && identifier != MessageRegistry.GetIdentifier<LoginOkMessage>()
+            && identifier != MessageRegistry.GetIdentifier<LoginFailedMessage>();
+    }
+
     /// <summary>
     /// Executes the <c language="csharp">DisposeAsync</c> operation.
     /// </summary>
@@ -280,7 +298,7 @@ public sealed class ProxyConnection : IAsyncDisposable
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            IMessage message = await ReadForwardMessageAsync(source, direction, cancellationToken)
+            (IMessage message, MessageContainer original) = await ReadForwardMessageAsync(source, direction, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             MessageReceivedEvent @event = new(message, direction, source, destination);
@@ -291,7 +309,7 @@ public sealed class ProxyConnection : IAsyncDisposable
             if (@event.IsCancelled)
                 continue;
 
-            await WriteForwardMessageAsync(message, destination, direction, cancellationToken)
+            await WriteForwardMessageAsync(message, original, destination, direction, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await EventBus
@@ -300,7 +318,7 @@ public sealed class ProxyConnection : IAsyncDisposable
         }
     }
 
-    private async Task<IMessage> ReadForwardMessageAsync(MessageStream source, MessageDirection direction, CancellationToken cancellationToken)
+    private async Task<(IMessage Message, MessageContainer Original)> ReadForwardMessageAsync(MessageStream source, MessageDirection direction, CancellationToken cancellationToken)
     {
         try
         {
@@ -312,7 +330,16 @@ public sealed class ProxyConnection : IAsyncDisposable
                 .SaveAsync(stage: "incoming", direction, container, messageName: "frame", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            return source.ResolveMessage(container);
+            try
+            {
+                return (source.ResolveMessage(container), container);
+            }
+            catch (Exception exception) when (CanForwardUndecoded(container.Identifier, exception))
+            {
+                LogUndecoded(_logger, container.Identifier, container.Version, exception.Message);
+
+                return (new PassthroughMessage { Identifier = container.Identifier, Version = container.Version, Data = container.Payload.ToArray() }, container);
+            }
         }
         catch (StreamClosedException exception)
         {
@@ -381,9 +408,16 @@ public sealed class ProxyConnection : IAsyncDisposable
         }
     }
 
-    private async Task WriteForwardMessageAsync(IMessage message, MessageStream destination, MessageDirection direction, CancellationToken cancellationToken)
+    private async Task WriteForwardMessageAsync(
+        IMessage message,
+        MessageContainer original,
+        MessageStream destination,
+        MessageDirection direction,
+        CancellationToken cancellationToken
+    )
     {
-        MessageContainer container = message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message));
+        bool preserveOriginal = TrafficCapture.PreserveForwardedFrames && message is not LoginMessage;
+        MessageContainer container = preserveOriginal ? original : message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message));
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)

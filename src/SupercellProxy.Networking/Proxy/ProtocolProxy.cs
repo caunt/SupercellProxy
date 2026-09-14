@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
+using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
@@ -24,7 +25,9 @@ public sealed partial class ProtocolProxy(
     IServerPublicKeySource serverKeys,
     ILogger<ProtocolProxy> logger,
     TimeProvider timeProvider,
-    ICommandDataResolver? commandDataResolver = null
+    ProtocolClientFactory protocolClients,
+    ICommandDataResolver? commandDataResolver = null,
+    Func<TcpClient, ProxyCaptureWriter, ICommandDataResolver?, CancellationToken, ValueTask<IAsyncDisposable>>? captureSession = null
 )
 {
     private readonly TaskCompletionSource<IPEndPoint> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -125,38 +128,84 @@ public sealed partial class ProtocolProxy(
         string remoteEndPoint = socketClient.GetRemoteEndPoint();
         LogIncomingConnection(logger, remoteEndPoint);
 
-        ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, remoteEndPoint, timeProvider);
+        ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, remoteEndPoint, timeProvider)
+        {
+            DeferPublication = captureSession is not null,
+        };
+
         LogCaptureDirectory(logger, trafficCapture.DirectoryPath);
 
-        ProxyConnection client = await ProxyConnection
-            .ConnectAsync(
-                socketClient,
-                configuration.UpstreamHost,
-                configuration.UpstreamPort,
-                trafficCapture,
-                sessionLedger,
-                configuration.SessionAccountIdentifier,
-                serverKeys,
-                _commandDataResolver,
-                logger,
-                cancellationToken
-            )
-            .ConfigureAwait(continueOnCapturedContext: false);
+        IAsyncDisposable? recording = captureSession is null
+            ? null
+            : await captureSession(socketClient, trafficCapture, _commandDataResolver, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        await using (client.ConfigureAwait(continueOnCapturedContext: false))
+        try
         {
-            try
+            if (configuration.SessionAccountIdentifier is { } selectedAccount)
             {
-                await client.RunAsync(client.CancellationTokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                if (!LongIdentifier.TryParse(selectedAccount, out LongIdentifier accountIdentifier))
+                    throw new InvalidDataException(message: "The selected proxy account is invalid.");
+
+                ClientSession selected = await sessionLedger.GetSessionAsync(accountIdentifier, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false)
+                    ?? throw new InvalidDataException(message: "The selected proxy session is unavailable.");
+
+                ClientConfiguration authentication = new(
+                    configuration.UpstreamHost,
+                    configuration.UpstreamPort,
+                    configuration.Protocol,
+                    selectedAccount,
+                    sessionLedger.FilePath,
+                    BootstrapFingerprintSha: null,
+                    AssetDirectory: configuration.AssetDirectory
+                );
+
+                ProtocolClient validator = protocolClients.Create(authentication);
+
+                await using (validator.ConfigureAwait(continueOnCapturedContext: false))
+                {
+                    ClientSession validated = await validator.ValidateSessionAsync(selected, cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    await sessionLedger.UpdateSessionAsync(validated, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                }
             }
-            catch (TaskCanceledException)
+
+            ProxyConnection client = await ProxyConnection
+                .ConnectAsync(
+                    socketClient,
+                    configuration.UpstreamHost,
+                    configuration.UpstreamPort,
+                    trafficCapture,
+                    sessionLedger,
+                    configuration.SessionAccountIdentifier,
+                    serverKeys,
+                    _commandDataResolver,
+                    logger,
+                    cancellationToken
+                )
+                .ConfigureAwait(continueOnCapturedContext: false);
+
+            await using (client.ConfigureAwait(continueOnCapturedContext: false))
             {
-                LogClientStopped(logger);
+                try
+                {
+                    await client.RunAsync(client.CancellationTokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                }
+                catch (TaskCanceledException)
+                {
+                    LogClientStopped(logger);
+                }
+                finally
+                {
+                    await client.CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
+                }
             }
-            finally
-            {
-                await client.CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
-            }
+        }
+        finally
+        {
+            if (recording is not null)
+                await recording.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 

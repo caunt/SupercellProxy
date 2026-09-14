@@ -89,7 +89,27 @@ internal sealed partial class ProxyHandshake(ClientSessionLedger sessionLedger, 
 
                     _loginMessage = null;
                     _loginOkMessage = null;
-                    ClientSession session = ClientSession.FromLoginOutcome(loginMessage, loginOkMessage, ownHomeDataMessage);
+                    ClientSession session;
+
+                    try
+                    {
+                        session = ClientSession.FromLoginOutcome(loginMessage, loginOkMessage, ownHomeDataMessage);
+                    }
+                    catch (UnauthorizedAccessException exception) when (sessionAccountIdentifier is null)
+                    {
+                        if (logger is not null)
+                            LogSessionImportSkipped(logger, exception);
+
+                        break;
+                    }
+
+                    if (sessionAccountIdentifier is null)
+                    {
+                        await sessionLedger.RecordLoginAsync(loginMessage, loginOkMessage, ownHomeDataMessage, cancellationToken)
+                            .ConfigureAwait(continueOnCapturedContext: false);
+
+                        break;
+                    }
 
                     bool sessionAdded = await sessionLedger.TryAddAsync(session, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
@@ -115,6 +135,9 @@ internal sealed partial class ProxyHandshake(ClientSessionLedger sessionLedger, 
         }
 
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping session-ledger import for the pass-through connection because returned credentials differ; traffic recording continues.")]
+    private static partial void LogSessionImportSkipped(ILogger logger, Exception exception);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Replacing the session for incoming client {RemoteEndPoint} with farm {FarmName} ({AccountIdentifier}).")]
     private static partial void LogSessionReplacement(ILogger logger, string remoteEndPoint, string farmName, LongIdentifier accountIdentifier);

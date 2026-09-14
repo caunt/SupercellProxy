@@ -1,4 +1,4 @@
-namespace SupercellProxy.PublicKeyExtractor.Extensions;
+namespace SupercellProxy.Keys.Extract.Extensions;
 
 /// <summary>
 /// <para>Provides content-loading helpers for paths and URLs.</para>

@@ -85,14 +85,7 @@ public sealed record EndClientTurnMessage : IMessage
     {
         ArgumentNullException.ThrowIfNull(messageContainer);
         MessageStream stream = messageContainer.Payload;
-        int checksum = stream.ReadVariableInt();
-        int subTick = stream.ReadVariableInt();
-        int[] subChecksums = new int[SubChecksumCount];
-
-        for (int index = 0; index < subChecksums.Length; index++)
-            subChecksums[index] = stream.ReadVariableInt();
-
-        int commandCount = ReadCollectionCount(stream, MaximumCommandCount, name: "command");
+        (int checksum, int subTick, int[] subChecksums, int commandCount) = ReadHeader(stream);
         Command[] commands = new Command[commandCount];
 
         for (int index = 0; index < commands.Length; index++)
@@ -115,6 +108,22 @@ public sealed record EndClientTurnMessage : IMessage
                 DebugCommandData = debugCommandData,
                 DevelopmentByteArrays = developmentByteArrays,
             };
+    }
+
+    /// <summary>Reads the checksum header independently of optional command decoding.</summary>
+    public static (int Checksum, int SubTick, int[] SubChecksums, int CommandCount) ReadHeader(MessageStream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        int checksum = stream.ReadVariableInt();
+        int subTick = stream.ReadVariableInt();
+        int[] subChecksums = new int[SubChecksumCount];
+
+        for (int index = 0; index < subChecksums.Length; index++)
+            subChecksums[index] = stream.ReadVariableInt();
+
+        int commandCount = ReadCollectionCount(stream, MaximumCommandCount, name: "command");
+
+        return (checksum, subTick, subChecksums, commandCount);
     }
 
     /// <summary>

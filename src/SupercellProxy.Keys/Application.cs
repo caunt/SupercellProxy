@@ -41,6 +41,8 @@ internal static partial class Application
                             .ConfigureAwait(continueOnCapturedContext: false),
                         "search" => await RunSearchAsync(arguments[1..], cancellationTokenSource.Token)
                             .ConfigureAwait(continueOnCapturedContext: false),
+                        "extract" => await RunExtractAsync(arguments[1..], cancellationTokenSource.Token)
+                            .ConfigureAwait(continueOnCapturedContext: false),
                         "games" => await RunGamesAsync(arguments[1..], cancellationTokenSource.Token)
                             .ConfigureAwait(continueOnCapturedContext: false),
                         "update" => await RunUpdateAsync(arguments[1..], cancellationTokenSource.Token)
@@ -104,7 +106,7 @@ internal static partial class Application
         return Print(
             string.Join(
                 Environment.NewLine,
-                value: ["Search and download decrypted IPAs from decrypt.day.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]
+                value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]
             )
         );
     }

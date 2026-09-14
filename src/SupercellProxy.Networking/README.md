@@ -1,6 +1,6 @@
 # Networking
 
-This public library connects clients and proxies, hosts the server placeholder, and encodes and decodes protocol contracts. It has no dependency on Simulation. Game actions, state advancement, pathfinding, and game checksum calculation belong to the private Simulation project; their wire fields remain public here.
+This public library connects clients and proxies and encodes and decodes protocol contracts. It has no dependency on Simulation. Game actions, state advancement, pathfinding, and game checksum calculation belong to the private Simulation project; their wire fields remain public here.
 
 ## Finding code
 
@@ -8,7 +8,6 @@ This public library connects clients and proxies, hosts the server placeholder, 
 | --- | --- |
 | `Client` | Protocol client lifetime, authentication, hosted service, and typed client options. |
 | `Proxy` | Listener, one connection's forwarding pumps, handshake, temporary home visits, and optional capture writing. |
-| `Server` | The hosted placeholder and its typed endpoint options. |
 | `Sessions` | Session records, file persistence, token decoding, refresh, and request signing. |
 | `Transport` | Binary values, framed messages, socket utilities, and endpoint resolution. |
 | `Cryptography` | Protocol encryption, nonces, key material, and replaceable upstream public-key discovery. |
@@ -31,7 +30,6 @@ Namespaces follow directories. The two `GameAssetFiles.cs` parts share `Supercel
 - `Hosting.NetworkingServiceCollectionExtensions.AddSupercellNetworking` registers shared HTTP, logging, replaceable time, public-key discovery, and `Client.ProtocolClientFactory`.
 - `AddProtocolClient(onMessage)` registers a hosted authenticated client and returns an `OptionsBuilder<ClientOptions>`.
 - `AddProtocolProxy()` registers the proxy and returns an `OptionsBuilder<ProxyOptions>`.
-- `AddServerPlaceholder()` returns an `OptionsBuilder<ServerOptions>`; its configuration overload binds the supplied `IConfiguration` directly.
 - `ProtocolClientFactory.Create` creates a caller-owned client from an immutable `ClientConfiguration` or an existing `MessageStream`.
 - `Sessions.ClientSessionLedger` validates, lists, selects, and atomically saves multiple typed `ClientSession` records keyed by account ID.
 

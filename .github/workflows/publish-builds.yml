@@ -22,16 +22,16 @@ jobs:
           - { os: windows-latest, rid: win-x64 }
           - { os: windows-latest, rid: win-arm64 }
           - { os: windows-latest, rid: win-x86 }
-          
+
           # macOS
           - { os: macos-latest, rid: osx-arm64 }
           - { os: macos-15-intel, rid: osx-x64 }
-          
+
           # Ubuntu (glibc)
           - { os: ubuntu-latest, rid: linux-x64 }
           - { os: ubuntu-24.04-arm, rid: linux-arm64 }
           - { os: ubuntu-24.04-arm, rid: linux-arm }
-          
+
           # Alpine (musl)
           - { os: ubuntu-latest, rid: linux-musl-x64, is_alpine: true }
           - { os: ubuntu-24.04-arm, rid: linux-musl-arm64, is_alpine: true }
@@ -50,7 +50,7 @@ jobs:
         if: ${{ runner.os == 'Linux' && !matrix.is_alpine }}
         run: |
           sudo apt-get update
-          
+
           if [ "${{ matrix.rid }}" = "linux-arm" ]; then
             sudo dpkg --add-architecture armhf
             sudo apt-get update
@@ -63,14 +63,12 @@ jobs:
         if: ${{ !matrix.is_alpine }}
         run: dotnet build SupercellProxy.Public.slnf -c Release
 
-      - name: Publish Application (Host)
+      - name: Publish Keys
         if: ${{ !matrix.is_alpine }}
         run: |
-          dotnet publish src/SupercellProxy.Capture/SupercellProxy.Capture.csproj -c Release -r ${{ matrix.rid }} -o ./publish/proxy/${{ matrix.rid }}
-          dotnet publish src/SupercellProxy.Server/SupercellProxy.Server.csproj -c Release -r ${{ matrix.rid }} -o ./publish/server/${{ matrix.rid }}
-          dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj -c Release -r ${{ matrix.rid }} -o ./publish/key-extractor/${{ matrix.rid }}
+          dotnet publish src/SupercellProxy.Keys/SupercellProxy.Keys.csproj -c Release -r ${{ matrix.rid }} -o ./publish/keys/${{ matrix.rid }}
 
-      - name: Publish Application (Alpine Container)
+      - name: Publish Keys (Alpine Container)
         if: ${{ matrix.is_alpine }}
         run: |
           docker run --rm \
@@ -78,35 +76,17 @@ jobs:
             --workdir /workspace \
             mcr.microsoft.com/dotnet/sdk:10.0-alpine \
             sh -c "apk add --no-cache clang build-base zlib-dev && \
-                   dotnet publish src/SupercellProxy.Capture/SupercellProxy.Capture.csproj \
+                   dotnet publish src/SupercellProxy.Keys/SupercellProxy.Keys.csproj \
                    -c Release \
                    -r ${{ matrix.rid }} \
-                   -o ./publish/proxy/${{ matrix.rid }} && \
-                   dotnet publish src/SupercellProxy.Server/SupercellProxy.Server.csproj \
-                   -c Release -r ${{ matrix.rid }} -o ./publish/server/${{ matrix.rid }} && \
-                   dotnet publish src/SupercellProxy.PublicKeyExtractor/SupercellProxy.PublicKeyExtractor.csproj \
-                   -c Release \
-                   -r ${{ matrix.rid }} \
-                   -o ./publish/key-extractor/${{ matrix.rid }}"
+                   -o ./publish/keys/${{ matrix.rid }}"
 
-      - name: Upload Proxy Build Artifact
+      - name: Upload Keys Build Artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: proxy-${{ matrix.rid }}
-          path: ./publish/proxy/${{ matrix.rid }}
+          name: keys-${{ matrix.rid }}
+          path: ./publish/keys/${{ matrix.rid }}
 
-      - name: Upload Server Build Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: server-${{ matrix.rid }}
-          path: ./publish/server/${{ matrix.rid }}
-
-      - name: Upload Key Extractor Build Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: key-extractor-${{ matrix.rid }}
-          path: ./publish/key-extractor/${{ matrix.rid }}
-          
   compress_and_upload:
     name: Compress and Upload Release Archives
     needs: publish
@@ -121,23 +101,21 @@ jobs:
         shell: bash
         run: |
           mkdir -p ./release-archives
-          
-          for project in proxy server key-extractor; do
-            for rid_dir in ./artifacts/${project}-*/; do
-              [ -d "$rid_dir" ] || continue
-              rid=$(basename "$rid_dir" | sed "s/^${project}-//")
-              
-              architectureFilter="--x86"
-              if [[ "$rid" == *"arm64"* ]]; then
-                  architectureFilter="--arm64"
-              elif [[ "$rid" == *"arm"* ]]; then
-                  architectureFilter="--arm"
-              fi
-              
-              cd "$rid_dir"
-              env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/${project}-${rid}.tar.xz" .
-              cd "$OLDPWD"
-            done
+
+          for rid_dir in ./artifacts/keys-*/; do
+            [ -d "$rid_dir" ] || continue
+            rid=$(basename "$rid_dir" | sed 's/^keys-//')
+
+            architectureFilter="--x86"
+            if [[ "$rid" == *"arm64"* ]]; then
+                architectureFilter="--arm64"
+            elif [[ "$rid" == *"arm"* ]]; then
+                architectureFilter="--arm"
+            fi
+
+            cd "$rid_dir"
+            env XZ_OPT="$architectureFilter -9e -T0" tar -cJf "../../release-archives/keys-${rid}.tar.xz" .
+            cd "$OLDPWD"
           done
 
       - name: Upload Compressed Archives
