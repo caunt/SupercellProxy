@@ -73,7 +73,7 @@ internal static class PrimitiveCommandSchemas
                 59,
                 61,
                 63,
-                64,
+                MineCommandType,
                 65,
                 66,
                 HireBoyCommandType,

@@ -252,6 +252,11 @@ public static class CommandRegistry
     public const int MarkTruckOrdersSeenCommandType = 26;
 
     /// <summary>
+    /// Provides the Mine Command Type value or operation.
+    /// </summary>
+    public const int MineCommandType = 64;
+
+    /// <summary>
     /// Provides the Movie Ticket Ad Watched Command Type value or operation.
     /// </summary>
     public const int MovieTicketAdWatchedCommandType = 510;
