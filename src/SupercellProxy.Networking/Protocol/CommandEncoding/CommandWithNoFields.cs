@@ -81,7 +81,7 @@ public sealed record CommandWithNoFields : Command
         652,
         CommandRegistry.CompleteBoyInteractionCommandType,
         659,
-        660,
+        CommandRegistry.CollectHelperAreaCommandType,
         662,
         CommandRegistry.AdvanceBoatStateCommandType,
         664,

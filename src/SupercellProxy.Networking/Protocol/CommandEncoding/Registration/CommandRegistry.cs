@@ -141,6 +141,11 @@ public static class CommandRegistry
     public const int CollectGiftCommandType = 105;
 
     /// <summary>
+    /// Provides the Collect Helper Area Command Type value or operation.
+    /// </summary>
+    public const int CollectHelperAreaCommandType = 660;
+
+    /// <summary>
     /// Provides the Collect Mystery Box Reward Command Type value or operation.
     /// </summary>
     public const int CollectMysteryBoxRewardCommandType = 48;

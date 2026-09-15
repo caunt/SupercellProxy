@@ -259,6 +259,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TimerSnapshot? GrowTimer { get; init; }
 
+    /// <summary>Gets the retained helper-area item list.</summary>
+    [JsonPropertyName("ItemList")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HelperAreaItemListSnapshot? HelperAreaItemList { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">HireEnded</c> value.
     /// </summary>
