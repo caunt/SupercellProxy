@@ -17,9 +17,17 @@ public sealed record MovieTicketEventDefinition
     [JsonPropertyName("RewardSetForcedNonSpender")]
     public MovieTicketRewardDefinition[] ForcedNonSpenderRewards { get; init; } = [];
 
+    /// <summary>Gets the ForcedSpenderRewards value.</summary>
+    [JsonPropertyName("RewardSetForcedSpender")]
+    public MovieTicketRewardDefinition[] ForcedSpenderRewards { get; init; } = [];
+
     /// <summary>Gets the MoviesCycle value.</summary>
     [JsonPropertyName("MoviesCycle")]
     public MovieTicketCycleDefinition[] MoviesCycle { get; init; } = [];
+
+    /// <summary>Gets the SpenderMoviesCycle value.</summary>
+    [JsonPropertyName("MoviesCycleSpender")]
+    public MovieTicketCycleDefinition[] SpenderMoviesCycle { get; init; } = [];
 
     /// <summary>Gets the RandomNonSpenderRewards value.</summary>
     [JsonPropertyName("RewardRandomSetNonSpender")]
@@ -32,6 +40,14 @@ public sealed record MovieTicketEventDefinition
     /// <summary>Gets the SeasonalCurrency value.</summary>
     [JsonPropertyName("SeasonalCurrency")]
     public MovieTicketCurrencyDefinition? SeasonalCurrency { get; init; }
+
+    /// <summary>Gets the SpenderDailyAds value.</summary>
+    [JsonPropertyName("DailyAdsSpender")]
+    public int SpenderDailyAds { get; init; }
+
+    /// <summary>Gets the RandomSpenderRewards value.</summary>
+    [JsonPropertyName("RewardRandomSetSpender")]
+    public MovieTicketRewardDefinition[] RandomSpenderRewards { get; init; } = [];
 
     /// <summary>Gets the UseSameCycleForSpender value.</summary>
     [JsonPropertyName("useSameCycleForSpender")]

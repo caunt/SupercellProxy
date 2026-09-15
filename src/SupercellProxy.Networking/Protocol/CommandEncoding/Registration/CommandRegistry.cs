@@ -56,9 +56,9 @@ public static class CommandRegistry
     public const int ClaimAchievementRewardCommandType = 51;
 
     /// <summary>
-    /// Provides the Claim Chain Offer Command Type value or operation.
+    /// Provides the Claim Chain Offer Step Command Type value or operation.
     /// </summary>
-    public const int ClaimChainOfferCommandType = 624;
+    public const int ClaimChainOfferStepCommandType = 691;
 
     /// <summary>
     /// Provides the Claim Decision Box Command Type value or operation.
@@ -164,6 +164,11 @@ public static class CommandRegistry
     public const int ConstructGameObjectCommandType = 577;
 
     /// <summary>
+    /// Provides the Discard Mystery Box Command Type value or operation.
+    /// </summary>
+    public const int DiscardMysteryBoxCommandType = 45;
+
+    /// <summary>
     /// Provides the Dismiss Farm Pass Notification Command Type value or operation.
     /// </summary>
     public const int DismissFarmPassNotificationCommandType = 333;
@@ -190,6 +195,11 @@ public static class CommandRegistry
     /// Provides the Load Farm Layouts Command Type value or operation.
     /// </summary>
     public const int LoadFarmLayoutsCommandType = 743;
+
+    /// <summary>
+    /// Provides the Mark Chain Offer Seen Command Type value or operation.
+    /// </summary>
+    public const int MarkChainOfferSeenCommandType = 624;
 
     /// <summary>
     /// Provides the Mark Chronos Event Ui Opened Command Type value or operation.

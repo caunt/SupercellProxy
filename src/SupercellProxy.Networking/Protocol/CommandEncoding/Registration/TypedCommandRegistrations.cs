@@ -197,6 +197,14 @@ internal static class TypedCommandRegistrations
             Factory: static (stream, environment, unusedParameter2) =>
                 ClaimDecisionBoxCommand.Decode(stream, environment)
         ),
+        [ClaimChainOfferStepCommandType] = new CommandRegistryEntry(
+            Type: typeof(ClaimChainOfferStepCommand),
+            IsServerCommand: false,
+            BaseFirst: true,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                ClaimChainOfferStepCommand.Decode(stream, environment)
+        ),
         [CollectTruckDeliveryRewardsCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectTruckDeliveryRewardsCommand),
             IsServerCommand: false,
