@@ -13,6 +13,7 @@ using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Forestry;
 using SupercellProxy.Networking.Protocol.GameObjects;
 using SupercellProxy.Networking.Protocol.Gifts;
+using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
@@ -300,6 +301,14 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
                 CollectBuildingProductCommand.Decode(stream, environment)
+        ),
+        [CollectGathererNestCommandType] = new CommandRegistryEntry(
+            Type: typeof(CollectGathererNestCommand),
+            IsServerCommand: false,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                CollectGathererNestCommand.Decode(stream, environment)
         ),
         [StartBuildingProductionCommandType] = new CommandRegistryEntry(
             Type: typeof(StartBuildingProductionCommand),

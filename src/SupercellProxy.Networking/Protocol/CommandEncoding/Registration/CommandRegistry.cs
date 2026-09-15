@@ -126,6 +126,11 @@ public static class CommandRegistry
     public const int CollectBuildingProductCommandType = 518;
 
     /// <summary>
+    /// Provides the Collect Gatherer Nest Command Type value or operation.
+    /// </summary>
+    public const int CollectGathererNestCommandType = 156;
+
+    /// <summary>
     /// Provides the Collect Gift Command Type value or operation.
     /// </summary>
     public const int CollectGiftCommandType = 105;
