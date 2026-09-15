@@ -56,7 +56,7 @@ public sealed record CommandWithNoFields : Command
         CommandRegistry.RejectBoyOfferCommandType,
         CommandRegistry.StartWheelSpinCommandType,
         CommandRegistry.CloseWheelCarCommandType,
-        592,
+        CommandRegistry.MarkMapGameSunPointsSeenCommandType,
         593,
         595,
         CommandRegistry.MarkNeighborhoodTasksSeenCommandType,

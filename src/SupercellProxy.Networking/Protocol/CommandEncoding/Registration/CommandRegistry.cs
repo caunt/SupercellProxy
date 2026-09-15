@@ -237,6 +237,11 @@ public static class CommandRegistry
     public const int MarkFarmPassTasksSeenCommandType = 539;
 
     /// <summary>
+    /// Provides the Mark Map Game Sun Points Seen Command Type value or operation.
+    /// </summary>
+    public const int MarkMapGameSunPointsSeenCommandType = 592;
+
+    /// <summary>
     /// Provides the Mark Neighborhood Tasks Seen Command Type value or operation.
     /// </summary>
     public const int MarkNeighborhoodTasksSeenCommandType = 596;

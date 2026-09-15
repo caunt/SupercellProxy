@@ -1,3 +1,4 @@
+using SupercellProxy.Networking.Protocol.MapGame.Fuel;
 using SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 using System.Text.Json.Serialization;
@@ -13,6 +14,9 @@ public sealed record MapGameSnapshot
     /// Gets the Event value.
     /// </summary>
     public int Event { get; init; }
+
+    /// <summary>Gets the retained Valley fuel-generator state.</summary>
+    public MapGameFuelManagerSnapshot? FuelManager { get; init; }
 
     /// <summary>
     /// Gets the retained <c language="csharp">MapGameManager</c> state.
