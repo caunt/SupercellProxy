@@ -187,7 +187,6 @@ internal static class PrimitiveCommandSchemas
                 259,
                 260,
                 264,
-                343,
                 363,
             ],
             new CommandFieldType[2],

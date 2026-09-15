@@ -15,6 +15,9 @@ public static class CommandRegistry
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
 
+    /// <summary>Provides the Activate Farm Pass Perk Command Type.</summary>
+    public const int ActivateFarmPassPerkCommandType = 343;
+
     /// <summary>
     /// Provides the Activate Movie Ticket Command Type value or operation.
     /// </summary>

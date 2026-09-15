@@ -38,6 +38,14 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [ActivateFarmPassPerkCommandType] = new CommandRegistryEntry(
+            Type: typeof(ActivateFarmPassPerkCommand),
+            IsServerCommand: false,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                ActivateFarmPassPerkCommand.Decode(stream, environment)
+        ),
         [RoadsidePurchaseServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsidePurchaseServerCommand),
             IsServerCommand: true,
