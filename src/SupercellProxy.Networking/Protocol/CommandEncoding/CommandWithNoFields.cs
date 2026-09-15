@@ -28,7 +28,7 @@ public sealed record CommandWithNoFields : Command
         524,
         526,
         527,
-        528,
+        CommandRegistry.ClientCommand528Type,
         529,
         CommandRegistry.HomeLoadedCommandType,
         533,

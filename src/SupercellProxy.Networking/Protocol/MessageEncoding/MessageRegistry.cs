@@ -174,6 +174,9 @@ public static class MessageRegistry
         [key: 29247] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound29247Message), Factory: Clientbound29247Message.Create)
         { CaptureName = "Clientbound29247Message" },
 
+        [key: 29275] = new MessageRegistryEntry(Version: 0, Type: typeof(ScidJwtMessage), Factory: ScidJwtMessage.Create)
+        { CaptureName = "ScidJwtMessage" },
+
         [key: 29415] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound29415Message), Factory: Clientbound29415Message.Create)
         { CaptureName = "Clientbound29415Message" },
 

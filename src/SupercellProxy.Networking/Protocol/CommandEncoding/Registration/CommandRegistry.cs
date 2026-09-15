@@ -36,6 +36,11 @@ public static class CommandRegistry
     public const int BaseEventSceneCommandType = 637;
 
     /// <summary>
+    /// Provides the Buy Crop Seeds Command Type value or operation.
+    /// </summary>
+    public const int BuyCropSeedsCommandType = 665;
+
+    /// <summary>
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
@@ -51,14 +56,29 @@ public static class CommandRegistry
     public const int ClaimAchievementRewardCommandType = 51;
 
     /// <summary>
+    /// Provides the Claim Chain Offer Command Type value or operation.
+    /// </summary>
+    public const int ClaimChainOfferCommandType = 624;
+
+    /// <summary>
     /// Provides the Claim Decision Box Command Type value or operation.
     /// </summary>
     public const int ClaimDecisionBoxCommandType = 610;
 
     /// <summary>
+    /// Provides the Claim Deco Sticker Book Collection Reward Command Type value or operation.
+    /// </summary>
+    public const int ClaimDecoStickerBookCollectionRewardCommandType = 626;
+
+    /// <summary>
     /// Provides the Claim Event Board Seen Reward Command Type value or operation.
     /// </summary>
     public const int ClaimEventBoardSeenRewardCommandType = 534;
+
+    /// <summary>
+    /// Provides the Claim Farm Pass Reward By Level Command Type value or operation.
+    /// </summary>
+    public const int ClaimFarmPassRewardByLevelCommandType = 336;
 
     /// <summary>
     /// Provides the Claim Farm Pass Reward Command Type value or operation.
@@ -79,6 +99,11 @@ public static class CommandRegistry
     /// Provides the client command 33 type. The native semantics are unestablished; the proven wire shape is one variable int.
     /// </summary>
     public const int ClientCommand33Type = 33;
+
+    /// <summary>
+    /// Provides the client command 528 type. The native semantics are unestablished; the proven wire shape has no fields.
+    /// </summary>
+    public const int ClientCommand528Type = 528;
 
     /// <summary>
     /// Provides the client command 686 type. The native semantics are unestablished; the proven wire shape is one variable-int array.
@@ -258,6 +283,11 @@ public static class CommandRegistry
     /// Provides the Remote Order Updates Server Command Type value or operation.
     /// </summary>
     public const int RemoteOrderUpdatesServerCommandType = 263;
+
+    /// <summary>
+    /// Provides the Remove New Shop Items Command Type value or operation.
+    /// </summary>
+    public const int RemoveNewShopItemsCommandType = 601;
 
     /// <summary>
     /// Provides the Request Newspaper Command Type value or operation.
