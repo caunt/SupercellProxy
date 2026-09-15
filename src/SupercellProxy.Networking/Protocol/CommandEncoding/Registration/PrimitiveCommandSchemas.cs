@@ -49,7 +49,7 @@ internal static class PrimitiveCommandSchemas
         new( [ 525, 625 ], [ CommandFieldType.Boolean, CommandFieldType.VariableInt ] ),
         new( [ 679 ], [ CommandFieldType.String, CommandFieldType.VariableInt ] ),
         new( [ 560 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ] ),
-        new( [ 501, 523, 550, 568, 607, 620, 621, 642, 650, 655, 658, 675 ], new CommandFieldType[2] ),
+        new( [ 501, 523, 550, 568, 607, 620, 621, 642, 650, 655, 658 ], new CommandFieldType[2] ),
         new([ 608, 666 ], new CommandFieldType[3]),
         new( [ 839 ], [ CommandFieldType.Boolean, CommandFieldType.Boolean ], isServerCommand: true ),
         new( [ 130, SetBoyOfferFlagCommandType, 196 ], [ CommandFieldType.Boolean ], isServerCommand: false, baseFirst: false ),

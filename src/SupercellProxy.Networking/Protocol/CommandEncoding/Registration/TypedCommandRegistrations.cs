@@ -326,6 +326,14 @@ internal static class TypedCommandRegistrations
             Factory: static (stream, environment, unusedParameter2) =>
                 CompleteForestClearingCommand.Decode(stream, environment)
         ),
+        [CollectFruitCommandType] = new CommandRegistryEntry(
+            Type: typeof(CollectFruitCommand),
+            IsServerCommand: false,
+            BaseFirst: true,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                CollectFruitCommand.Decode(stream, environment)
+        ),
         [StartForestClearingCommandType] = new CommandRegistryEntry(
             Type: typeof(StartForestClearingCommand),
             IsServerCommand: false,
