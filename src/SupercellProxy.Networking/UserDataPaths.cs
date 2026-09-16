@@ -1,4 +1,3 @@
-using SupercellProxy.Networking.Sessions;
 
 namespace SupercellProxy.Networking;
 
@@ -18,8 +17,6 @@ public static class UserDataPaths
     /// <summary>Gets the shared directory for retained proxy captures.</summary>
     public static string CaptureDirectoryPath { get; } = Path.Combine(RootDirectoryPath, CaptureDirectoryName);
 
-    /// <summary>Gets the shared client-session ledger path.</summary>
-    public static string SessionLedgerFilePath { get; } = Path.Combine(RootDirectoryPath, ClientSessionLedger.DefaultFileName);
 
     private static string CreateRootDirectoryPath()
     {

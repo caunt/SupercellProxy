@@ -7,7 +7,6 @@ using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Client;
@@ -39,7 +38,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         _serverKeys = serverKeys;
         _timeProvider = timeProvider;
         _logger = logger;
-        _authenticator = new ClientAuthenticator(this, new SessionTokenRefresher(webClient, timeProvider), new GameAssetCache(webClient, () => Configuration.AssetDirectory));
+        _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
     /// <summary>Creates a protocol client over an existing stream, including offline streams.</summary>
@@ -58,7 +57,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         _serverKeys = serverKeys;
         _timeProvider = timeProvider;
         _logger = logger;
-        _authenticator = new ClientAuthenticator(this, new SessionTokenRefresher(webClient, timeProvider), new GameAssetCache(webClient, () => Configuration.AssetDirectory));
+        _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
     /// <summary>Gets the authenticated or externally supplied message stream.</summary>
@@ -132,21 +131,6 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     public Task SendAsync(IMessage message, CancellationToken cancellationToken = default)
     {
         return Stream.WriteMessageAsync(message, cancellationToken);
-    }
-
-    /// <summary>Authenticates a supplied session without persisting it or starting normal gameplay traffic.</summary>
-    /// <returns>The validated session, including any refreshed session-token material.</returns>
-    public async Task<ClientSession> ValidateSessionAsync(ClientSession session, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            return await _authenticator.ValidateSessionAsync(session, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-        }
-        finally
-        {
-            await DisconnectAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-        }
     }
 
     internal async Task DisconnectAsync(CancellationToken cancellationToken = default)

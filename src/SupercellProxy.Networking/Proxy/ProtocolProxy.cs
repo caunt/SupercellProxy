@@ -7,9 +7,7 @@ using Microsoft.Extensions.Options;
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
-using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -25,7 +23,6 @@ public sealed partial class ProtocolProxy(
     IServerPublicKeySource serverKeys,
     ILogger<ProtocolProxy> logger,
     TimeProvider timeProvider,
-    ProtocolClientFactory protocolClients,
     ICommandDataResolver? commandDataResolver = null,
     Func<TcpClient, ProxyCaptureWriter, ICommandDataResolver?, CancellationToken, ValueTask<IAsyncDisposable>>? captureSession = null
 )
@@ -43,7 +40,6 @@ public sealed partial class ProtocolProxy(
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
-        ClientSessionLedger sessionLedger = new(configuration.SessionLedgerPath);
 
         if (configuration.AssetDirectory is { } directory)
         {
@@ -63,7 +59,7 @@ public sealed partial class ProtocolProxy(
 
         using CancellationTokenSource lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        await RunConnectionsAsync(listener, configuration, sessionLedger, lifetime).ConfigureAwait(continueOnCapturedContext: false);
+        await RunConnectionsAsync(listener, configuration, lifetime).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Saving proxy traffic to {CaptureDirectory}")]
@@ -93,7 +89,7 @@ public sealed partial class ProtocolProxy(
     [LoggerMessage(Level = LogLevel.Warning, Message = "Login rejected: {Reason}")]
     private static partial void LogLoginRejected(ILogger logger, string reason);
 
-    private async Task HandleClientAsync(TcpClient socketClient, ProxyConfiguration configuration, ClientSessionLedger sessionLedger, CancellationToken cancellationToken)
+    private async Task HandleClientAsync(TcpClient socketClient, ProxyConfiguration configuration, CancellationToken cancellationToken)
     {
         string remoteEndPoint = socketClient.GetRemoteEndPoint();
 
@@ -101,7 +97,7 @@ public sealed partial class ProtocolProxy(
         {
             try
             {
-                await RunClientAsync(socketClient, configuration, sessionLedger, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await RunClientAsync(socketClient, configuration, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -118,12 +114,7 @@ public sealed partial class ProtocolProxy(
         }
     }
 
-    private async Task RunClientAsync(
-        TcpClient socketClient,
-        ProxyConfiguration configuration,
-        ClientSessionLedger sessionLedger,
-        CancellationToken cancellationToken = default
-    )
+    private async Task RunClientAsync(TcpClient socketClient, ProxyConfiguration configuration, CancellationToken cancellationToken = default)
     {
         string remoteEndPoint = socketClient.GetRemoteEndPoint();
         LogIncomingConnection(logger, remoteEndPoint);
@@ -141,44 +132,13 @@ public sealed partial class ProtocolProxy(
 
         try
         {
-            if (configuration.SessionAccountIdentifier is { } selectedAccount)
-            {
-                if (!LongIdentifier.TryParse(selectedAccount, out LongIdentifier accountIdentifier))
-                    throw new InvalidDataException(message: "The selected proxy account is invalid.");
-
-                ClientSession selected = await sessionLedger.GetSessionAsync(accountIdentifier, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false)
-                    ?? throw new InvalidDataException(message: "The selected proxy session is unavailable.");
-
-                ClientConfiguration authentication = new(
-                    configuration.UpstreamHost,
-                    configuration.UpstreamPort,
-                    configuration.Protocol,
-                    selectedAccount,
-                    sessionLedger.FilePath,
-                    BootstrapFingerprintSha: null,
-                    AssetDirectory: configuration.AssetDirectory
-                );
-
-                ProtocolClient validator = protocolClients.Create(authentication);
-
-                await using (validator.ConfigureAwait(continueOnCapturedContext: false))
-                {
-                    ClientSession validated = await validator.ValidateSessionAsync(selected, cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    await sessionLedger.UpdateSessionAsync(validated, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                }
-            }
-
             ProxyConnection client = await ProxyConnection
                 .ConnectAsync(
                     socketClient,
                     configuration.UpstreamHost,
                     configuration.UpstreamPort,
                     trafficCapture,
-                    sessionLedger,
-                    configuration.SessionAccountIdentifier,
+                    configuration.SessionTokenProvider,
                     serverKeys,
                     _commandDataResolver,
                     logger,
@@ -209,7 +169,7 @@ public sealed partial class ProtocolProxy(
         }
     }
 
-    private async Task RunConnectionsAsync(TcpListener listener, ProxyConfiguration configuration, ClientSessionLedger sessionLedger, CancellationTokenSource lifetime)
+    private async Task RunConnectionsAsync(TcpListener listener, ProxyConfiguration configuration, CancellationTokenSource lifetime)
     {
         List<Task> connections = [];
 
@@ -227,7 +187,7 @@ public sealed partial class ProtocolProxy(
                         connections.RemoveAt(index);
                 }
 
-                connections.Add(HandleClientAsync(client, configuration, sessionLedger, lifetime.Token));
+                connections.Add(HandleClientAsync(client, configuration, lifetime.Token));
             }
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested)

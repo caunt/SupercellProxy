@@ -1,145 +1,48 @@
-using Microsoft.Extensions.Logging;
-
-using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
-using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
 
-internal sealed partial class ProxyHandshake(ClientSessionLedger sessionLedger, string? sessionAccountIdentifier, ILogger? logger, string remoteEndPoint)
+internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider)
 {
-    private LoginMessage? _loginMessage;
-    private LoginOkMessage? _loginOkMessage;
-
     internal async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken)
     {
-        switch (@event.Message)
+        if (@event.Message is LoginMessage login && @event.Direction is MessageDirection.Serverbound && sessionTokenProvider is not null)
         {
-            case LoginMessage loginMessage when @event.Direction is MessageDirection.Serverbound:
-                {
-                    if (sessionAccountIdentifier is not null)
-                    {
-                        bool validAccountIdentifier = LongIdentifier.TryParse(sessionAccountIdentifier, out LongIdentifier parsed)
-                            && parsed != LongIdentifier.Empty;
+            SessionTokenData token = await sessionTokenProvider(arg1: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-                        LongIdentifier accountIdentifier = validAccountIdentifier
-                            ? parsed
-                            : throw new InvalidDataException(message: "The selected proxy session account identifier is invalid.");
+            SessionTokenData.ValidateAuthentication(token, TimeProvider.System);
 
-                        ClientSession session =
-                            await sessionLedger.GetSessionAsync(accountIdentifier, cancellationToken)
-                                .ConfigureAwait(continueOnCapturedContext: false)
-                            ?? throw new InvalidDataException($"The selected proxy session does not exist in {sessionLedger.FilePath}.");
-
-                        if (logger is not null)
-                            LogSessionReplacement(logger, remoteEndPoint, session.FarmName, session.AccountIdentifier);
-
-                        loginMessage.AccountIdentifier = session.AccountIdentifier;
-                        loginMessage.PassToken = session.PassToken;
-                        loginMessage.AppStore = session.AppStore;
-                        loginMessage.SessionToken = session.SessionToken;
-                    }
-
-                    _loginMessage = loginMessage;
-
-                    break;
-                }
-            case ServerHelloMessage serverHelloMessage:
-                {
-                    await @event
-                        .Source.SetupEncryptionAsync(RemotePeerRole.Server, serverHelloMessage.SessionKey, cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    break;
-                }
-            default:
-                break;
+            login.AccountIdentifier = LongIdentifier.Empty;
+            login.PassToken = null;
+            login.SessionToken = token;
+        }
+        else if (@event.Message is ServerHelloMessage hello)
+        {
+            await @event.Source.SetupEncryptionAsync(RemotePeerRole.Server, hello.SessionKey, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 
     internal async Task OnMessageSentEventAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
     {
-        switch (@event.Message)
+        if (@event.Message is ServerHelloMessage hello)
         {
-            case LoginFailedMessage loginFailedMessage
-                when @event.Direction is MessageDirection.Clientbound && _loginMessage is not null:
-                {
-                    _loginMessage = null;
-                    _loginOkMessage = null;
-
-                    throw new LoginException(loginFailedMessage);
-                }
-            case LoginOkMessage loginOkMessage
-                when @event.Direction is MessageDirection.Clientbound && _loginMessage is not null:
-                {
-                    _loginOkMessage = loginOkMessage;
-
-                    break;
-                }
-            case OwnHomeDataMessage ownHomeDataMessage
-                when @event.Direction is MessageDirection.Clientbound:
-                {
-                    if (_loginMessage is not { } loginMessage || _loginOkMessage is not { } loginOkMessage)
-                        break;
-
-                    _loginMessage = null;
-                    _loginOkMessage = null;
-                    ClientSession session;
-
-                    try
-                    {
-                        session = ClientSession.FromLoginOutcome(loginMessage, loginOkMessage, ownHomeDataMessage);
-                    }
-                    catch (UnauthorizedAccessException exception) when (sessionAccountIdentifier is null)
-                    {
-                        if (logger is not null)
-                            LogSessionImportSkipped(logger, exception);
-
-                        break;
-                    }
-
-                    if (sessionAccountIdentifier is null)
-                    {
-                        await sessionLedger.RecordLoginAsync(loginMessage, loginOkMessage, ownHomeDataMessage, cancellationToken)
-                            .ConfigureAwait(continueOnCapturedContext: false);
-
-                        break;
-                    }
-
-                    bool sessionAdded = await sessionLedger.TryAddAsync(session, cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    if (!sessionAdded)
-                    {
-                        await sessionLedger.UpdateSessionAsync(session, cancellationToken)
-                            .ConfigureAwait(continueOnCapturedContext: false);
-                    }
-
-                    break;
-                }
-            case ServerHelloMessage serverHelloMessage:
-                {
-                    await @event
-                        .Destination.SetupEncryptionAsync(RemotePeerRole.Client, serverHelloMessage.SessionKey, cancellationToken)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    break;
-                }
-            default:
-                break;
+            await @event.Destination.SetupEncryptionAsync(RemotePeerRole.Client, hello.SessionKey, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
+        else if (@event.Message is LoginFailedMessage failure && @event.Direction is MessageDirection.Clientbound)
+        {
+            if (failure.ErrorCode is LoginFailureType.InvalidToken && sessionTokenProvider is not null)
+            {
+                SessionTokenData refreshed = await sessionTokenProvider(arg1: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
+                SessionTokenData.ValidateAuthentication(refreshed, TimeProvider.System);
+            }
+
+            throw new Client.LoginException(failure);
+        }
     }
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping session-ledger import for the pass-through connection because returned credentials differ; traffic recording continues.")]
-    private static partial void LogSessionImportSkipped(ILogger logger, Exception exception);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Replacing the session for incoming client {RemoteEndPoint} with farm {FarmName} ({AccountIdentifier}).")]
-    private static partial void LogSessionReplacement(ILogger logger, string remoteEndPoint, string farmName, LongIdentifier accountIdentifier);
-
 }

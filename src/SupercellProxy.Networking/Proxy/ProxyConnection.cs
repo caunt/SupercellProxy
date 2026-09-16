@@ -29,8 +29,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     private ProxyConnection(
         TcpClient socketClient,
         ProxyCaptureWriter trafficCapture,
-        ClientSessionLedger sessionLedger,
-        string? sessionAccountIdentifier,
+        Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider,
         ILogger? logger,
         CancellationToken cancellationToken
     )
@@ -44,7 +43,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         TrafficCapture = trafficCapture;
         RemoteEndPoint = socketClient.GetRemoteEndPoint();
-        _handshake = new ProxyHandshake(sessionLedger, sessionAccountIdentifier, logger, RemoteEndPoint);
+        _handshake = new ProxyHandshake(sessionTokenProvider);
     }
 
     /// <summary>
@@ -103,8 +102,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         string upstreamHost,
         int upstreamPort,
         ProxyCaptureWriter trafficCapture,
-        ClientSessionLedger sessionLedger,
-        string? sessionAccountIdentifier = null,
+        Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider = null,
         IServerPublicKeySource? serverKeys = null,
         ICommandDataResolver? commandDataResolver = null,
         ILogger? logger = null,
@@ -112,8 +110,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     )
     {
         ArgumentNullException.ThrowIfNull(socketClient);
-        ArgumentNullException.ThrowIfNull(sessionLedger);
-        ProxyConnection client = new(socketClient, trafficCapture, sessionLedger, sessionAccountIdentifier, logger, cancellationToken);
+        ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, cancellationToken);
 
         try
         {

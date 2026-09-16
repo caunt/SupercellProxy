@@ -97,7 +97,7 @@ public sealed record LoginMessage : IMessage
     /// <summary>
     /// Gets or sets the decoded Supercell ID session token, or null when the wire field is absent.
     /// </summary>
-    public LoginSessionToken? SessionToken { get; set; }
+    public SessionTokenData? SessionToken { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">StorefrontCountryCode</c> value.
@@ -153,7 +153,7 @@ public sealed record LoginMessage : IMessage
             IdentifierForVendor = container.Payload.ReadString(),
             AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(container.Payload.ReadInt32()),
             SessionToken = container.Payload.ReadOptionalByteArray() is { } compressedData
-                ? LoginSessionToken.Decode(compressedData)
+                ? SessionTokenData.Decode(compressedData)
                 : null,
             StorefrontCountryCode = container.Payload.ReadString(),
             StorefrontIdentifier = container.Payload.ReadString(),

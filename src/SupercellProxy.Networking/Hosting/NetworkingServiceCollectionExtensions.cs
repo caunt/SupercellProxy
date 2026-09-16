@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
-using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Proxy;
 
@@ -31,11 +30,7 @@ public static class NetworkingServiceCollectionExtensions
                 $"{nameof(ClientOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}."
             )
             .Validate(static value => value.Protocol is not null, $"{nameof(ClientOptions.Protocol)} is required.")
-            .Validate(
-                static value => LongIdentifier.TryParse(value.SessionAccountIdentifier, out LongIdentifier accountIdentifier)
-                    && accountIdentifier != LongIdentifier.Empty,
-                $"{nameof(ClientOptions.SessionAccountIdentifier)} must be a valid nonempty account tag."
-            )
+            .Validate(static value => value.SessionTokenProvider is not null, failureMessage: "A session-token provider is required.")
             .ValidateOnStart();
 
         if (configure is not null)
@@ -72,12 +67,6 @@ public static class NetworkingServiceCollectionExtensions
                 $"{nameof(ProxyOptions.ListenPort)} must be between 0 and {IPEndPoint.MaxPort}."
             )
             .Validate(static value => value.Protocol is not null, $"{nameof(ProxyOptions.Protocol)} is required.")
-            .Validate(
-                static value => value.SessionAccountIdentifier is null
-                    || (LongIdentifier.TryParse(value.SessionAccountIdentifier, out LongIdentifier accountIdentifier)
-                        && accountIdentifier != LongIdentifier.Empty),
-                $"{nameof(ProxyOptions.SessionAccountIdentifier)} must be null or a valid nonempty account tag."
-            )
             .ValidateOnStart();
 
         if (configure is not null)

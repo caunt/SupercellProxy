@@ -3,6 +3,7 @@
 /SupercellProxy.Buyer/
 /SupercellProxy.Capture/
 /SupercellProxy.Replay/
+/SupercellProxy.Ledger/
 
 # Local sessions, captures, and game bundles.
 sc-client-session*.json

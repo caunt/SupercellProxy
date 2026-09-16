@@ -1,3 +1,4 @@
+using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Transport;
 
@@ -15,11 +16,8 @@ public sealed class ClientOptions
     /// <summary>Gets or sets the upstream hostname or IP address.</summary>
     public string UpstreamHost { get; set; } = ConnectionAddressResolver.DefaultUpstreamHost;
 
-    /// <summary>Gets or sets the account tag selected from the session ledger.</summary>
-    public string SessionAccountIdentifier { get; set; } = string.Empty;
-
-    /// <summary>Gets or sets the optional client session ledger path.</summary>
-    public string? SessionLedgerPath { get; set; }
+    /// <summary>Gets or sets the session-token source; its boolean requests a forced refresh.</summary>
+    public Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider { get; set; }
 
     /// <summary>Gets or sets the upstream TCP port.</summary>
     public int UpstreamPort { get; set; } = ConnectionAddressResolver.DefaultPort;
@@ -29,6 +27,6 @@ public sealed class ClientOptions
 
     internal ClientConfiguration ToConfiguration()
     {
-        return new(UpstreamHost, UpstreamPort, Protocol, SessionAccountIdentifier, SessionLedgerPath, BootstrapFingerprintSha, AssetDirectory);
+        return new(UpstreamHost, UpstreamPort, Protocol, SessionTokenProvider, BootstrapFingerprintSha, AssetDirectory);
     }
 }

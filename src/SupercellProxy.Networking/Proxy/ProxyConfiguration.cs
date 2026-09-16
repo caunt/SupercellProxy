@@ -1,3 +1,4 @@
+using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Protocol.Authentication;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -11,8 +12,7 @@ public sealed record ProxyConfiguration(
     string ListenAddress,
     int ListenPort,
     ProtocolConfiguration Protocol,
-    string? SessionAccountIdentifier = null,
-    string? SessionLedgerPath = null,
+    Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider = null,
     string? CaptureDirectory = null,
     string? AssetDirectory = null
 );

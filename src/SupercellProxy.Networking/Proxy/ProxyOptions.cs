@@ -1,3 +1,4 @@
+using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Transport;
 
@@ -21,11 +22,8 @@ public sealed class ProxyOptions
     /// <summary>Gets or sets the local listener IP address.</summary>
     public string ListenAddress { get; set; } = ConnectionAddressResolver.DefaultListenHost;
 
-    /// <summary>Gets or sets the optional ledger account tag to inject.</summary>
-    public string? SessionAccountIdentifier { get; set; }
-
-    /// <summary>Gets or sets the optional client session ledger path.</summary>
-    public string? SessionLedgerPath { get; set; }
+    /// <summary>Gets or sets the session-token source; its boolean requests a forced refresh.</summary>
+    public Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider { get; set; }
 
     /// <summary>Gets or sets the local port; zero requests an ephemeral port.</summary>
     public int ListenPort { get; set; } = ConnectionAddressResolver.DefaultPort;
@@ -35,16 +33,6 @@ public sealed class ProxyOptions
 
     internal ProxyConfiguration ToConfiguration()
     {
-        return new(
-            UpstreamHost,
-            UpstreamPort,
-            ListenAddress,
-            ListenPort,
-            Protocol,
-            SessionAccountIdentifier,
-            SessionLedgerPath,
-            CaptureDirectory,
-            AssetDirectory
-        );
+        return new(UpstreamHost, UpstreamPort, ListenAddress, ListenPort, Protocol, SessionTokenProvider, CaptureDirectory, AssetDirectory);
     }
 }

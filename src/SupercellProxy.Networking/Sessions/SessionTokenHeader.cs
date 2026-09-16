@@ -3,17 +3,17 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Sessions;
 
 /// <summary>Describes the signed session token's algorithm, key, and media type.</summary>
-public sealed record LoginSessionHeader
+public sealed record SessionTokenHeader
 {
     /// <summary>Gets the signature algorithm.</summary>
     [JsonPropertyName("alg")]
-    public required string Algorithm { get; init; }
+    public required string Alg { get; init; }
 
     /// <summary>Gets the signing key identifier.</summary>
     [JsonPropertyName("kid")]
-    public string? KeyIdentifier { get; init; }
+    public string? Kid { get; init; }
 
     /// <summary>Gets the token media type.</summary>
     [JsonPropertyName("typ")]
-    public string? Type { get; init; }
+    public string? Typ { get; init; }
 }

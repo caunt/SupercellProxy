@@ -5,4 +5,5 @@
   <Project Path="src/SupercellProxy.Buyer/SupercellProxy.Buyer.csproj" />
   <Project Path="src/SupercellProxy.Replay/SupercellProxy.Replay.csproj" />
   <Project Path="src/SupercellProxy.Keys/SupercellProxy.Keys.csproj" />
+  <Project Path="src/SupercellProxy.Ledger/SupercellProxy.Ledger.csproj" />
 </Solution>
