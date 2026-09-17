@@ -25,7 +25,6 @@ using SupercellProxy.Networking.Protocol.Orders;
 using SupercellProxy.Networking.Protocol.PrizeWheels;
 using SupercellProxy.Networking.Protocol.Production;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
-using SupercellProxy.Networking.Protocol.ScalarPayloads;
 using SupercellProxy.Networking.Protocol.ShopEvents;
 using SupercellProxy.Networking.Protocol.Town;
 using SupercellProxy.Networking.Protocol.Tutorials;
@@ -38,6 +37,27 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [CancelRoadsideListingCommandType] = new CommandRegistryEntry(
+            Type: typeof(CancelRoadsideListingCommand),
+            IsServerCommand: false,
+            BaseFirst: true,
+            FieldSchemas: null,
+            Factory: static (stream, environment, resolver) => CancelRoadsideListingCommand.Decode(stream, environment)
+        ),
+        [AdvertiseRoadsideListingCommandType] = new CommandRegistryEntry(
+            Type: typeof(AdvertiseRoadsideListingCommand),
+            IsServerCommand: false,
+            BaseFirst: true,
+            FieldSchemas: null,
+            Factory: static (stream, environment, resolver) => AdvertiseRoadsideListingCommand.Decode(stream, environment)
+        ),
+        [RoadsidePurchaseRejectedServerCommandType] = new CommandRegistryEntry(
+            Type: typeof(RoadsidePurchaseRejectedServerCommand),
+            IsServerCommand: true,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, resolver) => RoadsidePurchaseRejectedServerCommand.Decode(stream, environment)
+        ),
         [ActivateFarmPassPerkCommandType] = new CommandRegistryEntry(
             Type: typeof(ActivateFarmPassPerkCommand),
             IsServerCommand: false,
@@ -422,7 +442,7 @@ internal static class TypedCommandRegistrations
             Factory: static (stream, environment, unusedParameter2) =>
                 LoadFarmLayoutsServerCommand.Decode(stream, environment)
         ),
-        [CreateRoadsideListingCommand.CommandType] = new CommandRegistryEntry(
+        [CommandRegistry.CreateRoadsideListingCommandType] = new CommandRegistryEntry(
             Type: typeof(CreateRoadsideListingCommand),
             IsServerCommand: false,
             BaseFirst: true,
@@ -454,12 +474,12 @@ internal static class TypedCommandRegistrations
             Factory: static (stream, environment, unusedParameter2) =>
                 RequestRoadsidePurchaseCommand.Decode(stream, environment)
         ),
-        [key: 210] = new CommandRegistryEntry(
-            Type: typeof(ServerCommand210),
+        [RoadsideFriendCountServerCommandType] = new CommandRegistryEntry(
+            Type: typeof(RoadsideFriendCountServerCommand),
             IsServerCommand: true,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) => ServerCommand210.Decode(stream, environment)
+            Factory: static (stream, environment, unusedParameter2) => RoadsideFriendCountServerCommand.Decode(stream, environment)
         ),
         [key: 274] = new CommandRegistryEntry(
             Type: typeof(MapGameEventsServerCommand),
@@ -578,15 +598,15 @@ internal static class TypedCommandRegistrations
             Factory: static (stream, environment, unusedParameter2) =>
                 FinishTutorialCommand.Decode(stream, environment)
         ),
-        [key: 649] = new CommandRegistryEntry(
-            Type: typeof(RoadsideReceiptCommand),
+        [CommandRegistry.CollectRoadsideSaleProceedsCommandType] = new CommandRegistryEntry(
+            Type: typeof(CollectRoadsideSaleProceedsCommand),
             IsServerCommand: false,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
-                RoadsideReceiptCommand.Decode(stream, environment)
+                CollectRoadsideSaleProceedsCommand.Decode(stream, environment)
         ),
-        [key: 375] = new CommandRegistryEntry(
+        [CommandRegistry.RoadsideSaleServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsideSaleServerCommand),
             IsServerCommand: true,
             BaseFirst: false,

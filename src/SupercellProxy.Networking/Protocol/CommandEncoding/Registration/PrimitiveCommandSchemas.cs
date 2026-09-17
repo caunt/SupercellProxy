@@ -8,7 +8,6 @@ internal static class PrimitiveCommandSchemas
     [
         new(
             [
-                511,
                 512,
                 516,
                 519,
@@ -21,7 +20,6 @@ internal static class PrimitiveCommandSchemas
                 565,
                 569,
                 576,
-                589,
                 597,
                 602,
                 605,
@@ -530,20 +528,6 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
             ],
             isServerCommand: false,
-            baseFirst: false
-        ),
-        new(
-            [ 309 ],
-            [
-                CommandFieldType.LongIdentifier,
-                CommandFieldType.LongIdentifier,
-                CommandFieldType.Int32,
-                CommandFieldType.Int32,
-                CommandFieldType.Int32,
-                CommandFieldType.Int32,
-                CommandFieldType.VariableInt,
-            ],
-            isServerCommand: true,
             baseFirst: false
         ),
         new(

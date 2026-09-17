@@ -12,11 +12,17 @@ public sealed record MapGameTaskGroup
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskGroup"/> instance.
     /// </summary>
-    public MapGameTaskGroup(long unknown0, ReadOnlyMemory<MapGameTask> tasks)
+    public MapGameTaskGroup(long ownerKey, ReadOnlyMemory<MapGameTask> tasks)
     {
-        Unknown0 = unknown0;
+        OwnerKey = ownerKey;
         Tasks = tasks.ToArray();
     }
+
+    /// <summary>
+    /// Gets the <c language="csharp">OwnerKey</c> value.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
+    public long OwnerKey { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">Tasks</c> value.
@@ -24,24 +30,19 @@ public sealed record MapGameTaskGroup
     public ReadOnlyMemory<MapGameTask> Tasks { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
-    /// </summary>
-    public long Unknown0 { get; }
-
-    /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
     public static MapGameTaskGroup Decode(MessageStream stream, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        long unknown0 = stream.ReadInt64();
+        long ownerKey = stream.ReadInt64();
         int taskCount = MapGameFieldCodec.ReadCount(stream, name: "task-group task");
         MapGameTask[] tasks = new MapGameTask[taskCount];
 
         for (int index = 0; index < tasks.Length; index++)
             tasks[index] = MapGameTask.Decode(stream, dataResolver);
 
-        return new MapGameTaskGroup(unknown0, tasks);
+        return new MapGameTaskGroup(ownerKey, tasks);
     }
 
     /// <summary>
@@ -50,7 +51,7 @@ public sealed record MapGameTaskGroup
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteInt64(Unknown0);
+        stream.WriteInt64(OwnerKey);
         stream.WriteVariableInt(Tasks.Length);
 
         foreach (MapGameTask task in Tasks.Span)

@@ -89,6 +89,9 @@ public sealed record CommonAvatarDataSnapshot
     /// </summary>
     [JsonPropertyName("LogicReEngagementFlowManager")]
     public ReengagementFlowSnapshot? ReengagementFlow { get; init; }
+    /// <summary>Inventory-owned roadside listing cancellation history.</summary>
+    [JsonPropertyName("LogicInventory")]
+    public RoadsideShops.RoadsideCancellationSnapshot? RoadsideCancellation { get; init; }
     /// <summary>
     /// Gets the Truck Track Manager value.
     /// </summary>

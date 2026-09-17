@@ -6,6 +6,11 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record CustomizationManagerSnapshot
 {
     /// <summary>
+    /// Gets or sets the retained customization random state.
+    /// </summary>
+    public int? Seed { get; init; }
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">StockSeconds</c> value.
     /// </summary>
     public int StockSeconds { get; init; }

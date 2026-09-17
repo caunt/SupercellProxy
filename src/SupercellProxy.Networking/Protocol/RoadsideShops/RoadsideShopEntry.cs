@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// </summary>
 public sealed record RoadsideShopEntry(
     [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier? BuyerIdentifier,
-    bool IsSold,
+    bool IsAdvertised,
     int Price,
     int Quantity,
     [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier
@@ -22,7 +22,7 @@ public sealed record RoadsideShopEntry(
     /// <summary>
     /// Gets the Is Available value.
     /// </summary>
-    public bool IsAvailable => ItemGlobalIdentifier is not 0 && Quantity > 0 && !IsSold && !HasBuyer;
+    public bool IsAvailable => ItemGlobalIdentifier is not 0 && Quantity > 0 && !HasBuyer;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -47,7 +47,7 @@ public sealed record RoadsideShopEntry(
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteOptionalLongIdentifier(BuyerIdentifier);
-        stream.WriteBoolean(IsSold);
+        stream.WriteBoolean(IsAdvertised);
         stream.WriteVariableInt(Price);
         stream.WriteVariableInt(Quantity);
         stream.WriteVariableInt(ItemGlobalIdentifier);

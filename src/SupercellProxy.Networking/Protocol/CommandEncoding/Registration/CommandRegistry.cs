@@ -32,6 +32,8 @@ public static class CommandRegistry
     /// Provides the Advance Reengagement Flow Command Type value or operation.
     /// </summary>
     public const int AdvanceReengagementFlowCommandType = 684;
+    /// <summary>Advertises an existing roadside listing.</summary>
+    public const int AdvertiseRoadsideListingCommandType = 511;
 
     /// <summary>
     /// Provides the Base Event Scene Command Type value or operation.
@@ -47,6 +49,9 @@ public static class CommandRegistry
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
+
+    /// <summary>Cancels an unsold roadside listing.</summary>
+    public const int CancelRoadsideListingCommandType = 589;
 
     /// <summary>
     /// Provides the Check Mystery Box Lock Command Type value or operation.
@@ -152,6 +157,8 @@ public static class CommandRegistry
     /// Provides the Collect Mystery Box Reward Command Type value or operation.
     /// </summary>
     public const int CollectMysteryBoxRewardCommandType = 48;
+    /// <summary>Collects the proceeds of a sold roadside listing.</summary>
+    public const int CollectRoadsideSaleProceedsCommandType = 649;
 
     /// <summary>
     /// Provides the Collect Truck Delivery Rewards Command Type value or operation.
@@ -180,6 +187,8 @@ public static class CommandRegistry
     /// Provides the Construct Game Object Command Type value or operation.
     /// </summary>
     public const int ConstructGameObjectCommandType = 577;
+    /// <summary>Creates a roadside listing.</summary>
+    public const int CreateRoadsideListingCommandType = 574;
 
     /// <summary>
     /// Provides the Discard Mystery Box Command Type value or operation.
@@ -294,6 +303,9 @@ public static class CommandRegistry
     /// </summary>
     public const int PurchaseLivestockAnimalCommandType = 641;
 
+    /// <summary>Purchases one roadside advertisement credit.</summary>
+    public const int PurchaseRoadsideAdvertisementCreditCommandType = 555;
+
     /// <summary>
     /// Provides the Record Event Seen Command Type value or operation.
     /// </summary>
@@ -341,10 +353,18 @@ public static class CommandRegistry
     /// </summary>
     public const int ResetWheelCarCommandType = 517;
 
+    /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
+    public const int RoadsideFriendCountServerCommandType = 210;
+
+    /// <summary>Identifies the roadside purchase notification delivered to the client listener.</summary>
+    public const int RoadsidePurchaseRejectedServerCommandType = 309;
+
     /// <summary>
     /// Provides the Roadside Purchase Server Command Type value or operation.
     /// </summary>
     public const int RoadsidePurchaseServerCommandType = 243;
+    /// <summary>Records a roadside listing's buyer.</summary>
+    public const int RoadsideSaleServerCommandType = 375;
 
     /// <summary>
     /// Provides the Roadside Stock Server Command Type value or operation.
@@ -404,6 +424,9 @@ public static class CommandRegistry
     /// Provides the Tree Revival Server Command Type value or operation.
     /// </summary>
     public const int TreeRevivalServerCommandType = 328;
+
+    /// <summary>Unlocks the next roadside stand using diamonds.</summary>
+    public const int UnlockRoadsideStandCommandType = 631;
 
     /// <summary>
     /// Provides the Update Task Event State Command Type value or operation.

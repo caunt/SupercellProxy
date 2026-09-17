@@ -26,6 +26,9 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// Gets the optional bonus reward data-table identifier.
     public int? BonusReward { get; init; }
 
+    /// Gets whether the order's bonus reward is enabled.
+    public bool? BonusRewardEnabled { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Cash</c> value.
     /// </summary>
@@ -79,7 +82,7 @@ public sealed record OrderSnapshot : ExtensibleDocument
 
     /// Gets the optional reviver avatar identifier.
     [JsonPropertyName("ReviverAvatarId")]
-    public string? ReviverAvatarIdentifier { get; init; }
+    public EncodedDocumentValue? ReviverAvatarIdentifier { get; init; }
 
     /// Gets the seasonal-currency bonus marker.
     [JsonPropertyName("seasonalCurrencyBonus")]

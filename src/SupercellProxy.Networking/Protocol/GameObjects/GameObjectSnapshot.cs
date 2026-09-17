@@ -29,12 +29,18 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">AdsSpins</c> value.
     /// </summary>
     public int AdsSpins { get; init; }
+    /// <summary>Gets per-stand roadside advertisement timers, in native timer ticks.</summary>
+    [JsonPropertyName("AdTimers")]
+    public int[]? AdvertisementTimers { get; init; }
 
 
 
     /// <summary>Gets the retained AnimalHabitatIndex value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimalHabitatIndex { get; init; }
+    /// <summary>Gets per-stand automatic-buyer timers for a roadside shop.</summary>
+    [JsonPropertyName("AITimer")]
+    public int[] AutomaticBuyerTimers { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">BeatsTimer</c> value.
@@ -48,7 +54,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>
     /// Gets or sets the <c language="csharp">BoosterList</c> value.
     /// </summary>
-    public BoosterSnapshot[]? BoosterList { get; init; }
+    public BoosterListSnapshot? BoosterList { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">BoughtSpins</c> value.
@@ -154,6 +160,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the prices generated for the Boy's current offers.</summary>
     public int[] FoundItemPrices { get; init; } = [];
+    /// <summary>Gets the roadside free-advertisement cooldown.</summary>
+    [JsonPropertyName("FreeAdTimer")]
+    public TimerSnapshot? FreeAdvertisementTimer { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
@@ -305,6 +314,8 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">JackpotCount</c> value.
     /// </summary>
     public int JackpotCount { get; init; }
+    /// <summary>Gets the last roadside advertisement timestamp.</summary>
+    public long LastAdvertisementTimestamp { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.

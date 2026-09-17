@@ -10,8 +10,8 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 public sealed record MapGameTaskState(
     [property: System.Text.Json.Serialization.JsonPropertyName("TaskGlobalId")] int TaskGlobalIdentifier,
-    LongIdentifier? Unknown0,
-    bool UnknownBoolean0,
+    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown0")] LongIdentifier? AvatarIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownBoolean0")] bool Completed,
     MapGameTaskStatePayload Payload,
     bool UnknownBoolean1
 )
@@ -25,8 +25,8 @@ public sealed record MapGameTaskState(
     {
         ArgumentNullException.ThrowIfNull(stream);
         int taskGlobalIdentifier = stream.ReadVariableInt();
-        LongIdentifier? unknown0 = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        bool unknownBoolean0 = stream.ReadBoolean();
+        LongIdentifier? avatarIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
+        bool completed = stream.ReadBoolean();
 
         if (dataResolver is null)
             throw new NotSupportedException(message: "Map-game task-state decoding requires the live native data-table resolver.");
@@ -44,7 +44,7 @@ public sealed record MapGameTaskState(
         MapGameTaskStatePayload payload = MapGameTaskStatePayload.Decode(taskType, stream);
         bool unknownBoolean1 = stream.ReadBoolean();
 
-        return new MapGameTaskState(taskGlobalIdentifier, unknown0, unknownBoolean0, payload, unknownBoolean1);
+        return new MapGameTaskState(taskGlobalIdentifier, avatarIdentifier, completed, payload, unknownBoolean1);
     }
 
     /// <summary>
@@ -54,8 +54,8 @@ public sealed record MapGameTaskState(
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteVariableInt(TaskGlobalIdentifier);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, Unknown0);
-        stream.WriteBoolean(UnknownBoolean0);
+        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, AvatarIdentifier);
+        stream.WriteBoolean(Completed);
         Payload.Encode(stream);
         stream.WriteBoolean(UnknownBoolean1);
     }

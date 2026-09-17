@@ -67,6 +67,21 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         field
         ?? throw new InvalidOperationException(message: "This client has no online configuration.");
 
+    /// <summary>Creates an anonymous account for this connection without requesting or retaining its home state.</summary>
+    public async Task<ClientLoginResult> ConnectAnonymousAsync(CancellationToken cancellationToken = default)
+    {
+        if (_login is not null)
+            return _login;
+
+        LogAuthenticating(_logger);
+        _login = await _authenticator.LoginAnonymousAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        if (_login.Resources.Length > 0)
+            Stream.CommandDataResolver = new DataTableResolver(_login.Resources);
+
+        return _login;
+    }
+
     /// <summary>Connects, authenticates, and configures all asset-dependent message codecs.</summary>
     public async Task<ClientLoginResult> ConnectAsync(CancellationToken cancellationToken = default)
     {

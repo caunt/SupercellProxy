@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 
@@ -68,7 +69,7 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
     public int SlotIndex { get; }
 
     /// <inheritdoc />
-    public override int Type => 375;
+    public override int Type => CommandRegistry.RoadsideSaleServerCommandType;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

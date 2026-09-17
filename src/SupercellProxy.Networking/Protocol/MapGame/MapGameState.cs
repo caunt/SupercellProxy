@@ -17,15 +17,15 @@ public sealed record MapGameState
         ReadOnlyMemory<MapGamePawn> pawns,
         ReadOnlyMemory<MapGameTaskGroup> taskGroups,
         MapGameConfiguration configuration,
-        ReadOnlyMemory<MapGameStateEntry> entries,
-        int unknownGlobalIdentifier
+        ReadOnlyMemory<MapGameNodeEmoji> emojis,
+        int mapGlobalIdentifier
     )
     {
         Pawns = pawns.ToArray();
         TaskGroups = taskGroups.ToArray();
         Configuration = configuration;
-        Entries = entries.ToArray();
-        UnknownGlobalIdentifier = unknownGlobalIdentifier;
+        Emojis = emojis.ToArray();
+        MapGlobalIdentifier = mapGlobalIdentifier;
     }
 
     /// <summary>
@@ -34,9 +34,16 @@ public sealed record MapGameState
     public MapGameConfiguration Configuration { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Entries</c> value.
+    /// Gets the <c language="csharp">Emojis</c> value.
     /// </summary>
-    public ReadOnlyMemory<MapGameStateEntry> Entries { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("Entries")]
+    public ReadOnlyMemory<MapGameNodeEmoji> Emojis { get; init; }
+
+    /// <summary>
+    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
+    public int MapGlobalIdentifier { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Pawns</c> value.
@@ -47,12 +54,6 @@ public sealed record MapGameState
     /// Gets the <c language="csharp">TaskGroups</c> value.
     /// </summary>
     public ReadOnlyMemory<MapGameTaskGroup> TaskGroups { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int UnknownGlobalIdentifier { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -74,12 +75,12 @@ public sealed record MapGameState
 
         MapGameConfiguration configuration = MapGameConfiguration.Decode(stream);
         int entryCount = MapGameFieldCodec.ReadCount(stream, name: "state entry");
-        MapGameStateEntry[] entries = new MapGameStateEntry[entryCount];
+        MapGameNodeEmoji[] emojis = new MapGameNodeEmoji[entryCount];
 
-        for (int index = 0; index < entries.Length; index++)
-            entries[index] = MapGameStateEntry.Decode(stream);
+        for (int index = 0; index < emojis.Length; index++)
+            emojis[index] = MapGameNodeEmoji.Decode(stream);
 
-        return new MapGameState(pawns, taskGroups, configuration, entries, stream.ReadVariableInt());
+        return new MapGameState(pawns, taskGroups, configuration, emojis, stream.ReadVariableInt());
     }
 
     /// <summary>
@@ -99,11 +100,11 @@ public sealed record MapGameState
             taskGroup.Encode(stream);
 
         Configuration.Encode(stream);
-        stream.WriteVariableInt(Entries.Length);
+        stream.WriteVariableInt(Emojis.Length);
 
-        foreach (MapGameStateEntry entry in Entries.Span)
+        foreach (MapGameNodeEmoji entry in Emojis.Span)
             entry.Encode(stream);
 
-        stream.WriteVariableInt(UnknownGlobalIdentifier);
+        stream.WriteVariableInt(MapGlobalIdentifier);
     }
 }

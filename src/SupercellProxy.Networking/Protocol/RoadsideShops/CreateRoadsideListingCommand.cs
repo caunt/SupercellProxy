@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 
@@ -9,11 +10,6 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// </summary>
 public sealed record CreateRoadsideListingCommand : Command
 {
-    /// <summary>
-    /// Provides the Command Type value or operation.
-    /// </summary>
-    public const int CommandType = 574;
-
     /// <summary>
     /// Provides the Create Roadside Listing Command value or operation.
     /// </summary>
@@ -67,7 +63,7 @@ public sealed record CreateRoadsideListingCommand : Command
     /// <summary>
     /// Gets the Type value.
     /// </summary>
-    public override int Type => CommandType;
+    public override int Type => CommandRegistry.CreateRoadsideListingCommandType;
 
     /// <summary>
     /// Gets the Use Primary Inventory value.

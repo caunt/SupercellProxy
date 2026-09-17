@@ -11,17 +11,23 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
-    /// <summary>Identifies the first replay-proven pawn/task event variant.</summary>
-    public const int PawnTaskType6 = 6;
 
-    /// <summary>Identifies the second replay-proven pawn/task event variant.</summary>
-    public const int PawnTaskType7 = 7;
+    /// <summary>Adds an emoji to a map node.</summary>
+    public const int NodeEmojiAddedType = 22;
+    /// <summary>Expires an existing personal task using the server's task state.</summary>
+    public const int PawnTaskExpiredType = 6;
 
-    /// <summary>Identifies the third replay-proven pawn/task event variant.</summary>
-    public const int PawnTaskType8 = 8;
+    /// <summary>Replaces a personal task at its map node.</summary>
+    public const int PawnTaskUpdatedType = 8;
+
+    /// <summary>Replaces a task in the shared task group.</summary>
+    public const int SharedTaskUpdatedType = 11;
 
     /// <summary>Identifies a shared map-game state synchronization event.</summary>
     public const int StateSynchronizationType = 1;
+
+    /// <summary>Removes an existing task from its owner or shared group.</summary>
+    public const int TaskRemovedType = 7;
 
     private static readonly Dictionary<int, MapGameEventFieldSchema[]> Schemas = CreateSchemas();
 
@@ -134,12 +140,12 @@ public sealed record MapGameEvent
             ];
             schemas[key: 4] = pawnAndTask;
             schemas[key: 5] = [logicLong, variableInt, variableInt];
-            schemas[key: PawnTaskType6] = pawnAndTask;
-            schemas[key: PawnTaskType7] = pawnAndTask;
-            schemas[key: PawnTaskType8] = pawnAndTask;
+            schemas[key: PawnTaskExpiredType] = pawnAndTask;
+            schemas[key: TaskRemovedType] = pawnAndTask;
+            schemas[key: PawnTaskUpdatedType] = pawnAndTask;
             schemas[key: 9] = pawnAndTask;
             schemas[key: 10] = pawnAndTask;
-            schemas[key: 11] = pawnAndTask;
+            schemas[key: SharedTaskUpdatedType] = pawnAndTask;
             schemas[key: 12] = pawnAndTask;
             schemas[key: 13] = pawnAndTask;
             schemas[key: 14] = [optionalPawn, optionalTask, variableInt];
@@ -161,7 +167,7 @@ public sealed record MapGameEvent
         void AddRemainingSchemas()
         {
             schemas[key: 21] = [optionalPawn, optionalTask, optionalVariableIntArray];
-            schemas[key: 22] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
+            schemas[key: NodeEmojiAddedType] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
             schemas[key: 23] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 24] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 25] = [optionalLongIdentifier, variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 162)];

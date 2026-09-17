@@ -14,99 +14,107 @@ public sealed record MapGamePawn
     /// Initializes a new <see cref="MapGamePawn"/> instance.
     /// </summary>
     public MapGamePawn(
-        LongIdentifier? unknownLongIdentifier0,
-        LongIdentifier? unknownLongIdentifier1,
-        int unknown0,
-        int unknown1,
-        int unknown2,
-        int unknown3,
-        int unknown4,
+        LongIdentifier? avatarIdentifier,
+        LongIdentifier? neighborhoodIdentifier,
+        int experienceLevel,
+        int currentNodeIdentifier,
+        int emptyNodesTravelled,
+        int emptyNodesTravelledDeliveringAnimals,
+        int emptyNodesTravelledDeliveringAnimalsImmunity,
         ReadOnlyMemory<int> unknownValues,
-        ReadOnlyMemory<int> unknownGlobalIdentifiers,
-        string? unknownString,
-        MapGamePawnNestedData? unknownNestedData,
+        ReadOnlyMemory<int> selectedOptions,
+        string? name,
+        MapGamePawnEmblem? emblem,
         int unknownGlobalIdentifier,
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> unknownPairs
+        ReadOnlyMemory<CommandDataReferenceVariableIntPair> notifications
     )
     {
-        UnknownLongIdentifier0 = unknownLongIdentifier0;
-        UnknownLongIdentifier1 = unknownLongIdentifier1;
-        Unknown0 = unknown0;
-        Unknown1 = unknown1;
-        Unknown2 = unknown2;
-        Unknown3 = unknown3;
-        Unknown4 = unknown4;
+        AvatarIdentifier = avatarIdentifier;
+        NeighborhoodIdentifier = neighborhoodIdentifier;
+        ExperienceLevel = experienceLevel;
+        CurrentNodeIdentifier = currentNodeIdentifier;
+        EmptyNodesTravelled = emptyNodesTravelled;
+        EmptyNodesTravelledDeliveringAnimals = emptyNodesTravelledDeliveringAnimals;
+        EmptyNodesTravelledDeliveringAnimalsImmunity = emptyNodesTravelledDeliveringAnimalsImmunity;
         UnknownValues = unknownValues.ToArray();
-        UnknownGlobalIdentifiers = unknownGlobalIdentifiers.ToArray();
-        UnknownString = unknownString;
-        UnknownNestedData = unknownNestedData;
+        SelectedOptions = selectedOptions.ToArray();
+        Name = name;
+        Emblem = emblem;
         UnknownGlobalIdentifier = unknownGlobalIdentifier;
-        UnknownPairs = unknownPairs.ToArray();
+        Notifications = notifications.ToArray();
     }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
+    /// Gets the <c language="csharp">UnknownLongId0</c> value.
     /// </summary>
-    public int Unknown0 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
+    public LongIdentifier? AvatarIdentifier { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown1</c> value.
+    /// Gets the <c language="csharp">CurrentNodeIdentifier</c> value.
     /// </summary>
-    public int Unknown1 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown1")]
+    public int CurrentNodeIdentifier { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown2</c> value.
+    /// Gets the participant's emblem.
     /// </summary>
-    public int Unknown2 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownNestedData")]
+    public MapGamePawnEmblem? Emblem { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown3</c> value.
+    /// Gets the number of empty nodes travelled.
     /// </summary>
-    public int Unknown3 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown2")]
+    public int EmptyNodesTravelled { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown4</c> value.
+    /// Gets the number of empty nodes travelled while delivering animals.
     /// </summary>
-    public int Unknown4 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown3")]
+    public int EmptyNodesTravelledDeliveringAnimals { get; }
+
+    /// <summary>
+    /// Gets the animal-delivery empty-node immunity counter.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown4")]
+    public int EmptyNodesTravelledDeliveringAnimalsImmunity { get; }
+
+    /// <summary>
+    /// Gets the <c language="csharp">ExperienceLevel</c> value.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
+    public int ExperienceLevel { get; }
+
+    /// <summary>
+    /// Gets the participant's name.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownString")]
+    public string? Name { get; }
+
+    /// <summary>
+    /// Gets the participant's neighborhood identifier.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
+    public LongIdentifier? NeighborhoodIdentifier { get; }
+
+    /// <summary>
+    /// Gets the <c language="csharp">Notifications</c> value.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownPairs")]
+    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> Notifications { get; init; }
+
+    /// <summary>
+    /// Gets the selected map-game profile options.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalIds")]
+    public ReadOnlyMemory<int> SelectedOptions { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
     public int UnknownGlobalIdentifier { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalIds</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalIds")]
-    public ReadOnlyMemory<int> UnknownGlobalIdentifiers { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId0</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
-    public LongIdentifier? UnknownLongIdentifier0 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId1</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
-    public LongIdentifier? UnknownLongIdentifier1 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownNestedData</c> value.
-    /// </summary>
-    public MapGamePawnNestedData? UnknownNestedData { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownPairs</c> value.
-    /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> UnknownPairs { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownString</c> value.
-    /// </summary>
-    public string? UnknownString { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownValues</c> value.
@@ -119,34 +127,34 @@ public sealed record MapGamePawn
     public static MapGamePawn Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier? unknownLongIdentifier0 = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        LongIdentifier? unknownLongIdentifier1 = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        int unknown0 = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
-        int unknown2 = stream.ReadVariableInt();
-        int unknown3 = stream.ReadVariableInt();
-        int unknown4 = stream.ReadVariableInt();
+        LongIdentifier? avatarIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
+        LongIdentifier? neighborhoodIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
+        int experienceLevel = stream.ReadVariableInt();
+        int currentNodeIdentifier = stream.ReadVariableInt();
+        int emptyNodesTravelled = stream.ReadVariableInt();
+        int emptyNodesTravelledDeliveringAnimals = stream.ReadVariableInt();
+        int emptyNodesTravelledDeliveringAnimalsImmunity = stream.ReadVariableInt();
         int[] unknownValues = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
-        ReadOnlyMemory<int> unknownGlobalIdentifiers = CommandDataReferenceArrayField.Decode(stream).GlobalIdentifiers;
-        string? unknownString = stream.ReadBoolean() ? stream.ReadString() : null;
-        MapGamePawnNestedData? unknownNestedData = stream.ReadBoolean() ? MapGamePawnNestedData.Decode(stream) : null;
+        ReadOnlyMemory<int> selectedOptions = CommandDataReferenceArrayField.Decode(stream).GlobalIdentifiers;
+        string? name = stream.ReadBoolean() ? stream.ReadString() : null;
+        MapGamePawnEmblem? emblem = stream.ReadBoolean() ? MapGamePawnEmblem.Decode(stream) : null;
         int unknownGlobalIdentifier = stream.ReadVariableInt();
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> unknownPairs = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
+        ReadOnlyMemory<CommandDataReferenceVariableIntPair> notifications = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
 
         return new MapGamePawn(
-            unknownLongIdentifier0,
-            unknownLongIdentifier1,
-            unknown0,
-            unknown1,
-            unknown2,
-            unknown3,
-            unknown4,
+            avatarIdentifier,
+            neighborhoodIdentifier,
+            experienceLevel,
+            currentNodeIdentifier,
+            emptyNodesTravelled,
+            emptyNodesTravelledDeliveringAnimals,
+            emptyNodesTravelledDeliveringAnimalsImmunity,
             unknownValues,
-            unknownGlobalIdentifiers,
-            unknownString,
-            unknownNestedData,
+            selectedOptions,
+            name,
+            emblem,
             unknownGlobalIdentifier,
-            unknownPairs
+            notifications
         );
     }
 
@@ -156,23 +164,23 @@ public sealed record MapGamePawn
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier0);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier1);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
-        stream.WriteVariableInt(Unknown3);
-        stream.WriteVariableInt(Unknown4);
+        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, AvatarIdentifier);
+        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, NeighborhoodIdentifier);
+        stream.WriteVariableInt(ExperienceLevel);
+        stream.WriteVariableInt(CurrentNodeIdentifier);
+        stream.WriteVariableInt(EmptyNodesTravelled);
+        stream.WriteVariableInt(EmptyNodesTravelledDeliveringAnimals);
+        stream.WriteVariableInt(EmptyNodesTravelledDeliveringAnimalsImmunity);
         new CommandVariableIntArrayField(UnknownValues).Encode(stream);
-        new CommandDataReferenceArrayField(UnknownGlobalIdentifiers).Encode(stream);
-        stream.WriteBoolean(UnknownString is not null);
+        new CommandDataReferenceArrayField(SelectedOptions).Encode(stream);
+        stream.WriteBoolean(Name is not null);
 
-        if (UnknownString is not null)
-            stream.WriteString(UnknownString);
+        if (Name is not null)
+            stream.WriteString(Name);
 
-        stream.WriteBoolean(UnknownNestedData is not null);
-        UnknownNestedData?.Encode(stream);
+        stream.WriteBoolean(Emblem is not null);
+        Emblem?.Encode(stream);
         stream.WriteVariableInt(UnknownGlobalIdentifier);
-        new CommandDataReferenceVariableIntPairArrayField(UnknownPairs).Encode(stream);
+        new CommandDataReferenceVariableIntPairArrayField(Notifications).Encode(stream);
     }
 }
