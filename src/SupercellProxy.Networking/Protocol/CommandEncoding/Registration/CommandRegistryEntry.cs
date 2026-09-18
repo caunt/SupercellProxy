@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding.FieldSchemas;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
 
 
@@ -11,7 +12,7 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 /// Defines the Type contract.
 /// </summary>
 /// <summary>
-/// Defines the Is Server Command contract.
+/// Defines the Direction contract.
 /// </summary>
 /// <summary>
 /// Defines the Base First contract.
@@ -24,7 +25,7 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 /// </summary>
 public sealed record CommandRegistryEntry(
     Type Type,
-    bool IsServerCommand,
+    MessageDirection Direction,
     bool BaseFirst,
     CommandFieldSchema[]? FieldSchemas,
     Func<MessageStream, CommandEnvironment, ICommandDataResolver?, Command> Factory

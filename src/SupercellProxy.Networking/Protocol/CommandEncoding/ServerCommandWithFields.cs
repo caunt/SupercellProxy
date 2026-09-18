@@ -1,5 +1,6 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding.FieldSchemas;
 using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
 
 
@@ -25,7 +26,7 @@ public sealed record ServerCommandWithFields : ServerCommand
     )
         : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
     {
-        _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, isServerCommand: true);
+        _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, direction: MessageDirection.Clientbound);
         Type = type;
         Fields = fields.ToArray();
     }

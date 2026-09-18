@@ -10,7 +10,7 @@ public sealed record FarmPassBabyPetRewardGroup : ExtensibleDocument
     /// <summary>Gets the Collected value.</summary>
     [JsonPropertyName("rewardCollected")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool? Collected { get; init; }
+    public bool? Collected { get; set; }
 
     /// <summary>Gets the Rewards value.</summary>
     [JsonPropertyName("rewards")]

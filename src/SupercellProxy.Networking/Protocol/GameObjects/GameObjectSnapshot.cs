@@ -38,6 +38,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained AnimalHabitatIndex value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimalHabitatIndex { get; init; }
+
+    /// <summary>Gets the retained adult-pet animation index, read only when pet animation indices are part of logic.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AnimationIndex { get; init; }
     /// <summary>Gets per-stand automatic-buyer timers for a roadside shop.</summary>
     [JsonPropertyName("AITimer")]
     public int[] AutomaticBuyerTimers { get; init; } = [];
@@ -145,6 +149,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained Fed value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Fed { get; init; }
+
+    /// <summary>Gets the retained fishing-spot row this fish is attached to.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? FishingSpotIndex { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">FlashFruitIndex</c> value.
@@ -439,6 +447,16 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">PeopleQuestV2</c> value.
     /// </summary>
     public EncodedDocumentValue? PeopleQuestV2 { get; init; }
+
+    /// <summary>Gets the retained food amount of each pet-habitat bowl.</summary>
+    [JsonPropertyName("Bowls")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int[]? PetHabitatBowls { get; init; }
+
+    /// <summary>Gets the retained index of an adult pet's habitat among the home's pet habitats.</summary>
+    [JsonPropertyName("Habitat")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? PetHabitatIndex { get; init; }
 
     /// <summary>Gets the retained PetTimer value.</summary>
     [JsonPropertyName("T")]

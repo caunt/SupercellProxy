@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Protocol.MessageEncoding;
+
 using static SupercellProxy.Networking.Protocol.CommandEncoding.Registration.CommandRegistry;
 
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
@@ -40,21 +42,22 @@ internal static class PrimitiveCommandSchemas
                 693,
                 696,
             ],
-            new CommandFieldType[1]
+            new CommandFieldType[1],
+            direction: MessageDirection.Serverbound
         ),
-        new( [ 561, 585, 591, 609, 673 ], [ CommandFieldType.Boolean ] ),
-        new( [ 692 ], [ CommandFieldType.String ] ),
-        new( [ 525, 625 ], [ CommandFieldType.Boolean, CommandFieldType.VariableInt ] ),
-        new( [ 679 ], [ CommandFieldType.String, CommandFieldType.VariableInt ] ),
-        new( [ 560 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ] ),
-        new( [ 501, 523, 550, 568, 607, 620, 621, 642, 650, 655, 658 ], new CommandFieldType[2] ),
-        new([ 608, 666 ], new CommandFieldType[3]),
-        new( [ 839 ], [ CommandFieldType.Boolean, CommandFieldType.Boolean ], isServerCommand: true ),
-        new( [ 130, SetBoyOfferFlagCommandType, 196 ], [ CommandFieldType.Boolean ], isServerCommand: false, baseFirst: false ),
-        new( [ 138, 334 ], [ CommandFieldType.LongIdentifier ], isServerCommand: false, baseFirst: false ),
-        new( [ 27 ], [ CommandFieldType.Byte ], isServerCommand: false, baseFirst: false ),
-        new( [ 33 ], [ CommandFieldType.UInt16 ], isServerCommand: false, baseFirst: false ),
-        new( [ 240, 300 ], [ CommandFieldType.Int32 ], isServerCommand: false, baseFirst: false ),
+        new( [ 561, 585, 591, 609, 673 ], [ CommandFieldType.Boolean ], direction: MessageDirection.Serverbound ),
+        new( [ 692 ], [ CommandFieldType.String ], direction: MessageDirection.Serverbound ),
+        new( [ 525, 625 ], [ CommandFieldType.Boolean, CommandFieldType.VariableInt ], direction: MessageDirection.Serverbound ),
+        new( [ 679 ], [ CommandFieldType.String, CommandFieldType.VariableInt ], direction: MessageDirection.Serverbound ),
+        new( [ 560 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ], direction: MessageDirection.Serverbound ),
+        new( [ 501, 523, 550, 568, 607, 620, 621, 642, 650, 655, 658 ], new CommandFieldType[2], direction: MessageDirection.Serverbound ),
+        new([ 608, 666 ], new CommandFieldType[3], direction: MessageDirection.Serverbound),
+        new( [ 839 ], [ CommandFieldType.Boolean, CommandFieldType.Boolean ], direction: MessageDirection.Clientbound ),
+        new( [ 130, SetBoyOfferFlagCommandType, 196 ], [ CommandFieldType.Boolean ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 138, 334 ], [ CommandFieldType.LongIdentifier ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 27 ], [ CommandFieldType.Byte ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 33 ], [ CommandFieldType.UInt16 ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 240, 300 ], [ CommandFieldType.Int32 ], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [
                 6,
@@ -86,7 +89,6 @@ internal static class PrimitiveCommandSchemas
                 100,
                 101,
                 107,
-                109,
                 113,
                 115,
                 119,
@@ -137,15 +139,15 @@ internal static class PrimitiveCommandSchemas
                 394,
             ],
             new CommandFieldType[1],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 54 ], new CommandFieldType[1], isServerCommand: false, baseFirst: false ),
-        new( [ 152 ], [ CommandFieldType.VariableIntArray ], isServerCommand: false, baseFirst: false ),
-        new( [ 285, 303, 318 ], [ CommandFieldType.DataReference ], isServerCommand: false, baseFirst: false ),
-        new( [ 135 ], [ CommandFieldType.LongIdentifier ], isServerCommand: true, baseFirst: false ),
-        new( [ 38, 181, 184, 269 ], new CommandFieldType[1], isServerCommand: true, baseFirst: false ),
-        new( [ 25 ], [ CommandFieldType.VariableInt, CommandFieldType.Byte ], isServerCommand: false, baseFirst: false ),
+        new( [ 54 ], new CommandFieldType[1], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 152 ], [ CommandFieldType.VariableIntArray ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 285, 303, 318 ], [ CommandFieldType.DataReference ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 135 ], [ CommandFieldType.LongIdentifier ], direction: MessageDirection.Clientbound, baseFirst: false ),
+        new( [ 38, 181, 184, 269 ], new CommandFieldType[1], direction: MessageDirection.Clientbound, baseFirst: false ),
+        new( [ 25 ], [ CommandFieldType.VariableInt, CommandFieldType.Byte ], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 86 ],
             [
@@ -153,17 +155,26 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.DataReference,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 91 ], [ CommandFieldType.UInt16, CommandFieldType.UInt16 ], isServerCommand: false, baseFirst: false ),
-        new( [ 137 ], [ CommandFieldType.LongIdentifier, CommandFieldType.VariableInt ], isServerCommand: true, baseFirst: false ),
-        new( [ 272 ], [ CommandFieldType.OptionalLongIdentifier ], isServerCommand: true, baseFirst: false ),
-        new([24, 60, 114, 221], [CommandFieldType.VariableInt, CommandFieldType.Boolean], isServerCommand: false, baseFirst: false),
+        new( [ 91 ], [ CommandFieldType.UInt16, CommandFieldType.UInt16 ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new(
+            [ 137 ],
+            [ CommandFieldType.LongIdentifier, CommandFieldType.VariableInt ],
+            direction: MessageDirection.Clientbound,
+            baseFirst: false
+        ),
+        new( [ 272 ], [ CommandFieldType.OptionalLongIdentifier ], direction: MessageDirection.Clientbound, baseFirst: false ),
+        new(
+            [24, 60, 114, 221],
+            [CommandFieldType.VariableInt, CommandFieldType.Boolean],
+            direction: MessageDirection.Serverbound,
+            baseFirst: false
+        ),
         new(
             [
                 90,
-                112,
                 118,
                 120,
                 126,
@@ -188,7 +199,7 @@ internal static class PrimitiveCommandSchemas
                 363,
             ],
             new CommandFieldType[2],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -198,20 +209,25 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Boolean,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
-            [ 131, ClaimFarmPassRewardByLevelCommandType, UpdateTaskEventStateCommandType ],
+            [ 131, UpdateTaskEventStateCommandType ],
             [
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 104, 111, 145, 169, 250, 251, MarkTaskEventSeenCommandType ], new CommandFieldType[3], isServerCommand: false, baseFirst: false ),
+        new(
+            [ 104, 111, 145, 169, 250, 251, MarkTaskEventSeenCommandType ],
+            new CommandFieldType[3],
+            direction: MessageDirection.Serverbound,
+            baseFirst: false
+        ),
         new(
             [ 102 ],
             [
@@ -219,7 +235,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.LongIdentifier,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -229,7 +245,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.LongIdentifier,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -243,7 +259,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -253,7 +269,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.LongIdentifier,
                 CommandFieldType.LongIdentifier,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -263,7 +279,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.LongIdentifier,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -273,12 +289,22 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new([273], [CommandFieldType.OptionalLongIdentifier, CommandFieldType.VariableInt], isServerCommand: true, baseFirst: false),
-        new( [ 302 ], [ CommandFieldType.DataReference, CommandFieldType.VariableInt ], isServerCommand: false, baseFirst: false ),
-        new([384], [CommandFieldType.Int32, CommandFieldType.Int32, CommandFieldType.Int32, ], isServerCommand: true, baseFirst: false),
+        new(
+            [273],
+            [CommandFieldType.OptionalLongIdentifier, CommandFieldType.VariableInt],
+            direction: MessageDirection.Clientbound,
+            baseFirst: false
+        ),
+        new( [ 302 ], [ CommandFieldType.DataReference, CommandFieldType.VariableInt ], direction: MessageDirection.Serverbound, baseFirst: false ),
+        new(
+            [384],
+            [CommandFieldType.Int32, CommandFieldType.Int32, CommandFieldType.Int32, ],
+            direction: MessageDirection.Clientbound,
+            baseFirst: false
+        ),
         new(
             [ 110 ],
             [
@@ -287,7 +313,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -298,21 +324,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new(
-            [ 212 ],
-            [
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.Boolean,
-                CommandFieldType.Boolean,
-            ],
-            isServerCommand: false,
-            baseFirst: false
-        ),
-        new( [ 190, 319 ], new CommandFieldType[4], isServerCommand: false, baseFirst: false ),
+        new( [ 190, 319 ], new CommandFieldType[4], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 7, 85 ],
             [
@@ -322,7 +337,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.String,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -334,7 +349,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -344,10 +359,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableIntArray,
                 CommandFieldType.VariableIntArray,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 342 ], new CommandFieldType[3], isServerCommand: false, baseFirst: false ),
+        new( [ 342 ], new CommandFieldType[3], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 350 ],
             [
@@ -356,7 +371,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -367,10 +382,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 392 ], new CommandFieldType[4], isServerCommand: true, baseFirst: false ),
+        new( [ 392 ], new CommandFieldType[4], direction: MessageDirection.Clientbound, baseFirst: false ),
         new(
             [ 154, 268 ],
             [
@@ -380,7 +395,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -392,7 +407,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -404,7 +419,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.OptionalInt32String,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -424,7 +439,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Boolean,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -436,7 +451,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -450,7 +465,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.OptionalLongIdentifier,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -460,10 +475,15 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.LongIdentifier,
                 CommandFieldType.OptionalLongIdentifier,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new([205], [CommandFieldType.Byte, CommandFieldType.ByteCountedVariableIntArray, ], isServerCommand: false, baseFirst: false),
+        new(
+            [205],
+            [CommandFieldType.Byte, CommandFieldType.ByteCountedVariableIntArray, ],
+            direction: MessageDirection.Serverbound,
+            baseFirst: false
+        ),
         new(
             [ 231 ],
             [
@@ -474,7 +494,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -485,10 +505,15 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.OptionalLongIdentifier,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new([245], [CommandFieldType.Int32, CommandFieldType.String, CommandFieldType.Boolean, ], isServerCommand: true, baseFirst: false),
+        new(
+            [245],
+            [CommandFieldType.Int32, CommandFieldType.String, CommandFieldType.Boolean, ],
+            direction: MessageDirection.Clientbound,
+            baseFirst: false
+        ),
         new(
             [ 246 ],
             [
@@ -501,7 +526,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -513,7 +538,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.Int32,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -527,7 +552,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Boolean,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -546,10 +571,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.Boolean,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 325 ], [ CommandFieldType.String, CommandFieldType.Int32 ], isServerCommand: true, baseFirst: false ),
+        new( [ 325 ], [ CommandFieldType.String, CommandFieldType.Int32 ], direction: MessageDirection.Clientbound, baseFirst: false ),
         new(
             [ 331 ],
             [
@@ -562,7 +587,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -575,7 +600,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.Int32,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -588,10 +613,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Int32,
                 CommandFieldType.Int32,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 390 ], [ CommandFieldType.String ], isServerCommand: false, baseFirst: false ),
+        new( [ 390 ], [ CommandFieldType.String ], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 192 ],
             [
@@ -605,22 +630,38 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new([ 235 ], new CommandFieldType[1]),
-        new([ 270 ], new CommandFieldType[2]),
-        new([ 317 ], new CommandFieldType[4]),
-        new( [ 540, 563, 588 ], [ CommandFieldType.DataReference ] ),
-        new( [ 521 ], [ CommandFieldType.VariableInt, CommandFieldType.VariableInt, CommandFieldType.DataReference, ] ),
-        new( [ 579 ], [ CommandFieldType.VariableInt, CommandFieldType.DataReference, CommandFieldType.DataReference, ] ),
-        new( [ RemoveNewShopItemsCommandType, 670, 686 ], [ CommandFieldType.VariableIntArray ] ),
-        new( [ 226 ], [ CommandFieldType.Int32 ], isServerCommand: true ),
-        new( [ 248 ], [ CommandFieldType.Int32, CommandFieldType.VariableInt ], isServerCommand: true ),
-        new( [ 299 ], [ CommandFieldType.LongIdentifier ] ),
-        new( [ 349 ], [ CommandFieldType.String, CommandFieldType.Boolean, CommandFieldType.VariableInt, ], isServerCommand: true ),
-        new( [ 543 ], [ CommandFieldType.VariableInt, CommandFieldType.DataReference, CommandFieldType.VariableInt, ] ),
-        new( [ 552 ], [ CommandFieldType.Int32, CommandFieldType.Int32 ] ),
+        new([ 235 ], new CommandFieldType[1], direction: MessageDirection.Serverbound),
+        new([ 270 ], new CommandFieldType[2], direction: MessageDirection.Serverbound),
+        new([ 317 ], new CommandFieldType[4], direction: MessageDirection.Serverbound),
+        new( [ 540, 563, 588 ], [ CommandFieldType.DataReference ], direction: MessageDirection.Serverbound ),
+        new(
+            [ 521 ],
+            [ CommandFieldType.VariableInt, CommandFieldType.VariableInt, CommandFieldType.DataReference, ],
+            direction: MessageDirection.Serverbound
+        ),
+        new(
+            [ 579 ],
+            [ CommandFieldType.VariableInt, CommandFieldType.DataReference, CommandFieldType.DataReference, ],
+            direction: MessageDirection.Serverbound
+        ),
+        new( [ RemoveNewShopItemsCommandType, 670, 686 ], [ CommandFieldType.VariableIntArray ], direction: MessageDirection.Serverbound ),
+        new( [ 226 ], [ CommandFieldType.Int32 ], direction: MessageDirection.Clientbound ),
+        new( [ 248 ], [ CommandFieldType.Int32, CommandFieldType.VariableInt ], direction: MessageDirection.Clientbound ),
+        new( [ 299 ], [ CommandFieldType.LongIdentifier ], direction: MessageDirection.Serverbound ),
+        new(
+            [ 349 ],
+            [ CommandFieldType.String, CommandFieldType.Boolean, CommandFieldType.VariableInt, ],
+            direction: MessageDirection.Clientbound
+        ),
+        new(
+            [ 543 ],
+            [ CommandFieldType.VariableInt, CommandFieldType.DataReference, CommandFieldType.VariableInt, ],
+            direction: MessageDirection.Serverbound
+        ),
+        new( [ 552 ], [ CommandFieldType.Int32, CommandFieldType.Int32 ], direction: MessageDirection.Serverbound ),
         new(
             [ 771 ],
             [
@@ -631,7 +672,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableLong,
             ],
-            isServerCommand: true
+            direction: MessageDirection.Clientbound
         ),
         new(
             [ 39 ],
@@ -641,7 +682,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
         new(
@@ -652,7 +693,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableIntArray,
                 CommandFieldType.VariableIntArray,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -675,10 +716,14 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.Boolean,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 233 ], [ CommandFieldType.DataReference, CommandFieldType.DataReferenceArray, CommandFieldType.VariableInt, ] ),
+        new(
+            [ 233 ],
+            [ CommandFieldType.DataReference, CommandFieldType.DataReferenceArray, CommandFieldType.VariableInt, ],
+            direction: MessageDirection.Serverbound
+        ),
         new(
             [ 266 ],
             [
@@ -686,12 +731,17 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.DataReference,
                 CommandFieldType.StringArray,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 313 ], new CommandFieldType[6], isServerCommand: true ),
-        new([322], [CommandFieldType.VariableInt, CommandFieldType.DataReferenceArray, ], isServerCommand: false, baseFirst: false),
-        new( [ 344 ], [ CommandFieldType.DataReferenceVariableIntPairArray ], isServerCommand: true, baseFirst: false ),
+        new( [ 313 ], new CommandFieldType[6], direction: MessageDirection.Clientbound ),
+        new(
+            [322],
+            [CommandFieldType.VariableInt, CommandFieldType.DataReferenceArray, ],
+            direction: MessageDirection.Serverbound,
+            baseFirst: false
+        ),
+        new( [ 344 ], [ CommandFieldType.DataReferenceVariableIntPairArray ], direction: MessageDirection.Clientbound, baseFirst: false ),
         new(
             [ 366 ],
             [
@@ -702,10 +752,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableLong,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new([ 367 ], new CommandFieldType[2]),
+        new([ 367 ], new CommandFieldType[2], direction: MessageDirection.Serverbound),
         new(
             [ 368 ],
             [
@@ -716,10 +766,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableLong,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: false,
+            direction: MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new( [ 369, 370, 373, 374, 376, 377, 380 ], new CommandFieldType[1], isServerCommand: false, baseFirst: false ),
+        new( [ 369, 370, 373, 374, 376, 377, 380 ], new CommandFieldType[1], direction: MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 372 ],
             [
@@ -729,11 +779,11 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.String,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 378 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ], isServerCommand: true, baseFirst: false ),
-        new( [ 379 ], new CommandFieldType[1], isServerCommand: true, baseFirst: false ),
+        new( [ 378 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ], direction: MessageDirection.Clientbound, baseFirst: false ),
+        new( [ 379 ], new CommandFieldType[1], direction: MessageDirection.Clientbound, baseFirst: false ),
         new(
             [ VisitedBoatHelpServerCommandType, 387 ],
             [
@@ -742,7 +792,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -762,10 +812,10 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 636 ], [ CommandFieldType.VariableIntArray, CommandFieldType.VariableLongArray ] ),
+        new( [ 636 ], [ CommandFieldType.VariableIntArray, CommandFieldType.VariableLongArray ], direction: MessageDirection.Serverbound ),
         new(
             [ 134 ],
             [
@@ -782,7 +832,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(
@@ -793,7 +843,7 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,
             ],
-            isServerCommand: true,
+            direction: MessageDirection.Clientbound,
             baseFirst: false
         ),
     ];

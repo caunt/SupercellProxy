@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.Creatures;
 using SupercellProxy.Networking.Protocol.Customization;
 using SupercellProxy.Networking.Protocol.Emotes;
@@ -27,6 +28,9 @@ public sealed record CommonAvatarDataSnapshot
     /// Gets the Boat Track Manager value.
     /// </summary>
     public OrderTrackSnapshot? BoatTrackManager { get; init; }
+
+    /// <summary>Gets the retained booster manager state.</summary>
+    public BoosterManagerSnapshot? BoosterManager { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">ChronosEvents</c> value.

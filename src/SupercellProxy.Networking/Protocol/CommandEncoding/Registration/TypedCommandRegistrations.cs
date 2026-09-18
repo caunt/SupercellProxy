@@ -1,6 +1,7 @@
 using SupercellProxy.Networking.Protocol.Achievements;
 using SupercellProxy.Networking.Protocol.Animals;
 using SupercellProxy.Networking.Protocol.Boats;
+using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CropFields;
 using SupercellProxy.Networking.Protocol.Events;
@@ -10,6 +11,7 @@ using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Events.Tasks;
 using SupercellProxy.Networking.Protocol.FarmLayouts;
 using SupercellProxy.Networking.Protocol.FarmPass;
+using SupercellProxy.Networking.Protocol.Fishing;
 using SupercellProxy.Networking.Protocol.Forestry;
 using SupercellProxy.Networking.Protocol.GameObjects;
 using SupercellProxy.Networking.Protocol.Gifts;
@@ -17,6 +19,7 @@ using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.MovieTickets;
 using SupercellProxy.Networking.Protocol.MysteryBoxes;
 using SupercellProxy.Networking.Protocol.Newspapers;
@@ -37,30 +40,38 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [ActivateBoosterCommandType] = new CommandRegistryEntry(
+            Type: typeof(ActivateBoosterCommand),
+            Direction: MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                ActivateBoosterCommand.Decode(stream, environment)
+        ),
         [CancelRoadsideListingCommandType] = new CommandRegistryEntry(
             Type: typeof(CancelRoadsideListingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, resolver) => CancelRoadsideListingCommand.Decode(stream, environment)
         ),
         [AdvertiseRoadsideListingCommandType] = new CommandRegistryEntry(
             Type: typeof(AdvertiseRoadsideListingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, resolver) => AdvertiseRoadsideListingCommand.Decode(stream, environment)
         ),
         [RoadsidePurchaseRejectedServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsidePurchaseRejectedServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, resolver) => RoadsidePurchaseRejectedServerCommand.Decode(stream, environment)
         ),
         [ActivateFarmPassPerkCommandType] = new CommandRegistryEntry(
             Type: typeof(ActivateFarmPassPerkCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -68,7 +79,7 @@ internal static class TypedCommandRegistrations
         ),
         [RoadsidePurchaseServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsidePurchaseServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -76,7 +87,7 @@ internal static class TypedCommandRegistrations
         ),
         [PassengerServiceCompletionServerCommandType] = new CommandRegistryEntry(
             Type: typeof(PassengerServiceCompletionServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -84,23 +95,31 @@ internal static class TypedCommandRegistrations
         ),
         [VisitedBoatHelpRequestServerCommandType] = new CommandRegistryEntry(
             Type: typeof(VisitedBoatHelpRequestServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
                 VisitedBoatHelpRequestServerCommand.Decode(stream, environment)
         ),
-        [ClaimFarmPassRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimFarmPassRewardCommand),
-            IsServerCommand: false,
+        [ClaimFarmPassLevelRewardCommandType] = new CommandRegistryEntry(
+            Type: typeof(ClaimFarmPassLevelRewardCommand),
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
-                ClaimFarmPassRewardCommand.Decode(stream, environment)
+                ClaimFarmPassLevelRewardCommand.Decode(stream, environment)
+        ),
+        [ClaimFarmPassBabyPetRewardCommandType] = new CommandRegistryEntry(
+            Type: typeof(ClaimFarmPassBabyPetRewardCommand),
+            Direction: MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                ClaimFarmPassBabyPetRewardCommand.Decode(stream, environment)
         ),
         [DismissFarmPassNotificationCommandType] = new CommandRegistryEntry(
             Type: typeof(DismissFarmPassNotificationCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -108,7 +127,7 @@ internal static class TypedCommandRegistrations
         ),
         [VisitedBoatDepartureServerCommandType] = new CommandRegistryEntry(
             Type: typeof(VisitedBoatDepartureServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -116,7 +135,7 @@ internal static class TypedCommandRegistrations
         ),
         [VisitedBoatStateServerCommandType] = new CommandRegistryEntry(
             Type: typeof(VisitedBoatStateServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -124,7 +143,7 @@ internal static class TypedCommandRegistrations
         ),
         [RoadsideStockServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsideStockServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -132,7 +151,7 @@ internal static class TypedCommandRegistrations
         ),
         [StartTruckDeliveryCommandType] = new CommandRegistryEntry(
             Type: typeof(StartTruckDeliveryCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -140,7 +159,7 @@ internal static class TypedCommandRegistrations
         ),
         [FillBoatCrateCommandType] = new CommandRegistryEntry(
             Type: typeof(FillBoatCrateCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -148,7 +167,7 @@ internal static class TypedCommandRegistrations
         ),
         [SelectBoatOrderCommandType] = new CommandRegistryEntry(
             Type: typeof(SelectBoatOrderCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -156,7 +175,7 @@ internal static class TypedCommandRegistrations
         ),
         [CompleteConstructionCommandType] = new CommandRegistryEntry(
             Type: typeof(CompleteConstructionCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -164,7 +183,7 @@ internal static class TypedCommandRegistrations
         ),
         [ActivateMovieTicketCommandType] = new CommandRegistryEntry(
             Type: typeof(ActivateMovieTicketCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -172,7 +191,7 @@ internal static class TypedCommandRegistrations
         ),
         [RecordEventSeenCommandType] = new CommandRegistryEntry(
             Type: typeof(RecordEventSeenCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -180,7 +199,7 @@ internal static class TypedCommandRegistrations
         ),
         [ClearEventLeaderboardNotificationCommandType] = new CommandRegistryEntry(
             Type: typeof(ClearEventLeaderboardNotificationCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -188,7 +207,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkEventTasksSeenCommandType] = new CommandRegistryEntry(
             Type: typeof(MarkEventTasksSeenCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -196,7 +215,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkTaskEventOpenedCommandType] = new CommandRegistryEntry(
             Type: typeof(MarkTaskEventOpenedCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -204,7 +223,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkChronosEventUserInterfaceOpenedCommandType] = new CommandRegistryEntry(
             Type: typeof(MarkChronosEventUserInterfaceOpenedCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -212,7 +231,7 @@ internal static class TypedCommandRegistrations
         ),
         [BuySeasonalCatalogueGiftCommandType] = new CommandRegistryEntry(
             Type: typeof(BuySeasonalCatalogueGiftCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -220,7 +239,7 @@ internal static class TypedCommandRegistrations
         ),
         [ClaimDecisionBoxCommandType] = new CommandRegistryEntry(
             Type: typeof(ClaimDecisionBoxCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -228,7 +247,7 @@ internal static class TypedCommandRegistrations
         ),
         [ClaimChainOfferStepCommandType] = new CommandRegistryEntry(
             Type: typeof(ClaimChainOfferStepCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -236,7 +255,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectTruckDeliveryRewardsCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectTruckDeliveryRewardsCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -244,7 +263,7 @@ internal static class TypedCommandRegistrations
         ),
         [ConstructGameObjectCommandType] = new CommandRegistryEntry(
             Type: typeof(ConstructGameObjectCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -252,7 +271,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectWheelRewardCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectWheelRewardCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -260,7 +279,7 @@ internal static class TypedCommandRegistrations
         ),
         [ClaimAchievementRewardCommandType] = new CommandRegistryEntry(
             Type: typeof(ClaimAchievementRewardCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -268,7 +287,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectGiftCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectGiftCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -276,7 +295,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkTruckOrdersSeenCommandType] = new CommandRegistryEntry(
             Type: typeof(MarkTruckOrdersSeenCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -284,7 +303,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectMysteryBoxRewardCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectMysteryBoxRewardCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -292,7 +311,7 @@ internal static class TypedCommandRegistrations
         ),
         [OpenMysteryBoxCommandType] = new CommandRegistryEntry(
             Type: typeof(OpenMysteryBoxCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -300,7 +319,7 @@ internal static class TypedCommandRegistrations
         ),
         [CheckMysteryBoxLockCommandType] = new CommandRegistryEntry(
             Type: typeof(CheckMysteryBoxLockCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -308,7 +327,7 @@ internal static class TypedCommandRegistrations
         ),
         [UpgradeBuildingCommandType] = new CommandRegistryEntry(
             Type: typeof(UpgradeBuildingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -316,7 +335,7 @@ internal static class TypedCommandRegistrations
         ),
         [RecordStorageSignpostRankCommandType] = new CommandRegistryEntry(
             Type: typeof(RecordStorageSignpostRankCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -324,7 +343,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectBuildingProductCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectBuildingProductCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -332,15 +351,31 @@ internal static class TypedCommandRegistrations
         ),
         [CollectGathererNestCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectGathererNestCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
                 CollectGathererNestCommand.Decode(stream, environment)
         ),
+        [SetFishStateCommandType] = new CommandRegistryEntry(
+            Type: typeof(SetFishStateCommand),
+            Direction: MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                SetFishStateCommand.Decode(stream, environment)
+        ),
+        [CollectFishingSpotCommandType] = new CommandRegistryEntry(
+            Type: typeof(CollectFishingSpotCommand),
+            Direction: MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            Factory: static (stream, environment, unusedParameter2) =>
+                CollectFishingSpotCommand.Decode(stream, environment)
+        ),
         [StartBuildingProductionCommandType] = new CommandRegistryEntry(
             Type: typeof(StartBuildingProductionCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -348,7 +383,7 @@ internal static class TypedCommandRegistrations
         ),
         [CompleteForestClearingCommandType] = new CommandRegistryEntry(
             Type: typeof(CompleteForestClearingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -356,7 +391,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectFruitCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectFruitCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -364,7 +399,7 @@ internal static class TypedCommandRegistrations
         ),
         [StartForestClearingCommandType] = new CommandRegistryEntry(
             Type: typeof(StartForestClearingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -372,7 +407,7 @@ internal static class TypedCommandRegistrations
         ),
         [FeedLivestockAnimalCommandType] = new CommandRegistryEntry(
             Type: typeof(FeedLivestockAnimalCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -380,7 +415,7 @@ internal static class TypedCommandRegistrations
         ),
         [PurchaseLivestockAnimalCommandType] = new CommandRegistryEntry(
             Type: typeof(PurchaseLivestockAnimalCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -388,7 +423,7 @@ internal static class TypedCommandRegistrations
         ),
         [CollectAnimalProductCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectAnimalProductCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -396,7 +431,7 @@ internal static class TypedCommandRegistrations
         ),
         [SelectLivestockAnimalCommandType] = new CommandRegistryEntry(
             Type: typeof(SelectLivestockAnimalCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -404,7 +439,7 @@ internal static class TypedCommandRegistrations
         ),
         [ClaimEventBoardSeenRewardCommandType] = new CommandRegistryEntry(
             Type: typeof(ClaimEventBoardSeenRewardCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -412,7 +447,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkEventBoardSeenCommandType] = new CommandRegistryEntry(
             Type: typeof(MarkEventBoardSeenCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -420,7 +455,7 @@ internal static class TypedCommandRegistrations
         ),
         [RequestNewspaperCommandType] = new CommandRegistryEntry(
             Type: typeof(RequestNewspaperCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -428,7 +463,7 @@ internal static class TypedCommandRegistrations
         ),
         [PlantFieldCommandType] = new CommandRegistryEntry(
             Type: typeof(PlantFieldCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -436,7 +471,7 @@ internal static class TypedCommandRegistrations
         ),
         [LoadFarmLayoutsCommandType] = new CommandRegistryEntry(
             Type: typeof(LoadFarmLayoutsServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -444,7 +479,7 @@ internal static class TypedCommandRegistrations
         ),
         [CommandRegistry.CreateRoadsideListingCommandType] = new CommandRegistryEntry(
             Type: typeof(CreateRoadsideListingCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -452,7 +487,7 @@ internal static class TypedCommandRegistrations
         ),
         [MarkBoatSeenCommand.CommandType] = new CommandRegistryEntry(
             Type: typeof(MarkBoatSeenCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -460,7 +495,7 @@ internal static class TypedCommandRegistrations
         ),
         [SpawnAmbientAnimalCommand.CommandType] = new CommandRegistryEntry(
             Type: typeof(SpawnAmbientAnimalCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -468,7 +503,7 @@ internal static class TypedCommandRegistrations
         ),
         [RequestRoadsidePurchaseCommandType] = new CommandRegistryEntry(
             Type: typeof(RequestRoadsidePurchaseCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -476,14 +511,14 @@ internal static class TypedCommandRegistrations
         ),
         [RoadsideFriendCountServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsideFriendCountServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) => RoadsideFriendCountServerCommand.Decode(stream, environment)
         ),
         [key: 274] = new CommandRegistryEntry(
             Type: typeof(MapGameEventsServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, dataResolver) =>
@@ -491,14 +526,14 @@ internal static class TypedCommandRegistrations
         ),
         [key: 355] = new CommandRegistryEntry(
             Type: typeof(ShopEventsServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) => ShopEventsServerCommand.Decode(stream, environment)
         ),
         [key: 672] = new CommandRegistryEntry(
             Type: typeof(CollectAllLettersCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -506,7 +541,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 35] = new CommandRegistryEntry(
             Type: typeof(StartTutorialCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -514,7 +549,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 3] = new CommandRegistryEntry(
             Type: typeof(MoveGameObjectByOffsetCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -522,7 +557,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 124] = new CommandRegistryEntry(
             Type: typeof(MoveGameObjectCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -530,7 +565,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 544] = new CommandRegistryEntry(
             Type: typeof(StartHarvestFieldCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -538,7 +573,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 506] = new CommandRegistryEntry(
             Type: typeof(HarvestFieldCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -546,7 +581,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 657] = new CommandRegistryEntry(
             Type: typeof(HarvestFieldGainCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -554,14 +589,14 @@ internal static class TypedCommandRegistrations
         ),
         [key: 247] = new CommandRegistryEntry(
             Type: typeof(Command247),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) => Command247.Decode(stream, environment)
         ),
         [key: 321] = new CommandRegistryEntry(
             Type: typeof(MapGamePawnTaskCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, dataResolver) =>
@@ -569,14 +604,14 @@ internal static class TypedCommandRegistrations
         ),
         [key: 599] = new CommandRegistryEntry(
             Type: typeof(Command599),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) => Command599.Decode(stream, environment)
         ),
         [key: 694] = new CommandRegistryEntry(
             Type: typeof(PostmanStateCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -584,7 +619,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 654] = new CommandRegistryEntry(
             Type: typeof(DecorationEventTutorialCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -592,7 +627,7 @@ internal static class TypedCommandRegistrations
         ),
         [key: 34] = new CommandRegistryEntry(
             Type: typeof(FinishTutorialCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -600,7 +635,7 @@ internal static class TypedCommandRegistrations
         ),
         [CommandRegistry.CollectRoadsideSaleProceedsCommandType] = new CommandRegistryEntry(
             Type: typeof(CollectRoadsideSaleProceedsCommand),
-            IsServerCommand: false,
+            Direction: MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>
@@ -608,7 +643,7 @@ internal static class TypedCommandRegistrations
         ),
         [CommandRegistry.RoadsideSaleServerCommandType] = new CommandRegistryEntry(
             Type: typeof(RoadsideSaleServerCommand),
-            IsServerCommand: true,
+            Direction: MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             Factory: static (stream, environment, unusedParameter2) =>

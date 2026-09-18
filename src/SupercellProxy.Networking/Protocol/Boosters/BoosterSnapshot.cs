@@ -15,6 +15,9 @@ public sealed record BoosterSnapshot
     [JsonPropertyName("LogicBoosterDataGlobalID")]
     public int BoosterDataGlobalIdentifier { get; init; }
 
+    /// <summary>Gets the retained game mode the booster is active in.</summary>
+    public int GameMode { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Timer</c> value.
     /// </summary>

@@ -141,6 +141,9 @@ public static class MessageRegistry
         [key: 24180] = new MessageRegistryEntry(Version: 0, Type: typeof(OwnHomeDataMessage), Factory: OwnHomeDataMessage.Create)
         { CaptureName = "OwnHomeDataMessage" },
 
+        [key: 24222] = new MessageRegistryEntry(Version: 0, Type: typeof(FishingDataMessage), Factory: FishingDataMessage.Create)
+        { CaptureName = "FishingDataMessage" },
+
         [Clientbound28544MessageType] = new MessageRegistryEntry(Version: 0, Type: typeof(BaseHomeDataMessage), Factory: BaseHomeDataMessage.Create)
         { CaptureName = "Clientbound28544Message" },
 

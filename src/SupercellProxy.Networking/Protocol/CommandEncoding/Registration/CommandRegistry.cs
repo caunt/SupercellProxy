@@ -2,6 +2,7 @@ using System.Globalization;
 
 using SupercellProxy.Networking.Protocol.CommandEncoding.FieldSchemas;
 using SupercellProxy.Networking.Protocol.MapGame.Tasks;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
@@ -14,6 +15,9 @@ public static class CommandRegistry
     /// Provides the Acknowledge Boat Command Type value or operation.
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
+
+    /// <summary>Activates a booster held in the player's booster storage.</summary>
+    public const int ActivateBoosterCommandType = 212;
 
     /// <summary>Provides the Activate Farm Pass Perk Command Type.</summary>
     public const int ActivateFarmPassPerkCommandType = 343;
@@ -83,15 +87,11 @@ public static class CommandRegistry
     /// </summary>
     public const int ClaimEventBoardSeenRewardCommandType = 534;
 
-    /// <summary>
-    /// Provides the Claim Farm Pass Reward By Level Command Type value or operation.
-    /// </summary>
-    public const int ClaimFarmPassRewardByLevelCommandType = 336;
+    /// <summary>Provides the Claim Farm Pass Baby Pet Reward Command Type.</summary>
+    public const int ClaimFarmPassBabyPetRewardCommandType = 346;
 
-    /// <summary>
-    /// Provides the Claim Farm Pass Reward Command Type value or operation.
-    /// </summary>
-    public const int ClaimFarmPassRewardCommandType = 346;
+    /// <summary>Provides the Claim Farm Pass Level Reward Command Type.</summary>
+    public const int ClaimFarmPassLevelRewardCommandType = 336;
 
     /// <summary>
     /// Provides the Clear Event Leaderboard Notification Command Type value or operation.
@@ -132,6 +132,9 @@ public static class CommandRegistry
     /// Provides the Collect Building Product Command Type value or operation.
     /// </summary>
     public const int CollectBuildingProductCommandType = 518;
+
+    /// <summary>Collects one fish from a fishing spot.</summary>
+    public const int CollectFishingSpotCommandType = 109;
 
     /// <summary>
     /// Provides the Collect Fruit Command Type value or operation.
@@ -395,6 +398,9 @@ public static class CommandRegistry
     /// <summary>Provides the Set Boy Offer Flag Command Type.</summary>
     public const int SetBoyOfferFlagCommandType = 132;
 
+    /// <summary>Moves one fishing-area fish to the selected runtime state.</summary>
+    public const int SetFishStateCommandType = 112;
+
     /// <summary>
     /// Provides the Start Building Production Command Type value or operation.
     /// </summary>
@@ -513,9 +519,9 @@ public static class CommandRegistry
     /// <summary>
     /// Provides the Validate Fields value or operation.
     /// </summary>
-    public static bool ValidateFields(int type, ReadOnlySpan<CommandField> fields, bool isServerCommand)
+    public static bool ValidateFields(int type, ReadOnlySpan<CommandField> fields, MessageDirection direction)
     {
-        return FindEntry(type) is not { } entry || entry.IsServerCommand != isServerCommand || entry.FieldSchemas is null
+        return FindEntry(type) is not { } entry || entry.Direction != direction || entry.FieldSchemas is null
             ? throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} does not have a registered primitive field schema."))
             : !CommandFieldSchema.AreValid(entry.FieldSchemas, fields)
             ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} fields do not match the registered native schema."))
@@ -526,7 +532,7 @@ public static class CommandRegistry
         Dictionary<int, CommandRegistryEntry> entries,
         ReadOnlySpan<int> commandTypes,
         CommandFieldSchema[] fieldSchemas,
-        bool isServerCommand = false,
+        MessageDirection direction,
         bool baseFirst = true
     )
     {
@@ -536,13 +542,13 @@ public static class CommandRegistry
             entries.Add(
                 commandType,
                 new CommandRegistryEntry(
-                    Type: isServerCommand
+                    Type: direction is MessageDirection.Clientbound
                         ? typeof(ServerCommandWithFields)
                         : typeof(CommandWithFields),
-                    IsServerCommand: isServerCommand,
+                    Direction: direction,
                     BaseFirst: baseFirst,
                     FieldSchemas: fieldSchemas,
-                    Factory: isServerCommand
+                    Factory: direction is MessageDirection.Clientbound
                         ? (stream, environment, unusedParameter2) =>
                             ServerCommandWithFields.Decode(commandType, fieldSchemas, baseFirst, stream, environment)
                         : (stream, environment, unusedParameter2) =>
@@ -556,17 +562,17 @@ public static class CommandRegistry
         Dictionary<int, CommandRegistryEntry> entries,
         ReadOnlySpan<int> commandTypes,
         CommandFieldType[] fieldTypes,
-        bool isServerCommand = false,
+        MessageDirection direction,
         bool baseFirst = true
     )
     {
-        AddStructuredFieldCommands(entries, commandTypes, [.. fieldTypes.Select(CommandFieldSchema.Primitive)], isServerCommand, baseFirst);
+        AddStructuredFieldCommands(entries, commandTypes, [.. fieldTypes.Select(CommandFieldSchema.Primitive)], direction, baseFirst);
     }
 
     private static void AddPrimitiveSchemas(Dictionary<int, CommandRegistryEntry> entries, IEnumerable<CommandPrimitiveSchema> schemas)
     {
         foreach (CommandPrimitiveSchema schema in schemas)
-            AddFieldCommands(entries, schema.CommandTypes, schema.FieldTypes, schema.IsServerCommand, schema.BaseFirst);
+            AddFieldCommands(entries, schema.CommandTypes, schema.FieldTypes, schema.Direction, schema.BaseFirst);
     }
 
     private static void AddVariableCommandEntries(Dictionary<int, CommandRegistryEntry> entries)
@@ -580,7 +586,7 @@ public static class CommandRegistry
                 commandType,
                 new CommandRegistryEntry(
                     Type: typeof(CommandWithNoFields),
-                    IsServerCommand: false,
+                    Direction: MessageDirection.Serverbound,
                     BaseFirst: true,
                     FieldSchemas: null,
                     Factory: (stream, environment, unusedParameter2) =>
@@ -598,7 +604,7 @@ public static class CommandRegistry
                 commandType2,
                 new CommandRegistryEntry(
                     Type: typeof(MapGameTaskCommand),
-                    IsServerCommand: false,
+                    Direction: MessageDirection.Serverbound,
                     BaseFirst: true,
                     FieldSchemas: null,
                     Factory: (stream, environment, dataResolver) =>
