@@ -42,7 +42,6 @@ public sealed record RoadsidePurchaseResultMessage(
     [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier
 ) : IMessage
 {
-
     /// <summary>
     /// Provides the Buyer Update Status value or operation.
     /// </summary>

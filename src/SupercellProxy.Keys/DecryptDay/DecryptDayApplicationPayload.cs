@@ -12,5 +12,4 @@ internal sealed record DecryptDayApplicationPayload
     /// <summary>Gets the Versions value.</summary>
     [JsonPropertyName("versions")]
     public DecryptDayVersionMetadata?[] Versions { get; init; } = [];
-
 }

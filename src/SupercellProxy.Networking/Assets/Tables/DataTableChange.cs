@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Assets.Tables;
 /// </summary>
 public sealed record DataTableChange
 {
-
     /// <summary>
     /// Gets the Column value.
     /// </summary>

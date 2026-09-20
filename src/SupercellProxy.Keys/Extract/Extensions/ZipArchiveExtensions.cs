@@ -7,7 +7,6 @@ namespace SupercellProxy.Keys.Extract.Extensions;
 /// </summary>
 internal static class ZipArchiveExtensions
 {
-
     /// <summary>
     /// <para>Reads the primary application executable from IPA bytes.</para>
     /// </summary>
@@ -68,7 +67,7 @@ internal static class ZipArchiveExtensions
 
             await using (entryStream.ConfigureAwait(continueOnCapturedContext: false))
             {
-                MemoryStream resultStream = new(capacity: int.CreateTruncating(match.Length));
+                MemoryStream resultStream = new(int.CreateTruncating(match.Length));
 
                 await using (resultStream.ConfigureAwait(continueOnCapturedContext: false))
                 {
@@ -106,7 +105,7 @@ internal static class ZipArchiveExtensions
 
                 await using (entryStream.ConfigureAwait(continueOnCapturedContext: false))
                 {
-                    MemoryStream resultStream = new(capacity: int.CreateTruncating(Math.Min(match.Length, int.MaxValue)));
+                    MemoryStream resultStream = new(int.CreateTruncating(Math.Min(match.Length, int.MaxValue)));
 
                     await using (resultStream.ConfigureAwait(continueOnCapturedContext: false))
                     {

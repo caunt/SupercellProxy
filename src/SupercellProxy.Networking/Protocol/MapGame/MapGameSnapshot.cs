@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.MapGame.Fuel;
+using SupercellProxy.Networking.Protocol.MapGame.Notifications;
 using SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 using System.Text.Json.Serialization;
@@ -34,6 +35,9 @@ public sealed record MapGameSnapshot
     /// Gets the Next Expire Hour Index value.
     /// </summary>
     public int NextExpireHourIndex { get; init; }
+
+    /// <summary>Gets the retained pending Valley notifications.</summary>
+    public MapGameNotificationManagerSnapshot? NotificationManager { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">QuestrManager</c> value.

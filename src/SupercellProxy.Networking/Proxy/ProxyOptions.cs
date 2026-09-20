@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Proxy;
 /// <summary>Configures the proxy listener, upstream connection, and optional recording.</summary>
 public sealed class ProxyOptions
 {
-
     /// <summary>Gets or sets the local fingerprint directory used by codecs.</summary>
     public string? AssetDirectory { get; set; }
 

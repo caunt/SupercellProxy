@@ -30,7 +30,6 @@ public sealed class EventBus
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
-
     }
 
     /// <summary>

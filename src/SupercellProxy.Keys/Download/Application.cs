@@ -7,7 +7,6 @@ namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-
     private static async Task DownloadAsync(DecryptDayClient decryptDayClient, IpaDownload download, string outputPath, CancellationToken cancellationToken)
     {
         const int bufferSize = 131_072;

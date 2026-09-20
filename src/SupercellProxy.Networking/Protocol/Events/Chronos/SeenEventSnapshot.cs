@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 /// </summary>
 public sealed record SeenEventSnapshot
 {
-
     /// <summary>
     /// Gets the Count value.
     /// </summary>

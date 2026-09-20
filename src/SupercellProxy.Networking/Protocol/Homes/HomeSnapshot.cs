@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 /// </summary>
 public sealed record HomeSnapshot
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Objects</c> value.
     /// </summary>

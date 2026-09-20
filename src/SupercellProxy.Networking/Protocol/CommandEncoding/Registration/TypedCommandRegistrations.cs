@@ -19,6 +19,7 @@ using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
+using SupercellProxy.Networking.Protocol.MapGame.Notifications;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.MovieTickets;
 using SupercellProxy.Networking.Protocol.MysteryBoxes;
@@ -41,614 +42,653 @@ internal static class TypedCommandRegistrations
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
         [ActivateBoosterCommandType] = new CommandRegistryEntry(
-            Type: typeof(ActivateBoosterCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ActivateBoosterCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ActivateBoosterCommand.Decode(stream, environment)
         ),
+        [ExchangeBoosterCommandType] = new CommandRegistryEntry(
+            typeof(ExchangeBoosterCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                ExchangeBoosterCommand.Decode(stream, environment)
+        ),
         [CancelRoadsideListingCommandType] = new CommandRegistryEntry(
-            Type: typeof(CancelRoadsideListingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CancelRoadsideListingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, resolver) => CancelRoadsideListingCommand.Decode(stream, environment)
+            static (stream, environment, resolver) => CancelRoadsideListingCommand.Decode(stream, environment)
         ),
         [AdvertiseRoadsideListingCommandType] = new CommandRegistryEntry(
-            Type: typeof(AdvertiseRoadsideListingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(AdvertiseRoadsideListingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, resolver) => AdvertiseRoadsideListingCommand.Decode(stream, environment)
+            static (stream, environment, resolver) => AdvertiseRoadsideListingCommand.Decode(stream, environment)
         ),
         [RoadsidePurchaseRejectedServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(RoadsidePurchaseRejectedServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(RoadsidePurchaseRejectedServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, resolver) => RoadsidePurchaseRejectedServerCommand.Decode(stream, environment)
+            static (stream, environment, resolver) => RoadsidePurchaseRejectedServerCommand.Decode(stream, environment)
         ),
         [ActivateFarmPassPerkCommandType] = new CommandRegistryEntry(
-            Type: typeof(ActivateFarmPassPerkCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ActivateFarmPassPerkCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ActivateFarmPassPerkCommand.Decode(stream, environment)
         ),
         [RoadsidePurchaseServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(RoadsidePurchaseServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(RoadsidePurchaseServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RoadsidePurchaseServerCommand.Decode(stream, environment)
         ),
         [PassengerServiceCompletionServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(PassengerServiceCompletionServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(PassengerServiceCompletionServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 PassengerServiceCompletionServerCommand.Decode(stream, environment)
         ),
         [VisitedBoatHelpRequestServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(VisitedBoatHelpRequestServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(VisitedBoatHelpRequestServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 VisitedBoatHelpRequestServerCommand.Decode(stream, environment)
         ),
         [ClaimFarmPassLevelRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimFarmPassLevelRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimFarmPassLevelRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimFarmPassLevelRewardCommand.Decode(stream, environment)
         ),
         [ClaimFarmPassBabyPetRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimFarmPassBabyPetRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimFarmPassBabyPetRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimFarmPassBabyPetRewardCommand.Decode(stream, environment)
         ),
         [DismissFarmPassNotificationCommandType] = new CommandRegistryEntry(
-            Type: typeof(DismissFarmPassNotificationCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(DismissFarmPassNotificationCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 DismissFarmPassNotificationCommand.Decode(stream, environment)
         ),
-        [VisitedBoatDepartureServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(VisitedBoatDepartureServerCommand),
-            Direction: MessageDirection.Clientbound,
+        [RemoveMapGameNotificationCommandType] = new CommandRegistryEntry(
+            typeof(RemoveMapGameNotificationCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
+                RemoveMapGameNotificationCommand.Decode(stream, environment)
+        ),
+        [VisitedBoatDepartureServerCommandType] = new CommandRegistryEntry(
+            typeof(VisitedBoatDepartureServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
                 VisitedBoatDepartureServerCommand.Decode(stream, environment)
         ),
         [VisitedBoatStateServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(VisitedBoatStateServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(VisitedBoatStateServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 VisitedBoatStateServerCommand.Decode(stream, environment)
         ),
         [RoadsideStockServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(RoadsideStockServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(RoadsideStockServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RoadsideStockServerCommand.Decode(stream, environment)
         ),
         [StartTruckDeliveryCommandType] = new CommandRegistryEntry(
-            Type: typeof(StartTruckDeliveryCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(StartTruckDeliveryCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 StartTruckDeliveryCommand.Decode(stream, environment)
         ),
         [FillBoatCrateCommandType] = new CommandRegistryEntry(
-            Type: typeof(FillBoatCrateCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(FillBoatCrateCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 FillBoatCrateCommand.Decode(stream, environment)
         ),
         [SelectBoatOrderCommandType] = new CommandRegistryEntry(
-            Type: typeof(SelectBoatOrderCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(SelectBoatOrderCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 SelectBoatOrderCommand.Decode(stream, environment)
         ),
         [CompleteConstructionCommandType] = new CommandRegistryEntry(
-            Type: typeof(CompleteConstructionCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CompleteConstructionCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CompleteConstructionCommand.Decode(stream, environment)
         ),
         [ActivateMovieTicketCommandType] = new CommandRegistryEntry(
-            Type: typeof(ActivateMovieTicketCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ActivateMovieTicketCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ActivateMovieTicketCommand.Decode(stream, environment)
         ),
         [RecordEventSeenCommandType] = new CommandRegistryEntry(
-            Type: typeof(RecordEventSeenCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(RecordEventSeenCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RecordEventSeenCommand.Decode(stream, environment)
         ),
         [ClearEventLeaderboardNotificationCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClearEventLeaderboardNotificationCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClearEventLeaderboardNotificationCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClearEventLeaderboardNotificationCommand.Decode(stream, environment)
         ),
         [MarkEventTasksSeenCommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkEventTasksSeenCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkEventTasksSeenCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkEventTasksSeenCommand.Decode(stream, environment)
         ),
         [MarkTaskEventOpenedCommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkTaskEventOpenedCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkTaskEventOpenedCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkTaskEventOpenedCommand.Decode(stream, environment)
         ),
         [MarkChronosEventUserInterfaceOpenedCommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkChronosEventUserInterfaceOpenedCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkChronosEventUserInterfaceOpenedCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkChronosEventUserInterfaceOpenedCommand.Decode(stream, environment)
         ),
         [BuySeasonalCatalogueGiftCommandType] = new CommandRegistryEntry(
-            Type: typeof(BuySeasonalCatalogueGiftCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(BuySeasonalCatalogueGiftCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 BuySeasonalCatalogueGiftCommand.Decode(stream, environment)
         ),
         [ClaimDecisionBoxCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimDecisionBoxCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimDecisionBoxCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimDecisionBoxCommand.Decode(stream, environment)
         ),
         [ClaimChainOfferStepCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimChainOfferStepCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimChainOfferStepCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimChainOfferStepCommand.Decode(stream, environment)
         ),
         [CollectTruckDeliveryRewardsCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectTruckDeliveryRewardsCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectTruckDeliveryRewardsCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectTruckDeliveryRewardsCommand.Decode(stream, environment)
         ),
         [ConstructGameObjectCommandType] = new CommandRegistryEntry(
-            Type: typeof(ConstructGameObjectCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ConstructGameObjectCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ConstructGameObjectCommand.Decode(stream, environment)
         ),
         [CollectWheelRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectWheelRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectWheelRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectWheelRewardCommand.Decode(stream, environment)
         ),
         [ClaimAchievementRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimAchievementRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimAchievementRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimAchievementRewardCommand.Decode(stream, environment)
         ),
         [CollectGiftCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectGiftCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectGiftCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectGiftCommand.Decode(stream, environment)
         ),
         [MarkTruckOrdersSeenCommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkTruckOrdersSeenCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkTruckOrdersSeenCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkTruckOrdersSeenCommand.Decode(stream, environment)
         ),
         [CollectMysteryBoxRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectMysteryBoxRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectMysteryBoxRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectMysteryBoxRewardCommand.Decode(stream, environment)
         ),
         [OpenMysteryBoxCommandType] = new CommandRegistryEntry(
-            Type: typeof(OpenMysteryBoxCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(OpenMysteryBoxCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 OpenMysteryBoxCommand.Decode(stream, environment)
         ),
         [CheckMysteryBoxLockCommandType] = new CommandRegistryEntry(
-            Type: typeof(CheckMysteryBoxLockCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CheckMysteryBoxLockCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CheckMysteryBoxLockCommand.Decode(stream, environment)
         ),
         [UpgradeBuildingCommandType] = new CommandRegistryEntry(
-            Type: typeof(UpgradeBuildingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(UpgradeBuildingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 UpgradeBuildingCommand.Decode(stream, environment)
         ),
         [RecordStorageSignpostRankCommandType] = new CommandRegistryEntry(
-            Type: typeof(RecordStorageSignpostRankCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(RecordStorageSignpostRankCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RecordStorageSignpostRankCommand.Decode(stream, environment)
         ),
         [CollectBuildingProductCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectBuildingProductCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectBuildingProductCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectBuildingProductCommand.Decode(stream, environment)
         ),
         [CollectGathererNestCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectGathererNestCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectGathererNestCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectGathererNestCommand.Decode(stream, environment)
         ),
         [SetFishStateCommandType] = new CommandRegistryEntry(
-            Type: typeof(SetFishStateCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(SetFishStateCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 SetFishStateCommand.Decode(stream, environment)
         ),
         [CollectFishingSpotCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectFishingSpotCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectFishingSpotCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectFishingSpotCommand.Decode(stream, environment)
         ),
+        [CompleteFishingCatchCommandType] = new CommandRegistryEntry(
+            typeof(CompleteFishingCatchCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                CompleteFishingCatchCommand.Decode(stream, environment)
+        ),
+        [PlaceFishingBaitCommandType] = new CommandRegistryEntry(
+            typeof(PlaceFishingBaitCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                PlaceFishingBaitCommand.Decode(stream, environment)
+        ),
+        [PlaceFishingNetCommandType] = new CommandRegistryEntry(
+            typeof(PlaceFishingNetCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                PlaceFishingNetCommand.Decode(stream, environment)
+        ),
         [StartBuildingProductionCommandType] = new CommandRegistryEntry(
-            Type: typeof(StartBuildingProductionCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(StartBuildingProductionCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 StartBuildingProductionCommand.Decode(stream, environment)
         ),
         [CompleteForestClearingCommandType] = new CommandRegistryEntry(
-            Type: typeof(CompleteForestClearingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CompleteForestClearingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CompleteForestClearingCommand.Decode(stream, environment)
         ),
         [CollectFruitCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectFruitCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectFruitCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectFruitCommand.Decode(stream, environment)
         ),
         [StartForestClearingCommandType] = new CommandRegistryEntry(
-            Type: typeof(StartForestClearingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(StartForestClearingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 StartForestClearingCommand.Decode(stream, environment)
         ),
         [FeedLivestockAnimalCommandType] = new CommandRegistryEntry(
-            Type: typeof(FeedLivestockAnimalCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(FeedLivestockAnimalCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 FeedLivestockAnimalCommand.Decode(stream, environment)
         ),
         [PurchaseLivestockAnimalCommandType] = new CommandRegistryEntry(
-            Type: typeof(PurchaseLivestockAnimalCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(PurchaseLivestockAnimalCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 PurchaseLivestockAnimalCommand.Decode(stream, environment)
         ),
         [CollectAnimalProductCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectAnimalProductCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectAnimalProductCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectAnimalProductCommand.Decode(stream, environment)
         ),
         [SelectLivestockAnimalCommandType] = new CommandRegistryEntry(
-            Type: typeof(SelectLivestockAnimalCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(SelectLivestockAnimalCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 SelectLivestockAnimalCommand.Decode(stream, environment)
         ),
         [ClaimEventBoardSeenRewardCommandType] = new CommandRegistryEntry(
-            Type: typeof(ClaimEventBoardSeenRewardCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(ClaimEventBoardSeenRewardCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 ClaimEventBoardSeenRewardCommand.Decode(stream, environment)
         ),
         [MarkEventBoardSeenCommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkEventBoardSeenCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkEventBoardSeenCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkEventBoardSeenCommand.Decode(stream, environment)
         ),
         [RequestNewspaperCommandType] = new CommandRegistryEntry(
-            Type: typeof(RequestNewspaperCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(RequestNewspaperCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RequestNewspaperCommand.Decode(stream, environment)
         ),
         [PlantFieldCommandType] = new CommandRegistryEntry(
-            Type: typeof(PlantFieldCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(PlantFieldCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 PlantFieldCommand.Decode(stream, environment)
         ),
         [LoadFarmLayoutsCommandType] = new CommandRegistryEntry(
-            Type: typeof(LoadFarmLayoutsServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(LoadFarmLayoutsServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 LoadFarmLayoutsServerCommand.Decode(stream, environment)
         ),
         [CommandRegistry.CreateRoadsideListingCommandType] = new CommandRegistryEntry(
-            Type: typeof(CreateRoadsideListingCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CreateRoadsideListingCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CreateRoadsideListingCommand.Decode(stream, environment)
         ),
         [MarkBoatSeenCommand.CommandType] = new CommandRegistryEntry(
-            Type: typeof(MarkBoatSeenCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MarkBoatSeenCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MarkBoatSeenCommand.Decode(stream, environment)
         ),
         [SpawnAmbientAnimalCommand.CommandType] = new CommandRegistryEntry(
-            Type: typeof(SpawnAmbientAnimalCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(SpawnAmbientAnimalCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 SpawnAmbientAnimalCommand.Decode(stream, environment)
         ),
         [RequestRoadsidePurchaseCommandType] = new CommandRegistryEntry(
-            Type: typeof(RequestRoadsidePurchaseCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(RequestRoadsidePurchaseCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RequestRoadsidePurchaseCommand.Decode(stream, environment)
         ),
         [RoadsideFriendCountServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(RoadsideFriendCountServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(RoadsideFriendCountServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) => RoadsideFriendCountServerCommand.Decode(stream, environment)
+            static (stream, environment, unusedParameter2) => RoadsideFriendCountServerCommand.Decode(stream, environment)
         ),
         [key: 274] = new CommandRegistryEntry(
-            Type: typeof(MapGameEventsServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(MapGameEventsServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, dataResolver) =>
+            static (stream, environment, dataResolver) =>
                 MapGameEventsServerCommand.Decode(stream, environment, dataResolver)
         ),
         [key: 355] = new CommandRegistryEntry(
-            Type: typeof(ShopEventsServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(ShopEventsServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) => ShopEventsServerCommand.Decode(stream, environment)
+            static (stream, environment, unusedParameter2) => ShopEventsServerCommand.Decode(stream, environment)
         ),
         [key: 672] = new CommandRegistryEntry(
-            Type: typeof(CollectAllLettersCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectAllLettersCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectAllLettersCommand.Decode(stream, environment)
         ),
         [key: 35] = new CommandRegistryEntry(
-            Type: typeof(StartTutorialCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(StartTutorialCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 StartTutorialCommand.Decode(stream, environment)
         ),
         [key: 3] = new CommandRegistryEntry(
-            Type: typeof(MoveGameObjectByOffsetCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MoveGameObjectByOffsetCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MoveGameObjectByOffsetCommand.Decode(stream, environment)
         ),
         [key: 124] = new CommandRegistryEntry(
-            Type: typeof(MoveGameObjectCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MoveGameObjectCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 MoveGameObjectCommand.Decode(stream, environment)
         ),
         [key: 544] = new CommandRegistryEntry(
-            Type: typeof(StartHarvestFieldCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(StartHarvestFieldCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 StartHarvestFieldCommand.Decode(stream, environment)
         ),
         [key: 506] = new CommandRegistryEntry(
-            Type: typeof(HarvestFieldCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(HarvestFieldCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 HarvestFieldCommand.Decode(stream, environment)
         ),
         [key: 657] = new CommandRegistryEntry(
-            Type: typeof(HarvestFieldGainCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(HarvestFieldGainCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 HarvestFieldGainCommand.Decode(stream, environment)
         ),
         [key: 247] = new CommandRegistryEntry(
-            Type: typeof(Command247),
-            Direction: MessageDirection.Serverbound,
+            typeof(Command247),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) => Command247.Decode(stream, environment)
+            static (stream, environment, unusedParameter2) => Command247.Decode(stream, environment)
         ),
         [key: 321] = new CommandRegistryEntry(
-            Type: typeof(MapGamePawnTaskCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(MapGamePawnTaskCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, dataResolver) =>
+            static (stream, environment, dataResolver) =>
                 MapGamePawnTaskCommand.Decode(stream, environment, dataResolver)
         ),
         [key: 599] = new CommandRegistryEntry(
-            Type: typeof(Command599),
-            Direction: MessageDirection.Serverbound,
+            typeof(Command599),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) => Command599.Decode(stream, environment)
+            static (stream, environment, unusedParameter2) => Command599.Decode(stream, environment)
         ),
         [key: 694] = new CommandRegistryEntry(
-            Type: typeof(PostmanStateCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(PostmanStateCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 PostmanStateCommand.Decode(stream, environment)
         ),
         [key: 654] = new CommandRegistryEntry(
-            Type: typeof(DecorationEventTutorialCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(DecorationEventTutorialCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 DecorationEventTutorialCommand.Decode(stream, environment)
         ),
         [key: 34] = new CommandRegistryEntry(
-            Type: typeof(FinishTutorialCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(FinishTutorialCommand),
+            MessageDirection.Serverbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 FinishTutorialCommand.Decode(stream, environment)
         ),
         [CommandRegistry.CollectRoadsideSaleProceedsCommandType] = new CommandRegistryEntry(
-            Type: typeof(CollectRoadsideSaleProceedsCommand),
-            Direction: MessageDirection.Serverbound,
+            typeof(CollectRoadsideSaleProceedsCommand),
+            MessageDirection.Serverbound,
             BaseFirst: true,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 CollectRoadsideSaleProceedsCommand.Decode(stream, environment)
         ),
         [CommandRegistry.RoadsideSaleServerCommandType] = new CommandRegistryEntry(
-            Type: typeof(RoadsideSaleServerCommand),
-            Direction: MessageDirection.Clientbound,
+            typeof(RoadsideSaleServerCommand),
+            MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
-            Factory: static (stream, environment, unusedParameter2) =>
+            static (stream, environment, unusedParameter2) =>
                 RoadsideSaleServerCommand.Decode(stream, environment)
         ),
     };
-
 }

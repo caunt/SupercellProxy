@@ -6,7 +6,6 @@ namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-
     private static int PrintGamesHelp()
     {
         return PrintCommandHelp(usage: "games [FILE] [--json]", description: "List app sections from KEYS.md in document order");

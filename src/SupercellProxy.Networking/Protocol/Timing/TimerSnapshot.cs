@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Timing;
 [StructLayout(LayoutKind.Auto)]
 public readonly record struct TimerSnapshot(int StartSeconds, int TicksLeft)
 {
-
     /// <summary>
     /// Gets the <c language="csharp">IsComplete</c> value.
     /// </summary>

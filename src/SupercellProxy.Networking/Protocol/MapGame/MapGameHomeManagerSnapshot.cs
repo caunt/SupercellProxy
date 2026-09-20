@@ -16,5 +16,4 @@ public sealed record MapGameHomeManagerSnapshot : ExtensibleDocument
     [JsonPropertyName("ThemedTasksManager")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MapGameThemedTasksSnapshot? ThemedTasks { get; init; }
-
 }

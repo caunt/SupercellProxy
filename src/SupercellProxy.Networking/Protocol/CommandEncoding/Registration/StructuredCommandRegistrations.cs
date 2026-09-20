@@ -96,7 +96,7 @@ internal static class StructuredCommandRegistrations
                     type170NestedSchema,
                     variableIntArraySchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
         }
@@ -116,7 +116,7 @@ internal static class StructuredCommandRegistrations
                     ),
                     variableIntSchema,
                 ],
-                direction: MessageDirection.Serverbound,
+                MessageDirection.Serverbound,
                 baseFirst: false
             );
         }
@@ -134,7 +134,7 @@ internal static class StructuredCommandRegistrations
                     dataReferenceSchema,
                     int32Schema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredFieldCommands(
@@ -161,7 +161,7 @@ internal static class StructuredCommandRegistrations
                         )
                     ),
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
         }
@@ -178,7 +178,7 @@ internal static class StructuredCommandRegistrations
                     variableIntSchema,
                     types197To200NestedSchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredFieldCommands(
@@ -192,7 +192,7 @@ internal static class StructuredCommandRegistrations
                     types197To200NestedSchema,
                     variableIntSchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredFieldCommands(
@@ -204,7 +204,7 @@ internal static class StructuredCommandRegistrations
                     variableIntSchema,
                     types197To200NestedSchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
 
@@ -248,7 +248,7 @@ internal static class StructuredCommandRegistrations
                     dataReferenceVariableIntArraySchema,
                     dataReferenceVariableIntArraySchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredCommand262(entries, logicLongSchema, variableIntSchema, dataReferenceSchema);
@@ -263,7 +263,7 @@ internal static class StructuredCommandRegistrations
                     dataReferenceVariableIntArraySchema,
                     variableIntSchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredFieldCommands(
@@ -275,7 +275,7 @@ internal static class StructuredCommandRegistrations
                     variableIntSchema,
                     dataReferenceVariableIntArraySchema,
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
             AddStructuredCommand256();
@@ -303,7 +303,7 @@ internal static class StructuredCommandRegistrations
                             CommandFieldSchema.Optional(stringSchema)
                         ),
                     ],
-                    direction: MessageDirection.Clientbound,
+                    MessageDirection.Clientbound,
                     baseFirst: false
                 );
             }
@@ -342,10 +342,10 @@ internal static class StructuredCommandRegistrations
                         booleanSchema
                     ),
                 ],
-                direction: MessageDirection.Clientbound,
+                MessageDirection.Clientbound,
                 baseFirst: false
             );
-            AddStructuredFieldCommands(entries, [687], [optionalInt32PairSchema, variableIntSchema, variableIntSchema], direction: MessageDirection.Serverbound);
+            AddStructuredFieldCommands(entries, [687], [optionalInt32PairSchema, variableIntSchema, variableIntSchema], MessageDirection.Serverbound);
         }
         void AddStructuredCommands296To()
         {
@@ -367,15 +367,15 @@ internal static class StructuredCommandRegistrations
                     ),
                     CommandFieldSchema.Optional(CommandFieldSchema.Optional(dataReferenceSchema, variableIntSchema), booleanSchema),
                 ],
-                direction: MessageDirection.Serverbound
+                MessageDirection.Serverbound
             );
 
             CommandFieldSchema types305And306Schema = CommandFieldSchema.Optional(dataReferenceVariableIntPairArraySchema, variableIntSchema);
 
-            AddStructuredFieldCommands(entries, [305], [types305And306Schema], direction: MessageDirection.Clientbound, baseFirst: false);
-            AddStructuredFieldCommands(entries, [306], [types305And306Schema], direction: MessageDirection.Serverbound, baseFirst: false);
+            AddStructuredFieldCommands(entries, [305], [types305And306Schema], MessageDirection.Clientbound, baseFirst: false);
+            AddStructuredFieldCommands(entries, [306], [types305And306Schema], MessageDirection.Serverbound, baseFirst: false);
             CommandFieldSchema type755Schema = CreateType755Schema();
-            AddStructuredFieldCommands(entries, [755], [type755Schema], direction: MessageDirection.Clientbound);
+            AddStructuredFieldCommands(entries, [755], [type755Schema], MessageDirection.Clientbound);
 
             CommandFieldSchema CreateType755Schema()
             {
@@ -425,9 +425,8 @@ internal static class StructuredCommandRegistrations
                 dataReferenceSchema,
                 variableIntSchema,
             ],
-            direction: MessageDirection.Clientbound,
+            MessageDirection.Clientbound,
             baseFirst: false
         );
     }
-
 }

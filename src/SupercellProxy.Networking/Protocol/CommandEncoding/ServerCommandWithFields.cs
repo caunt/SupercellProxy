@@ -26,7 +26,7 @@ public sealed record ServerCommandWithFields : ServerCommand
     )
         : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
     {
-        _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, direction: MessageDirection.Clientbound);
+        _baseFirst = CommandRegistry.ValidateFields(type, fields.Span, MessageDirection.Clientbound);
         Type = type;
         Fields = fields.ToArray();
     }

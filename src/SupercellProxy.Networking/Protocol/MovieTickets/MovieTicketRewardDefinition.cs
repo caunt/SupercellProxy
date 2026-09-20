@@ -20,5 +20,4 @@ public sealed record MovieTicketRewardDefinition
     /// <summary>Gets the Type value.</summary>
     [JsonPropertyName("Type")]
     public string? Type { get; init; }
-
 }

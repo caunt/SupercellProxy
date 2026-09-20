@@ -10,7 +10,6 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// </summary>
 public sealed record OrderSnapshot : ExtensibleDocument
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Datas</c> value.
     /// </summary>

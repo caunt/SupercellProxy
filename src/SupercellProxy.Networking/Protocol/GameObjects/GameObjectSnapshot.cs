@@ -14,7 +14,6 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// </summary>
 public sealed record GameObjectSnapshot : ExtensibleDocument
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">AccurateX</c> value.
     /// </summary>

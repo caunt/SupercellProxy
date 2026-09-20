@@ -119,5 +119,4 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
             return false;
         }
     }
-
 }

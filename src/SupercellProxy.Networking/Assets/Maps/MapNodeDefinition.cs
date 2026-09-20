@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Assets.Maps;
 /// <summary>Represents the decoded MapNodeDefinition JSON contract.</summary>
 public sealed record MapNodeDefinition
 {
-
     /// <summary>Gets the Data value.</summary>
     [JsonPropertyName("Data")]
     public string? Data { get; init; }
@@ -24,5 +23,4 @@ public sealed record MapNodeDefinition
     /// <summary>Gets the Variant value.</summary>
     [JsonPropertyName("Variant")]
     public int Variant { get; init; }
-
 }

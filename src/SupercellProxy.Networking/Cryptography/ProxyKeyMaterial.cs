@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Cryptography;
 /// <summary>Owns the existing proxy key material used by the protocol handshake.</summary>
 public static class ProxyKeyMaterial
 {
-
     /// <summary>
     /// Defines the <c language="csharp">StandardPrivateKey</c> value.
     /// </summary>
@@ -44,5 +43,4 @@ public static class ProxyKeyMaterial
         0x0D,
         0x85,
     ];
-
 }

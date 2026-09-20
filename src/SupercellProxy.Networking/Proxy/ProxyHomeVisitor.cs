@@ -25,14 +25,14 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
             await connection.WriteMessageAsync(new VisitHomeTargetMessage { Unknown0 = 0x00, Target = target }, MessageDirection.Serverbound, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            OtherHomeDataMessage otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(timeout: TimeSpan.FromSeconds(seconds: 15), cancellationToken)
+            OtherHomeDataMessage otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(TimeSpan.FromSeconds(seconds: 15), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             do
             {
                 try
                 {
-                    EndClientTurnMessage endClientTurnMessage = await ExpectMessageAsync<EndClientTurnMessage>(timeout: TimeSpan.FromSeconds(seconds: 3), cancellationToken)
+                    EndClientTurnMessage endClientTurnMessage = await ExpectMessageAsync<EndClientTurnMessage>(TimeSpan.FromSeconds(seconds: 3), cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
                     if (endClientTurnMessage.SubTick is 0)
@@ -102,5 +102,4 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
             await connection.EventBus.UnsubscribeAsync((Func<MessageSentEvent, CancellationToken, Task>)Handler, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
-
 }

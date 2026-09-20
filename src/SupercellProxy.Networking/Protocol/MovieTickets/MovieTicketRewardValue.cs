@@ -16,5 +16,4 @@ public sealed record MovieTicketRewardValue
     /// <summary>Gets the Probability value.</summary>
     [JsonPropertyName("Probability")]
     public int Probability { get; init; }
-
 }

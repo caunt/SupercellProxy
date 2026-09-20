@@ -59,5 +59,4 @@ internal static class SvelteDataDecoder
             return value?.DeepClone();
         }
     }
-
 }

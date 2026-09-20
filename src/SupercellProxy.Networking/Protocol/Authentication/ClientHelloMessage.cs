@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 /// </summary>
 public sealed record ClientHelloMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">AppStore</c> value.
     /// </summary>

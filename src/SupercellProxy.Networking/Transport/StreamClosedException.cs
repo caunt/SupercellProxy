@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Protocol.ConnectionControl;
+
 namespace SupercellProxy.Networking.Transport;
 
 /// <summary>
@@ -27,4 +29,16 @@ public sealed class StreamClosedException : IOException
     /// </summary>
     public StreamClosedException(string? message, Exception? innerException)
         : base(message, innerException) { }
+
+    /// <summary>
+    /// Provides the Stream Closed Exception value or operation.
+    /// </summary>
+    public StreamClosedException(string? message, DisconnectReason reason)
+        : base(message)
+    {
+        Reason = reason;
+    }
+
+    /// <summary>Gets the server-reported disconnect reason, when the server sent one.</summary>
+    public DisconnectReason? Reason { get; }
 }

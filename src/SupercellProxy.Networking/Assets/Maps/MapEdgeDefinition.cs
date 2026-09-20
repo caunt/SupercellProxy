@@ -12,5 +12,4 @@ public sealed record MapEdgeDefinition
     /// <summary>Gets the Start value.</summary>
     [JsonPropertyName("start")]
     public int Start { get; init; }
-
 }

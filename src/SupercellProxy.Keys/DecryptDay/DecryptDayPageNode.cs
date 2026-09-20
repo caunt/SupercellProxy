@@ -10,5 +10,4 @@ internal sealed record DecryptDayPageNode
     /// <summary>Gets the Data value.</summary>
     [JsonPropertyName("data")]
     public SvelteData? Data { get; init; }
-
 }

@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.MovieTickets;
 /// </summary>
 public sealed record MovieTicketSnapshot
 {
-
     /// <summary>
     /// Gets the Last Reward Amount value.
     /// </summary>

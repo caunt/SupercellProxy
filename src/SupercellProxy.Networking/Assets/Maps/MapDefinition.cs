@@ -16,5 +16,4 @@ public sealed record MapDefinition
     /// <summary>Gets the Nodes value.</summary>
     [JsonPropertyName("Nodes")]
     public MapNodeDefinition[] Nodes { get; init; } = [];
-
 }

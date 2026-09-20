@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Reengagement;
 /// </summary>
 public sealed record ReengagementFlowSnapshot
 {
-
     /// <summary>
     /// Gets the Coin Reward value.
     /// </summary>

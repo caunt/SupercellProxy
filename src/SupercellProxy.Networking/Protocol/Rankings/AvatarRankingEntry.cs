@@ -37,7 +37,6 @@ public sealed record AvatarRankingEntry(
     [property: System.Text.Json.Serialization.JsonPropertyName("HomeId")] LongIdentifier HomeIdentifier
 )
 {
-
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>

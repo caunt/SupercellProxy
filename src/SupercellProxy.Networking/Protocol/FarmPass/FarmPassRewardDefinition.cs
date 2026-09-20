@@ -20,5 +20,4 @@ public sealed record FarmPassRewardDefinition
     /// <summary>Gets the Reward value.</summary>
     [JsonPropertyName("reward")]
     public string? Reward { get; init; }
-
 }

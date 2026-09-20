@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Rankings;
 /// </summary>
 public sealed record PlayerRankingsPageMessage : IMessage
 {
-
     /// <summary>
     /// Gets the Entries value.
     /// </summary>

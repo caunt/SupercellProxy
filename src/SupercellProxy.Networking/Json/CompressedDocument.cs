@@ -10,7 +10,6 @@ namespace SupercellProxy.Networking.Json;
 /// </summary>
 public static class CompressedDocument
 {
-
     /// <summary>
     /// Executes the <c language="csharp">Decompress</c> operation.
     /// </summary>

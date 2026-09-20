@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// </summary>
 public sealed record PassthroughMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Data</c> value.
     /// </summary>

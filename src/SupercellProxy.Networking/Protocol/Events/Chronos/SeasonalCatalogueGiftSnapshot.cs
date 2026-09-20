@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 /// </summary>
 public sealed record SeasonalCatalogueGiftSnapshot
 {
-
     /// <summary>
     /// Gets the Payment Amount value.
     /// </summary>

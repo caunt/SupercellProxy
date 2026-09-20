@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// </summary>
 public sealed record FarmPassPerkSnapshot
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Active</c> value.
     /// </summary>

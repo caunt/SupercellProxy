@@ -6,7 +6,6 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 /// </summary>
 public sealed class AccountCandidateCollector
 {
-
     /// <summary>
     /// Gets the Entries Response value.
     /// </summary>

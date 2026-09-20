@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 /// </summary>
 public sealed record MailEntry
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Body</c> value.
     /// </summary>

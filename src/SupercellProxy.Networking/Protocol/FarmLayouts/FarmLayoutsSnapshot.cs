@@ -10,5 +10,4 @@ public sealed record FarmLayoutsSnapshot : ExtensibleDocument
     /// <summary>Gets the Layouts value.</summary>
     [JsonPropertyName("Layouts")]
     public EncodedDocumentValue?[] Layouts { get; init; } = [];
-
 }

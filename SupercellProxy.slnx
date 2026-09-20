@@ -3,6 +3,7 @@
   <Project Path="src/SupercellProxy.Capture/SupercellProxy.Capture.csproj" />
   <Project Path="src/SupercellProxy.Simulation/SupercellProxy.Simulation.csproj" />
   <Project Path="src/SupercellProxy.Buyer/SupercellProxy.Buyer.csproj" />
+  <Project Path="src/SupercellProxy.Assistant/SupercellProxy.Assistant.csproj" />
   <Project Path="src/SupercellProxy.Replay/SupercellProxy.Replay.csproj" />
   <Project Path="src/SupercellProxy.Keys/SupercellProxy.Keys.csproj" />
   <Project Path="src/SupercellProxy.Ledger/SupercellProxy.Ledger.csproj" />

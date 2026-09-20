@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Visitors;
 /// </summary>
 public sealed record PeopleSpawnerSlotSnapshot
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">PersonGlobalId</c> value.
     /// </summary>

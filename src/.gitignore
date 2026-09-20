@@ -1,6 +1,7 @@
 # Local private implementations; public builds use SupercellProxy.Public.slnf.
 /SupercellProxy.Simulation/
 /SupercellProxy.Buyer/
+/SupercellProxy.Assistant/
 /SupercellProxy.Capture/
 /SupercellProxy.Replay/
 /SupercellProxy.Ledger/

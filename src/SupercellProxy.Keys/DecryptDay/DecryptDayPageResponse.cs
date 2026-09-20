@@ -8,5 +8,4 @@ internal sealed record DecryptDayPageResponse
     /// <summary>Gets the Nodes value.</summary>
     [JsonPropertyName("nodes")]
     public DecryptDayPageNode?[] Nodes { get; init; } = [];
-
 }

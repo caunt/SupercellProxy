@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 public abstract record MapGameTaskStatePayload
 {
-
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>

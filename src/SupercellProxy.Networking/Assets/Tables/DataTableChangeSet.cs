@@ -8,5 +8,4 @@ public sealed record DataTableChangeSet
     /// <summary>Gets the Changes value.</summary>
     [JsonPropertyName("Changes")]
     public DataTableChange[]? Changes { get; init; }
-
 }

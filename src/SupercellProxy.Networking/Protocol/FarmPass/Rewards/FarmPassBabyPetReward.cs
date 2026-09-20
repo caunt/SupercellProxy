@@ -31,5 +31,4 @@ public sealed record FarmPassBabyPetReward : ExtensibleDocument
     [JsonPropertyName("shopDisplayGroup")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ShopDisplayGroup { get; init; }
-
 }

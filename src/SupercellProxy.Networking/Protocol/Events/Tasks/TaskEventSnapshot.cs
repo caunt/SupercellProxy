@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 /// </summary>
 public sealed record TaskEventSnapshot
 {
-
     /// <summary>
     /// Gets the Opened By Player value.
     /// </summary>

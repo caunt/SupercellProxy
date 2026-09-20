@@ -56,5 +56,4 @@ public sealed record MovieTicketEventDefinition
     /// <summary>Gets the UseSameRewardSetForSpenders value.</summary>
     [JsonPropertyName("useSameRewardSetForSpenders")]
     public bool UseSameRewardSetForSpenders { get; init; }
-
 }

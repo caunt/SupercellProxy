@@ -8,5 +8,4 @@ internal sealed record DecryptDayFileList
     /// <summary>Gets the Files value.</summary>
     [JsonPropertyName("files")]
     public DecryptDayFileMetadata?[]? Files { get; init; }
-
 }

@@ -12,5 +12,4 @@ public sealed record FarmPassDiamondSinks
     /// <summary>Gets the WeeklyGoalCount value.</summary>
     [JsonPropertyName("seasonWeeklyDiamondGoalCount")]
     public int WeeklyGoalCount { get; init; }
-
 }

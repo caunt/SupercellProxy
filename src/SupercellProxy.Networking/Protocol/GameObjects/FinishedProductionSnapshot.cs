@@ -30,5 +30,4 @@ public sealed record FinishedProductionSnapshot : ExtensibleDocument
     [JsonPropertyName("ReducedProductionTime")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ReducedProductionTime { get; init; }
-
 }

@@ -23,7 +23,6 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// </summary>
 public sealed record CommonAvatarDataSnapshot
 {
-
     /// <summary>
     /// Gets the Boat Track Manager value.
     /// </summary>

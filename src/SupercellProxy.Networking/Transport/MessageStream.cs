@@ -13,7 +13,6 @@ namespace SupercellProxy.Networking.Transport;
 /// <summary>Reads and writes protocol values and delegates framed message exchange to its connection transport.</summary>
 public sealed class MessageStream : IDisposable
 {
-
     /// <summary>
     /// Defines the <c language="csharp">MaxPayloadLength</c> value.
     /// </summary>
@@ -228,7 +227,7 @@ public sealed class MessageStream : IDisposable
     /// </summary>
     public LongIdentifier ReadLongIdentifier()
     {
-        return new LongIdentifier(highInt32: ReadInt32(), lowInt32: ReadInt32());
+        return new LongIdentifier(ReadInt32(), ReadInt32());
     }
 
     /// <summary>

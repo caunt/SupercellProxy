@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 /// </summary>
 public sealed record NewspaperDataMessage : IMessage
 {
-
     /// <summary>
     /// Gets the Placements value.
     /// </summary>

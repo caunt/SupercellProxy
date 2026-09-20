@@ -8,5 +8,4 @@ public sealed record FarmPassRewardGroupDefinition
     /// <summary>Gets the Rewards value.</summary>
     [JsonPropertyName("rewards")]
     public FarmPassRewardDefinition[] Rewards { get; init; } = [];
-
 }

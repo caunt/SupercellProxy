@@ -8,5 +8,4 @@ public sealed record MovieTicketCurrencyDefinition
     /// <summary>Gets the Name value.</summary>
     [JsonPropertyName("SeasonalCurrency")]
     public string? Name { get; init; }
-
 }

@@ -26,5 +26,4 @@ public sealed record CompletedNeighborhoodTaskSnapshot : ExtensibleDocument
     /// <summary>Gets the TaskDataIdentifier value.</summary>
     [JsonPropertyName("TaskDataId")]
     public int TaskDataIdentifier { get; init; }
-
 }

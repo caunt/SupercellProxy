@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 /// </summary>
 public sealed record DecisionBoxManagerSnapshot
 {
-
     /// <summary>
     /// Gets the Pending Boxes value.
     /// </summary>

@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Collections;
 /// </summary>
 public sealed record AvatarEncodedCollectionEntry
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedData</c> value.
     /// </summary>

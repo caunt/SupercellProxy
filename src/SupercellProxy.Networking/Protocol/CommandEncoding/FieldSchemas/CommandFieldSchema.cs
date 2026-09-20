@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.FieldSchemas;
 /// </summary>
 public abstract record CommandFieldSchema
 {
-
     /// <summary>
     /// Provides the Are Valid value or operation.
     /// </summary>

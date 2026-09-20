@@ -11,4 +11,8 @@ public sealed record ProductionListSnapshot : ExtensibleDocument
     [JsonPropertyName("FinishedProductions")]
     public FinishedProductionSnapshot[] FinishedProductions { get; init; } = [];
 
+    /// <summary>Gets retained queued productions, when present.</summary>
+    [JsonPropertyName("Productions")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PendingProductionSnapshot[]? Productions { get; init; }
 }

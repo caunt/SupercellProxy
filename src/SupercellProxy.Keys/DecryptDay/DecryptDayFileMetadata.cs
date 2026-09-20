@@ -16,5 +16,4 @@ internal sealed record DecryptDayFileMetadata
     /// <summary>Gets the Premium value.</summary>
     [JsonPropertyName("premium")]
     public bool? Premium { get; init; }
-
 }

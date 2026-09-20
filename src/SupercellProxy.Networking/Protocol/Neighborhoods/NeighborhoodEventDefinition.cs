@@ -16,5 +16,4 @@ public sealed record NeighborhoodEventDefinition
     /// <summary>Gets the TaskSlotCount value.</summary>
     [JsonPropertyName("taskSlotCount")]
     public int TaskSlotCount { get; init; }
-
 }

@@ -22,7 +22,6 @@ internal static class ServerPublicKeyExtractor
     /// </summary>
     public static byte[] ExtractBinary(ReadOnlySpan<byte> binary)
     {
-
         int foundIndex = -1;
 
         foreach (int index in binary.IndexesOf(PublicKeyCodec.TableAnchor))

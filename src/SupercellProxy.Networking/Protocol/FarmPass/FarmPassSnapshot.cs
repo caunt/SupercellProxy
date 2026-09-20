@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// </summary>
 public sealed record FarmPassSnapshot
 {
-
     /// <summary>
     /// Gets the Daily Tasks value.
     /// </summary>

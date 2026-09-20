@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// </summary>
 public sealed record NeighborhoodObjectTaskSnapshot
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">PlayerLevelAtTaskStart</c> value.
     /// </summary>

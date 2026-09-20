@@ -7,7 +7,6 @@ namespace SupercellProxy.Keys.Extract.Extensions;
 /// </summary>
 internal static class SpanOfBytesExtensions
 {
-
     /// <summary>
     /// <para>Finds all overlapping occurrences of a byte pattern.</para>
     /// </summary>

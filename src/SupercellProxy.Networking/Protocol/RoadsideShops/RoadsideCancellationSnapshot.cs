@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// <summary>Inventory-owned roadside cancellation price history.</summary>
 public sealed record RoadsideCancellationSnapshot
 {
-
     /// <summary>Countdown before the next cancellation returns to the first price tier.</summary>
     [JsonPropertyName("lastCancelRssSellCostCooldown")]
     public TimerSnapshot? CancellationCooldown { get; init; }

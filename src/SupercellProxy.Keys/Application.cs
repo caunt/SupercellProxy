@@ -157,7 +157,6 @@ internal static partial class Application
 
             try
             {
-
                 bool isConditionMet = (
                                         await decryptDayClient
                                             .GetAppAsync(appStoreIdentifier, cancellationToken)

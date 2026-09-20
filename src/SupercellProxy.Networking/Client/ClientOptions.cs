@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Client;
 /// <summary>Configures an authenticated protocol client.</summary>
 public sealed class ClientOptions
 {
-
     /// <summary>Gets or sets the versioned asset cache root.</summary>
     public string? AssetDirectory { get; set; }
 

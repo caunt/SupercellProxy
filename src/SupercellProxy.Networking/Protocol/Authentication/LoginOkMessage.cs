@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 /// </summary>
 public sealed record LoginOkMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>

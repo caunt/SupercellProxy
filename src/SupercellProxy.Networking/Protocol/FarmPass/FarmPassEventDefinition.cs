@@ -24,5 +24,4 @@ public sealed record FarmPassEventDefinition
     /// <summary>Gets the Thresholds value.</summary>
     [JsonPropertyName("farmPassThresholds")]
     public int[] Thresholds { get; init; } = [];
-
 }

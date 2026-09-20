@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 /// </summary>
 public sealed record AccountLoadResponseMessage : IMessage
 {
-
     /// <summary>
     /// Gets the Account Id value.
     /// </summary>

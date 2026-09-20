@@ -8,5 +8,4 @@ internal sealed record DecryptDayFileEnvelope
     /// <summary>Gets the Data value.</summary>
     [JsonPropertyName("data")]
     public string? Data { get; init; }
-
 }

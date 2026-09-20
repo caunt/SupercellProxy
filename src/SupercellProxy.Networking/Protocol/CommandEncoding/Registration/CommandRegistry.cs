@@ -10,7 +10,6 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 /// <summary>Maps native command identifiers to wire contracts and validates their registered encoding schemas.</summary>
 public static class CommandRegistry
 {
-
     /// <summary>
     /// Provides the Acknowledge Boat Command Type value or operation.
     /// </summary>
@@ -109,6 +108,13 @@ public static class CommandRegistry
     public const int ClientCommand33Type = 33;
 
     /// <summary>
+    /// Provides the client command 47 type. The proven wire shape is one variable int, an index into a
+    /// level-owned collection; native validates the entry, grants a resource under change reason 0x58,
+    /// and notifies a level manager with the same index. None of that reaches a turn checksum lane.
+    /// </summary>
+    public const int ClientCommand47Type = 47;
+
+    /// <summary>
     /// Provides the client command 528 type. The native semantics are unestablished; the proven wire shape has no fields.
     /// </summary>
     public const int ClientCommand528Type = 528;
@@ -181,6 +187,9 @@ public static class CommandRegistry
     /// </summary>
     public const int CompleteConstructionCommandType = 17;
 
+    /// <summary>Completes a hooked fishing catch, either keeping it or releasing it.</summary>
+    public const int CompleteFishingCatchCommandType = 110;
+
     /// <summary>
     /// Provides the Complete Forest Clearing Command Type value or operation.
     /// </summary>
@@ -202,6 +211,9 @@ public static class CommandRegistry
     /// Provides the Dismiss Farm Pass Notification Command Type value or operation.
     /// </summary>
     public const int DismissFarmPassNotificationCommandType = 333;
+
+    /// <summary>Exchanges one booster held in the player's booster storage for another booster.</summary>
+    public const int ExchangeBoosterCommandType = 214;
 
     /// <summary>
     /// Provides the Feed Livestock Animal Command Type value or operation.
@@ -296,6 +308,12 @@ public static class CommandRegistry
     /// </summary>
     public const int PassengerServiceCompletionServerCommandType = 253;
 
+    /// <summary>Places a bait from <c language="csharp">data/baits.csv</c> on a fishing spot.</summary>
+    public const int PlaceFishingBaitCommandType = 111;
+
+    /// <summary>Places a net from <c language="csharp">data/nets.csv</c> on a fishing spot.</summary>
+    public const int PlaceFishingNetCommandType = 118;
+
     /// <summary>
     /// Provides the Plant Field Command Type value or operation.
     /// </summary>
@@ -336,6 +354,9 @@ public static class CommandRegistry
     /// Provides the Remote Order Updates Server Command Type value or operation.
     /// </summary>
     public const int RemoteOrderUpdatesServerCommandType = 263;
+
+    /// <summary>Removes one pending Valley notification after presentation.</summary>
+    public const int RemoveMapGameNotificationCommandType = 288;
 
     /// <summary>
     /// Provides the Remove New Shop Items Command Type value or operation.
@@ -542,13 +563,13 @@ public static class CommandRegistry
             entries.Add(
                 commandType,
                 new CommandRegistryEntry(
-                    Type: direction is MessageDirection.Clientbound
+                    direction is MessageDirection.Clientbound
                         ? typeof(ServerCommandWithFields)
                         : typeof(CommandWithFields),
-                    Direction: direction,
-                    BaseFirst: baseFirst,
-                    FieldSchemas: fieldSchemas,
-                    Factory: direction is MessageDirection.Clientbound
+                    direction,
+                    baseFirst,
+                    fieldSchemas,
+                    direction is MessageDirection.Clientbound
                         ? (stream, environment, unusedParameter2) =>
                             ServerCommandWithFields.Decode(commandType, fieldSchemas, baseFirst, stream, environment)
                         : (stream, environment, unusedParameter2) =>
@@ -585,11 +606,11 @@ public static class CommandRegistry
             entries.Add(
                 commandType,
                 new CommandRegistryEntry(
-                    Type: typeof(CommandWithNoFields),
-                    Direction: MessageDirection.Serverbound,
+                    typeof(CommandWithNoFields),
+                    MessageDirection.Serverbound,
                     BaseFirst: true,
                     FieldSchemas: null,
-                    Factory: (stream, environment, unusedParameter2) =>
+                    (stream, environment, unusedParameter2) =>
                         CommandWithNoFields.Decode(commandType, stream, environment)
                 )
             );
@@ -603,11 +624,11 @@ public static class CommandRegistry
             entries.Add(
                 commandType2,
                 new CommandRegistryEntry(
-                    Type: typeof(MapGameTaskCommand),
-                    Direction: MessageDirection.Serverbound,
+                    typeof(MapGameTaskCommand),
+                    MessageDirection.Serverbound,
                     BaseFirst: true,
                     FieldSchemas: null,
-                    Factory: (stream, environment, dataResolver) =>
+                    (stream, environment, dataResolver) =>
                         MapGameTaskCommand.Decode(commandType2, stream, environment, dataResolver)
                 )
             );

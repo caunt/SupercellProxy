@@ -15,5 +15,4 @@ public sealed record FarmPassBabyPetRewardGroup : ExtensibleDocument
     /// <summary>Gets the Rewards value.</summary>
     [JsonPropertyName("rewards")]
     public FarmPassBabyPetReward[] Rewards { get; init; } = [];
-
 }

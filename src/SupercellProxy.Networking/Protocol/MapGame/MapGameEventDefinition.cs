@@ -8,5 +8,4 @@ public sealed record MapGameEventDefinition
     /// <summary>Gets the Pause value.</summary>
     [JsonPropertyName("pause")]
     public bool Pause { get; init; }
-
 }

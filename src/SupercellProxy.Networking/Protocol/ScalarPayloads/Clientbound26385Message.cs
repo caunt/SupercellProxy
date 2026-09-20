@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.ScalarPayloads;
 /// Carries the three restored values from clientbound message 26385.
 public sealed record Clientbound26385Message : IMessage
 {
-
     /// Gets the first decoded bit-packed flag.
     public bool FlagA { get; init; }
 

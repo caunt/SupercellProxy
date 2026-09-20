@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.StructureFields;
 /// </summary>
 public sealed record CommandOptionalInt32StringField(int Value, string Text) : CommandField
 {
-
     /// <summary>
     /// Gets the <c language="csharp">Empty</c> value.
     /// </summary>

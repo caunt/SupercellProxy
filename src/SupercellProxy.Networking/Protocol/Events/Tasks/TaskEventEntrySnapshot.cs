@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 /// </summary>
 public sealed record TaskEventEntrySnapshot
 {
-
     /// <summary>
     /// Gets the Birthday Task State value.
     /// </summary>

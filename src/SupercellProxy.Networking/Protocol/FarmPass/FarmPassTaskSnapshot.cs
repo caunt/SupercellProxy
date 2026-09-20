@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// </summary>
 public sealed record FarmPassTaskSnapshot
 {
-
     /// <summary>
     /// Gets the Complete value.
     /// </summary>

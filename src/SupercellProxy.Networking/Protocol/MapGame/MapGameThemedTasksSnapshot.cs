@@ -10,5 +10,4 @@ public sealed record MapGameThemedTasksSnapshot : ExtensibleDocument
     /// <summary>Gets the CurrentDayIndex value.</summary>
     [JsonPropertyName("CurrentDayIndex")]
     public int CurrentDayIndex { get; init; }
-
 }

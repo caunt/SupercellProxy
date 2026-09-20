@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
-
     /// <summary>Adds an emoji to a map node.</summary>
     public const int NodeEmojiAddedType = 22;
     /// <summary>Expires an existing personal task using the server's task state.</summary>
@@ -118,7 +117,7 @@ public sealed record MapGameEvent
 
         void AddFirstSchemas()
         {
-            schemas[key: StateSynchronizationType] =
+            schemas[StateSynchronizationType] =
             [
                 optionalLongIdentifier,
                 variableInt,
@@ -140,12 +139,12 @@ public sealed record MapGameEvent
             ];
             schemas[key: 4] = pawnAndTask;
             schemas[key: 5] = [logicLong, variableInt, variableInt];
-            schemas[key: PawnTaskExpiredType] = pawnAndTask;
-            schemas[key: TaskRemovedType] = pawnAndTask;
-            schemas[key: PawnTaskUpdatedType] = pawnAndTask;
+            schemas[PawnTaskExpiredType] = pawnAndTask;
+            schemas[TaskRemovedType] = pawnAndTask;
+            schemas[PawnTaskUpdatedType] = pawnAndTask;
             schemas[key: 9] = pawnAndTask;
             schemas[key: 10] = pawnAndTask;
-            schemas[key: SharedTaskUpdatedType] = pawnAndTask;
+            schemas[SharedTaskUpdatedType] = pawnAndTask;
             schemas[key: 12] = pawnAndTask;
             schemas[key: 13] = pawnAndTask;
             schemas[key: 14] = [optionalPawn, optionalTask, variableInt];
@@ -167,7 +166,7 @@ public sealed record MapGameEvent
         void AddRemainingSchemas()
         {
             schemas[key: 21] = [optionalPawn, optionalTask, optionalVariableIntArray];
-            schemas[key: NodeEmojiAddedType] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
+            schemas[NodeEmojiAddedType] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
             schemas[key: 23] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 24] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 25] = [optionalLongIdentifier, variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 162)];

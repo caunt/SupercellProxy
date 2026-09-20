@@ -7,8 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// <summary>Contains the rewards retained by a truck delivery.</summary>
 public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
 {
-
-
     /// <summary>Gets the AdBonusCash value.</summary>
     public int AdBonusCash { get; init; }
 
@@ -47,5 +45,4 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     /// <summary>Gets the ItemGlobalIdentifier value.</summary>
     [JsonPropertyName("ItemGlobalID")]
     public int ItemGlobalIdentifier { get; init; }
-
 }

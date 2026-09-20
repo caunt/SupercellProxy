@@ -10,7 +10,6 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// </summary>
 public static class MapGameFieldCodec
 {
-
     /// <summary>
     /// Provides the Read Count value or operation.
     /// </summary>

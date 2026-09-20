@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 /// </summary>
 public sealed record DecorationEventManagerSnapshot
 {
-
     /// <summary>
     /// Gets the Challenges On Submission value.
     /// </summary>

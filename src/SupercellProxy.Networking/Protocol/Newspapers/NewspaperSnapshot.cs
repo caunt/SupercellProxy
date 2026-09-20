@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 /// </summary>
 public sealed record NewspaperSnapshot
 {
-
     /// <summary>
     /// Gets the Bot Reset Time value.
     /// </summary>

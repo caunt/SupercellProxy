@@ -18,5 +18,4 @@ public sealed record MapGameEmblemSnapshot : ExtensibleDocument
     /// <summary>Gets the Symbol value.</summary>
     [JsonPropertyName("sym")]
     public int Symbol { get; init; }
-
 }

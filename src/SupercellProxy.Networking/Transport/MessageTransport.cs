@@ -209,8 +209,7 @@ internal sealed class MessageTransport(MessageStream stream)
     internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
         where TValue : IMessage
     {
-        await WriteContainerAsync(message.ToContainer(MessageRegistry.GetIdentifier(message), version: MessageRegistry.GetVersion(message)), cancellationToken)
+        await WriteContainerAsync(message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message)), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
-
 }

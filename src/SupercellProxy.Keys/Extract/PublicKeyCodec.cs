@@ -20,7 +20,7 @@ internal static class PublicKeyCodec
     /// <summary>Decodes a native key table into a 32-byte public key.</summary>
     public static Span<byte> Decode(ReadOnlySpan<byte> input)
     {
-        ArgumentOutOfRangeException.ThrowIfNotEqual(value: input.Length, other: EncodedLength, paramName: nameof(input));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, EncodedLength, nameof(input));
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[16];
 
@@ -48,7 +48,7 @@ internal static class PublicKeyCodec
     /// <summary>Encodes a 32-byte public key into the native key table.</summary>
     public static Span<byte> Encode(ReadOnlySpan<byte> input)
     {
-        ArgumentOutOfRangeException.ThrowIfNotEqual(value: input.Length, other: DecodedLength, paramName: nameof(input));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, DecodedLength, nameof(input));
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[64];
 

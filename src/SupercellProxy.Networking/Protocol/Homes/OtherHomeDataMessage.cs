@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 /// </summary>
 public record OtherHomeDataMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">ClientAvatar</c> value.
     /// </summary>

@@ -8,5 +8,4 @@ internal sealed record DecryptDayVersionMetadata
     /// <summary>Gets the Name value.</summary>
     [JsonPropertyName("name")]
     public string? Name { get; init; }
-
 }

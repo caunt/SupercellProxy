@@ -11,7 +11,6 @@ namespace SupercellProxy.Networking.Client;
 
 internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache assets)
 {
-
     internal static LoginMessage CreateLoginMessage(string fingerprintSha1, SessionTokenData? sessionToken, AppStore appStore)
     {
         return new LoginMessage
@@ -205,5 +204,4 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             throw;
         }
     }
-
 }

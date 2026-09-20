@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// </summary>
 public sealed record OrderTrackReward
 {
-
     /// <summary>
     /// Gets the Count value.
     /// </summary>

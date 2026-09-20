@@ -14,5 +14,4 @@ public sealed record MapGameAvatarIdentifier : ExtensibleDocument
     /// <summary>Gets the Low value.</summary>
     [JsonPropertyName("l")]
     public int Low { get; init; }
-
 }

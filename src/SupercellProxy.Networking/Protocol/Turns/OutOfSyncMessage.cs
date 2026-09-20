@@ -10,7 +10,6 @@ namespace SupercellProxy.Networking.Protocol.Turns;
 /// </summary>
 public sealed record OutOfSyncMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">ClientChecksum</c> value.
     /// </summary>

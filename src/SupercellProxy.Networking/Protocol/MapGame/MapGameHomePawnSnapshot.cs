@@ -50,5 +50,4 @@ public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
     /// <summary>Gets the SelectedOptions value.</summary>
     [JsonPropertyName("SelectedOptions")]
     public int[] SelectedOptions { get; init; } = [];
-
 }

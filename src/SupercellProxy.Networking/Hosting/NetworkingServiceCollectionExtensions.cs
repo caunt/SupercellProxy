@@ -16,7 +16,6 @@ namespace SupercellProxy.Networking.Hosting;
 /// <summary>Registers public connection infrastructure independently of game simulation.</summary>
 public static class NetworkingServiceCollectionExtensions
 {
-
     /// <summary>Registers an authenticated hosted client and returns its typed options.</summary>
     public static OptionsBuilder<ClientOptions> AddProtocolClient(this IServiceCollection services, Func<IMessage, CancellationToken, Task> onMessage, Action<ClientOptions>? configure = null)
     {
@@ -100,5 +99,4 @@ public static class NetworkingServiceCollectionExtensions
 
         return services;
     }
-
 }

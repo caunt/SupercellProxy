@@ -24,5 +24,4 @@ public sealed record FarmPassRewardTierDefinition
     /// <summary>Gets the PremiumRewards value.</summary>
     [JsonPropertyName("premiumRewards")]
     public FarmPassRewardGroupDefinition[] PremiumRewards { get; init; } = [];
-
 }

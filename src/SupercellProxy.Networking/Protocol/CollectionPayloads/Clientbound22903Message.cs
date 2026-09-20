@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.CollectionPayloads;
 /// </summary>
 public sealed record Clientbound22903Message : IMessage
 {
-
     /// <summary>
     /// Gets the Entries Present value.
     /// </summary>

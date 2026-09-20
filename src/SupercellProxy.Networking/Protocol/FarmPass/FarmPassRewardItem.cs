@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// </summary>
 public sealed record FarmPassRewardItem
 {
-
     /// <summary>
     /// Gets the Count value.
     /// </summary>

@@ -10,5 +10,4 @@ public sealed record MapGameCurrentQuestsSnapshot : ExtensibleDocument
     /// <summary>Gets the Quests value.</summary>
     [JsonPropertyName("Quests")]
     public MapGameDailyQuestSnapshot[] Quests { get; init; } = [];
-
 }

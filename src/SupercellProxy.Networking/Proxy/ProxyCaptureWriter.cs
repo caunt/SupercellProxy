@@ -255,7 +255,7 @@ public sealed class ProxyCaptureWriter
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         DirectoryInfo directory = Directory.CreateDirectory(path);
         TrySetDirectoryPermissions(directory.FullName);
-        Volatile.Write(location: ref _persisted, value: 1);
+        Volatile.Write(ref _persisted, value: 1);
 
         foreach ((ArtifactName artifact, byte[] bytes) in _pendingArtifacts)
             await WriteArtifactAsync(artifact, bytes, overwrite: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

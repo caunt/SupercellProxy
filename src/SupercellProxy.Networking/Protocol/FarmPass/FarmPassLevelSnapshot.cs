@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// </summary>
 public sealed record FarmPassLevelSnapshot
 {
-
     /// <summary>
     /// Gets the Farm Points value.
     /// </summary>

@@ -7,7 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// </summary>
 public sealed record BoatCargoSnapshot
 {
-
     /// <summary>
     /// Gets the Amount value.
     /// </summary>

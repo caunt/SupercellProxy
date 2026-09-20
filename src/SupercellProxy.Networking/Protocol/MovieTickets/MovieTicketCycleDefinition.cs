@@ -12,5 +12,4 @@ public sealed record MovieTicketCycleDefinition
     /// <summary>Gets the MoviesPerCycle value.</summary>
     [JsonPropertyName("MoviesPerCycle")]
     public int MoviesPerCycle { get; init; }
-
 }

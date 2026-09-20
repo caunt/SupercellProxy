@@ -12,7 +12,6 @@ namespace SupercellProxy.Networking.Protocol;
 [StructLayout(LayoutKind.Auto)]
 public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
 {
-
     /// <summary>
     /// Defines the <c language="csharp">Empty</c> value.
     /// </summary>

@@ -9,7 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 /// </summary>
 public sealed record VisitHomeTargetMessage : IMessage
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Target</c> value.
     /// </summary>

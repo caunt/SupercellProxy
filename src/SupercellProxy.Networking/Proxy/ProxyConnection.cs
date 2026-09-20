@@ -228,7 +228,6 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationTokenSource.Dispose();
 
         await CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
-
     }
 
     private async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken = default)

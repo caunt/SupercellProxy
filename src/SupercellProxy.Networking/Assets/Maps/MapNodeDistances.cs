@@ -12,5 +12,4 @@ public sealed record MapNodeDistances
     /// <summary>Gets the Identifier value.</summary>
     [JsonPropertyName("Id")]
     public int Identifier { get; init; }
-
 }

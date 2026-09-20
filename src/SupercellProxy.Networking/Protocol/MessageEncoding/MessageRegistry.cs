@@ -4,6 +4,7 @@ using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
 using SupercellProxy.Networking.Protocol.Friends;
+using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Newspapers;
@@ -22,11 +23,8 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// </summary>
 public static class MessageRegistry
 {
-
-    /// <summary>
-    /// Provides the Clientbound28544 Message Type value or operation.
-    /// </summary>
-    public const ushort Clientbound28544MessageType = 28544;
+    /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
+    public const ushort DecoCanvasDataMessageType = 28544;
 
     /// Identifies the clientbound loading-complete gate used to initialize home turns.
     public const ushort HomeInitializationMessageType = 27439;
@@ -36,7 +34,6 @@ public static class MessageRegistry
         [key: 10518] = "open friend book",
         [key: 14972] = "last helpers request",
         [key: 20155] = "???",
-        [key: 20699] = "BaseHomeDataMessage",
         [key: 21628] = "last helpers response",
         [key: 24180] = "OWN_HOME_DATA",
         [key: 26199] = "LogicArrayList<FriendMeta *>",
@@ -45,145 +42,162 @@ public static class MessageRegistry
 
     private static readonly Dictionary<ushort, MessageRegistryEntry> Map = new()
     {
-        [key: 22878] = new MessageRegistryEntry(Version: 0, Type: typeof(RoadsidePurchaseResultMessage), Factory: RoadsidePurchaseResultMessage.Create)
+        [key: 18335] = new MessageRegistryEntry(Version: 0, typeof(FollowMessage), FollowMessage.Create)
+        { CaptureName = nameof(FollowMessage) },
+        [key: 21236] = new MessageRegistryEntry(Version: 0, typeof(FollowResponseMessage), FollowResponseMessage.Create)
+        { CaptureName = nameof(FollowResponseMessage) },
+        [key: 19845] = new MessageRegistryEntry(Version: 0, typeof(RequestFollowerListPageMessage), RequestFollowerListPageMessage.Create)
+        { CaptureName = nameof(RequestFollowerListPageMessage) },
+        [key: 26605] = new MessageRegistryEntry(Version: 0, typeof(FollowerListPageMessage), FollowerListPageMessage.Create)
+        { CaptureName = nameof(FollowerListPageMessage) },
+        [key: 18272] = new MessageRegistryEntry(Version: 0, typeof(RequestFollowerCountMessage), RequestFollowerCountMessage.Create)
+        { CaptureName = nameof(RequestFollowerCountMessage) },
+        [key: 23455] = new MessageRegistryEntry(Version: 0, typeof(FollowerCountMessage), FollowerCountMessage.Create)
+        { CaptureName = nameof(FollowerCountMessage) },
+        [key: 26582] = new MessageRegistryEntry(Version: 0, typeof(FriendListUpdateMessage), FriendListUpdateMessage.Create)
+        { CaptureName = nameof(FriendListUpdateMessage) },
+        [key: 22878] = new MessageRegistryEntry(Version: 0, typeof(RoadsidePurchaseResultMessage), RoadsidePurchaseResultMessage.Create)
         { CaptureName = "RoadsidePurchaseResultMessage" },
-        [key: 28562] = new MessageRegistryEntry(Version: 0, Type: typeof(RoadsideListingBuyerMessage), Factory: RoadsideListingBuyerMessage.Create)
+        [key: 28562] = new MessageRegistryEntry(Version: 0, typeof(RoadsideListingBuyerMessage), RoadsideListingBuyerMessage.Create)
         { CaptureName = "RoadsideListingBuyerMessage" },
-        [key: 21767] = new MessageRegistryEntry(Version: 0, Type: typeof(HomeLoadFailedMessage), Factory: HomeLoadFailedMessage.Create)
+        [key: 21767] = new MessageRegistryEntry(Version: 0, typeof(HomeLoadFailedMessage), HomeLoadFailedMessage.Create)
         { CaptureName = "HomeLoadFailedMessage" },
-        [key: 10100] = new MessageRegistryEntry(Version: 0, Type: typeof(ClientHelloMessage), Factory: ClientHelloMessage.Create)
+        [key: 10100] = new MessageRegistryEntry(Version: 0, typeof(ClientHelloMessage), ClientHelloMessage.Create)
         { CaptureName = "ClientHelloMessage" },
 
-        [key: 10101] = new MessageRegistryEntry(Version: 5213, Type: typeof(LoginMessage), Factory: LoginMessage.Create)
+        [key: 10101] = new MessageRegistryEntry(Version: 5213, typeof(LoginMessage), LoginMessage.Create)
         { CaptureName = "LoginMessage" },
 
-        [key: 10108] = new MessageRegistryEntry(Version: 0, Type: typeof(KeepAliveMessage), Factory: KeepAliveMessage.Create)
+        [key: 10108] = new MessageRegistryEntry(Version: 0, typeof(KeepAliveMessage), KeepAliveMessage.Create)
         { CaptureName = "KeepAliveMessage" },
 
-        [key: 14484] = new MessageRegistryEntry(Version: 5213, Type: typeof(VisitHomeMessage), Factory: VisitHomeMessage.Create)
+        [key: 14484] = new MessageRegistryEntry(Version: 5213, typeof(VisitHomeMessage), VisitHomeMessage.Create)
         { CaptureName = "VisitHomeMessage" },
 
-        [key: 17703] = new MessageRegistryEntry(Version: 0, Type: typeof(VisitOtherFishingHomeMessage), Factory: VisitOtherFishingHomeMessage.Create)
+        [key: 17703] = new MessageRegistryEntry(Version: 0, typeof(VisitOtherFishingHomeMessage), VisitOtherFishingHomeMessage.Create)
         { CaptureName = "VisitOtherFishingHomeMessage" },
 
-        [key: 18671] = new MessageRegistryEntry(Version: 5213, Type: typeof(VisitHomeTargetMessage), Factory: VisitHomeTargetMessage.Create)
+        [key: 18671] = new MessageRegistryEntry(Version: 5213, typeof(VisitHomeTargetMessage), VisitHomeTargetMessage.Create)
         { CaptureName = "VisitHomeTargetMessage" },
 
-        [key: 10224] = new MessageRegistryEntry(Version: EndClientTurnMessage.CurrentVersion, Type: typeof(EndClientTurnMessage), Factory: EndClientTurnMessage.Create)
+        [key: 10224] = new MessageRegistryEntry(EndClientTurnMessage.CurrentVersion, typeof(EndClientTurnMessage), EndClientTurnMessage.Create)
         { CaptureName = "EndClientTurnMessage" },
 
-        [key: 19949] = new MessageRegistryEntry(Version: 0, Type: typeof(RequestOwnHomeMessage), Factory: RequestOwnHomeMessage.Create)
+        [key: 19949] = new MessageRegistryEntry(Version: 0, typeof(RequestOwnHomeMessage), RequestOwnHomeMessage.Create)
         { CaptureName = "RequestOwnHomeMessage" },
 
-        [key: 20013] = new MessageRegistryEntry(Version: 0, Type: typeof(NeighborhoodListsMessage), Factory: NeighborhoodListsMessage.Create)
+        [key: 20013] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodListsMessage), NeighborhoodListsMessage.Create)
         { CaptureName = "NeighborhoodListsMessage" },
 
-        [key: 22158] = new MessageRegistryEntry(Version: 0, Type: typeof(RoadsideBuyerMessage), Factory: RoadsideBuyerMessage.Create)
+        [key: 22158] = new MessageRegistryEntry(Version: 0, typeof(RoadsideBuyerMessage), RoadsideBuyerMessage.Create)
         { CaptureName = "RoadsideBuyerMessage" },
 
-        [key: 26668] = new MessageRegistryEntry(Version: 0, Type: typeof(HomeVisitStatusMessage), Factory: HomeVisitStatusMessage.Create)
+        [key: 26668] = new MessageRegistryEntry(Version: 0, typeof(HomeVisitStatusMessage), HomeVisitStatusMessage.Create)
         { CaptureName = "Clientbound26668Message" },
 
-        [key: 20100] = new MessageRegistryEntry(Version: 0, Type: typeof(ServerHelloMessage), Factory: ServerHelloMessage.Create)
+        [key: 20100] = new MessageRegistryEntry(Version: 0, typeof(ServerHelloMessage), ServerHelloMessage.Create)
         { CaptureName = "ServerHelloMessage" },
 
-        [key: 20103] = new MessageRegistryEntry(Version: 2, Type: typeof(LoginFailedMessage), Factory: LoginFailedMessage.Create)
+        [key: 20103] = new MessageRegistryEntry(Version: 2, typeof(LoginFailedMessage), LoginFailedMessage.Create)
         { CaptureName = "LoginFailedMessage" },
 
-        [key: 20108] = new MessageRegistryEntry(Version: 0, Type: typeof(KeepAliveOkMessage), Factory: KeepAliveOkMessage.Create)
+        [key: 20108] = new MessageRegistryEntry(Version: 0, typeof(KeepAliveOkMessage), KeepAliveOkMessage.Create)
         { CaptureName = "KeepAliveOkMessage" },
 
-        [key: 20155] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound20155Message), Factory: Clientbound20155Message.Create)
+        [key: 20155] = new MessageRegistryEntry(Version: 0, typeof(Clientbound20155Message), Clientbound20155Message.Create)
         { CaptureName = "Clientbound20155Message" },
 
-        [key: 20187] = new MessageRegistryEntry(Version: 0, Type: typeof(AvailableServerCommandMessage), Factory: AvailableServerCommandMessage.Create)
+        [key: 20187] = new MessageRegistryEntry(Version: 0, typeof(AvailableServerCommandMessage), AvailableServerCommandMessage.Create)
         { CaptureName = "AvailableServerCommandMessage" },
 
-        [key: 20621] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound20621Message), Factory: Clientbound20621Message.Create)
+        [key: 20621] = new MessageRegistryEntry(Version: 0, typeof(Clientbound20621Message), Clientbound20621Message.Create)
         { CaptureName = "Clientbound20621Message" },
 
-        [key: 21915] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound21915Message), Factory: Clientbound21915Message.Create)
+        [key: 21915] = new MessageRegistryEntry(Version: 0, typeof(Clientbound21915Message), Clientbound21915Message.Create)
         { CaptureName = "Clientbound21915Message" },
 
-        [key: 21945] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound21945Message), Factory: Clientbound21945Message.Create)
+        [key: 21945] = new MessageRegistryEntry(Version: 0, typeof(Clientbound21945Message), Clientbound21945Message.Create)
         { CaptureName = "Clientbound21945Message" },
 
-        [key: 22903] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound22903Message), Factory: Clientbound22903Message.Create)
+        [key: 22903] = new MessageRegistryEntry(Version: 0, typeof(Clientbound22903Message), Clientbound22903Message.Create)
         { CaptureName = "Clientbound22903Message" },
-        [key: 28967] = new MessageRegistryEntry(Version: 0, Type: typeof(NewspaperDataMessage), Factory: NewspaperDataMessage.Create)
+        [key: 28967] = new MessageRegistryEntry(Version: 0, typeof(NewspaperDataMessage), NewspaperDataMessage.Create)
         { CaptureName = "NewspaperDataMessage" },
-        [key: 26994] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound26994Message), Factory: Clientbound26994Message.Create)
+        [key: 26994] = new MessageRegistryEntry(Version: 0, typeof(Clientbound26994Message), Clientbound26994Message.Create)
         { CaptureName = "Clientbound26994Message" },
 
-        [key: 22302] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound22302Message), Factory: Clientbound22302Message.Create)
+        [key: 22302] = new MessageRegistryEntry(Version: 0, typeof(Clientbound22302Message), Clientbound22302Message.Create)
         { CaptureName = "Clientbound22302Message" },
 
-        [key: 22802] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound22802Message), Factory: Clientbound22802Message.Create)
+        [key: 22802] = new MessageRegistryEntry(Version: 0, typeof(Clientbound22802Message), Clientbound22802Message.Create)
         { CaptureName = "Clientbound22802Message" },
 
-        [key: 23074] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound23074Message), Factory: Clientbound23074Message.Create)
+        [key: 23074] = new MessageRegistryEntry(Version: 0, typeof(Clientbound23074Message), Clientbound23074Message.Create)
         { CaptureName = "Clientbound23074Message" },
 
-        [key: 23443] = new MessageRegistryEntry(Version: 0, Type: typeof(PlayerRankingsMessage), Factory: PlayerRankingsMessage.Create)
+        [key: 23443] = new MessageRegistryEntry(Version: 0, typeof(PlayerRankingsMessage), PlayerRankingsMessage.Create)
         { CaptureName = "PlayerRankingsMessage" },
 
-        [key: 23444] = new MessageRegistryEntry(Version: 8277, Type: typeof(PlayerRankingsPageMessage), Factory: PlayerRankingsPageMessage.Create)
+        [key: 23444] = new MessageRegistryEntry(Version: 8277, typeof(PlayerRankingsPageMessage), PlayerRankingsPageMessage.Create)
         { CaptureName = "PlayerRankingsPageMessage" },
 
-        [key: 23626] = new MessageRegistryEntry(Version: 0, Type: typeof(OutOfSyncMessage), Factory: OutOfSyncMessage.Create)
+        [key: 23626] = new MessageRegistryEntry(Version: 0, typeof(OutOfSyncMessage), OutOfSyncMessage.Create)
         { CaptureName = "OutOfSyncMessage" },
-        [key: 23708] = new MessageRegistryEntry(Version: 0, Type: typeof(PlayerRankings23708Message), Factory: PlayerRankings23708Message.Create)
+        [key: 23708] = new MessageRegistryEntry(Version: 0, typeof(PlayerRankings23708Message), PlayerRankings23708Message.Create)
         { CaptureName = "PlayerRankings23708Message" },
 
-        [key: 24149] = new MessageRegistryEntry(Version: 0, Type: typeof(AccountLoadResponseMessage), Factory: AccountLoadResponseMessage.Create)
+        [key: 24149] = new MessageRegistryEntry(Version: 0, typeof(AccountLoadResponseMessage), AccountLoadResponseMessage.Create)
         { CaptureName = "AccountLoadResponseMessage" },
 
-        [key: 24180] = new MessageRegistryEntry(Version: 0, Type: typeof(OwnHomeDataMessage), Factory: OwnHomeDataMessage.Create)
+        [key: 24180] = new MessageRegistryEntry(Version: 0, typeof(OwnHomeDataMessage), OwnHomeDataMessage.Create)
         { CaptureName = "OwnHomeDataMessage" },
 
-        [key: 24222] = new MessageRegistryEntry(Version: 0, Type: typeof(FishingDataMessage), Factory: FishingDataMessage.Create)
+        [key: 24222] = new MessageRegistryEntry(Version: 0, typeof(FishingDataMessage), FishingDataMessage.Create)
         { CaptureName = "FishingDataMessage" },
 
-        [Clientbound28544MessageType] = new MessageRegistryEntry(Version: 0, Type: typeof(BaseHomeDataMessage), Factory: BaseHomeDataMessage.Create)
-        { CaptureName = "Clientbound28544Message" },
+        [DecoCanvasDataMessageType] = new MessageRegistryEntry(Version: 0, typeof(DecoCanvasDataMessage), DecoCanvasDataMessage.Create)
+        { CaptureName = "DecoCanvasDataMessage" },
 
-        [key: 24489] = new MessageRegistryEntry(Version: 0, Type: typeof(OtherHomeDataMessage), Factory: OtherHomeDataMessage.Create)
+        [key: 20699] = new MessageRegistryEntry(Version: 0, typeof(GregFarmDataMessage), GregFarmDataMessage.Create)
+        { CaptureName = "GregFarmDataMessage" },
+
+        [key: 24489] = new MessageRegistryEntry(Version: 0, typeof(OtherHomeDataMessage), OtherHomeDataMessage.Create)
         { CaptureName = "OtherHomeDataMessage" },
 
-        [key: 24843] = new MessageRegistryEntry(Version: 0, Type: typeof(AccountCandidatesMessage), Factory: AccountCandidatesMessage.Create)
+        [key: 24843] = new MessageRegistryEntry(Version: 0, typeof(AccountCandidatesMessage), AccountCandidatesMessage.Create)
         { CaptureName = "Clientbound24843Message" },
 
-        [key: 25220] = new MessageRegistryEntry(Version: 2, Type: typeof(LoginOkMessage), Factory: LoginOkMessage.Create)
+        [key: 25220] = new MessageRegistryEntry(Version: 2, typeof(LoginOkMessage), LoginOkMessage.Create)
         { CaptureName = "LoginOkMessage" },
 
-        [key: 25892] = new MessageRegistryEntry(Version: 0, Type: typeof(DisconnectedMessage), Factory: DisconnectedMessage.Create)
+        [key: 25892] = new MessageRegistryEntry(Version: 0, typeof(DisconnectedMessage), DisconnectedMessage.Create)
         { CaptureName = "DisconnectedMessage" },
 
-        [key: 26199] = new MessageRegistryEntry(Version: 0, Type: typeof(FriendMetadataMessage), Factory: FriendMetadataMessage.Create)
+        [key: 26199] = new MessageRegistryEntry(Version: 0, typeof(FriendMetadataMessage), FriendMetadataMessage.Create)
         { CaptureName = "Clientbound26199Message" },
 
-        [key: 26385] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound26385Message), Factory: Clientbound26385Message.Create)
+        [key: 26385] = new MessageRegistryEntry(Version: 0, typeof(Clientbound26385Message), Clientbound26385Message.Create)
         { CaptureName = "Clientbound26385Message" },
 
-        [key: 27398] = new MessageRegistryEntry(Version: 0, Type: typeof(ResourceAssociationsMessage), Factory: ResourceAssociationsMessage.Create)
+        [key: 27398] = new MessageRegistryEntry(Version: 0, typeof(ResourceAssociationsMessage), ResourceAssociationsMessage.Create)
         { CaptureName = "Clientbound27398Message" },
 
-        [key: 28061] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound28061Message), Factory: Clientbound28061Message.Create)
+        [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },
 
-        [key: 28917] = new MessageRegistryEntry(Version: 0, Type: typeof(OtherFishingHomeDataMessage), Factory: OtherFishingHomeDataMessage.Create)
+        [key: 28917] = new MessageRegistryEntry(Version: 0, typeof(OtherFishingHomeDataMessage), OtherFishingHomeDataMessage.Create)
         { CaptureName = "OtherFishingHomeDataMessage" },
 
-        [key: 29247] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound29247Message), Factory: Clientbound29247Message.Create)
+        [key: 29247] = new MessageRegistryEntry(Version: 0, typeof(Clientbound29247Message), Clientbound29247Message.Create)
         { CaptureName = "Clientbound29247Message" },
 
-        [key: 29275] = new MessageRegistryEntry(Version: 0, Type: typeof(ScidJwtMessage), Factory: ScidJwtMessage.Create)
+        [key: 29275] = new MessageRegistryEntry(Version: 0, typeof(ScidJwtMessage), ScidJwtMessage.Create)
         { CaptureName = "ScidJwtMessage" },
 
-        [key: 29415] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound29415Message), Factory: Clientbound29415Message.Create)
-        { CaptureName = "Clientbound29415Message" },
+        [key: 29415] = new MessageRegistryEntry(Version: 0, typeof(FriendListMessage), FriendListMessage.Create)
+        { CaptureName = nameof(FriendListMessage) },
 
-        [key: 29734] = new MessageRegistryEntry(Version: 0, Type: typeof(Clientbound29734Message), Factory: Clientbound29734Message.Create)
+        [key: 29734] = new MessageRegistryEntry(Version: 0, typeof(Clientbound29734Message), Clientbound29734Message.Create)
         { CaptureName = "Clientbound29734Message" },
     };
     /// <summary>Gets all registered packet contracts and their wire versions by identifier.</summary>

@@ -8,7 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Collections;
 /// </summary>
 public sealed record AvatarStateSection
 {
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Entries</c> value.
     /// </summary>
