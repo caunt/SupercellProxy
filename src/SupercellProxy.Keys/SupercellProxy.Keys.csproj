@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloakBrowser" Version="0.5.10" />
+    <PackageReference Include="CloakBrowser" Version="0.5.11" />
     <InternalsVisibleTo Include="SupercellProxy.Capture" />
   </ItemGroup>
 </Project>
