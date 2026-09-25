@@ -1,5 +1,5 @@
 <Project>
   <ItemGroup>
-    <PackageReference Include="NetAgents.Analyzers" Version="26.9.21.5138" PrivateAssets="all" />
+    <PackageReference Include="NetAgents.Analyzers" Version="26.9.25.7387" PrivateAssets="all" />
   </ItemGroup>
 </Project>
