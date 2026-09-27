@@ -410,6 +410,9 @@ public static class CommandRegistry
     /// </summary>
     public const int RemoveNewShopItemsCommandType = 601;
 
+    /// <summary>Requests an item from the player's neighborhood.</summary>
+    public const int RequestNeighborhoodItemCommandType = 199;
+
     /// <summary>
     /// Provides the Request Newspaper Command Type value or operation.
     /// </summary>

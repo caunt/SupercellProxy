@@ -25,6 +25,7 @@ using SupercellProxy.Networking.Protocol.MapGame.Notifications;
 using SupercellProxy.Networking.Protocol.MapGame.Quests;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.MovieTickets;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 using SupercellProxy.Networking.Protocol.MysteryBoxes;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.OpaquePayloads;
@@ -46,6 +47,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [RequestNeighborhoodItemCommandType] = new CommandRegistryEntry(
+            typeof(RequestNeighborhoodItemCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => RequestNeighborhoodItemCommand.Decode(stream, environment)
+        ),
         [MarkTradingSeasonCheckedCommandType] = new CommandRegistryEntry(
             typeof(MarkTradingSeasonCheckedCommand),
             MessageDirection.Serverbound,
