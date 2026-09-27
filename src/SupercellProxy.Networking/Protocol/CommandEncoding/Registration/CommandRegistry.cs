@@ -472,6 +472,9 @@ public static class CommandRegistry
     /// <summary>Moves one fishing-area fish to the selected runtime state.</summary>
     public const int SetFishStateCommandType = 112;
 
+    /// <summary>Changes a notification or advanced user setting.</summary>
+    public const int SetUserSettingCommandType = 131;
+
     /// <summary>Spins the active Valley fuel wheel.</summary>
     public const int SpinMapGameFuelWheelCommandType = 616;
 

@@ -8,6 +8,7 @@ using SupercellProxy.Networking.Protocol.Friends;
 using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.OpaquePayloads;
 using SupercellProxy.Networking.Protocol.Rankings;
@@ -24,6 +25,9 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// </summary>
 public static class MessageRegistry
 {
+    /// Identifies a clientbound avatar-stream page.
+    public const ushort AvatarStreamPageMessageType = 26542;
+
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
 
@@ -200,6 +204,9 @@ public static class MessageRegistry
 
         [NeighborhoodFullListMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodFullListMessage), NeighborhoodFullListMessage.Create)
         { CaptureName = nameof(NeighborhoodFullListMessage) },
+
+        [AvatarStreamPageMessageType] = new MessageRegistryEntry(Version: 0, typeof(AvatarStreamPageMessage), AvatarStreamPageMessage.Create)
+        { CaptureName = nameof(AvatarStreamPageMessage) },
 
         [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },

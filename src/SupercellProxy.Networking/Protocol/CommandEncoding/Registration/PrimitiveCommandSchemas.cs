@@ -196,7 +196,7 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new(
-            [ 131, UpdateTaskEventStateCommandType ],
+            [ UpdateTaskEventStateCommandType ],
             [
                 CommandFieldType.VariableInt,
                 CommandFieldType.VariableInt,

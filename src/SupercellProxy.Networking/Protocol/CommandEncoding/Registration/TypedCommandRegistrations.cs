@@ -32,6 +32,7 @@ using SupercellProxy.Networking.Protocol.PrizeWheels;
 using SupercellProxy.Networking.Protocol.Production;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
 using SupercellProxy.Networking.Protocol.ShopEvents;
+using SupercellProxy.Networking.Protocol.Settings;
 using SupercellProxy.Networking.Protocol.Town;
 using SupercellProxy.Networking.Protocol.Tutorials;
 using SupercellProxy.Networking.Protocol.Visitors;
@@ -44,6 +45,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [SetUserSettingCommandType] = new CommandRegistryEntry(
+            typeof(SetUserSettingCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => SetUserSettingCommand.Decode(stream, environment)
+        ),
         [FulfillFarmVisitorOrderCommandType] = new CommandRegistryEntry(
             typeof(FulfillFarmVisitorOrderCommand),
             MessageDirection.Serverbound,
