@@ -6,6 +6,7 @@ using SupercellProxy.Networking.Protocol.Boats;
 using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.Orders;
 using SupercellProxy.Networking.Protocol.Visitors;
+using SupercellProxy.Networking.Protocol.Town;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
@@ -23,24 +24,24 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">AccurateY</c> value.
     /// </summary>
     public int? AccurateY { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">AdsSpins</c> value.
     /// </summary>
     public int AdsSpins { get; init; }
+
     /// <summary>Gets per-stand roadside advertisement timers, in native timer ticks.</summary>
     [JsonPropertyName("AdTimers")]
     public int[]? AdvertisementTimers { get; init; }
 
-
-
     /// <summary>Gets the retained AnimalHabitatIndex value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimalHabitatIndex { get; init; }
-
     /// <summary>Gets the retained adult-pet animation index, read only when pet animation indices are part of logic.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimationIndex { get; init; }
+
+
+
     /// <summary>Gets per-stand automatic-buyer timers for a roadside shop.</summary>
     [JsonPropertyName("AITimer")]
     public int[] AutomaticBuyerTimers { get; init; } = [];
@@ -49,7 +50,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">BeatsTimer</c> value.
     /// </summary>
     public int? BeatsTimer { get; init; }
-
     /// Gets the retained boat-order groups.
     [JsonPropertyName("boat_orders")]
     public BoatOrderSnapshot[] BoatOrders { get; init; } = [];
@@ -131,6 +131,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("rewards")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TruckDeliveryRewardSnapshot[]? DeliveryRewards { get; init; }
+
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCost { get; init; }
@@ -138,7 +139,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained DiamondCostToTake value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCostToTake { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">EventId</c> value.
     /// </summary>
@@ -153,6 +153,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained Fed value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Fed { get; init; }
+
+    /// <summary>Gets the last finished town-passenger service index when saved.</summary>
+    public int? FinishedServiceIndex { get; init; }
 
     /// <summary>Gets the retained fishing-spot row this fish is attached to.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -181,11 +184,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
     /// </summary>
     public bool FreeReEngagementAvailable { get; init; }
+
     /// <summary>Gets the retained FriendLastOpened value.</summary>
     [JsonPropertyName("LastOpenedFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? FriendLastOpened { get; init; }
-
     /// <summary>Gets the retained FriendOpenedBoxTimer value.</summary>
     [JsonPropertyName("OpenedBoxTimerFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -334,12 +337,12 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.
     /// </summary>
     public int LastDailyResetHourIndex { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">LastEventID</c> value.
     /// </summary>
     [JsonPropertyName("LastEventID")]
     public int LastEventIdentifier { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">LastInitDayIndex</c> value.
     /// </summary>
@@ -436,6 +439,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public int Rank { get; init; } = 1;
 
+    /// <summary>Gets saved town-passenger service requests.</summary>
+    public TownPassengerServiceSnapshot[]? PassengerServices { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">PaymentObjectAmount</c> value.
     /// </summary>
@@ -516,6 +522,15 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the selected index in the Boy's current offer.</summary>
     [JsonPropertyName("SelectedOfferIndex")]
     public int? SelectedBoyOfferIndex { get; init; }
+
+    /// <summary>Gets the current town-passenger service index when saved.</summary>
+    public int? ServiceIndex { get; init; }
+
+    /// <summary>Gets saved town service entries.</summary>
+    public TownServiceListSnapshot? ServiceList { get; init; }
+
+    /// <summary>Gets saved town service slots.</summary>
+    public int? ServiceSlots { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Orders</c> value.

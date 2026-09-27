@@ -499,6 +499,9 @@ public static class CommandRegistry
     /// </summary>
     public const int StartForestClearingCommandType = 18;
 
+    /// <summary>Starts a selected service at a town service building.</summary>
+    public const int StartTownServiceCommandType = 142;
+
     /// <summary>
     /// Provides the Start Truck Delivery Command Type value or operation.
     /// </summary>

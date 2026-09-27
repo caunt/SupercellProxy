@@ -51,6 +51,9 @@ public static class MessageRegistry
     /// <summary>Identifies a clientbound neighborhood member list.</summary>
     public const ushort NeighborhoodMembersMessageType = 28583;
 
+    /// <summary>Identifies the player's town home snapshot.</summary>
+    public const ushort OwnTownDataMessageType = 28543;
+
     private static readonly Dictionary<ushort, string> Hints = new()
     {
         [key: 10518] = "open friend book",
@@ -221,6 +224,9 @@ public static class MessageRegistry
 
         [NeighborhoodMembersMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodMembersMessage), NeighborhoodMembersMessage.Create)
         { CaptureName = nameof(NeighborhoodMembersMessage) },
+
+        [OwnTownDataMessageType] = new MessageRegistryEntry(Version: 0, typeof(OwnTownDataMessage), OwnTownDataMessage.Create)
+        { CaptureName = nameof(OwnTownDataMessage) },
 
         [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },

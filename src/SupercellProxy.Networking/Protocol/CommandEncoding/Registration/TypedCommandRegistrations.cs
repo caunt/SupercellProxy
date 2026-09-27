@@ -47,6 +47,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [StartTownServiceCommandType] = new CommandRegistryEntry(
+            typeof(StartTownServiceCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => StartTownServiceCommand.Decode(stream, environment)
+        ),
         [RequestNeighborhoodItemCommandType] = new CommandRegistryEntry(
             typeof(RequestNeighborhoodItemCommand),
             MessageDirection.Serverbound,
