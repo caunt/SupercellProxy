@@ -10,6 +10,7 @@ using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Members;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.OpaquePayloads;
 using SupercellProxy.Networking.Protocol.Rankings;
@@ -46,6 +47,9 @@ public static class MessageRegistry
 
     /// Identifies clientbound full neighborhood profiles.
     public const ushort NeighborhoodFullListMessageType = 29897;
+
+    /// <summary>Identifies a clientbound neighborhood member list.</summary>
+    public const ushort NeighborhoodMembersMessageType = 28583;
 
     private static readonly Dictionary<ushort, string> Hints = new()
     {
@@ -214,6 +218,9 @@ public static class MessageRegistry
 
         [NeighborhoodChatMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Create)
         { CaptureName = nameof(NeighborhoodChatMessage) },
+
+        [NeighborhoodMembersMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodMembersMessage), NeighborhoodMembersMessage.Create)
+        { CaptureName = nameof(NeighborhoodMembersMessage) },
 
         [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },
