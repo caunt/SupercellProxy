@@ -25,14 +25,6 @@ public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
     [JsonPropertyName("EmptyNodesTravelled")]
     public int EmptyNodesTravelled { get; init; }
 
-    /// <summary>Gets the EmptyNodesTravelledDeliveringAnimals value.</summary>
-    [JsonPropertyName("EmptyNodesTravelledDeliveringAnimals")]
-    public int EmptyNodesTravelledDeliveringAnimals { get; init; }
-
-    /// <summary>Gets the EmptyNodesTravelledDeliveringAnimalsImmunity value.</summary>
-    [JsonPropertyName("EmptyNodesTravelledDeliveringAnimalsImmunity")]
-    public int EmptyNodesTravelledDeliveringAnimalsImmunity { get; init; }
-
     /// <summary>Gets the ExperienceLevel value.</summary>
     [JsonPropertyName("ExpLevel")]
     public int ExperienceLevel { get; init; }
@@ -46,6 +38,14 @@ public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
     [JsonPropertyName("NeighborhoodId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MapGameAvatarIdentifier? NeighborhoodIdentifier { get; init; }
+
+    /// <summary>Gets the remaining sanctuary-animal escape allowance.</summary>
+    [JsonPropertyName("EmptyNodesTravelledDeliveringAnimals")]
+    public int SanctuaryAnimalEscapeAllowance { get; init; }
+
+    /// <summary>Gets the empty-node travel accumulated while carrying sanctuary animals.</summary>
+    [JsonPropertyName("EmptyNodesTravelledDeliveringAnimalsImmunity")]
+    public int SanctuaryAnimalEscapeProgress { get; init; }
 
     /// <summary>Gets the SelectedOptions value.</summary>
     [JsonPropertyName("SelectedOptions")]

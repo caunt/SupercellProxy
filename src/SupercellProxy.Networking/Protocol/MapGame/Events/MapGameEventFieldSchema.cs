@@ -40,7 +40,8 @@ public sealed record MapGameEventFieldSchema(
             MapGameEventFieldType.OptionalTask => new MapGameEventOptionalTaskField(stream.ReadBoolean() ? MapGameTask.Decode(stream, dataResolver) : null),
             MapGameEventFieldType.OptionalTaskCollection =>
                 new MapGameEventOptionalTaskCollectionField(stream.ReadBoolean() ? MapGameTaskCollection.Decode(stream, dataResolver) : null),
-            MapGameEventFieldType.OptionalVariableIntArray => new MapGameEventOptionalVariableIntArrayField(stream.ReadBoolean() ? CommandVariableIntArrayField.Decode(stream).Values : null),
+            // Keep absence nullable: an untyped null otherwise binds to ReadOnlyMemory<int>'s array conversion and becomes empty memory.
+            MapGameEventFieldType.OptionalVariableIntArray => new MapGameEventOptionalVariableIntArrayField(stream.ReadBoolean() ? CommandVariableIntArrayField.Decode(stream).Values : (ReadOnlyMemory<int>?)null),
             MapGameEventFieldType.OptionalState => new MapGameEventOptionalStateField(stream.ReadBoolean() ? MapGameState.Decode(stream, dataResolver) : null),
             MapGameEventFieldType.OptionalDumpTaskState =>
                 new MapGameEventOptionalDumpTaskStateField(stream.ReadBoolean() ? MapGameDumpTaskStatePayload.Decode(stream) : null),

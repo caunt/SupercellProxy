@@ -45,6 +45,11 @@ public sealed record ClientAvatar
     public int BirthTimestamp { get; init; }
 
     /// <summary>
+    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// </summary>
+    public int[][] InventoryValues { get; init; } = [];
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">CanEditFarm</c> value.
     /// </summary>
     public bool CanEditFarm { get; init; }
@@ -66,9 +71,9 @@ public sealed record ClientAvatar
     public LongIdentifier HomeIdentifier { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
     /// </summary>
-    public int[][] InventoryValues { get; init; } = [];
+    public DataReferenceValue[][] InventoryMaps { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">InventoryUnknown0</c> value.
@@ -76,9 +81,9 @@ public sealed record ClientAvatar
     public int InventoryUnknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
+    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
     /// </summary>
-    public DataReferenceValue[][] InventoryMaps { get; init; } = [];
+    public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">IsMuted</c> value.
@@ -96,9 +101,9 @@ public sealed record ClientAvatar
     public int LeagueType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
+    /// Gets or sets the <c language="csharp">MailEntries</c> value.
     /// </summary>
-    public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
+    public MailEntry[] MailEntries { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">MapGameId</c> value.
@@ -117,14 +122,15 @@ public sealed record ClientAvatar
     public NeighborhoodData? Neighborhood { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MailEntries</c> value.
-    /// </summary>
-    public MailEntry[] MailEntries { get; init; } = [];
-
-    /// <summary>
     /// Gets or sets the <c language="csharp">UnknownValues0</c> value.
     /// </summary>
     public int[] UnknownValues0 { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">BoatCrateHelpEntries</c> value.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownEntries0")]
+    public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Settings</c> value.
@@ -165,11 +171,6 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
     public bool UnknownBoolean1 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownEntries0</c> value.
-    /// </summary>
-    public AvatarIdentifierTripleEntry[] UnknownEntries0 { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownEntries1</c> value.
@@ -263,7 +264,7 @@ public sealed record ClientAvatar
         LongIdentifier homeIdentifier = stream.ReadLongIdentifier();
         LongIdentifier accountIdentifier = stream.ReadLongIdentifier();
         (int[][] Values, DataReferenceValue[][] Maps, int DeprecatedDataCount, int Unknown0) inventory = DecodeInventory(stream);
-        (RoadsideShopEntry[] RoadsideShop, NeighborhoodData? Neighborhood, MailEntry[] MailEntries, int[] UnknownValues0, AvatarIdentifierTripleEntry[] UnknownEntries0, bool TrainStationReady, bool IsMuted, bool CanEditFarm, AvatarIdentifierFlagEntry[] UnknownEntries1, PickedPassenger[] PickedPassengers, AvatarIdentifierPairEntry[] UnknownEntries2, AvatarIdentifierPairEntry[] UnknownEntries3) social = DecodeSocialState(stream);
+        (RoadsideShopEntry[] RoadsideShop, NeighborhoodData? Neighborhood, MailEntry[] MailEntries, int[] UnknownValues0, BoatCrateHelpEntry[] BoatCrateHelpEntries, bool TrainStationReady, bool IsMuted, bool CanEditFarm, AvatarIdentifierFlagEntry[] UnknownEntries1, PickedPassenger[] PickedPassengers, AvatarIdentifierPairEntry[] UnknownEntries2, AvatarIdentifierPairEntry[] UnknownEntries3) social = DecodeSocialState(stream);
         (int UnknownNullableListCount, LongIdentifier? UnknownOptionalId0, LongIdentifier? UnknownOptionalId1, int LeagueType, int UnknownLeagueValue, int LeagueScore, int[] UnknownValues1, AvatarCollectionSection UnknownManager0, AvatarStringSection UnknownManager1, int[] UnknownValues2, LongIdentifier? MapGameId, LongIdentifier? UnknownOptionalId3, int Unknown4, MapGameParticipant[]? MapGameParticipants, int BirthTimestamp, string? AgeCountryCode, bool StorePromotionAllowed, string? UnknownString1, bool UnknownBoolean1, AvatarStateSection UnknownManager2, AvatarSettings? Settings) progression = DecodeProgressionState(stream);
 
         return new ClientAvatar
@@ -283,7 +284,7 @@ public sealed record ClientAvatar
             Neighborhood = social.Neighborhood,
             MailEntries = social.MailEntries,
             UnknownValues0 = social.UnknownValues0,
-            UnknownEntries0 = social.UnknownEntries0,
+            BoatCrateHelpEntries = social.BoatCrateHelpEntries,
             TrainStationReady = social.TrainStationReady,
             IsMuted = social.IsMuted,
             CanEditFarm = social.CanEditFarm,
@@ -428,7 +429,7 @@ public sealed record ClientAvatar
         NeighborhoodData? Neighborhood,
         MailEntry[] MailEntries,
         int[] UnknownValues0,
-        AvatarIdentifierTripleEntry[] UnknownEntries0,
+        BoatCrateHelpEntry[] BoatCrateHelpEntries,
         bool TrainStationReady,
         bool IsMuted,
         bool CanEditFarm,
@@ -443,7 +444,7 @@ public sealed record ClientAvatar
             stream.ReadBoolean() ? NeighborhoodData.Decode(stream) : null,
             stream.ReadArray(MailEntry.Decode),
             stream.ReadArray(static valueStream => valueStream.ReadVariableInt()),
-            stream.ReadArray(AvatarIdentifierTripleEntry.Decode),
+            stream.ReadArray(BoatCrateHelpEntry.Decode),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
@@ -521,7 +522,7 @@ public sealed record ClientAvatar
         Neighborhood?.Encode(stream);
         stream.WriteArray(MailEntries, static (valueStream, value) => value.Encode(valueStream));
         stream.WriteArray(UnknownValues0, static (valueStream, value) => valueStream.WriteVariableInt(value));
-        stream.WriteArray(UnknownEntries0, static (valueStream, value) => value.Encode(valueStream));
+        stream.WriteArray(BoatCrateHelpEntries, static (valueStream, value) => value.Encode(valueStream));
         stream.WriteBoolean(TrainStationReady);
         stream.WriteBoolean(IsMuted);
         stream.WriteBoolean(CanEditFarm);

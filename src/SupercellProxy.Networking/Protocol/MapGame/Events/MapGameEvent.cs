@@ -11,13 +11,29 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
+    /// <summary>Completes one personal Valley dump task and carries its authoritative pawn and task.</summary>
+    public const int DumpTaskCompletedType = 4;
+
     /// <summary>Adds an emoji to a map node.</summary>
     public const int NodeEmojiAddedType = 22;
+
+    /// <summary>Marks an existing node emoji as collected by a Valley participant.</summary>
+    public const int NodeEmojiCollectedType = 24;
+
+    /// <summary>Removes every node emoji matching the supplied avatar, node, and data filters.</summary>
+    public const int NodeEmojiRemovedType = 23;
+
+    /// <summary>Moves a Valley pawn and carries the authoritative movement projection.</summary>
+    public const int PawnMovedType = 2;
+
     /// <summary>Expires an existing personal task using the server's task state.</summary>
     public const int PawnTaskExpiredType = 6;
 
     /// <summary>Replaces a personal task at its map node.</summary>
     public const int PawnTaskUpdatedType = 8;
+
+    /// <summary>Assigns an existing shared sanctuary-animal task to a Valley participant.</summary>
+    public const int SanctuaryAnimalCollectedType = 32;
 
     /// <summary>Replaces a task in the shared task group.</summary>
     public const int SharedTaskUpdatedType = 11;
@@ -125,7 +141,7 @@ public sealed record MapGameEvent
                 optionalPawn,
                 boolean,
             ];
-            schemas[key: 2] =
+            schemas[PawnMovedType] =
             [
                 variableInt,
                 variableInt,
@@ -137,7 +153,7 @@ public sealed record MapGameEvent
                 optionalTask,
                 optionalTaskCollection,
             ];
-            schemas[key: 4] = pawnAndTask;
+            schemas[DumpTaskCompletedType] = pawnAndTask;
             schemas[key: 5] = [logicLong, variableInt, variableInt];
             schemas[PawnTaskExpiredType] = pawnAndTask;
             schemas[TaskRemovedType] = pawnAndTask;
@@ -167,8 +183,8 @@ public sealed record MapGameEvent
         {
             schemas[key: 21] = [optionalPawn, optionalTask, optionalVariableIntArray];
             schemas[NodeEmojiAddedType] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
-            schemas[key: 23] = [optionalLongIdentifier, variableInt, dataReference];
-            schemas[key: 24] = [optionalLongIdentifier, variableInt, dataReference];
+            schemas[NodeEmojiRemovedType] = [optionalLongIdentifier, variableInt, dataReference];
+            schemas[NodeEmojiCollectedType] = [optionalLongIdentifier, variableInt, dataReference];
             schemas[key: 25] = [optionalLongIdentifier, variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 162)];
             schemas[key: 26] = [variableInt, boolean];
             schemas[key: 27] =
@@ -188,7 +204,7 @@ public sealed record MapGameEvent
             ];
             schemas[key: 30] = [optionalPawn];
             schemas[key: 31] = [optionalPawn];
-            schemas[key: 32] = [optionalPawn, optionalTask, optionalVariableIntArray];
+            schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVariableIntArray];
             schemas[key: 33] = [variableInt, optionalPawn];
             schemas[key: 34] = pawnAndTask;
             schemas[key: 35] = [optionalPawn, optionalTask, variableInt];

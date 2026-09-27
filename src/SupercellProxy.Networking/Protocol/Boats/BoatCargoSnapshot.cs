@@ -14,11 +14,6 @@ public sealed record BoatCargoSnapshot
     public int Amount { get; init; }
 
     /// <summary>
-    /// Gets the Boosted value.
-    /// </summary>
-    [JsonPropertyName("boosted")]
-    public bool Boosted { get; init; }
-    /// <summary>
     /// Gets the Completed value.
     /// </summary>
     [JsonPropertyName("completed")]
@@ -29,10 +24,20 @@ public sealed record BoatCargoSnapshot
     /// </summary>
     [JsonPropertyName("data_global_id")]
     public int DataGlobalIdentifier { get; init; }
+    /// <summary>
+    /// Gets the FilledByBooster value.
+    /// </summary>
+    [JsonPropertyName("boosted")]
+    public bool FilledByBooster { get; init; }
+
+    /// <summary>Gets the optional promotion reward attached to this crate.</summary>
+    [JsonPropertyName("PopPromoBox")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BoatPromotionRewardSnapshot? PromotionReward { get; init; }
 
     /// <summary>
-    /// Gets the Gifted value.
+    /// Gets the ThankYouSent value.
     /// </summary>
     [JsonPropertyName("gifted")]
-    public bool Gifted { get; init; }
+    public bool ThankYouSent { get; init; }
 }

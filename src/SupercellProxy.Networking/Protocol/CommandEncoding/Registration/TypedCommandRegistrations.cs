@@ -19,7 +19,9 @@ using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
+using SupercellProxy.Networking.Protocol.MapGame.Movement;
 using SupercellProxy.Networking.Protocol.MapGame.Notifications;
+using SupercellProxy.Networking.Protocol.MapGame.Quests;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.MovieTickets;
 using SupercellProxy.Networking.Protocol.MysteryBoxes;
@@ -32,6 +34,7 @@ using SupercellProxy.Networking.Protocol.RoadsideShops;
 using SupercellProxy.Networking.Protocol.ShopEvents;
 using SupercellProxy.Networking.Protocol.Town;
 using SupercellProxy.Networking.Protocol.Tutorials;
+using SupercellProxy.Networking.Protocol.Visitors;
 
 using static SupercellProxy.Networking.Protocol.CommandEncoding.Registration.CommandRegistry;
 
@@ -41,6 +44,34 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [FulfillFarmVisitorOrderCommandType] = new CommandRegistryEntry(
+            typeof(FulfillFarmVisitorOrderCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, resolver) => FulfillFarmVisitorOrderCommand.Decode(stream, environment)
+        ),
+        [RejectFarmVisitorOrderCommandType] = new CommandRegistryEntry(
+            typeof(RejectFarmVisitorOrderCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, resolver) => RejectFarmVisitorOrderCommand.Decode(stream, environment)
+        ),
+        [ScareLivestockCommandType] = new CommandRegistryEntry(
+            typeof(ScareLivestockCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => ScareLivestockCommand.Decode(stream, environment)
+        ),
+        [TapAmbientAnimalCommandType] = new CommandRegistryEntry(
+            typeof(TapAmbientAnimalCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => TapAmbientAnimalCommand.Decode(stream, environment)
+        ),
         [ActivateBoosterCommandType] = new CommandRegistryEntry(
             typeof(ActivateBoosterCommand),
             MessageDirection.Serverbound,
@@ -142,6 +173,29 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 RemoveMapGameNotificationCommand.Decode(stream, environment)
         ),
+        [ClaimMapGameQuestProgressionPrizeCommandType] = new CommandRegistryEntry(
+            typeof(ClaimMapGameQuestProgressionPrizeCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => ClaimMapGameQuestProgressionPrizeCommand.Decode(stream, environment)
+        ),
+        [MarkMapGameDailyQuestSeenCommandType] = new CommandRegistryEntry(
+            typeof(MarkMapGameDailyQuestSeenCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                MarkMapGameDailyQuestSeenCommand.Decode(stream, environment)
+        ),
+        [MoveMapGameCommandType] = new CommandRegistryEntry(
+            typeof(MoveMapGameCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) =>
+                MoveMapGameCommand.Decode(stream, environment)
+        ),
         [VisitedBoatDepartureServerCommandType] = new CommandRegistryEntry(
             typeof(VisitedBoatDepartureServerCommand),
             MessageDirection.Clientbound,
@@ -173,6 +227,41 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 StartTruckDeliveryCommand.Decode(stream, environment)
+        ),
+        [ProcessBoatCrateHelpServerCommandType] = new CommandRegistryEntry(
+            typeof(ProcessBoatCrateHelpServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unused) => ProcessBoatCrateHelpServerCommand.Decode(stream, environment)
+        ),
+        [BoatCrateHelpResponseServerCommandType] = new CommandRegistryEntry(
+            typeof(BoatCrateHelpResponseServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unused) => BoatCrateHelpResponseServerCommand.Decode(stream, environment)
+        ),
+        [SendThankYouGiftCommandType] = new CommandRegistryEntry(
+            typeof(SendThankYouGiftCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unused) => SendThankYouGiftCommand.Decode(stream, environment)
+        ),
+        [VisitedBoatHelpServerCommandType] = new CommandRegistryEntry(
+            typeof(BoatCrateHelpedServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unused) => BoatCrateHelpedServerCommand.Decode(stream, environment, ownHome: false)
+        ),
+        [OwnBoatCrateHelpedServerCommandType] = new CommandRegistryEntry(
+            typeof(BoatCrateHelpedServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unused) => BoatCrateHelpedServerCommand.Decode(stream, environment, ownHome: true)
         ),
         [FillBoatCrateCommandType] = new CommandRegistryEntry(
             typeof(FillBoatCrateCommand),
@@ -665,6 +754,13 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 DecorationEventTutorialCommand.Decode(stream, environment)
+        ),
+        [SubmitDecorationVoteCommandType] = new CommandRegistryEntry(
+            typeof(SubmitDecorationVoteCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => SubmitDecorationVoteCommand.Decode(stream, environment)
         ),
         [key: 34] = new CommandRegistryEntry(
             typeof(FinishTutorialCommand),

@@ -20,7 +20,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record VisitedBoatHelpRequestServerCommand(
     [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier,
     int CrateIndex,
-    int RequestValue,
+    int RequestKind,
     int ServerCommandIdentifier,
     int ExecutionPhaseCounter = -1,
     CommandData? DebugData0 = null,
@@ -40,13 +40,13 @@ public sealed record VisitedBoatHelpRequestServerCommand(
         ArgumentNullException.ThrowIfNull(stream);
         LongIdentifier owner = stream.ReadLongIdentifier();
         int crate = stream.ReadVariableInt();
-        int requestValue = stream.ReadVariableInt();
+        int requestKind = stream.ReadVariableInt();
         (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
         return new VisitedBoatHelpRequestServerCommand(
             owner,
             crate,
-            requestValue,
+            requestKind,
             serverCommandIdentifier,
             commandFields.ExecutionPhaseCounter,
             commandFields.DebugData0,
@@ -61,7 +61,7 @@ public sealed record VisitedBoatHelpRequestServerCommand(
     {
         stream.WriteLongIdentifier(HomeOwnerIdentifier);
         stream.WriteVariableInt(CrateIndex);
-        stream.WriteVariableInt(RequestValue);
+        stream.WriteVariableInt(RequestKind);
         EncodeServerCommand(stream, environment);
     }
 }

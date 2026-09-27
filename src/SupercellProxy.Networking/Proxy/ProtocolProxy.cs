@@ -86,7 +86,7 @@ public sealed partial class ProtocolProxy(
     [LoggerMessage(Level = LogLevel.Debug, Message = "The proxy listening endpoint was already reported.")]
     private static partial void LogListeningEndpointAlreadyReported(ILogger logger);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Login rejected: {Reason}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Upstream login rejected: {Reason}")]
     private static partial void LogLoginRejected(ILogger logger, string reason);
 
     private async Task HandleClientAsync(TcpClient socketClient, ProxyConfiguration configuration, CancellationToken cancellationToken)

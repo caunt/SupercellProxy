@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
@@ -201,6 +202,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Upstream login rejected: {Reason}. The original response was forwarded unchanged.")]
+    private static partial void LogLoginRejected(ILogger logger, string reason);
+
     [LoggerMessage(Level = LogLevel.Warning, Message = "Forwarding packet {Identifier}/{Version} without optional decoding: {Reason}")]
     private static partial void LogUndecoded(ILogger logger, ushort identifier, ushort version, string reason);
 
@@ -266,7 +270,15 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
     private async Task OnMessageSentEventAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
     {
+        if (@event.Message is LoginFailedMessage failure && @event.Direction is MessageDirection.Clientbound)
+            LogLoginRejected(_logger, new LoginException(failure).Message);
+
         await _handshake.OnMessageSentEventAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        // The structured warning above is intentionally concise; the record's default rendering
+        // includes the complete asset catalog carried by OutdatedContent.
+        if (@event.Message is LoginFailedMessage)
+            return;
 
         if (@event.Message is EndClientTurnMessage endClientTurnMessage)
         {
@@ -412,7 +424,12 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationToken cancellationToken
     )
     {
-        bool preserveOriginal = TrafficCapture.PreserveForwardedFrames && message is not LoginMessage;
+        // A rejection before Login can carry the asset fingerprint and download locations needed by
+        // an outdated client. Preserve that server response even though device identity has not yet
+        // been established; Login remains the only message the proxy intentionally replaces.
+        bool preserveOriginal = (direction is MessageDirection.Clientbound && message is LoginFailedMessage)
+            || (TrafficCapture.PreserveForwardedFrames && message is not LoginMessage);
+
         MessageContainer container = preserveOriginal ? original : message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message));
 
         await TrafficCapture

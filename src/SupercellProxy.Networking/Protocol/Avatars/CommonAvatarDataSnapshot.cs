@@ -27,7 +27,6 @@ public sealed record CommonAvatarDataSnapshot
     /// Gets the Boat Track Manager value.
     /// </summary>
     public OrderTrackSnapshot? BoatTrackManager { get; init; }
-
     /// <summary>Gets the retained booster manager state.</summary>
     public BoosterManagerSnapshot? BoosterManager { get; init; }
 
@@ -57,6 +56,10 @@ public sealed record CommonAvatarDataSnapshot
     /// </summary>
     [JsonPropertyName("DecoEventMgr")]
     public DecorationEventManagerSnapshot? DecorationEventManager { get; init; }
+
+    /// <summary>Gets the saved decoration-event voting state.</summary>
+    [JsonPropertyName("DecoEventVotingMgr")]
+    public DecorationVotingSnapshot? DecorationVoting { get; init; }
 
     /// Gets the retained emote state used by home creation gates.
     public EmoteManagerSnapshot? EmoteManager { get; init; }
@@ -92,6 +95,7 @@ public sealed record CommonAvatarDataSnapshot
     /// </summary>
     [JsonPropertyName("LogicReEngagementFlowManager")]
     public ReengagementFlowSnapshot? ReengagementFlow { get; init; }
+
     /// <summary>Inventory-owned roadside listing cancellation history.</summary>
     [JsonPropertyName("LogicInventory")]
     public RoadsideShops.RoadsideCancellationSnapshot? RoadsideCancellation { get; init; }
@@ -99,10 +103,13 @@ public sealed record CommonAvatarDataSnapshot
     /// Gets the Truck Track Manager value.
     /// </summary>
     public OrderTrackSnapshot? TruckTrackManager { get; init; }
-
     /// <summary>
     /// Gets the Tutorial Manager value.
     /// </summary>
     [JsonPropertyName("TutorialMgr")]
     public TutorialManagerSnapshot? TutorialManager { get; init; }
+
+    /// <summary>Gets the saved production workbench and installed perks.</summary>
+    [JsonPropertyName("LogicWorkbenchManager")]
+    public Production.WorkbenchSnapshot? Workbench { get; init; }
 }

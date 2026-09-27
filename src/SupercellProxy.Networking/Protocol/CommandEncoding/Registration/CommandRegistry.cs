@@ -14,13 +14,10 @@ public static class CommandRegistry
     /// Provides the Acknowledge Boat Command Type value or operation.
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
-
     /// <summary>Activates a booster held in the player's booster storage.</summary>
     public const int ActivateBoosterCommandType = 212;
-
     /// <summary>Provides the Activate Farm Pass Perk Command Type.</summary>
     public const int ActivateFarmPassPerkCommandType = 343;
-
     /// <summary>
     /// Provides the Activate Movie Ticket Command Type value or operation.
     /// </summary>
@@ -35,6 +32,7 @@ public static class CommandRegistry
     /// Provides the Advance Reengagement Flow Command Type value or operation.
     /// </summary>
     public const int AdvanceReengagementFlowCommandType = 684;
+
     /// <summary>Advertises an existing roadside listing.</summary>
     public const int AdvertiseRoadsideListingCommandType = 511;
 
@@ -42,6 +40,9 @@ public static class CommandRegistry
     /// Provides the Base Event Scene Command Type value or operation.
     /// </summary>
     public const int BaseEventSceneCommandType = 637;
+
+    /// <summary>Reports a boat help request result.</summary>
+    public const int BoatCrateHelpResponseServerCommandType = 389;
 
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
@@ -52,7 +53,6 @@ public static class CommandRegistry
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
-
     /// <summary>Cancels an unsold roadside listing.</summary>
     public const int CancelRoadsideListingCommandType = 589;
 
@@ -91,6 +91,12 @@ public static class CommandRegistry
 
     /// <summary>Provides the Claim Farm Pass Level Reward Command Type.</summary>
     public const int ClaimFarmPassLevelRewardCommandType = 336;
+
+    /// <summary>Claims the selected Valley fuel prize.</summary>
+    public const int ClaimMapGameFuelPrizeCommandType = 614;
+
+    /// <summary>Claims one Valley quest-progression mystery-box prize.</summary>
+    public const int ClaimMapGameQuestProgressionPrizeCommandType = 285;
 
     /// <summary>
     /// Provides the Clear Event Leaderboard Notification Command Type value or operation.
@@ -162,10 +168,14 @@ public static class CommandRegistry
     /// </summary>
     public const int CollectHelperAreaCommandType = 660;
 
+    /// <summary>Collects a sanctuary animal from a shared Valley task.</summary>
+    public const int CollectMapGameSanctuaryAnimalCommandType = 310;
+
     /// <summary>
     /// Provides the Collect Mystery Box Reward Command Type value or operation.
     /// </summary>
     public const int CollectMysteryBoxRewardCommandType = 48;
+
     /// <summary>Collects the proceeds of a sold roadside listing.</summary>
     public const int CollectRoadsideSaleProceedsCommandType = 649;
 
@@ -181,7 +191,6 @@ public static class CommandRegistry
 
     /// <summary>Provides the Complete Boy Interaction Command Type.</summary>
     public const int CompleteBoyInteractionCommandType = 653;
-
     /// <summary>
     /// Provides the Complete Construction Command Type value or operation.
     /// </summary>
@@ -195,12 +204,19 @@ public static class CommandRegistry
     /// </summary>
     public const int CompleteForestClearingCommandType = 20;
 
+    /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
+    public const int CompleteMapGameDumpTaskCommandType = 278;
+
     /// <summary>
     /// Provides the Construct Game Object Command Type value or operation.
     /// </summary>
     public const int ConstructGameObjectCommandType = 577;
+
     /// <summary>Creates a roadside listing.</summary>
     public const int CreateRoadsideListingCommandType = 574;
+
+    /// <summary>Receives two decoration-event voting candidates.</summary>
+    public const int DecorationVoteCandidatesServerCommandType = 755;
 
     /// <summary>
     /// Provides the Discard Mystery Box Command Type value or operation.
@@ -211,6 +227,9 @@ public static class CommandRegistry
     /// Provides the Dismiss Farm Pass Notification Command Type value or operation.
     /// </summary>
     public const int DismissFarmPassNotificationCommandType = 333;
+
+    /// <summary>Moves an unhired Boy to interval-offer rest.</summary>
+    public const int EnterBoyIntervalRestCommandType = 537;
 
     /// <summary>Exchanges one booster held in the player's booster storage for another booster.</summary>
     public const int ExchangeBoosterCommandType = 214;
@@ -224,6 +243,8 @@ public static class CommandRegistry
     /// Provides the Fill Boat Crate Command Type value or operation.
     /// </summary>
     public const int FillBoatCrateCommandType = 634;
+    /// <summary>Accepts a waiting farm visitor's goods order.</summary>
+    public const int FulfillFarmVisitorOrderCommandType = 569;
 
     /// <summary>Provides the Hire Boy Command Type.</summary>
     public const int HireBoyCommandType = 68;
@@ -263,6 +284,17 @@ public static class CommandRegistry
     /// </summary>
     public const int MarkFarmPassTasksSeenCommandType = 539;
 
+    /// <summary>Acknowledges the current aggregate count of completed Valley quests.</summary>
+    public const int MarkMapGameCompletedQuestsSeenCommandType = 526;
+
+    /// <summary>
+    /// Provides the Mark Map Game Current Quests Seen Command Type value or operation.
+    /// </summary>
+    public const int MarkMapGameCurrentQuestsSeenCommandType = 578;
+
+    /// <summary>Marks one completed Valley daily quest as presented to the player.</summary>
+    public const int MarkMapGameDailyQuestSeenCommandType = 286;
+
     /// <summary>
     /// Provides the Mark Map Game Sun Points Seen Command Type value or operation.
     /// </summary>
@@ -293,6 +325,9 @@ public static class CommandRegistry
     /// </summary>
     public const int MineCommandType = 64;
 
+    /// <summary>Moves the local Valley pawn toward a target map node.</summary>
+    public const int MoveMapGameCommandType = 270;
+
     /// <summary>
     /// Provides the Movie Ticket Ad Watched Command Type value or operation.
     /// </summary>
@@ -302,6 +337,9 @@ public static class CommandRegistry
     /// Provides the Open Mystery Box Command Type value or operation.
     /// </summary>
     public const int OpenMysteryBoxCommandType = 44;
+
+    /// <summary>Reports a helper's completion at the player's own boat.</summary>
+    public const int OwnBoatCrateHelpedServerCommandType = 387;
 
     /// <summary>
     /// Provides the Passenger Service Completion Server Command Type value or operation.
@@ -318,6 +356,9 @@ public static class CommandRegistry
     /// Provides the Plant Field Command Type value or operation.
     /// </summary>
     public const int PlantFieldCommandType = 514;
+
+    /// <summary>Processes the helper's confirmed boat-crate payment.</summary>
+    public const int ProcessBoatCrateHelpServerCommandType = 304;
 
     /// <summary>
     /// Provides the Purchase Livestock Animal Command Type value or operation.
@@ -345,6 +386,9 @@ public static class CommandRegistry
     /// <summary>Provides the Reject Boy Offer Command Type.</summary>
     public const int RejectBoyOfferCommandType = 583;
 
+    /// <summary>Declines a waiting farm visitor's goods order.</summary>
+    public const int RejectFarmVisitorOrderCommandType = 43;
+
     /// <summary>
     /// Provides the Remote Order Completion Server Command Type value or operation.
     /// </summary>
@@ -367,6 +411,7 @@ public static class CommandRegistry
     /// Provides the Request Newspaper Command Type value or operation.
     /// </summary>
     public const int RequestNewspaperCommandType = 661;
+
     /// <summary>
     /// Provides the Request Roadside Purchase Command Type value or operation.
     /// </summary>
@@ -379,7 +424,6 @@ public static class CommandRegistry
 
     /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
     public const int RoadsideFriendCountServerCommandType = 210;
-
     /// <summary>Identifies the roadside purchase notification delivered to the client listener.</summary>
     public const int RoadsidePurchaseRejectedServerCommandType = 309;
 
@@ -387,6 +431,7 @@ public static class CommandRegistry
     /// Provides the Roadside Purchase Server Command Type value or operation.
     /// </summary>
     public const int RoadsidePurchaseServerCommandType = 243;
+
     /// <summary>Records a roadside listing's buyer.</summary>
     public const int RoadsideSaleServerCommandType = 375;
 
@@ -395,6 +440,8 @@ public static class CommandRegistry
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
 
+    /// <summary>Starts panic movement for all residents of a livestock habitat.</summary>
+    public const int ScareLivestockCommandType = 6;
     /// <summary>Provides the Search With Boy Command Type.</summary>
     public const int SearchWithBoyCommandType = 71;
 
@@ -411,6 +458,9 @@ public static class CommandRegistry
     /// </summary>
     public const int SelectLivestockAnimalCommandType = 21;
 
+    /// <summary>Sends a thank-you gift for boat or plant help.</summary>
+    public const int SendThankYouGiftCommandType = 102;
+
     /// <summary>
     /// Provides the Server Command148 Type value or operation.
     /// </summary>
@@ -421,6 +471,9 @@ public static class CommandRegistry
 
     /// <summary>Moves one fishing-area fish to the selected runtime state.</summary>
     public const int SetFishStateCommandType = 112;
+
+    /// <summary>Spins the active Valley fuel wheel.</summary>
+    public const int SpinMapGameFuelWheelCommandType = 616;
 
     /// <summary>
     /// Provides the Start Building Production Command Type value or operation.
@@ -446,6 +499,12 @@ public static class CommandRegistry
     /// Provides the Start Wheel Spin Command Type value or operation.
     /// </summary>
     public const int StartWheelSpinCommandType = 587;
+
+    /// <summary>Submits a vote for a decoration-event canvas candidate.</summary>
+    public const int SubmitDecorationVoteCommandType = 687;
+
+    /// <summary>Taps an ambient animal identified by its runtime object identifier.</summary>
+    public const int TapAmbientAnimalCommandType = 42;
 
     /// <summary>
     /// Provides the Tree Revival Server Command Type value or operation.

@@ -1,6 +1,7 @@
 using SupercellProxy.Networking.Protocol.MapGame.Fuel;
 using SupercellProxy.Networking.Protocol.MapGame.Notifications;
 using SupercellProxy.Networking.Protocol.MapGame.Quests;
+using SupercellProxy.Networking.Protocol.MapGame.Wallets;
 
 using System.Text.Json.Serialization;
 
@@ -39,8 +40,10 @@ public sealed record MapGameSnapshot
     /// <summary>Gets the retained pending Valley notifications.</summary>
     public MapGameNotificationManagerSnapshot? NotificationManager { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">QuestrManager</c> value.
-    /// </summary>
-    public MapGameQuestSnapshot QuestrManager { get; init; } = new();
+    /// <summary>Gets the retained Valley daily quests and aggregate progression.</summary>
+    [JsonPropertyName("QuestrManager")]
+    public MapGameQuestManagerSnapshot QuestManager { get; init; } = new();
+
+    /// <summary>Gets the retained Valley wallet and piggy-bank state.</summary>
+    public MapGameWalletManagerSnapshot? WalletManager { get; init; }
 }

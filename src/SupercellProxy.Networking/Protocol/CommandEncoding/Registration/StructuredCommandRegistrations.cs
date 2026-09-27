@@ -345,7 +345,6 @@ internal static class StructuredCommandRegistrations
                 MessageDirection.Clientbound,
                 baseFirst: false
             );
-            AddStructuredFieldCommands(entries, [687], [optionalInt32PairSchema, variableIntSchema, variableIntSchema], MessageDirection.Serverbound);
         }
         void AddStructuredCommands296To()
         {
@@ -375,7 +374,7 @@ internal static class StructuredCommandRegistrations
             AddStructuredFieldCommands(entries, [305], [types305And306Schema], MessageDirection.Clientbound, baseFirst: false);
             AddStructuredFieldCommands(entries, [306], [types305And306Schema], MessageDirection.Serverbound, baseFirst: false);
             CommandFieldSchema type755Schema = CreateType755Schema();
-            AddStructuredFieldCommands(entries, [755], [type755Schema], MessageDirection.Clientbound);
+            AddStructuredFieldCommands(entries, [DecorationVoteCandidatesServerCommandType], [type755Schema], MessageDirection.Clientbound);
 
             CommandFieldSchema CreateType755Schema()
             {

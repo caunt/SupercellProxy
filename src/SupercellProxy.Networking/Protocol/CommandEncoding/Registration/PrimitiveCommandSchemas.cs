@@ -20,7 +20,6 @@ internal static class PrimitiveCommandSchemas
                 558,
                 559,
                 565,
-                569,
                 576,
                 597,
                 602,
@@ -60,13 +59,10 @@ internal static class PrimitiveCommandSchemas
         new( [ 240, 300 ], [ CommandFieldType.Int32 ], MessageDirection.Serverbound, baseFirst: false ),
         new(
             [
-                6,
                 15,
                 16,
                 19,
                 29,
-                42,
-                43,
                 DiscardMysteryBoxCommandType,
                 ClientCommand47Type,
                 49,
@@ -125,7 +121,6 @@ internal static class PrimitiveCommandSchemas
                 236,
                 238,
                 241,
-                286,
                 297,
                 324,
                 326,
@@ -143,7 +138,7 @@ internal static class PrimitiveCommandSchemas
         ),
         new( [ 54 ], new CommandFieldType[1], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 152 ], [ CommandFieldType.VariableIntArray ], MessageDirection.Serverbound, baseFirst: false ),
-        new( [ 285, 303, 318 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 303, 318 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 135 ], [ CommandFieldType.LongIdentifier ], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 38, 181, 184, 269 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 25 ], [ CommandFieldType.VariableInt, CommandFieldType.Byte ], MessageDirection.Serverbound, baseFirst: false ),
@@ -211,16 +206,7 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new([104, 145, 169, 250, 251, MarkTaskEventSeenCommandType], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false),
-        new(
-            [ 102 ],
-            [
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.LongIdentifier,
-            ],
-            MessageDirection.Serverbound,
-            baseFirst: false
-        ),
+
         new(
             [ 179 ],
             [
@@ -507,25 +493,7 @@ internal static class PrimitiveCommandSchemas
             MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new(
-            [ 304 ],
-            [
-                CommandFieldType.OptionalLongIdentifier,
-                CommandFieldType.OptionalLongIdentifier,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.Boolean,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
+
         new( [ 325 ], [ CommandFieldType.String, CommandFieldType.Int32 ], MessageDirection.Clientbound, baseFirst: false ),
         new(
             [ 331 ],
@@ -586,7 +554,6 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new([ 235 ], new CommandFieldType[1], MessageDirection.Serverbound),
-        new([ 270 ], new CommandFieldType[2], MessageDirection.Serverbound),
         new([ 317 ], new CommandFieldType[4], MessageDirection.Serverbound),
         new( [ 540, 563, 588 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound ),
         new(
@@ -727,37 +694,8 @@ internal static class PrimitiveCommandSchemas
         ),
         new( [ 378 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 379 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
-        new(
-            [ VisitedBoatHelpServerCommandType, 387 ],
-            [
-                CommandFieldType.LongIdentifier,
-                CommandFieldType.LongIdentifier,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 389 ],
-            [
-                CommandFieldType.OptionalLongIdentifier,
-                CommandFieldType.OptionalLongIdentifier,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-                CommandFieldType.VariableInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
+
+
         new( [ 636 ], [ CommandFieldType.VariableIntArray, CommandFieldType.VariableLongArray ], MessageDirection.Serverbound ),
         new(
             [ 134 ],

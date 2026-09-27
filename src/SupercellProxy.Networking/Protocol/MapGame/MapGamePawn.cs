@@ -19,9 +19,9 @@ public sealed record MapGamePawn
         int experienceLevel,
         int currentNodeIdentifier,
         int emptyNodesTravelled,
-        int emptyNodesTravelledDeliveringAnimals,
-        int emptyNodesTravelledDeliveringAnimalsImmunity,
-        ReadOnlyMemory<int> unknownValues,
+        int sanctuaryAnimalEscapeAllowance,
+        int sanctuaryAnimalEscapeProgress,
+        ReadOnlyMemory<int> visitedNodeIdentifiers,
         ReadOnlyMemory<int> selectedOptions,
         string? name,
         MapGamePawnEmblem? emblem,
@@ -34,9 +34,9 @@ public sealed record MapGamePawn
         ExperienceLevel = experienceLevel;
         CurrentNodeIdentifier = currentNodeIdentifier;
         EmptyNodesTravelled = emptyNodesTravelled;
-        EmptyNodesTravelledDeliveringAnimals = emptyNodesTravelledDeliveringAnimals;
-        EmptyNodesTravelledDeliveringAnimalsImmunity = emptyNodesTravelledDeliveringAnimalsImmunity;
-        UnknownValues = unknownValues.ToArray();
+        SanctuaryAnimalEscapeAllowance = sanctuaryAnimalEscapeAllowance;
+        SanctuaryAnimalEscapeProgress = sanctuaryAnimalEscapeProgress;
+        VisitedNodeIdentifiers = visitedNodeIdentifiers.ToArray();
         SelectedOptions = selectedOptions.ToArray();
         Name = name;
         Emblem = emblem;
@@ -69,18 +69,6 @@ public sealed record MapGamePawn
     public int EmptyNodesTravelled { get; }
 
     /// <summary>
-    /// Gets the number of empty nodes travelled while delivering animals.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown3")]
-    public int EmptyNodesTravelledDeliveringAnimals { get; }
-
-    /// <summary>
-    /// Gets the animal-delivery empty-node immunity counter.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown4")]
-    public int EmptyNodesTravelledDeliveringAnimalsImmunity { get; }
-
-    /// <summary>
     /// Gets the <c language="csharp">ExperienceLevel</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
@@ -105,6 +93,18 @@ public sealed record MapGamePawn
     public ReadOnlyMemory<CommandDataReferenceVariableIntPair> Notifications { get; init; }
 
     /// <summary>
+    /// Gets the current empty-node allowance before a carried sanctuary animal can escape.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown3")]
+    public int SanctuaryAnimalEscapeAllowance { get; }
+
+    /// <summary>
+    /// Gets the retained sanctuary-animal escape progress counter.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown4")]
+    public int SanctuaryAnimalEscapeProgress { get; }
+
+    /// <summary>
     /// Gets the selected map-game profile options.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalIds")]
@@ -117,9 +117,10 @@ public sealed record MapGamePawn
     public int UnknownGlobalIdentifier { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownValues</c> value.
+    /// Gets the ordered, unique node identifiers revealed by this pawn's movements.
     /// </summary>
-    public ReadOnlyMemory<int> UnknownValues { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("UnknownValues")]
+    public ReadOnlyMemory<int> VisitedNodeIdentifiers { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -132,9 +133,9 @@ public sealed record MapGamePawn
         int experienceLevel = stream.ReadVariableInt();
         int currentNodeIdentifier = stream.ReadVariableInt();
         int emptyNodesTravelled = stream.ReadVariableInt();
-        int emptyNodesTravelledDeliveringAnimals = stream.ReadVariableInt();
-        int emptyNodesTravelledDeliveringAnimalsImmunity = stream.ReadVariableInt();
-        int[] unknownValues = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
+        int sanctuaryAnimalEscapeAllowance = stream.ReadVariableInt();
+        int sanctuaryAnimalEscapeProgress = stream.ReadVariableInt();
+        int[] visitedNodeIdentifiers = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
         ReadOnlyMemory<int> selectedOptions = CommandDataReferenceArrayField.Decode(stream).GlobalIdentifiers;
         string? name = stream.ReadBoolean() ? stream.ReadString() : null;
         MapGamePawnEmblem? emblem = stream.ReadBoolean() ? MapGamePawnEmblem.Decode(stream) : null;
@@ -147,9 +148,9 @@ public sealed record MapGamePawn
             experienceLevel,
             currentNodeIdentifier,
             emptyNodesTravelled,
-            emptyNodesTravelledDeliveringAnimals,
-            emptyNodesTravelledDeliveringAnimalsImmunity,
-            unknownValues,
+            sanctuaryAnimalEscapeAllowance,
+            sanctuaryAnimalEscapeProgress,
+            visitedNodeIdentifiers,
             selectedOptions,
             name,
             emblem,
@@ -169,9 +170,9 @@ public sealed record MapGamePawn
         stream.WriteVariableInt(ExperienceLevel);
         stream.WriteVariableInt(CurrentNodeIdentifier);
         stream.WriteVariableInt(EmptyNodesTravelled);
-        stream.WriteVariableInt(EmptyNodesTravelledDeliveringAnimals);
-        stream.WriteVariableInt(EmptyNodesTravelledDeliveringAnimalsImmunity);
-        new CommandVariableIntArrayField(UnknownValues).Encode(stream);
+        stream.WriteVariableInt(SanctuaryAnimalEscapeAllowance);
+        stream.WriteVariableInt(SanctuaryAnimalEscapeProgress);
+        new CommandVariableIntArrayField(VisitedNodeIdentifiers).Encode(stream);
         new CommandDataReferenceArrayField(SelectedOptions).Encode(stream);
         stream.WriteBoolean(Name is not null);
 

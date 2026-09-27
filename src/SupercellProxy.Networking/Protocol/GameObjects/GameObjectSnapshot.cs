@@ -54,6 +54,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("boat_orders")]
     public BoatOrderSnapshot[] BoatOrders { get; init; } = [];
 
+    /// <summary>Gets whether the current boat has been seen.</summary>
+    [JsonPropertyName("boat_seen")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? BoatSeen { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">BoosterList</c> value.
     /// </summary>
@@ -115,6 +120,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">DailyVisitorsSpawned</c> value.
     /// </summary>
     public int DailyVisitorsSpawned { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">DataGlobalId</c> value.
     /// </summary>
@@ -125,7 +131,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("rewards")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TruckDeliveryRewardSnapshot[]? DeliveryRewards { get; init; }
-
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCost { get; init; }
@@ -167,6 +172,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the prices generated for the Boy's current offers.</summary>
     public int[] FoundItemPrices { get; init; } = [];
+
     /// <summary>Gets the roadside free-advertisement cooldown.</summary>
     [JsonPropertyName("FreeAdTimer")]
     public TimerSnapshot? FreeAdvertisementTimer { get; init; }
@@ -175,7 +181,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
     /// </summary>
     public bool FreeReEngagementAvailable { get; init; }
-
     /// <summary>Gets the retained FriendLastOpened value.</summary>
     [JsonPropertyName("LastOpenedFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -321,6 +326,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">JackpotCount</c> value.
     /// </summary>
     public int JackpotCount { get; init; }
+
     /// <summary>Gets the last roadside advertisement timestamp.</summary>
     public long LastAdvertisementTimestamp { get; init; }
 
@@ -328,7 +334,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.
     /// </summary>
     public int LastDailyResetHourIndex { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">LastEventID</c> value.
     /// </summary>
@@ -486,6 +491,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProductionListSnapshot? ProductionList { get; init; }
 
+    /// <summary>Gets accumulated production minutes used by legacy building mastery.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProductionTime { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">RandomSeed</c> value.
     /// </summary>
@@ -499,6 +508,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained Seed value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Seed { get; init; }
+
+    /// <summary>Gets the selected boat order; old saves omit this field and select zero.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? SelectedBoatOrderIndex { get; init; }
 
     /// <summary>Gets the selected index in the Boy's current offer.</summary>
     [JsonPropertyName("SelectedOfferIndex")]

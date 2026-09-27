@@ -41,8 +41,6 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
 
                 SessionTokenData.ValidateAuthentication(refreshed, TimeProvider.System);
             }
-
-            throw new Client.LoginException(failure);
         }
     }
 }

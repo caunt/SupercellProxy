@@ -13,7 +13,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     /// Initializes a new <see cref="MapGameDumpTaskStatePayload"/> instance.
     /// </summary>
     public MapGameDumpTaskStatePayload(
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> values,
+        ReadOnlyMemory<CommandDataReferenceVariableIntPair> requiredGoods,
         ReadOnlyMemory<CommandDataReferenceVariableIntPair>? optionalValues,
         bool unknown0,
         LongIdentifier? unknownLongIdentifier,
@@ -21,7 +21,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
         int unknownGlobalIdentifier1
     )
     {
-        Values = values.ToArray();
+        RequiredGoods = requiredGoods.ToArray();
         OptionalValues = optionalValues is null
             ? null
             : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
@@ -35,6 +35,12 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
     public ReadOnlyMemory<CommandDataReferenceVariableIntPair>? OptionalValues { get; }
+
+    /// <summary>
+    /// Gets the goods and quantities required to complete this dump task.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Values")]
+    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> RequiredGoods { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown0</c> value.
@@ -60,11 +66,6 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     public LongIdentifier? UnknownLongIdentifier { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Values</c> value.
-    /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> Values { get; }
-
-    /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
     public static MapGameDumpTaskStatePayload Decode(MessageStream stream)
@@ -86,7 +87,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        MapGameFieldCodec.WriteDataReferenceVariableIntPairs(stream, Values.Span);
+        MapGameFieldCodec.WriteDataReferenceVariableIntPairs(stream, RequiredGoods.Span);
         MapGameFieldCodec.WriteOptionalDataReferenceVariableIntPairs(stream, OptionalValues);
         stream.WriteBoolean(Unknown0);
         MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier);

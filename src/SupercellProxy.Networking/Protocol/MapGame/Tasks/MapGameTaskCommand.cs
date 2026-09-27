@@ -2,6 +2,7 @@ using System.Globalization;
 
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
@@ -16,7 +17,7 @@ public sealed record MapGameTaskCommand : Command
     /// </summary>
     public static readonly int[] CommandTypes =
     [
-        278,
+        CommandRegistry.CompleteMapGameDumpTaskCommandType,
         279,
         280,
         281,
@@ -26,11 +27,11 @@ public sealed record MapGameTaskCommand : Command
         290,
         291,
         295,
-        310,
+        CommandRegistry.CollectMapGameSanctuaryAnimalCommandType,
         312,
         314,
     ];
-    private static readonly HashSet<int> TypesWithOptionalValues = [284, 291, 310];
+    private static readonly HashSet<int> TypesWithOptionalValues = [284, 291, CommandRegistry.CollectMapGameSanctuaryAnimalCommandType];
 
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCommand"/> instance.

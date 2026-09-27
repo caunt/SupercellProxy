@@ -3,6 +3,7 @@ using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
+using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Friends;
 using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
@@ -26,8 +27,17 @@ public static class MessageRegistry
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
 
+    /// Identifies clientbound decoration-gallery data for a home.
+    public const ushort DecorationGalleryDataMessageType = 25133;
+
+    /// Identifies the clientbound featured-decoration-design list.
+    public const ushort FeaturingDesignListMessageType = 27413;
+
     /// Identifies the clientbound loading-complete gate used to initialize home turns.
     public const ushort HomeInitializationMessageType = 27439;
+
+    /// Identifies clientbound full neighborhood profiles.
+    public const ushort NeighborhoodFullListMessageType = 29897;
 
     private static readonly Dictionary<ushort, string> Hints = new()
     {
@@ -181,6 +191,15 @@ public static class MessageRegistry
 
         [key: 27398] = new MessageRegistryEntry(Version: 0, typeof(ResourceAssociationsMessage), ResourceAssociationsMessage.Create)
         { CaptureName = "Clientbound27398Message" },
+
+        [FeaturingDesignListMessageType] = new MessageRegistryEntry(Version: 0, typeof(FeaturingDesignListMessage), FeaturingDesignListMessage.Create)
+        { CaptureName = nameof(FeaturingDesignListMessage) },
+
+        [DecorationGalleryDataMessageType] = new MessageRegistryEntry(Version: 0, typeof(DecorationGalleryDataMessage), DecorationGalleryDataMessage.Create)
+        { CaptureName = nameof(DecorationGalleryDataMessage) },
+
+        [NeighborhoodFullListMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodFullListMessage), NeighborhoodFullListMessage.Create)
+        { CaptureName = nameof(NeighborhoodFullListMessage) },
 
         [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },
