@@ -315,6 +315,9 @@ public static class CommandRegistry
     /// </summary>
     public const int MarkTaskEventSeenCommandType = 359;
 
+    /// <summary>Records the trading season most recently checked by the player.</summary>
+    public const int MarkTradingSeasonCheckedCommandType = 202;
+
     /// <summary>
     /// Provides the Mark Truck Orders Seen Command Type value or operation.
     /// </summary>

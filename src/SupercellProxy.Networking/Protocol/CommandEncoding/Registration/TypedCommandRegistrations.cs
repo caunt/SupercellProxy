@@ -9,6 +9,7 @@ using SupercellProxy.Networking.Protocol.Events.Boards;
 using SupercellProxy.Networking.Protocol.Events.Chronos;
 using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Events.Tasks;
+using SupercellProxy.Networking.Protocol.Events.TradingSeasons;
 using SupercellProxy.Networking.Protocol.FarmLayouts;
 using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Fishing;
@@ -45,6 +46,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [MarkTradingSeasonCheckedCommandType] = new CommandRegistryEntry(
+            typeof(MarkTradingSeasonCheckedCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => MarkTradingSeasonCheckedCommand.Decode(stream, environment)
+        ),
         [SetUserSettingCommandType] = new CommandRegistryEntry(
             typeof(SetUserSettingCommand),
             MessageDirection.Serverbound,
