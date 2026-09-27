@@ -44,15 +44,18 @@ public static class CommandRegistry
     /// <summary>Reports a boat help request result.</summary>
     public const int BoatCrateHelpResponseServerCommandType = 389;
 
+    /// <summary>Books a town passenger into a service slot.</summary>
+    public const int BookTownPassengerServiceCommandType = 145;
+
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>
     public const int BuyCropSeedsCommandType = 665;
-
     /// <summary>
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
+
     /// <summary>Cancels an unsold roadside listing.</summary>
     public const int CancelRoadsideListingCommandType = 589;
 
@@ -188,9 +191,9 @@ public static class CommandRegistry
     /// Provides the Collect Wheel Reward Command Type value or operation.
     /// </summary>
     public const int CollectWheelRewardCommandType = 80;
-
     /// <summary>Provides the Complete Boy Interaction Command Type.</summary>
     public const int CompleteBoyInteractionCommandType = 653;
+
     /// <summary>
     /// Provides the Complete Construction Command Type value or operation.
     /// </summary>
@@ -238,11 +241,11 @@ public static class CommandRegistry
     /// Provides the Feed Livestock Animal Command Type value or operation.
     /// </summary>
     public const int FeedLivestockAnimalCommandType = 532;
-
     /// <summary>
     /// Provides the Fill Boat Crate Command Type value or operation.
     /// </summary>
     public const int FillBoatCrateCommandType = 634;
+
     /// <summary>Accepts a waiting farm visitor's goods order.</summary>
     public const int FulfillFarmVisitorOrderCommandType = 569;
 
@@ -427,9 +430,9 @@ public static class CommandRegistry
     /// Provides the Reset Wheel Car Command Type value or operation.
     /// </summary>
     public const int ResetWheelCarCommandType = 517;
-
     /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
     public const int RoadsideFriendCountServerCommandType = 210;
+
     /// <summary>Identifies the roadside purchase notification delivered to the client listener.</summary>
     public const int RoadsidePurchaseRejectedServerCommandType = 309;
 
@@ -445,9 +448,9 @@ public static class CommandRegistry
     /// Provides the Roadside Stock Server Command Type value or operation.
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
-
     /// <summary>Starts panic movement for all residents of a livestock habitat.</summary>
     public const int ScareLivestockCommandType = 6;
+
     /// <summary>Provides the Search With Boy Command Type.</summary>
     public const int SearchWithBoyCommandType = 71;
 
@@ -517,6 +520,9 @@ public static class CommandRegistry
 
     /// <summary>Taps an ambient animal identified by its runtime object identifier.</summary>
     public const int TapAmbientAnimalCommandType = 42;
+
+    /// <summary>Applies a town-passenger action.</summary>
+    public const int TownPassengerActionCommandType = 140;
 
     /// <summary>
     /// Provides the Tree Revival Server Command Type value or operation.
