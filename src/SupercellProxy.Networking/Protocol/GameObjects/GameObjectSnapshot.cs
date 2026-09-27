@@ -586,6 +586,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public TimerValue Timer { get; init; }
 
+    /// <summary>Gets the number of passengers assigned to a saved town train.</summary>
+    [JsonPropertyName("Passengers")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? TrainPassengerCount { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">TravelTime</c> value.
     /// </summary>
