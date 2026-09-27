@@ -9,6 +9,7 @@ using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.OpaquePayloads;
 using SupercellProxy.Networking.Protocol.Rankings;
@@ -39,6 +40,9 @@ public static class MessageRegistry
 
     /// Identifies the clientbound loading-complete gate used to initialize home turns.
     public const ushort HomeInitializationMessageType = 27439;
+
+    /// <summary>Identifies a clientbound neighborhood chat entry.</summary>
+    public const ushort NeighborhoodChatMessageType = 27910;
 
     /// Identifies clientbound full neighborhood profiles.
     public const ushort NeighborhoodFullListMessageType = 29897;
@@ -207,6 +211,9 @@ public static class MessageRegistry
 
         [AvatarStreamPageMessageType] = new MessageRegistryEntry(Version: 0, typeof(AvatarStreamPageMessage), AvatarStreamPageMessage.Create)
         { CaptureName = nameof(AvatarStreamPageMessage) },
+
+        [NeighborhoodChatMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Create)
+        { CaptureName = nameof(NeighborhoodChatMessage) },
 
         [key: 28061] = new MessageRegistryEntry(Version: 0, typeof(Clientbound28061Message), Clientbound28061Message.Create)
         { CaptureName = "Clientbound28061Message" },
