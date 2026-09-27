@@ -74,6 +74,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public int BoughtSpinsDaily { get; init; }
 
+    /// <summary>Gets saved bowl values, represented as food counts or boolean states by object type.</summary>
+    [JsonPropertyName("Bowls")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BowlValueSnapshot[]? BowlValues { get; init; }
+
     /// <summary>Gets the Boy's pending interval-offer state.</summary>
     public int BoyOffer { get; init; }
 
@@ -135,10 +140,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCost { get; init; }
-
     /// <summary>Gets the retained DiamondCostToTake value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCostToTake { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">EventId</c> value.
     /// </summary>
@@ -184,11 +189,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
     /// </summary>
     public bool FreeReEngagementAvailable { get; init; }
-
     /// <summary>Gets the retained FriendLastOpened value.</summary>
     [JsonPropertyName("LastOpenedFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? FriendLastOpened { get; init; }
+
     /// <summary>Gets the retained FriendOpenedBoxTimer value.</summary>
     [JsonPropertyName("OpenedBoxTimerFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -337,12 +342,12 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.
     /// </summary>
     public int LastDailyResetHourIndex { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">LastEventID</c> value.
     /// </summary>
     [JsonPropertyName("LastEventID")]
     public int LastEventIdentifier { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">LastInitDayIndex</c> value.
     /// </summary>
@@ -457,11 +462,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">PeopleQuestV2</c> value.
     /// </summary>
     public EncodedDocumentValue? PeopleQuestV2 { get; init; }
-
-    /// <summary>Gets the retained food amount of each pet-habitat bowl.</summary>
-    [JsonPropertyName("Bowls")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? PetHabitatBowls { get; init; }
 
     /// <summary>Gets the retained index of an adult pet's habitat among the home's pet habitats.</summary>
     [JsonPropertyName("Habitat")]

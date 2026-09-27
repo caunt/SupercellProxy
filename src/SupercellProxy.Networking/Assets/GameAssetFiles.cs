@@ -854,6 +854,9 @@ public static partial class GameAssetFiles
     /// <summary>Path of the Train Parts asset.</summary>
     public const string TrainParts = "data/train_parts.csv";
 
+    /// <summary>Path of the town train-station tile layout.</summary>
+    public const string TrainStationLayout = "data/train_station_0.csv";
+
     /// <summary>Path of the Train Stations asset.</summary>
     public const string TrainStations = "data/train_stations.csv";
 
