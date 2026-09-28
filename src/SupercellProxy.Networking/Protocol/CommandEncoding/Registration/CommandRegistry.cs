@@ -47,6 +47,9 @@ public static class CommandRegistry
     /// <summary>Books a town passenger into a service slot.</summary>
     public const int BookTownPassengerServiceCommandType = 145;
 
+    /// <summary>Buys a package from the ordinary gift catalogue.</summary>
+    public const int BuyCatalogueGiftCommandType = 104;
+
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>

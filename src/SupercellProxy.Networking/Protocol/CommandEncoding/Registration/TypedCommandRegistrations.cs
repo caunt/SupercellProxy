@@ -13,9 +13,9 @@ using SupercellProxy.Networking.Protocol.Events.TradingSeasons;
 using SupercellProxy.Networking.Protocol.FarmLayouts;
 using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Fishing;
+using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.Forestry;
 using SupercellProxy.Networking.Protocol.GameObjects;
-using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Helpers;
 using SupercellProxy.Networking.Protocol.Mail;
@@ -48,6 +48,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [BuyCatalogueGiftCommandType] = new CommandRegistryEntry(
+            typeof(BuyCatalogueGiftCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => BuyCatalogueGiftCommand.Decode(stream, environment)
+        ),
         [TownPassengerActionCommandType] = new CommandRegistryEntry(
             typeof(TownPassengerActionCommand),
             MessageDirection.Serverbound,

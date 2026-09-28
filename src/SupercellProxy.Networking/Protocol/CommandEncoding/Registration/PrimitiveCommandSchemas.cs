@@ -200,7 +200,7 @@ internal static class PrimitiveCommandSchemas
             MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new([104, 169, 250, 251, MarkTaskEventSeenCommandType], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false),
+        new([169, 250, 251, MarkTaskEventSeenCommandType], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false),
 
         new(
             [ 179 ],
