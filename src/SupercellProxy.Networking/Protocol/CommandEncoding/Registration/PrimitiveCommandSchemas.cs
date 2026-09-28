@@ -166,7 +166,6 @@ internal static class PrimitiveCommandSchemas
                 162,
                 165,
                 191,
-                204,
                 216,
                 223,
                 237,
@@ -417,7 +416,6 @@ internal static class PrimitiveCommandSchemas
             MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new([205], [CommandFieldType.Byte, CommandFieldType.ByteCountedVariableIntArray, ], MessageDirection.Serverbound, baseFirst: false),
         new(
             [ 231 ],
             [

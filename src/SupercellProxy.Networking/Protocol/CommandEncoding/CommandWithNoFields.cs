@@ -58,7 +58,7 @@ public sealed record CommandWithNoFields : Command
         CommandRegistry.CloseWheelCarCommandType,
         CommandRegistry.MarkMapGameSunPointsSeenCommandType,
         593,
-        595,
+        CommandRegistry.WakeBoyFromRestCommandType,
         CommandRegistry.MarkNeighborhoodTasksSeenCommandType,
         598,
         604,

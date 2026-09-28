@@ -79,6 +79,8 @@ public static class MessageRegistry
         { CaptureName = nameof(RequestFollowerCountMessage) },
         [key: 23455] = new MessageRegistryEntry(Version: 0, typeof(FollowerCountMessage), FollowerCountMessage.Create)
         { CaptureName = nameof(FollowerCountMessage) },
+        [key: 25679] = new MessageRegistryEntry(Version: 0, typeof(FriendCountMessage), FriendCountMessage.Create)
+        { CaptureName = nameof(FriendCountMessage) },
         [key: 26582] = new MessageRegistryEntry(Version: 0, typeof(FriendListUpdateMessage), FriendListUpdateMessage.Create)
         { CaptureName = nameof(FriendListUpdateMessage) },
         [key: 22878] = new MessageRegistryEntry(Version: 0, typeof(RoadsidePurchaseResultMessage), RoadsidePurchaseResultMessage.Create)

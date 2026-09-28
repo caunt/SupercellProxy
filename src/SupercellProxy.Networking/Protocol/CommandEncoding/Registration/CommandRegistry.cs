@@ -241,16 +241,19 @@ public static class CommandRegistry
     /// Provides the Feed Livestock Animal Command Type value or operation.
     /// </summary>
     public const int FeedLivestockAnimalCommandType = 532;
+
     /// <summary>
     /// Provides the Fill Boat Crate Command Type value or operation.
     /// </summary>
     public const int FillBoatCrateCommandType = 634;
-
     /// <summary>Accepts a waiting farm visitor's goods order.</summary>
     public const int FulfillFarmVisitorOrderCommandType = 569;
 
     /// <summary>Provides the Hire Boy Command Type.</summary>
     public const int HireBoyCommandType = 68;
+
+    /// <summary>Hires one farm helper at a configured duration tier.</summary>
+    public const int HireHelperCommandType = 204;
 
     /// <summary>
     /// Provides the Home Loaded Command Type value or operation.
@@ -430,9 +433,9 @@ public static class CommandRegistry
     /// Provides the Reset Wheel Car Command Type value or operation.
     /// </summary>
     public const int ResetWheelCarCommandType = 517;
+
     /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
     public const int RoadsideFriendCountServerCommandType = 210;
-
     /// <summary>Identifies the roadside purchase notification delivered to the client listener.</summary>
     public const int RoadsidePurchaseRejectedServerCommandType = 309;
 
@@ -448,9 +451,9 @@ public static class CommandRegistry
     /// Provides the Roadside Stock Server Command Type value or operation.
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
+
     /// <summary>Starts panic movement for all residents of a livestock habitat.</summary>
     public const int ScareLivestockCommandType = 6;
-
     /// <summary>Provides the Search With Boy Command Type.</summary>
     public const int SearchWithBoyCommandType = 71;
 
@@ -480,6 +483,9 @@ public static class CommandRegistry
 
     /// <summary>Moves one fishing-area fish to the selected runtime state.</summary>
     public const int SetFishStateCommandType = 112;
+
+    /// <summary>Replaces a farm helper's production order quantities.</summary>
+    public const int SetHelperOrdersCommandType = 205;
 
     /// <summary>Changes a notification or advanced user setting.</summary>
     public const int SetUserSettingCommandType = 131;
@@ -561,6 +567,9 @@ public static class CommandRegistry
     /// Provides the Visited Boat State Server Command Type value or operation.
     /// </summary>
     public const int VisitedBoatStateServerCommandType = 810;
+
+    /// <summary>Wakes the Boy from his interval rest.</summary>
+    public const int WakeBoyFromRestCommandType = 595;
 
     private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> LazyEntries = new(CreateEntries);
     private static readonly HashSet<int> NonProductionCommandTypes = [7, 84, 85];

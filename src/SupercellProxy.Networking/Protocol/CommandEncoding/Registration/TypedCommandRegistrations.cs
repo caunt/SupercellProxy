@@ -17,6 +17,7 @@ using SupercellProxy.Networking.Protocol.Forestry;
 using SupercellProxy.Networking.Protocol.GameObjects;
 using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.Gatherers;
+using SupercellProxy.Networking.Protocol.Helpers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
@@ -272,6 +273,20 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 StartTruckDeliveryCommand.Decode(stream, environment)
+        ),
+        [HireHelperCommandType] = new CommandRegistryEntry(
+            typeof(HireHelperCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => HireHelperCommand.Decode(stream, environment)
+        ),
+        [SetHelperOrdersCommandType] = new CommandRegistryEntry(
+            typeof(SetHelperOrdersCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => SetHelperOrdersCommand.Decode(stream, environment)
         ),
         [ProcessBoatCrateHelpServerCommandType] = new CommandRegistryEntry(
             typeof(ProcessBoatCrateHelpServerCommand),
