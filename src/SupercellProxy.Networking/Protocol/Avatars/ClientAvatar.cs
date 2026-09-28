@@ -103,7 +103,7 @@ public sealed record ClientAvatar
     /// <summary>
     /// Gets or sets the <c language="csharp">MailEntries</c> value.
     /// </summary>
-    public MailEntry[] MailEntries { get; init; } = [];
+    public MailEntry[] MailEntries { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">MapGameId</c> value.

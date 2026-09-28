@@ -7,6 +7,7 @@ using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Friends;
 using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
+using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
@@ -140,8 +141,8 @@ public static class MessageRegistry
         [key: 20621] = new MessageRegistryEntry(Version: 0, typeof(Clientbound20621Message), Clientbound20621Message.Create)
         { CaptureName = "Clientbound20621Message" },
 
-        [key: 21915] = new MessageRegistryEntry(Version: 0, typeof(Clientbound21915Message), Clientbound21915Message.Create)
-        { CaptureName = "Clientbound21915Message" },
+        [key: 21915] = new MessageRegistryEntry(Version: 0, typeof(MailListMessage), MailListMessage.Create)
+        { CaptureName = nameof(MailListMessage) },
 
         [key: 21945] = new MessageRegistryEntry(Version: 0, typeof(Clientbound21945Message), Clientbound21945Message.Create)
         { CaptureName = "Clientbound21945Message" },

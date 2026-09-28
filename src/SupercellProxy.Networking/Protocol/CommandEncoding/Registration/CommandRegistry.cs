@@ -138,6 +138,9 @@ public static class CommandRegistry
     /// </summary>
     public const int CloseWheelCarCommandType = 590;
 
+    /// <summary>Collects eligible letters and their gift-card rewards.</summary>
+    public const int CollectAllLettersCommandType = 672;
+
     /// <summary>
     /// Provides the Collect Animal Product Command Type value or operation.
     /// </summary>

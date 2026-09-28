@@ -8,10 +8,17 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 /// </summary>
 public sealed record MailEntry
 {
+    internal const int MinimumEncodedSize = 60;
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Body</c> value.
     /// </summary>
     public string? Body { get; init; }
+
+    /// <summary>
+    /// Gets the letter category.
+    /// </summary>
+    public int Category { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CustomBody</c> value.
@@ -36,6 +43,16 @@ public sealed record MailEntry
     public string? GameCenterIdentifier { get; init; }
 
     /// <summary>
+    /// Gets the identifier used to remove the letter from the avatar's mail list.
+    /// </summary>
+    public long Identifier { get; init; }
+
+    /// <summary>
+    /// Gets the letter's collection and reward state.
+    /// </summary>
+    public int RewardState { get; init; }
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">SenderAvatarName</c> value.
     /// </summary>
     public string? SenderAvatarName { get; init; }
@@ -44,15 +61,6 @@ public sealed record MailEntry
     /// Gets or sets the <c language="csharp">Subject</c> value.
     /// </summary>
     public string? Subject { get; init; }
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
-    /// </summary>
-    public int Unknown0 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
-    /// </summary>
-    public int Unknown1 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown10</c> value.
@@ -88,11 +96,6 @@ public sealed record MailEntry
     /// Gets or sets the <c language="csharp">Unknown16</c> value.
     /// </summary>
     public int Unknown16 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown2</c> value.
-    /// </summary>
-    public long Unknown2 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown3</c> value.
@@ -148,9 +151,9 @@ public sealed record MailEntry
 
         return new()
         {
-            Unknown0 = stream.ReadVariableInt(),
-            Unknown1 = stream.ReadVariableInt(),
-            Unknown2 = stream.ReadInt64(),
+            RewardState = stream.ReadVariableInt(),
+            Category = stream.ReadVariableInt(),
+            Identifier = stream.ReadInt64(),
             SenderAvatarName = stream.ReadOptionalString(),
             Unknown3 = stream.ReadVariableInt(),
             Unknown4 = stream.ReadVariableInt(),
@@ -183,9 +186,9 @@ public sealed record MailEntry
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteInt64(Unknown2);
+        stream.WriteVariableInt(RewardState);
+        stream.WriteVariableInt(Category);
+        stream.WriteInt64(Identifier);
         stream.WriteOptionalString(SenderAvatarName);
         stream.WriteVariableInt(Unknown3);
         stream.WriteVariableInt(Unknown4);

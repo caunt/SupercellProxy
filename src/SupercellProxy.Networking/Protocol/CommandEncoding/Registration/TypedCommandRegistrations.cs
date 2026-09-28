@@ -721,7 +721,7 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) => ShopEventsServerCommand.Decode(stream, environment)
         ),
-        [key: 672] = new CommandRegistryEntry(
+        [CollectAllLettersCommandType] = new CommandRegistryEntry(
             typeof(CollectAllLettersCommand),
             MessageDirection.Serverbound,
             BaseFirst: true,

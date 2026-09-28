@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 
@@ -10,11 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record CollectAllLettersCommand : Command
 {
     /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 672;
-
-    /// <summary>
     /// Initializes a new <see cref="CollectAllLettersCommand"/> instance.
     /// </summary>
     public CollectAllLettersCommand(int executionPhaseCounter = -1, CommandData? debugData0 = null, CommandData? debugData1 = null)
@@ -23,7 +19,7 @@ public sealed record CollectAllLettersCommand : Command
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
-    public override int Type => CommandType;
+    public override int Type => CommandRegistry.CollectAllLettersCommandType;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
