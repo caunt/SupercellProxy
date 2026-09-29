@@ -1,5 +1,6 @@
 using SupercellProxy.Networking.Protocol.Achievements;
 using SupercellProxy.Networking.Protocol.Animals;
+using SupercellProxy.Networking.Protocol.Balloons;
 using SupercellProxy.Networking.Protocol.Boats;
 using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
@@ -48,6 +49,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [PopBalloonCommandType] = new CommandRegistryEntry(
+            typeof(PopBalloonCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => PopBalloonCommand.Decode(stream, environment)
+        ),
         [BuyCatalogueGiftCommandType] = new CommandRegistryEntry(
             typeof(BuyCatalogueGiftCommand),
             MessageDirection.Serverbound,

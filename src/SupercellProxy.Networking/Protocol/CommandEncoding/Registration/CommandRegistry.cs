@@ -372,6 +372,9 @@ public static class CommandRegistry
     /// </summary>
     public const int PlantFieldCommandType = 514;
 
+    /// <summary>Pops an unpopped balloon and collects its selected reward.</summary>
+    public const int PopBalloonCommandType = 98;
+
     /// <summary>Processes the helper's confirmed boat-crate payment.</summary>
     public const int ProcessBoatCrateHelpServerCommandType = 304;
 

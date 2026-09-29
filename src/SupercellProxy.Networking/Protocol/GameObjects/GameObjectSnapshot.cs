@@ -46,10 +46,20 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("AITimer")]
     public int[] AutomaticBuyerTimers { get; init; } = [];
 
+    /// <summary>Gets the saved Balloon height counter.</summary>
+    [JsonPropertyName("Height")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? BalloonHeight { get; init; }
+    /// <summary>Gets the Balloon reward row selected when it was popped.</summary>
+    [JsonPropertyName("rewardIndex")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? BalloonRewardIndex { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">BeatsTimer</c> value.
     /// </summary>
     public int? BeatsTimer { get; init; }
+
     /// Gets the retained boat-order groups.
     [JsonPropertyName("boat_orders")]
     public BoatOrderSnapshot[] BoatOrders { get; init; } = [];
@@ -131,7 +141,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     [JsonPropertyName("ID")]
     public int DataGlobalIdentifier { get; init; }
-
     /// <summary>Gets the retained DeliveryRewards value.</summary>
     [JsonPropertyName("rewards")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -140,6 +149,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCost { get; init; }
+
     /// <summary>Gets the retained DiamondCostToTake value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCostToTake { get; init; }
@@ -184,11 +194,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the roadside free-advertisement cooldown.</summary>
     [JsonPropertyName("FreeAdTimer")]
     public TimerSnapshot? FreeAdvertisementTimer { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
     /// </summary>
     public bool FreeReEngagementAvailable { get; init; }
+
     /// <summary>Gets the retained FriendLastOpened value.</summary>
     [JsonPropertyName("LastOpenedFriend")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -337,11 +347,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the last roadside advertisement timestamp.</summary>
     public long LastAdvertisementTimestamp { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.
     /// </summary>
     public int LastDailyResetHourIndex { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">LastEventID</c> value.
     /// </summary>
