@@ -55,6 +55,9 @@ public static class MessageRegistry
     /// <summary>Identifies the player's town home snapshot.</summary>
     public const ushort OwnTownDataMessageType = 28543;
 
+    /// Identifies the serverbound startup pulse observed before a zero-command home turn.
+    public const ushort Serverbound38101MessageType = 38101;
+
     private static readonly Dictionary<ushort, string> Hints = new()
     {
         [key: 10518] = "open friend book",
