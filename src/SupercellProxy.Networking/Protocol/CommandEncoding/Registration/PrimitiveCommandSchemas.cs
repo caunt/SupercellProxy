@@ -20,7 +20,6 @@ internal static class PrimitiveCommandSchemas
                 558,
                 559,
                 565,
-                576,
                 597,
                 602,
                 605,
@@ -246,12 +245,6 @@ internal static class PrimitiveCommandSchemas
         ),
         new([273], [CommandFieldType.OptionalLongIdentifier, CommandFieldType.VariableInt], MessageDirection.Clientbound, baseFirst: false),
         new( [ 302 ], [ CommandFieldType.DataReference, CommandFieldType.VariableInt ], MessageDirection.Serverbound, baseFirst: false ),
-        new(
-            [384],
-            [CommandFieldType.Int32, CommandFieldType.Int32, CommandFieldType.Int32, ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
         new(
             [ 316 ],
             [
@@ -688,7 +681,6 @@ internal static class PrimitiveCommandSchemas
         new( [ 379 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
 
 
-        new( [ 636 ], [ CommandFieldType.VariableIntArray, CommandFieldType.VariableLongArray ], MessageDirection.Serverbound ),
         new(
             [ 134 ],
             [

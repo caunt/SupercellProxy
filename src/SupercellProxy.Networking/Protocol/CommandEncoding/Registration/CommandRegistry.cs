@@ -216,6 +216,9 @@ public static class CommandRegistry
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
 
+    /// <summary>Completes a finished Neighborhood Object task.</summary>
+    public const int CompleteNeighborhoodObjectTaskCommandType = 576;
+
     /// <summary>
     /// Provides the Construct Game Object Command Type value or operation.
     /// </summary>
@@ -347,6 +350,9 @@ public static class CommandRegistry
     /// Provides the Movie Ticket Ad Watched Command Type value or operation.
     /// </summary>
     public const int MovieTicketAdWatchedCommandType = 510;
+
+    /// <summary>Updates points for an active Neighborhood Object event.</summary>
+    public const int NeighborhoodObjectPointsServerCommandType = 384;
 
     /// <summary>
     /// Provides the Open Mystery Box Command Type value or operation.
@@ -498,6 +504,9 @@ public static class CommandRegistry
 
     /// <summary>Sets state flags on a selected Mini Pass instance.</summary>
     public const int SetMiniPassStateFlagsCommandType = 560;
+
+    /// <summary>Sets Neighborhood Object leaderboard scores by long identifier.</summary>
+    public const int SetNeighborhoodObjectLeaderboardScoresCommandType = 636;
 
     /// <summary>Changes a notification or advanced user setting.</summary>
     public const int SetUserSettingCommandType = 131;

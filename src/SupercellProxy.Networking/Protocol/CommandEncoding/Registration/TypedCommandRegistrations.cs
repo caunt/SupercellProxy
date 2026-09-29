@@ -28,6 +28,7 @@ using SupercellProxy.Networking.Protocol.MapGame.Notifications;
 using SupercellProxy.Networking.Protocol.MapGame.Quests;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.MovieTickets;
+using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 using SupercellProxy.Networking.Protocol.MysteryBoxes;
 using SupercellProxy.Networking.Protocol.Newspapers;
@@ -112,6 +113,27 @@ internal static class TypedCommandRegistrations
             BaseFirst: true,
             FieldSchemas: null,
             static (stream, environment, unusedResolver) => SetMiniPassStateFlagsCommand.Decode(stream, environment)
+        ),
+        [SetNeighborhoodObjectLeaderboardScoresCommandType] = new CommandRegistryEntry(
+            typeof(SetNeighborhoodObjectLeaderboardScoresCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => SetNeighborhoodObjectLeaderboardScoresCommand.Decode(stream, environment)
+        ),
+        [CompleteNeighborhoodObjectTaskCommandType] = new CommandRegistryEntry(
+            typeof(CompleteNeighborhoodObjectTaskCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CompleteNeighborhoodObjectTaskCommand.Decode(stream, environment)
+        ),
+        [NeighborhoodObjectPointsServerCommandType] = new CommandRegistryEntry(
+            typeof(NeighborhoodObjectPointsServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => NeighborhoodObjectPointsServerCommand.Decode(stream, environment)
         ),
         [FulfillFarmVisitorOrderCommandType] = new CommandRegistryEntry(
             typeof(FulfillFarmVisitorOrderCommand),

@@ -5,10 +5,16 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// </summary>
 public sealed record NeighborhoodObjectTaskSnapshot
 {
+    /// <summary>Gets whether the task has reached its required progress.</summary>
+    public bool Complete { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">PlayerLevelAtTaskStart</c> value.
     /// </summary>
     public int PlayerLevelAtTaskStart { get; init; }
+
+    /// <summary>Gets the saved task progress.</summary>
+    public int Progress { get; init; }
 
     /// <summary>
     /// Gets the Seen value.
