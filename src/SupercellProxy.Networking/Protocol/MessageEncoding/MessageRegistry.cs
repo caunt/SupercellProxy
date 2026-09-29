@@ -52,6 +52,9 @@ public static class MessageRegistry
     /// <summary>Identifies a clientbound neighborhood member list.</summary>
     public const ushort NeighborhoodMembersMessageType = 28583;
 
+    /// <summary>Marks the second state flag on one Neighborhood stream entry.</summary>
+    public const ushort NeighborhoodStreamEntryFlagMessageType = 23867;
+
     /// <summary>Identifies the player's town home snapshot.</summary>
     public const ushort OwnTownDataMessageType = 28543;
 
@@ -227,6 +230,9 @@ public static class MessageRegistry
 
         [NeighborhoodChatMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Create)
         { CaptureName = nameof(NeighborhoodChatMessage) },
+
+        [NeighborhoodStreamEntryFlagMessageType] = new MessageRegistryEntry(Version: 8281, typeof(NeighborhoodStreamEntryFlagMessage), NeighborhoodStreamEntryFlagMessage.Create)
+        { CaptureName = nameof(NeighborhoodStreamEntryFlagMessage) },
 
         [NeighborhoodMembersMessageType] = new MessageRegistryEntry(Version: 0, typeof(NeighborhoodMembersMessage), NeighborhoodMembersMessage.Create)
         { CaptureName = nameof(NeighborhoodMembersMessage) },
