@@ -26,6 +26,9 @@ public sealed record MapGameEvent
     /// <summary>Moves a Valley pawn and carries the authoritative movement projection.</summary>
     public const int PawnMovedType = 2;
 
+    /// <summary>Adds or refreshes a Valley pawn's social profile.</summary>
+    public const int PawnProfileUpdatedType = 30;
+
     /// <summary>Expires an existing personal task using the server's task state.</summary>
     public const int PawnTaskExpiredType = 6;
 
@@ -202,7 +205,7 @@ public sealed record MapGameEvent
                 optionalTask,
                 new(MapGameEventFieldType.OptionalDumpTaskState),
             ];
-            schemas[key: 30] = [optionalPawn];
+            schemas[PawnProfileUpdatedType] = [optionalPawn];
             schemas[key: 31] = [optionalPawn];
             schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVariableIntArray];
             schemas[key: 33] = [variableInt, optionalPawn];
