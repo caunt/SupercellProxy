@@ -21,6 +21,7 @@ using SupercellProxy.Networking.Protocol.Gatherers;
 using SupercellProxy.Networking.Protocol.Helpers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
+using SupercellProxy.Networking.Protocol.MiniPass;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
 using SupercellProxy.Networking.Protocol.MapGame.Movement;
 using SupercellProxy.Networking.Protocol.MapGame.Notifications;
@@ -104,6 +105,13 @@ internal static class TypedCommandRegistrations
             BaseFirst: false,
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) => SetUserSettingCommand.Decode(stream, environment)
+        ),
+        [SetMiniPassStateFlagsCommandType] = new CommandRegistryEntry(
+            typeof(SetMiniPassStateFlagsCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => SetMiniPassStateFlagsCommand.Decode(stream, environment)
         ),
         [FulfillFarmVisitorOrderCommandType] = new CommandRegistryEntry(
             typeof(FulfillFarmVisitorOrderCommand),

@@ -496,6 +496,9 @@ public static class CommandRegistry
     /// <summary>Replaces a farm helper's production order quantities.</summary>
     public const int SetHelperOrdersCommandType = 205;
 
+    /// <summary>Sets state flags on a selected Mini Pass instance.</summary>
+    public const int SetMiniPassStateFlagsCommandType = 560;
+
     /// <summary>Changes a notification or advanced user setting.</summary>
     public const int SetUserSettingCommandType = 131;
 

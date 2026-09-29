@@ -48,7 +48,6 @@ internal static class PrimitiveCommandSchemas
         new( [ 692 ], [ CommandFieldType.String ], MessageDirection.Serverbound ),
         new( [ 525, 625 ], [ CommandFieldType.Boolean, CommandFieldType.VariableInt ], MessageDirection.Serverbound ),
         new( [ 679 ], [ CommandFieldType.String, CommandFieldType.VariableInt ], MessageDirection.Serverbound ),
-        new( [ 560 ], [ CommandFieldType.VariableInt, CommandFieldType.Boolean ], MessageDirection.Serverbound ),
         new( [ 501, 523, 550, 568, 607, 620, 621, 642, 650, 655, 658 ], new CommandFieldType[2], MessageDirection.Serverbound ),
         new([ 608, 666 ], new CommandFieldType[3], MessageDirection.Serverbound),
         new( [ 839 ], [ CommandFieldType.Boolean, CommandFieldType.Boolean ], MessageDirection.Clientbound ),

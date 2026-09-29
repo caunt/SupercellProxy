@@ -9,6 +9,7 @@ using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.MapGame;
+using SupercellProxy.Networking.Protocol.MiniPass;
 using SupercellProxy.Networking.Protocol.MovieTickets;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Newspapers;
@@ -73,6 +74,10 @@ public sealed record CommonAvatarDataSnapshot
     /// Gets or sets the <c language="csharp">MapGameManager</c> value.
     /// </summary>
     public MapGameSnapshot? MapGameManager { get; init; }
+
+    /// <summary>Gets the saved Mini Pass instance and active tasks.</summary>
+    [JsonPropertyName("LogicMiniPassManager")]
+    public MiniPassManagerSnapshot? MiniPassManager { get; init; }
 
     /// <summary>
     /// Gets the Movie Ticket Manager value.
