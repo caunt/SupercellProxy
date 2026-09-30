@@ -561,6 +561,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public bool SpawnedFromV2 { get; init; }
 
+    /// <summary>Gets the number of ordinary passengers spawned for the current town train.</summary>
+    [JsonPropertyName("Spawn")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? SpawnedTrainPassengerCount { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">State</c> value.
     /// </summary>
@@ -620,6 +625,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">UpgradeTimer</c> value.
     /// </summary>
     public TimerSnapshot? UpgradeTimer { get; init; }
+
+    /// <summary>Gets whether the passenger spawner retains the town tutorial's wandering region.</summary>
+    [JsonPropertyName("TutorialWalkRandom")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? UseTownTutorialWandering { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UsedSpins</c> value.

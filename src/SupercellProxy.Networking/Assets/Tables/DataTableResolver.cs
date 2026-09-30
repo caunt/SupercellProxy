@@ -244,6 +244,15 @@ public sealed class DataTableResolver : ICommandDataResolver
         return false;
     }
 
+    /// <summary>Gets the number of rows belonging to one data-table entry, including continuation rows.</summary>
+    public bool TryResolveEntryRowCount(int globalIdentifier, out int count)
+    {
+        GameDataTableEntry? entry = ResolveEntry(globalIdentifier);
+        count = entry?.Snapshots.Count ?? 0;
+
+        return entry is not null;
+    }
+
     /// <summary>
     /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
