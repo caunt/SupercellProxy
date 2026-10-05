@@ -7,6 +7,7 @@ using System.Text.Json;
 using SupercellProxy.Keys.DecryptDay;
 
 using CloakBrowser;
+using CloakBrowser.Wrappers;
 
 using Microsoft.Playwright;
 
@@ -148,8 +149,9 @@ internal sealed class DecryptDayClient(HttpClient client)
         await Console
             .Error.WriteLineAsync(value: "Running Turnstile verification...")
             .ConfigureAwait(continueOnCapturedContext: false);
+        // Playwright assertions require the underlying locator; keep the wrapper for the humanized click.
         await Assertions
-            .Expect(verificationButton)
+            .Expect(Humanize.Unwrap(verificationButton))
             .ToBeEnabledAsync(new LocatorAssertionsToBeEnabledOptions { Timeout = 60_000 })
             .ConfigureAwait(continueOnCapturedContext: false);
         await verificationButton
