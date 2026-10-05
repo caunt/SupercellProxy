@@ -51,7 +51,7 @@ public sealed record AvatarStreamPageMessage : IMessage
     }
 
     /// <summary>Encodes the proven empty-page form of an avatar-stream message.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         if (EntryCount is < 0 or > 1024)
             throw new InvalidDataException(message: "The avatar-stream entry count is invalid.");
@@ -67,7 +67,7 @@ public sealed record AvatarStreamPageMessage : IMessage
         stream.WriteVariableInt(EntryCount ?? -1);
         stream.WriteBoolean(value: false);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits stream contents from diagnostic text.</summary>

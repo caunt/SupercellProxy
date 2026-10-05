@@ -11,11 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record LoginMessage : IMessage
 {
     /// <summary>
-    /// Gets the login version for the current native protocol configuration.
-    /// </summary>
-    public static int CurrentLoginVersion => ProtocolConfiguration.Current.LoginVersion;
-
-    /// <summary>
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
@@ -161,9 +156,9 @@ public sealed record LoginMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream supercellStream = MessageStream.Create();
 
@@ -189,6 +184,6 @@ public sealed record LoginMessage : IMessage
         supercellStream.WriteString(StorefrontCountryCode);
         supercellStream.WriteString(StorefrontIdentifier);
 
-        return new MessageContainer(identifier, version, supercellStream);
+        return supercellStream;
     }
 }

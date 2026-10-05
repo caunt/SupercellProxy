@@ -17,15 +17,15 @@ public sealed record FollowerCountMessage(LongIdentifier HomeIdentifier, int Fol
             : result;
     }
 
-    /// Encodes the farm identifier and follower count using the supplied wire version.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    /// Encodes the farm identifier and follower count as a payload.
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteLongIdentifier(HomeIdentifier);
         stream.WriteVariableInt(FollowerCount);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits the private farm identifier from diagnostic text.

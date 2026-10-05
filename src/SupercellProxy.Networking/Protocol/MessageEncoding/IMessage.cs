@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Transport;
+
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 public interface IMessage
 {
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    MessageContainer ToContainer(ushort identifier, ushort version = 0);
+    MessageStream ToStream();
 }

@@ -611,7 +611,7 @@ public sealed class MessageStream : IDisposable
     /// Writes <c language="csharp">MessageAsync</c> to the stream.
     /// </summary>
     public Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
-        where TValue : IMessage
+        where TValue : class, IMessage
     {
         return _transport.WriteMessageAsync(message, cancellationToken);
     }

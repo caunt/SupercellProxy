@@ -26,14 +26,14 @@ public sealed record NeighborhoodChatMessage(NeighborhoodItemRequestChatEntry It
     }
 
     /// <summary>Encodes the proven item-request chat entry.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteVariableInt(ItemRequestEntryType);
         ItemRequest.Encode(stream);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits player details from diagnostic text.</summary>

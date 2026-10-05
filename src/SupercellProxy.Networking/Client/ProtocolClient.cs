@@ -65,13 +65,14 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <summary>Gets the authenticated or externally supplied message stream.</summary>
     public MessageStream Stream =>
         _supercellStream ?? throw new InvalidOperationException(message: "The client is not connected.");
-    internal bool CanUpdateVersion => Configuration.AutoUpdateVersion && _serverKeys is HayDayServerPublicKeySource;
+    internal bool CanUpdateVersion => Configuration.Protocol is null && _serverKeys is HayDayServerPublicKeySource;
 
     internal ClientConfiguration Configuration =>
         field
         ?? throw new InvalidOperationException(message: "This client has no online configuration.");
 
-    internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol(Configuration.Protocol) ?? Configuration.Protocol;
+    internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol() ?? Configuration.Protocol
+        ?? throw new InvalidOperationException(message: "The protocol version has not been resolved. Custom key sources require an explicit version.");
 
     /// <summary>Creates an anonymous account for this connection without requesting or retaining its home state.</summary>
     public async Task<ClientLoginResult> ConnectAnonymousAsync(CancellationToken cancellationToken = default)
@@ -187,7 +188,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
             _supercellStream = new MessageStream(_networkStream)
             {
                 ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
-                OutboundMessageVersion = unchecked((ushort)protocol.LoginVersion),
+                OutboundMessageVersion = protocol.MessageVersion,
             };
         }
 

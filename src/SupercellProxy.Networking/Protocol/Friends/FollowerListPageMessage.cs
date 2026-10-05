@@ -31,8 +31,8 @@ public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? E
             : new FollowerListPageMessage(hasMorePages, entries);
     }
 
-    /// Encodes this page using the supplied identifier and version.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    /// Encodes this page as a payload.
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -48,7 +48,7 @@ public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? E
             }
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits the private follower records from diagnostics.

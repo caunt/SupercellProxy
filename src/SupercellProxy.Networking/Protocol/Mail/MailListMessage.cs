@@ -39,7 +39,7 @@ public sealed record MailListMessage : IMessage
     }
 
     /// Encodes clientbound message 21915.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         if (Entries?.Length > MaximumEntryCount)
             throw new InvalidDataException(message: "The mail-list entry count is invalid.");
@@ -57,7 +57,7 @@ public sealed record MailListMessage : IMessage
             }
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits private mail content from diagnostic text.

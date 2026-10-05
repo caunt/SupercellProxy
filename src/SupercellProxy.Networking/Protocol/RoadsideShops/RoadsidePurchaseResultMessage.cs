@@ -78,7 +78,7 @@ public sealed record RoadsidePurchaseResultMessage(
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -91,6 +91,6 @@ public sealed record RoadsidePurchaseResultMessage(
         stream.WriteVariableInt(ContextValue);
         stream.WriteVariableInt(ItemGlobalIdentifier);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

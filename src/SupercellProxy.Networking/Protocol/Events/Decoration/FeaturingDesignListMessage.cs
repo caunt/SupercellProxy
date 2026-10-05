@@ -56,7 +56,7 @@ public sealed record FeaturingDesignListMessage : IMessage
     }
 
     /// <summary>Encodes a featured-design list message.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -81,6 +81,6 @@ public sealed record FeaturingDesignListMessage : IMessage
         stream.WriteVariableInt(EventIdentifier);
         stream.WriteVariableInt(EventVariantIdentifier);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

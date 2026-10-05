@@ -30,13 +30,13 @@ public sealed record Clientbound29734Message : IMessage
     }
 
     /// Encodes clientbound message 29734.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteBoolean(Flag);
         stream.WriteVariableInt(Value);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

@@ -34,7 +34,7 @@ public sealed record DecorationGalleryDataMessage : IMessage
     }
 
     /// <summary>Encodes the proven empty-list form of a decoration-gallery response.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -45,7 +45,7 @@ public sealed record DecorationGalleryDataMessage : IMessage
         if (HomeIdentifier is { } homeIdentifier)
             stream.WriteLongIdentifier(homeIdentifier);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits the private home identifier from diagnostic text.</summary>

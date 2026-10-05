@@ -11,14 +11,16 @@ namespace SupercellProxy.Networking.Client;
 
 internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache assets)
 {
-    internal static LoginMessage CreateLoginMessage(string fingerprintSha1, SessionTokenData? sessionToken, AppStore appStore, ProtocolConfiguration? protocol = null)
+    internal static LoginMessage CreateLoginMessage(string fingerprintSha1, SessionTokenData? sessionToken, AppStore appStore, ProtocolConfiguration protocol)
     {
+        ArgumentNullException.ThrowIfNull(protocol);
+
         return new LoginMessage
         {
             AccountIdentifier = LongIdentifier.Empty,
             PassToken = null,
             ResourceSha = fingerprintSha1,
-            LoginVersion = (protocol ?? ProtocolConfiguration.Current).LoginVersion,
+            LoginVersion = protocol.LoginVersion,
             UniqueDeviceIdentifier = "",
             OpenUniqueDeviceIdentifier = "",
             MacAddress = "",

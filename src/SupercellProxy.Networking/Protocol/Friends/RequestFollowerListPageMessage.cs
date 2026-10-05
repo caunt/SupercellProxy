@@ -16,12 +16,12 @@ public sealed record RequestFollowerListPageMessage : IMessage
             : new RequestFollowerListPageMessage();
     }
 
-    /// Encodes an empty payload using the supplied identifier and version.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    /// Encodes an empty payload as a payload.
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Identifies the request without exposing client data.

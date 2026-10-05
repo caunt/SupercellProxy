@@ -32,7 +32,7 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
 
         AvailableServerCommandMessage message = new(command);
         // Container serialization finalizes any trailing packed boolean before comparison.
-        byte[] roundTrip = message.ToContainer(container.Identifier, container.Version).Payload.ToArray();
+        byte[] roundTrip = MessageContainer.Create(message, container.Version).Payload.ToArray();
         int difference = 0;
 
         while (difference < payload.Length && difference < roundTrip.Length && payload[difference] == roundTrip[difference])
@@ -49,9 +49,9 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         MessageStream stream = MessageStream.Create();
 
@@ -59,7 +59,7 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
         {
             CommandRegistry.Encode(stream, Command, CommandEnvironment.Production);
 
-            return new MessageContainer(identifier, version, stream);
+            return stream;
         }
         finally
         {

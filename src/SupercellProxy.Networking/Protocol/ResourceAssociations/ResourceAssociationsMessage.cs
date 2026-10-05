@@ -26,7 +26,7 @@ public sealed record ResourceAssociationsMessage : IMessage
     }
 
     /// Encodes clientbound message 27398.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -42,7 +42,7 @@ public sealed record ResourceAssociationsMessage : IMessage
             stream.WriteOptionalString(record.DisplayName);
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     private static ResourceAssociationRecord DecodeRecord(MessageStream stream)

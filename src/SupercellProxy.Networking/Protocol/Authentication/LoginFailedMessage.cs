@@ -184,9 +184,9 @@ public sealed record LoginFailedMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream supercellStream = MessageStream.Create();
 
@@ -239,6 +239,6 @@ public sealed record LoginFailedMessage : IMessage
 
         supercellStream.WriteOptionalString(RedirectHost);
 
-        return new MessageContainer(identifier, version, supercellStream);
+        return supercellStream;
     }
 }

@@ -23,7 +23,7 @@ public sealed record FriendMetadataMessage : IMessage
     }
 
     /// Encodes the byte-counted friend-meta sequence.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         if (FriendMetaRecords.Length % RecordSize is not 0)
             throw new InvalidDataException(message: "Friend-meta data is not aligned to ten-byte records.");
@@ -38,6 +38,6 @@ public sealed record FriendMetadataMessage : IMessage
         stream.WriteByte(byte.CreateChecked(count));
         stream.Write(FriendMetaRecords.Span);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

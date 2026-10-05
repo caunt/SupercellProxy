@@ -19,13 +19,13 @@ public sealed record NeighborhoodStreamEntryFlagMessage(LongIdentifier EntryIden
     }
 
     /// <summary>Encodes the selected stream-entry identifier.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteLongIdentifier(EntryIdentifier);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits the stream-entry identifier from diagnostic text.</summary>

@@ -189,7 +189,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
         MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
 
-        MessageContainer outgoingContainer = message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message));
+        MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion);
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
@@ -334,6 +334,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
                 .ReadContainerAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
+            if (direction is MessageDirection.Serverbound && container.Identifier == MessageRegistry.GetIdentifier<LoginMessage>())
+                ServerStream.OutboundMessageVersion = container.Version;
+
             await TrafficCapture
                 .SaveAsync(stage: "incoming", direction, container, messageName: "frame", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -430,7 +433,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         bool preserveOriginal = (direction is MessageDirection.Clientbound && message is LoginFailedMessage)
             || (TrafficCapture.PreserveForwardedFrames && message is not LoginMessage);
 
-        MessageContainer container = preserveOriginal ? original : message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message));
+        MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message, original.Version);
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)

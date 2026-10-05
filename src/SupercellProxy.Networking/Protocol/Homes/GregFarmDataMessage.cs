@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Transport;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Protocol.Homes;
@@ -16,8 +18,8 @@ public sealed record GregFarmDataMessage(OwnHomeDataMessage Data) : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
-        return Data.ToContainer(identifier, version);
+        return Data.ToStream();
     }
 }

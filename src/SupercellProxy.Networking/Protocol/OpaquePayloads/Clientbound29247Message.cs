@@ -19,12 +19,12 @@ public sealed record Clientbound29247Message : IMessage
     }
 
     /// Encodes clientbound message 29247.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.Write(PayloadData.Span);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

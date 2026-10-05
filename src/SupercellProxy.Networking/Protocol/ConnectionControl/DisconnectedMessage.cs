@@ -22,12 +22,12 @@ public sealed record DisconnectedMessage(DisconnectReason Reason) : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<DisconnectReason, int>(Reason));
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

@@ -13,11 +13,6 @@ namespace SupercellProxy.Networking.Protocol.Turns;
 public sealed record EndClientTurnMessage : IMessage
 {
     /// <summary>
-    /// Defines the <c language="csharp">CurrentVersion</c> value.
-    /// </summary>
-    public const ushort CurrentVersion = 10;
-
-    /// <summary>
     /// Defines the <c language="csharp">MaxCommandCount</c> value.
     /// </summary>
     public const int MaximumCommandCount = 1024;
@@ -127,9 +122,9 @@ public sealed record EndClientTurnMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         if (SubChecksums.Length != SubChecksumCount)
             throw new InvalidDataException($"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
@@ -172,7 +167,7 @@ public sealed record EndClientTurnMessage : IMessage
                 stream.WriteVariableIntByteArray(byteArray.Span);
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     private static int ReadCollectionCount(MessageStream stream, int maximum, string name)

@@ -12,17 +12,17 @@ public sealed class ClientOptions
 
     /// <summary>Gets or sets the optional stale bootstrap fingerprint.</summary>
     public string? BootstrapFingerprintSha { get; set; }
-    /// <summary>Gets or sets the upstream hostname or IP address.</summary>
-    public string UpstreamHost { get; set; } = ConnectionAddressResolver.DefaultUpstreamHost;
+    /// <summary>Gets or sets an explicit version override; null uses the latest version from KEYS.md.</summary>
+    public ProtocolConfiguration? Protocol { get; set; }
 
     /// <summary>Gets or sets the session-token source; its boolean requests a forced refresh.</summary>
     public Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider { get; set; }
 
+    /// <summary>Gets or sets the upstream hostname or IP address.</summary>
+    public string UpstreamHost { get; set; } = ConnectionAddressResolver.DefaultUpstreamHost;
+
     /// <summary>Gets or sets the upstream TCP port.</summary>
     public int UpstreamPort { get; set; } = ConnectionAddressResolver.DefaultPort;
-
-    /// <summary>Gets or sets the protocol version advertised during authentication.</summary>
-    public ProtocolConfiguration Protocol { get; set; } = ProtocolConfiguration.Current with { };
 
     internal ClientConfiguration ToConfiguration()
     {

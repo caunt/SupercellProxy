@@ -10,14 +10,14 @@ internal sealed record HayDayServerKey(Version GameVersion, int? KeyVersion, byt
         return ValueTask.FromResult(PublicKey);
     }
 
-    public ProtocolConfiguration ToProtocol(ProtocolConfiguration protocol)
+    public ProtocolConfiguration ToProtocol()
     {
-        return protocol with
-        {
-            MajorVersion = GameVersion.Major,
-            MinorVersion = GameVersion.Minor,
-            PatchVersion = GameVersion.Build,
-            KeyVersion = KeyVersion ?? throw new InvalidDataException($"KEYS.md has no key version for Hay Day {GameVersion}."),
-        };
+        return new ProtocolConfiguration(
+            GameVersion.Major,
+            GameVersion.Minor,
+            GameVersion.Build,
+            ProtocolConfiguration.WireProtocolVersion,
+            KeyVersion ?? throw new InvalidDataException($"KEYS.md has no key version for Hay Day {GameVersion}.")
+        );
     }
 }

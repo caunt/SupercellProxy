@@ -18,8 +18,8 @@ public sealed record FriendListUpdateMessage(FriendEntry Entry) : IMessage
             : new FriendListUpdateMessage(entry);
     }
 
-    /// Encodes this update with the supplied identifier and version.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    /// Encodes this update as a payload.
+    public MessageStream ToStream()
     {
         ArgumentNullException.ThrowIfNull(Entry);
 
@@ -27,7 +27,7 @@ public sealed record FriendListUpdateMessage(FriendEntry Entry) : IMessage
 
         Entry.Encode(stream);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits the private entry from diagnostics.

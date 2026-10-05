@@ -33,7 +33,7 @@ public sealed record NeighborhoodFullListMessage : IMessage
     }
 
     /// <summary>Encodes the native optional profile list.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -48,7 +48,7 @@ public sealed record NeighborhoodFullListMessage : IMessage
                 profile.Encode(stream);
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits neighborhood names and identifiers from diagnostic text.</summary>

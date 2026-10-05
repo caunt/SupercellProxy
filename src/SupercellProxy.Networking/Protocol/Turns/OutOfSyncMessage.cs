@@ -62,9 +62,9 @@ public sealed record OutOfSyncMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToContainer</c> operation.
+    /// Executes the <c language="csharp">ToStream</c> operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -74,6 +74,6 @@ public sealed record OutOfSyncMessage : IMessage
         stream.WriteOptionalString(ServerState);
         stream.WriteOptionalString(ClientState);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

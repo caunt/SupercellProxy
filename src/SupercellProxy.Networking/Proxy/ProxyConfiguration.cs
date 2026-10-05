@@ -11,7 +11,7 @@ public sealed record ProxyConfiguration(
     int UpstreamPort,
     string ListenAddress,
     int ListenPort,
-    ProtocolConfiguration Protocol,
+    ProtocolConfiguration? Protocol = null,
     Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider = null,
     string? CaptureDirectory = null,
     string? AssetDirectory = null

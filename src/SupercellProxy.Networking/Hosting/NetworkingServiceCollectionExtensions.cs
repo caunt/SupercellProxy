@@ -28,7 +28,6 @@ public static class NetworkingServiceCollectionExtensions
                 static value => value.UpstreamPort is > 0 and <= IPEndPoint.MaxPort,
                 $"{nameof(ClientOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}."
             )
-            .Validate(static value => value.Protocol is not null, $"{nameof(ClientOptions.Protocol)} is required.")
             .Validate(static value => value.SessionTokenProvider is not null, failureMessage: "A session-token provider is required.")
             .ValidateOnStart();
 
@@ -65,7 +64,6 @@ public static class NetworkingServiceCollectionExtensions
                 static value => value.ListenPort is >= 0 and <= IPEndPoint.MaxPort,
                 $"{nameof(ProxyOptions.ListenPort)} must be between 0 and {IPEndPoint.MaxPort}."
             )
-            .Validate(static value => value.Protocol is not null, $"{nameof(ProxyOptions.Protocol)} is required.")
             .ValidateOnStart();
 
         if (configure is not null)

@@ -19,12 +19,12 @@ public sealed record Clientbound20155Message : IMessage
     }
 
     /// Encodes clientbound message 20155.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteVariableInt(Value);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

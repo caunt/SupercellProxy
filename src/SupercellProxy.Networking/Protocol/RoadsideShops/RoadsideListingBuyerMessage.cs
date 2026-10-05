@@ -40,7 +40,7 @@ public sealed record RoadsideListingBuyerMessage(
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
@@ -48,6 +48,6 @@ public sealed record RoadsideListingBuyerMessage(
         stream.WriteLongIdentifier(BuyerIdentifier);
         stream.WriteLongIdentifier(HomeOwnerIdentifier);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 }

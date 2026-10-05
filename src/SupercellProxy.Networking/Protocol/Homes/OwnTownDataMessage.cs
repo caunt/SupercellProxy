@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Transport;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Protocol.Homes;
@@ -12,8 +14,8 @@ public sealed record OwnTownDataMessage(OwnHomeDataMessage Data) : IMessage
     }
 
     /// <summary>Encodes the shared own-home snapshot wire format.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
-        return Data.ToContainer(identifier, version);
+        return Data.ToStream();
     }
 }

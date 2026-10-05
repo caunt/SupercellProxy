@@ -5,9 +5,12 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 /// </summary>
 public sealed record ProtocolConfiguration(int MajorVersion, int MinorVersion, int PatchVersion, int ProtocolVersion, int KeyVersion)
 {
-    /// Gets the protocol configuration for the current native client version.
-    public static ProtocolConfiguration Current { get; } = new(MajorVersion: 1, MinorVersion: 72, PatchVersion: 86, ProtocolVersion: 3, KeyVersion: 43);
+    /// <summary>The supported ClientHello wire protocol, independent of the game release.</summary>
+    public const int WireProtocolVersion = 3;
 
     /// <summary>Gets the packed application version sent in Login, matching ClientHello.</summary>
     public int LoginVersion => (MajorVersion << 20) | (MinorVersion << 10) | PatchVersion;
+
+    /// <summary>Gets the low 16 bits written to encrypted client-message headers.</summary>
+    public ushort MessageVersion => unchecked((ushort)LoginVersion);
 }

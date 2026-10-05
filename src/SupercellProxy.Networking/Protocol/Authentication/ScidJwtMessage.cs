@@ -20,14 +20,14 @@ public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds)
     }
 
     /// Encodes a Supercell ID JSON Web Token response.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         using MessageStream stream = MessageStream.Create();
 
         stream.WriteString(Token);
         stream.WriteInt64(ExpiresAtUnixTimeSeconds);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits the credential from logs.

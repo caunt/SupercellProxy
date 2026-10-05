@@ -38,7 +38,7 @@ public sealed record NeighborhoodMembersMessage : IMessage
     }
 
     /// <summary>Encodes the optional member list and trailing value.</summary>
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    public MessageStream ToStream()
     {
         if (Members?.Length is > 1000)
             throw new InvalidDataException(message: "The neighborhood member count is invalid.");
@@ -55,7 +55,7 @@ public sealed record NeighborhoodMembersMessage : IMessage
 
         stream.WriteVariableInt(UnknownTail);
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// <summary>Omits member details from diagnostic text.</summary>

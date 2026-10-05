@@ -37,8 +37,8 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMess
             : new FriendListMessage(mode, entries);
     }
 
-    /// Encodes this list with the supplied identifier and version.
-    public MessageContainer ToContainer(ushort identifier, ushort version = 0)
+    /// Encodes this list as a payload.
+    public MessageStream ToStream()
     {
         if (Entries?.Length > MaximumEntryCount)
             throw new InvalidDataException(message: "The friend-entry count exceeds the native limit.");
@@ -57,7 +57,7 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMess
             }
         }
 
-        return new MessageContainer(identifier, version, stream);
+        return stream;
     }
 
     /// Omits private entries from diagnostics.
