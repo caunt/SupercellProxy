@@ -12,12 +12,12 @@ using System.Diagnostics.CodeAnalysis;
 )]
 [assembly: SuppressMessage(
     "Naming",
-    "CA1711:Identifiers should not have incorrect suffix",
+    "CA1711:Ids should not have incorrect suffix",
     Justification = "Named wire collection envelopes are protocol contracts, not general-purpose collection implementations."
 )]
 [assembly: SuppressMessage(
     "Naming",
-    "CA1720:Identifier contains type name",
+    "CA1720:Id contains type name",
     Justification = "Wire field discriminators are named after their encoded primitive types."
 )]
 [assembly: SuppressMessage(

@@ -8,11 +8,11 @@ public sealed record DecorationVotingCandidateSnapshot
 {
     /// <summary>Gets the high 32 bits of the candidate's avatar identity.</summary>
     [JsonPropertyName("avatarId_hi")]
-    public int AvatarIdentifierHigh { get; init; }
+    public int AvatarIdHigh { get; init; }
 
     /// <summary>Gets the low 32 bits of the candidate's avatar identity.</summary>
     [JsonPropertyName("avatarId_lo")]
-    public int AvatarIdentifierLow { get; init; }
+    public int AvatarIdLow { get; init; }
 
     /// <summary>Gets the number of completed decoration challenges.</summary>
     [JsonPropertyName("challengesComplete")]

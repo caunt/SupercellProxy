@@ -8,15 +8,15 @@ public sealed record NeighborhoodItemRequestChatEntry(
     int Unknown0,
     bool FirstFlag,
     bool SecondFlag,
-    LongIdentifier EntryIdentifier,
-    LongIdentifier SenderHomeIdentifier,
+    LongId EntryId,
+    LongId SenderHomeId,
     string SenderFarmName,
     int SenderLevel,
     int SenderRole,
     int Unknown1,
     int? ProfileEntryCount,
     int SecondaryTimestampSeconds,
-    int ItemGlobalIdentifier,
+    int ItemGlobalId,
     int Quantity,
     bool Unknown2,
     int? RelatedEntryCount
@@ -24,17 +24,17 @@ public sealed record NeighborhoodItemRequestChatEntry(
 {
     internal static NeighborhoodItemRequestChatEntry Decode(MessageStream stream)
     {
-        int posted = stream.ReadVariableInt();
-        int unknown0 = stream.ReadVariableInt();
+        int posted = stream.ReadVarInt();
+        int unknown0 = stream.ReadVarInt();
         bool firstFlag = stream.ReadBoolean();
         bool secondFlag = stream.ReadBoolean();
-        LongIdentifier entryIdentifier = stream.ReadLongIdentifier();
-        LongIdentifier home = stream.ReadLongIdentifier();
+        LongId entryId = stream.ReadLongId();
+        LongId home = stream.ReadLongId();
         string name = stream.ReadString();
-        int level = stream.ReadVariableInt();
-        int role = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
-        int? profileCount = stream.ReadBoolean() ? stream.ReadVariableInt() : null;
+        int level = stream.ReadVarInt();
+        int role = stream.ReadVarInt();
+        int unknown1 = stream.ReadVarInt();
+        int? profileCount = stream.ReadBoolean() ? stream.ReadVarInt() : null;
 
         if (profileCount is < 0 or > 1024)
             throw new InvalidDataException(message: "The neighborhood chat profile count is invalid.");
@@ -42,11 +42,11 @@ public sealed record NeighborhoodItemRequestChatEntry(
         if (profileCount is > 0)
             throw new NotSupportedException(message: "Nonempty neighborhood chat profile entries have an unconfirmed layout.");
 
-        int expiry = stream.ReadVariableInt();
-        int item = stream.ReadVariableInt();
-        int quantity = stream.ReadVariableInt();
+        int expiry = stream.ReadVarInt();
+        int item = stream.ReadVarInt();
+        int quantity = stream.ReadVarInt();
         bool unknown2 = stream.ReadBoolean();
-        int relatedCount = stream.ReadVariableInt();
+        int relatedCount = stream.ReadVarInt();
 
         return relatedCount is < -1 or > 1000
             ? throw new InvalidDataException(message: "The neighborhood chat related-entry count is invalid.")
@@ -57,7 +57,7 @@ public sealed record NeighborhoodItemRequestChatEntry(
                 unknown0,
                 firstFlag,
                 secondFlag,
-                entryIdentifier,
+                entryId,
                 home,
                 name,
                 level,
@@ -80,25 +80,25 @@ public sealed record NeighborhoodItemRequestChatEntry(
         if (ProfileEntryCount is > 0 || RelatedEntryCount is > 0)
             throw new NotSupportedException(message: "Nonempty neighborhood chat entry lists have an unconfirmed layout.");
 
-        stream.WriteVariableInt(PostedTimestampSeconds);
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(PostedTimestampSeconds);
+        stream.WriteVarInt(Unknown0);
         stream.WriteBoolean(FirstFlag);
         stream.WriteBoolean(SecondFlag);
-        stream.WriteLongIdentifier(EntryIdentifier);
-        stream.WriteLongIdentifier(SenderHomeIdentifier);
+        stream.WriteLongId(EntryId);
+        stream.WriteLongId(SenderHomeId);
         stream.WriteString(SenderFarmName);
-        stream.WriteVariableInt(SenderLevel);
-        stream.WriteVariableInt(SenderRole);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteVarInt(SenderLevel);
+        stream.WriteVarInt(SenderRole);
+        stream.WriteVarInt(Unknown1);
         stream.WriteBoolean(ProfileEntryCount is not null);
 
         if (ProfileEntryCount is { } profileCount)
-            stream.WriteVariableInt(profileCount);
+            stream.WriteVarInt(profileCount);
 
-        stream.WriteVariableInt(SecondaryTimestampSeconds);
-        stream.WriteVariableInt(ItemGlobalIdentifier);
-        stream.WriteVariableInt(Quantity);
+        stream.WriteVarInt(SecondaryTimestampSeconds);
+        stream.WriteVarInt(ItemGlobalId);
+        stream.WriteVarInt(Quantity);
         stream.WriteBoolean(Unknown2);
-        stream.WriteVariableInt(RelatedEntryCount ?? -1);
+        stream.WriteVarInt(RelatedEntryCount ?? -1);
     }
 }

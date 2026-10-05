@@ -14,13 +14,7 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>
 /// Defines the Upgrade Option contract.
 /// </summary>
-public sealed record UpgradeBuildingCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalIdentifier,
-    int UpgradeOption,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record UpgradeBuildingCommand([property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId, int UpgradeOption) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -33,20 +27,18 @@ public sealed record UpgradeBuildingCommand(
     public static UpgradeBuildingCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int building = stream.ReadVariableInt();
-        int option = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int building = stream.ReadVarInt();
+        int option = stream.ReadVarInt();
 
-        return new UpgradeBuildingCommand(building, option, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new UpgradeBuildingCommand(building, option);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(BuildingGlobalIdentifier);
-        stream.WriteVariableInt(UpgradeOption);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(BuildingGlobalId);
+        stream.WriteVarInt(UpgradeOption);
     }
 }

@@ -7,11 +7,10 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestGregFarmMessage(int LanguageIndex = 0) : IMessage
 {
     /// <summary>Decodes the requested language index.</summary>
-    public static RequestGregFarmMessage Create(MessageContainer container)
+    public static RequestGregFarmMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int languageIndex = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int languageIndex = stream.ReadVarInt();
 
         return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The Greg farm request has trailing data.")
@@ -19,12 +18,10 @@ public sealed record RequestGregFarmMessage(int LanguageIndex = 0) : IMessage
     }
 
     /// <summary>Encodes the requested language index.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(LanguageIndex);
-
-        return stream;
+        stream.WriteVarInt(LanguageIndex);
     }
 }

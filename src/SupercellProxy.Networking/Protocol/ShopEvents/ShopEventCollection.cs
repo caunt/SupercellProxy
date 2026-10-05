@@ -30,8 +30,8 @@ public sealed record ShopEventCollection
     public static ShopEventCollection Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
-        int eventCount = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
+        int eventCount = stream.ReadVarInt();
 
         if (uint.CreateTruncating(eventCount) > MaximumEventCount)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid shop event count: {eventCount}."));
@@ -54,8 +54,8 @@ public sealed record ShopEventCollection
         if (Events.Length > MaximumEventCount)
             throw new InvalidDataException($"Invalid shop event count: {Events.Length}.");
 
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Events.Length);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Events.Length);
 
         foreach (ShopEvent shopEvent in Events.Span)
             shopEvent.Encode(stream);

@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 /// </summary>
 public sealed record MapGameQuestManagerSnapshot
 {
-    /// <summary>Gets the progression-prize data identifiers already claimed, in claim order.</summary>
+    /// <summary>Gets the progression-prize data ids already claimed, in claim order.</summary>
     public int[] ClaimedProgressionPrizes { get; init; } = [];
 
     /// <summary>Gets the number of completed quests in the active Valley progression.</summary>

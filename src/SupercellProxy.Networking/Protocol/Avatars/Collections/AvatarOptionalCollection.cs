@@ -17,7 +17,7 @@ public sealed record AvatarOptionalCollection(int Unknown0, AvatarEncodedCollect
     public static AvatarOptionalCollection Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
         AvatarEncodedCollectionEntry[] entries = stream.ReadArray(AvatarEncodedCollectionEntry.Decode);
 
         return new AvatarOptionalCollection(unknown0, entries.AsSpan());
@@ -29,7 +29,7 @@ public sealed record AvatarOptionalCollection(int Unknown0, AvatarEncodedCollect
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
         stream.WriteArray(Entries, static (valueStream, value) => value.Encode(valueStream));
     }
 }

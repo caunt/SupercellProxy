@@ -9,7 +9,7 @@ public sealed record NeighborhoodObjectManagerSnapshot
     /// Gets or sets the <c language="csharp">ActiveEventId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ActiveEventId")]
-    public int ActiveEventIdentifier { get; init; }
+    public int ActiveEventId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">State</c> value.

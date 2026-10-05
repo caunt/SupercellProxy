@@ -12,27 +12,25 @@ public sealed record VisitOtherFishingHomeMessage : IMessage
     /// <summary>
     /// Gets or sets the <c language="csharp">Target</c> value.
     /// </summary>
-    public required LongIdentifier Target { get; init; }
+    public required LongId Target { get; init; }
 
     /// <summary>
     /// Creates a <c language="csharp">VisitOtherFishingHomeMessage</c> from the supplied data.
     /// </summary>
-    public static VisitOtherFishingHomeMessage Create(MessageContainer container)
+    public static VisitOtherFishingHomeMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new VisitOtherFishingHomeMessage { Target = container.Payload.ReadLongIdentifier() };
+        return new VisitOtherFishingHomeMessage { Target = stream.ReadLongId() };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteLongIdentifier(Target);
-
-        return stream;
+        stream.WriteLongId(Target);
     }
 }

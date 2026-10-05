@@ -11,7 +11,7 @@ public sealed record ChronosEventsSnapshot
     /// Gets the Seen Active Event Ids value.
     /// </summary>
     [JsonPropertyName("seen_active_event_ids")]
-    public int[] SeenActiveEventIdentifiers { get; init; } = [];
+    public int[] SeenActiveEventIds { get; init; } = [];
 
     /// <summary>
     /// Gets the Seen Events value.

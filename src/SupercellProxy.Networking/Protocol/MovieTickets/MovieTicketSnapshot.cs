@@ -18,7 +18,7 @@ public sealed record MovieTicketSnapshot
     /// Gets the Last Reward Id value.
     /// </summary>
     [JsonPropertyName("LastRewardId")]
-    public int LastRewardIdentifier { get; init; }
+    public int LastRewardId { get; init; }
 
     /// <summary>
     /// Gets the Next Expire Hour Index value.
@@ -39,7 +39,7 @@ public sealed record MovieTicketSnapshot
     /// Gets the Reward Id value.
     /// </summary>
     [JsonPropertyName("RewardId")]
-    public int RewardIdentifier { get; init; }
+    public int RewardId { get; init; }
 
     /// <summary>
     /// Gets the Reward Randomized Timestamp value.

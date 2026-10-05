@@ -38,12 +38,12 @@ public static class ConnectionAddressResolver
     /// <summary>
     /// Provides the Resolve Async value or operation.
     /// </summary>
-    public static async Task<(string Host, int Port)> ResolveAsync(string[] arguments, CancellationToken cancellationToken)
+    public static async Task<ConnectionAddress> ResolveAsync(string[] arguments, CancellationToken cancellationToken)
     {
         string host = arguments.ElementAtOrDefault(index: 0) ?? DefaultUpstreamHost;
         string resolvedHost = await ResolveHostAsync(host, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        return (resolvedHost, ParsePort(arguments.ElementAtOrDefault(index: 1)));
+        return new ConnectionAddress(resolvedHost, ParsePort(arguments.ElementAtOrDefault(index: 1)));
     }
 
     private static async Task<string> ResolveHostAsync(string host, CancellationToken cancellationToken)

@@ -32,7 +32,7 @@ internal sealed class MessageTransport(MessageStream stream)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             Span<byte> headerSpan = headerMemory.Span;
-            ushort identifier = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
+            ushort id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
             int length = (headerSpan[index: 2] << 16) | (headerSpan[index: 3] << 8) | headerSpan[index: 4];
             ushort version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..HeaderLength]);
 
@@ -58,7 +58,7 @@ internal sealed class MessageTransport(MessageStream stream)
 
             try
             {
-                return new MessageContainer(identifier, version, messageStream);
+                return new MessageContainer(id, version, messageStream);
             }
             finally
             {
@@ -207,7 +207,7 @@ internal sealed class MessageTransport(MessageStream stream)
             Memory<byte> headerMemory = new byte[HeaderLength];
             Span<byte> headerSpan = headerMemory.Span;
 
-            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Identifier);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Id);
 
             long length = memoryStream.Length;
 

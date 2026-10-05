@@ -12,20 +12,20 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     /// <summary>
     /// Initializes a new <see cref="MapGameGasStationTaskStatePayload"/> instance.
     /// </summary>
-    public MapGameGasStationTaskStatePayload(bool unknownBoolean0, bool unknownBoolean1, int unknown0, ReadOnlyMemory<CommandDataReferenceVariableIntPair>? optionalValues)
+    public MapGameGasStationTaskStatePayload(bool unknownBoolean0, bool unknownBoolean1, int unknown0, ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues)
     {
         UnknownBoolean0 = unknownBoolean0;
         UnknownBoolean1 = unknownBoolean1;
         Unknown0 = unknown0;
         OptionalValues = optionalValues is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
     }
 
     /// <summary>
     /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair>? OptionalValues { get; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown0</c> value.
@@ -49,12 +49,7 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new MapGameGasStationTaskStatePayload(
-            stream.ReadBoolean(),
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            MapGameFieldCodec.ReadOptionalDataReferenceVariableIntPairs(stream)
-        );
+        return new MapGameGasStationTaskStatePayload(stream.ReadBoolean(), stream.ReadBoolean(), stream.ReadVarInt(), MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream));
     }
 
     /// <summary>
@@ -64,7 +59,7 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     {
         stream.WriteBoolean(UnknownBoolean0);
         stream.WriteBoolean(UnknownBoolean1);
-        stream.WriteVariableInt(Unknown0);
-        MapGameFieldCodec.WriteOptionalDataReferenceVariableIntPairs(stream, OptionalValues);
+        stream.WriteVarInt(Unknown0);
+        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
     }
 }

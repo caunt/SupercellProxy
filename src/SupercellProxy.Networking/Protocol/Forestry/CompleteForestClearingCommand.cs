@@ -11,12 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 /// <summary>
 /// Defines the Forest Global Id contract.
 /// </summary>
-public sealed record CompleteForestClearingCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CompleteForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -29,18 +24,16 @@ public sealed record CompleteForestClearingCommand(
     public static CompleteForestClearingCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int forest = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int forest = stream.ReadVarInt();
 
-        return new CompleteForestClearingCommand(forest, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CompleteForestClearingCommand(forest);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(ForestGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(ForestGlobalId);
     }
 }

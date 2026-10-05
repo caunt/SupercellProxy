@@ -15,7 +15,7 @@ namespace SupercellProxy.Networking.Protocol.CollectionPayloads;
 /// <summary>
 /// Defines the Id contract.
 /// </summary>
-public sealed record Message26994Entry(int Value0, int Value1, [property: System.Text.Json.Serialization.JsonPropertyName("Id")] LongIdentifier Identifier)
+public sealed record Message26994Entry(int Value0, int Value1, [property: System.Text.Json.Serialization.JsonPropertyName("Id")] LongId Id)
 {
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -24,7 +24,7 @@ public sealed record Message26994Entry(int Value0, int Value1, [property: System
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadLongIdentifier());
+        return new(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadLongId());
     }
 
     /// <summary>
@@ -33,8 +33,8 @@ public sealed record Message26994Entry(int Value0, int Value1, [property: System
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Value0);
-        stream.WriteVariableInt(Value1);
-        stream.WriteLongIdentifier(Identifier);
+        stream.WriteVarInt(Value0);
+        stream.WriteVarInt(Value1);
+        stream.WriteLongId(Id);
     }
 }

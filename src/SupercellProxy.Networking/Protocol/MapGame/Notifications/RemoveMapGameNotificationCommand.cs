@@ -5,12 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MapGame.Notifications;
 
 /// <summary>Removes one pending Valley notification after it has been presented.</summary>
-public sealed record RemoveMapGameNotificationCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("NotificationGlobalId")] int NotificationGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record RemoveMapGameNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("NotificationGlobalId")] int NotificationGlobalId) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.RemoveMapGameNotificationCommandType;
@@ -19,17 +14,15 @@ public sealed record RemoveMapGameNotificationCommand(
     public static RemoveMapGameNotificationCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int notificationGlobalIdentifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
+        int notificationGlobalId = stream.ReadVarInt();
 
-        return new RemoveMapGameNotificationCommand(notificationGlobalIdentifier, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+        return new RemoveMapGameNotificationCommand(notificationGlobalId);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(NotificationGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(NotificationGlobalId);
     }
 }

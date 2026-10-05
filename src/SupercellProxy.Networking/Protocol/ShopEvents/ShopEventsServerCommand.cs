@@ -17,14 +17,7 @@ public sealed record ShopEventsServerCommand : ServerCommand
     /// <summary>
     /// Initializes a new <see cref="ShopEventsServerCommand"/> instance.
     /// </summary>
-    public ShopEventsServerCommand(
-        ShopEventCollection? shopEvents,
-        int serverCommandIdentifier,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
+    public ShopEventsServerCommand(ShopEventCollection? shopEvents)
     {
         ShopEventCollection = shopEvents;
     }
@@ -46,18 +39,17 @@ public sealed record ShopEventsServerCommand : ServerCommand
     {
         ArgumentNullException.ThrowIfNull(stream);
         ShopEventCollection? shopEvents = stream.ReadBoolean() ? ShopEventCollection.Decode(stream) : null;
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
-        return new ShopEventsServerCommand(shopEvents, serverCommandIdentifier, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+
+        return new ShopEventsServerCommand(shopEvents);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteBoolean(ShopEventCollection is not null);
         ShopEventCollection?.Encode(stream);
-        EncodeServerCommand(stream, environment);
     }
 }

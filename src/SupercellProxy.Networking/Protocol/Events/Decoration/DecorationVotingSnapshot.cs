@@ -9,11 +9,11 @@ public sealed record DecorationVotingSnapshot : ExtensibleDocument
 {
     /// <summary>Gets the voting event identity.</summary>
     [JsonPropertyName("eid")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>Gets the voting event variant identity.</summary>
     [JsonPropertyName("evid")]
-    public int EventVariantIdentifier { get; init; }
+    public int EventVariantId { get; init; }
 
     /// <summary>Gets the featuring state.</summary>
     [JsonPropertyName("featuring")]

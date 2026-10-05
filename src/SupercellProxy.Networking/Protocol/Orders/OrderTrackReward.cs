@@ -16,5 +16,5 @@ public sealed record OrderTrackReward
     /// Gets the Data Global Id value.
     /// </summary>
     [JsonPropertyName("ID")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 }

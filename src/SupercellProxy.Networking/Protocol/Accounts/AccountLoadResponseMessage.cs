@@ -15,7 +15,7 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// Gets the Account Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
-    public LongIdentifier? AccountIdentifier { get; init; }
+    public LongId? AccountId { get; init; }
 
     /// <summary>
     /// Gets the Account Token value.
@@ -31,7 +31,7 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// Gets the Is Supercell Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("IsSupercellId")]
-    public bool IsSupercellIdentifier { get; init; }
+    public bool IsSupercellId { get; init; }
 
     /// <summary>
     /// Gets the Status Text value.
@@ -45,18 +45,17 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static AccountLoadResponseMessage Create(MessageContainer container)
+    public static AccountLoadResponseMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         AccountLoadResponseMessage message = new()
         {
-            Value = stream.ReadVariableInt(),
+            Value = stream.ReadVarInt(),
             StatusText = stream.ReadOptionalString(),
-            AccountIdentifier = stream.ReadBoolean() ? stream.ReadLongIdentifier() : null,
+            AccountId = stream.ReadBoolean() ? stream.ReadLongId() : null,
             AccountToken = stream.ReadOptionalString(),
-            IsSupercellIdentifier = stream.ReadBoolean(),
+            IsSupercellId = stream.ReadBoolean(),
             Avatar = ClientAvatar.Decode(stream),
         };
 
@@ -70,22 +69,20 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Value);
+        stream.WriteVarInt(Value);
         stream.WriteOptionalString(StatusText);
-        stream.WriteBoolean(AccountIdentifier is not null);
+        stream.WriteBoolean(AccountId is not null);
 
-        if (AccountIdentifier is { } accountIdentifier)
-            stream.WriteLongIdentifier(accountIdentifier);
+        if (AccountId is { } accountId)
+            stream.WriteLongId(accountId);
 
         stream.WriteOptionalString(AccountToken);
-        stream.WriteBoolean(IsSupercellIdentifier);
+        stream.WriteBoolean(IsSupercellId);
         Avatar.Encode(stream);
-
-        return stream;
     }
 
     /// <summary>

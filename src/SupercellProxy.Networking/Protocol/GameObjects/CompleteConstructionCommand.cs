@@ -11,12 +11,7 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>
 /// Defines the Construction Global Id contract.
 /// </summary>
-public sealed record CompleteConstructionCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("ConstructionGlobalId")] int ConstructionGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CompleteConstructionCommand([property: System.Text.Json.Serialization.JsonPropertyName("ConstructionGlobalId")] int ConstructionGlobalId) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -29,18 +24,16 @@ public sealed record CompleteConstructionCommand(
     public static CompleteConstructionCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int identifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int id = stream.ReadVarInt();
 
-        return new CompleteConstructionCommand(identifier, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CompleteConstructionCommand(id);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(ConstructionGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(ConstructionGlobalId);
     }
 }

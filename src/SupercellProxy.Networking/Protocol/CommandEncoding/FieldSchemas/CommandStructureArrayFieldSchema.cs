@@ -34,7 +34,7 @@ public sealed record CommandStructureArrayFieldSchema : CommandFieldSchema
     /// </summary>
     public override CommandField Decode(MessageStream stream)
     {
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         if (Nullable && count is -1)
             return new CommandStructureArrayField(values: null);

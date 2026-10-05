@@ -14,13 +14,13 @@ public sealed record LoginMessage : IMessage
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
-    public LongIdentifier AccountIdentifier { get; set; }
+    public LongId AccountId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AdvertisingId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AdvertisingId")]
-    public string? AdvertisingIdentifier { get; set; }
+    public string? AdvertisingId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AdvertisingTrackingEnabled</c> value.
@@ -31,7 +31,7 @@ public sealed record LoginMessage : IMessage
     /// Gets or sets the <c language="csharp">AndroidId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AndroidId")]
-    public required string AndroidIdentifier { get; set; }
+    public required string AndroidId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AppStore</c> value.
@@ -44,9 +44,9 @@ public sealed record LoginMessage : IMessage
     public string? DeviceModel { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">IdentifierForVendor</c> value.
+    /// Gets or sets the <c language="csharp">IdForVendor</c> value.
     /// </summary>
-    public required string IdentifierForVendor { get; set; }
+    public required string IdForVendor { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">IsAndroid</c> value.
@@ -67,7 +67,7 @@ public sealed record LoginMessage : IMessage
     /// Gets or sets the <c language="csharp">OpenUdId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("OpenUdId")]
-    public string? OpenUniqueDeviceIdentifier { get; set; }
+    public string? OpenUniqueDeviceId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">OsVersion</c> value.
@@ -100,15 +100,15 @@ public sealed record LoginMessage : IMessage
     public required string StorefrontCountryCode { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StorefrontIdentifier</c> value.
+    /// Gets or sets the <c language="csharp">StorefrontId</c> value.
     /// </summary>
-    public required string StorefrontIdentifier { get; set; }
+    public required string StorefrontId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UdId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UdId")]
-    public string? UniqueDeviceIdentifier { get; set; }
+    public string? UniqueDeviceId { get; set; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownString0</c> value.
@@ -123,67 +123,65 @@ public sealed record LoginMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">LoginMessage</c> from the supplied data.
     /// </summary>
-    public static LoginMessage Create(MessageContainer container)
+    public static LoginMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new LoginMessage
         {
-            AccountIdentifier = container.Payload.ReadLongIdentifier(),
-            PassToken = container.Payload.ReadOptionalString(),
-            ResourceSha = container.Payload.ReadOptionalString(),
-            LoginVersion = container.Payload.ReadInt32(),
-            UniqueDeviceIdentifier = container.Payload.ReadOptionalString(),
-            OpenUniqueDeviceIdentifier = container.Payload.ReadOptionalString(),
-            MacAddress = container.Payload.ReadOptionalString(),
-            DeviceModel = container.Payload.ReadOptionalString(),
-            AdvertisingIdentifier = container.Payload.ReadOptionalString(),
-            IsAndroid = container.Payload.ReadBoolean(),
-            OsVersion = container.Payload.ReadOptionalString(),
-            UnknownString0 = container.Payload.ReadString(),
-            AndroidIdentifier = container.Payload.ReadString(),
-            PreferredLanguage = container.Payload.ReadString(),
-            UnknownString1 = container.Payload.ReadString(),
-            AdvertisingTrackingEnabled = container.Payload.ReadBoolean(),
-            IdentifierForVendor = container.Payload.ReadString(),
-            AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(container.Payload.ReadInt32()),
-            SessionToken = container.Payload.ReadOptionalByteArray() is { } compressedData
+            AccountId = stream.ReadLongId(),
+            PassToken = stream.ReadOptionalString(),
+            ResourceSha = stream.ReadOptionalString(),
+            LoginVersion = stream.ReadInt32(),
+            UniqueDeviceId = stream.ReadOptionalString(),
+            OpenUniqueDeviceId = stream.ReadOptionalString(),
+            MacAddress = stream.ReadOptionalString(),
+            DeviceModel = stream.ReadOptionalString(),
+            AdvertisingId = stream.ReadOptionalString(),
+            IsAndroid = stream.ReadBoolean(),
+            OsVersion = stream.ReadOptionalString(),
+            UnknownString0 = stream.ReadString(),
+            AndroidId = stream.ReadString(),
+            PreferredLanguage = stream.ReadString(),
+            UnknownString1 = stream.ReadString(),
+            AdvertisingTrackingEnabled = stream.ReadBoolean(),
+            IdForVendor = stream.ReadString(),
+            AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(stream.ReadInt32()),
+            SessionToken = stream.ReadOptionalByteArray() is { } compressedData
                 ? SessionTokenData.Decode(compressedData)
                 : null,
-            StorefrontCountryCode = container.Payload.ReadString(),
-            StorefrontIdentifier = container.Payload.ReadString(),
+            StorefrontCountryCode = stream.ReadString(),
+            StorefrontId = stream.ReadString(),
         };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteLongIdentifier(AccountIdentifier);
-        supercellStream.WriteOptionalString(PassToken);
-        supercellStream.WriteOptionalString(ResourceSha);
-        supercellStream.WriteInt32(LoginVersion);
-        supercellStream.WriteOptionalString(UniqueDeviceIdentifier);
-        supercellStream.WriteOptionalString(OpenUniqueDeviceIdentifier);
-        supercellStream.WriteOptionalString(MacAddress);
-        supercellStream.WriteOptionalString(DeviceModel);
-        supercellStream.WriteOptionalString(AdvertisingIdentifier);
-        supercellStream.WriteBoolean(IsAndroid);
-        supercellStream.WriteOptionalString(OsVersion);
-        supercellStream.WriteString(UnknownString0);
-        supercellStream.WriteString(AndroidIdentifier);
-        supercellStream.WriteString(PreferredLanguage);
-        supercellStream.WriteString(UnknownString1);
-        supercellStream.WriteBoolean(AdvertisingTrackingEnabled);
-        supercellStream.WriteString(IdentifierForVendor);
-        supercellStream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<AppStore, int>(AppStore));
-        supercellStream.WriteOptionalByteArray(SessionToken?.Encode().AsMemory());
-        supercellStream.WriteString(StorefrontCountryCode);
-        supercellStream.WriteString(StorefrontIdentifier);
-
-        return supercellStream;
+        stream.WriteLongId(AccountId);
+        stream.WriteOptionalString(PassToken);
+        stream.WriteOptionalString(ResourceSha);
+        stream.WriteInt32(LoginVersion);
+        stream.WriteOptionalString(UniqueDeviceId);
+        stream.WriteOptionalString(OpenUniqueDeviceId);
+        stream.WriteOptionalString(MacAddress);
+        stream.WriteOptionalString(DeviceModel);
+        stream.WriteOptionalString(AdvertisingId);
+        stream.WriteBoolean(IsAndroid);
+        stream.WriteOptionalString(OsVersion);
+        stream.WriteString(UnknownString0);
+        stream.WriteString(AndroidId);
+        stream.WriteString(PreferredLanguage);
+        stream.WriteString(UnknownString1);
+        stream.WriteBoolean(AdvertisingTrackingEnabled);
+        stream.WriteString(IdForVendor);
+        stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<AppStore, int>(AppStore));
+        stream.WriteOptionalByteArray(SessionToken?.Encode().AsMemory());
+        stream.WriteString(StorefrontCountryCode);
+        stream.WriteString(StorefrontId);
     }
 }

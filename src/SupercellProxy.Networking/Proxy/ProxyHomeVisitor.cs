@@ -13,7 +13,7 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
     /// <summary>
     /// Executes the <c language="csharp">VisitHomeAsync</c> operation.
     /// </summary>
-    internal async ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongIdentifier target, CancellationToken cancellationToken = default)
+    internal async ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongId target, CancellationToken cancellationToken = default)
     {
         SuppressEndClientTurns = true;
 

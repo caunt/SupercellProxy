@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>
-/// Represents <c language="csharp">AvatarIdentifierPairEntry</c>.
+/// Represents <c language="csharp">AvatarIdPairEntry</c>.
 /// </summary>
-public sealed record AvatarIdentifierPairEntry(
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId")] LongIdentifier? UnknownIdentifier,
+public sealed record AvatarIdPairEntry(
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId")] LongId? UnknownId,
     int Unknown0,
     int Unknown1,
     bool Unknown2
@@ -16,11 +16,11 @@ public sealed record AvatarIdentifierPairEntry(
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static AvatarIdentifierPairEntry Decode(MessageStream stream)
+    public static AvatarIdPairEntry Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadOptionalLongIdentifier(), stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadBoolean());
+        return new(stream.ReadOptionalLongId(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadBoolean());
     }
 
     /// <summary>
@@ -29,9 +29,9 @@ public sealed record AvatarIdentifierPairEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongIdentifier(UnknownIdentifier);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteOptionalLongId(UnknownId);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
         stream.WriteBoolean(Unknown2);
     }
 }

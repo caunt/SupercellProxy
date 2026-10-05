@@ -5,12 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Gatherers;
 
 /// <summary>Collects the completed product from a gatherer nest.</summary>
-public sealed record CollectGathererNestCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("GathererNestGlobalId")] int GathererNestGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectGathererNestCommand([property: System.Text.Json.Serialization.JsonPropertyName("GathererNestGlobalId")] int GathererNestGlobalId) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.CollectGathererNestCommandType;
@@ -19,16 +14,14 @@ public sealed record CollectGathererNestCommand(
     public static CollectGathererNestCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int identifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int id = stream.ReadVarInt();
 
-        return new CollectGathererNestCommand(identifier, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectGathererNestCommand(id);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(GathererNestGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(GathererNestGlobalId);
     }
 }

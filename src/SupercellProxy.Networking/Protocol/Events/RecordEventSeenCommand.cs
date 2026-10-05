@@ -17,14 +17,7 @@ namespace SupercellProxy.Networking.Protocol.Events;
 /// <summary>
 /// Defines the Context1 contract.
 /// </summary>
-public sealed record RecordEventSeenCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventIdentifier,
-    int Context0,
-    int Context1,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record RecordEventSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int Context0, int Context1) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -37,22 +30,20 @@ public sealed record RecordEventSeenCommand(
     public static RecordEventSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int identifier = stream.ReadInt32();
+        int id = stream.ReadInt32();
         int context0 = stream.ReadInt32();
         int context1 = stream.ReadInt32();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new RecordEventSeenCommand(identifier, context0, context1, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new RecordEventSeenCommand(id, context0, context1);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteInt32(EventIdentifier);
+        stream.WriteInt32(EventId);
         stream.WriteInt32(Context0);
         stream.WriteInt32(Context1);
-        EncodeCommand(stream, environment);
     }
 }

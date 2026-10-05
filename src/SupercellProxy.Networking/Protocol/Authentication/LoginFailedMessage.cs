@@ -93,7 +93,7 @@ public sealed record LoginFailedMessage : IMessage
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown5</c> value.
     /// </summary>
-    public LongIdentifier Unknown5 { get; init; }
+    public LongId Unknown5 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown6</c> value.
@@ -124,46 +124,46 @@ public sealed record LoginFailedMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">LoginFailedMessage</c> from the supplied data.
     /// </summary>
-    public static LoginFailedMessage Create(MessageContainer container)
+    public static LoginFailedMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        LoginFailureType errorCode = System.Runtime.CompilerServices.Unsafe.BitCast<int, LoginFailureType>(container.Payload.ReadInt32());
+        LoginFailureType errorCode = System.Runtime.CompilerServices.Unsafe.BitCast<int, LoginFailureType>(stream.ReadInt32());
 
-        string? resourceFingerprintData = container.Payload.ReadOptionalString();
-        string? reason = container.Payload.ReadOptionalString();
-        int estimatedMaintenanceSeconds = container.Payload.ReadInt32();
-        bool unknown2 = container.Payload.ReadBoolean();
-        string? updateAddress = container.Payload.ReadOptionalString();
-        int unknown3 = container.Payload.ReadVariableInt();
-        int unknown4 = container.Payload.ReadVariableInt();
-        LongIdentifier unknown5 = LongIdentifier.Empty;
+        string? resourceFingerprintData = stream.ReadOptionalString();
+        string? reason = stream.ReadOptionalString();
+        int estimatedMaintenanceSeconds = stream.ReadInt32();
+        bool unknown2 = stream.ReadBoolean();
+        string? updateAddress = stream.ReadOptionalString();
+        int unknown3 = stream.ReadVarInt();
+        int unknown4 = stream.ReadVarInt();
+        LongId unknown5 = LongId.Empty;
         string? unknown6 = string.Empty;
         string? unknown7 = string.Empty;
         string? unknown8 = string.Empty;
         string? unknown9 = string.Empty;
 
-        if (container.Payload.ReadBoolean())
-            unknown5 = container.Payload.ReadLongIdentifier();
+        if (stream.ReadBoolean())
+            unknown5 = stream.ReadLongId();
 
-        if (container.Payload.ReadBoolean())
-            unknown6 = container.Payload.ReadOptionalString();
+        if (stream.ReadBoolean())
+            unknown6 = stream.ReadOptionalString();
 
-        if (container.Payload.ReadBoolean())
-            unknown7 = container.Payload.ReadOptionalString();
+        if (stream.ReadBoolean())
+            unknown7 = stream.ReadOptionalString();
 
-        if (container.Payload.ReadBoolean())
-            unknown8 = container.Payload.ReadOptionalString();
+        if (stream.ReadBoolean())
+            unknown8 = stream.ReadOptionalString();
 
-        if (container.Payload.ReadBoolean())
-            unknown9 = container.Payload.ReadOptionalString();
+        if (stream.ReadBoolean())
+            unknown9 = stream.ReadOptionalString();
 
-        string?[] assetsUrls = new string?[Math.Max(val1: 0, container.Payload.ReadInt32())];
+        string?[] assetsUrls = new string?[Math.Max(val1: 0, stream.ReadInt32())];
 
         for (int index = 0; index < assetsUrls.Length; index++)
-            assetsUrls[index] = container.Payload.ReadOptionalString();
+            assetsUrls[index] = stream.ReadOptionalString();
 
-        string? redirectHost = container.Payload.ReadOptionalString();
+        string? redirectHost = stream.ReadOptionalString();
 
         return new LoginFailedMessage
         {
@@ -186,61 +186,59 @@ public sealed record LoginFailedMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<LoginFailureType, int>(ErrorCode));
-        supercellStream.WriteOptionalString(GameAssetFingerprintData);
-        supercellStream.WriteOptionalString(Reason);
-        supercellStream.WriteInt32(EstimatedMaintenanceSeconds);
-        supercellStream.WriteBoolean(Unknown2);
-        supercellStream.WriteOptionalString(UpdateAddress);
-        supercellStream.WriteVariableInt(Unknown3);
-        supercellStream.WriteVariableInt(Unknown4);
+        stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<LoginFailureType, int>(ErrorCode));
+        stream.WriteOptionalString(GameAssetFingerprintData);
+        stream.WriteOptionalString(Reason);
+        stream.WriteInt32(EstimatedMaintenanceSeconds);
+        stream.WriteBoolean(Unknown2);
+        stream.WriteOptionalString(UpdateAddress);
+        stream.WriteVarInt(Unknown3);
+        stream.WriteVarInt(Unknown4);
 
-        bool hasUnknown5 = Unknown5 != LongIdentifier.Empty;
-        supercellStream.WriteBoolean(hasUnknown5);
+        bool hasUnknown5 = Unknown5 != LongId.Empty;
+        stream.WriteBoolean(hasUnknown5);
 
         if (hasUnknown5)
-            supercellStream.WriteLongIdentifier(Unknown5);
+            stream.WriteLongId(Unknown5);
 
         bool hasUnknown6 = !string.IsNullOrWhiteSpace(Unknown6);
-        supercellStream.WriteBoolean(hasUnknown6);
+        stream.WriteBoolean(hasUnknown6);
 
         if (hasUnknown6)
-            supercellStream.WriteOptionalString(Unknown6);
+            stream.WriteOptionalString(Unknown6);
 
         bool hasUnknown7 = !string.IsNullOrWhiteSpace(Unknown7);
-        supercellStream.WriteBoolean(hasUnknown7);
+        stream.WriteBoolean(hasUnknown7);
 
         if (hasUnknown7)
-            supercellStream.WriteOptionalString(Unknown7);
+            stream.WriteOptionalString(Unknown7);
 
         bool hasUnknown8 = !string.IsNullOrWhiteSpace(Unknown8);
-        supercellStream.WriteBoolean(hasUnknown8);
+        stream.WriteBoolean(hasUnknown8);
 
         if (hasUnknown8)
-            supercellStream.WriteOptionalString(Unknown8);
+            stream.WriteOptionalString(Unknown8);
 
         bool hasUnknown9 = !string.IsNullOrWhiteSpace(Unknown9);
-        supercellStream.WriteBoolean(hasUnknown9);
+        stream.WriteBoolean(hasUnknown9);
 
         if (hasUnknown9)
-            supercellStream.WriteOptionalString(Unknown9);
+            stream.WriteOptionalString(Unknown9);
 
-        supercellStream.WriteInt32(AssetsUrls?.Length ?? 0);
+        stream.WriteInt32(AssetsUrls?.Length ?? 0);
 
         if (AssetsUrls is not null)
         {
             foreach (string? address in AssetsUrls)
-                supercellStream.WriteOptionalString(address);
+                stream.WriteOptionalString(address);
         }
 
-        supercellStream.WriteOptionalString(RedirectHost);
-
-        return supercellStream;
+        stream.WriteOptionalString(RedirectHost);
     }
 }

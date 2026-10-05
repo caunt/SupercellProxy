@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 /// <summary>
 /// Defines the Choice Index contract.
 /// </summary>
-public sealed record ClaimDecisionBoxCommand(int ChoiceIndex, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record ClaimDecisionBoxCommand(int ChoiceIndex) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -24,17 +24,15 @@ public sealed record ClaimDecisionBoxCommand(int ChoiceIndex, int ExecutionPhase
     public static ClaimDecisionBoxCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new ClaimDecisionBoxCommand(stream.ReadVariableInt(), fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new ClaimDecisionBoxCommand(stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(ChoiceIndex);
+        stream.WriteVarInt(ChoiceIndex);
     }
 }

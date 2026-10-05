@@ -25,13 +25,13 @@ internal static partial class Application
 
         foreach (AppStoreSearchResult result in response.Results)
         {
-            string appStoreIdentifier = result.TrackIdentifier.ToString(CultureInfo.InvariantCulture);
+            string appStoreId = result.TrackId.ToString(CultureInfo.InvariantCulture);
             IpaApp app;
 
             try
             {
                 app = await decryptDayClient
-                    .GetAppAsync(appStoreIdentifier, cancellationToken)
+                    .GetAppAsync(appStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception exception)
@@ -48,8 +48,8 @@ internal static partial class Application
             if (!string.IsNullOrWhiteSpace(result.SellerName))
                 Console.WriteLine($"   Developer: {result.SellerName}");
 
-            Console.WriteLine($"   Bundle ID: {app.BundleIdentifier}");
-            Console.WriteLine($"   App ID: {appStoreIdentifier}");
+            Console.WriteLine($"   Bundle ID: {app.BundleId}");
+            Console.WriteLine($"   App ID: {appStoreId}");
             Console.WriteLine(
                 $"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
                     + (

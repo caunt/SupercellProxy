@@ -22,27 +22,25 @@ public sealed record VisitHomeMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">VisitHomeMessage</c> from the supplied data.
     /// </summary>
-    public static VisitHomeMessage Create(MessageContainer container)
+    public static VisitHomeMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new VisitHomeMessage
         {
-            Unknown0 = container.Payload.ReadByte(),
-            Unknown1 = container.Payload.ReadByte(),
+            Unknown0 = stream.ReadByte(),
+            Unknown1 = stream.ReadByte(),
         };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteByte(Unknown0);
-        supercellStream.WriteByte(Unknown1);
-
-        return supercellStream;
+        stream.WriteByte(Unknown0);
+        stream.WriteByte(Unknown1);
     }
 }

@@ -17,10 +17,10 @@ public sealed record FarmPassBabyPetReward : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Count { get; init; }
 
-    /// <summary>Gets the DataGlobalIdentifier value.</summary>
+    /// <summary>Gets the DataGlobalId value.</summary>
     [JsonPropertyName("ID")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int? DataGlobalIdentifier { get; init; }
+    public int? DataGlobalId { get; init; }
 
     /// <summary>Gets the Name value.</summary>
     [JsonPropertyName("reward")]

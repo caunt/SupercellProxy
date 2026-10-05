@@ -17,7 +17,7 @@ public sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool U
     public static AvatarSettings Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int version = stream.ReadVariableInt();
+        int version = stream.ReadVarInt();
         AvatarSetting[] entries = stream.ReadArray(AvatarSetting.Decode);
 
         return new AvatarSettings(version, entries.AsSpan(), stream.ReadBoolean());
@@ -29,7 +29,7 @@ public sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool U
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Version);
+        stream.WriteVarInt(Version);
         stream.WriteArray(Entries, static (valueStream, value) => value.Encode(valueStream));
         stream.WriteBoolean(Unknown0);
     }

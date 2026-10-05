@@ -17,15 +17,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <summary>
 /// Defines the Request Value contract.
 /// </summary>
-public sealed record VisitedBoatHelpRequestServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier,
-    int CrateIndex,
-    int RequestKind,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record VisitedBoatHelpRequestServerCommand([property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId, int CrateIndex, int RequestKind) : ServerCommand
 {
     /// <summary>
     /// Gets the Type value.
@@ -38,30 +30,21 @@ public sealed record VisitedBoatHelpRequestServerCommand(
     public static VisitedBoatHelpRequestServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier owner = stream.ReadLongIdentifier();
-        int crate = stream.ReadVariableInt();
-        int requestKind = stream.ReadVariableInt();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
+        LongId owner = stream.ReadLongId();
+        int crate = stream.ReadVarInt();
+        int requestKind = stream.ReadVarInt();
 
-        return new VisitedBoatHelpRequestServerCommand(
-            owner,
-            crate,
-            requestKind,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new VisitedBoatHelpRequestServerCommand(owner, crate, requestKind);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-        stream.WriteVariableInt(CrateIndex);
-        stream.WriteVariableInt(RequestKind);
-        EncodeServerCommand(stream, environment);
+        stream.WriteLongId(HomeOwnerId);
+        stream.WriteVarInt(CrateIndex);
+        stream.WriteVarInt(RequestKind);
     }
 }

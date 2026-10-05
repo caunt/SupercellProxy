@@ -14,15 +14,15 @@ public sealed record MapGamePawnEmblem(
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new MapGamePawnEmblem(stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadVariableInt());
+        return new MapGamePawnEmblem(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>Encodes this emblem into the supplied protocol payload.</summary>
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Background);
-        stream.WriteVariableInt(Pattern);
-        stream.WriteVariableInt(Symbol);
+        stream.WriteVarInt(Background);
+        stream.WriteVarInt(Pattern);
+        stream.WriteVarInt(Symbol);
     }
 }

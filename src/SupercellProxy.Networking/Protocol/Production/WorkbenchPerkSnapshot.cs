@@ -9,9 +9,9 @@ public sealed record WorkbenchPerkSnapshot : ExtensibleDocument
 {
     /// <summary>Gets whether the perk is active.</summary>
     public bool Active { get; init; }
-    /// <summary>Gets the workbench perk data identifier.</summary>
+    /// <summary>Gets the workbench perk data id.</summary>
     [JsonPropertyName("GlobalId")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
     /// <summary>Gets whether the perk came from legacy mastery.</summary>
     public bool Legacy { get; init; }
     /// <summary>Gets the building level containing the perk.</summary>

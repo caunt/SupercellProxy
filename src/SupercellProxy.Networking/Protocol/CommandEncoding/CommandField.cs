@@ -25,26 +25,26 @@ public abstract record CommandField
 
         return fieldType switch
         {
-            CommandFieldType.VariableInt => new CommandVariableIntField(stream.ReadVariableInt()),
-            CommandFieldType.VariableLong => new CommandVariableLongField(stream.ReadVariableLong()),
+            CommandFieldType.VarInt => new CommandVarIntField(stream.ReadVarInt()),
+            CommandFieldType.VarLong => new CommandVarLongField(stream.ReadVarLong()),
             CommandFieldType.Int32 => new CommandInt32Field(stream.ReadInt32()),
             CommandFieldType.Byte => new CommandByteField(unchecked(sbyte.CreateTruncating(stream.ReadByte()))),
             CommandFieldType.UInt16 => new CommandUInt16Field(stream.ReadUInt16()),
             CommandFieldType.Boolean => new CommandBooleanField(stream.ReadBoolean()),
             CommandFieldType.String => new CommandStringField(stream.ReadString()),
-            CommandFieldType.LongIdentifier => new CommandLongIdentifierField(stream.ReadLongIdentifier()),
-            CommandFieldType.OptionalLongIdentifier => new CommandOptionalLongIdentifierField(stream.ReadBoolean() ? stream.ReadLongIdentifier() : null),
-            CommandFieldType.DataReference => new CommandDataReferenceField(stream.ReadVariableInt()),
+            CommandFieldType.LongId => new CommandLongIdField(stream.ReadLongId()),
+            CommandFieldType.OptionalLongId => new CommandOptionalLongIdField(stream.ReadBoolean() ? stream.ReadLongId() : null),
+            CommandFieldType.DataReference => new CommandDataReferenceField(stream.ReadVarInt()),
             CommandFieldType.ByteArray => new CommandByteArrayField(stream.ReadByteArray()),
-            CommandFieldType.VariableIntArray => CommandVariableIntArrayField.Decode(stream),
-            CommandFieldType.VariableLongArray => CommandVariableLongArrayField.Decode(stream),
-            CommandFieldType.NullableVariableLongArray => CommandNullableVariableLongArrayField.Decode(stream),
-            CommandFieldType.VariableIntPairArray => CommandVariableIntPairArrayField.Decode(stream),
-            CommandFieldType.DataReferenceVariableIntPairArray =>
-                CommandDataReferenceVariableIntPairArrayField.Decode(stream),
+            CommandFieldType.VarIntArray => CommandVarIntArrayField.Decode(stream),
+            CommandFieldType.VarLongArray => CommandVarLongArrayField.Decode(stream),
+            CommandFieldType.NullableVarLongArray => CommandNullableVarLongArrayField.Decode(stream),
+            CommandFieldType.VarIntPairArray => CommandVarIntPairArrayField.Decode(stream),
+            CommandFieldType.DataReferenceVarIntPairArray =>
+                CommandDataReferenceVarIntPairArrayField.Decode(stream),
             CommandFieldType.DataReferenceArray => CommandDataReferenceArrayField.Decode(stream),
             CommandFieldType.StringArray => CommandStringArrayField.Decode(stream),
-            CommandFieldType.ByteCountedVariableIntArray => CommandByteCountedVariableIntArrayField.Decode(stream),
+            CommandFieldType.ByteCountedVarIntArray => CommandByteCountedVarIntArrayField.Decode(stream),
             CommandFieldType.OptionalInt32String => CommandOptionalInt32StringField.Decode(stream),
             CommandFieldType.OptionalStructure or CommandFieldType.StructureArray =>
                 throw new InvalidDataException($"Logic command field type {fieldType} requires its registered field schema."),

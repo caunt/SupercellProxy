@@ -14,10 +14,10 @@ public sealed record Clientbound21945Message : IMessage
     public Message21945Entry[] Entries { get; init; } = [];
 
     /// Decodes clientbound message 21945.
-    public static Clientbound21945Message Create(MessageContainer container)
+    public static Clientbound21945Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        int entryCount = container.Payload.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int entryCount = stream.ReadVarInt();
 
         if (uint.CreateTruncating(entryCount) > MaximumEntryCount)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid message-21945 entry count: {entryCount}."));
@@ -25,23 +25,21 @@ public sealed record Clientbound21945Message : IMessage
         Message21945Entry[] entries = new Message21945Entry[entryCount];
 
         for (int index = 0; index < entries.Length; index++)
-            entries[index] = Message21945Entry.Decode(container.Payload);
+            entries[index] = Message21945Entry.Decode(stream);
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Clientbound message 21945 has trailing data.")
             : new Clientbound21945Message { Entries = entries };
     }
 
     /// Encodes clientbound message 21945.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         if (Entries.Length > MaximumEntryCount)
             throw new InvalidDataException(message: "Too many message-21945 entries.");
 
         stream.WriteArray(Entries, static (output, entry) => entry.Encode(output));
-
-        return stream;
     }
 }

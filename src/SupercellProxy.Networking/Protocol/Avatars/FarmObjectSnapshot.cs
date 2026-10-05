@@ -11,7 +11,7 @@ public sealed record FarmObjectSnapshot
     /// Gets the Data Global Id value.
     /// </summary>
     [JsonPropertyName("ID")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
     /// <summary>
     /// Gets the Expansion Locked value.

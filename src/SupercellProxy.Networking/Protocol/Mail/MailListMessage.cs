@@ -16,11 +16,10 @@ public sealed record MailListMessage : IMessage
     public int EntryCount => Entries?.Length ?? -1;
 
     /// Decodes clientbound message 21915.
-    public static MailListMessage Create(MessageContainer container)
+    public static MailListMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int count = stream.ReadVarInt();
 
         if (count < -1 || count > MaximumEntryCount || count > (stream.Length - stream.Position) / MailEntry.MinimumEncodedSize)
             throw new InvalidDataException(message: "The mail-list entry count is invalid.");
@@ -39,14 +38,14 @@ public sealed record MailListMessage : IMessage
     }
 
     /// Encodes clientbound message 21915.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         if (Entries?.Length > MaximumEntryCount)
             throw new InvalidDataException(message: "The mail-list entry count is invalid.");
 
-        using MessageStream stream = MessageStream.Create();
-
-        stream.WriteVariableInt(EntryCount);
+        stream.WriteVarInt(EntryCount);
 
         if (Entries is not null)
         {
@@ -56,8 +55,6 @@ public sealed record MailListMessage : IMessage
                 entry.Encode(stream);
             }
         }
-
-        return stream;
     }
 
     /// Omits private mail content from diagnostic text.

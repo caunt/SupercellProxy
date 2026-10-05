@@ -24,9 +24,9 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     [JsonPropertyName("BonusExp")]
     public int BonusExperience { get; init; }
 
-    /// <summary>Gets the BonusGlobalIdentifier value.</summary>
+    /// <summary>Gets the BonusGlobalId value.</summary>
     [JsonPropertyName("BonusGlobalID")]
-    public int BonusGlobalIdentifier { get; init; }
+    public int BonusGlobalId { get; init; }
     /// <summary>Gets the Cash value.</summary>
     public int Cash { get; init; }
 
@@ -34,15 +34,15 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     [JsonPropertyName("Exp")]
     public int Experience { get; init; }
 
-    /// <summary>Gets the HelperAvatarIdentifier value.</summary>
+    /// <summary>Gets the HelperAvatarId value.</summary>
     [JsonPropertyName("HelperAvatarID")]
-    public string? HelperAvatarIdentifier { get; init; }
+    public string? HelperAvatarId { get; init; }
 
     /// <summary>Gets the ItemCount value.</summary>
     [JsonPropertyName("VoucherCount")]
     public int ItemCount { get; init; }
 
-    /// <summary>Gets the ItemGlobalIdentifier value.</summary>
+    /// <summary>Gets the ItemGlobalId value.</summary>
     [JsonPropertyName("ItemGlobalID")]
-    public int ItemGlobalIdentifier { get; init; }
+    public int ItemGlobalId { get; init; }
 }

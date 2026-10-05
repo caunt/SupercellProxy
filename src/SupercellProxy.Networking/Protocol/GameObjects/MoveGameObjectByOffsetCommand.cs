@@ -18,25 +18,21 @@ public sealed record MoveGameObjectByOffsetCommand : Command
     /// Initializes a new <see cref="MoveGameObjectByOffsetCommand"/> instance.
     /// </summary>
     public MoveGameObjectByOffsetCommand(
-        int gameObjectGlobalIdentifier,
+        int gameObjectGlobalId,
         int logicOffsetX,
         int logicOffsetY,
         int expectedTileX,
         int expectedTileY,
-        int expectedDataGlobalIdentifier,
-        bool mirrored,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
+        int expectedDataGlobalId,
+        bool mirrored
     )
-        : base(executionPhaseCounter, debugData0, debugData1)
     {
-        GameObjectGlobalIdentifier = gameObjectGlobalIdentifier;
+        GameObjectGlobalId = gameObjectGlobalId;
         OffsetX = logicOffsetX;
         OffsetY = logicOffsetY;
         ExpectedTileX = expectedTileX;
         ExpectedTileY = expectedTileY;
-        ExpectedDataGlobalIdentifier = expectedDataGlobalIdentifier;
+        ExpectedDataGlobalId = expectedDataGlobalId;
         Mirrored = mirrored;
     }
 
@@ -44,7 +40,7 @@ public sealed record MoveGameObjectByOffsetCommand : Command
     /// Gets the <c language="csharp">ExpectedDataGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ExpectedDataGlobalId")]
-    public int ExpectedDataGlobalIdentifier { get; }
+    public int ExpectedDataGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">ExpectedTileX</c> value.
@@ -60,7 +56,7 @@ public sealed record MoveGameObjectByOffsetCommand : Command
     /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GameObjectGlobalId")]
-    public int GameObjectGlobalIdentifier { get; }
+    public int GameObjectGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Mirrored</c> value.
@@ -88,41 +84,28 @@ public sealed record MoveGameObjectByOffsetCommand : Command
     public static MoveGameObjectByOffsetCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int gameObjectGlobalIdentifier = stream.ReadVariableInt();
-        int logicOffsetX = stream.ReadVariableInt();
-        int logicOffsetY = stream.ReadVariableInt();
-        int expectedTileX = stream.ReadVariableInt();
-        int expectedTileY = stream.ReadVariableInt();
-        int expectedDataGlobalIdentifier = stream.ReadVariableInt();
+        int gameObjectGlobalId = stream.ReadVarInt();
+        int logicOffsetX = stream.ReadVarInt();
+        int logicOffsetY = stream.ReadVarInt();
+        int expectedTileX = stream.ReadVarInt();
+        int expectedTileY = stream.ReadVarInt();
+        int expectedDataGlobalId = stream.ReadVarInt();
         bool mirrored = stream.ReadBoolean();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new MoveGameObjectByOffsetCommand(
-            gameObjectGlobalIdentifier,
-            logicOffsetX,
-            logicOffsetY,
-            expectedTileX,
-            expectedTileY,
-            expectedDataGlobalIdentifier,
-            mirrored,
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new MoveGameObjectByOffsetCommand(gameObjectGlobalId, logicOffsetX, logicOffsetY, expectedTileX, expectedTileY, expectedDataGlobalId, mirrored);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(GameObjectGlobalIdentifier);
-        stream.WriteVariableInt(OffsetX);
-        stream.WriteVariableInt(OffsetY);
-        stream.WriteVariableInt(ExpectedTileX);
-        stream.WriteVariableInt(ExpectedTileY);
-        stream.WriteVariableInt(ExpectedDataGlobalIdentifier);
+        stream.WriteVarInt(GameObjectGlobalId);
+        stream.WriteVarInt(OffsetX);
+        stream.WriteVarInt(OffsetY);
+        stream.WriteVarInt(ExpectedTileX);
+        stream.WriteVarInt(ExpectedTileY);
+        stream.WriteVarInt(ExpectedDataGlobalId);
         stream.WriteBoolean(Mirrored);
-        EncodeCommand(stream, environment);
     }
 }

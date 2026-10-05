@@ -28,7 +28,7 @@ public sealed record FarmPassTaskSnapshot
     /// Gets the Task Data Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("TaskDataId")]
-    public int TaskDataIdentifier { get; init; }
+    public int TaskDataId { get; init; }
 
     /// <summary>
     /// Gets the Task State value.

@@ -9,13 +9,13 @@ public enum CommandFieldType
     /// Identifies the Var Int wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarInt")]
-    VariableInt,
+    VarInt,
 
     /// <summary>
     /// Identifies the Var Long wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarLong")]
-    VariableLong,
+    VarLong,
 
     /// <summary>
     /// Identifies the Int32 wire value.
@@ -46,13 +46,13 @@ public enum CommandFieldType
     /// Identifies the Long Id wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("LongId")]
-    LongIdentifier,
+    LongId,
 
     /// <summary>
     /// Identifies the Optional Long Id wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("OptionalLongId")]
-    OptionalLongIdentifier,
+    OptionalLongId,
 
     /// <summary>
     /// Identifies the Data Reference wire value.
@@ -68,31 +68,31 @@ public enum CommandFieldType
     /// Identifies the Var Int Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarIntArray")]
-    VariableIntArray,
+    VarIntArray,
 
     /// <summary>
     /// Identifies the Var Long Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarLongArray")]
-    VariableLongArray,
+    VarLongArray,
 
     /// <summary>
     /// Identifies the Nullable Var Long Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("NullableVarLongArray")]
-    NullableVariableLongArray,
+    NullableVarLongArray,
 
     /// <summary>
     /// Identifies the Var Int Pair Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarIntPairArray")]
-    VariableIntPairArray,
+    VarIntPairArray,
 
     /// <summary>
     /// Identifies the Data Reference Var Int Pair Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("DataReferenceVarIntPairArray")]
-    DataReferenceVariableIntPairArray,
+    DataReferenceVarIntPairArray,
 
     /// <summary>
     /// Identifies the Data Reference Array wire value.
@@ -108,7 +108,7 @@ public enum CommandFieldType
     /// Identifies the Byte Counted Var Int Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("ByteCountedVarIntArray")]
-    ByteCountedVariableIntArray,
+    ByteCountedVarIntArray,
 
     /// <summary>
     /// Identifies the Optional Int32 String wire value.

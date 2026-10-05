@@ -8,14 +8,16 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record OwnTownDataMessage(OwnHomeDataMessage Data) : IMessage
 {
     /// <summary>Decodes the shared own-home snapshot wire format.</summary>
-    public static OwnTownDataMessage Create(MessageContainer container)
+    public static OwnTownDataMessage Decode(MessageStream stream)
     {
-        return new(OwnHomeDataMessage.Create(container));
+        return new(OwnHomeDataMessage.Decode(stream));
     }
 
     /// <summary>Encodes the shared own-home snapshot wire format.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        return Data.ToStream();
+        ArgumentNullException.ThrowIfNull(stream);
+
+        Data.Encode(stream);
     }
 }

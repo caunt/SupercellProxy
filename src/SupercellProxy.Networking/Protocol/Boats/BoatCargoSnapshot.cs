@@ -23,7 +23,7 @@ public sealed record BoatCargoSnapshot
     /// Gets the Data Global Id value.
     /// </summary>
     [JsonPropertyName("data_global_id")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
     /// <summary>
     /// Gets the FilledByBooster value.
     /// </summary>

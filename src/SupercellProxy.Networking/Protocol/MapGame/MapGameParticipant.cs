@@ -38,15 +38,15 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// Defines the Entries contract.
 /// </summary>
 public sealed record MapGameParticipant(
-    [property: System.Text.Json.Serialization.JsonPropertyName("Id0")] LongIdentifier? Identifier0,
-    [property: System.Text.Json.Serialization.JsonPropertyName("Id1")] LongIdentifier? Identifier1,
+    [property: System.Text.Json.Serialization.JsonPropertyName("Id0")] LongId? Id0,
+    [property: System.Text.Json.Serialization.JsonPropertyName("Id1")] LongId? Id1,
     int[] Values,
     int[] RouteValues,
-    [property: System.Text.Json.Serialization.JsonPropertyName("TaskDataIds")] int[] TaskDataIdentifiers,
+    [property: System.Text.Json.Serialization.JsonPropertyName("TaskDataIds")] int[] TaskDataIds,
     bool NamePresent,
     string? Name,
     int[]? OptionalValues,
-    [property: System.Text.Json.Serialization.JsonPropertyName("DataId")] int DataIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("DataId")] int DataId,
     DataReferenceValue[] Entries
 )
 {
@@ -56,27 +56,16 @@ public sealed record MapGameParticipant(
     public static MapGameParticipant Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier? identifier0 = stream.ReadOptionalLongIdentifier();
-        LongIdentifier? identifier1 = stream.ReadOptionalLongIdentifier();
-        int[] values = stream.ReadVariableIntArray(count: 5);
-        int[] route = stream.ReadArray(static input => input.ReadVariableInt());
-        int[] tasks = stream.ReadArray(static input => input.ReadVariableInt());
+        LongId? id0 = stream.ReadOptionalLongId();
+        LongId? id1 = stream.ReadOptionalLongId();
+        int[] values = stream.ReadVarIntArray(count: 5);
+        int[] route = stream.ReadArray(static input => input.ReadVarInt());
+        int[] tasks = stream.ReadArray(static input => input.ReadVarInt());
         bool namePresent = stream.ReadBoolean();
         string? name = namePresent ? stream.ReadOptionalString() : null;
-        int[]? optional = stream.ReadBoolean() ? stream.ReadVariableIntArray(count: 3) : null;
+        int[]? optional = stream.ReadBoolean() ? stream.ReadVarIntArray(count: 3) : null;
 
-        return new MapGameParticipant(
-            identifier0,
-            identifier1,
-            values,
-            route,
-            tasks,
-            namePresent,
-            name,
-            optional,
-            stream.ReadVariableInt(),
-            stream.ReadArray(DataReferenceValue.Decode)
-        );
+        return new MapGameParticipant(id0, id1, values, route, tasks, namePresent, name, optional, stream.ReadVarInt(), stream.ReadArray(DataReferenceValue.Decode));
     }
 
     /// <summary>
@@ -85,14 +74,14 @@ public sealed record MapGameParticipant(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongIdentifier(Identifier0);
-        stream.WriteOptionalLongIdentifier(Identifier1);
+        stream.WriteOptionalLongId(Id0);
+        stream.WriteOptionalLongId(Id1);
 
         foreach (int value in Values)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
-        stream.WriteArray(RouteValues, static (output, value) => output.WriteVariableInt(value));
-        stream.WriteArray(TaskDataIdentifiers, static (output, value) => output.WriteVariableInt(value));
+        stream.WriteArray(RouteValues, static (output, value) => output.WriteVarInt(value));
+        stream.WriteArray(TaskDataIds, static (output, value) => output.WriteVarInt(value));
         stream.WriteBoolean(NamePresent);
 
         if (NamePresent)
@@ -103,10 +92,10 @@ public sealed record MapGameParticipant(
         if (OptionalValues is { } values)
         {
             foreach (int value in values)
-                stream.WriteVariableInt(value);
+                stream.WriteVarInt(value);
         }
 
-        stream.WriteVariableInt(DataIdentifier);
+        stream.WriteVarInt(DataId);
         stream.WriteArray(Entries, static (output, value) => value.Encode(output));
     }
 }

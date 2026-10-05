@@ -5,13 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Moves one fishing-area fish to the selected runtime state.</summary>
-public sealed record SetFishStateCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("FishGlobalId")] int FishGlobalIdentifier,
-    int State,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record SetFishStateCommand([property: System.Text.Json.Serialization.JsonPropertyName("FishGlobalId")] int FishGlobalId, int State) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.SetFishStateCommandType;
@@ -20,18 +14,16 @@ public sealed record SetFishStateCommand(
     public static SetFishStateCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int fishGlobalIdentifier = stream.ReadVariableInt();
-        int state = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int fishGlobalId = stream.ReadVarInt();
+        int state = stream.ReadVarInt();
 
-        return new SetFishStateCommand(fishGlobalIdentifier, state, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new SetFishStateCommand(fishGlobalId, state);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(FishGlobalIdentifier);
-        stream.WriteVariableInt(State);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(FishGlobalId);
+        stream.WriteVarInt(State);
     }
 }

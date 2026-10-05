@@ -10,16 +10,18 @@ public sealed record GregFarmDataMessage(OwnHomeDataMessage Data) : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static GregFarmDataMessage Create(MessageContainer container)
+    public static GregFarmDataMessage Decode(MessageStream stream)
     {
-        return new(OwnHomeDataMessage.Create(container));
+        return new(OwnHomeDataMessage.Decode(stream));
     }
 
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        return Data.ToStream();
+        ArgumentNullException.ThrowIfNull(stream);
+
+        Data.Encode(stream);
     }
 }

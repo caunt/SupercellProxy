@@ -39,7 +39,7 @@ internal sealed class KeysDocument
         string detectedNewLine = content.Contains(value: "\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] parsedLines = content.Split(detectedNewLine, StringSplitOptions.None);
         List<KeysSection> sections = [];
-        HashSet<string> appIdentifiers = new(StringComparer.Ordinal);
+        HashSet<string> appIds = new(StringComparer.Ordinal);
 
         for (int headingIndex = 0; headingIndex < parsedLines.Length; headingIndex++)
         {
@@ -48,7 +48,7 @@ internal sealed class KeysDocument
             if (!heading.Success)
                 continue;
 
-            sections.Add(ParseSection(parsedLines, headingIndex, heading, appIdentifiers));
+            sections.Add(ParseSection(parsedLines, headingIndex, heading, appIds));
         }
 
         return sections.Count is 0
@@ -61,8 +61,8 @@ internal sealed class KeysDocument
         ArgumentNullException.ThrowIfNull(updates);
 
         RenderedKeysSection[] renderedSections = [.. Sections
-            .Where(section => updates.ContainsKey(section.AppStoreIdentifier))
-            .Select(section => CreateRenderedSection(section, updates[section.AppStoreIdentifier]))];
+            .Where(section => updates.ContainsKey(section.AppStoreId))
+            .Select(section => CreateRenderedSection(section, updates[section.AppStoreId]))];
 
         if (renderedSections.Length is 0)
             return _content;
@@ -204,7 +204,7 @@ internal sealed class KeysDocument
         return -1;
     }
 
-    private static (IReadOnlyList<ExistingKeyEntry> Entries, int DataEndIndex) ParseEntries(
+    private static KeyDocumentRows ParseEntries(
         string[] parsedLines,
         int dataStartIndex,
         int columnCount,
@@ -273,7 +273,7 @@ internal sealed class KeysDocument
             dataEndIndex++;
         }
 
-        return (entries, dataEndIndex);
+        return new KeyDocumentRows(entries, dataEndIndex);
 
         bool HasDataRow()
         {
@@ -283,13 +283,13 @@ internal sealed class KeysDocument
         }
     }
 
-    private static KeysSection ParseSection(string[] parsedLines, int headingIndex, Match heading, HashSet<string> appIdentifiers)
+    private static KeysSection ParseSection(string[] parsedLines, int headingIndex, Match heading, HashSet<string> appIds)
     {
-        string appIdentifier = heading.Groups[groupname: "id"].Value;
+        string appId = heading.Groups[groupname: "id"].Value;
         string name = heading.Groups[groupname: "name"].Value;
 
-        if (!appIdentifiers.Add(appIdentifier))
-            throw new InvalidDataException($"KEYS.md contains app ID {appIdentifier} more than once.");
+        if (!appIds.Add(appId))
+            throw new InvalidDataException($"KEYS.md contains app ID {appId} more than once.");
 
         int headerIndex = NextNonEmptyLine(parsedLines, headingIndex + 1);
         string[]? headers = headerIndex < 0 ? null : ParseTableCells(parsedLines[headerIndex]);
@@ -330,7 +330,7 @@ internal sealed class KeysDocument
 
         return new KeysSection(
             name,
-            appIdentifier,
+            appId,
             headerIndex,
             separatorIndex,
             dataStartIndex,

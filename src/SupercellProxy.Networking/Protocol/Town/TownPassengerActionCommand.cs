@@ -5,13 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Applies a passenger action such as booking movement or holding the visitor for interaction.</summary>
-public sealed record TownPassengerActionCommand(
-    int PassengerGlobalIdentifier,
-    int ActionCode,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record TownPassengerActionCommand(int PassengerGlobalId, int ActionCode) : Command
 {
     /// <summary>Completes a passenger's personal-train pickup.</summary>
     public const int CompletePersonalTrainPickupAction = 5;
@@ -31,22 +25,20 @@ public sealed record TownPassengerActionCommand(
     /// <inheritdoc />
     public override int Type => CommandRegistry.TownPassengerActionCommandType;
 
-    /// <summary>Decodes the passenger and action before the base command fields.</summary>
+    /// <summary>Decodes the passenger and action.</summary>
     public static TownPassengerActionCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int passenger = stream.ReadVariableInt();
-        int action = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int passenger = stream.ReadVarInt();
+        int action = stream.ReadVarInt();
 
-        return new TownPassengerActionCommand(passenger, action, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new TownPassengerActionCommand(passenger, action);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(PassengerGlobalIdentifier);
-        stream.WriteVariableInt(ActionCode);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(PassengerGlobalId);
+        stream.WriteVarInt(ActionCode);
     }
 }

@@ -13,18 +13,10 @@ public sealed record RoadsideFriendCountServerCommand : ServerCommand
     /// <summary>
     /// Initializes a new <see cref="RoadsideFriendCountServerCommand"/> instance.
     /// </summary>
-    public RoadsideFriendCountServerCommand(
-        int friendCount,
-        LongIdentifier homeOwnerIdentifier,
-        int serverCommandIdentifier,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
+    public RoadsideFriendCountServerCommand(int friendCount, LongId homeOwnerId)
     {
         FriendCount = friendCount;
-        HomeOwnerIdentifier = homeOwnerIdentifier;
+        HomeOwnerId = homeOwnerId;
     }
 
     /// <summary>
@@ -33,9 +25,9 @@ public sealed record RoadsideFriendCountServerCommand : ServerCommand
     public int FriendCount { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">HomeOwnerIdentifier</c> value.
+    /// Gets the <c language="csharp">HomeOwnerId</c> value.
     /// </summary>
-    public LongIdentifier HomeOwnerIdentifier { get; }
+    public LongId HomeOwnerId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
@@ -48,27 +40,19 @@ public sealed record RoadsideFriendCountServerCommand : ServerCommand
     public static RoadsideFriendCountServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int friendCount = stream.ReadVariableInt();
-        LongIdentifier homeOwnerIdentifier = stream.ReadLongIdentifier();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
+        int friendCount = stream.ReadVarInt();
+        LongId homeOwnerId = stream.ReadLongId();
 
-        return new RoadsideFriendCountServerCommand(
-            friendCount,
-            homeOwnerIdentifier,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new RoadsideFriendCountServerCommand(friendCount, homeOwnerId);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(FriendCount);
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-        EncodeServerCommand(stream, environment);
+        stream.WriteVarInt(FriendCount);
+        stream.WriteLongId(HomeOwnerId);
     }
 }

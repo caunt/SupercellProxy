@@ -6,12 +6,12 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
 /// <summary>
 /// Represents <c language="csharp">CommandByteCountedVarIntArrayField</c>.
 /// </summary>
-public sealed record CommandByteCountedVariableIntArrayField : CommandField
+public sealed record CommandByteCountedVarIntArrayField : CommandField
 {
     /// <summary>
-    /// Initializes a new <see cref="CommandByteCountedVariableIntArrayField"/> instance.
+    /// Initializes a new <see cref="CommandByteCountedVarIntArrayField"/> instance.
     /// </summary>
-    public CommandByteCountedVariableIntArrayField(ReadOnlyMemory<int> values)
+    public CommandByteCountedVarIntArrayField(ReadOnlyMemory<int> values)
     {
         if (values.Length > sbyte.MaxValue)
             throw new InvalidDataException($"A byte-counted command array cannot contain more than {sbyte.MaxValue} values.");
@@ -22,7 +22,7 @@ public sealed record CommandByteCountedVariableIntArrayField : CommandField
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override CommandFieldType FieldType => CommandFieldType.ByteCountedVariableIntArray;
+    public override CommandFieldType FieldType => CommandFieldType.ByteCountedVarIntArray;
 
     /// <summary>
     /// Gets the <c language="csharp">Values</c> value.
@@ -32,12 +32,12 @@ public sealed record CommandByteCountedVariableIntArrayField : CommandField
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static CommandByteCountedVariableIntArrayField Decode(MessageStream stream)
+    public static CommandByteCountedVarIntArrayField Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         sbyte count = unchecked(sbyte.CreateTruncating(stream.ReadByte()));
 
-        return new CommandByteCountedVariableIntArrayField(CommandVariableIntArrayField.DecodeValues(count, stream));
+        return new CommandByteCountedVarIntArrayField(CommandVarIntArrayField.DecodeValues(count, stream));
     }
 
     /// <summary>
@@ -48,6 +48,6 @@ public sealed record CommandByteCountedVariableIntArrayField : CommandField
         stream.WriteByte(byte.CreateTruncating(Values.Length));
 
         foreach (int value in Values.Span)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
     }
 }

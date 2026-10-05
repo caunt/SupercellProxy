@@ -24,16 +24,12 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// Defines the Quantity contract.
 /// </summary>
 public sealed record RoadsideStockServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
     int SlotIndex,
     int Price,
-    int Quantity,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+    int Quantity
+) : ServerCommand
 {
     /// <summary>
     /// Gets the Type value.
@@ -46,36 +42,25 @@ public sealed record RoadsideStockServerCommand(
     public static RoadsideStockServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier owner = stream.ReadLongIdentifier();
+        LongId owner = stream.ReadLongId();
         int item = stream.ReadInt32();
         int slot = stream.ReadInt32();
         int price = stream.ReadInt32();
         int quantity = stream.ReadInt32();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
-        return new RoadsideStockServerCommand(
-            owner,
-            item,
-            slot,
-            price,
-            quantity,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new RoadsideStockServerCommand(owner, item, slot, price, quantity);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-        stream.WriteInt32(ItemGlobalIdentifier);
+        stream.WriteLongId(HomeOwnerId);
+        stream.WriteInt32(ItemGlobalId);
         stream.WriteInt32(SlotIndex);
         stream.WriteInt32(Price);
         stream.WriteInt32(Quantity);
-        EncodeServerCommand(stream, environment);
     }
 }

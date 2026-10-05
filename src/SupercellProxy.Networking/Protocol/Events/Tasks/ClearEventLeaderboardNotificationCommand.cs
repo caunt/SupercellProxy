@@ -14,13 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 /// <summary>
 /// Defines the Button State contract.
 /// </summary>
-public sealed record ClearEventLeaderboardNotificationCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventIdentifier,
-    int ButtonState,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record ClearEventLeaderboardNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int ButtonState) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -33,20 +27,18 @@ public sealed record ClearEventLeaderboardNotificationCommand(
     public static ClearEventLeaderboardNotificationCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int eventIdentifier = stream.ReadVariableInt();
-        int state = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int eventId = stream.ReadVarInt();
+        int state = stream.ReadVarInt();
 
-        return new ClearEventLeaderboardNotificationCommand(eventIdentifier, state, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new ClearEventLeaderboardNotificationCommand(eventId, state);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(EventIdentifier);
-        stream.WriteVariableInt(ButtonState);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(EventId);
+        stream.WriteVarInt(ButtonState);
     }
 }

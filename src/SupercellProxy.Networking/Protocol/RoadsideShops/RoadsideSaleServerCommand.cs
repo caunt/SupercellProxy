@@ -13,39 +13,27 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
     /// <summary>
     /// <para>Initializes a roadside-sale server command.</para>
     /// </summary>
-    public RoadsideSaleServerCommand(
-        LongIdentifier buyerAvatarIdentifier,
-        LongIdentifier roadsideOwnerAvatarIdentifier,
-        int itemGlobalIdentifier,
-        int slotIndex,
-        int price,
-        int quantity,
-        int serverCommandIdentifier,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
+    public RoadsideSaleServerCommand(LongId buyerAvatarId, LongId roadsideOwnerAvatarId, int itemGlobalId, int slotIndex, int price, int quantity)
     {
-        BuyerAvatarIdentifier = buyerAvatarIdentifier;
-        RoadsideOwnerAvatarIdentifier = roadsideOwnerAvatarIdentifier;
-        ItemGlobalIdentifier = itemGlobalIdentifier;
+        BuyerAvatarId = buyerAvatarId;
+        RoadsideOwnerAvatarId = roadsideOwnerAvatarId;
+        ItemGlobalId = itemGlobalId;
         SlotIndex = slotIndex;
         Price = price;
         Quantity = quantity;
     }
 
     /// <summary>
-    /// <para>Gets the buyer's avatar identifier.</para>
+    /// <para>Gets the buyer's avatar id.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("BuyerAvatarId")]
-    public LongIdentifier BuyerAvatarIdentifier { get; }
+    public LongId BuyerAvatarId { get; }
 
     /// <summary>
-    /// <para>Gets the sold item's data identifier.</para>
+    /// <para>Gets the sold item's data id.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")]
-    public int ItemGlobalIdentifier { get; }
+    public int ItemGlobalId { get; }
 
     /// <summary>
     /// <para>Gets the listing price.</para>
@@ -58,10 +46,10 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
     public int Quantity { get; }
 
     /// <summary>
-    /// <para>Gets the roadside-shop owner's avatar identifier.</para>
+    /// <para>Gets the roadside-shop owner's avatar id.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("RoadsideOwnerAvatarId")]
-    public LongIdentifier RoadsideOwnerAvatarIdentifier { get; }
+    public LongId RoadsideOwnerAvatarId { get; }
 
     /// <summary>
     /// <para>Gets the sold roadside-shop slot.</para>
@@ -77,39 +65,27 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
     public static RoadsideSaleServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier buyerAvatarIdentifier = stream.ReadLongIdentifier();
-        LongIdentifier roadsideOwnerAvatarIdentifier = stream.ReadLongIdentifier();
-        int itemGlobalIdentifier = stream.ReadInt32();
+        LongId buyerAvatarId = stream.ReadLongId();
+        LongId roadsideOwnerAvatarId = stream.ReadLongId();
+        int itemGlobalId = stream.ReadInt32();
         int slotIndex = stream.ReadInt32();
         int price = stream.ReadInt32();
         int quantity = stream.ReadInt32();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
-        return new RoadsideSaleServerCommand(
-            buyerAvatarIdentifier,
-            roadsideOwnerAvatarIdentifier,
-            itemGlobalIdentifier,
-            slotIndex,
-            price,
-            quantity,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(BuyerAvatarIdentifier);
-        stream.WriteLongIdentifier(RoadsideOwnerAvatarIdentifier);
-        stream.WriteInt32(ItemGlobalIdentifier);
+        stream.WriteLongId(BuyerAvatarId);
+        stream.WriteLongId(RoadsideOwnerAvatarId);
+        stream.WriteInt32(ItemGlobalId);
         stream.WriteInt32(SlotIndex);
         stream.WriteInt32(Price);
         stream.WriteInt32(Quantity);
-        EncodeServerCommand(stream, environment);
     }
 }

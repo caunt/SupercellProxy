@@ -14,29 +14,27 @@ public sealed record Clientbound29734Message : IMessage
     public int Value { get; init; }
 
     /// Decodes clientbound message 29734.
-    public static Clientbound29734Message Create(MessageContainer container)
+    public static Clientbound29734Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         Clientbound29734Message message = new()
         {
-            Flag = container.Payload.ReadBoolean(),
-            Value = container.Payload.ReadVariableInt(),
+            Flag = stream.ReadBoolean(),
+            Value = stream.ReadVarInt(),
         };
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Clientbound message 29734 has trailing data.")
             : message;
     }
 
     /// Encodes clientbound message 29734.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteBoolean(Flag);
-        stream.WriteVariableInt(Value);
-
-        return stream;
+        stream.WriteVarInt(Value);
     }
 }

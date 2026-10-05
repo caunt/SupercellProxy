@@ -117,7 +117,7 @@ public sealed class MessageStream : IDisposable
     {
         ArgumentNullException.ThrowIfNull(decode);
         const int maximumCollectionCount = 0x10000;
-        int count = ReadVariableInt();
+        int count = ReadVarInt();
 
         if (count is < 0 or > maximumCollectionCount)
             throw new InvalidDataException(message: "Invalid collection count.");
@@ -230,9 +230,9 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Reads <c language="csharp">LongId</c> from the stream.
     /// </summary>
-    public LongIdentifier ReadLongIdentifier()
+    public LongId ReadLongId()
     {
-        return new LongIdentifier(ReadInt32(), ReadInt32());
+        return new LongId(ReadInt32(), ReadInt32());
     }
 
     /// <summary>
@@ -265,9 +265,9 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Reads <c language="csharp">OptionalLongId</c> from the stream.
     /// </summary>
-    public LongIdentifier? ReadOptionalLongIdentifier()
+    public LongId? ReadOptionalLongId()
     {
-        return ReadBoolean() ? ReadLongIdentifier() : null;
+        return ReadBoolean() ? ReadLongId() : null;
     }
 
     /// <summary>
@@ -350,7 +350,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Reads <c language="csharp">VarInt</c> from the stream.
     /// </summary>
-    public int ReadVariableInt()
+    public int ReadVarInt()
     {
         byte firstByte = ReadByte();
         bool isNegative = (firstByte & 0x40) is not 0;
@@ -380,12 +380,12 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Reads <c language="csharp">Values</c> from the stream.
     /// </summary>
-    public int[] ReadVariableIntArray(int count)
+    public int[] ReadVarIntArray(int count)
     {
         int[] values = new int[count];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = ReadVariableInt();
+            values[index] = ReadVarInt();
 
         return values;
     }
@@ -393,21 +393,21 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Reads <c language="csharp">VarIntByteArray</c> from the stream.
     /// </summary>
-    public Memory<byte> ReadVariableIntByteArray()
+    public Memory<byte> ReadVarIntByteArray()
     {
-        int length = ReadVariableInt();
+        int length = ReadVarInt();
 
         return length is 0
             ? Memory<byte>.Empty
             : length is < 0 or > MaximumPayloadLength
-            ? throw new InvalidDataException(message: "Invalid variable-length byte array length.")
+            ? throw new InvalidDataException(message: "Invalid var-length byte array length.")
             : (Memory<byte>)ReadBytes(length);
     }
 
     /// <summary>
     /// Reads <c language="csharp">VarLong</c> from the stream.
     /// </summary>
-    public long ReadVariableLong()
+    public long ReadVarLong()
     {
         byte firstByte = ReadByte();
         bool isNegative = (firstByte & 0x40) is not 0;
@@ -426,7 +426,7 @@ public sealed class MessageStream : IDisposable
         }
 
         if ((currentByte & 0x80) is not 0)
-            throw new InvalidDataException(message: "Variable-length long is too long.");
+            throw new InvalidDataException(message: "Var-length long is too long.");
 
         if (isNegative && consumedBitWidth < 64)
             accumulator |= ulong.MaxValue << consumedBitWidth;
@@ -514,7 +514,7 @@ public sealed class MessageStream : IDisposable
     public void WriteArray<TValue>(ReadOnlySpan<TValue> values, Action<MessageStream, TValue> encode)
     {
         ArgumentNullException.ThrowIfNull(encode);
-        WriteVariableInt(values.Length);
+        WriteVarInt(values.Length);
 
         foreach (TValue value in values)
             encode(this, value);
@@ -603,7 +603,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">LongId</c> to the stream.
     /// </summary>
-    public void WriteLongIdentifier(LongIdentifier logicLong)
+    public void WriteLongId(LongId logicLong)
     {
         WriteInt32(logicLong.HighInt32);
         WriteInt32(logicLong.LowInt32);
@@ -638,12 +638,12 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">OptionalLongId</c> to the stream.
     /// </summary>
-    public void WriteOptionalLongIdentifier(LongIdentifier? value)
+    public void WriteOptionalLongId(LongId? value)
     {
         WriteBoolean(value is not null);
 
         if (value is not null)
-            WriteLongIdentifier(value.Value);
+            WriteLongId(value.Value);
     }
 
     /// <summary>
@@ -724,7 +724,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">VarInt</c> to the stream.
     /// </summary>
-    public void WriteVariableInt(int valueToWrite)
+    public void WriteVarInt(int valueToWrite)
     {
         FlushWriteBoolean();
 
@@ -769,19 +769,19 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">VarIntByteArray</c> to the stream.
     /// </summary>
-    public void WriteVariableIntByteArray(ReadOnlySpan<byte> source)
+    public void WriteVarIntByteArray(ReadOnlySpan<byte> source)
     {
         if (source.Length > MaximumPayloadLength)
-            throw new InvalidDataException(message: "Variable-length byte array is too large.");
+            throw new InvalidDataException(message: "Var-length byte array is too large.");
 
-        WriteVariableInt(source.Length);
+        WriteVarInt(source.Length);
         Write(source);
     }
 
     /// <summary>
     /// Writes <c language="csharp">VarLong</c> to the stream.
     /// </summary>
-    public void WriteVariableLong(long valueToWrite)
+    public void WriteVarLong(long valueToWrite)
     {
         FlushWriteBoolean();
 

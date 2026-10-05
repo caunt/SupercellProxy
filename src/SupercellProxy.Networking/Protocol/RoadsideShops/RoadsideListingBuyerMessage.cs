@@ -18,21 +18,21 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// </summary>
 public sealed record RoadsideListingBuyerMessage(
     int SlotIndex,
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier BuyerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId BuyerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId
 )
     : IMessage
 {
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static RoadsideListingBuyerMessage Create(MessageContainer container)
+    public static RoadsideListingBuyerMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        RoadsideListingBuyerMessage result = new(container.Payload.ReadVariableInt(), container.Payload.ReadLongIdentifier(), container.Payload.ReadLongIdentifier());
+        RoadsideListingBuyerMessage result = new(stream.ReadVarInt(), stream.ReadLongId(), stream.ReadLongId());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Roadside listing buyer update has trailing data.")
             : result;
     }
@@ -40,14 +40,12 @@ public sealed record RoadsideListingBuyerMessage(
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(SlotIndex);
-        stream.WriteLongIdentifier(BuyerIdentifier);
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-
-        return stream;
+        stream.WriteVarInt(SlotIndex);
+        stream.WriteLongId(BuyerId);
+        stream.WriteLongId(HomeOwnerId);
     }
 }

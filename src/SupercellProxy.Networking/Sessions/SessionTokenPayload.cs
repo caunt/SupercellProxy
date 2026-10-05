@@ -11,7 +11,7 @@ public sealed record SessionTokenPayload
 
     /// <summary>Gets the linked game account.</summary>
     [JsonPropertyName("https://id.supercell.com/appAccountId")]
-    public string? AppAccountIdentifier { get; init; }
+    public string? AppAccountId { get; init; }
 
     /// <summary>Gets the application's environment.</summary>
     [JsonPropertyName("https://id.supercell.com/appEnv")]
@@ -29,7 +29,7 @@ public sealed record SessionTokenPayload
     [JsonPropertyName("exp")]
     public required long Exp { get; init; }
 
-    /// <summary>Gets the game identifier.</summary>
+    /// <summary>Gets the game id.</summary>
     [JsonPropertyName("game")]
     public string? Game { get; init; }
 
@@ -45,11 +45,11 @@ public sealed record SessionTokenPayload
     [JsonPropertyName("iss")]
     public string? Iss { get; init; }
 
-    /// <summary>Gets the player identifier.</summary>
+    /// <summary>Gets the player id.</summary>
     [JsonPropertyName("pid")]
     public string? Pid { get; init; }
 
-    /// <summary>Gets the Supercell ID account identifier.</summary>
+    /// <summary>Gets the Supercell ID account id.</summary>
     [JsonPropertyName("scid")]
     public string? Scid { get; init; }
 

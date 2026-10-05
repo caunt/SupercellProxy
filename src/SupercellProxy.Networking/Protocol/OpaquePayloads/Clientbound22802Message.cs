@@ -11,20 +11,18 @@ public sealed record Clientbound22802Message : IMessage
     public Memory<byte> CollectionData { get; init; }
 
     /// Decodes clientbound message 22802 without inventing inner collection fields.
-    public static Clientbound22802Message Create(MessageContainer container)
+    public static Clientbound22802Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new Clientbound22802Message { CollectionData = container.Payload.ReadToEnd() };
+        return new Clientbound22802Message { CollectionData = stream.ReadToEnd() };
     }
 
     /// Encodes clientbound message 22802.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.Write(CollectionData.Span);
-
-        return stream;
     }
 }

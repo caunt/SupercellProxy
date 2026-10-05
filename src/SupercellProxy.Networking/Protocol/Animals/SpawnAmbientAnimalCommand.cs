@@ -17,18 +17,7 @@ public sealed record SpawnAmbientAnimalCommand : Command
     /// <summary>
     /// Provides the Spawn Ambient Animal Command value or operation.
     /// </summary>
-    public SpawnAmbientAnimalCommand(
-        int behavior,
-        int horizontalCoordinate,
-        int verticalCoordinate,
-        int destinationX,
-        int destinationY,
-        bool notifyListener,
-        int executionPhaseCounter = 0,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public SpawnAmbientAnimalCommand(int behavior, int horizontalCoordinate, int verticalCoordinate, int destinationX, int destinationY, bool notifyListener)
     {
         Behavior = behavior;
         HorizontalCoordinate = horizontalCoordinate;
@@ -81,38 +70,26 @@ public sealed record SpawnAmbientAnimalCommand : Command
     public static SpawnAmbientAnimalCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int behavior = stream.ReadVariableInt();
-        int horizontalCoordinate = stream.ReadVariableInt();
-        int verticalCoordinate = stream.ReadVariableInt();
-        int destinationX = stream.ReadVariableInt();
-        int destinationY = stream.ReadVariableInt();
+        int behavior = stream.ReadVarInt();
+        int horizontalCoordinate = stream.ReadVarInt();
+        int verticalCoordinate = stream.ReadVarInt();
+        int destinationX = stream.ReadVarInt();
+        int destinationY = stream.ReadVarInt();
         bool notifyListener = stream.ReadBoolean();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new SpawnAmbientAnimalCommand(
-            behavior,
-            horizontalCoordinate,
-            verticalCoordinate,
-            destinationX,
-            destinationY,
-            notifyListener,
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(Behavior);
-        stream.WriteVariableInt(HorizontalCoordinate);
-        stream.WriteVariableInt(VerticalCoordinate);
-        stream.WriteVariableInt(DestinationX);
-        stream.WriteVariableInt(DestinationY);
+        stream.WriteVarInt(Behavior);
+        stream.WriteVarInt(HorizontalCoordinate);
+        stream.WriteVarInt(VerticalCoordinate);
+        stream.WriteVarInt(DestinationX);
+        stream.WriteVarInt(DestinationY);
         stream.WriteBoolean(NotifyListener);
-        EncodeCommand(stream, environment);
     }
 }

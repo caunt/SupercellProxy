@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
+using SupercellProxy.Networking.Transport;
 
-using SupercellProxy.Networking.Protocol.MessageEncoding;
+using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Homes;
 
@@ -18,10 +18,10 @@ public sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage
     /// <summary>
     /// Creates a <c language="csharp">OtherFishingHomeDataMessage</c> from the supplied data.
     /// </summary>
-    public static new OtherFishingHomeDataMessage Create(MessageContainer container)
+    public static new OtherFishingHomeDataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        Memory<byte> rawPayload = container.Payload.ReadToEnd();
+        ArgumentNullException.ThrowIfNull(stream);
+        Memory<byte> rawPayload = stream.ReadToEnd();
         OtherHomeDataMessage message = Decode(rawPayload);
 
         return new OtherFishingHomeDataMessage

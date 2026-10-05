@@ -23,7 +23,7 @@ public sealed record CompletedNeighborhoodTaskSnapshot : ExtensibleDocument
     [JsonPropertyName("Seen")]
     public bool Seen { get; init; }
 
-    /// <summary>Gets the TaskDataIdentifier value.</summary>
+    /// <summary>Gets the TaskDataId value.</summary>
     [JsonPropertyName("TaskDataId")]
-    public int TaskDataIdentifier { get; init; }
+    public int TaskDataId { get; init; }
 }

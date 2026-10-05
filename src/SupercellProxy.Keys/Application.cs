@@ -7,11 +7,11 @@ namespace SupercellProxy.Keys;
 
 internal static partial class Application
 {
-    private const string AppStoreIdentifierPattern = @"(?:^|/)id(\d+)(?:/|$)";
+    private const string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
     private static readonly HttpClient WebClient = new() { Timeout = TimeSpan.FromMinutes(minutes: 30) };
 
-    [GeneratedRegex(AppStoreIdentifierPattern, RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture, matchTimeoutMilliseconds: 1_000)]
-    private static partial Regex AppStoreIdentifierRegex { get; }
+    [GeneratedRegex(AppStoreIdPattern, RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture, matchTimeoutMilliseconds: 1_000)]
+    private static partial Regex AppStoreIdRegex { get; }
 
     public static async Task<int> RunAsync(string[] arguments)
     {
@@ -119,14 +119,14 @@ internal static partial class Application
 
     private static string ResolveAppStoreAddress(Uri address, string value)
     {
-        Match match = AppStoreIdentifierRegex.Match(address.AbsolutePath);
+        Match match = AppStoreIdRegex.Match(address.AbsolutePath);
 
         return match.Success
             ? match.Groups[groupnum: 1].Value
             : throw new ArgumentException(message: "Could not find an App Store ID in the URL.", nameof(value));
     }
 
-    private static async Task<string> ResolveAppStoreIdentifierAsync(string value, AppStoreClient appStoreClient, DecryptDayClient decryptDayClient, CancellationToken cancellationToken)
+    private static async Task<string> ResolveAppStoreIdAsync(string value, AppStoreClient appStoreClient, DecryptDayClient decryptDayClient, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
@@ -148,18 +148,18 @@ internal static partial class Application
             .Results.Where(
                 result =>
                 string.Equals(Normalize(result.Name), normalizedValue, StringComparison.Ordinal)
-                || result.BundleIdentifier.Equals(value, StringComparison.OrdinalIgnoreCase)
+                || result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase)
             )];
 
         foreach (AppStoreSearchResult result in exactMatches.Length > 0 ? exactMatches : response.Results)
         {
-            string appStoreIdentifier = result.TrackIdentifier.ToString(CultureInfo.InvariantCulture);
+            string appStoreId = result.TrackId.ToString(CultureInfo.InvariantCulture);
 
             try
             {
                 bool isConditionMet = (
                                         await decryptDayClient
-                                            .GetAppAsync(appStoreIdentifier, cancellationToken)
+                                            .GetAppAsync(appStoreId, cancellationToken)
                                             .ConfigureAwait(continueOnCapturedContext: false)
                                     )
                                         .Versions
@@ -169,9 +169,9 @@ internal static partial class Application
                 if (isConditionMet)
                     continue;
 
-                Console.WriteLine($"Selected search result: {result.Name} ({result.BundleIdentifier}, ID {appStoreIdentifier})");
+                Console.WriteLine($"Selected search result: {result.Name} ({result.BundleId}, ID {appStoreId})");
 
-                return appStoreIdentifier;
+                return appStoreId;
             }
             catch (Exception exception)
                 when (exception is HttpRequestException or InvalidDataException)

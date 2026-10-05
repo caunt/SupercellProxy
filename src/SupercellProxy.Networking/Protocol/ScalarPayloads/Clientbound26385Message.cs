@@ -12,31 +12,29 @@ public sealed record Clientbound26385Message : IMessage
 
     /// Gets the second decoded bit-packed flag.
     public bool FlagB { get; init; }
-    /// Gets the decoded signed variable-length value.
+    /// Gets the decoded signed var-length value.
     public int Value { get; init; }
 
     /// Decodes clientbound message 26385.
-    public static Clientbound26385Message Create(MessageContainer container)
+    public static Clientbound26385Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new Clientbound26385Message
         {
-            Value = container.Payload.ReadVariableInt(),
-            FlagA = container.Payload.ReadBoolean(),
-            FlagB = container.Payload.ReadBoolean(),
+            Value = stream.ReadVarInt(),
+            FlagA = stream.ReadBoolean(),
+            FlagB = stream.ReadBoolean(),
         };
     }
 
     /// Encodes clientbound message 26385.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Value);
+        stream.WriteVarInt(Value);
         stream.WriteBoolean(FlagA);
         stream.WriteBoolean(FlagB);
-
-        return stream;
     }
 }

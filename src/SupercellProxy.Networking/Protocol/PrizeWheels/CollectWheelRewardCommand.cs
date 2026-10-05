@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.PrizeWheels;
 /// <summary>
 /// Defines the Client Presentation contract.
 /// </summary>
-public sealed record CollectWheelRewardCommand(bool ClientPresentation, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectWheelRewardCommand(bool ClientPresentation) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -25,17 +25,15 @@ public sealed record CollectWheelRewardCommand(bool ClientPresentation, int Exec
     {
         ArgumentNullException.ThrowIfNull(stream);
         bool presentation = stream.ReadBoolean();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new CollectWheelRewardCommand(presentation, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectWheelRewardCommand(presentation);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteBoolean(ClientPresentation);
-        EncodeCommand(stream, environment);
     }
 }

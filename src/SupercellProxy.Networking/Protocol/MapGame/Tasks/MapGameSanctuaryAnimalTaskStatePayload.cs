@@ -8,23 +8,23 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 /// <param name="Unknown0">The <c language="csharp">Unknown0</c> value.</param>
 /// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
-/// <param name="AnimalGlobalIdentifier">The sanctuary-animal definition.</param>
+/// <param name="AnimalGlobalId">The sanctuary-animal definition.</param>
 /// <param name="Collected">Whether a pawn has collected the animal.</param>
 /// <param name="UnknownBoolean1">The <c language="csharp">UnknownBoolean1</c> value.</param>
 /// <param name="Escaped">Whether the collected animal has escaped.</param>
-/// <param name="EscapeNodeIdentifier">The node selected for the escape.</param>
+/// <param name="EscapeNodeId">The node selected for the escape.</param>
 /// <param name="EscapeCount">The retained wrapping escape counter.</param>
-/// <param name="CollectorIdentifier">The collecting pawn's avatar identifier.</param>
+/// <param name="CollectorId">The collecting pawn's avatar id.</param>
 public sealed record MapGameSanctuaryAnimalTaskStatePayload(
     int Unknown0,
     int Unknown1,
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId0")] int AnimalGlobalIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId0")] int AnimalGlobalId,
     [property: System.Text.Json.Serialization.JsonPropertyName("UnknownBoolean0")] bool Collected,
     bool UnknownBoolean1,
     [property: System.Text.Json.Serialization.JsonPropertyName("UnknownBoolean2")] bool Escaped,
-    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown2")] int EscapeNodeIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown2")] int EscapeNodeId,
     [property: System.Text.Json.Serialization.JsonPropertyName("Unknown3")] int EscapeCount,
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownPair0")] LongIdentifier? CollectorIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownPair0")] LongId? CollectorId
 ) : MapGameTaskStatePayload
 {
     /// <summary>
@@ -35,15 +35,15 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(
         ArgumentNullException.ThrowIfNull(stream);
 
         return new MapGameSanctuaryAnimalTaskStatePayload(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            MapGameFieldCodec.ReadOptionalLongIdentifier(stream)
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            MapGameFieldCodec.ReadOptionalLongId(stream)
         );
     }
 
@@ -52,14 +52,14 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(AnimalGlobalIdentifier);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(AnimalGlobalId);
         stream.WriteBoolean(Collected);
         stream.WriteBoolean(UnknownBoolean1);
         stream.WriteBoolean(Escaped);
-        stream.WriteVariableInt(EscapeNodeIdentifier);
-        stream.WriteVariableInt(EscapeCount);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, CollectorIdentifier);
+        stream.WriteVarInt(EscapeNodeId);
+        stream.WriteVarInt(EscapeCount);
+        MapGameFieldCodec.WriteOptionalLongId(stream, CollectorId);
     }
 }

@@ -16,12 +16,12 @@ public sealed record PassthroughMessage : IMessage
     /// <summary>
     /// Gets the <c language="csharp">Hint</c> value.
     /// </summary>
-    public string? Hint => MessageRegistry.GetHint(Identifier);
+    public string? Hint => MessageRegistry.GetHint(Id);
     /// <summary>
     /// Gets or sets the <c language="csharp">Id</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Id")]
-    public required ushort Identifier { get; init; }
+    public required ushort Id { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Version</c> value.
@@ -31,28 +31,26 @@ public sealed record PassthroughMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">PassthroughMessage</c> from the supplied data.
     /// </summary>
-    public static PassthroughMessage Create(MessageContainer container)
+    public static PassthroughMessage Decode(MessageContainer container)
     {
         ArgumentNullException.ThrowIfNull(container);
 
         return new PassthroughMessage
         {
-            Identifier = container.Identifier,
+            Id = container.Id,
             Version = container.Version,
             Data = container.Payload.ReadToEnd(),
         };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.Write(Data.Span);
-
-        return supercellStream;
+        stream.Write(Data.Span);
     }
 
     /// <summary>
@@ -68,6 +66,6 @@ public sealed record PassthroughMessage : IMessage
         string truncationSuffix = actualDataLength > maximumDataLength ? "..." : string.Empty;
         string hintSuffix = string.IsNullOrWhiteSpace(Hint) ? string.Empty : $", Hint = {Hint}";
 
-        return $"{nameof(PassthroughMessage)} {{ Id = {Identifier}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix}{hintSuffix} }}";
+        return $"{nameof(PassthroughMessage)} {{ Id = {Id}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix}{hintSuffix} }}";
     }
 }

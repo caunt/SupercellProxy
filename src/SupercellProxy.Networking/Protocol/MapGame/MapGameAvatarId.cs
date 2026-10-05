@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>Represents decoded MapGameAvatarIdentifier state.</summary>
-public sealed record MapGameAvatarIdentifier : ExtensibleDocument
+/// <summary>Represents decoded MapGameAvatarId state.</summary>
+public sealed record MapGameAvatarId : ExtensibleDocument
 {
     /// <summary>Gets the High value.</summary>
     [JsonPropertyName("h")]

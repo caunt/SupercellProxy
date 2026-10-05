@@ -11,12 +11,12 @@ public sealed record TownPassengerServiceSnapshot : ExtensibleDocument
     /// <summary>Gets whether this service was completed.</summary>
     public bool Completed { get; init; }
 
-    /// <summary>Gets the required goods by data identifier.</summary>
+    /// <summary>Gets the required goods by data id.</summary>
     public int[] RequiredGoods { get; init; } = [];
 
     /// <summary>Gets the quantity of each required good.</summary>
     public int[] RequiredGoodAmounts { get; init; } = [];
 
-    /// <summary>Gets the service building's data identifier.</summary>
+    /// <summary>Gets the service building's data id.</summary>
     public int ServiceBuildingData { get; init; }
 }

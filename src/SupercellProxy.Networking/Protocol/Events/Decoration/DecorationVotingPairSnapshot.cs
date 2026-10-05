@@ -8,11 +8,11 @@ public sealed record DecorationVotingPairSnapshot
 {
     /// <summary>Gets the pair's event identity.</summary>
     [JsonPropertyName("eventId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>Gets the pair's event variant identity.</summary>
     [JsonPropertyName("eventVariantId")]
-    public int EventVariantIdentifier { get; init; }
+    public int EventVariantId { get; init; }
 
     /// <summary>Gets the first candidate.</summary>
     [JsonPropertyName("left")]

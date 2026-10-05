@@ -13,7 +13,7 @@ public sealed record CreatureManagerSnapshot
 
     /// <summary>Gets spawn rules with retained consecutive failed spawn attempts.</summary>
     [JsonPropertyName("failstreakGlobalIds")]
-    public int[] FailedSpawnRuleIdentifiers { get; init; } = [];
+    public int[] FailedSpawnRuleIds { get; init; } = [];
 
     /// <summary>Gets consecutive failed attempts used to increase each rule's spawn chance.</summary>
     [JsonPropertyName("failstreakCounts")]
@@ -27,17 +27,17 @@ public sealed record CreatureManagerSnapshot
 
     /// <summary>Gets the rules with retained daily spawn counts.</summary>
     [JsonPropertyName("dailySpawnGlobalIds")]
-    public int[] DailySpawnRuleIdentifiers { get; init; } = [];
+    public int[] DailySpawnRuleIds { get; init; } = [];
 
-    /// <summary>Gets the daily counts paired with the retained rule identifiers.</summary>
+    /// <summary>Gets the daily counts paired with the retained rule ids.</summary>
     [JsonPropertyName("dailySpawnCount")]
     public int[] DailySpawnCounts { get; init; } = [];
 
     /// <summary>Gets the rules with retained event spawn counts.</summary>
     [JsonPropertyName("eventSpawnGlobalIds")]
-    public int[] EventSpawnRuleIdentifiers { get; init; } = [];
+    public int[] EventSpawnRuleIds { get; init; } = [];
 
-    /// <summary>Gets the event counts paired with the retained rule identifiers.</summary>
+    /// <summary>Gets the event counts paired with the retained rule ids.</summary>
     [JsonPropertyName("eventSpawnCount")]
     public int[] EventSpawnCounts { get; init; } = [];
 
@@ -47,7 +47,7 @@ public sealed record CreatureManagerSnapshot
 
     /// <summary>Gets creature definitions with daily bonus-reward catch counts.</summary>
     [JsonPropertyName("dailyRewardedCatchesGlobalIds")]
-    public int[] DailyRewardedCreatureIdentifiers { get; init; } = [];
+    public int[] DailyRewardedCreatureIds { get; init; } = [];
 
     /// <summary>Gets daily bonus-reward counts paired with creature definitions.</summary>
     [JsonPropertyName("dailyRewardedCatchesCount")]
@@ -55,7 +55,7 @@ public sealed record CreatureManagerSnapshot
 
     /// <summary>Gets creature definitions with event bonus-reward catch counts.</summary>
     [JsonPropertyName("eventRewardedCatchesGlobalIds")]
-    public int[] EventRewardedCreatureIdentifiers { get; init; } = [];
+    public int[] EventRewardedCreatureIds { get; init; } = [];
 
     /// <summary>Gets event bonus-reward counts paired with creature definitions.</summary>
     [JsonPropertyName("eventRewardedCatchesCount")]
@@ -63,17 +63,17 @@ public sealed record CreatureManagerSnapshot
 
     /// <summary>Gets spawn rules with daily catch counts across farms.</summary>
     [JsonPropertyName("dailyVisitingCatchGlobalIds")]
-    public int[] DailyCatchRuleIdentifiers { get; init; } = [];
+    public int[] DailyCatchRuleIds { get; init; } = [];
 
-    /// <summary>Gets daily catches paired with spawn rule identifiers.</summary>
+    /// <summary>Gets daily catches paired with spawn rule ids.</summary>
     [JsonPropertyName("dailyVisitingCatchCounts")]
     public int[] DailyCatchCounts { get; init; } = [];
 
     /// <summary>Gets spawn rules with event catch counts across farms.</summary>
     [JsonPropertyName("eventVisitingCatchGlobalIds")]
-    public int[] EventCatchRuleIdentifiers { get; init; } = [];
+    public int[] EventCatchRuleIds { get; init; } = [];
 
-    /// <summary>Gets event catches paired with spawn rule identifiers.</summary>
+    /// <summary>Gets event catches paired with spawn rule ids.</summary>
     [JsonPropertyName("eventVisitingCatchCounts")]
     public int[] EventCatchCounts { get; init; } = [];
 
@@ -81,7 +81,7 @@ public sealed record CreatureManagerSnapshot
     /// Gets or sets the <c language="csharp">LastKnownEventId</c> value.
     /// </summary>
     [JsonPropertyName("lastKnownEventId")]
-    public int LastKnownEventIdentifier { get; init; }
+    public int LastKnownEventId { get; init; }
 
     /// <summary>Gets the retained native switch that suppresses creature spawning.</summary>
     [JsonPropertyName("debugNeverSpawn")]

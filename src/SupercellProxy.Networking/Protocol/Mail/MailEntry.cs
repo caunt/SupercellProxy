@@ -34,18 +34,18 @@ public sealed record MailEntry
     /// Gets or sets the <c language="csharp">FacebookId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("FacebookId")]
-    public string? FacebookIdentifier { get; init; }
+    public string? FacebookId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">GameCenterId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GameCenterId")]
-    public string? GameCenterIdentifier { get; init; }
+    public string? GameCenterId { get; init; }
 
     /// <summary>
-    /// Gets the identifier used to remove the letter from the avatar's mail list.
+    /// Gets the id used to remove the letter from the avatar's mail list.
     /// </summary>
-    public long Identifier { get; init; }
+    public long Id { get; init; }
 
     /// <summary>
     /// Gets the letter's collection and reward state.
@@ -151,30 +151,30 @@ public sealed record MailEntry
 
         return new()
         {
-            RewardState = stream.ReadVariableInt(),
-            Category = stream.ReadVariableInt(),
-            Identifier = stream.ReadInt64(),
+            RewardState = stream.ReadVarInt(),
+            Category = stream.ReadVarInt(),
+            Id = stream.ReadInt64(),
             SenderAvatarName = stream.ReadOptionalString(),
-            Unknown3 = stream.ReadVariableInt(),
-            Unknown4 = stream.ReadVariableInt(),
-            Unknown5 = stream.ReadVariableInt(),
-            Unknown6 = stream.ReadVariableInt(),
-            Unknown7 = stream.ReadVariableInt(),
+            Unknown3 = stream.ReadVarInt(),
+            Unknown4 = stream.ReadVarInt(),
+            Unknown5 = stream.ReadVarInt(),
+            Unknown6 = stream.ReadVarInt(),
+            Unknown7 = stream.ReadVarInt(),
             Subject = stream.ReadOptionalString(),
             Body = stream.ReadOptionalString(),
-            Unknown8 = stream.ReadVariableInt(),
-            FacebookIdentifier = stream.ReadOptionalString(),
-            GameCenterIdentifier = stream.ReadOptionalString(),
-            Unknown9 = stream.ReadVariableInt(),
-            Unknown10 = stream.ReadVariableInt(),
-            Unknown11 = stream.ReadVariableInt(),
-            Unknown12 = stream.ReadVariableInt(),
-            Unknown13 = stream.ReadVariableInt(),
-            Unknown14 = stream.ReadVariableInt(),
+            Unknown8 = stream.ReadVarInt(),
+            FacebookId = stream.ReadOptionalString(),
+            GameCenterId = stream.ReadOptionalString(),
+            Unknown9 = stream.ReadVarInt(),
+            Unknown10 = stream.ReadVarInt(),
+            Unknown11 = stream.ReadVarInt(),
+            Unknown12 = stream.ReadVarInt(),
+            Unknown13 = stream.ReadVarInt(),
+            Unknown14 = stream.ReadVarInt(),
             CustomSubject = stream.ReadOptionalString(),
             CustomBody = stream.ReadOptionalString(),
-            Unknown15 = stream.ReadVariableInt(),
-            Unknown16 = stream.ReadVariableInt(),
+            Unknown15 = stream.ReadVarInt(),
+            Unknown16 = stream.ReadVarInt(),
             UnknownString0 = stream.ReadOptionalString(),
             UnknownString1 = stream.ReadOptionalString(),
         };
@@ -186,30 +186,30 @@ public sealed record MailEntry
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(RewardState);
-        stream.WriteVariableInt(Category);
-        stream.WriteInt64(Identifier);
+        stream.WriteVarInt(RewardState);
+        stream.WriteVarInt(Category);
+        stream.WriteInt64(Id);
         stream.WriteOptionalString(SenderAvatarName);
-        stream.WriteVariableInt(Unknown3);
-        stream.WriteVariableInt(Unknown4);
-        stream.WriteVariableInt(Unknown5);
-        stream.WriteVariableInt(Unknown6);
-        stream.WriteVariableInt(Unknown7);
+        stream.WriteVarInt(Unknown3);
+        stream.WriteVarInt(Unknown4);
+        stream.WriteVarInt(Unknown5);
+        stream.WriteVarInt(Unknown6);
+        stream.WriteVarInt(Unknown7);
         stream.WriteOptionalString(Subject);
         stream.WriteOptionalString(Body);
-        stream.WriteVariableInt(Unknown8);
-        stream.WriteOptionalString(FacebookIdentifier);
-        stream.WriteOptionalString(GameCenterIdentifier);
-        stream.WriteVariableInt(Unknown9);
-        stream.WriteVariableInt(Unknown10);
-        stream.WriteVariableInt(Unknown11);
-        stream.WriteVariableInt(Unknown12);
-        stream.WriteVariableInt(Unknown13);
-        stream.WriteVariableInt(Unknown14);
+        stream.WriteVarInt(Unknown8);
+        stream.WriteOptionalString(FacebookId);
+        stream.WriteOptionalString(GameCenterId);
+        stream.WriteVarInt(Unknown9);
+        stream.WriteVarInt(Unknown10);
+        stream.WriteVarInt(Unknown11);
+        stream.WriteVarInt(Unknown12);
+        stream.WriteVarInt(Unknown13);
+        stream.WriteVarInt(Unknown14);
         stream.WriteOptionalString(CustomSubject);
         stream.WriteOptionalString(CustomBody);
-        stream.WriteVariableInt(Unknown15);
-        stream.WriteVariableInt(Unknown16);
+        stream.WriteVarInt(Unknown15);
+        stream.WriteVarInt(Unknown16);
         stream.WriteOptionalString(UnknownString0);
         stream.WriteOptionalString(UnknownString1);
     }

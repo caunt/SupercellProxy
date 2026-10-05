@@ -10,22 +10,21 @@ public sealed record DecorationGalleryDataMessage : IMessage
     public int? FirstListCount { get; init; }
 
     /// <summary>Gets the home whose gallery data is being supplied, when present.</summary>
-    public LongIdentifier? HomeIdentifier { get; init; }
+    public LongId? HomeId { get; init; }
 
     /// <summary>Gets the count of the second optional list; only an empty list is currently understood.</summary>
     public int? SecondListCount { get; init; }
 
-    /// <summary>Decodes the two optional lists followed by an optional home identifier.</summary>
-    public static DecorationGalleryDataMessage Create(MessageContainer container)
+    /// <summary>Decodes the two optional lists followed by an optional home id.</summary>
+    public static DecorationGalleryDataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         DecorationGalleryDataMessage message = new()
         {
             FirstListCount = ReadListCount(stream),
             SecondListCount = ReadListCount(stream),
-            HomeIdentifier = stream.ReadBoolean() ? stream.ReadLongIdentifier() : null,
+            HomeId = stream.ReadBoolean() ? stream.ReadLongId() : null,
         };
 
         return stream.Position != stream.Length
@@ -34,21 +33,19 @@ public sealed record DecorationGalleryDataMessage : IMessage
     }
 
     /// <summary>Encodes the proven empty-list form of a decoration-gallery response.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         WriteListCount(stream, FirstListCount);
         WriteListCount(stream, SecondListCount);
-        stream.WriteBoolean(HomeIdentifier is not null);
+        stream.WriteBoolean(HomeId is not null);
 
-        if (HomeIdentifier is { } homeIdentifier)
-            stream.WriteLongIdentifier(homeIdentifier);
-
-        return stream;
+        if (HomeId is { } homeId)
+            stream.WriteLongId(homeId);
     }
 
-    /// <summary>Omits the private home identifier from diagnostic text.</summary>
+    /// <summary>Omits the private home id from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(DecorationGalleryDataMessage);
@@ -59,7 +56,7 @@ public sealed record DecorationGalleryDataMessage : IMessage
         if (!stream.ReadBoolean())
             return null;
 
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         return count is < 0 or > 1024
             ? throw new InvalidDataException(message: "The decoration-gallery list count is invalid.")
@@ -81,6 +78,6 @@ public sealed record DecorationGalleryDataMessage : IMessage
         if (value != 0)
             throw new NotSupportedException(message: "Nonempty decoration-gallery lists have an unconfirmed element layout.");
 
-        stream.WriteVariableInt(value);
+        stream.WriteVarInt(value);
     }
 }

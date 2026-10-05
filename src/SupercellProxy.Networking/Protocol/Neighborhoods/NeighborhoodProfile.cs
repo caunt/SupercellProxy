@@ -57,7 +57,7 @@ public sealed record NeighborhoodProfile
     /// Gets the Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Id")]
-    public LongIdentifier Identifier { get; init; }
+    public LongId Id { get; init; }
 
     /// <summary>
     /// Gets the Metadata value.
@@ -73,19 +73,19 @@ public sealed record NeighborhoodProfile
     /// Gets the Optional Id0 value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("OptionalId0")]
-    public LongIdentifier? OptionalIdentifier0 { get; init; }
+    public LongId? OptionalId0 { get; init; }
 
     /// <summary>
     /// Gets the Optional Id1 value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("OptionalId1")]
-    public LongIdentifier? OptionalIdentifier1 { get; init; }
+    public LongId? OptionalId1 { get; init; }
 
     /// <summary>
     /// Gets the Related Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("RelatedId")]
-    public LongIdentifier RelatedIdentifier { get; init; }
+    public LongId RelatedId { get; init; }
 
     /// <summary>
     /// Gets the Additional Values value.
@@ -116,24 +116,24 @@ public sealed record NeighborhoodProfile
 
         return new()
         {
-            HeaderValues = stream.ReadVariableIntArray(HeaderCount),
+            HeaderValues = stream.ReadVarIntArray(HeaderCount),
             Flag0 = stream.ReadBoolean(),
             Flag1 = stream.ReadBoolean(),
             Name = stream.ReadOptionalString(),
-            Identifier = stream.ReadLongIdentifier(),
-            BadgeValues = stream.ReadVariableIntArray(BadgeCount),
+            Id = stream.ReadLongId(),
+            BadgeValues = stream.ReadVarIntArray(BadgeCount),
             Description = stream.ReadOptionalString(),
-            Value = stream.ReadVariableInt(),
-            RelatedIdentifier = stream.ReadLongIdentifier(),
-            OptionalIdentifier0 = stream.ReadOptionalLongIdentifier(),
-            Statistics = stream.ReadVariableIntArray(StatisticCount),
-            OptionalIdentifier1 = stream.ReadOptionalLongIdentifier(),
-            Metadata = stream.ReadVariableInt(),
+            Value = stream.ReadVarInt(),
+            RelatedId = stream.ReadLongId(),
+            OptionalId0 = stream.ReadOptionalLongId(),
+            Statistics = stream.ReadVarIntArray(StatisticCount),
+            OptionalId1 = stream.ReadOptionalLongId(),
+            Metadata = stream.ReadVarInt(),
             History = stream.ReadBoolean() ? NeighborhoodHistory.Decode(stream) : null,
-            AdditionalValues = stream.ReadVariableIntArray(AdditionalValueCount),
+            AdditionalValues = stream.ReadVarIntArray(AdditionalValueCount),
             AdditionalText = stream.ReadOptionalString(),
-            TrailingValue0 = stream.ReadVariableInt(),
-            TrailingValue1 = stream.ReadVariableInt(),
+            TrailingValue0 = stream.ReadVarInt(),
+            TrailingValue1 = stream.ReadVarInt(),
         };
     }
 
@@ -147,21 +147,21 @@ public sealed record NeighborhoodProfile
         stream.WriteBoolean(Flag0);
         stream.WriteBoolean(Flag1);
         stream.WriteOptionalString(Name);
-        stream.WriteLongIdentifier(Identifier);
+        stream.WriteLongId(Id);
         WriteValues(stream, BadgeValues, BadgeCount);
         stream.WriteOptionalString(Description);
-        stream.WriteVariableInt(Value);
-        stream.WriteLongIdentifier(RelatedIdentifier);
-        stream.WriteOptionalLongIdentifier(OptionalIdentifier0);
+        stream.WriteVarInt(Value);
+        stream.WriteLongId(RelatedId);
+        stream.WriteOptionalLongId(OptionalId0);
         WriteValues(stream, Statistics, StatisticCount);
-        stream.WriteOptionalLongIdentifier(OptionalIdentifier1);
-        stream.WriteVariableInt(Metadata);
+        stream.WriteOptionalLongId(OptionalId1);
+        stream.WriteVarInt(Metadata);
         stream.WriteBoolean(History is not null);
         History?.Encode(stream);
         WriteValues(stream, AdditionalValues, AdditionalValueCount);
         stream.WriteOptionalString(AdditionalText);
-        stream.WriteVariableInt(TrailingValue0);
-        stream.WriteVariableInt(TrailingValue1);
+        stream.WriteVarInt(TrailingValue0);
+        stream.WriteVarInt(TrailingValue1);
     }
 
     /// <summary>
@@ -178,6 +178,6 @@ public sealed record NeighborhoodProfile
             throw new InvalidDataException(message: "Invalid neighborhood profile scalar count.");
 
         foreach (int value in values)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
     }
 }

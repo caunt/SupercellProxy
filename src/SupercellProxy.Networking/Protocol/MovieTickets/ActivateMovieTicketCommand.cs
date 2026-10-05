@@ -27,16 +27,13 @@ namespace SupercellProxy.Networking.Protocol.MovieTickets;
 /// Defines the Slot Index contract.
 /// </summary>
 public sealed record ActivateMovieTicketCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("RequestId")] string RequestIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("RequestId")] string RequestId,
     int OrderIndex,
     int TicketIndex,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ObjectGlobalId")] int ObjectGlobalIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("DataGlobalId")] int DataGlobalIdentifier,
-    int SlotIndex,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("ObjectGlobalId")] int ObjectGlobalId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("DataGlobalId")] int DataGlobalId,
+    int SlotIndex
+) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -49,32 +46,20 @@ public sealed record ActivateMovieTicketCommand(
     public static ActivateMovieTicketCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new ActivateMovieTicketCommand(
-            stream.ReadString(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new ActivateMovieTicketCommand(stream.ReadString(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteString(RequestIdentifier);
-        stream.WriteVariableInt(OrderIndex);
-        stream.WriteVariableInt(TicketIndex);
-        stream.WriteVariableInt(ObjectGlobalIdentifier);
-        stream.WriteVariableInt(DataGlobalIdentifier);
-        stream.WriteVariableInt(SlotIndex);
+        stream.WriteString(RequestId);
+        stream.WriteVarInt(OrderIndex);
+        stream.WriteVarInt(TicketIndex);
+        stream.WriteVarInt(ObjectGlobalId);
+        stream.WriteVarInt(DataGlobalId);
+        stream.WriteVarInt(SlotIndex);
     }
 }

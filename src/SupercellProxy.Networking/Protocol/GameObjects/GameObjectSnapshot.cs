@@ -33,7 +33,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the passenger's sanctuary-visit bonus row.</summary>
     [JsonPropertyName("AnimalBonusID")]
-    public int? AnimalBonusIdentifier { get; init; }
+    public int? AnimalBonusId { get; init; }
     /// <summary>Gets the retained AnimalHabitatIndex value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimalHabitatIndex { get; init; }
@@ -134,9 +134,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("Collected")]
     public bool? CreatureCollected { get; init; }
 
-    /// <summary>Gets the creature's spawning-rule identifier.</summary>
+    /// <summary>Gets the creature's spawning-rule id.</summary>
     [JsonPropertyName("SpawningRuleID")]
-    public int? CreatureSpawningRuleIdentifier { get; init; }
+    public int? CreatureSpawningRuleId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">DailyResetTime</c> value.
@@ -151,7 +151,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">DataGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("ID")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
     /// <summary>Gets the retained DeliveryRewards value.</summary>
     [JsonPropertyName("rewards")]
@@ -160,7 +160,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the sanctuary animal requested by the passenger.</summary>
     [JsonPropertyName("DesiredAnimalID")]
-    public int? DesiredAnimalIdentifier { get; init; }
+    public int? DesiredAnimalId { get; init; }
 
     /// <summary>Gets whether a tree or bush has started its native clearing sequence.</summary>
     public bool DestructionStarted { get; init; }
@@ -177,7 +177,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">EventId</c> value.
     /// </summary>
     [JsonPropertyName("EventID")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>Gets the town service experience and reputation upgrade level.</summary>
     [JsonPropertyName("ExpBonus")]
@@ -214,7 +214,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the good selected for the Boy's current search.</summary>
     [JsonPropertyName("FoundItemID")]
-    public int FoundItemGlobalIdentifier { get; init; }
+    public int FoundItemGlobalId { get; init; }
 
     /// <summary>Gets the prices generated for the Boy's current offers.</summary>
     public int[] FoundItemPrices { get; init; } = [];
@@ -315,24 +315,24 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">GoodGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("GoodGlobalId")]
-    public int GoodGlobalIdentifier { get; init; }
+    public int GoodGlobalId { get; init; }
 
     /// Gets the reward-target sentinel used by mystery-box placement reconciliation.
     [JsonPropertyName("GoodGlobalIdToReward")]
-    public int GoodGlobalIdentifierToReward { get; init; }
+    public int GoodGlobalIdToReward { get; init; }
 
-    /// <summary>Gets the retained GoodGlobalIdentifiers value.</summary>
+    /// <summary>Gets the retained GoodGlobalIds value.</summary>
     [JsonPropertyName("GoodGlobalIds")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? GoodGlobalIdentifiers { get; init; }
+    public int[]? GoodGlobalIds { get; init; }
 
     /// <summary>Gets the retained GrowTimer value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TimerSnapshot? GrowTimer { get; init; }
 
-    /// <summary>Gets the passenger's identifier in the avatar's help sequence.</summary>
+    /// <summary>Gets the passenger's id in the avatar's help sequence.</summary>
     [JsonPropertyName("HID")]
-    public int? HelpIdentifier { get; init; }
+    public int? HelpId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">HireEnded</c> value.
@@ -369,7 +369,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">ItemGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("ItemID")]
-    public int ItemGlobalIdentifier { get; init; }
+    public int ItemGlobalId { get; init; }
 
     /// <summary>Gets the retained collection-area item list.</summary>
     [JsonPropertyName("ItemList")]
@@ -393,7 +393,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">LastEventID</c> value.
     /// </summary>
     [JsonPropertyName("LastEventID")]
-    public int LastEventIdentifier { get; init; }
+    public int LastEventId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">LastInitDayIndex</c> value.
@@ -430,7 +430,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">LinkedGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("GlobalId")]
-    public int LinkedGlobalIdentifier { get; init; }
+    public int LinkedGlobalId { get; init; }
 
     /// <summary>Gets the retained Locked value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -506,17 +506,17 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the legacy passenger completion-bonus row.</summary>
     [JsonPropertyName("BonusID")]
-    public int? PassengerBonusIdentifier { get; init; }
+    public int? PassengerBonusId { get; init; }
 
     /// <summary>Gets the passenger's completion-bonus resource.</summary>
     [JsonPropertyName("BonusID2")]
-    public int? PassengerBonusResourceIdentifier { get; init; }
+    public int? PassengerBonusResourceId { get; init; }
 
-    /// <summary>Gets the high part of the passenger's pickup-origin home identifier.</summary>
+    /// <summary>Gets the high part of the passenger's pickup-origin home id.</summary>
     [JsonPropertyName("PH")]
     public int? PassengerOriginHigh { get; init; }
 
-    /// <summary>Gets the low part of the passenger's pickup-origin home identifier.</summary>
+    /// <summary>Gets the low part of the passenger's pickup-origin home id.</summary>
     [JsonPropertyName("PL")]
     public int? PassengerOriginLow { get; init; }
 
@@ -540,7 +540,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">PaymentObjectGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("PaymentObjectGlobalId")]
-    public int PaymentObjectGlobalIdentifier { get; init; }
+    public int PaymentObjectGlobalId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">PeopleQuestV2</c> value.
@@ -570,7 +570,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">PrizeGlobalID</c> value.
     /// </summary>
     [JsonPropertyName("PrizeGlobalID")]
-    public int PrizeGlobalIdentifier { get; init; }
+    public int PrizeGlobalId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">PrizeType</c> value.

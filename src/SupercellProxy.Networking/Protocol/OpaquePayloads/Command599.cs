@@ -18,16 +18,7 @@ public sealed record Command599 : Command
     /// <summary>
     /// Initializes a new <see cref="Command599"/> instance.
     /// </summary>
-    public Command599(
-        int unknown0,
-        int unknown1,
-        ReadOnlyMemory<byte> payload,
-        CommandInt32Pair? optionalPair,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public Command599(int unknown0, int unknown1, ReadOnlyMemory<byte> payload, CommandInt32Pair? optionalPair)
     {
         Unknown0 = unknown0;
         Unknown1 = unknown1;
@@ -66,7 +57,7 @@ public sealed record Command599 : Command
     public static Command599 Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
+
         int unknown0 = stream.ReadInt32();
         int unknown1 = stream.ReadInt32();
         int payloadLength = stream.ReadInt32();
@@ -80,23 +71,14 @@ public sealed record Command599 : Command
 
         byte[] payload = stream.ReadBytes(payloadLength);
 
-        return new Command599(
-            unknown0,
-            unknown1,
-            payload,
-            optionalPair,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+        return new Command599(unknown0, unknown1, payload, optionalPair);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteInt32(Unknown0);
         stream.WriteInt32(Unknown1);
         stream.WriteInt32(Payload.Length);

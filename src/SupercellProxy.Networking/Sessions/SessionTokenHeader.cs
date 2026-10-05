@@ -9,7 +9,7 @@ public sealed record SessionTokenHeader
     [JsonPropertyName("alg")]
     public required string Alg { get; init; }
 
-    /// <summary>Gets the signing key identifier.</summary>
+    /// <summary>Gets the signing key id.</summary>
     [JsonPropertyName("kid")]
     public string? Kid { get; init; }
 

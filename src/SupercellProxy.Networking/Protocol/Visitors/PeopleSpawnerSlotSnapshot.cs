@@ -11,7 +11,7 @@ public sealed record PeopleSpawnerSlotSnapshot
     /// Gets or sets the <c language="csharp">PersonGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("pid")]
-    public int PersonGlobalIdentifier { get; init; }
+    public int PersonGlobalId { get; init; }
     /// <summary>
     /// Gets or sets the <c language="csharp">SpawnTime</c> value.
     /// </summary>

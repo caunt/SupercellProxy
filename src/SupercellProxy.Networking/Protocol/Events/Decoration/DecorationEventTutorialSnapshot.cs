@@ -11,7 +11,7 @@ public sealed record DecorationEventTutorialSnapshot
     /// Gets the Last Intro Event Id value.
     /// </summary>
     [JsonPropertyName("lastIntroEventId")]
-    public int LastIntroEventIdentifier { get; init; } = -1;
+    public int LastIntroEventId { get; init; } = -1;
 
     /// <summary>
     /// Gets the Last Intro Step value.

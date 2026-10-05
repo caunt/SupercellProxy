@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Visitors;
 
 /// <summary>Accepts a waiting farm visitor's offer for its requested goods.</summary>
-public sealed record FulfillFarmVisitorOrderCommand(int VisitorGlobalIdentifier, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record FulfillFarmVisitorOrderCommand(int VisitorGlobalId) : Command
 {
     /// <inheritdoc/>
     public override int Type => CommandRegistry.FulfillFarmVisitorOrderCommandType;
@@ -14,15 +14,14 @@ public sealed record FulfillFarmVisitorOrderCommand(int VisitorGlobalIdentifier,
     public static FulfillFarmVisitorOrderCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int phase, CommandData? debug0, CommandData? debug1) = DecodeCommand(stream, environment);
 
-        return new FulfillFarmVisitorOrderCommand(stream.ReadVariableInt(), phase, debug0, debug1);
+
+        return new FulfillFarmVisitorOrderCommand(stream.ReadVarInt());
     }
 
     /// <inheritdoc/>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(VisitorGlobalIdentifier);
+        stream.WriteVarInt(VisitorGlobalId);
     }
 }

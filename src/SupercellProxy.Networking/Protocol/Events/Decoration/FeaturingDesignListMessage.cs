@@ -12,25 +12,24 @@ public sealed record FeaturingDesignListMessage : IMessage
     /// <summary>Gets the optional featured-design list.</summary>
     public FeaturingDesignEntry?[]? Entries { get; init; }
 
-    /// <summary>Gets the decoration event identifier.</summary>
-    public int EventIdentifier { get; init; }
+    /// <summary>Gets the decoration event id.</summary>
+    public int EventId { get; init; }
 
-    /// <summary>Gets the decoration event variant identifier.</summary>
-    public int EventVariantIdentifier { get; init; }
+    /// <summary>Gets the decoration event variant id.</summary>
+    public int EventVariantId { get; init; }
 
-    /// <summary>Gets the featuring group identifier.</summary>
-    public int GroupIdentifier { get; init; }
+    /// <summary>Gets the featuring group id.</summary>
+    public int GroupId { get; init; }
 
     /// <summary>Decodes a featured-design list message.</summary>
-    public static FeaturingDesignListMessage Create(MessageContainer container)
+    public static FeaturingDesignListMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
         FeaturingDesignEntry?[]? entries = null;
 
         if (stream.ReadBoolean())
         {
-            int count = stream.ReadVariableInt();
+            int count = stream.ReadVarInt();
 
             if (count is < 0 or > 1024)
                 throw new InvalidDataException(message: "The featured-design list count is invalid.");
@@ -44,10 +43,10 @@ public sealed record FeaturingDesignListMessage : IMessage
         FeaturingDesignListMessage message = new()
         {
             Entries = entries,
-            BatchTimestampMilliseconds = stream.ReadVariableLong(),
-            GroupIdentifier = stream.ReadVariableInt(),
-            EventIdentifier = stream.ReadVariableInt(),
-            EventVariantIdentifier = stream.ReadVariableInt(),
+            BatchTimestampMilliseconds = stream.ReadVarLong(),
+            GroupId = stream.ReadVarInt(),
+            EventId = stream.ReadVarInt(),
+            EventVariantId = stream.ReadVarInt(),
         };
 
         return stream.Position != stream.Length
@@ -56,9 +55,9 @@ public sealed record FeaturingDesignListMessage : IMessage
     }
 
     /// <summary>Encodes a featured-design list message.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteBoolean(Entries is not null);
 
@@ -67,7 +66,7 @@ public sealed record FeaturingDesignListMessage : IMessage
             if (entries.Length > 1024)
                 throw new InvalidDataException(message: "The featured-design list count is invalid.");
 
-            stream.WriteVariableInt(entries.Length);
+            stream.WriteVarInt(entries.Length);
 
             foreach (FeaturingDesignEntry? entry in entries)
             {
@@ -76,11 +75,9 @@ public sealed record FeaturingDesignListMessage : IMessage
             }
         }
 
-        stream.WriteVariableLong(BatchTimestampMilliseconds);
-        stream.WriteVariableInt(GroupIdentifier);
-        stream.WriteVariableInt(EventIdentifier);
-        stream.WriteVariableInt(EventVariantIdentifier);
-
-        return stream;
+        stream.WriteVarLong(BatchTimestampMilliseconds);
+        stream.WriteVarInt(GroupId);
+        stream.WriteVarInt(EventId);
+        stream.WriteVarInt(EventVariantId);
     }
 }

@@ -28,9 +28,9 @@ public sealed record ChronosEventSnapshot
     [JsonPropertyName("endTime")]
     public long EndTime { get; init; }
 
-    /// Gets the retained event identifier.
+    /// Gets the retained event id.
     [JsonPropertyName("id")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// Gets whether the event's main UI has been opened.
     [JsonPropertyName("eventUIOpened")]
@@ -52,9 +52,9 @@ public sealed record ChronosEventSnapshot
     [JsonPropertyName("seasonalCataloguePlayerGifts")]
     public SeasonalCatalogueGiftSnapshot[] SeasonalCatalogueGifts { get; init; } = [];
 
-    /// Gets the event's retained seasonal-currency data identifier.
+    /// Gets the event's retained seasonal-currency data id.
     [JsonPropertyName("seasonalCurrency")]
-    public int SeasonalCurrencyGlobalIdentifier { get; init; }
+    public int SeasonalCurrencyGlobalId { get; init; }
 
     /// <summary>
     /// Gets the Seasonal Gift Purchase Counts value.
@@ -86,7 +86,7 @@ public sealed record ChronosEventSnapshot
     [JsonPropertyName("type")]
     public int Type { get; init; }
 
-    /// Gets the retained event variant identifier.
+    /// Gets the retained event variant id.
     [JsonPropertyName("variantId")]
-    public int VariantIdentifier { get; init; }
+    public int VariantId { get; init; }
 }

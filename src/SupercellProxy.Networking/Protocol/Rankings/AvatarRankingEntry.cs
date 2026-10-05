@@ -31,10 +31,10 @@ public sealed record AvatarRankingEntry(
     int Rank,
     int Score,
     int RankValue,
-    [property: System.Text.Json.Serialization.JsonPropertyName("AvatarId")] LongIdentifier AvatarIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("AvatarId")] LongId AvatarId,
     string? Name,
     int Level,
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeId")] LongIdentifier HomeIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("HomeId")] LongId HomeId
 )
 {
     /// <summary>
@@ -45,13 +45,13 @@ public sealed record AvatarRankingEntry(
         ArgumentNullException.ThrowIfNull(stream);
 
         return new(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadLongIdentifier(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadLongId(),
             stream.ReadOptionalString(),
-            stream.ReadVariableInt(),
-            stream.ReadLongIdentifier()
+            stream.ReadVarInt(),
+            stream.ReadLongId()
         );
     }
 
@@ -61,7 +61,7 @@ public sealed record AvatarRankingEntry(
     public static AvatarRankingEntry[]? DecodeEntries(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         if (count < -1 || count > (stream.Length - stream.Position) / 24)
             throw new InvalidDataException(message: "The player-ranking count is invalid.");
@@ -85,7 +85,7 @@ public sealed record AvatarRankingEntry(
         ArgumentNullException.ThrowIfNull(stream);
 
         if (entries is null)
-            stream.WriteVariableInt(valueToWrite: -1);
+            stream.WriteVarInt(valueToWrite: -1);
         else
             stream.WriteArray(entries, static (output, entry) => entry.Encode(output));
     }
@@ -96,12 +96,12 @@ public sealed record AvatarRankingEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Rank);
-        stream.WriteVariableInt(Score);
-        stream.WriteVariableInt(RankValue);
-        stream.WriteLongIdentifier(AvatarIdentifier);
+        stream.WriteVarInt(Rank);
+        stream.WriteVarInt(Score);
+        stream.WriteVarInt(RankValue);
+        stream.WriteLongId(AvatarId);
         stream.WriteOptionalString(Name);
-        stream.WriteVariableInt(Level);
-        stream.WriteLongIdentifier(HomeIdentifier);
+        stream.WriteVarInt(Level);
+        stream.WriteLongId(HomeId);
     }
 }

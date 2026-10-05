@@ -51,13 +51,13 @@ internal static partial class Application
         if (outputDocument)
         {
             Console.WriteLine(
-                JsonSerializer.Serialize(document.Sections.Select(static section => new { app_id = section.AppStoreIdentifier, app_name = section.Name, }))
+                JsonSerializer.Serialize(document.Sections.Select(static section => new { app_id = section.AppStoreId, app_name = section.Name, }))
             );
         }
         else
         {
             foreach (KeysSection section in document.Sections)
-                Console.WriteLine($"{section.AppStoreIdentifier}\t{section.Name}");
+                Console.WriteLine($"{section.AppStoreId}\t{section.Name}");
         }
 
         return 0;

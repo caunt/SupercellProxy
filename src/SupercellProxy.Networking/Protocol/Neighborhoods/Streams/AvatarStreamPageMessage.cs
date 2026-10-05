@@ -19,14 +19,13 @@ public sealed record AvatarStreamPageMessage : IMessage
     public int TimestampSeconds { get; init; }
 
     /// <summary>Decodes the proven empty-page form of an avatar-stream message.</summary>
-    public static AvatarStreamPageMessage Create(MessageContainer container)
+    public static AvatarStreamPageMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int timestamp = stream.ReadVariableInt();
-        int firstSelector = stream.ReadVariableInt();
-        int secondSelector = stream.ReadVariableInt();
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int timestamp = stream.ReadVarInt();
+        int firstSelector = stream.ReadVarInt();
+        int secondSelector = stream.ReadVarInt();
+        int count = stream.ReadVarInt();
 
         if (count is < -1 or > 1024)
             throw new InvalidDataException(message: "The avatar-stream entry count is invalid.");
@@ -51,23 +50,21 @@ public sealed record AvatarStreamPageMessage : IMessage
     }
 
     /// <summary>Encodes the proven empty-page form of an avatar-stream message.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         if (EntryCount is < 0 or > 1024)
             throw new InvalidDataException(message: "The avatar-stream entry count is invalid.");
 
         if (EntryCount is > 0)
             throw new NotSupportedException(message: "Nonempty avatar-stream entries have an unconfirmed layout.");
 
-        using MessageStream stream = MessageStream.Create();
-
-        stream.WriteVariableInt(TimestampSeconds);
-        stream.WriteVariableInt(FirstSelector);
-        stream.WriteVariableInt(SecondSelector);
-        stream.WriteVariableInt(EntryCount ?? -1);
+        stream.WriteVarInt(TimestampSeconds);
+        stream.WriteVarInt(FirstSelector);
+        stream.WriteVarInt(SecondSelector);
+        stream.WriteVarInt(EntryCount ?? -1);
         stream.WriteBoolean(value: false);
-
-        return stream;
     }
 
     /// <summary>Omits stream contents from diagnostic text.</summary>

@@ -18,13 +18,10 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 /// Defines the Field Global Id contract.
 /// </summary>
 public sealed record PlantFieldCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("CropGlobalId")] int CropGlobalIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("CropGlobalId")] int CropGlobalId,
     bool BuySeeds,
-    [property: System.Text.Json.Serialization.JsonPropertyName("FieldGlobalId")] int FieldGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("FieldGlobalId")] int FieldGlobalId
+) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -37,26 +34,17 @@ public sealed record PlantFieldCommand(
     public static PlantFieldCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new PlantFieldCommand(
-            stream.ReadVariableInt(),
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new PlantFieldCommand(stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(CropGlobalIdentifier);
+        stream.WriteVarInt(CropGlobalId);
         stream.WriteBoolean(BuySeeds);
-        stream.WriteVariableInt(FieldGlobalIdentifier);
+        stream.WriteVarInt(FieldGlobalId);
     }
 }

@@ -12,18 +12,16 @@ public sealed record KeepAliveOkMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">KeepAliveOkMessage</c> from the supplied data.
     /// </summary>
-    public static KeepAliveOkMessage Create(MessageContainer container)
+    public static KeepAliveOkMessage Decode(MessageStream stream)
     {
         return new KeepAliveOkMessage();
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
-
-        return supercellStream;
+        ArgumentNullException.ThrowIfNull(stream);
     }
 }

@@ -34,7 +34,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 /// Defines the Value3 contract.
 /// </summary>
 public sealed record AccountCandidateEntry(
-    [property: System.Text.Json.Serialization.JsonPropertyName("AccountId")] LongIdentifier AccountIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("AccountId")] LongId AccountId,
     string? Text0,
     string? Text1,
     string? Text2,
@@ -53,15 +53,15 @@ public sealed record AccountCandidateEntry(
         ArgumentNullException.ThrowIfNull(stream);
 
         return new(
-            stream.ReadLongIdentifier(),
+            stream.ReadLongId(),
             stream.ReadOptionalString(),
             stream.ReadOptionalString(),
             stream.ReadOptionalString(),
             stream.ReadOptionalString(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
@@ -71,15 +71,15 @@ public sealed record AccountCandidateEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongIdentifier(AccountIdentifier);
+        stream.WriteLongId(AccountId);
         stream.WriteOptionalString(Text0);
         stream.WriteOptionalString(Text1);
         stream.WriteOptionalString(Text2);
         stream.WriteOptionalString(Text3);
-        stream.WriteVariableInt(Value0);
-        stream.WriteVariableInt(Value1);
-        stream.WriteVariableInt(Value2);
-        stream.WriteVariableInt(Value3);
+        stream.WriteVarInt(Value0);
+        stream.WriteVarInt(Value1);
+        stream.WriteVarInt(Value2);
+        stream.WriteVarInt(Value3);
     }
 
     /// <summary>

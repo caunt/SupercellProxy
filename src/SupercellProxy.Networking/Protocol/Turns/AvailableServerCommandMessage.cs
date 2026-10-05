@@ -15,24 +15,24 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
     /// <summary>
     /// Creates a <c language="csharp">AvailableServerCommandMessage</c> from the supplied data.
     /// </summary>
-    public static AvailableServerCommandMessage Create(MessageContainer container)
+    public static AvailableServerCommandMessage Decode(MessageStream stream)
     {
-        return Create(container, dataResolver: null);
+        return Decode(stream, dataResolver: null);
     }
 
     /// <summary>
     /// Creates a <c language="csharp">AvailableServerCommandMessage</c> from the supplied data.
     /// </summary>
-    public static AvailableServerCommandMessage Create(MessageContainer container, ICommandDataResolver? dataResolver)
+    public static AvailableServerCommandMessage Decode(MessageStream stream, ICommandDataResolver? dataResolver)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        byte[] payload = container.Payload.ToArray();
+        ArgumentNullException.ThrowIfNull(stream);
+        byte[] payload = stream.ToArray();
 
-        Command command = CommandRegistry.Decode(container.Payload, CommandEnvironment.Production, dataResolver ?? container.Payload.CommandDataResolver);
+        Command command = CommandRegistry.Decode(stream, CommandEnvironment.Production, dataResolver ?? stream.CommandDataResolver);
 
         AvailableServerCommandMessage message = new(command);
         // Container serialization finalizes any trailing packed boolean before comparison.
-        byte[] roundTrip = MessageContainer.Create(message, container.Version).Payload.ToArray();
+        byte[] roundTrip = MessageContainer.Create(message).Payload.ToArray();
         int difference = 0;
 
         while (difference < payload.Length && difference < roundTrip.Length && payload[difference] == roundTrip[difference])
@@ -49,21 +49,12 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        try
-        {
-            CommandRegistry.Encode(stream, Command, CommandEnvironment.Production);
-
-            return stream;
-        }
-        finally
-        {
-            stream.Dispose();
-        }
+        CommandRegistry.Encode(stream, Command, CommandEnvironment.Production);
     }
 }

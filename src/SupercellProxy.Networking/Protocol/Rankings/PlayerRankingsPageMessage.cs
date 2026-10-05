@@ -31,16 +31,15 @@ public sealed record PlayerRankingsPageMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static PlayerRankingsPageMessage Create(MessageContainer container)
+    public static PlayerRankingsPageMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         PlayerRankingsPageMessage message = new()
         {
-            Value0 = stream.ReadVariableInt(),
-            Value1 = stream.ReadVariableInt(),
-            Value2 = stream.ReadVariableInt(),
+            Value0 = stream.ReadVarInt(),
+            Value1 = stream.ReadVarInt(),
+            Value2 = stream.ReadVarInt(),
             Entries = AvatarRankingEntry.DecodeEntries(stream),
         };
 
@@ -52,16 +51,14 @@ public sealed record PlayerRankingsPageMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Value0);
-        stream.WriteVariableInt(Value1);
-        stream.WriteVariableInt(Value2);
+        stream.WriteVarInt(Value0);
+        stream.WriteVarInt(Value1);
+        stream.WriteVarInt(Value2);
         AvatarRankingEntry.EncodeEntries(stream, Entries);
-
-        return stream;
     }
 
     /// <summary>

@@ -17,14 +17,7 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 /// <summary>
 /// Defines the Alternate contract.
 /// </summary>
-public sealed record RequestNewspaperCommand(
-    bool SpendDiamonds,
-    string CountryCode,
-    bool Alternate,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryCode, bool Alternate) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -37,24 +30,15 @@ public sealed record RequestNewspaperCommand(
     public static RequestNewspaperCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new RequestNewspaperCommand(
-            stream.ReadBoolean(),
-            stream.ReadString(),
-            stream.ReadBoolean(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new RequestNewspaperCommand(stream.ReadBoolean(), stream.ReadString(), stream.ReadBoolean());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(SpendDiamonds);
         stream.WriteString(CountryCode);
         stream.WriteBoolean(Alternate);

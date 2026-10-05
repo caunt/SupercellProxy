@@ -3,7 +3,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Fuel;
 /// <summary>Represents retained Valley fuel-generator state.</summary>
 public sealed record MapGameFuelManagerSnapshot
 {
-    /// <summary>Gets the active Valley sun-point task identifiers.</summary>
+    /// <summary>Gets the active Valley sun-point task ids.</summary>
     public int[] CurrentTasks { get; init; } = [];
 
     /// <summary>Gets the active Valley sun-point task counters.</summary>
@@ -21,7 +21,7 @@ public sealed record MapGameFuelManagerSnapshot
     /// <summary>Gets the retained fuel random seed.</summary>
     public int FuelRandomSeed { get; init; }
 
-    /// <summary>Gets the next Valley sun-point task identifiers.</summary>
+    /// <summary>Gets the next Valley sun-point task ids.</summary>
     public int[] NextTasks { get; init; } = [];
 
     /// <summary>Gets the next day index at which Valley sun-point tasks may refresh.</summary>

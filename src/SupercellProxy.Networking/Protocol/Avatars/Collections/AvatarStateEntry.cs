@@ -18,10 +18,10 @@ public sealed record AvatarStateEntry(long Unknown0, int Unknown1, int Unknown2,
     {
         ArgumentNullException.ThrowIfNull(stream);
         long unknown0 = stream.ReadInt64();
-        int unknown1 = stream.ReadVariableInt();
-        int unknown2 = stream.ReadVariableInt();
+        int unknown1 = stream.ReadVarInt();
+        int unknown2 = stream.ReadVarInt();
 
-        KeyValuePair<int, int>[] values = stream.ReadArray(static valueStream => new KeyValuePair<int, int>(valueStream.ReadInt32(), valueStream.ReadVariableInt()));
+        KeyValuePair<int, int>[] values = stream.ReadArray(static valueStream => new KeyValuePair<int, int>(valueStream.ReadInt32(), valueStream.ReadVarInt()));
 
         return new AvatarStateEntry(unknown0, unknown1, unknown2, values.AsSpan());
     }
@@ -33,8 +33,8 @@ public sealed record AvatarStateEntry(long Unknown0, int Unknown1, int Unknown2,
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteInt64(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
-        stream.WriteArray(Values, static (valueStream, value) => { valueStream.WriteInt32(value.Key); valueStream.WriteVariableInt(value.Value); });
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
+        stream.WriteArray(Values, static (valueStream, value) => { valueStream.WriteInt32(value.Key); valueStream.WriteVarInt(value.Value); });
     }
 }

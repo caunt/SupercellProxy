@@ -10,14 +10,14 @@ internal static class StructuredCommandRegistrations
     internal static void AddStructuredCommands(Dictionary<int, CommandRegistryEntry> entries)
     {
         CommandFieldSchema int32Schema = CommandFieldSchema.Primitive(CommandFieldType.Int32);
-        CommandFieldSchema variableIntSchema = CommandFieldSchema.Primitive(CommandFieldType.VariableInt);
+        CommandFieldSchema varIntSchema = CommandFieldSchema.Primitive(CommandFieldType.VarInt);
         CommandFieldSchema booleanSchema = CommandFieldSchema.Primitive(CommandFieldType.Boolean);
         CommandFieldSchema stringSchema = CommandFieldSchema.Primitive(CommandFieldType.String);
-        CommandFieldSchema logicLongSchema = CommandFieldSchema.Primitive(CommandFieldType.LongIdentifier);
+        CommandFieldSchema logicLongSchema = CommandFieldSchema.Primitive(CommandFieldType.LongId);
 
         CommandFieldSchema dataReferenceSchema = CommandFieldSchema.Primitive(CommandFieldType.DataReference);
 
-        CommandFieldSchema variableIntArraySchema = CommandFieldSchema.Primitive(CommandFieldType.VariableIntArray);
+        CommandFieldSchema varIntArraySchema = CommandFieldSchema.Primitive(CommandFieldType.VarIntArray);
 
         CommandFieldSchema byteArraySchema = CommandFieldSchema.Primitive(CommandFieldType.ByteArray);
 
@@ -30,10 +30,10 @@ internal static class StructuredCommandRegistrations
             dataReferenceSchema,
             booleanSchema,
             booleanSchema,
-            CommandFieldSchema.Array(nullable: false, dataReferenceSchema, variableIntSchema)
+            CommandFieldSchema.Array(nullable: false, dataReferenceSchema, varIntSchema)
         );
 
-        CommandFieldSchema dataReferenceVariableIntArraySchema = CommandFieldSchema.Array(nullable: false, dataReferenceSchema, variableIntSchema);
+        CommandFieldSchema dataReferenceVarIntArraySchema = CommandFieldSchema.Array(nullable: false, dataReferenceSchema, varIntSchema);
 
         AddStructuredCommands148And();
         AddStructuredCommand();
@@ -46,29 +46,29 @@ internal static class StructuredCommandRegistrations
         {
             CommandFieldSchema type170NestedSchema = CommandFieldSchema.Optional(
                 CommandFieldSchema.Optional(stringSchema),
-                variableIntSchema,
-                variableIntSchema,
-                variableIntSchema,
-                variableIntSchema,
-                variableIntArraySchema,
-                variableIntSchema,
-                variableIntSchema,
-                variableIntSchema,
-                variableIntSchema,
+                varIntSchema,
+                varIntSchema,
+                varIntSchema,
+                varIntSchema,
+                varIntArraySchema,
+                varIntSchema,
+                varIntSchema,
+                varIntSchema,
+                varIntSchema,
                 booleanSchema,
                 booleanSchema,
                 booleanSchema,
                 booleanSchema,
                 booleanSchema,
-                variableIntSchema,
-                variableIntSchema,
+                varIntSchema,
+                varIntSchema,
                 CommandFieldSchema.Primitive(CommandFieldType.StringArray),
                 booleanSchema,
-                variableIntSchema,
-                variableIntSchema,
-                variableIntSchema,
+                varIntSchema,
+                varIntSchema,
+                varIntSchema,
                 booleanSchema,
-                variableIntSchema
+                varIntSchema
             );
 
             AddStructuredFieldCommands(
@@ -77,24 +77,24 @@ internal static class StructuredCommandRegistrations
                 [
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntArraySchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntArraySchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
                     booleanSchema,
                     booleanSchema,
                     booleanSchema,
                     booleanSchema,
                     booleanSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
                     type170NestedSchema,
-                    variableIntArraySchema,
+                    varIntArraySchema,
                 ],
                 MessageDirection.Clientbound,
                 baseFirst: false
@@ -106,15 +106,8 @@ internal static class StructuredCommandRegistrations
                 entries,
                 [176],
                 [
-                    CommandFieldSchema.Array(
-                        nullable: false,
-                        stringSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        CommandFieldSchema.Optional(stringSchema)
-                    ),
-                    variableIntSchema,
+                    CommandFieldSchema.Array(nullable: false, stringSchema, varIntSchema, varIntSchema, varIntSchema, CommandFieldSchema.Optional(stringSchema)),
+                    varIntSchema,
                 ],
                 MessageDirection.Serverbound,
                 baseFirst: false
@@ -126,10 +119,10 @@ internal static class StructuredCommandRegistrations
                 entries,
                 [ServerCommand148Type],
                 [
-                    variableIntSchema,
+                    varIntSchema,
                     CommandFieldSchema.Optional(logicLongSchema),
-                    variableIntArraySchema,
-                    variableIntArraySchema,
+                    varIntArraySchema,
+                    varIntArraySchema,
                     type148ElementSchema,
                     dataReferenceSchema,
                     int32Schema,
@@ -141,22 +134,22 @@ internal static class StructuredCommandRegistrations
                 entries,
                 [168],
                 [
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
                     CommandFieldSchema.Optional(stringSchema),
                     CommandFieldSchema.Optional(
                         CommandFieldSchema.Array(
                             nullable: true,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
                             booleanSchema
                         )
                     ),
@@ -175,7 +168,7 @@ internal static class StructuredCommandRegistrations
                     stringSchema,
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
+                    varIntSchema,
                     types197To200NestedSchema,
                 ],
                 MessageDirection.Clientbound,
@@ -188,9 +181,9 @@ internal static class StructuredCommandRegistrations
                     stringSchema,
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
+                    varIntSchema,
                     types197To200NestedSchema,
-                    variableIntSchema,
+                    varIntSchema,
                 ],
                 MessageDirection.Clientbound,
                 baseFirst: false
@@ -201,7 +194,7 @@ internal static class StructuredCommandRegistrations
                 [
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
+                    varIntSchema,
                     types197To200NestedSchema,
                 ],
                 MessageDirection.Clientbound,
@@ -212,24 +205,24 @@ internal static class StructuredCommandRegistrations
             {
                 return CommandFieldSchema.Optional(
                     stringSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
                     booleanSchema,
-                    CommandFieldSchema.Primitive(CommandFieldType.VariableLong),
+                    CommandFieldSchema.Primitive(CommandFieldType.VarLong),
                     CommandFieldSchema.Array(
                         nullable: true,
                         stringSchema,
-                        CommandFieldSchema.Primitive(CommandFieldType.VariableLong),
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema
+                        CommandFieldSchema.Primitive(CommandFieldType.VarLong),
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema
                     ),
                     CommandFieldSchema.Optional(stringSchema)
                 );
@@ -243,25 +236,25 @@ internal static class StructuredCommandRegistrations
                 [
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    dataReferenceVariableIntArraySchema,
-                    dataReferenceVariableIntArraySchema,
+                    varIntSchema,
+                    varIntSchema,
+                    dataReferenceVarIntArraySchema,
+                    dataReferenceVarIntArraySchema,
                 ],
                 MessageDirection.Clientbound,
                 baseFirst: false
             );
-            AddStructuredCommand262(entries, logicLongSchema, variableIntSchema, dataReferenceSchema);
+            AddStructuredCommand262(entries, logicLongSchema, varIntSchema, dataReferenceSchema);
             AddStructuredFieldCommands(
                 entries,
                 [261],
                 [
                     stringSchema,
                     stringSchema,
-                    variableIntSchema,
-                    dataReferenceVariableIntArraySchema,
-                    dataReferenceVariableIntArraySchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    dataReferenceVarIntArraySchema,
+                    dataReferenceVarIntArraySchema,
+                    varIntSchema,
                 ],
                 MessageDirection.Clientbound,
                 baseFirst: false
@@ -272,8 +265,8 @@ internal static class StructuredCommandRegistrations
                 [
                     logicLongSchema,
                     logicLongSchema,
-                    variableIntSchema,
-                    dataReferenceVariableIntArraySchema,
+                    varIntSchema,
+                    dataReferenceVarIntArraySchema,
                 ],
                 MessageDirection.Clientbound,
                 baseFirst: false
@@ -290,16 +283,16 @@ internal static class StructuredCommandRegistrations
                         dataReferenceSchema,
                         CommandFieldSchema.Array(
                             nullable: false,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
-                            variableIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
+                            varIntSchema,
                             dataReferenceSchema,
                             type148ElementSchema,
-                            dataReferenceVariableIntArraySchema,
-                            dataReferenceVariableIntArraySchema,
+                            dataReferenceVarIntArraySchema,
+                            dataReferenceVarIntArraySchema,
                             CommandFieldSchema.Optional(stringSchema)
                         ),
                     ],
@@ -318,27 +311,27 @@ internal static class StructuredCommandRegistrations
                     CommandFieldSchema.Array(
                         nullable: false,
                         CommandFieldSchema.Primitive(CommandFieldType.DataReferenceArray),
-                        variableIntArraySchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        variableIntSchema,
+                        varIntArraySchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
+                        varIntSchema,
                         booleanSchema,
-                        variableIntSchema,
-                        variableIntSchema,
+                        varIntSchema,
+                        varIntSchema,
                         booleanSchema,
-                        variableIntSchema,
+                        varIntSchema,
                         dataReferenceSchema,
-                        variableIntSchema,
+                        varIntSchema,
                         dataReferenceSchema,
-                        variableIntSchema,
-                        variableIntSchema,
+                        varIntSchema,
+                        varIntSchema,
                         optionalInt32PairSchema,
-                        variableIntSchema,
-                        variableIntSchema,
+                        varIntSchema,
+                        varIntSchema,
                         booleanSchema,
                         booleanSchema,
-                        CommandFieldSchema.Optional(CommandFieldSchema.Optional(dataReferenceSchema, variableIntSchema), booleanSchema),
+                        CommandFieldSchema.Optional(CommandFieldSchema.Optional(dataReferenceSchema, varIntSchema), booleanSchema),
                         booleanSchema
                     ),
                 ],
@@ -348,28 +341,28 @@ internal static class StructuredCommandRegistrations
         }
         void AddStructuredCommands296To()
         {
-            CommandFieldSchema dataReferenceVariableIntPairArraySchema = CommandFieldSchema.Primitive(CommandFieldType.DataReferenceVariableIntPairArray);
+            CommandFieldSchema dataReferenceVarIntPairArraySchema = CommandFieldSchema.Primitive(CommandFieldType.DataReferenceVarIntPairArray);
 
             AddStructuredFieldCommands(
                 entries,
                 [296],
                 [
                     logicLongSchema,
-                    variableIntSchema,
+                    varIntSchema,
                     CommandFieldSchema.Optional(
                         dataReferenceSchema,
-                        variableIntSchema,
-                        variableIntSchema,
-                        dataReferenceVariableIntPairArraySchema,
-                        dataReferenceVariableIntPairArraySchema,
+                        varIntSchema,
+                        varIntSchema,
+                        dataReferenceVarIntPairArraySchema,
+                        dataReferenceVarIntPairArraySchema,
                         stringSchema
                     ),
-                    CommandFieldSchema.Optional(CommandFieldSchema.Optional(dataReferenceSchema, variableIntSchema), booleanSchema),
+                    CommandFieldSchema.Optional(CommandFieldSchema.Optional(dataReferenceSchema, varIntSchema), booleanSchema),
                 ],
                 MessageDirection.Serverbound
             );
 
-            CommandFieldSchema types305And306Schema = CommandFieldSchema.Optional(dataReferenceVariableIntPairArraySchema, variableIntSchema);
+            CommandFieldSchema types305And306Schema = CommandFieldSchema.Optional(dataReferenceVarIntPairArraySchema, varIntSchema);
 
             AddStructuredFieldCommands(entries, [305], [types305And306Schema], MessageDirection.Clientbound, baseFirst: false);
             AddStructuredFieldCommands(entries, [306], [types305And306Schema], MessageDirection.Serverbound, baseFirst: false);
@@ -381,14 +374,14 @@ internal static class StructuredCommandRegistrations
                 CommandFieldSchema nestedSchema = CommandFieldSchema.Optional(
                     CommandFieldSchema.Primitive(CommandFieldType.String),
                     optionalByteArraySchema,
-                    variableIntSchema,
-                    variableIntSchema,
-                    variableIntSchema,
+                    varIntSchema,
+                    varIntSchema,
+                    varIntSchema,
                     optionalInt32PairSchema,
-                    variableIntSchema
+                    varIntSchema
                 );
 
-                return CommandFieldSchema.Optional(variableIntSchema, nestedSchema, nestedSchema, variableIntSchema);
+                return CommandFieldSchema.Optional(varIntSchema, nestedSchema, nestedSchema, varIntSchema);
             }
         }
     }
@@ -396,7 +389,7 @@ internal static class StructuredCommandRegistrations
     private static void AddStructuredCommand262(
         Dictionary<int, CommandRegistryEntry> entries,
         CommandFieldSchema logicLongSchema,
-        CommandFieldSchema variableIntSchema,
+        CommandFieldSchema varIntSchema,
         CommandFieldSchema dataReferenceSchema
     )
     {
@@ -406,23 +399,23 @@ internal static class StructuredCommandRegistrations
             [
                 logicLongSchema,
                 logicLongSchema,
-                variableIntSchema,
-                variableIntSchema,
+                varIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
-                variableIntSchema,
+                varIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
                 dataReferenceSchema,
-                variableIntSchema,
+                varIntSchema,
             ],
             MessageDirection.Clientbound,
             baseFirst: false

@@ -37,10 +37,9 @@ public sealed record OutOfSyncMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">OutOfSyncMessage</c> from the supplied data.
     /// </summary>
-    public static OutOfSyncMessage Create(MessageContainer container)
+    public static OutOfSyncMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         OutOfSyncMessage message = new()
         {
@@ -62,18 +61,16 @@ public sealed record OutOfSyncMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteBoolean(HasDiagnostics);
         stream.WriteOptionalString(ServerChecksum);
         stream.WriteOptionalString(ClientChecksum);
         stream.WriteOptionalString(ServerState);
         stream.WriteOptionalString(ClientState);
-
-        return stream;
     }
 }

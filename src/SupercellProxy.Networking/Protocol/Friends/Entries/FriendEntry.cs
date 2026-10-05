@@ -6,10 +6,10 @@ namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
 /// Describes one farm entry carried by friend, follower, and following messages.
 public sealed record FriendEntry(
-    LongIdentifier HomeIdentifier,
+    LongId HomeId,
     string? Name,
-    string? FacebookIdentifier,
-    string? GameCenterIdentifier,
+    string? FacebookId,
+    string? GameCenterId,
     string? ProfilePictureAddress,
     int ExperienceLevel,
     int SortValue,
@@ -26,15 +26,15 @@ public sealed record FriendEntry(
         ArgumentNullException.ThrowIfNull(stream);
 
         return new FriendEntry(
-            stream.ReadLongIdentifier(),
+            stream.ReadLongId(),
             ReadText(stream),
             ReadText(stream),
             ReadText(stream),
             ReadText(stream),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
@@ -42,15 +42,15 @@ public sealed record FriendEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongIdentifier(HomeIdentifier);
+        stream.WriteLongId(HomeId);
         WriteText(stream, Name);
-        WriteText(stream, FacebookIdentifier);
-        WriteText(stream, GameCenterIdentifier);
+        WriteText(stream, FacebookId);
+        WriteText(stream, GameCenterId);
         WriteText(stream, ProfilePictureAddress);
-        stream.WriteVariableInt(ExperienceLevel);
-        stream.WriteVariableInt(SortValue);
-        stream.WriteVariableInt(RelationshipStatus);
-        stream.WriteVariableInt(BlockTimestamp);
+        stream.WriteVarInt(ExperienceLevel);
+        stream.WriteVarInt(SortValue);
+        stream.WriteVarInt(RelationshipStatus);
+        stream.WriteVarInt(BlockTimestamp);
     }
 
     /// Omits private farm and social-provider data from diagnostics.

@@ -7,11 +7,11 @@ public sealed record MiniPassInstanceSnapshot
 {
     /// <summary>Gets the Mini Pass data row.</summary>
     [JsonPropertyName("DataId")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
-    /// <summary>Gets the Mini Pass event identifier.</summary>
+    /// <summary>Gets the Mini Pass event id.</summary>
     [JsonPropertyName("EventId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>Gets accumulated pass points.</summary>
     public int Points { get; init; }

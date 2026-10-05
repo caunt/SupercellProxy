@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>Preserves a queued production record and its product identity.</summary>
 public sealed record PendingProductionSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the product's native data identifier.</summary>
+    /// <summary>Gets the product's native data id.</summary>
     [JsonPropertyName("ID")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
     /// <summary>Gets the diamonds spent to complete this production instantly.</summary>
     [JsonPropertyName("diamondsSpentToInstantComplete")]

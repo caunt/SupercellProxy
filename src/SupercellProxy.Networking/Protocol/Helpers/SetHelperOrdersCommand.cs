@@ -9,13 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Helpers;
 public sealed record SetHelperOrdersCommand : Command
 {
     /// <inheritdoc/>
-    public SetHelperOrdersCommand(
-        byte helperIndex,
-        ReadOnlyMemory<int> amounts,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    ) : base(executionPhaseCounter, debugData0, debugData1)
+    public SetHelperOrdersCommand(byte helperIndex, ReadOnlyMemory<int> amounts)
     {
         HelperIndex = helperIndex;
         Amounts = amounts.ToArray();
@@ -33,17 +27,15 @@ public sealed record SetHelperOrdersCommand : Command
     {
         ArgumentNullException.ThrowIfNull(stream);
         byte helperIndex = stream.ReadByte();
-        ReadOnlyMemory<int> amounts = CommandByteCountedVariableIntArrayField.Decode(stream).Values;
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        ReadOnlyMemory<int> amounts = CommandByteCountedVarIntArrayField.Decode(stream).Values;
 
-        return new SetHelperOrdersCommand(helperIndex, amounts, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new SetHelperOrdersCommand(helperIndex, amounts);
     }
 
     /// <inheritdoc/>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteByte(HelperIndex);
-        new CommandByteCountedVariableIntArrayField(Amounts).Encode(stream);
-        EncodeCommand(stream, environment);
+        new CommandByteCountedVarIntArrayField(Amounts).Encode(stream);
     }
 }

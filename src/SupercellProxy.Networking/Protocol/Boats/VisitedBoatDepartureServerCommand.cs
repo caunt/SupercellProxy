@@ -11,13 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <summary>
 /// Defines the Home Owner Id contract.
 /// </summary>
-public sealed record VisitedBoatDepartureServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record VisitedBoatDepartureServerCommand([property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId) : ServerCommand
 {
     /// <summary>
     /// Gets the Type value.
@@ -30,18 +24,17 @@ public sealed record VisitedBoatDepartureServerCommand(
     public static VisitedBoatDepartureServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier owner = stream.ReadLongIdentifier();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
+        LongId owner = stream.ReadLongId();
 
-        return new VisitedBoatDepartureServerCommand(owner, serverCommandIdentifier, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+
+        return new VisitedBoatDepartureServerCommand(owner);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-        EncodeServerCommand(stream, environment);
+        stream.WriteLongId(HomeOwnerId);
     }
 }

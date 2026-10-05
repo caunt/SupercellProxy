@@ -7,7 +7,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// <para>Native optional logic-long and three-value map-game configuration entry.</para>
 /// </summary>
 public sealed record MapGameConfigurationEntry(
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")] LongIdentifier? UnknownLongIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")] LongId? UnknownLongId,
     int Unknown0,
     int Unknown1,
     int Unknown2
@@ -20,12 +20,7 @@ public sealed record MapGameConfigurationEntry(
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new MapGameConfigurationEntry(
-            MapGameFieldCodec.ReadOptionalLongIdentifier(stream),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
-        );
+        return new MapGameConfigurationEntry(MapGameFieldCodec.ReadOptionalLongId(stream), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -34,9 +29,9 @@ public sealed record MapGameConfigurationEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
+        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
     }
 }

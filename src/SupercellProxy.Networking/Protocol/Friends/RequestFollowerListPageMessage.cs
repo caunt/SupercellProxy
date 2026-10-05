@@ -7,21 +7,19 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record RequestFollowerListPageMessage : IMessage
 {
     /// Requires the native empty request payload.
-    public static RequestFollowerListPageMessage Create(MessageContainer container)
+    public static RequestFollowerListPageMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The follower-page request has trailing data.")
             : new RequestFollowerListPageMessage();
     }
 
     /// Encodes an empty payload as a payload.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
-
-        return stream;
+        ArgumentNullException.ThrowIfNull(stream);
     }
 
     /// Identifies the request without exposing client data.

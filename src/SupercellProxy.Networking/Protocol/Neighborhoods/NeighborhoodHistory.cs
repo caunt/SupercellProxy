@@ -21,7 +21,7 @@ public sealed record NeighborhoodHistory
     public static NeighborhoodHistory Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         if (count is < -1 or > MaximumEntryCount)
             throw new InvalidDataException(message: "Invalid neighborhood history count.");
@@ -43,7 +43,7 @@ public sealed record NeighborhoodHistory
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Entries?.Length ?? -1);
+        stream.WriteVarInt(Entries?.Length ?? -1);
 
         if (Entries is not null)
         {

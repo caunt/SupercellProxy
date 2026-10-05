@@ -11,9 +11,9 @@ public sealed record CommandDataReferenceArrayField : CommandField
     /// <summary>
     /// Initializes a new <see cref="CommandDataReferenceArrayField"/> instance.
     /// </summary>
-    public CommandDataReferenceArrayField(ReadOnlyMemory<int> globalIdentifiers)
+    public CommandDataReferenceArrayField(ReadOnlyMemory<int> globalIds)
     {
-        GlobalIdentifiers = globalIdentifiers.ToArray();
+        GlobalIds = globalIds.ToArray();
     }
 
     /// <summary>
@@ -25,7 +25,7 @@ public sealed record CommandDataReferenceArrayField : CommandField
     /// Gets the <c language="csharp">GlobalIds</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GlobalIds")]
-    public ReadOnlyMemory<int> GlobalIdentifiers { get; }
+    public ReadOnlyMemory<int> GlobalIds { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -34,7 +34,7 @@ public sealed record CommandDataReferenceArrayField : CommandField
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream));
+        return new(CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream));
     }
 
     /// <summary>
@@ -42,9 +42,9 @@ public sealed record CommandDataReferenceArrayField : CommandField
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(GlobalIdentifiers.Length);
+        stream.WriteVarInt(GlobalIds.Length);
 
-        foreach (int globalIdentifier in GlobalIdentifiers.Span)
-            stream.WriteVariableInt(globalIdentifier);
+        foreach (int globalId in GlobalIds.Span)
+            stream.WriteVarInt(globalId);
     }
 }

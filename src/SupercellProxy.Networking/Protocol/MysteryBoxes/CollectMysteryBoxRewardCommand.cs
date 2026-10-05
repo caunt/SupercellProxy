@@ -11,12 +11,7 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 /// <summary>
 /// Defines the Box Global Id contract.
 /// </summary>
-public sealed record CollectMysteryBoxRewardCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectMysteryBoxRewardCommand([property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalId) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -29,18 +24,16 @@ public sealed record CollectMysteryBoxRewardCommand(
     public static CollectMysteryBoxRewardCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int box = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int box = stream.ReadVarInt();
 
-        return new CollectMysteryBoxRewardCommand(box, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectMysteryBoxRewardCommand(box);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(BoxGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(BoxGlobalId);
     }
 }

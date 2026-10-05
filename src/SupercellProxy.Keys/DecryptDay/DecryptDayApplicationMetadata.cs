@@ -5,10 +5,10 @@ namespace SupercellProxy.Keys.DecryptDay;
 /// <summary>Represents the typed DecryptDayApplicationMetadata response contract.</summary>
 internal sealed record DecryptDayApplicationMetadata
 {
-    /// <summary>Gets the BundleIdentifier value.</summary>
+    /// <summary>Gets the BundleId value.</summary>
     [JsonPropertyName("bundle_id")]
-    public string? BundleIdentifier { get; init; }
-    /// <summary>Gets the Identifier value.</summary>
+    public string? BundleId { get; init; }
+    /// <summary>Gets the Id value.</summary>
     [JsonPropertyName("id")]
-    public string? Identifier { get; init; }
+    public string? Id { get; init; }
 }

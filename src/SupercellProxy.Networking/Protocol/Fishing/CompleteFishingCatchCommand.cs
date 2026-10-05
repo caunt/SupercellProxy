@@ -14,21 +14,10 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 /// Whether the hooked catch is kept. The native execute requires both a resolved fish and a resolved
 /// catch reference while it is set, and takes the releasing branch while it is cleared.
 /// </param>
-/// <param name="FishingSpotGlobalIdentifier">The spot's table-96 game-object global identifier.</param>
-/// <param name="FishGlobalIdentifier">The caught fish's table-97 game-object global identifier.</param>
-/// <param name="BaitGlobalIdentifier">The placed bait's data row in the baits table.</param>
-/// <param name="ExecutionPhaseCounter">The execution phase counter.</param>
-/// <param name="DebugData0">The first optional debug command data.</param>
-/// <param name="DebugData1">The second optional debug command data.</param>
-public sealed record CompleteFishingCatchCommand(
-    bool Caught,
-    int FishingSpotGlobalIdentifier,
-    int FishGlobalIdentifier,
-    int BaitGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+/// <param name="FishingSpotGlobalId">The spot's table-96 game-object global id.</param>
+/// <param name="FishGlobalId">The caught fish's table-97 game-object global id.</param>
+/// <param name="BaitGlobalId">The placed bait's data row in the baits table.</param>
+public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlobalId, int FishGlobalId, int BaitGlobalId) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.CompleteFishingCatchCommandType;
@@ -38,29 +27,19 @@ public sealed record CompleteFishingCatchCommand(
     {
         ArgumentNullException.ThrowIfNull(stream);
         bool caught = stream.ReadBoolean();
-        int fishingSpotGlobalIdentifier = stream.ReadVariableInt();
-        int fishGlobalIdentifier = stream.ReadVariableInt();
-        int baitGlobalIdentifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int fishingSpotGlobalId = stream.ReadVarInt();
+        int fishGlobalId = stream.ReadVarInt();
+        int baitGlobalId = stream.ReadVarInt();
 
-        return new CompleteFishingCatchCommand(
-            caught,
-            fishingSpotGlobalIdentifier,
-            fishGlobalIdentifier,
-            baitGlobalIdentifier,
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteBoolean(Caught);
-        stream.WriteVariableInt(FishingSpotGlobalIdentifier);
-        stream.WriteVariableInt(FishGlobalIdentifier);
-        stream.WriteVariableInt(BaitGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(FishingSpotGlobalId);
+        stream.WriteVarInt(FishGlobalId);
+        stream.WriteVarInt(BaitGlobalId);
     }
 }

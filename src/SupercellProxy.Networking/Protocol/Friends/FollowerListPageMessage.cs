@@ -7,13 +7,12 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 /// Carries an ordered follower page and whether the server has more pages available.
 public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? Entries) : IMessage
 {
-    /// Decodes the pagination flag and nullable, variable-integer-counted entry collection.
-    public static FollowerListPageMessage Create(MessageContainer container)
+    /// Decodes the pagination flag and nullable, var-integer-counted entry collection.
+    public static FollowerListPageMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
         bool hasMorePages = stream.ReadBoolean();
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         if (count < -1 || count > (stream.Length - stream.Position) / FriendEntry.MinimumEncodedSize)
             throw new InvalidDataException(message: "The follower entry count is invalid.");
@@ -32,12 +31,12 @@ public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? E
     }
 
     /// Encodes this page as a payload.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteBoolean(HasMorePages);
-        stream.WriteVariableInt(Entries?.Length ?? -1);
+        stream.WriteVarInt(Entries?.Length ?? -1);
 
         if (Entries is not null)
         {
@@ -47,8 +46,6 @@ public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? E
                 entry.Encode(stream);
             }
         }
-
-        return stream;
     }
 
     /// Omits the private follower records from diagnostics.

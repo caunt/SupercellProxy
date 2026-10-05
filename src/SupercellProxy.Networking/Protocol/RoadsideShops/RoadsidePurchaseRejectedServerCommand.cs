@@ -5,19 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>A server refusal containing the attempted listing and the client's material-purchase limit.</summary>
-public sealed record RoadsidePurchaseRejectedServerCommand(
-    LongIdentifier BuyerIdentifier,
-    LongIdentifier ShopOwnerIdentifier,
-    int ItemGlobalIdentifier,
-    int SlotIndex,
-    int Quantity,
-    int Price,
-    int DailyCollectionToolLimit,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record RoadsidePurchaseRejectedServerCommand(LongId BuyerId, LongId ShopOwnerId, int ItemGlobalId, int SlotIndex, int Quantity, int Price, int DailyCollectionToolLimit) : ServerCommand
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.RoadsidePurchaseRejectedServerCommandType;
@@ -26,28 +14,27 @@ public sealed record RoadsidePurchaseRejectedServerCommand(
     public static RoadsidePurchaseRejectedServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier buyer = stream.ReadLongIdentifier();
-        LongIdentifier owner = stream.ReadLongIdentifier();
+        LongId buyer = stream.ReadLongId();
+        LongId owner = stream.ReadLongId();
         int item = stream.ReadInt32();
         int slot = stream.ReadInt32();
         int quantity = stream.ReadInt32();
         int price = stream.ReadInt32();
-        int limit = stream.ReadVariableInt();
-        (int identifier, (int phase, CommandData? debug0, CommandData? debug1) fields) = DecodeServerCommand(stream, environment);
+        int limit = stream.ReadVarInt();
 
-        return new(buyer, owner, item, slot, quantity, price, limit, identifier, fields.phase, fields.debug0, fields.debug1);
+
+        return new(buyer, owner, item, slot, quantity, price, limit);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(BuyerIdentifier);
-        stream.WriteLongIdentifier(ShopOwnerIdentifier);
-        stream.WriteInt32(ItemGlobalIdentifier);
+        stream.WriteLongId(BuyerId);
+        stream.WriteLongId(ShopOwnerId);
+        stream.WriteInt32(ItemGlobalId);
         stream.WriteInt32(SlotIndex);
         stream.WriteInt32(Quantity);
         stream.WriteInt32(Price);
-        stream.WriteVariableInt(DailyCollectionToolLimit);
-        EncodeServerCommand(stream, environment);
+        stream.WriteVarInt(DailyCollectionToolLimit);
     }
 }

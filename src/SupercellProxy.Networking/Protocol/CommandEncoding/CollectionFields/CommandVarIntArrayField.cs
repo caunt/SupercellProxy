@@ -5,14 +5,14 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
 
 /// <summary>
-/// Represents <c language="csharp">CommandVarLongArrayField</c>.
+/// Represents <c language="csharp">CommandVarIntArrayField</c>.
 /// </summary>
-public sealed record CommandVariableLongArrayField : CommandField
+public sealed record CommandVarIntArrayField : CommandField
 {
     /// <summary>
-    /// Initializes a new <see cref="CommandVariableLongArrayField"/> instance.
+    /// Initializes a new <see cref="CommandVarIntArrayField"/> instance.
     /// </summary>
-    public CommandVariableLongArrayField(ReadOnlyMemory<long> values)
+    public CommandVarIntArrayField(ReadOnlyMemory<int> values)
     {
         Values = values.ToArray();
     }
@@ -20,37 +20,37 @@ public sealed record CommandVariableLongArrayField : CommandField
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override CommandFieldType FieldType => CommandFieldType.VariableLongArray;
+    public override CommandFieldType FieldType => CommandFieldType.VarIntArray;
 
     /// <summary>
     /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
-    public ReadOnlyMemory<long> Values { get; }
+    public ReadOnlyMemory<int> Values { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static CommandVariableLongArrayField Decode(MessageStream stream)
+    public static CommandVarIntArrayField Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(DecodeValues(stream.ReadVariableInt(), stream));
+        return new(DecodeValues(stream.ReadVarInt(), stream));
     }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static long[] DecodeValues(int count, MessageStream stream)
+    public static int[] DecodeValues(int count, MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
         if (count < 0 || count > stream.Length - stream.Position)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid command array count: {count}."));
 
-        long[] values = new long[count];
+        int[] values = new int[count];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadVariableLong();
+            values[index] = stream.ReadVarInt();
 
         return values;
     }
@@ -60,9 +60,9 @@ public sealed record CommandVariableLongArrayField : CommandField
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Values.Length);
+        stream.WriteVarInt(Values.Length);
 
-        foreach (long value in Values.Span)
-            stream.WriteVariableLong(value);
+        foreach (int value in Values.Span)
+            stream.WriteVarInt(value);
     }
 }

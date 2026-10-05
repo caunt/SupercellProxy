@@ -31,7 +31,7 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
-    public LongIdentifier AccountIdentifier { get; init; }
+    public LongId AccountId { get; init; }
 
     /// Gets the country code used by age restrictions.
     public string? AgeCountryCode { get; init; }
@@ -68,7 +68,7 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">HomeId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
-    public LongIdentifier HomeIdentifier { get; init; }
+    public LongId HomeId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
@@ -109,7 +109,7 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">MapGameId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("MapGameId")]
-    public LongIdentifier? MapGameIdentifier { get; init; }
+    public LongId? MapGameId { get; init; }
 
     /// <summary>
     /// Gets the Map Game Participants value.
@@ -175,7 +175,7 @@ public sealed record ClientAvatar
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownEntries1</c> value.
     /// </summary>
-    public AvatarIdentifierFlagEntry[] UnknownEntries1 { get; init; } = [];
+    public AvatarIdFlagEntry[] UnknownEntries1 { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">PickedPassengers</c> value.
@@ -185,7 +185,7 @@ public sealed record ClientAvatar
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownEntries2</c> value.
     /// </summary>
-    public AvatarIdentifierPairEntry[] UnknownEntries2 { get; init; } = [];
+    public AvatarIdPairEntry[] UnknownEntries2 { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownLeagueValue</c> value.
@@ -195,7 +195,7 @@ public sealed record ClientAvatar
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownEntries3</c> value.
     /// </summary>
-    public AvatarIdentifierPairEntry[] UnknownEntries3 { get; init; } = [];
+    public AvatarIdPairEntry[] UnknownEntries3 { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownValues1</c> value.
@@ -216,19 +216,19 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">UnknownOptionalId0</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId0")]
-    public LongIdentifier? UnknownOptionalIdentifier0 { get; init; }
+    public LongId? UnknownOptionalId0 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownOptionalId1</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId1")]
-    public LongIdentifier? UnknownOptionalIdentifier1 { get; init; }
+    public LongId? UnknownOptionalId1 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownOptionalId3</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId3")]
-    public LongIdentifier? UnknownOptionalIdentifier3 { get; init; }
+    public LongId? UnknownOptionalId3 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownString1</c> value.
@@ -256,16 +256,19 @@ public sealed record ClientAvatar
     public static ClientAvatar Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
-        int avatarVersion = stream.ReadVariableInt();
-        int secondsWithoutSpending = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
+        int unknown1 = stream.ReadVarInt();
+        int avatarVersion = stream.ReadVarInt();
+        int secondsWithoutSpending = stream.ReadVarInt();
         string? name = stream.ReadOptionalString();
-        LongIdentifier homeIdentifier = stream.ReadLongIdentifier();
-        LongIdentifier accountIdentifier = stream.ReadLongIdentifier();
-        (int[][] Values, DataReferenceValue[][] Maps, int DeprecatedDataCount, int Unknown0) inventory = DecodeInventory(stream);
-        (RoadsideShopEntry[] RoadsideShop, NeighborhoodData? Neighborhood, MailEntry[] MailEntries, int[] UnknownValues0, BoatCrateHelpEntry[] BoatCrateHelpEntries, bool TrainStationReady, bool IsMuted, bool CanEditFarm, AvatarIdentifierFlagEntry[] UnknownEntries1, PickedPassenger[] PickedPassengers, AvatarIdentifierPairEntry[] UnknownEntries2, AvatarIdentifierPairEntry[] UnknownEntries3) social = DecodeSocialState(stream);
-        (int UnknownNullableListCount, LongIdentifier? UnknownOptionalId0, LongIdentifier? UnknownOptionalId1, int LeagueType, int UnknownLeagueValue, int LeagueScore, int[] UnknownValues1, AvatarCollectionSection UnknownManager0, AvatarStringSection UnknownManager1, int[] UnknownValues2, LongIdentifier? MapGameId, LongIdentifier? UnknownOptionalId3, int Unknown4, MapGameParticipant[]? MapGameParticipants, int BirthTimestamp, string? AgeCountryCode, bool StorePromotionAllowed, string? UnknownString1, bool UnknownBoolean1, AvatarStateSection UnknownManager2, AvatarSettings? Settings) progression = DecodeProgressionState(stream);
+        LongId homeId = stream.ReadLongId();
+        LongId accountId = stream.ReadLongId();
+
+        AvatarInventorySection inventory = DecodeInventory(stream);
+
+        AvatarSocialSection social = DecodeSocialState(stream);
+
+        AvatarProgressionSection progression = DecodeProgressionState(stream);
 
         return new ClientAvatar
         {
@@ -274,8 +277,8 @@ public sealed record ClientAvatar
             AvatarVersion = avatarVersion,
             SecondsWithoutSpending = secondsWithoutSpending,
             FarmName = name,
-            HomeIdentifier = homeIdentifier,
-            AccountIdentifier = accountIdentifier,
+            HomeId = homeId,
+            AccountId = accountId,
             InventoryValues = inventory.Values,
             InventoryMaps = inventory.Maps,
             DeprecatedInventoryDataCount = inventory.DeprecatedDataCount,
@@ -293,8 +296,8 @@ public sealed record ClientAvatar
             UnknownEntries2 = social.UnknownEntries2,
             UnknownEntries3 = social.UnknownEntries3,
             UnknownNullableListCount = progression.UnknownNullableListCount,
-            UnknownOptionalIdentifier0 = progression.UnknownOptionalId0,
-            UnknownOptionalIdentifier1 = progression.UnknownOptionalId1,
+            UnknownOptionalId0 = progression.UnknownOptionalId0,
+            UnknownOptionalId1 = progression.UnknownOptionalId1,
             LeagueType = progression.LeagueType,
             UnknownLeagueValue = progression.UnknownLeagueValue,
             LeagueScore = progression.LeagueScore,
@@ -302,9 +305,9 @@ public sealed record ClientAvatar
             UnknownManager0 = progression.UnknownManager0,
             UnknownManager1 = progression.UnknownManager1,
             UnknownValues2 = progression.UnknownValues2,
-            MapGameIdentifier = progression.MapGameId,
+            MapGameId = progression.MapGameId,
             MapGameParticipants = progression.MapGameParticipants,
-            UnknownOptionalIdentifier3 = progression.UnknownOptionalId3,
+            UnknownOptionalId3 = progression.UnknownOptionalId3,
             Unknown4 = progression.Unknown4,
             BirthTimestamp = progression.BirthTimestamp,
             AgeCountryCode = progression.AgeCountryCode,
@@ -328,81 +331,54 @@ public sealed record ClientAvatar
         EncodeProgressionState(stream);
     }
 
-    private static (
-        int[][] Values,
-        DataReferenceValue[][] Maps,
-        int DeprecatedDataCount,
-        int Unknown0
-    ) DecodeInventory(MessageStream stream)
+    private static AvatarInventorySection DecodeInventory(MessageStream stream)
     {
         int[][] values = new int[InventoryArrayCount][];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadArray(static valueStream => valueStream.ReadVariableInt());
+            values[index] = stream.ReadArray(static valueStream => valueStream.ReadVarInt());
 
         DataReferenceValue[][] maps = new DataReferenceValue[InventoryMapCount][];
 
         for (int index = 0; index < maps.Length; index++)
             maps[index] = stream.ReadArray(DataReferenceValue.Decode);
 
-        int deprecatedDataCount = stream.ReadVariableInt();
+        int deprecatedDataCount = stream.ReadVarInt();
 
         return deprecatedDataCount is not 0
             ? throw new InvalidDataException(message: "The deprecated polymorphic inventory section is not implemented.")
-            : ((int[][] Values, DataReferenceValue[][] Maps, int DeprecatedDataCount, int Unknown0))(values, maps, deprecatedDataCount, stream.ReadVariableInt());
+            : new AvatarInventorySection(values, maps, deprecatedDataCount, stream.ReadVarInt());
     }
 
-    private static (
-        int UnknownNullableListCount,
-        LongIdentifier? UnknownOptionalId0,
-        LongIdentifier? UnknownOptionalId1,
-        int LeagueType,
-        int UnknownLeagueValue,
-        int LeagueScore,
-        int[] UnknownValues1,
-        AvatarCollectionSection UnknownManager0,
-        AvatarStringSection UnknownManager1,
-        int[] UnknownValues2,
-        LongIdentifier? MapGameId,
-        LongIdentifier? UnknownOptionalId3,
-        int Unknown4,
-        MapGameParticipant[]? MapGameParticipants,
-        int BirthTimestamp,
-        string? AgeCountryCode,
-        bool StorePromotionAllowed,
-        string? UnknownString1,
-        bool UnknownBoolean1,
-        AvatarStateSection UnknownManager2,
-        AvatarSettings? Settings
-    ) DecodeProgressionState(MessageStream stream)
+    private static AvatarProgressionSection DecodeProgressionState(MessageStream stream)
     {
-        int unknownNullableListCount = stream.ReadVariableInt();
+        int unknownNullableListCount = stream.ReadVarInt();
 
         if (unknownNullableListCount > 0)
             throw new InvalidDataException(message: "The nullable polymorphic avatar section is not implemented.");
 
-        LongIdentifier? unknownOptionalIdentifier0 = stream.ReadOptionalLongIdentifier();
-        LongIdentifier? unknownOptionalIdentifier1 = stream.ReadOptionalLongIdentifier();
-        int leagueType = stream.ReadVariableInt();
-        int unknownLeagueValue = stream.ReadVariableInt();
-        int leagueScore = stream.ReadVariableInt();
-        int[] unknownValues1 = stream.ReadVariableIntArray(count: 11);
+        LongId? unknownOptionalId0 = stream.ReadOptionalLongId();
+        LongId? unknownOptionalId1 = stream.ReadOptionalLongId();
+        int leagueType = stream.ReadVarInt();
+        int unknownLeagueValue = stream.ReadVarInt();
+        int leagueScore = stream.ReadVarInt();
+        int[] unknownValues1 = stream.ReadVarIntArray(count: 11);
         AvatarCollectionSection unknownManager0 = AvatarCollectionSection.Decode(stream);
         AvatarStringSection unknownManager1 = AvatarStringSection.Decode(stream);
-        int[] unknownValues2 = stream.ReadVariableIntArray(count: 6);
-        LongIdentifier? mapGameIdentifier = stream.ReadOptionalLongIdentifier();
-        LongIdentifier? unknownOptionalIdentifier3 = stream.ReadOptionalLongIdentifier();
-        int unknown4 = stream.ReadVariableInt();
+        int[] unknownValues2 = stream.ReadVarIntArray(count: 6);
+        LongId? mapGameId = stream.ReadOptionalLongId();
+        LongId? unknownOptionalId3 = stream.ReadOptionalLongId();
+        int unknown4 = stream.ReadVarInt();
 
         MapGameParticipant[]? participants =
-            mapGameIdentifier is not null && stream.ReadBoolean()
+            mapGameId is not null && stream.ReadBoolean()
                 ? stream.ReadArray(MapGameParticipant.Decode)
                 : null;
 
-        return (
+        return new AvatarProgressionSection(
             unknownNullableListCount,
-            unknownOptionalIdentifier0,
-            unknownOptionalIdentifier1,
+            unknownOptionalId0,
+            unknownOptionalId1,
             leagueType,
             unknownLeagueValue,
             leagueScore,
@@ -410,11 +386,11 @@ public sealed record ClientAvatar
             unknownManager0,
             unknownManager1,
             unknownValues2,
-            mapGameIdentifier,
-            unknownOptionalIdentifier3,
+            mapGameId,
+            unknownOptionalId3,
             unknown4,
             participants,
-            stream.ReadVariableInt(),
+            stream.ReadVarInt(),
             stream.ReadOptionalString(),
             stream.ReadBoolean(),
             stream.ReadOptionalString(),
@@ -424,80 +400,67 @@ public sealed record ClientAvatar
         );
     }
 
-    private static (
-        RoadsideShopEntry[] RoadsideShop,
-        NeighborhoodData? Neighborhood,
-        MailEntry[] MailEntries,
-        int[] UnknownValues0,
-        BoatCrateHelpEntry[] BoatCrateHelpEntries,
-        bool TrainStationReady,
-        bool IsMuted,
-        bool CanEditFarm,
-        AvatarIdentifierFlagEntry[] UnknownEntries1,
-        PickedPassenger[] PickedPassengers,
-        AvatarIdentifierPairEntry[] UnknownEntries2,
-        AvatarIdentifierPairEntry[] UnknownEntries3
-    ) DecodeSocialState(MessageStream stream)
+    private static AvatarSocialSection DecodeSocialState(MessageStream stream)
     {
-        return (
+        return new AvatarSocialSection(
             stream.ReadArray(RoadsideShopEntry.Decode),
             stream.ReadBoolean() ? NeighborhoodData.Decode(stream) : null,
             stream.ReadArray(MailEntry.Decode),
-            stream.ReadArray(static valueStream => valueStream.ReadVariableInt()),
+            stream.ReadArray(static valueStream => valueStream.ReadVarInt()),
             stream.ReadArray(BoatCrateHelpEntry.Decode),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
             stream.ReadBoolean(),
-            stream.ReadArray(AvatarIdentifierFlagEntry.Decode),
+            stream.ReadArray(AvatarIdFlagEntry.Decode),
             stream.ReadArray(PickedPassenger.Decode),
-            stream.ReadArray(AvatarIdentifierPairEntry.Decode),
-            stream.ReadArray(AvatarIdentifierPairEntry.Decode)
+            stream.ReadArray(AvatarIdPairEntry.Decode),
+            stream.ReadArray(AvatarIdPairEntry.Decode)
         );
     }
 
     private void EncodeIdentityAndInventory(MessageStream stream)
     {
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(AvatarVersion);
-        stream.WriteVariableInt(SecondsWithoutSpending);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(AvatarVersion);
+        stream.WriteVarInt(SecondsWithoutSpending);
         stream.WriteOptionalString(FarmName);
-        stream.WriteLongIdentifier(HomeIdentifier);
-        stream.WriteLongIdentifier(AccountIdentifier);
+        stream.WriteLongId(HomeId);
+        stream.WriteLongId(AccountId);
 
         foreach (int[] values in InventoryValues)
-            stream.WriteArray(values, static (valueStream, value) => valueStream.WriteVariableInt(value));
+            stream.WriteArray(values, static (valueStream, value) => valueStream.WriteVarInt(value));
 
         foreach (DataReferenceValue[] values in InventoryMaps)
             stream.WriteArray(values, static (valueStream, value) => value.Encode(valueStream));
 
-        stream.WriteVariableInt(DeprecatedInventoryDataCount);
-        stream.WriteVariableInt(InventoryUnknown0);
+        stream.WriteVarInt(DeprecatedInventoryDataCount);
+        stream.WriteVarInt(InventoryUnknown0);
     }
 
     private void EncodeProgressionState(MessageStream stream)
     {
-        stream.WriteVariableInt(UnknownNullableListCount);
-        stream.WriteOptionalLongIdentifier(UnknownOptionalIdentifier0);
-        stream.WriteOptionalLongIdentifier(UnknownOptionalIdentifier1);
-        stream.WriteVariableInt(LeagueType);
-        stream.WriteVariableInt(UnknownLeagueValue);
-        stream.WriteVariableInt(LeagueScore);
+        stream.WriteVarInt(UnknownNullableListCount);
+        stream.WriteOptionalLongId(UnknownOptionalId0);
+        stream.WriteOptionalLongId(UnknownOptionalId1);
+        stream.WriteVarInt(LeagueType);
+        stream.WriteVarInt(UnknownLeagueValue);
+        stream.WriteVarInt(LeagueScore);
 
         foreach (int value in UnknownValues1)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
         UnknownManager0.Encode(stream);
         UnknownManager1.Encode(stream);
 
         foreach (int value in UnknownValues2)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
-        stream.WriteOptionalLongIdentifier(MapGameIdentifier);
-        stream.WriteOptionalLongIdentifier(UnknownOptionalIdentifier3);
-        stream.WriteVariableInt(Unknown4);
+        stream.WriteOptionalLongId(MapGameId);
+        stream.WriteOptionalLongId(UnknownOptionalId3);
+        stream.WriteVarInt(Unknown4);
 
-        if (MapGameIdentifier is not null)
+        if (MapGameId is not null)
         {
             stream.WriteBoolean(MapGameParticipants is not null);
 
@@ -505,7 +468,7 @@ public sealed record ClientAvatar
                 stream.WriteArray(participants, static (output, value) => value.Encode(output));
         }
 
-        stream.WriteVariableInt(BirthTimestamp);
+        stream.WriteVarInt(BirthTimestamp);
         stream.WriteOptionalString(AgeCountryCode);
         stream.WriteBoolean(StorePromotionAllowed);
         stream.WriteOptionalString(UnknownString1);
@@ -521,7 +484,7 @@ public sealed record ClientAvatar
         stream.WriteBoolean(Neighborhood is not null);
         Neighborhood?.Encode(stream);
         stream.WriteArray(MailEntries, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteArray(UnknownValues0, static (valueStream, value) => valueStream.WriteVariableInt(value));
+        stream.WriteArray(UnknownValues0, static (valueStream, value) => valueStream.WriteVarInt(value));
         stream.WriteArray(BoatCrateHelpEntries, static (valueStream, value) => value.Encode(valueStream));
         stream.WriteBoolean(TrainStationReady);
         stream.WriteBoolean(IsMuted);

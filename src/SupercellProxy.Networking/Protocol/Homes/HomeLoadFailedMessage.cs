@@ -15,13 +15,13 @@ public sealed record HomeLoadFailedMessage(HomeVisitFailureReason Reason) : IMes
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static HomeLoadFailedMessage Create(MessageContainer container)
+    public static HomeLoadFailedMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        HomeLoadFailedMessage result = new(System.Runtime.CompilerServices.Unsafe.BitCast<int, HomeVisitFailureReason>(container.Payload.ReadVariableInt()));
+        HomeLoadFailedMessage result = new(System.Runtime.CompilerServices.Unsafe.BitCast<int, HomeVisitFailureReason>(stream.ReadVarInt()));
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Home-load failure has trailing data.")
             : result;
     }
@@ -29,12 +29,10 @@ public sealed record HomeLoadFailedMessage(HomeVisitFailureReason Reason) : IMes
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(System.Runtime.CompilerServices.Unsafe.BitCast<HomeVisitFailureReason, int>(Reason));
-
-        return stream;
+        stream.WriteVarInt(System.Runtime.CompilerServices.Unsafe.BitCast<HomeVisitFailureReason, int>(Reason));
     }
 }

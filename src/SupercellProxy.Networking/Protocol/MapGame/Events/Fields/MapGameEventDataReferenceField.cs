@@ -7,8 +7,8 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.Fields;
 /// Represents <c language="csharp">MapGameEventDataReferenceField</c>.
 /// </summary>
 public sealed record MapGameEventDataReferenceField(
-    [property: System.Text.Json.Serialization.JsonPropertyName("GlobalId")] int GlobalIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ExpectedTableId")] int ExpectedTableIdentifier = -1
+    [property: System.Text.Json.Serialization.JsonPropertyName("GlobalId")] int GlobalId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ExpectedTableId")] int ExpectedTableId = -1
 )
     : MapGameEventField
 {
@@ -22,6 +22,6 @@ public sealed record MapGameEventDataReferenceField(
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(GlobalIdentifier);
+        stream.WriteVarInt(GlobalId);
     }
 }

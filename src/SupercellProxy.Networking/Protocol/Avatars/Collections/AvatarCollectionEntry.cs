@@ -14,12 +14,12 @@ public sealed record AvatarCollectionEntry(int Unknown0, int Kind, int Unknown1,
     public static AvatarCollectionEntry Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
-        int kind = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
-        int? kindValue = kind is 1 ? stream.ReadVariableInt() : null;
+        int unknown0 = stream.ReadVarInt();
+        int kind = stream.ReadVarInt();
+        int unknown1 = stream.ReadVarInt();
+        int? kindValue = kind is 1 ? stream.ReadVarInt() : null;
 
-        return new AvatarCollectionEntry(unknown0, kind, unknown1, kindValue, stream.ReadVariableInt());
+        return new AvatarCollectionEntry(unknown0, kind, unknown1, kindValue, stream.ReadVarInt());
     }
 
     /// <summary>
@@ -28,13 +28,13 @@ public sealed record AvatarCollectionEntry(int Unknown0, int Kind, int Unknown1,
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Kind);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Kind);
+        stream.WriteVarInt(Unknown1);
 
         if (Kind is 1)
-            stream.WriteVariableInt(KindValue ?? throw new InvalidOperationException($"{nameof(KindValue)} is null."));
+            stream.WriteVarInt(KindValue ?? throw new InvalidOperationException($"{nameof(KindValue)} is null."));
 
-        stream.WriteVariableInt(Unknown2);
+        stream.WriteVarInt(Unknown2);
     }
 }

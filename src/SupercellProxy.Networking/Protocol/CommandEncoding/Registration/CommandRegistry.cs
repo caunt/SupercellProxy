@@ -7,7 +7,7 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 
-/// <summary>Maps native command identifiers to wire contracts and validates their registered encoding schemas.</summary>
+/// <summary>Maps native command ids to wire contracts and validates their registered encoding schemas.</summary>
 public static class CommandRegistry
 {
     /// <summary>
@@ -112,12 +112,12 @@ public static class CommandRegistry
     public const int ClearMovieTicketShopNotificationsCommandType = 564;
 
     /// <summary>
-    /// Provides the client command 33 type. The native semantics are unestablished; the proven wire shape is one variable int.
+    /// Provides the client command 33 type. The native semantics are unestablished; the proven wire shape is one var int.
     /// </summary>
     public const int ClientCommand33Type = 33;
 
     /// <summary>
-    /// Provides the client command 47 type. The proven wire shape is one variable int, an index into a
+    /// Provides the client command 47 type. The proven wire shape is one var int, an index into a
     /// level-owned collection; native validates the entry, grants a resource under change reason 0x58,
     /// and notifies a level manager with the same index. None of that reaches a turn checksum lane.
     /// </summary>
@@ -129,7 +129,7 @@ public static class CommandRegistry
     public const int ClientCommand528Type = 528;
 
     /// <summary>
-    /// Provides the client command 686 type. The native semantics are unestablished; the proven wire shape is one variable-int array.
+    /// Provides the client command 686 type. The native semantics are unestablished; the proven wire shape is one var-int array.
     /// </summary>
     public const int ClientCommand686Type = 686;
 
@@ -533,7 +533,7 @@ public static class CommandRegistry
     /// <summary>Sets state flags on a selected Mini Pass instance.</summary>
     public const int SetMiniPassStateFlagsCommandType = 560;
 
-    /// <summary>Sets Neighborhood Object leaderboard scores by long identifier.</summary>
+    /// <summary>Sets Neighborhood Object leaderboard scores by long id.</summary>
     public const int SetNeighborhoodObjectLeaderboardScoresCommandType = 636;
 
     /// <summary>Changes a notification or advanced user setting.</summary>
@@ -582,7 +582,7 @@ public static class CommandRegistry
     /// <summary>Submits a vote for a decoration-event canvas candidate.</summary>
     public const int SubmitDecorationVoteCommandType = 687;
 
-    /// <summary>Taps an ambient animal identified by its runtime object identifier.</summary>
+    /// <summary>Taps an ambient animal identified by its runtime object id.</summary>
     public const int TapAmbientAnimalCommandType = 42;
 
     /// <summary>Plays the tap reaction of an available Sanctuary animal.</summary>
@@ -646,7 +646,7 @@ public static class CommandRegistry
     private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> LazyEntries = new(CreateEntries);
     private static readonly HashSet<int> NonProductionCommandTypes = [7, 84, 85];
 
-    /// <summary>Gets all registered command contracts by identifier.</summary>
+    /// <summary>Gets all registered command contracts by id.</summary>
     public static IReadOnlyDictionary<int, CommandRegistryEntry> Registrations =>
         Entries.AsReadOnly();
     private static Dictionary<int, CommandRegistryEntry> Entries => LazyEntries.Value;
@@ -658,7 +658,15 @@ public static class CommandRegistry
     public static Command Decode(MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int commandType = stream.ReadVariableInt();
+        int commandType = stream.ReadVarInt();
+
+        return Decode(commandType, stream, environment, dataResolver);
+    }
+
+    /// <summary>Decodes a command when its type has already been read from the wire.</summary>
+    public static Command Decode(int commandType, MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver = null)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
 
         if (!Entries.TryGetValue(commandType, out CommandRegistryEntry? entry))
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {commandType} is not supported."));
@@ -667,7 +675,12 @@ public static class CommandRegistry
 
         try
         {
-            return entry.Factory(stream, environment, dataResolver);
+            bool serverCommand = entry.Direction is MessageDirection.Clientbound;
+            CommandMetadata? metadata = entry.BaseFirst ? CommandMetadata.Decode(stream, environment, serverCommand) : null;
+            Command command = entry.Factory(stream, environment, dataResolver);
+            metadata ??= CommandMetadata.Decode(stream, environment, serverCommand);
+
+            return metadata.Apply(command);
         }
         catch (InvalidDataException exception)
         {
@@ -691,20 +704,27 @@ public static class CommandRegistry
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {command.Type} is not supported."));
 
         EnsureAllowedEnvironment(command.Type, environment);
-        stream.WriteVariableInt(command.Type);
-        command.EncodeBody(stream, environment);
+        stream.WriteVarInt(command.Type);
+
+        if (entry.BaseFirst)
+            CommandMetadata.Encode(stream, command, environment);
+
+        command.Encode(stream, environment);
+
+        if (!entry.BaseFirst)
+            CommandMetadata.Encode(stream, command, environment);
     }
 
     /// <summary>
     /// Provides the Validate Fields value or operation.
     /// </summary>
-    public static bool ValidateFields(int type, ReadOnlySpan<CommandField> fields, MessageDirection direction)
+    public static void ValidateFields(int type, ReadOnlySpan<CommandField> fields, MessageDirection direction)
     {
-        return FindEntry(type) is not { } entry || entry.Direction != direction || entry.FieldSchemas is null
-            ? throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} does not have a registered primitive field schema."))
-            : !CommandFieldSchema.AreValid(entry.FieldSchemas, fields)
-            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} fields do not match the registered native schema."))
-            : entry.BaseFirst;
+        if (FindEntry(type) is not { } entry || entry.Direction != direction || entry.FieldSchemas is null)
+            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} does not have a registered primitive field schema."));
+
+        if (!CommandFieldSchema.AreValid(entry.FieldSchemas, fields))
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} fields do not match the registered native schema."));
     }
 
     internal static void AddStructuredFieldCommands(
@@ -729,9 +749,9 @@ public static class CommandRegistry
                     fieldSchemas,
                     direction is MessageDirection.Clientbound
                         ? (stream, environment, unusedParameter2) =>
-                            ServerCommandWithFields.Decode(commandType, fieldSchemas, baseFirst, stream, environment)
+                            ServerCommandWithFields.Decode(commandType, fieldSchemas, stream)
                         : (stream, environment, unusedParameter2) =>
-                            CommandWithFields.Decode(commandType, fieldSchemas, baseFirst, stream, environment)
+                            CommandWithFields.Decode(commandType, fieldSchemas, stream)
                 )
             );
         }
@@ -754,7 +774,7 @@ public static class CommandRegistry
             AddFieldCommands(entries, schema.CommandTypes, schema.FieldTypes, schema.Direction, schema.BaseFirst);
     }
 
-    private static void AddVariableCommandEntries(Dictionary<int, CommandRegistryEntry> entries)
+    private static void AddVarCommandEntries(Dictionary<int, CommandRegistryEntry> entries)
     {
         int[] commandTypes = CommandWithNoFields.CommandTypes;
 
@@ -796,7 +816,7 @@ public static class CommandRegistry
     private static Dictionary<int, CommandRegistryEntry> CreateEntries()
     {
         Dictionary<int, CommandRegistryEntry> entries = new(TypedCommandRegistrations.Entries);
-        AddVariableCommandEntries(entries);
+        AddVarCommandEntries(entries);
         AddPrimitiveSchemas(entries, PrimitiveCommandSchemas.Entries);
         StructuredCommandRegistrations.AddStructuredCommands(entries);
 

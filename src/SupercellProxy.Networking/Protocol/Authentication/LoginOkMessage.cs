@@ -13,7 +13,7 @@ public sealed record LoginOkMessage : IMessage
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
-    public required LongIdentifier AccountIdentifier { get; init; }
+    public required LongId AccountId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CountryCode</c> value.
@@ -40,7 +40,7 @@ public sealed record LoginOkMessage : IMessage
     /// Gets or sets the <c language="csharp">HomeId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
-    public required LongIdentifier HomeIdentifier { get; init; }
+    public required LongId HomeId { get; init; }
     /// <summary>
     /// Gets or sets the <c language="csharp">LoginResult</c> value.
     /// </summary>
@@ -84,61 +84,59 @@ public sealed record LoginOkMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">LoginOkMessage</c> from the supplied data.
     /// </summary>
-    public static LoginOkMessage Create(MessageContainer container)
+    public static LoginOkMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new LoginOkMessage
         {
-            LoginResult = container.Payload.ReadVariableInt(),
-            Unknown0 = container.Payload.ReadVariableInt(),
-            LoginVersion = container.Payload.ReadVariableInt(),
-            ServerBuild = container.Payload.ReadVariableInt(),
-            Unknown1 = container.Payload.ReadBoolean(),
-            AccountIdentifier = container.Payload.ReadLongIdentifier(),
-            HomeIdentifier = container.Payload.ReadLongIdentifier(),
-            CreationTimestamp = container.Payload.ReadString(),
-            CreationTimestampTrunc = container.Payload.ReadString(),
-            PassToken = container.Payload.ReadString(),
+            LoginResult = stream.ReadVarInt(),
+            Unknown0 = stream.ReadVarInt(),
+            LoginVersion = stream.ReadVarInt(),
+            ServerBuild = stream.ReadVarInt(),
+            Unknown1 = stream.ReadBoolean(),
+            AccountId = stream.ReadLongId(),
+            HomeId = stream.ReadLongId(),
+            CreationTimestamp = stream.ReadString(),
+            CreationTimestampTrunc = stream.ReadString(),
+            PassToken = stream.ReadString(),
             Unknown2 =
             [
-                container.Payload.ReadOptionalString(),
-                container.Payload.ReadOptionalString(),
-                container.Payload.ReadOptionalString(),
-                container.Payload.ReadOptionalString(),
+                stream.ReadOptionalString(),
+                stream.ReadOptionalString(),
+                stream.ReadOptionalString(),
+                stream.ReadOptionalString(),
             ],
-            CountryCode = container.Payload.ReadString(),
-            EventAssetsAddress = container.Payload.ReadString(),
-            UnknownData = container.Payload.ReadToEnd(),
+            CountryCode = stream.ReadString(),
+            EventAssetsAddress = stream.ReadString(),
+            UnknownData = stream.ReadToEnd(),
         };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteVariableInt(LoginResult);
-        supercellStream.WriteVariableInt(Unknown0);
-        supercellStream.WriteVariableInt(LoginVersion);
-        supercellStream.WriteVariableInt(ServerBuild);
-        supercellStream.WriteBoolean(Unknown1);
-        supercellStream.WriteLongIdentifier(AccountIdentifier);
-        supercellStream.WriteLongIdentifier(HomeIdentifier);
-        supercellStream.WriteString(CreationTimestamp);
-        supercellStream.WriteString(CreationTimestampTrunc);
-        supercellStream.WriteString(PassToken);
+        stream.WriteVarInt(LoginResult);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(LoginVersion);
+        stream.WriteVarInt(ServerBuild);
+        stream.WriteBoolean(Unknown1);
+        stream.WriteLongId(AccountId);
+        stream.WriteLongId(HomeId);
+        stream.WriteString(CreationTimestamp);
+        stream.WriteString(CreationTimestampTrunc);
+        stream.WriteString(PassToken);
 
         foreach (string? unknownString in Unknown2)
-            supercellStream.WriteOptionalString(unknownString);
+            stream.WriteOptionalString(unknownString);
 
-        supercellStream.WriteString(CountryCode);
-        supercellStream.WriteString(EventAssetsAddress);
+        stream.WriteString(CountryCode);
+        stream.WriteString(EventAssetsAddress);
 
-        supercellStream.Write(UnknownData.Span);
-
-        return supercellStream;
+        stream.Write(UnknownData.Span);
     }
 }

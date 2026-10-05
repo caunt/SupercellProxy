@@ -19,7 +19,7 @@ public sealed record FarmPassPerkSnapshot
     /// Gets or sets the <c language="csharp">PerkDataId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("PerkDataId")]
-    public int PerkDataIdentifier { get; init; }
+    public int PerkDataId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">PremiumMultiple</c> value.

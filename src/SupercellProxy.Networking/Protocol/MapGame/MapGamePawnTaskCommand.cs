@@ -18,14 +18,7 @@ public sealed record MapGamePawnTaskCommand : Command
     /// <summary>
     /// Initializes a new <see cref="MapGamePawnTaskCommand"/> instance.
     /// </summary>
-    public MapGamePawnTaskCommand(
-        MapGamePawn? pawn,
-        MapGameTaskCollection? taskCollection,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public MapGamePawnTaskCommand(MapGamePawn? pawn, MapGameTaskCollection? taskCollection)
     {
         Pawn = pawn;
         TaskCollection = taskCollection;
@@ -52,22 +45,21 @@ public sealed record MapGamePawnTaskCommand : Command
     public static MapGamePawnTaskCommand Decode(MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
+
         MapGamePawn? pawn = stream.ReadBoolean() ? MapGamePawn.Decode(stream) : null;
 
         MapGameTaskCollection? taskCollection = stream.ReadBoolean()
             ? MapGameTaskCollection.Decode(stream, dataResolver)
             : null;
 
-        return new MapGamePawnTaskCommand(pawn, taskCollection, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+        return new MapGamePawnTaskCommand(pawn, taskCollection);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(Pawn is not null);
         Pawn?.Encode(stream);
         stream.WriteBoolean(TaskCollection is not null);

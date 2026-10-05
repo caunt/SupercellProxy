@@ -29,19 +29,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <summary>
 /// Defines the State Ticks contract.
 /// </summary>
-public sealed record VisitedBoatStateServerCommand(
-    int NewState,
-    int ExpectedState,
-    int OrderIndex,
-    int OwnerHigh,
-    int OwnerLow,
-    int StateDuration,
-    int StateTicks,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedState, int OrderIndex, int OwnerHigh, int OwnerLow, int StateDuration, int StateTicks) : ServerCommand
 {
     /// <summary>
     /// Gets the Type value.
@@ -54,35 +42,30 @@ public sealed record VisitedBoatStateServerCommand(
     public static VisitedBoatStateServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
+
 
         return new VisitedBoatStateServerCommand(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeServerCommand(stream, environment);
-        stream.WriteVariableInt(NewState);
-        stream.WriteVariableInt(ExpectedState);
-        stream.WriteVariableInt(OrderIndex);
-        stream.WriteVariableInt(OwnerHigh);
-        stream.WriteVariableInt(OwnerLow);
-        stream.WriteVariableInt(StateDuration);
-        stream.WriteVariableInt(StateTicks);
+        stream.WriteVarInt(NewState);
+        stream.WriteVarInt(ExpectedState);
+        stream.WriteVarInt(OrderIndex);
+        stream.WriteVarInt(OwnerHigh);
+        stream.WriteVarInt(OwnerLow);
+        stream.WriteVarInt(StateDuration);
+        stream.WriteVarInt(StateTicks);
     }
 }

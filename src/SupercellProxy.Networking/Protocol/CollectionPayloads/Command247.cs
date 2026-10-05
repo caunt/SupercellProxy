@@ -18,22 +18,13 @@ public sealed record Command247 : Command
     /// <summary>
     /// Initializes a new <see cref="Command247"/> instance.
     /// </summary>
-    public Command247(
-        int globalIdentifier,
-        ReadOnlyMemory<int> globalIdentifiers,
-        int unknown0,
-        ReadOnlyMemory<int> diagnosticValues,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public Command247(int globalId, ReadOnlyMemory<int> globalIds, int unknown0, ReadOnlyMemory<int> diagnosticValues)
     {
-        if (diagnosticValues.Length is not 0 && diagnosticValues.Length != globalIdentifiers.Length)
+        if (diagnosticValues.Length is not 0 && diagnosticValues.Length != globalIds.Length)
             throw new InvalidDataException(message: "Logic command 247 diagnostic values must be empty or match the data-reference count.");
 
-        GlobalIdentifier = globalIdentifier;
-        GlobalIdentifiers = globalIdentifiers.ToArray();
+        GlobalId = globalId;
+        GlobalIds = globalIds.ToArray();
         Unknown0 = unknown0;
         DiagnosticValues = diagnosticValues.ToArray();
     }
@@ -47,13 +38,13 @@ public sealed record Command247 : Command
     /// Gets the <c language="csharp">GlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GlobalId")]
-    public int GlobalIdentifier { get; }
+    public int GlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">GlobalIds</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GlobalIds")]
-    public ReadOnlyMemory<int> GlobalIdentifiers { get; }
+    public ReadOnlyMemory<int> GlobalIds { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
@@ -71,46 +62,37 @@ public sealed record Command247 : Command
     public static Command247 Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
-        int globalIdentifier = stream.ReadVariableInt();
-        int[] globalIdentifiers = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
-        int unknown0 = stream.ReadVariableInt();
+
+        int globalId = stream.ReadVarInt();
+        int[] globalIds = CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream);
+        int unknown0 = stream.ReadVarInt();
 
         int[] diagnosticValues =
             environment is CommandEnvironment.Production
                 ? []
-                : new int[globalIdentifiers.Length];
+                : new int[globalIds.Length];
 
         for (int index = 0; index < diagnosticValues.Length; index++)
             diagnosticValues[index] = stream.ReadInt32();
 
-        return new Command247(
-            globalIdentifier,
-            globalIdentifiers,
-            unknown0,
-            diagnosticValues,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+        return new Command247(globalId, globalIds, unknown0, diagnosticValues);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        if (environment is not CommandEnvironment.Production && DiagnosticValues.Length != GlobalIdentifiers.Length)
+        if (environment is not CommandEnvironment.Production && DiagnosticValues.Length != GlobalIds.Length)
             throw new InvalidDataException(message: "Logic command 247 requires one diagnostic value per data reference outside production.");
 
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(GlobalIdentifier);
-        stream.WriteVariableInt(GlobalIdentifiers.Length);
+        stream.WriteVarInt(GlobalId);
+        stream.WriteVarInt(GlobalIds.Length);
 
-        foreach (int globalIdentifier in GlobalIdentifiers.Span)
-            stream.WriteVariableInt(globalIdentifier);
+        foreach (int globalId in GlobalIds.Span)
+            stream.WriteVarInt(globalId);
 
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
 
         if (environment is CommandEnvironment.Production)
             return;

@@ -5,33 +5,25 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
 /// <summary>Requests a quantity of one item from the player's neighborhood.</summary>
-public sealed record RequestNeighborhoodItemCommand(
-    int ItemGlobalIdentifier,
-    int Quantity,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record RequestNeighborhoodItemCommand(int ItemGlobalId, int Quantity) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.RequestNeighborhoodItemCommandType;
 
-    /// <summary>Decodes the item and quantity before the base command fields.</summary>
+    /// <summary>Decodes the item and quantity.</summary>
     public static RequestNeighborhoodItemCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int item = stream.ReadVariableInt();
-        int quantity = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int item = stream.ReadVarInt();
+        int quantity = stream.ReadVarInt();
 
-        return new RequestNeighborhoodItemCommand(item, quantity, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new RequestNeighborhoodItemCommand(item, quantity);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(ItemGlobalIdentifier);
-        stream.WriteVariableInt(Quantity);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(ItemGlobalId);
+        stream.WriteVarInt(Quantity);
     }
 }

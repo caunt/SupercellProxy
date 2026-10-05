@@ -11,12 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 /// <summary>
 /// Defines the Gift Global Id contract.
 /// </summary>
-public sealed record CollectGiftCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("GiftGlobalId")] int GiftGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectGiftCommand([property: System.Text.Json.Serialization.JsonPropertyName("GiftGlobalId")] int GiftGlobalId) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -29,18 +24,16 @@ public sealed record CollectGiftCommand(
     public static CollectGiftCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int gift = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int gift = stream.ReadVarInt();
 
-        return new CollectGiftCommand(gift, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectGiftCommand(gift);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(GiftGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(GiftGlobalId);
     }
 }

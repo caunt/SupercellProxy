@@ -53,5 +53,5 @@ public sealed record OrderTrackSnapshot
     /// Gets the Track Id value.
     /// </summary>
     [JsonPropertyName("track")]
-    public int TrackIdentifier { get; init; }
+    public int TrackId { get; init; }
 }

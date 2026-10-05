@@ -9,7 +9,7 @@ public sealed record MapNodeDistances
     [JsonPropertyName("Dist")]
     public int[][] Groups { get; init; } = [];
 
-    /// <summary>Gets the Identifier value.</summary>
+    /// <summary>Gets the Id value.</summary>
     [JsonPropertyName("Id")]
-    public int Identifier { get; init; }
+    public int Id { get; init; }
 }

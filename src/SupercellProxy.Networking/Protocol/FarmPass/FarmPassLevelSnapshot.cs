@@ -36,7 +36,7 @@ public sealed record FarmPassLevelSnapshot
     /// Gets the Level Id value.
     /// </summary>
     [JsonPropertyName("levelId")]
-    public int LevelIdentifier { get; init; }
+    public int LevelId { get; init; }
 
     /// <summary>
     /// Gets the Level Unlock Seen value.

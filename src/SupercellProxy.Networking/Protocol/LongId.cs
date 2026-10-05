@@ -7,17 +7,17 @@ namespace SupercellProxy.Networking.Protocol;
 /// Represents <c language="csharp">LongId</c>.
 /// </summary>
 /// <remarks>
-/// Initializes a new <see cref="LongIdentifier"/> instance.
+/// Initializes a new <see cref="LongId"/> instance.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
+public readonly record struct LongId : IEquatable<LongId>
 {
     /// <summary>
     /// Defines the <c language="csharp">Empty</c> value.
     /// </summary>
-    public static readonly LongIdentifier Empty;
-    /// <summary>Creates an identifier from its two 32-bit words.</summary>
-    public LongIdentifier(int highInt32, int lowInt32)
+    public static readonly LongId Empty;
+    /// <summary>Creates an id from its two 32-bit words.</summary>
+    public LongId(int highInt32, int lowInt32)
     {
         HighInt32 = highInt32;
         LowInt32 = lowInt32;
@@ -64,29 +64,29 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// Gets the <c language="csharp">TagInternalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("TagInternalId")]
-    public ulong TagInternalIdentifier => !CanRepresentAsTag
+    public ulong TagInternalId => !CanRepresentAsTag
                 ? throw new InvalidOperationException(message: "HighUInt32 must be less than or equal to 255 to be representable as an public tag ID.")
                 : (LowUInt32 * 256UL) + HighUInt32;
 
     /// <summary>
     /// Applies the <c language="csharp">+</c> operator.
     /// </summary>
-    public static LongIdentifier operator +(LongIdentifier leftLongIdentifier, ulong rightValue)
+    public static LongId operator +(LongId leftLongId, ulong rightValue)
     {
         unchecked
         {
-            ulong addedValue = leftLongIdentifier.AsUInt64 + rightValue;
+            ulong addedValue = leftLongId.AsUInt64 + rightValue;
             int newHighInt32 = int.CreateTruncating(addedValue >> 32);
             int newLowInt32 = int.CreateTruncating(addedValue);
 
-            return new LongIdentifier(newHighInt32, newLowInt32);
+            return new LongId(newHighInt32, newLowInt32);
         }
     }
 
     /// <summary>
     /// Applies the <c language="csharp">++</c> operator.
     /// </summary>
-    public static LongIdentifier operator ++(LongIdentifier logicLong)
+    public static LongId operator ++(LongId logicLong)
     {
         return logicLong + 1UL;
     }
@@ -94,22 +94,22 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// <summary>
     /// Applies the <c language="csharp">-</c> operator.
     /// </summary>
-    public static LongIdentifier operator -(LongIdentifier leftLongIdentifier, ulong rightValue)
+    public static LongId operator -(LongId leftLongId, ulong rightValue)
     {
         unchecked
         {
-            ulong subtractedValue = leftLongIdentifier.AsUInt64 - rightValue;
+            ulong subtractedValue = leftLongId.AsUInt64 - rightValue;
             int newHighInt32 = int.CreateTruncating(subtractedValue >> 32);
             int newLowInt32 = int.CreateTruncating(subtractedValue);
 
-            return new LongIdentifier(newHighInt32, newLowInt32);
+            return new LongId(newHighInt32, newLowInt32);
         }
     }
 
     /// <summary>
     /// Applies the <c language="csharp">--</c> operator.
     /// </summary>
-    public static LongIdentifier operator --(LongIdentifier logicLong)
+    public static LongId operator --(LongId logicLong)
     {
         return logicLong - 1UL;
     }
@@ -117,9 +117,9 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// <summary>
     /// Executes the <c language="csharp">Parse</c> operation.
     /// </summary>
-    public static LongIdentifier Parse(ReadOnlySpan<char> tagStringSpan)
+    public static LongId Parse(ReadOnlySpan<char> tagStringSpan)
     {
-        return !TryParse(tagStringSpan, out LongIdentifier logicLong)
+        return !TryParse(tagStringSpan, out LongId logicLong)
             ? throw new FormatException($"The provided tag string '{tagStringSpan}' is not in a valid format.")
             : logicLong;
     }
@@ -127,13 +127,13 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// <summary>
     /// Executes the <c language="csharp">ParseLazily</c> operation.
     /// </summary>
-    public static IEnumerable<LongIdentifier> ParseLazily(IEnumerable<string> inputTagStrings)
+    public static IEnumerable<LongId> ParseLazily(IEnumerable<string> inputTagStrings)
     {
         ArgumentNullException.ThrowIfNull(inputTagStrings);
 
         foreach (string? currentTagString in inputTagStrings)
         {
-            if (currentTagString is not null && TryParse(currentTagString.AsSpan(), out LongIdentifier logicLong))
+            if (currentTagString is not null && TryParse(currentTagString.AsSpan(), out LongId logicLong))
                 yield return logicLong;
         }
     }
@@ -141,7 +141,7 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// <summary>
     /// Attempts the <c language="csharp">Parse</c> operation.
     /// </summary>
-    public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out LongIdentifier result)
+    public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out LongId result)
     {
         ulong totalCalculatedValue = 0UL;
         bool foundAnyValidDigits = false;
@@ -181,29 +181,29 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
             return false;
         }
 
-        uint highInternalIdentifier = uint.CreateTruncating(totalCalculatedValue % 256UL);
-        ulong lowInternalIdentifier = totalCalculatedValue / 256UL;
+        uint highInternalId = uint.CreateTruncating(totalCalculatedValue % 256UL);
+        ulong lowInternalId = totalCalculatedValue / 256UL;
 
-        if (lowInternalIdentifier > uint.MaxValue)
+        if (lowInternalId > uint.MaxValue)
         {
             result = default;
 
             return false;
         }
 
-        result = new LongIdentifier(int.CreateTruncating(highInternalIdentifier), int.CreateTruncating(lowInternalIdentifier));
+        result = new LongId(int.CreateTruncating(highInternalId), int.CreateTruncating(lowInternalId));
 
         return true;
     }
 
-    /// <summary>Adds an unsigned offset to this identifier.</summary>
-    public LongIdentifier Add(ulong value)
+    /// <summary>Adds an unsigned offset to this id.</summary>
+    public LongId Add(ulong value)
     {
         return this + value;
     }
 
-    /// <summary>Returns the identifier decremented by one.</summary>
-    public LongIdentifier Decrement()
+    /// <summary>Returns the id decremented by one.</summary>
+    public LongId Decrement()
     {
         return this - 1UL;
     }
@@ -211,7 +211,7 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
     /// <summary>
     /// Executes the <c language="csharp">Equals</c> operation.
     /// </summary>
-    public bool Equals(LongIdentifier logicLong)
+    public bool Equals(LongId logicLong)
     {
         return HighInt32 == logicLong.HighInt32 && LowInt32 == logicLong.LowInt32;
     }
@@ -224,14 +224,14 @@ public readonly record struct LongIdentifier : IEquatable<LongIdentifier>
         return HashCode.Combine(HighInt32, LowInt32);
     }
 
-    /// <summary>Returns the identifier incremented by one.</summary>
-    public LongIdentifier Increment()
+    /// <summary>Returns the id incremented by one.</summary>
+    public LongId Increment()
     {
         return this + 1UL;
     }
 
-    /// <summary>Subtracts an unsigned offset from this identifier.</summary>
-    public LongIdentifier Subtract(ulong value)
+    /// <summary>Subtracts an unsigned offset from this id.</summary>
+    public LongId Subtract(ulong value)
     {
         return this - value;
     }

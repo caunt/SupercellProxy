@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record FeaturingDesignEntry
 {
     /// <summary>Gets the candidate's avatar identity, when supplied.</summary>
-    public LongIdentifier? AvatarIdentifier { get; init; }
+    public LongId? AvatarId { get; init; }
 
     /// <summary>Gets the completed challenge count.</summary>
     public int ChallengesComplete { get; init; }
@@ -32,10 +32,10 @@ public sealed record FeaturingDesignEntry
         ArgumentNullException.ThrowIfNull(stream);
         string farmName = stream.ReadString();
         ReadOnlyMemory<byte>? design = stream.ReadBoolean() ? stream.ReadByteArray() : null;
-        int challengesComplete = stream.ReadVariableInt();
-        int rnfLikes = stream.ReadVariableInt();
-        int league = stream.ReadVariableInt();
-        LongIdentifier? avatarIdentifier = stream.ReadBoolean() ? stream.ReadLongIdentifier() : null;
+        int challengesComplete = stream.ReadVarInt();
+        int rnfLikes = stream.ReadVarInt();
+        int league = stream.ReadVarInt();
+        LongId? avatarId = stream.ReadBoolean() ? stream.ReadLongId() : null;
 
         return new FeaturingDesignEntry
         {
@@ -44,8 +44,8 @@ public sealed record FeaturingDesignEntry
             ChallengesComplete = challengesComplete,
             RnfLikes = rnfLikes,
             League = league,
-            AvatarIdentifier = avatarIdentifier,
-            FeaturingGroup = stream.ReadVariableInt(),
+            AvatarId = avatarId,
+            FeaturingGroup = stream.ReadVarInt(),
         };
     }
 
@@ -59,14 +59,14 @@ public sealed record FeaturingDesignEntry
         if (EncodedDesign is { } design)
             stream.WriteByteArray(design.Span);
 
-        stream.WriteVariableInt(ChallengesComplete);
-        stream.WriteVariableInt(RnfLikes);
-        stream.WriteVariableInt(League);
-        stream.WriteBoolean(AvatarIdentifier is not null);
+        stream.WriteVarInt(ChallengesComplete);
+        stream.WriteVarInt(RnfLikes);
+        stream.WriteVarInt(League);
+        stream.WriteBoolean(AvatarId is not null);
 
-        if (AvatarIdentifier is { } avatarIdentifier)
-            stream.WriteLongIdentifier(avatarIdentifier);
+        if (AvatarId is { } avatarId)
+            stream.WriteLongId(avatarId);
 
-        stream.WriteVariableInt(FeaturingGroup);
+        stream.WriteVarInt(FeaturingGroup);
     }
 }

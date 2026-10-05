@@ -4,31 +4,29 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// Reports a farm's friend count to the client's friend manager.
-public sealed record FriendCountMessage(LongIdentifier HomeIdentifier, int FriendCount) : IMessage
+public sealed record FriendCountMessage(LongId HomeId, int FriendCount) : IMessage
 {
-    /// Decodes the farm identifier followed by its signed variable-integer count.
-    public static FriendCountMessage Create(MessageContainer container)
+    /// Decodes the farm id followed by its signed var-integer count.
+    public static FriendCountMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        FriendCountMessage result = new(container.Payload.ReadLongIdentifier(), container.Payload.ReadVariableInt());
+        ArgumentNullException.ThrowIfNull(stream);
+        FriendCountMessage result = new(stream.ReadLongId(), stream.ReadVarInt());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The friend count has trailing data.")
             : result;
     }
 
-    /// Encodes the farm identifier and friend count as a payload.
-    public MessageStream ToStream()
+    /// Encodes the farm id and friend count as a payload.
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteLongIdentifier(HomeIdentifier);
-        stream.WriteVariableInt(FriendCount);
-
-        return stream;
+        stream.WriteLongId(HomeId);
+        stream.WriteVarInt(FriendCount);
     }
 
-    /// Omits the private farm identifier from diagnostic text.
+    /// Omits the private farm id from diagnostic text.
     public override string ToString()
     {
         return nameof(FriendCountMessage);

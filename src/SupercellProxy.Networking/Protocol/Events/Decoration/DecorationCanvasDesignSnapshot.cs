@@ -24,7 +24,7 @@ public sealed record DecorationCanvasDesignSnapshot
 
     /// <summary>Gets the canvas identity.</summary>
     [JsonPropertyName("canvasID")]
-    public int CanvasIdentifier { get; init; }
+    public int CanvasId { get; init; }
 
     /// <summary>Gets the objects arranged on the canvas.</summary>
     [JsonPropertyName("layout")]
@@ -32,5 +32,5 @@ public sealed record DecorationCanvasDesignSnapshot
 
     /// <summary>Gets the seasonal theme identity.</summary>
     [JsonPropertyName("seasonalThemeID")]
-    public int SeasonalThemeIdentifier { get; init; }
+    public int SeasonalThemeId { get; init; }
 }

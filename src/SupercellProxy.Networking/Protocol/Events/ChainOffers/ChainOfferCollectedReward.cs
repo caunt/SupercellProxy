@@ -8,7 +8,7 @@ public sealed record ChainOfferCollectedReward
     /// <summary>Gets the granted quantity.</summary>
     [JsonPropertyName("Value")]
     public int Amount { get; init; }
-    /// <summary>Gets the granted resource identifier.</summary>
+    /// <summary>Gets the granted resource id.</summary>
     [JsonPropertyName("ID")]
-    public int Identifier { get; init; }
+    public int Id { get; init; }
 }

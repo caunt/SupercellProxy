@@ -11,9 +11,9 @@ public sealed record ChainOfferSnapshot
     /// <summary>Gets the bit mask of independently claimed steps.</summary>
     [JsonPropertyName("claimedSteps")]
     public ulong ClaimedSteps { get; init; }
-    /// <summary>Gets the event identifier.</summary>
+    /// <summary>Gets the event id.</summary>
     [JsonPropertyName("eventId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
     /// <summary>Gets the last displayed chain progress.</summary>
     [JsonPropertyName("lastSeenChainProgress")]
     public int LastSeenChainProgress { get; init; }

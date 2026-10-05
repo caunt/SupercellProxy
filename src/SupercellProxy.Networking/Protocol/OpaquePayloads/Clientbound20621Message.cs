@@ -11,20 +11,18 @@ public sealed record Clientbound20621Message : IMessage
     public Memory<byte> EntryCollectionData { get; init; }
 
     /// Decodes clientbound message 20621 without inventing inner entry fields.
-    public static Clientbound20621Message Create(MessageContainer container)
+    public static Clientbound20621Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new Clientbound20621Message { EntryCollectionData = container.Payload.ReadToEnd() };
+        return new Clientbound20621Message { EntryCollectionData = stream.ReadToEnd() };
     }
 
     /// Encodes clientbound message 20621.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.Write(EntryCollectionData.Span);
-
-        return stream;
     }
 }

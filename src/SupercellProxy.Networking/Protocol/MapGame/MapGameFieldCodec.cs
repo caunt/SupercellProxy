@@ -16,7 +16,7 @@ public static class MapGameFieldCodec
     public static int ReadCount(MessageStream stream, string name)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         return count < 0 || count > stream.Length - stream.Position
             ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid map-game {name} count: {count}."))
@@ -26,22 +26,22 @@ public static class MapGameFieldCodec
     /// <summary>
     /// Provides the Read Data Reference Var Int Pairs value or operation.
     /// </summary>
-    public static CommandDataReferenceVariableIntPair[] ReadDataReferenceVariableIntPairs(MessageStream stream)
+    public static CommandDataReferenceVarIntPair[] ReadDataReferenceVarIntPairs(MessageStream stream)
     {
-        return CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values.ToArray();
+        return CommandDataReferenceVarIntPairArrayField.Decode(stream).Values.ToArray();
     }
 
     /// <summary>
     /// Provides the Read Long Ids value or operation.
     /// </summary>
-    public static LongIdentifier[] ReadLongIdentifiers(MessageStream stream)
+    public static LongId[] ReadLongIds(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         int count = ReadCount(stream, name: "logic-long");
-        LongIdentifier[] values = new LongIdentifier[count];
+        LongId[] values = new LongId[count];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadLongIdentifier();
+            values[index] = stream.ReadLongId();
 
         return values;
     }
@@ -49,64 +49,64 @@ public static class MapGameFieldCodec
     /// <summary>
     /// Provides the Read Optional Data Reference Var Int Pairs value or operation.
     /// </summary>
-    public static ReadOnlyMemory<CommandDataReferenceVariableIntPair>? ReadOptionalDataReferenceVariableIntPairs(MessageStream stream)
+    public static ReadOnlyMemory<CommandDataReferenceVarIntPair>? ReadOptionalDataReferenceVarIntPairs(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return !stream.ReadBoolean() ? null : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)ReadDataReferenceVariableIntPairs(stream);
+        return !stream.ReadBoolean() ? null : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)ReadDataReferenceVarIntPairs(stream);
     }
 
     /// <summary>
     /// Provides the Read Optional Long Id value or operation.
     /// </summary>
-    public static LongIdentifier? ReadOptionalLongIdentifier(MessageStream stream)
+    public static LongId? ReadOptionalLongId(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return stream.ReadBoolean() ? stream.ReadLongIdentifier() : null;
+        return stream.ReadBoolean() ? stream.ReadLongId() : null;
     }
 
     /// <summary>
     /// Provides the Write Data Reference Var Int Pairs value or operation.
     /// </summary>
-    public static void WriteDataReferenceVariableIntPairs(MessageStream stream, ReadOnlySpan<CommandDataReferenceVariableIntPair> values)
+    public static void WriteDataReferenceVarIntPairs(MessageStream stream, ReadOnlySpan<CommandDataReferenceVarIntPair> values)
     {
-        new CommandDataReferenceVariableIntPairArrayField(values.ToArray()).Encode(stream);
+        new CommandDataReferenceVarIntPairArrayField(values.ToArray()).Encode(stream);
     }
 
     /// <summary>
     /// Provides the Write Long Ids value or operation.
     /// </summary>
-    public static void WriteLongIdentifiers(MessageStream stream, ReadOnlySpan<LongIdentifier> values)
+    public static void WriteLongIds(MessageStream stream, ReadOnlySpan<LongId> values)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(values.Length);
+        stream.WriteVarInt(values.Length);
 
-        foreach (LongIdentifier value in values)
-            stream.WriteLongIdentifier(value);
+        foreach (LongId value in values)
+            stream.WriteLongId(value);
     }
 
     /// <summary>
     /// Provides the Write Optional Data Reference Var Int Pairs value or operation.
     /// </summary>
-    public static void WriteOptionalDataReferenceVariableIntPairs(MessageStream stream, ReadOnlyMemory<CommandDataReferenceVariableIntPair>? values)
+    public static void WriteOptionalDataReferenceVarIntPairs(MessageStream stream, ReadOnlyMemory<CommandDataReferenceVarIntPair>? values)
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteBoolean(values is not null);
 
         if (values is not null)
-            WriteDataReferenceVariableIntPairs(stream, values.Value.Span);
+            WriteDataReferenceVarIntPairs(stream, values.Value.Span);
     }
 
     /// <summary>
     /// Provides the Write Optional Long Id value or operation.
     /// </summary>
-    public static void WriteOptionalLongIdentifier(MessageStream stream, LongIdentifier? value)
+    public static void WriteOptionalLongId(MessageStream stream, LongId? value)
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteBoolean(value is not null);
 
         if (value is not null)
-            stream.WriteLongIdentifier(value.Value);
+            stream.WriteLongId(value.Value);
     }
 }

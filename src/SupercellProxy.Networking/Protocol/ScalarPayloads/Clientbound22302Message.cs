@@ -11,23 +11,21 @@ public sealed record Clientbound22302Message : IMessage
     public int Mode { get; init; } = -1;
 
     /// Decodes clientbound message 22302.
-    public static Clientbound22302Message Create(MessageContainer container)
+    public static Clientbound22302Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        Clientbound22302Message message = new() { Mode = container.Payload.ReadVariableInt() };
+        ArgumentNullException.ThrowIfNull(stream);
+        Clientbound22302Message message = new() { Mode = stream.ReadVarInt() };
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Clientbound message 22302 has trailing data.")
             : message;
     }
 
     /// Encodes clientbound message 22302.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Mode);
-
-        return stream;
+        stream.WriteVarInt(Mode);
     }
 }

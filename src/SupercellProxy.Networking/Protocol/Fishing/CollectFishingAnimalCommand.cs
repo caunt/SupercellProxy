@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects and removes one ready lobster or duck through its native command.</summary>
-public sealed record CollectFishingAnimalCommand(int AnimalIdentifier, bool Duck, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectFishingAnimalCommand(int AnimalId, bool Duck) : Command
 {
     /// <inheritdoc />
     public override int Type => Duck ? CommandRegistry.CollectDuckCommandType : CommandRegistry.CollectLobsterCommandType;
@@ -13,16 +13,14 @@ public sealed record CollectFishingAnimalCommand(int AnimalIdentifier, bool Duck
     public static CollectFishingAnimalCommand Decode(MessageStream stream, CommandEnvironment environment, bool duck)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int identifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int id = stream.ReadVarInt();
 
-        return new(identifier, duck, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new(id, duck);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(AnimalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(AnimalId);
     }
 }

@@ -10,7 +10,7 @@ public sealed record MapGameCoinBalanceSnapshot : ExtensibleDocument
     /// <summary>Gets the retained amount.</summary>
     public int Amount { get; init; }
 
-    /// <summary>Gets the Valley coin data identifier.</summary>
+    /// <summary>Gets the Valley coin data id.</summary>
     [JsonPropertyName("CoinGlobalId")]
-    public int CoinGlobalIdentifier { get; init; }
+    public int CoinGlobalId { get; init; }
 }

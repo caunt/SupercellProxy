@@ -3,6 +3,7 @@ using System.Text;
 
 using SupercellProxy.Keys.Extract;
 using SupercellProxy.Keys.Models;
+using SupercellProxy.Keys.Update;
 
 namespace SupercellProxy.Keys;
 
@@ -108,7 +109,7 @@ internal static partial class Application
         return normalized.Length <= 500 ? normalized : normalized[..497] + "...";
     }
 
-    private static (string KeysPath, string? SummaryPath, string? AppOption) ParseUpdateArguments(string[] arguments)
+    private static UpdateArguments ParseUpdateArguments(string[] arguments)
     {
         List<string> positionalArguments = new(capacity: 1);
         string? summaryOption = null;
@@ -153,11 +154,7 @@ internal static partial class Application
 
         string keysPath = Path.GetFullPath(positionalArguments.FirstOrDefault() ?? "KEYS.md");
 
-        return (
-            keysPath,
-            summaryOption is null ? null : Path.GetFullPath(summaryOption),
-            appOption
-        );
+        return new UpdateArguments(keysPath, summaryOption is null ? null : Path.GetFullPath(summaryOption), appOption);
     }
 
     private static int PrintUpdateHelp()
@@ -198,7 +195,7 @@ internal static partial class Application
         }
     }
 
-    private static async Task UpdateKeysAsync(string keysPath, string? appStoreIdentifier, KeysUpdateReport report, CancellationToken cancellationToken)
+    private static async Task UpdateKeysAsync(string keysPath, string? appStoreId, KeysUpdateReport report, CancellationToken cancellationToken)
     {
         if (!File.Exists(keysPath))
             throw new FileNotFoundException(message: "The keys document was not found.", keysPath);
@@ -211,15 +208,15 @@ internal static partial class Application
         Dictionary<string, KeysSectionUpdate> updates = new(StringComparer.Ordinal);
         IReadOnlyList<KeysSection> sections;
 
-        if (appStoreIdentifier is null)
+        if (appStoreId is null)
         {
             sections = document.Sections;
         }
         else
         {
             KeysSection section =
-                document.Sections.SingleOrDefault(candidate => string.Equals(candidate.AppStoreIdentifier, appStoreIdentifier, StringComparison.Ordinal))
-                ?? throw new InvalidOperationException($"KEYS.md does not contain an app section for ID {appStoreIdentifier}.");
+                document.Sections.SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
+                ?? throw new InvalidOperationException($"KEYS.md does not contain an app section for ID {appStoreId}.");
 
             sections = [section];
         }
@@ -234,7 +231,7 @@ internal static partial class Application
             try
             {
                 app = await decryptDayClient
-                    .GetAppAsync(section.AppStoreIdentifier, cancellationToken)
+                    .GetAppAsync(section.AppStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception exception)
@@ -242,7 +239,7 @@ internal static partial class Application
             {
                 string reason = $"Metadata request failed: {NormalizeReason(exception.Message)}";
                 AddWarning(report, section.Name, version: null, reason);
-                updates[section.AppStoreIdentifier] = new KeysSectionUpdate([]);
+                updates[section.AppStoreId] = new KeysSectionUpdate([]);
 
                 return;
             }
@@ -258,7 +255,7 @@ internal static partial class Application
             if (sourceVersions.Length is 0)
             {
                 AddWarning(report, section.Name, version: null, reason: "decrypt.day returned no versions.");
-                updates[section.AppStoreIdentifier] = new KeysSectionUpdate(generated);
+                updates[section.AppStoreId] = new KeysSectionUpdate(generated);
 
                 return;
             }
@@ -318,7 +315,7 @@ internal static partial class Application
                     try
                     {
                         IpaDownload? authorized = await decryptDayClient
-                            .TryAuthorizeAsync(section.AppStoreIdentifier, version, cancellationToken)
+                            .TryAuthorizeAsync(section.AppStoreId, version, cancellationToken)
                             .ConfigureAwait(continueOnCapturedContext: false);
 
                         if (authorized is null)
@@ -337,7 +334,7 @@ internal static partial class Application
 
                 async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
-                    string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreIdentifier}-{Guid.NewGuid():N}.ipa");
+                    string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
 
                     try
                     {
@@ -376,7 +373,7 @@ internal static partial class Application
                 }
             }
 
-            updates[section.AppStoreIdentifier] = new KeysSectionUpdate(generated);
+            updates[section.AppStoreId] = new KeysSectionUpdate(generated);
         }
 
         string updated = document.Render(updates);

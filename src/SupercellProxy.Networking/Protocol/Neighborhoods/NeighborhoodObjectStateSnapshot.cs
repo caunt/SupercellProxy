@@ -6,11 +6,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// </summary>
 public sealed record NeighborhoodObjectStateSnapshot
 {
-    /// <summary>Gets the saved leaderboard score identifiers.</summary>
+    /// <summary>Gets the saved leaderboard score ids.</summary>
     [System.Text.Json.Serialization.JsonPropertyName("LeaderboardScoreIds")]
-    public long[] LeaderboardScoreIdentifiers { get; init; } = [];
+    public long[] LeaderboardScoreIds { get; init; } = [];
 
-    /// <summary>Gets scores corresponding to the saved leaderboard identifiers.</summary>
+    /// <summary>Gets scores corresponding to the saved leaderboard ids.</summary>
     public int[] LeaderboardScores { get; init; } = [];
 
     /// <summary>

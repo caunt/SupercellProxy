@@ -5,11 +5,11 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>Preserves the native BoatCrateHelpResponseServerCommand wire contract.</summary>
-/// <param name="HomeOwnerIdentifier">The HomeOwnerIdentifier value carried by the native command.</param>
-/// <param name="HelperIdentifier">The HelperIdentifier value carried by the native command.</param>
+/// <param name="HomeOwnerId">The HomeOwnerId value carried by the native command.</param>
+/// <param name="HelperId">The HelperId value carried by the native command.</param>
 /// <param name="CrateIndex">The CrateIndex value carried by the native command.</param>
 /// <param name="ResponseCode">The ResponseCode value carried by the native command.</param>
-/// <param name="ProductDataGlobalIdentifier">The ProductDataGlobalIdentifier value carried by the native command.</param>
+/// <param name="ProductDataGlobalId">The ProductDataGlobalId value carried by the native command.</param>
 /// <param name="Amount">The Amount value carried by the native command.</param>
 /// <param name="BaseCoins">The BaseCoins value carried by the native command.</param>
 /// <param name="BaseExperience">The BaseExperience value carried by the native command.</param>
@@ -18,16 +18,12 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <param name="DiamondCost">The DiamondCost value carried by the native command.</param>
 /// <param name="RequestValue0">The RequestValue0 value carried by the native command.</param>
 /// <param name="RequestValue1">The RequestValue1 value carried by the native command.</param>
-/// <param name="ServerCommandIdentifier"></param>
-/// <param name="ExecutionPhaseCounter"></param>
-/// <param name="DebugData0"></param>
-/// <param name="DebugData1"></param>
 public sealed record BoatCrateHelpResponseServerCommand(
-    LongIdentifier? HomeOwnerIdentifier,
-    LongIdentifier? HelperIdentifier,
+    LongId? HomeOwnerId,
+    LongId? HelperId,
     int CrateIndex,
     int ResponseCode,
-    int ProductDataGlobalIdentifier,
+    int ProductDataGlobalId,
     int Amount,
     int BaseCoins,
     int BaseExperience,
@@ -35,41 +31,37 @@ public sealed record BoatCrateHelpResponseServerCommand(
     int BonusExperience,
     int DiamondCost,
     int RequestValue0,
-    int RequestValue1,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+    int RequestValue1
+) : ServerCommand
 {
     /// <summary>Gets the native command type.</summary>
     public override int Type => CommandRegistry.BoatCrateHelpResponseServerCommandType;
 
-    /// <summary>Decodes the body followed by its command header.</summary>
+    /// <summary>Decodes the command-specific fields.</summary>
     public static BoatCrateHelpResponseServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier? homeOwnerIdentifier = stream.ReadOptionalLongIdentifier();
-        LongIdentifier? helperIdentifier = stream.ReadOptionalLongIdentifier();
-        int crateIndex = stream.ReadVariableInt();
-        int responseCode = stream.ReadVariableInt();
-        int productDataGlobalIdentifier = stream.ReadVariableInt();
-        int amount = stream.ReadVariableInt();
-        int baseCoins = stream.ReadVariableInt();
-        int baseExperience = stream.ReadVariableInt();
-        int bonusCoins = stream.ReadVariableInt();
-        int bonusExperience = stream.ReadVariableInt();
-        int diamondCost = stream.ReadVariableInt();
-        int requestValue0 = stream.ReadVariableInt();
-        int requestValue1 = stream.ReadVariableInt();
-        (int identifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields) = DecodeServerCommand(stream, environment);
+        LongId? homeOwnerId = stream.ReadOptionalLongId();
+        LongId? helperId = stream.ReadOptionalLongId();
+        int crateIndex = stream.ReadVarInt();
+        int responseCode = stream.ReadVarInt();
+        int productDataGlobalId = stream.ReadVarInt();
+        int amount = stream.ReadVarInt();
+        int baseCoins = stream.ReadVarInt();
+        int baseExperience = stream.ReadVarInt();
+        int bonusCoins = stream.ReadVarInt();
+        int bonusExperience = stream.ReadVarInt();
+        int diamondCost = stream.ReadVarInt();
+        int requestValue0 = stream.ReadVarInt();
+        int requestValue1 = stream.ReadVarInt();
+
 
         return new(
-            homeOwnerIdentifier,
-            helperIdentifier,
+            homeOwnerId,
+            helperId,
             crateIndex,
             responseCode,
-            productDataGlobalIdentifier,
+            productDataGlobalId,
             amount,
             baseCoins,
             baseExperience,
@@ -77,30 +69,25 @@ public sealed record BoatCrateHelpResponseServerCommand(
             bonusExperience,
             diamondCost,
             requestValue0,
-            requestValue1,
-            identifier,
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
+            requestValue1
         );
     }
 
     /// <summary>Encodes the unchanged native field order.</summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteOptionalLongIdentifier(HomeOwnerIdentifier);
-        stream.WriteOptionalLongIdentifier(HelperIdentifier);
-        stream.WriteVariableInt(CrateIndex);
-        stream.WriteVariableInt(ResponseCode);
-        stream.WriteVariableInt(ProductDataGlobalIdentifier);
-        stream.WriteVariableInt(Amount);
-        stream.WriteVariableInt(BaseCoins);
-        stream.WriteVariableInt(BaseExperience);
-        stream.WriteVariableInt(BonusCoins);
-        stream.WriteVariableInt(BonusExperience);
-        stream.WriteVariableInt(DiamondCost);
-        stream.WriteVariableInt(RequestValue0);
-        stream.WriteVariableInt(RequestValue1);
-        EncodeServerCommand(stream, environment);
+        stream.WriteOptionalLongId(HomeOwnerId);
+        stream.WriteOptionalLongId(HelperId);
+        stream.WriteVarInt(CrateIndex);
+        stream.WriteVarInt(ResponseCode);
+        stream.WriteVarInt(ProductDataGlobalId);
+        stream.WriteVarInt(Amount);
+        stream.WriteVarInt(BaseCoins);
+        stream.WriteVarInt(BaseExperience);
+        stream.WriteVarInt(BonusCoins);
+        stream.WriteVarInt(BonusExperience);
+        stream.WriteVarInt(DiamondCost);
+        stream.WriteVarInt(RequestValue0);
+        stream.WriteVarInt(RequestValue1);
     }
 }

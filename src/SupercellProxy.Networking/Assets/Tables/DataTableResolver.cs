@@ -12,11 +12,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Defines the <c language="csharp">GlobalIdTableSize</c> value.
     /// </summary>
-    public const int GlobalIdentifierTableSize = 100000;
+    public const int GlobalIdTableSize = 100000;
 
     private readonly Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> _dataTables;
     private readonly Dictionary<string, GameAsset> _resourcesByFile;
-    private readonly Dictionary<string, int> _tableIdentifiersByFile;
+    private readonly Dictionary<string, int> _tableIdsByFile;
 
     /// <summary>
     /// Initializes a new <see cref="DataTableResolver"/> instance.
@@ -28,24 +28,24 @@ public sealed class DataTableResolver : ICommandDataResolver
         Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> resolvedDataTables =
             [];
 
-        foreach ((int tableIdentifier, string? file) in DataTableRegistry.Create(resources))
+        foreach ((int tableId, string? file) in DataTableRegistry.Create(resources))
         {
             if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource))
                 throw new InvalidOperationException($"GameAsset {file} was not downloaded.");
 
-            resolvedDataTables.Add(tableIdentifier, (resource, new Lazy<GameDataTable>(() => ParseTable(resource))));
+            resolvedDataTables.Add(tableId, (resource, new Lazy<GameDataTable>(() => ParseTable(resource))));
         }
 
         _dataTables = resolvedDataTables;
-        HighestTableIdentifier = resolvedDataTables.Keys.Max();
-        _tableIdentifiersByFile = resolvedDataTables.ToDictionary(static entry => entry.Value.GameAsset.Fingerprint.File, static entry => entry.Key, StringComparer.Ordinal);
+        HighestTableId = resolvedDataTables.Keys.Max();
+        _tableIdsByFile = resolvedDataTables.ToDictionary(static entry => entry.Value.GameAsset.Fingerprint.File, static entry => entry.Key, StringComparer.Ordinal);
     }
 
     /// <summary>
     /// Gets the <c language="csharp">HighestTableId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HighestTableId")]
-    public int HighestTableIdentifier { get; }
+    public int HighestTableId { get; }
 
     /// <summary>
     /// Provides the Read Asset Text value or operation.
@@ -62,14 +62,14 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     public DataTableReference[] ResolveAll(string file)
     {
-        if (!TryGetTableIdentifier(file, out int tableIdentifier) || !TryGetTableEntryCount(file, out int count))
+        if (!TryGetTableId(file, out int tableId) || !TryGetTableEntryCount(file, out int count))
             throw new InvalidDataException($"The data table {file} is unavailable.");
 
         DataTableReference[] entries = new DataTableReference[count];
 
         for (int index = 0; index < count; index++)
         {
-            if (!TryResolve((tableIdentifier * GlobalIdentifierTableSize) + index, out DataTableReference? entry))
+            if (!TryResolve((tableId * GlobalIdTableSize) + index, out DataTableReference? entry))
                 throw new InvalidDataException(message: "The data table entry is unavailable.");
 
             entries[index] = entry;
@@ -81,9 +81,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Provides the Resolve All value or operation.
     /// </summary>
-    public DataTableReference[] ResolveAll(int tableIdentifier)
+    public DataTableReference[] ResolveAll(int tableId)
     {
-        return !_dataTables.TryGetValue(tableIdentifier, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table)
+        return !_dataTables.TryGetValue(tableId, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table)
             ? throw new InvalidDataException(message: "The requested native data table is unavailable.")
             : ResolveAll(table.GameAsset.Fingerprint.File);
     }
@@ -95,10 +95,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         count = default;
 
-        if (!_tableIdentifiersByFile.TryGetValue(file, out int tableIdentifier))
+        if (!_tableIdsByFile.TryGetValue(file, out int tableId))
             return false;
 
-        if (ResolveTable(tableIdentifier) is not { } table)
+        if (ResolveTable(tableId) is not { } table)
             return false;
 
         count = table.Entries.Count;
@@ -109,27 +109,27 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">GetTableId</c> operation.
     /// </summary>
-    public bool TryGetTableIdentifier(string file, out int tableIdentifier)
+    public bool TryGetTableId(string file, out int tableId)
     {
-        return _tableIdentifiersByFile.TryGetValue(file, out tableIdentifier);
+        return _tableIdsByFile.TryGetValue(file, out tableId);
     }
 
     /// <summary>
     /// Attempts the <c language="csharp">Resolve</c> operation.
     /// </summary>
-    public bool TryResolve(int globalIdentifier, [NotNullWhen(true)] out DataTableReference? reference)
+    public bool TryResolve(int globalId, [NotNullWhen(true)] out DataTableReference? reference)
     {
-        if (globalIdentifier < GlobalIdentifierTableSize)
+        if (globalId < GlobalIdTableSize)
         {
             reference = null;
 
             return false;
         }
 
-        int tableIdentifier = globalIdentifier / GlobalIdentifierTableSize;
-        int rowIndex = globalIdentifier % GlobalIdentifierTableSize;
+        int tableId = globalId / GlobalIdTableSize;
+        int rowIndex = globalId % GlobalIdTableSize;
 
-        if (ResolveTable(tableIdentifier) is not { } table || rowIndex >= table.Entries.Count)
+        if (ResolveTable(tableId) is not { } table || rowIndex >= table.Entries.Count)
         {
             reference = null;
 
@@ -145,8 +145,8 @@ public sealed class DataTableResolver : ICommandDataResolver
             return false;
         }
 
-        GameAssetFingerprintEntry fingerprint = _dataTables[tableIdentifier].GameAsset.Fingerprint;
-        reference = new DataTableReference(globalIdentifier, tableIdentifier, rowIndex, name, fingerprint.File, fingerprint.Sha);
+        GameAssetFingerprintEntry fingerprint = _dataTables[tableId].GameAsset.Fingerprint;
+        reference = new DataTableReference(globalId, tableId, rowIndex, name, fingerprint.File, fingerprint.Sha);
 
         return true;
     }
@@ -158,10 +158,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         reference = null;
 
-        if (!_tableIdentifiersByFile.TryGetValue(file, out int tableIdentifier))
+        if (!_tableIdsByFile.TryGetValue(file, out int tableId))
             return false;
 
-        if (ResolveTable(tableIdentifier) is not { } table)
+        if (ResolveTable(tableId) is not { } table)
             return false;
 
         int rowIndex = -1;
@@ -178,17 +178,17 @@ public sealed class DataTableResolver : ICommandDataResolver
         }
 
         return rowIndex is not -1
-            && TryResolve((tableIdentifier * GlobalIdentifierTableSize) + rowIndex, out reference);
+            && TryResolve((tableId * GlobalIdTableSize) + rowIndex, out reference);
     }
 
     /// <summary>
     /// Attempts the <c language="csharp">ResolveBoolean</c> operation.
     /// </summary>
-    public bool TryResolveBoolean(int globalIdentifier, string fieldName, out bool value)
+    public bool TryResolveBoolean(int globalId, string fieldName, out bool value)
     {
         value = default;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
+        if (ResolveEntry(globalId) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
             return false;
 
         if (cell.Kind == LiteralKind.Null || !cell.TryGetBoolean(out bool booleanValue))
@@ -201,7 +201,7 @@ public sealed class DataTableResolver : ICommandDataResolver
 
     /// <summary>
     /// Attempts to resolve a Boolean field from a named row in any loaded data-table resource,
-    /// including resources that do not have a global table identifier.
+    /// including resources that do not have a global table id.
     /// </summary>
     public bool TryResolveBoolean(string file, string name, string fieldName, out bool value)
     {
@@ -221,11 +221,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveBoolean</c> operation.
     /// </summary>
-    public bool TryResolveBoolean(int globalIdentifier, string fieldName, int valueIndex, out bool value)
+    public bool TryResolveBoolean(int globalId, string fieldName, int valueIndex, out bool value)
     {
         value = default;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry)
+        if (ResolveEntry(globalId) is not { } entry)
             return false;
 
         if (!TryResolveIndexedValue(entry, fieldName, valueIndex, out LiteralValue cell))
@@ -245,9 +245,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>Gets the number of rows belonging to one data-table entry, including continuation rows.</summary>
-    public bool TryResolveEntryRowCount(int globalIdentifier, out int count)
+    public bool TryResolveEntryRowCount(int globalId, out int count)
     {
-        GameDataTableEntry? entry = ResolveEntry(globalIdentifier);
+        GameDataTableEntry? entry = ResolveEntry(globalId);
         count = entry?.Snapshots.Count ?? 0;
 
         return entry is not null;
@@ -256,11 +256,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
-    public bool TryResolveInt(int globalIdentifier, string fieldName, out int value)
+    public bool TryResolveInt(int globalId, string fieldName, out int value)
     {
         value = default;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
+        if (ResolveEntry(globalId) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
             return false;
 
         if (cell.Kind == LiteralKind.Null || !cell.TryGetInt32(out int intValue))
@@ -345,11 +345,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveInt</c> operation.
     /// </summary>
-    public bool TryResolveInt(int globalIdentifier, string fieldName, int valueIndex, out int value)
+    public bool TryResolveInt(int globalId, string fieldName, int valueIndex, out int value)
     {
         value = default;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry)
+        if (ResolveEntry(globalId) is not { } entry)
             return false;
 
         if (!TryResolveIndexedValue(entry, fieldName, valueIndex, out LiteralValue cell))
@@ -386,11 +386,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
-    public bool TryResolveString(int globalIdentifier, string fieldName, [NotNullWhen(true)] out string? value)
+    public bool TryResolveString(int globalId, string fieldName, [NotNullWhen(true)] out string? value)
     {
         value = null;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
+        if (ResolveEntry(globalId) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
             return false;
 
         if (cell.Kind == LiteralKind.Null || !cell.TryGetString(out string? stringValue))
@@ -404,11 +404,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
-    public bool TryResolveString(int globalIdentifier, string fieldName, int valueIndex, [NotNullWhen(true)] out string? value)
+    public bool TryResolveString(int globalId, string fieldName, int valueIndex, [NotNullWhen(true)] out string? value)
     {
         value = null;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry)
+        if (ResolveEntry(globalId) is not { } entry)
             return false;
 
         if (!TryResolveIndexedValue(entry, fieldName, valueIndex, out LiteralValue cell))
@@ -476,11 +476,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveValueCount</c> operation.
     /// </summary>
-    public bool TryResolveValueCount(int globalIdentifier, string fieldName, out int count)
+    public bool TryResolveValueCount(int globalId, string fieldName, out int count)
     {
         count = default;
 
-        if (ResolveEntry(globalIdentifier) is not { } entry)
+        if (ResolveEntry(globalId) is not { } entry)
             return false;
 
         if (!entry.BaseRow.ContainsKey(fieldName) && !entry.ContinuationRows.Any(row => row.ContainsKey(fieldName)))
@@ -528,9 +528,9 @@ public sealed class DataTableResolver : ICommandDataResolver
         return true;
     }
 
-    private GameDataTableEntry? ResolveEntry(int identifier)
+    private GameDataTableEntry? ResolveEntry(int id)
     {
-        return TryResolveTableEntry(identifier, out GameDataTableEntry? entry) ? entry : null;
+        return TryResolveTableEntry(id, out GameDataTableEntry? entry) ? entry : null;
     }
 
     private GameDataTableEntry? ResolveEntry(string file, string name)
@@ -547,9 +547,9 @@ public sealed class DataTableResolver : ICommandDataResolver
             : index < rows.Count ? rows[index] : null;
     }
 
-    private GameDataTable? ResolveTable(int identifier)
+    private GameDataTable? ResolveTable(int id)
     {
-        return _dataTables.TryGetValue(identifier, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table) ? table.Table.Value : null;
+        return _dataTables.TryGetValue(id, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table) ? table.Table.Value : null;
     }
 
     private bool TryResolvePhysicalRows(string file, [NotNullWhen(true)] out IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>>? rows)
@@ -564,19 +564,19 @@ public sealed class DataTableResolver : ICommandDataResolver
         return true;
     }
 
-    private bool TryResolveTableEntry(int globalIdentifier, [NotNullWhen(true)] out GameDataTableEntry? entry)
+    private bool TryResolveTableEntry(int globalId, [NotNullWhen(true)] out GameDataTableEntry? entry)
     {
-        if (globalIdentifier < GlobalIdentifierTableSize)
+        if (globalId < GlobalIdTableSize)
         {
             entry = null;
 
             return false;
         }
 
-        int tableIdentifier = globalIdentifier / GlobalIdentifierTableSize;
-        int rowIndex = globalIdentifier % GlobalIdentifierTableSize;
+        int tableId = globalId / GlobalIdTableSize;
+        int rowIndex = globalId % GlobalIdTableSize;
 
-        if (ResolveTable(tableIdentifier) is not { } table || rowIndex >= table.Entries.Count)
+        if (ResolveTable(tableId) is not { } table || rowIndex >= table.Entries.Count)
         {
             entry = null;
 

@@ -15,7 +15,7 @@ public sealed record AvatarStateValues(int Unknown0, int Unknown1, int Unknown2,
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadInt64());
+        return new(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadInt64());
     }
 
     /// <summary>
@@ -24,9 +24,9 @@ public sealed record AvatarStateValues(int Unknown0, int Unknown1, int Unknown2,
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
         stream.WriteInt64(Unknown3);
     }
 }

@@ -6,12 +6,9 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Places the selected net on one fishing-area spot.</summary>
 public sealed record PlaceFishingNetCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("NetGlobalId")] int NetGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("NetGlobalId")] int NetGlobalId
+) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.PlaceFishingNetCommandType;
@@ -20,18 +17,16 @@ public sealed record PlaceFishingNetCommand(
     public static PlaceFishingNetCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int fishingSpotGlobalIdentifier = stream.ReadVariableInt();
-        int netGlobalIdentifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int fishingSpotGlobalId = stream.ReadVarInt();
+        int netGlobalId = stream.ReadVarInt();
 
-        return new PlaceFishingNetCommand(fishingSpotGlobalIdentifier, netGlobalIdentifier, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new PlaceFishingNetCommand(fishingSpotGlobalId, netGlobalId);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(FishingSpotGlobalIdentifier);
-        stream.WriteVariableInt(NetGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(FishingSpotGlobalId);
+        stream.WriteVarInt(NetGlobalId);
     }
 }

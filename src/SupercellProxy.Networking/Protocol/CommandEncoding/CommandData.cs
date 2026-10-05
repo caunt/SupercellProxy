@@ -50,9 +50,9 @@ public sealed record CommandData
         int[] values = new int[ValueCount];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadVariableInt();
+            values[index] = stream.ReadVarInt();
 
-        return new CommandData(values, stream.ReadString(), stream.ReadVariableInt());
+        return new CommandData(values, stream.ReadString(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public sealed record CommandData
         ArgumentNullException.ThrowIfNull(stream);
 
         foreach (int value in Values.Span)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
         stream.WriteString(Text);
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
     }
 }

@@ -7,14 +7,14 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// <summary>Represents decoded MapGameHomePawnSnapshot state.</summary>
 public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the AvatarIdentifier value.</summary>
+    /// <summary>Gets the AvatarId value.</summary>
     [JsonPropertyName("AvatarId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public MapGameAvatarIdentifier? AvatarIdentifier { get; init; }
+    public MapGameAvatarId? AvatarId { get; init; }
 
-    /// <summary>Gets the CurrentNodeIdentifier value.</summary>
+    /// <summary>Gets the CurrentNodeId value.</summary>
     [JsonPropertyName("CurrentNodeId")]
-    public int CurrentNodeIdentifier { get; init; }
+    public int CurrentNodeId { get; init; }
 
     /// <summary>Gets the Emblem value.</summary>
     [JsonPropertyName("Emblem")]
@@ -34,10 +34,10 @@ public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Name { get; init; }
 
-    /// <summary>Gets the NeighborhoodIdentifier value.</summary>
+    /// <summary>Gets the NeighborhoodId value.</summary>
     [JsonPropertyName("NeighborhoodId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public MapGameAvatarIdentifier? NeighborhoodIdentifier { get; init; }
+    public MapGameAvatarId? NeighborhoodId { get; init; }
 
     /// <summary>Gets the remaining sanctuary-animal escape allowance.</summary>
     [JsonPropertyName("EmptyNodesTravelledDeliveringAnimals")]

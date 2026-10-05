@@ -1,6 +1,7 @@
 using System.IO.Compression;
 
 using SupercellProxy.Keys.AppStore;
+using SupercellProxy.Keys.Download;
 using SupercellProxy.Keys.Models;
 
 namespace SupercellProxy.Keys;
@@ -75,7 +76,7 @@ internal static partial class Application
         }
     }
 
-    private static (List<string> PositionalArguments, string? OutputOption) ParseDownloadArguments(string[] arguments)
+    private static DownloadArguments ParseDownloadArguments(string[] arguments)
     {
         List<string> positionalArguments = new(capacity: 2);
         string? outputOption = null;
@@ -106,13 +107,13 @@ internal static partial class Application
 
         return positionalArguments.Count is < 1 or > 2 || positionalArguments.Exists(string.IsNullOrWhiteSpace)
             ? throw new ArgumentException(message: "Usage: SupercellProxy.Keys download APP [VERSION] [--output PATH]", nameof(arguments))
-            : ((List<string> PositionalArguments, string? OutputOption))(positionalArguments, outputOption);
+            : new DownloadArguments(positionalArguments, outputOption);
     }
 
-    private static async Task<(IpaApp App, IpaDownload Download)> ResolveDownloadAsync(DecryptDayClient decryptDayClient, string appStoreIdentifier, string? requestedVersion, CancellationToken cancellationToken)
+    private static async Task<ResolvedIpaDownload> ResolveDownloadAsync(DecryptDayClient decryptDayClient, string appStoreId, string? requestedVersion, CancellationToken cancellationToken)
     {
         IpaApp app = await decryptDayClient
-            .GetAppAsync(appStoreIdentifier, cancellationToken)
+            .GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IReadOnlyList<AppVersion> candidateVersions;
@@ -135,11 +136,11 @@ internal static partial class Application
         foreach (AppVersion version in candidateVersions)
         {
             IpaDownload? download = await decryptDayClient
-                .TryAuthorizeAsync(appStoreIdentifier, version, cancellationToken)
+                .TryAuthorizeAsync(appStoreId, version, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (download is not null)
-                return (app, download);
+                return new ResolvedIpaDownload(app, download);
         }
 
         throw new InvalidOperationException(requestedVersion is null ? "No downloadable version was found." : $"Version {requestedVersion} is not downloadable.");
@@ -154,13 +155,13 @@ internal static partial class Application
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 
-        string appStoreIdentifier = await ResolveAppStoreIdentifierAsync(positionalArguments[index: 0], appStoreClient, decryptDayClient, cancellationToken)
+        string appStoreId = await ResolveAppStoreIdAsync(positionalArguments[index: 0], appStoreClient, decryptDayClient, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        (IpaApp? app, IpaDownload? download) = await ResolveDownloadAsync(decryptDayClient, appStoreIdentifier, positionalArguments.Count is 2 ? positionalArguments[index: 1] : null, cancellationToken)
+        (IpaApp? app, IpaDownload? download) = await ResolveDownloadAsync(decryptDayClient, appStoreId, positionalArguments.Count is 2 ? positionalArguments[index: 1] : null, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        string outputPath = Path.GetFullPath(outputOption ?? $"{app.BundleIdentifier}-{download.Version}.ipa");
+        string outputPath = Path.GetFullPath(outputOption ?? $"{app.BundleId}-{download.Version}.ipa");
 
         if (Directory.Exists(outputPath))
             throw new ArgumentException($"The output path is a directory: {outputPath}", nameof(arguments));
@@ -176,7 +177,7 @@ internal static partial class Application
             Console.WriteLine($"Downloaded: {outputPath}");
         }
 
-        Console.WriteLine($"Bundle ID: {app.BundleIdentifier}");
+        Console.WriteLine($"Bundle ID: {app.BundleId}");
         Console.WriteLine($"Version: {download.Version}");
 
         return 0;

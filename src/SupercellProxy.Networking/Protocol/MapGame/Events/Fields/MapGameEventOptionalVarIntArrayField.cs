@@ -7,12 +7,12 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.Fields;
 /// <summary>
 /// Represents <c language="csharp">MapGameEventOptionalVarIntArrayField</c>.
 /// </summary>
-public sealed record MapGameEventOptionalVariableIntArrayField : MapGameEventField
+public sealed record MapGameEventOptionalVarIntArrayField : MapGameEventField
 {
     /// <summary>
-    /// Initializes a new <see cref="MapGameEventOptionalVariableIntArrayField"/> instance.
+    /// Initializes a new <see cref="MapGameEventOptionalVarIntArrayField"/> instance.
     /// </summary>
-    public MapGameEventOptionalVariableIntArrayField(ReadOnlyMemory<int>? values)
+    public MapGameEventOptionalVarIntArrayField(ReadOnlyMemory<int>? values)
     {
         Values = values is null ? null : (ReadOnlyMemory<int>?)values.Value.ToArray();
     }
@@ -20,7 +20,7 @@ public sealed record MapGameEventOptionalVariableIntArrayField : MapGameEventFie
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override MapGameEventFieldType FieldType => MapGameEventFieldType.OptionalVariableIntArray;
+    public override MapGameEventFieldType FieldType => MapGameEventFieldType.OptionalVarIntArray;
 
     /// <summary>
     /// Gets the <c language="csharp">Values</c> value.
@@ -35,6 +35,6 @@ public sealed record MapGameEventOptionalVariableIntArrayField : MapGameEventFie
         stream.WriteBoolean(Values is not null);
 
         if (Values is not null)
-            new CommandVariableIntArrayField(Values.Value).Encode(stream);
+            new CommandVarIntArrayField(Values.Value).Encode(stream);
     }
 }

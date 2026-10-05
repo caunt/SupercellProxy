@@ -27,7 +27,7 @@ public sealed record NeighborhoodHistoryEntry
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new() { Values = stream.ReadVariableIntArray(ValueCount), Flag = stream.ReadBoolean() };
+        return new() { Values = stream.ReadVarIntArray(ValueCount), Flag = stream.ReadBoolean() };
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public sealed record NeighborhoodHistoryEntry
             throw new InvalidDataException(message: "Invalid neighborhood history scalar count.");
 
         foreach (int value in Values)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
         stream.WriteBoolean(Flag);
     }

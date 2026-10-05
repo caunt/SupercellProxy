@@ -9,4 +9,4 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <summary>
 /// Defines the Value contract.
 /// </summary>
-public sealed record NeighborhoodIdentifierValue([property: System.Text.Json.Serialization.JsonPropertyName("Id")] LongIdentifier Identifier, int Value);
+public sealed record NeighborhoodIdValue([property: System.Text.Json.Serialization.JsonPropertyName("Id")] LongId Id, int Value);

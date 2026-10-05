@@ -5,13 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MapGame.Movement;
 
 /// <summary>Requests movement of the local Valley pawn from its current node toward another map node.</summary>
-public sealed record MoveMapGameCommand(
-    int SourceNodeIdentifier,
-    int TargetNodeIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record MoveMapGameCommand(int SourceNodeId, int TargetNodeId) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.MoveMapGameCommandType;
@@ -20,23 +14,16 @@ public sealed record MoveMapGameCommand(
     public static MoveMapGameCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
 
-        return new MoveMapGameCommand(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+        return new MoveMapGameCommand(stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(SourceNodeIdentifier);
-        stream.WriteVariableInt(TargetNodeIdentifier);
+
+        stream.WriteVarInt(SourceNodeId);
+        stream.WriteVarInt(TargetNodeId);
     }
 }

@@ -15,30 +15,30 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
     public MapGameChickenTaskStatePayload(
         int unknown0,
         bool unknownBoolean0,
-        LongIdentifier? unknownLongIdentifier,
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair>? optionalValues,
-        ReadOnlyMemory<LongIdentifier> logicLongs
+        LongId? unknownLongId,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues,
+        ReadOnlyMemory<LongId> logicLongs
     )
     {
         Unknown0 = unknown0;
         UnknownBoolean0 = unknownBoolean0;
-        UnknownLongIdentifier = unknownLongIdentifier;
+        UnknownLongId = unknownLongId;
         OptionalValues = optionalValues is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVariableIntPair>?)optionalValues.Value.ToArray();
-        LongIdentifiers = logicLongs.ToArray();
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
+        LongIds = logicLongs.ToArray();
     }
 
     /// <summary>
     /// Gets the <c language="csharp">LongIds</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("LongIds")]
-    public ReadOnlyMemory<LongIdentifier> LongIdentifiers { get; }
+    public ReadOnlyMemory<LongId> LongIds { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">OptionalValues</c> value.
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair>? OptionalValues { get; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown0</c> value.
@@ -54,7 +54,7 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
     /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongIdentifier? UnknownLongIdentifier { get; }
+    public LongId? UnknownLongId { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -64,11 +64,11 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
         ArgumentNullException.ThrowIfNull(stream);
 
         return new MapGameChickenTaskStatePayload(
-            stream.ReadVariableInt(),
+            stream.ReadVarInt(),
             stream.ReadBoolean(),
-            MapGameFieldCodec.ReadOptionalLongIdentifier(stream),
-            MapGameFieldCodec.ReadOptionalDataReferenceVariableIntPairs(stream),
-            MapGameFieldCodec.ReadLongIdentifiers(stream)
+            MapGameFieldCodec.ReadOptionalLongId(stream),
+            MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream),
+            MapGameFieldCodec.ReadLongIds(stream)
         );
     }
 
@@ -77,10 +77,10 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
         stream.WriteBoolean(UnknownBoolean0);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier);
-        MapGameFieldCodec.WriteOptionalDataReferenceVariableIntPairs(stream, OptionalValues);
-        MapGameFieldCodec.WriteLongIdentifiers(stream, LongIdentifiers.Span);
+        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId);
+        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
+        MapGameFieldCodec.WriteLongIds(stream, LongIds.Span);
     }
 }

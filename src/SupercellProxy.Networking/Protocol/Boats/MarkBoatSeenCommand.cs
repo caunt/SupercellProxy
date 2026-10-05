@@ -17,8 +17,7 @@ public sealed record MarkBoatSeenCommand : Command
     /// <summary>
     /// Provides the Mark Boat Seen Command value or operation.
     /// </summary>
-    public MarkBoatSeenCommand(bool nextBoat, int executionPhaseCounter = 0, CommandData? debugData0 = null, CommandData? debugData1 = null)
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public MarkBoatSeenCommand(bool nextBoat)
     {
         NextBoat = nextBoat;
     }
@@ -39,17 +38,15 @@ public sealed record MarkBoatSeenCommand : Command
     public static MarkBoatSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new MarkBoatSeenCommand(stream.ReadBoolean(), fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new MarkBoatSeenCommand(stream.ReadBoolean());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(NextBoat);
     }
 }

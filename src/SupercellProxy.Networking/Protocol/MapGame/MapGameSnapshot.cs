@@ -30,7 +30,7 @@ public sealed record MapGameSnapshot
     /// Gets or sets the <c language="csharp">MapGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("MapGlobalId")]
-    public int MapGlobalIdentifier { get; init; }
+    public int MapGlobalId { get; init; }
 
     /// <summary>
     /// Gets the Next Expire Hour Index value.

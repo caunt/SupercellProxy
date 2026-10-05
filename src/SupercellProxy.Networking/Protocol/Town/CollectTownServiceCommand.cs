@@ -5,33 +5,25 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Collects a completed town service and releases its passenger.</summary>
-public sealed record CollectTownServiceCommand(
-    int ServiceBuildingGlobalIdentifier,
-    int FinishedServiceIndex,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectTownServiceCommand(int ServiceBuildingGlobalId, int FinishedServiceIndex) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.CollectTownServiceCommandType;
 
-    /// <summary>Decodes the building identifier, finished-service index, and command fields.</summary>
+    /// <summary>Decodes the building id, finished-service index, and command fields.</summary>
     public static CollectTownServiceCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int building = stream.ReadVariableInt();
-        int service = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int building = stream.ReadVarInt();
+        int service = stream.ReadVarInt();
 
-        return new(building, service, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new(building, service);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(ServiceBuildingGlobalIdentifier);
-        stream.WriteVariableInt(FinishedServiceIndex);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(ServiceBuildingGlobalId);
+        stream.WriteVarInt(FinishedServiceIndex);
     }
 }

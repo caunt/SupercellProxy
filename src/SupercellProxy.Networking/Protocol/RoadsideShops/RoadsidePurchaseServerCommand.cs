@@ -30,18 +30,14 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// Defines the Price contract.
 /// </summary>
 public sealed record RoadsidePurchaseServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier BuyerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ShopOwnerId")] LongIdentifier ShopOwnerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ContextId")] LongIdentifier ContextIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId BuyerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ShopOwnerId")] LongId ShopOwnerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ContextId")] LongId ContextId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
     int SlotIndex,
     int Quantity,
-    int Price,
-    int ServerCommandIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : ServerCommand(ServerCommandIdentifier, ExecutionPhaseCounter, DebugData0, DebugData1)
+    int Price
+) : ServerCommand
 {
     /// <summary>
     /// Provides the Daily Collection Tool Limit value or operation.
@@ -59,42 +55,29 @@ public sealed record RoadsidePurchaseServerCommand(
     public static RoadsidePurchaseServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier buyer = stream.ReadLongIdentifier();
-        LongIdentifier owner = stream.ReadLongIdentifier();
-        LongIdentifier context = stream.ReadLongIdentifier();
+        LongId buyer = stream.ReadLongId();
+        LongId owner = stream.ReadLongId();
+        LongId context = stream.ReadLongId();
         int item = stream.ReadInt32();
         int slot = stream.ReadInt32();
         int quantity = stream.ReadInt32();
         int price = stream.ReadInt32();
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
-        return new(
-            buyer,
-            owner,
-            context,
-            item,
-            slot,
-            quantity,
-            price,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new(buyer, owner, context, item, slot, quantity, price);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(BuyerIdentifier);
-        stream.WriteLongIdentifier(ShopOwnerIdentifier);
-        stream.WriteLongIdentifier(ContextIdentifier);
-        stream.WriteInt32(ItemGlobalIdentifier);
+        stream.WriteLongId(BuyerId);
+        stream.WriteLongId(ShopOwnerId);
+        stream.WriteLongId(ContextId);
+        stream.WriteInt32(ItemGlobalId);
         stream.WriteInt32(SlotIndex);
         stream.WriteInt32(Quantity);
         stream.WriteInt32(Price);
-        EncodeServerCommand(stream, environment);
     }
 }

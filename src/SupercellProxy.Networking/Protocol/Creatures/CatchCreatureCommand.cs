@@ -5,24 +5,22 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Creatures;
 
 /// <summary>Starts catching an existing seasonal creature.</summary>
-public sealed record CatchCreatureCommand(int CreatureGlobalIdentifier, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CatchCreatureCommand(int CreatureGlobalId) : Command
 {
-    /// <summary>Gets the native command identifier.</summary>
+    /// <summary>Gets the native command id.</summary>
     public override int Type => CommandRegistry.CatchCreatureCommandType;
 
-    /// <summary>Decodes the command header and creature instance identifier.</summary>
+    /// <summary>Decodes the creature instance id.</summary>
     public static CatchCreatureCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new(stream.ReadVariableInt(), fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new(stream.ReadVarInt());
     }
 
-    /// <summary>Encodes the command header and creature instance identifier.</summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    /// <summary>Encodes the creature instance id.</summary>
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(CreatureGlobalIdentifier);
+        stream.WriteVarInt(CreatureGlobalId);
     }
 }

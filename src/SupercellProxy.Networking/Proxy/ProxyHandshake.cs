@@ -17,7 +17,7 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
 
             SessionTokenData.ValidateAuthentication(token, TimeProvider.System);
 
-            login.AccountIdentifier = LongIdentifier.Empty;
+            login.AccountId = LongId.Empty;
             login.PassToken = null;
             login.SessionToken = token;
         }

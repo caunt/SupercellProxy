@@ -105,8 +105,7 @@ public sealed record CommandWithNoFields : Command
     /// <summary>
     /// Initializes a new <see cref="CommandWithNoFields"/> instance.
     /// </summary>
-    public CommandWithNoFields(int type, int executionPhaseCounter = -1, CommandData? debugData0 = null, CommandData? debugData1 = null)
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public CommandWithNoFields(int type)
     {
         Type = type;
     }
@@ -121,16 +120,13 @@ public sealed record CommandWithNoFields : Command
     /// </summary>
     public static CommandWithNoFields Decode(int type, MessageStream stream, CommandEnvironment environment)
     {
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
-
-        return new CommandWithNoFields(type, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CommandWithNoFields(type);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
     }
 }

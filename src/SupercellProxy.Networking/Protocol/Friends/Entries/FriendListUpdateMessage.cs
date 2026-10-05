@@ -7,10 +7,9 @@ namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 public sealed record FriendListUpdateMessage(FriendEntry Entry) : IMessage
 {
     /// Decodes one complete friend entry.
-    public static FriendListUpdateMessage Create(MessageContainer container)
+    public static FriendListUpdateMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
         FriendEntry entry = FriendEntry.Decode(stream);
 
         return stream.Position != stream.Length
@@ -19,15 +18,13 @@ public sealed record FriendListUpdateMessage(FriendEntry Entry) : IMessage
     }
 
     /// Encodes this update as a payload.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         ArgumentNullException.ThrowIfNull(Entry);
 
-        using MessageStream stream = MessageStream.Create();
-
         Entry.Encode(stream);
-
-        return stream;
     }
 
     /// Omits the private entry from diagnostics.

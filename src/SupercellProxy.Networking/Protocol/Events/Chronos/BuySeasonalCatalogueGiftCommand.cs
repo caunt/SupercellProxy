@@ -14,13 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 /// <summary>
 /// Defines the Gift Index contract.
 /// </summary>
-public sealed record BuySeasonalCatalogueGiftCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventIdentifier,
-    int GiftIndex,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record BuySeasonalCatalogueGiftCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int GiftIndex) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -33,20 +27,18 @@ public sealed record BuySeasonalCatalogueGiftCommand(
     public static BuySeasonalCatalogueGiftCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int eventIdentifier = stream.ReadVariableInt();
-        int giftIndex = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int eventId = stream.ReadVarInt();
+        int giftIndex = stream.ReadVarInt();
 
-        return new BuySeasonalCatalogueGiftCommand(eventIdentifier, giftIndex, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new BuySeasonalCatalogueGiftCommand(eventId, giftIndex);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(EventIdentifier);
-        stream.WriteVariableInt(GiftIndex);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(EventId);
+        stream.WriteVarInt(GiftIndex);
     }
 }

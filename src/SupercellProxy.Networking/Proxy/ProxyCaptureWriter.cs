@@ -152,7 +152,7 @@ public sealed class ProxyCaptureWriter
         byte[] payload = container.Payload.ToArray();
         byte[] frame = new byte[7 + payload.Length];
 
-        BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 0, length: 2), container.Identifier);
+        BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 0, length: 2), container.Id);
         frame[2] = byte.CreateTruncating(payload.Length >> 16);
         frame[3] = byte.CreateTruncating(payload.Length >> 8);
         frame[4] = byte.CreateTruncating(payload.Length);
@@ -161,21 +161,11 @@ public sealed class ProxyCaptureWriter
 
         string fileName = string.Create(
             CultureInfo.InvariantCulture,
-            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Identifier}-{container.Version}-{messageName}.bin"
+            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin"
         );
 
         ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(
-            new ProxyCapturedFrame(
-                sequence,
-                fileName,
-                stage,
-                direction,
-                container.Identifier,
-                container.Version,
-                frame,
-                timestamp,
-                _timeProvider.TimestampFrequency
-            )
+            new ProxyCapturedFrame(sequence, fileName, stage, direction, container.Id, container.Version, frame, timestamp, _timeProvider.TimestampFrequency)
         );
 
         if (annotation is not null)

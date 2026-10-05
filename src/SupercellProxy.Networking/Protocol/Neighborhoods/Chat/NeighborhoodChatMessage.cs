@@ -9,11 +9,10 @@ public sealed record NeighborhoodChatMessage(NeighborhoodItemRequestChatEntry It
     private const int ItemRequestEntryType = 7;
 
     /// <summary>Decodes the proven item-request chat entry.</summary>
-    public static NeighborhoodChatMessage Create(MessageContainer container)
+    public static NeighborhoodChatMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int entryType = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int entryType = stream.ReadVarInt();
 
         if (entryType != ItemRequestEntryType)
             throw new NotSupportedException($"Neighborhood chat entry type {entryType} is not implemented.");
@@ -26,14 +25,12 @@ public sealed record NeighborhoodChatMessage(NeighborhoodItemRequestChatEntry It
     }
 
     /// <summary>Encodes the proven item-request chat entry.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(ItemRequestEntryType);
+        stream.WriteVarInt(ItemRequestEntryType);
         ItemRequest.Encode(stream);
-
-        return stream;
     }
 
     /// <summary>Omits player details from diagnostic text.</summary>

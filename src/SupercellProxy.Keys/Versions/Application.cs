@@ -15,15 +15,15 @@ internal static partial class Application
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 
-        string appStoreIdentifier = await ResolveAppStoreIdentifierAsync(arguments[0], appStoreClient, decryptDayClient, cancellationToken)
+        string appStoreId = await ResolveAppStoreIdAsync(arguments[0], appStoreClient, decryptDayClient, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IpaApp app = await decryptDayClient
-            .GetAppAsync(appStoreIdentifier, cancellationToken)
+            .GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        Console.WriteLine($"Bundle ID: {app.BundleIdentifier}");
-        Console.WriteLine($"App ID: {appStoreIdentifier}");
+        Console.WriteLine($"Bundle ID: {app.BundleId}");
+        Console.WriteLine($"App ID: {appStoreId}");
         Console.WriteLine($"Downloadable versions: {app.Versions.Count}");
 
         foreach (AppVersion? version in app.Versions.Reverse())

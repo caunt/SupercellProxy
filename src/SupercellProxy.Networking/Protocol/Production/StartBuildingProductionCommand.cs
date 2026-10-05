@@ -15,12 +15,9 @@ namespace SupercellProxy.Networking.Protocol.Production;
 /// Defines the Product Global Id contract.
 /// </summary>
 public sealed record StartBuildingProductionCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ProductGlobalId")] int ProductGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ProductGlobalId")] int ProductGlobalId
+) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -33,18 +30,16 @@ public sealed record StartBuildingProductionCommand(
     public static StartBuildingProductionCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new StartBuildingProductionCommand(stream.ReadVariableInt(), stream.ReadVariableInt(), fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new StartBuildingProductionCommand(stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(BuildingGlobalIdentifier);
-        stream.WriteVariableInt(ProductGlobalIdentifier);
+        stream.WriteVarInt(BuildingGlobalId);
+        stream.WriteVarInt(ProductGlobalId);
     }
 }

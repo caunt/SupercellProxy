@@ -13,11 +13,10 @@ public sealed record NeighborhoodMembersMessage : IMessage
     public int UnknownTail { get; init; }
 
     /// <summary>Decodes the optional member list and trailing value.</summary>
-    public static NeighborhoodMembersMessage Create(MessageContainer container)
+    public static NeighborhoodMembersMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int count = stream.ReadVarInt();
 
         if (count is < -1 or > 1000)
             throw new InvalidDataException(message: "The neighborhood member count is invalid.");
@@ -30,7 +29,7 @@ public sealed record NeighborhoodMembersMessage : IMessage
                 members[index] = NeighborhoodMemberEntry.Decode(stream);
         }
 
-        int unknownTail = stream.ReadVariableInt();
+        int unknownTail = stream.ReadVarInt();
 
         return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The neighborhood member list has trailing data.")
@@ -38,14 +37,14 @@ public sealed record NeighborhoodMembersMessage : IMessage
     }
 
     /// <summary>Encodes the optional member list and trailing value.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         if (Members?.Length is > 1000)
             throw new InvalidDataException(message: "The neighborhood member count is invalid.");
 
-        using MessageStream stream = MessageStream.Create();
-
-        stream.WriteVariableInt(Members?.Length ?? -1);
+        stream.WriteVarInt(Members?.Length ?? -1);
 
         if (Members is not null)
         {
@@ -53,9 +52,7 @@ public sealed record NeighborhoodMembersMessage : IMessage
                 member.Encode(stream);
         }
 
-        stream.WriteVariableInt(UnknownTail);
-
-        return stream;
+        stream.WriteVarInt(UnknownTail);
     }
 
     /// <summary>Omits member details from diagnostic text.</summary>

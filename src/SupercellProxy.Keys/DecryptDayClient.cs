@@ -75,39 +75,39 @@ internal sealed class DecryptDayClient(HttpClient client)
         }
     }
 
-    public async Task<IpaApp> GetAppAsync(string appStoreIdentifier, CancellationToken cancellationToken)
+    public async Task<IpaApp> GetAppAsync(string appStoreId, CancellationToken cancellationToken)
     {
-        DecryptDayAppDetail detail = await GetDetailAsync(NormalizeAppStoreIdentifier(appStoreIdentifier), cancellationToken)
+        DecryptDayAppDetail detail = await GetDetailAsync(NormalizeAppStoreId(appStoreId), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        return new IpaApp(detail.BundleIdentifier, AppVersion.CreateMany(detail.Versions));
+        return new IpaApp(detail.BundleId, AppVersion.CreateMany(detail.Versions));
     }
 
-    public async Task<IpaDownload?> TryAuthorizeAsync(string appStoreIdentifier, AppVersion version, CancellationToken cancellationToken)
+    public async Task<IpaDownload?> TryAuthorizeAsync(string appStoreId, AppVersion version, CancellationToken cancellationToken)
     {
-        string identifier = NormalizeAppStoreIdentifier(appStoreIdentifier);
-        DecryptDayAppDetail detail = await GetDetailAsync(identifier, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-        string? fileIdentifier = null;
+        string id = NormalizeAppStoreId(appStoreId);
+        DecryptDayAppDetail detail = await GetDetailAsync(id, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        string? fileId = null;
 
         foreach (string sourceName in version.SourceNames)
         {
-            fileIdentifier = await GetFileIdentifierAsync(identifier, detail.Identifier, sourceName, cancellationToken)
+            fileId = await GetFileIdAsync(id, detail.Id, sourceName, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            if (fileIdentifier is not null)
+            if (fileId is not null)
                 break;
         }
 
-        return fileIdentifier is null
+        return fileId is null
             ? null
-            : new IpaDownload(version.Value, new Uri($"https://decrypt.day/app/id{identifier}/dl/{Uri.EscapeDataString(fileIdentifier)}"));
+            : new IpaDownload(version.Value, new Uri($"https://decrypt.day/app/id{id}/dl/{Uri.EscapeDataString(fileId)}"));
     }
 
-    private static string BuildFilePayload(string appIdentifier, string version)
+    private static string BuildFilePayload(string appId, string version)
     {
         List<byte> bytes = [0xA3];
 
-        foreach (string? value in new[] { "appId", appIdentifier, "version", version, "isPremier" })
+        foreach (string? value in new[] { "appId", appId, "version", version, "isPremier" })
         {
             byte[] encoded = Encoding.UTF8.GetBytes(value);
 
@@ -169,34 +169,34 @@ internal sealed class DecryptDayClient(HttpClient client)
         };
     }
 
-    private static HttpRequestMessage CreateFileRequest(string appStoreIdentifier, string decryptDayIdentifier, string version)
+    private static HttpRequestMessage CreateFileRequest(string appStoreId, string decryptDayId, string version)
     {
         string boundary = $"----WebKitFormBoundary{Guid.NewGuid():N}";
 
         string body =
             $"--{boundary}\r\nContent-Disposition: form-data; name=\"data\"\r\n\r\n"
-            + $"{BuildFilePayload(decryptDayIdentifier, version)}\r\n--{boundary}--\r\n";
+            + $"{BuildFilePayload(decryptDayId, version)}\r\n--{boundary}--\r\n";
 
         ByteArrayContent content = new(Encoding.UTF8.GetBytes(body));
 
         content.Headers.ContentType = new MediaTypeHeaderValue(mediaType: "multipart/form-data");
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
-        HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreIdentifier)}?/files")
+        HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
         {
             Content = content,
         };
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
-        request.Headers.Referrer = new Uri($"https://decrypt.day/app/id{appStoreIdentifier}");
+        request.Headers.Referrer = new Uri($"https://decrypt.day/app/id{appStoreId}");
         request.Headers.Add(name: "Origin", value: "https://decrypt.day");
 
         return request;
     }
 
-    private static HttpRequestMessage CreateMetadataRequest(string appStoreIdentifier)
+    private static HttpRequestMessage CreateMetadataRequest(string appStoreId)
     {
-        HttpRequestMessage request = new(HttpMethod.Get, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreIdentifier)}/__data.json");
+        HttpRequestMessage request = new(HttpMethod.Get, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
@@ -408,7 +408,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         }
     }
 
-    private static string NormalizeAppStoreIdentifier(string value)
+    private static string NormalizeAppStoreId(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
@@ -596,13 +596,13 @@ internal sealed class DecryptDayClient(HttpClient client)
         }
     }
 
-    private async Task<DecryptDayAppDetail> GetDetailAsync(string appStoreIdentifier, CancellationToken cancellationToken)
+    private async Task<DecryptDayAppDetail> GetDetailAsync(string appStoreId, CancellationToken cancellationToken)
     {
-        if (_details.TryGetValue(appStoreIdentifier, out DecryptDayAppDetail? cached))
+        if (_details.TryGetValue(appStoreId, out DecryptDayAppDetail? cached))
             return cached;
 
         using HttpResponseMessage response = await _client
-            .SendWithRetryAsync(() => CreateMetadataRequest(appStoreIdentifier), cancellationToken)
+            .SendWithRetryAsync(() => CreateMetadataRequest(appStoreId), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
 
@@ -625,19 +625,19 @@ internal sealed class DecryptDayClient(HttpClient client)
         {
             DecryptDayApplicationPayload? payload = node?.Data?.Decode(DecryptDaySerializationContext.Default.DecryptDayApplicationPayload);
 
-            if (payload?.Application?.BundleIdentifier is not { } bundleIdentifier)
+            if (payload?.Application?.BundleId is not { } bundleId)
                 continue;
 
             string[] versions = [.. payload.Versions.OfType<DecryptDayVersionMetadata>()
                 .Select(static version => version.Name).OfType<string>()
                 .Where(static version => !string.IsNullOrWhiteSpace(version))];
 
-            string identifier = payload.Application.Identifier
+            string id = payload.Application.Id
                 ?? throw new InvalidDataException(message: "decrypt.day metadata omitted its internal app ID.");
 
-            DecryptDayAppDetail detail = new(identifier, bundleIdentifier, versions);
+            DecryptDayAppDetail detail = new(id, bundleId, versions);
 
-            _details[appStoreIdentifier] = detail;
+            _details[appStoreId] = detail;
 
             return detail;
         }
@@ -645,10 +645,10 @@ internal sealed class DecryptDayClient(HttpClient client)
         throw new InvalidDataException(message: "decrypt.day did not return recognizable app metadata.");
     }
 
-    private async Task<string?> GetFileIdentifierAsync(string appStoreIdentifier, string decryptDayIdentifier, string version, CancellationToken cancellationToken)
+    private async Task<string?> GetFileIdAsync(string appStoreId, string decryptDayId, string version, CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await _client
-            .SendWithRetryAsync(() => CreateFileRequest(appStoreIdentifier, decryptDayIdentifier, version), cancellationToken)
+            .SendWithRetryAsync(() => CreateFileRequest(appStoreId, decryptDayId, version), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         if (!response.IsSuccessStatusCode)
@@ -686,7 +686,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         return files.OfType<DecryptDayFileMetadata>()
             .Where(static file => file.Premium is not true && file.LoginRequired is not true)
-            .Select(static file => file.Identifier)
-            .FirstOrDefault(static identifier => !string.IsNullOrWhiteSpace(identifier));
+            .Select(static file => file.Id)
+            .FirstOrDefault(static id => !string.IsNullOrWhiteSpace(id));
     }
 }

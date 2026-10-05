@@ -52,11 +52,10 @@ public sealed record OwnHomeDataMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">OwnHomeDataMessage</c> from the supplied data.
     /// </summary>
-    public static OwnHomeDataMessage Create(MessageContainer container)
+    public static OwnHomeDataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int serverTimestamp = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int serverTimestamp = stream.ReadVarInt();
         ClientAvatar clientAvatar = ClientAvatar.Decode(stream);
         Memory<byte>? compressedAvatarDataDocument = ReadByteArray(stream);
         Memory<byte>? unknownCompressedDocument = ReadByteArray(stream);
@@ -89,19 +88,17 @@ public sealed record OwnHomeDataMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(ServerTimestamp);
+        stream.WriteVarInt(ServerTimestamp);
         ClientAvatar.Encode(stream);
         WriteByteArray(stream, CompressedAvatarDataDocument);
         WriteByteArray(stream, UnknownCompressedDocument);
         WriteByteArray(stream, CompressedHomeDataDocument);
-
-        return stream;
     }
 
     private static Memory<byte>? ReadByteArray(MessageStream stream)

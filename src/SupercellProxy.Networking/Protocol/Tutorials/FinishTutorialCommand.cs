@@ -17,17 +17,16 @@ public sealed record FinishTutorialCommand : Command
     /// <summary>
     /// Initializes a new <see cref="FinishTutorialCommand"/> instance.
     /// </summary>
-    public FinishTutorialCommand(int tutorialGlobalIdentifier, int executionPhaseCounter = -1, CommandData? debugData0 = null, CommandData? debugData1 = null)
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public FinishTutorialCommand(int tutorialGlobalId)
     {
-        TutorialGlobalIdentifier = tutorialGlobalIdentifier;
+        TutorialGlobalId = tutorialGlobalId;
     }
 
     /// <summary>
     /// Gets the <c language="csharp">TutorialGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("TutorialGlobalId")]
-    public int TutorialGlobalIdentifier { get; }
+    public int TutorialGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
@@ -40,18 +39,16 @@ public sealed record FinishTutorialCommand : Command
     public static FinishTutorialCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int tutorialGlobalIdentifier = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int tutorialGlobalId = stream.ReadVarInt();
 
-        return new FinishTutorialCommand(tutorialGlobalIdentifier, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new FinishTutorialCommand(tutorialGlobalId);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(TutorialGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(TutorialGlobalId);
     }
 }

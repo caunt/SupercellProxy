@@ -4,20 +4,20 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.ScalarFields;
 
 /// <summary>
-/// Represents <c language="csharp">CommandLongIdField</c>.
+/// Represents <c language="csharp">CommandVarIntField</c>.
 /// </summary>
-public sealed record CommandLongIdentifierField(LongIdentifier Value) : CommandField
+public sealed record CommandVarIntField(int Value) : CommandField
 {
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override CommandFieldType FieldType => CommandFieldType.LongIdentifier;
+    public override CommandFieldType FieldType => CommandFieldType.VarInt;
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteLongIdentifier(Value);
+        stream.WriteVarInt(Value);
     }
 }

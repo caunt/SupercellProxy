@@ -12,7 +12,7 @@ public sealed record NeighborhoodListsMessage : IMessage
     /// <summary>
     /// Gets the First Entries value.
     /// </summary>
-    public NeighborhoodIdentifierValue[]? FirstEntries { get; init; }
+    public NeighborhoodIdValue[]? FirstEntries { get; init; }
 
     /// <summary>
     /// Gets the Profiles value.
@@ -22,7 +22,7 @@ public sealed record NeighborhoodListsMessage : IMessage
     /// <summary>
     /// Gets the Second Entries value.
     /// </summary>
-    public NeighborhoodIdentifierValue[]? SecondEntries { get; init; }
+    public NeighborhoodIdValue[]? SecondEntries { get; init; }
 
     /// <summary>
     /// Gets the Value value.
@@ -32,19 +32,18 @@ public sealed record NeighborhoodListsMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static NeighborhoodListsMessage Create(MessageContainer container)
+    public static NeighborhoodListsMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        NeighborhoodIdentifierValue[]? second = ReadIdentifiers(stream);
-        NeighborhoodIdentifierValue[]? first = ReadIdentifiers(stream);
+        ArgumentNullException.ThrowIfNull(stream);
+        NeighborhoodIdValue[]? second = ReadIds(stream);
+        NeighborhoodIdValue[]? first = ReadIds(stream);
         int count = ReadCount(stream);
         NeighborhoodProfileValue[]? profiles = count < 0 ? null : new NeighborhoodProfileValue[count];
 
         if (profiles is not null)
         {
             for (int index = 0; index < profiles.Length; index++)
-                profiles[index] = new NeighborhoodProfileValue(NeighborhoodProfile.Decode(stream), stream.ReadVariableInt());
+                profiles[index] = new NeighborhoodProfileValue(NeighborhoodProfile.Decode(stream), stream.ReadVarInt());
         }
 
         NeighborhoodListsMessage message = new()
@@ -52,7 +51,7 @@ public sealed record NeighborhoodListsMessage : IMessage
             FirstEntries = first,
             SecondEntries = second,
             Profiles = profiles,
-            Value = stream.ReadVariableInt(),
+            Value = stream.ReadVarInt(),
         };
 
         return stream.Position != stream.Length
@@ -63,26 +62,24 @@ public sealed record NeighborhoodListsMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        WriteIdentifiers(stream, SecondEntries);
-        WriteIdentifiers(stream, FirstEntries);
-        stream.WriteVariableInt(Profiles?.Length ?? -1);
+        WriteIds(stream, SecondEntries);
+        WriteIds(stream, FirstEntries);
+        stream.WriteVarInt(Profiles?.Length ?? -1);
 
         if (Profiles is not null)
         {
             foreach (NeighborhoodProfileValue entry in Profiles)
             {
                 entry.Profile.Encode(stream);
-                stream.WriteVariableInt(entry.Value);
+                stream.WriteVarInt(entry.Value);
             }
         }
 
-        stream.WriteVariableInt(Value);
-
-        return stream;
+        stream.WriteVarInt(Value);
     }
 
     /// <summary>
@@ -95,38 +92,38 @@ public sealed record NeighborhoodListsMessage : IMessage
 
     private static int ReadCount(MessageStream stream)
     {
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         return count < -1 || count > stream.Length - stream.Position
             ? throw new InvalidDataException(message: "Invalid neighborhood list entry count.")
             : count;
     }
 
-    private static NeighborhoodIdentifierValue[]? ReadIdentifiers(MessageStream stream)
+    private static NeighborhoodIdValue[]? ReadIds(MessageStream stream)
     {
         int count = ReadCount(stream);
 
         if (count < 0)
             return null;
 
-        NeighborhoodIdentifierValue[] entries = new NeighborhoodIdentifierValue[count];
+        NeighborhoodIdValue[] entries = new NeighborhoodIdValue[count];
 
         for (int index = 0; index < entries.Length; index++)
-            entries[index] = new NeighborhoodIdentifierValue(stream.ReadLongIdentifier(), stream.ReadVariableInt());
+            entries[index] = new NeighborhoodIdValue(stream.ReadLongId(), stream.ReadVarInt());
 
         return entries;
     }
 
-    private static void WriteIdentifiers(MessageStream stream, NeighborhoodIdentifierValue[]? entries)
+    private static void WriteIds(MessageStream stream, NeighborhoodIdValue[]? entries)
     {
-        stream.WriteVariableInt(entries?.Length ?? -1);
+        stream.WriteVarInt(entries?.Length ?? -1);
 
         if (entries is not null)
         {
-            foreach (NeighborhoodIdentifierValue entry in entries)
+            foreach (NeighborhoodIdValue entry in entries)
             {
-                stream.WriteLongIdentifier(entry.Identifier);
-                stream.WriteVariableInt(entry.Value);
+                stream.WriteLongId(entry.Id);
+                stream.WriteVarInt(entry.Value);
             }
         }
     }

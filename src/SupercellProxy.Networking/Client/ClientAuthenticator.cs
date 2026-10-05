@@ -17,27 +17,27 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
         return new LoginMessage
         {
-            AccountIdentifier = LongIdentifier.Empty,
+            AccountId = LongId.Empty,
             PassToken = null,
             ResourceSha = fingerprintSha1,
             LoginVersion = protocol.LoginVersion,
-            UniqueDeviceIdentifier = "",
-            OpenUniqueDeviceIdentifier = "",
+            UniqueDeviceId = "",
+            OpenUniqueDeviceId = "",
             MacAddress = "",
             DeviceModel = "",
-            AdvertisingIdentifier = "",
+            AdvertisingId = "",
             IsAndroid = true,
             OsVersion = "",
             UnknownString0 = "",
-            AndroidIdentifier = "",
+            AndroidId = "",
             PreferredLanguage = "",
             UnknownString1 = "",
             AdvertisingTrackingEnabled = true,
-            IdentifierForVendor = "",
+            IdForVendor = "",
             AppStore = appStore,
             SessionToken = sessionToken,
             StorefrontCountryCode = "",
-            StorefrontIdentifier = "",
+            StorefrontId = "",
         };
     }
 
@@ -118,7 +118,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         };
     }
 
-    private async Task<(GameAssetFingerprint Fingerprint, GameAsset[] Resources)> DiscoverAssetsAsync(CancellationToken cancellationToken)
+    private async Task<GameAssetBundle> DiscoverAssetsAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -140,7 +140,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             GameAsset[] resources = await assets.GetAssetsAsync(fingerprint, content.AssetsUrlsFiltered, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            return (fingerprint, resources);
+            return new GameAssetBundle(fingerprint, resources);
         }
     }
 
@@ -173,11 +173,11 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
             if (allowAnonymous)
             {
-                string deviceIdentifier = Guid.NewGuid().ToString(format: "D");
-                loginMessage.UniqueDeviceIdentifier = deviceIdentifier;
-                loginMessage.OpenUniqueDeviceIdentifier = deviceIdentifier;
-                loginMessage.AndroidIdentifier = deviceIdentifier;
-                loginMessage.IdentifierForVendor = deviceIdentifier;
+                string deviceId = Guid.NewGuid().ToString(format: "D");
+                loginMessage.UniqueDeviceId = deviceId;
+                loginMessage.OpenUniqueDeviceId = deviceId;
+                loginMessage.AndroidId = deviceId;
+                loginMessage.IdForVendor = deviceId;
                 loginMessage.PreferredLanguage = "en";
             }
 
@@ -187,7 +187,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
             LoginOkMessage loginOkMessage = RequireMessage<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
 
-            if (loginOkMessage.AccountIdentifier == LongIdentifier.Empty || (!allowAnonymous && (sessionToken is null || sessionToken.IsEmpty)))
+            if (loginOkMessage.AccountId == LongId.Empty || (!allowAnonymous && (sessionToken is null || sessionToken.IsEmpty)))
                 throw new InvalidDataException(message: "Authentication did not establish an account.");
 
             if (requestOwnHome)

@@ -17,23 +17,21 @@ public sealed record ServerHelloMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">ServerHelloMessage</c> from the supplied data.
     /// </summary>
-    public static ServerHelloMessage Create(MessageContainer container)
+    public static ServerHelloMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new ServerHelloMessage { SessionKey = container.Payload.ReadByteArray() };
+        return new ServerHelloMessage { SessionKey = stream.ReadByteArray() };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteByteArray(SessionKey.Span);
-
-        return supercellStream;
+        stream.WriteByteArray(SessionKey.Span);
     }
 
     /// <summary>

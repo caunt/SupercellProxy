@@ -13,8 +13,7 @@ public sealed record CollectAllLettersCommand : Command
     /// <summary>
     /// Initializes a new <see cref="CollectAllLettersCommand"/> instance.
     /// </summary>
-    public CollectAllLettersCommand(int executionPhaseCounter = -1, CommandData? debugData0 = null, CommandData? debugData1 = null)
-        : base(executionPhaseCounter, debugData0, debugData1) { }
+    public CollectAllLettersCommand() { }
 
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
@@ -26,16 +25,13 @@ public sealed record CollectAllLettersCommand : Command
     /// </summary>
     public static CollectAllLettersCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
-
-        return new CollectAllLettersCommand(fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectAllLettersCommand();
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
     }
 }

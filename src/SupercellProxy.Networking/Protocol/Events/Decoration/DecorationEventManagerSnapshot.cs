@@ -14,16 +14,16 @@ public sealed record DecorationEventManagerSnapshot
     public int ChallengesOnSubmission { get; init; }
 
     /// <summary>
-    /// Gets the Event Identifier value.
+    /// Gets the Event Id value.
     /// </summary>
     [JsonPropertyName("eventVariantId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>
     /// Gets the Event Owner Id value.
     /// </summary>
     [JsonPropertyName("eventId")]
-    public int EventOwnerIdentifier { get; init; }
+    public int EventOwnerId { get; init; }
 
     /// <summary>
     /// Gets the Featuring Group value.
@@ -35,7 +35,7 @@ public sealed record DecorationEventManagerSnapshot
     /// Gets the Last Event Id value.
     /// </summary>
     [JsonPropertyName("lastEventId")]
-    public int LastEventIdentifier { get; init; }
+    public int LastEventId { get; init; }
 
     /// <summary>
     /// Gets the Last Event State value.
@@ -53,7 +53,7 @@ public sealed record DecorationEventManagerSnapshot
     /// Gets the Pending Reclaim Event Id value.
     /// </summary>
     [JsonPropertyName("pendingReclaimEventId")]
-    public int PendingReclaimEventIdentifier { get; init; }
+    public int PendingReclaimEventId { get; init; }
 
     /// <summary>
     /// Gets the Submission Time value.

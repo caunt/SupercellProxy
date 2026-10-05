@@ -6,12 +6,12 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
 /// <summary>
 /// Represents <c language="csharp">CommandNullableVarLongArrayField</c>.
 /// </summary>
-public sealed record CommandNullableVariableLongArrayField : CommandField
+public sealed record CommandNullableVarLongArrayField : CommandField
 {
     /// <summary>
-    /// Initializes a new <see cref="CommandNullableVariableLongArrayField"/> instance.
+    /// Initializes a new <see cref="CommandNullableVarLongArrayField"/> instance.
     /// </summary>
-    public CommandNullableVariableLongArrayField(ReadOnlyMemory<long>? values)
+    public CommandNullableVarLongArrayField(ReadOnlyMemory<long>? values)
     {
         Values = values is null ? null : (ReadOnlyMemory<long>?)values.Value.ToArray();
     }
@@ -19,7 +19,7 @@ public sealed record CommandNullableVariableLongArrayField : CommandField
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override CommandFieldType FieldType => CommandFieldType.NullableVariableLongArray;
+    public override CommandFieldType FieldType => CommandFieldType.NullableVarLongArray;
 
     /// <summary>
     /// Gets the <c language="csharp">Values</c> value.
@@ -29,14 +29,14 @@ public sealed record CommandNullableVariableLongArrayField : CommandField
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static CommandNullableVariableLongArrayField Decode(MessageStream stream)
+    public static CommandNullableVarLongArrayField Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         return count is -1
-            ? new CommandNullableVariableLongArrayField(values: null)
-            : new CommandNullableVariableLongArrayField(CommandVariableLongArrayField.DecodeValues(count, stream));
+            ? new CommandNullableVarLongArrayField(values: null)
+            : new CommandNullableVarLongArrayField(CommandVarLongArrayField.DecodeValues(count, stream));
     }
 
     /// <summary>
@@ -46,14 +46,14 @@ public sealed record CommandNullableVariableLongArrayField : CommandField
     {
         if (Values is null)
         {
-            stream.WriteVariableInt(valueToWrite: -1);
+            stream.WriteVarInt(valueToWrite: -1);
 
             return;
         }
 
-        stream.WriteVariableInt(Values.Value.Length);
+        stream.WriteVarInt(Values.Value.Length);
 
         foreach (long value in Values.Value.Span)
-            stream.WriteVariableLong(value);
+            stream.WriteVarLong(value);
     }
 }

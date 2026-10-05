@@ -21,11 +21,10 @@ public sealed record NewspaperDataMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static NewspaperDataMessage Create(MessageContainer container)
+    public static NewspaperDataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int storyCount = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int storyCount = stream.ReadVarInt();
 
         if (storyCount > (stream.Length - stream.Position) / 24)
             throw new InvalidDataException(message: "The newspaper story collection is truncated.");
@@ -38,7 +37,7 @@ public sealed record NewspaperDataMessage : IMessage
                 stories[index] = NewspaperStoryEntry.Decode(stream);
         }
 
-        int placementCount = stream.ReadVariableInt();
+        int placementCount = stream.ReadVarInt();
 
         if (placementCount > (stream.Length - stream.Position) / 14)
             throw new InvalidDataException(message: "The newspaper placement collection is truncated.");
@@ -59,11 +58,11 @@ public sealed record NewspaperDataMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Stories?.Length ?? -1);
+        stream.WriteVarInt(Stories?.Length ?? -1);
 
         if (Stories is not null)
         {
@@ -71,14 +70,12 @@ public sealed record NewspaperDataMessage : IMessage
                 entry.Encode(stream);
         }
 
-        stream.WriteVariableInt(Placements?.Length ?? -1);
+        stream.WriteVarInt(Placements?.Length ?? -1);
 
         if (Placements is not null)
         {
             foreach (NewspaperPlacement entry in Placements)
                 entry.Encode(stream);
         }
-
-        return stream;
     }
 }

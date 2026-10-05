@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Marks one completed Valley daily quest as presented to the player.</summary>
-public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.MarkMapGameDailyQuestSeenCommandType;
@@ -14,17 +14,15 @@ public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType, int Executi
     public static MarkMapGameDailyQuestSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int questType = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
+        int questType = stream.ReadVarInt();
 
-        return new MarkMapGameDailyQuestSeenCommand(questType, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+        return new MarkMapGameDailyQuestSeenCommand(questType);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(QuestType);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(QuestType);
     }
 }

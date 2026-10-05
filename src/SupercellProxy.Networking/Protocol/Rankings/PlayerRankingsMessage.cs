@@ -17,10 +17,9 @@ public sealed record PlayerRankingsMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static PlayerRankingsMessage Create(MessageContainer container)
+    public static PlayerRankingsMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
         AvatarRankingEntry[]? entries = AvatarRankingEntry.DecodeEntries(stream);
 
         return stream.Position != stream.Length
@@ -31,13 +30,11 @@ public sealed record PlayerRankingsMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         AvatarRankingEntry.EncodeEntries(stream, Entries);
-
-        return stream;
     }
 
     /// <summary>

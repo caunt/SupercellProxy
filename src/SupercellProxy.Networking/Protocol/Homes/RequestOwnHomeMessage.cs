@@ -23,14 +23,13 @@ public sealed record RequestOwnHomeMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">RequestOwnHomeMessage</c> from the supplied data.
     /// </summary>
-    public static RequestOwnHomeMessage Create(MessageContainer container)
+    public static RequestOwnHomeMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         RequestOwnHomeMessage message = new()
         {
-            Unknown0 = stream.ReadVariableInt(),
+            Unknown0 = stream.ReadVarInt(),
             UnknownString0 = stream.ReadString(),
         };
 
@@ -45,15 +44,13 @@ public sealed record RequestOwnHomeMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
         stream.WriteString(UnknownString0);
-
-        return stream;
     }
 }

@@ -5,25 +5,23 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Validates that a passenger is present in the player's town without changing its state.</summary>
-public sealed record ValidateTownPassengerCommand(int PassengerGlobalIdentifier, int ExecutionPhaseCounter = -1, CommandData? DebugData0 = null, CommandData? DebugData1 = null) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.ValidateTownPassengerCommandType;
 
-    /// <summary>Decodes the passenger identifier and command fields.</summary>
+    /// <summary>Decodes the passenger id and command fields.</summary>
     public static ValidateTownPassengerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int passenger = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int passenger = stream.ReadVarInt();
 
-        return new(passenger, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new(passenger);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(PassengerGlobalIdentifier);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(PassengerGlobalId);
     }
 }

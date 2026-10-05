@@ -18,13 +18,10 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// Defines the Storage Global Id contract.
 /// </summary>
 public sealed record RecordStorageSignpostRankCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")] int ObjectTableIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")] int ObjectTableId,
     bool MaterialsSignpost,
-    [property: System.Text.Json.Serialization.JsonPropertyName("StorageGlobalId")] int StorageGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("StorageGlobalId")] int StorageGlobalId
+) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -37,26 +34,17 @@ public sealed record RecordStorageSignpostRankCommand(
     public static RecordStorageSignpostRankCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new RecordStorageSignpostRankCommand(
-            stream.ReadVariableInt(),
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new RecordStorageSignpostRankCommand(stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(ObjectTableIdentifier);
+        stream.WriteVarInt(ObjectTableId);
         stream.WriteBoolean(MaterialsSignpost);
-        stream.WriteVariableInt(StorageGlobalIdentifier);
+        stream.WriteVarInt(StorageGlobalId);
     }
 }

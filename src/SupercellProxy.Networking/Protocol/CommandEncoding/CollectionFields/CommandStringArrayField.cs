@@ -33,7 +33,7 @@ public sealed record CommandStringArrayField : CommandField
     public static CommandStringArrayField Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         if (count < 0 || count > stream.Length - stream.Position)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid command string array count: {count}."));
@@ -51,7 +51,7 @@ public sealed record CommandStringArrayField : CommandField
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Values.Length);
+        stream.WriteVarInt(Values.Length);
 
         foreach (string value in Values.Span)
             stream.WriteString(value);

@@ -7,20 +7,18 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestOwnFishingHomeMessage : IMessage
 {
     /// <summary>Decodes the captured empty fishing request.</summary>
-    public static RequestOwnFishingHomeMessage Create(MessageContainer container)
+    public static RequestOwnFishingHomeMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return container.Payload.Length != 0
+        return stream.Length != 0
             ? throw new InvalidDataException(message: "The own-fishing-home request must have an empty payload.")
             : new();
     }
 
-    /// <summary>Encodes the empty request using its registry-owned identifier.</summary>
-    public MessageStream ToStream()
+    /// <summary>Encodes the empty request using its registry-owned id.</summary>
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
-
-        return stream;
+        ArgumentNullException.ThrowIfNull(stream);
     }
 }

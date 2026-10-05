@@ -78,7 +78,7 @@ public sealed record CommonAvatarDataSnapshot
 
     /// <summary>Gets the shared sequence used to identify passengers and help requests.</summary>
     [JsonPropertyName("LogicUniqueHelpId")]
-    public HelpIdentifierSequenceSnapshot? HelpIdentifiers { get; init; }
+    public HelpIdSequenceSnapshot? HelpIds { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">MapGameManager</c> value.

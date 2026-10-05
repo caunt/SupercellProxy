@@ -56,48 +56,46 @@ public sealed record ClientHelloMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">ClientHelloMessage</c> from the supplied data.
     /// </summary>
-    public static ClientHelloMessage Create(MessageContainer container)
+    public static ClientHelloMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new ClientHelloMessage
         {
-            ProtocolVersion = container.Payload.ReadInt32(),
-            KeyVersion = container.Payload.ReadInt32(),
+            ProtocolVersion = stream.ReadInt32(),
+            KeyVersion = stream.ReadInt32(),
 
-            MajorVersion = container.Payload.ReadInt32(),
-            MinorVersion = container.Payload.ReadInt32(),
-            PatchVersion = container.Payload.ReadInt32(),
+            MajorVersion = stream.ReadInt32(),
+            MinorVersion = stream.ReadInt32(),
+            PatchVersion = stream.ReadInt32(),
 
-            FingerprintSha1 = container.Payload.ReadString(),
+            FingerprintSha1 = stream.ReadString(),
 
-            DeviceType = container.Payload.ReadInt32(),
-            AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(container.Payload.ReadInt32()),
-            Unknown1 = container.Payload.ReadInt32(),
+            DeviceType = stream.ReadInt32(),
+            AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(stream.ReadInt32()),
+            Unknown1 = stream.ReadInt32(),
         };
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream supercellStream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        supercellStream.WriteInt32(ProtocolVersion);
-        supercellStream.WriteInt32(KeyVersion);
+        stream.WriteInt32(ProtocolVersion);
+        stream.WriteInt32(KeyVersion);
 
-        supercellStream.WriteInt32(MajorVersion);
-        supercellStream.WriteInt32(MinorVersion);
-        supercellStream.WriteInt32(PatchVersion);
+        stream.WriteInt32(MajorVersion);
+        stream.WriteInt32(MinorVersion);
+        stream.WriteInt32(PatchVersion);
 
-        supercellStream.WriteString(FingerprintSha1);
+        stream.WriteString(FingerprintSha1);
 
-        supercellStream.WriteInt32(DeviceType);
-        supercellStream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<AppStore, int>(AppStore));
+        stream.WriteInt32(DeviceType);
+        stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<AppStore, int>(AppStore));
 
-        supercellStream.WriteInt32(Unknown1);
-
-        return supercellStream;
+        stream.WriteInt32(Unknown1);
     }
 }

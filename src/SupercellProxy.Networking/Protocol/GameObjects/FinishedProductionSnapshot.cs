@@ -7,9 +7,9 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>Represents decoded FinishedProductionSnapshot state.</summary>
 public sealed record FinishedProductionSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the DataGlobalIdentifier value.</summary>
+    /// <summary>Gets the DataGlobalId value.</summary>
     [JsonPropertyName("ID")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
     /// <summary>Gets the DiamondsSpent value.</summary>
     [JsonPropertyName("diamondsSpentToInstantComplete")]

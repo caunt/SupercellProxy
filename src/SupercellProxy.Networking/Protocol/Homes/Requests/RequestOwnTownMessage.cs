@@ -7,18 +7,16 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestOwnTownMessage : IMessage
 {
     /// <summary>Decodes the captured empty town request.</summary>
-    public static RequestOwnTownMessage Create(MessageContainer container)
+    public static RequestOwnTownMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return container.Payload.Length != 0 ? throw new InvalidDataException(message: "The own-town request must have an empty payload.") : new();
+        return stream.Length != 0 ? throw new InvalidDataException(message: "The own-town request must have an empty payload.") : new();
     }
 
-    /// <summary>Encodes the empty request using its registry-owned identifier.</summary>
-    public MessageStream ToStream()
+    /// <summary>Encodes the empty request using its registry-owned id.</summary>
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
-
-        return stream;
+        ArgumentNullException.ThrowIfNull(stream);
     }
 }

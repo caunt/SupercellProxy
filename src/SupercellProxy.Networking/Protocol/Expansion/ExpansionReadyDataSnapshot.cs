@@ -11,7 +11,7 @@ public sealed record ExpansionReadyDataSnapshot
     /// Gets or sets the <c language="csharp">ExpansionDataGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("LogicExpansionDataGlobalID")]
-    public int ExpansionDataGlobalIdentifier { get; init; }
+    public int ExpansionDataGlobalId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">ReadyBits</c> value.

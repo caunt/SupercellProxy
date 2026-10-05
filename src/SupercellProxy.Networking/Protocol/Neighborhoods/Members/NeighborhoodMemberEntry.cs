@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Members;
 
 /// <summary>One member returned by a neighborhood member-list response.</summary>
 public sealed record NeighborhoodMemberEntry(
-    LongIdentifier HomeIdentifier,
+    LongId HomeId,
     string FarmName,
     int Level,
     int Unknown0,
@@ -19,30 +19,30 @@ public sealed record NeighborhoodMemberEntry(
     internal static NeighborhoodMemberEntry Decode(MessageStream stream)
     {
         return new NeighborhoodMemberEntry(
-            stream.ReadLongIdentifier(),
+            stream.ReadLongId(),
             stream.ReadString(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
     internal void Encode(MessageStream stream)
     {
-        stream.WriteLongIdentifier(HomeIdentifier);
+        stream.WriteLongId(HomeId);
         stream.WriteString(FarmName);
-        stream.WriteVariableInt(Level);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
-        stream.WriteVariableInt(Unknown3);
-        stream.WriteVariableInt(Unknown4);
-        stream.WriteVariableInt(Unknown5);
-        stream.WriteVariableInt(Unknown6);
+        stream.WriteVarInt(Level);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
+        stream.WriteVarInt(Unknown3);
+        stream.WriteVarInt(Unknown4);
+        stream.WriteVarInt(Unknown5);
+        stream.WriteVarInt(Unknown6);
     }
 }

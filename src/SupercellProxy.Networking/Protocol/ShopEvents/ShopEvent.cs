@@ -17,7 +17,7 @@ public sealed record ShopEvent
     /// Gets or sets the <c language="csharp">EventId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("EventId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">EventType</c> value.
@@ -108,20 +108,20 @@ public sealed record ShopEvent
         {
             BinaryData = binaryData,
             TextData = textData,
-            EventIdentifier = stream.ReadVariableInt(),
-            Unknown0 = stream.ReadVariableInt(),
+            EventId = stream.ReadVarInt(),
+            Unknown0 = stream.ReadVarInt(),
             UnknownString0 = stream.ReadString(),
-            EventType = stream.ReadVariableInt(),
-            Unknown1 = stream.ReadVariableInt(),
-            Unknown2 = stream.ReadVariableInt(),
-            Unknown3 = stream.ReadVariableInt(),
-            Unknown4 = stream.ReadVariableInt(),
-            Unknown5 = stream.ReadVariableInt(),
-            Unknown6 = stream.ReadVariableInt(),
-            Unknown7 = stream.ReadVariableInt(),
-            Unknown8 = stream.ReadVariableInt(),
-            Unknown9 = stream.ReadVariableInt(),
-            Unknown10 = stream.ReadVariableInt(),
+            EventType = stream.ReadVarInt(),
+            Unknown1 = stream.ReadVarInt(),
+            Unknown2 = stream.ReadVarInt(),
+            Unknown3 = stream.ReadVarInt(),
+            Unknown4 = stream.ReadVarInt(),
+            Unknown5 = stream.ReadVarInt(),
+            Unknown6 = stream.ReadVarInt(),
+            Unknown7 = stream.ReadVarInt(),
+            Unknown8 = stream.ReadVarInt(),
+            Unknown9 = stream.ReadVarInt(),
+            Unknown10 = stream.ReadVarInt(),
             UnknownString1 = stream.ReadString(),
         };
     }
@@ -139,20 +139,20 @@ public sealed record ShopEvent
         else
             stream.WriteString(TextData);
 
-        stream.WriteVariableInt(EventIdentifier);
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(EventId);
+        stream.WriteVarInt(Unknown0);
         stream.WriteString(UnknownString0);
-        stream.WriteVariableInt(EventType);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
-        stream.WriteVariableInt(Unknown3);
-        stream.WriteVariableInt(Unknown4);
-        stream.WriteVariableInt(Unknown5);
-        stream.WriteVariableInt(Unknown6);
-        stream.WriteVariableInt(Unknown7);
-        stream.WriteVariableInt(Unknown8);
-        stream.WriteVariableInt(Unknown9);
-        stream.WriteVariableInt(Unknown10);
+        stream.WriteVarInt(EventType);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
+        stream.WriteVarInt(Unknown3);
+        stream.WriteVarInt(Unknown4);
+        stream.WriteVarInt(Unknown5);
+        stream.WriteVarInt(Unknown6);
+        stream.WriteVarInt(Unknown7);
+        stream.WriteVarInt(Unknown8);
+        stream.WriteVarInt(Unknown9);
+        stream.WriteVarInt(Unknown10);
         stream.WriteString(UnknownString1);
     }
 }

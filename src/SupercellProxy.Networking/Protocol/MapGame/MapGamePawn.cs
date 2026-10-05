@@ -14,33 +14,33 @@ public sealed record MapGamePawn
     /// Initializes a new <see cref="MapGamePawn"/> instance.
     /// </summary>
     public MapGamePawn(
-        LongIdentifier? avatarIdentifier,
-        LongIdentifier? neighborhoodIdentifier,
+        LongId? avatarId,
+        LongId? neighborhoodId,
         int experienceLevel,
-        int currentNodeIdentifier,
+        int currentNodeId,
         int emptyNodesTravelled,
         int sanctuaryAnimalEscapeAllowance,
         int sanctuaryAnimalEscapeProgress,
-        ReadOnlyMemory<int> visitedNodeIdentifiers,
+        ReadOnlyMemory<int> visitedNodeIds,
         ReadOnlyMemory<int> selectedOptions,
         string? name,
         MapGamePawnEmblem? emblem,
-        int unknownGlobalIdentifier,
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> notifications
+        int unknownGlobalId,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> notifications
     )
     {
-        AvatarIdentifier = avatarIdentifier;
-        NeighborhoodIdentifier = neighborhoodIdentifier;
+        AvatarId = avatarId;
+        NeighborhoodId = neighborhoodId;
         ExperienceLevel = experienceLevel;
-        CurrentNodeIdentifier = currentNodeIdentifier;
+        CurrentNodeId = currentNodeId;
         EmptyNodesTravelled = emptyNodesTravelled;
         SanctuaryAnimalEscapeAllowance = sanctuaryAnimalEscapeAllowance;
         SanctuaryAnimalEscapeProgress = sanctuaryAnimalEscapeProgress;
-        VisitedNodeIdentifiers = visitedNodeIdentifiers.ToArray();
+        VisitedNodeIds = visitedNodeIds.ToArray();
         SelectedOptions = selectedOptions.ToArray();
         Name = name;
         Emblem = emblem;
-        UnknownGlobalIdentifier = unknownGlobalIdentifier;
+        UnknownGlobalId = unknownGlobalId;
         Notifications = notifications.ToArray();
     }
 
@@ -48,13 +48,13 @@ public sealed record MapGamePawn
     /// Gets the <c language="csharp">UnknownLongId0</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
-    public LongIdentifier? AvatarIdentifier { get; }
+    public LongId? AvatarId { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">CurrentNodeIdentifier</c> value.
+    /// Gets the <c language="csharp">CurrentNodeId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Unknown1")]
-    public int CurrentNodeIdentifier { get; }
+    public int CurrentNodeId { get; }
 
     /// <summary>
     /// Gets the participant's emblem.
@@ -81,16 +81,16 @@ public sealed record MapGamePawn
     public string? Name { get; }
 
     /// <summary>
-    /// Gets the participant's neighborhood identifier.
+    /// Gets the participant's neighborhood id.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
-    public LongIdentifier? NeighborhoodIdentifier { get; }
+    public LongId? NeighborhoodId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Notifications</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownPairs")]
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> Notifications { get; init; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair> Notifications { get; init; }
 
     /// <summary>
     /// Gets the current empty-node allowance before a carried sanctuary animal can escape.
@@ -114,13 +114,13 @@ public sealed record MapGamePawn
     /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int UnknownGlobalIdentifier { get; }
+    public int UnknownGlobalId { get; }
 
     /// <summary>
-    /// Gets the ordered, unique node identifiers revealed by this pawn's movements.
+    /// Gets the ordered, unique node ids revealed by this pawn's movements.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownValues")]
-    public ReadOnlyMemory<int> VisitedNodeIdentifiers { get; }
+    public ReadOnlyMemory<int> VisitedNodeIds { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -128,33 +128,33 @@ public sealed record MapGamePawn
     public static MapGamePawn Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier? avatarIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        LongIdentifier? neighborhoodIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        int experienceLevel = stream.ReadVariableInt();
-        int currentNodeIdentifier = stream.ReadVariableInt();
-        int emptyNodesTravelled = stream.ReadVariableInt();
-        int sanctuaryAnimalEscapeAllowance = stream.ReadVariableInt();
-        int sanctuaryAnimalEscapeProgress = stream.ReadVariableInt();
-        int[] visitedNodeIdentifiers = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
-        ReadOnlyMemory<int> selectedOptions = CommandDataReferenceArrayField.Decode(stream).GlobalIdentifiers;
+        LongId? avatarId = MapGameFieldCodec.ReadOptionalLongId(stream);
+        LongId? neighborhoodId = MapGameFieldCodec.ReadOptionalLongId(stream);
+        int experienceLevel = stream.ReadVarInt();
+        int currentNodeId = stream.ReadVarInt();
+        int emptyNodesTravelled = stream.ReadVarInt();
+        int sanctuaryAnimalEscapeAllowance = stream.ReadVarInt();
+        int sanctuaryAnimalEscapeProgress = stream.ReadVarInt();
+        int[] visitedNodeIds = CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream);
+        ReadOnlyMemory<int> selectedOptions = CommandDataReferenceArrayField.Decode(stream).GlobalIds;
         string? name = stream.ReadBoolean() ? stream.ReadString() : null;
         MapGamePawnEmblem? emblem = stream.ReadBoolean() ? MapGamePawnEmblem.Decode(stream) : null;
-        int unknownGlobalIdentifier = stream.ReadVariableInt();
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> notifications = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
+        int unknownGlobalId = stream.ReadVarInt();
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> notifications = CommandDataReferenceVarIntPairArrayField.Decode(stream).Values;
 
         return new MapGamePawn(
-            avatarIdentifier,
-            neighborhoodIdentifier,
+            avatarId,
+            neighborhoodId,
             experienceLevel,
-            currentNodeIdentifier,
+            currentNodeId,
             emptyNodesTravelled,
             sanctuaryAnimalEscapeAllowance,
             sanctuaryAnimalEscapeProgress,
-            visitedNodeIdentifiers,
+            visitedNodeIds,
             selectedOptions,
             name,
             emblem,
-            unknownGlobalIdentifier,
+            unknownGlobalId,
             notifications
         );
     }
@@ -165,14 +165,14 @@ public sealed record MapGamePawn
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, AvatarIdentifier);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, NeighborhoodIdentifier);
-        stream.WriteVariableInt(ExperienceLevel);
-        stream.WriteVariableInt(CurrentNodeIdentifier);
-        stream.WriteVariableInt(EmptyNodesTravelled);
-        stream.WriteVariableInt(SanctuaryAnimalEscapeAllowance);
-        stream.WriteVariableInt(SanctuaryAnimalEscapeProgress);
-        new CommandVariableIntArrayField(VisitedNodeIdentifiers).Encode(stream);
+        MapGameFieldCodec.WriteOptionalLongId(stream, AvatarId);
+        MapGameFieldCodec.WriteOptionalLongId(stream, NeighborhoodId);
+        stream.WriteVarInt(ExperienceLevel);
+        stream.WriteVarInt(CurrentNodeId);
+        stream.WriteVarInt(EmptyNodesTravelled);
+        stream.WriteVarInt(SanctuaryAnimalEscapeAllowance);
+        stream.WriteVarInt(SanctuaryAnimalEscapeProgress);
+        new CommandVarIntArrayField(VisitedNodeIds).Encode(stream);
         new CommandDataReferenceArrayField(SelectedOptions).Encode(stream);
         stream.WriteBoolean(Name is not null);
 
@@ -181,7 +181,7 @@ public sealed record MapGamePawn
 
         stream.WriteBoolean(Emblem is not null);
         Emblem?.Encode(stream);
-        stream.WriteVariableInt(UnknownGlobalIdentifier);
-        new CommandDataReferenceVariableIntPairArrayField(Notifications).Encode(stream);
+        stream.WriteVarInt(UnknownGlobalId);
+        new CommandDataReferenceVarIntPairArrayField(Notifications).Encode(stream);
     }
 }

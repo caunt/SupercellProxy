@@ -11,26 +11,26 @@ public sealed record ResourceAssociationsMessage : IMessage
     public ResourceAssociationRecord[] Records { get; init; } = [];
 
     /// Decodes clientbound message 27398.
-    public static ResourceAssociationsMessage Create(MessageContainer container)
+    public static ResourceAssociationsMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
         ResourceAssociationsMessage message = new()
         {
-            Records = container.Payload.ReadArray(DecodeRecord),
+            Records = stream.ReadArray(DecodeRecord),
         };
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "Clientbound message 27398 has trailing data.")
             : message;
     }
 
     /// Encodes clientbound message 27398.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Records.Length);
+        stream.WriteVarInt(Records.Length);
 
         foreach (ResourceAssociationRecord record in Records)
         {
@@ -41,8 +41,6 @@ public sealed record ResourceAssociationsMessage : IMessage
             stream.WriteOptionalString(record.QuaternaryLabel);
             stream.WriteOptionalString(record.DisplayName);
         }
-
-        return stream;
     }
 
     private static ResourceAssociationRecord DecodeRecord(MessageStream stream)

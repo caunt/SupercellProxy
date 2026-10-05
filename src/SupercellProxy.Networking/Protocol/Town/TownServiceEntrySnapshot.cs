@@ -9,17 +9,17 @@ public sealed record TownServiceEntrySnapshot : ExtensibleDocument
     /// <summary>Gets whether an event shortened the service.</summary>
     public bool? EventSpeedUp { get; init; }
 
-    /// <summary>Gets the unique service-help request identifier.</summary>
+    /// <summary>Gets the unique service-help request id.</summary>
     [System.Text.Json.Serialization.JsonPropertyName("HID")]
-    public int? HelpIdentifier { get; init; }
+    public int? HelpId { get; init; }
 
     /// <summary>Gets the saved HRD value.</summary>
     [System.Text.Json.Serialization.JsonPropertyName("HRD")]
     public int? Hrd { get; init; }
 
-    /// <summary>Gets the saved service identifier.</summary>
+    /// <summary>Gets the saved service id.</summary>
     [System.Text.Json.Serialization.JsonPropertyName("ID")]
-    public int Identifier { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Gets whether service has started.</summary>
     public bool Started { get; init; }

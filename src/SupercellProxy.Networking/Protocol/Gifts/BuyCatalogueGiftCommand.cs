@@ -5,14 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Gifts;
 
 /// <summary>Buys one gift offered by the ordinary gift catalogue.</summary>
-public sealed record BuyCatalogueGiftCommand(
-    int GiftDataGlobalIdentifier,
-    int CatalogueSlotDataGlobalIdentifier,
-    int RewardSelectionValue,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record BuyCatalogueGiftCommand(int GiftDataGlobalId, int CatalogueSlotDataGlobalId, int RewardSelectionValue) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.BuyCatalogueGiftCommandType;
@@ -21,20 +14,19 @@ public sealed record BuyCatalogueGiftCommand(
     public static BuyCatalogueGiftCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int gift = stream.ReadVariableInt();
-        int slot = stream.ReadVariableInt();
-        int rewardSelection = stream.ReadVariableInt();
-        (int phase, CommandData? debug0, CommandData? debug1) = DecodeCommand(stream, environment);
+        int gift = stream.ReadVarInt();
+        int slot = stream.ReadVarInt();
+        int rewardSelection = stream.ReadVarInt();
 
-        return new BuyCatalogueGiftCommand(gift, slot, rewardSelection, phase, debug0, debug1);
+
+        return new BuyCatalogueGiftCommand(gift, slot, rewardSelection);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(GiftDataGlobalIdentifier);
-        stream.WriteVariableInt(CatalogueSlotDataGlobalIdentifier);
-        stream.WriteVariableInt(RewardSelectionValue);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(GiftDataGlobalId);
+        stream.WriteVarInt(CatalogueSlotDataGlobalId);
+        stream.WriteVarInt(RewardSelectionValue);
     }
 }

@@ -13,18 +13,20 @@ public sealed record FriendMetadataMessage : IMessage
     public Memory<byte> FriendMetaRecords { get; init; }
 
     /// Decodes the byte-counted friend-meta sequence.
-    public static FriendMetadataMessage Create(MessageContainer container)
+    public static FriendMetadataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        byte count = container.Payload.ReadByte();
-        byte[] records = container.Payload.ReadBytes(checked(count * RecordSize));
+        ArgumentNullException.ThrowIfNull(stream);
+        byte count = stream.ReadByte();
+        byte[] records = stream.ReadBytes(checked(count * RecordSize));
 
         return new FriendMetadataMessage { FriendMetaRecords = records };
     }
 
     /// Encodes the byte-counted friend-meta sequence.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         if (FriendMetaRecords.Length % RecordSize is not 0)
             throw new InvalidDataException(message: "Friend-meta data is not aligned to ten-byte records.");
 
@@ -33,11 +35,7 @@ public sealed record FriendMetadataMessage : IMessage
         if (count > byte.MaxValue)
             throw new InvalidDataException(message: "Friend-meta record count exceeds one byte.");
 
-        using MessageStream stream = MessageStream.Create();
-
         stream.WriteByte(byte.CreateChecked(count));
         stream.Write(FriendMetaRecords.Span);
-
-        return stream;
     }
 }

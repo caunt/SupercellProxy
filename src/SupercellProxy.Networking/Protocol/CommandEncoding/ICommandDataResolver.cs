@@ -10,5 +10,5 @@ public interface ICommandDataResolver
     /// <summary>
     /// Attempts the <c language="csharp">ResolveString</c> operation.
     /// </summary>
-    bool TryResolveString(int globalIdentifier, string fieldName, [NotNullWhen(true)] out string? value);
+    bool TryResolveString(int globalId, string fieldName, [NotNullWhen(true)] out string? value);
 }

@@ -15,7 +15,7 @@ public sealed record AvatarStateMapEntry(int Key, AvatarStateValues State)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadVariableInt(), AvatarStateValues.Decode(stream));
+        return new(stream.ReadVarInt(), AvatarStateValues.Decode(stream));
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ public sealed record AvatarStateMapEntry(int Key, AvatarStateValues State)
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Key);
+        stream.WriteVarInt(Key);
         State.Encode(stream);
     }
 }

@@ -11,7 +11,7 @@ public sealed record TutorialManagerSnapshot
     /// Gets the Group Global Id value.
     /// </summary>
     [JsonPropertyName("tutorialGroupId")]
-    public int GroupGlobalIdentifier { get; init; }
+    public int GroupGlobalId { get; init; }
 
     /// <summary>
     /// Gets the Progress Flags value.

@@ -12,39 +12,39 @@ public sealed record MapGameNodeEmoji
     /// Initializes a new <see cref="MapGameNodeEmoji"/> instance.
     /// </summary>
     public MapGameNodeEmoji(
-        int emojiGlobalIdentifier,
-        int nodeIdentifier,
-        LongIdentifier? avatarIdentifier,
+        int emojiGlobalId,
+        int nodeId,
+        LongId? avatarId,
         int expirationTime,
         int ticksRemaining,
-        ReadOnlyMemory<LongIdentifier> collectorAvatarIdentifiers
+        ReadOnlyMemory<LongId> collectorAvatarIds
     )
     {
-        EmojiGlobalIdentifier = emojiGlobalIdentifier;
-        NodeIdentifier = nodeIdentifier;
-        AvatarIdentifier = avatarIdentifier;
+        EmojiGlobalId = emojiGlobalId;
+        NodeId = nodeId;
+        AvatarId = avatarId;
         ExpirationTime = expirationTime;
         TicksRemaining = ticksRemaining;
-        CollectorAvatarIdentifiers = collectorAvatarIdentifiers.ToArray();
+        CollectorAvatarIds = collectorAvatarIds.ToArray();
     }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongIdentifier? AvatarIdentifier { get; }
+    public LongId? AvatarId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownLongIds</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongIds")]
-    public ReadOnlyMemory<LongIdentifier> CollectorAvatarIdentifiers { get; }
+    public ReadOnlyMemory<LongId> CollectorAvatarIds { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int EmojiGlobalIdentifier { get; }
+    public int EmojiGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">ExpirationTime</c> value.
@@ -53,10 +53,10 @@ public sealed record MapGameNodeEmoji
     public int ExpirationTime { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">NodeIdentifier</c> value.
+    /// Gets the <c language="csharp">NodeId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
-    public int NodeIdentifier { get; init; }
+    public int NodeId { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">TicksRemaining</c> value.
@@ -72,12 +72,12 @@ public sealed record MapGameNodeEmoji
         ArgumentNullException.ThrowIfNull(stream);
 
         return new MapGameNodeEmoji(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            MapGameFieldCodec.ReadOptionalLongIdentifier(stream),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            MapGameFieldCodec.ReadLongIdentifiers(stream)
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            MapGameFieldCodec.ReadOptionalLongId(stream),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            MapGameFieldCodec.ReadLongIds(stream)
         );
     }
 
@@ -87,11 +87,11 @@ public sealed record MapGameNodeEmoji
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(EmojiGlobalIdentifier);
-        stream.WriteVariableInt(NodeIdentifier);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, AvatarIdentifier);
-        stream.WriteVariableInt(ExpirationTime);
-        stream.WriteVariableInt(TicksRemaining);
-        MapGameFieldCodec.WriteLongIdentifiers(stream, CollectorAvatarIdentifiers.Span);
+        stream.WriteVarInt(EmojiGlobalId);
+        stream.WriteVarInt(NodeId);
+        MapGameFieldCodec.WriteOptionalLongId(stream, AvatarId);
+        stream.WriteVarInt(ExpirationTime);
+        stream.WriteVarInt(TicksRemaining);
+        MapGameFieldCodec.WriteLongIds(stream, CollectorAvatarIds.Span);
     }
 }

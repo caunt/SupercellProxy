@@ -8,13 +8,13 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record DisconnectedMessage(DisconnectReason Reason) : IMessage
 {
     /// Decodes the Titan disconnect reason carried as a fixed-width integer.
-    public static DisconnectedMessage Create(MessageContainer container)
+    public static DisconnectedMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        DisconnectedMessage message = new(System.Runtime.CompilerServices.Unsafe.BitCast<int, DisconnectReason>(container.Payload.ReadInt32()));
+        DisconnectedMessage message = new(System.Runtime.CompilerServices.Unsafe.BitCast<int, DisconnectReason>(stream.ReadInt32()));
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The disconnect notification has trailing data.")
             : message;
     }
@@ -22,12 +22,10 @@ public sealed record DisconnectedMessage(DisconnectReason Reason) : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<DisconnectReason, int>(Reason));
-
-        return stream;
     }
 }

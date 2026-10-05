@@ -179,7 +179,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// <summary>
     /// Executes the <c language="csharp">VisitHomeAsync</c> operation.
     /// </summary>
-    public ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongIdentifier target, CancellationToken cancellationToken = default)
+    public ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongId target, CancellationToken cancellationToken = default)
     {
         return _homeVisitor.VisitHomeAsync(target, cancellationToken);
     }
@@ -205,18 +205,18 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     [LoggerMessage(Level = LogLevel.Warning, Message = "Upstream login rejected: {Reason}. The original response was forwarded unchanged.")]
     private static partial void LogLoginRejected(ILogger logger, string reason);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Forwarding packet {Identifier}/{Version} without optional decoding: {Reason}")]
-    private static partial void LogUndecoded(ILogger logger, ushort identifier, ushort version, string reason);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Forwarding packet {Id}/{Version} without optional decoding: {Reason}")]
+    private static partial void LogUndecoded(ILogger logger, ushort id, ushort version, string reason);
 
-    private bool CanForwardUndecoded(ushort identifier, Exception exception)
+    private bool CanForwardUndecoded(ushort id, Exception exception)
     {
         return TrafficCapture.PreserveForwardedFrames
             && exception is InvalidDataException or NotSupportedException or EndOfStreamException
-            && identifier != MessageRegistry.GetIdentifier<ClientHelloMessage>()
-            && identifier != MessageRegistry.GetIdentifier<ServerHelloMessage>()
-            && identifier != MessageRegistry.GetIdentifier<LoginMessage>()
-            && identifier != MessageRegistry.GetIdentifier<LoginOkMessage>()
-            && identifier != MessageRegistry.GetIdentifier<LoginFailedMessage>();
+            && id != MessageRegistry.GetId<ClientHelloMessage>()
+            && id != MessageRegistry.GetId<ServerHelloMessage>()
+            && id != MessageRegistry.GetId<LoginMessage>()
+            && id != MessageRegistry.GetId<LoginOkMessage>()
+            && id != MessageRegistry.GetId<LoginFailedMessage>();
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         switch (@event.Message)
         {
             case VisitHomeTargetMessage visitHomeTargetMessage
-                when visitHomeTargetMessage.Target == LongIdentifier.Empty:
+                when visitHomeTargetMessage.Target == LongId.Empty:
                 {
                     @event.IsCancelled = true;
 
@@ -326,7 +326,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
     }
 
-    private async Task<(IMessage Message, MessageContainer Original)> ReadForwardMessageAsync(MessageStream source, MessageDirection direction, CancellationToken cancellationToken)
+    private async Task<DecodedMessageFrame> ReadForwardMessageAsync(MessageStream source, MessageDirection direction, CancellationToken cancellationToken)
     {
         try
         {
@@ -334,7 +334,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
                 .ReadContainerAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            if (direction is MessageDirection.Serverbound && container.Identifier == MessageRegistry.GetIdentifier<LoginMessage>())
+            if (direction is MessageDirection.Serverbound && container.Id == MessageRegistry.GetId<LoginMessage>())
                 ServerStream.OutboundMessageVersion = container.Version;
 
             await TrafficCapture
@@ -343,13 +343,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
             try
             {
-                return (source.ResolveMessage(container), container);
+                return new DecodedMessageFrame(source.ResolveMessage(container), container);
             }
-            catch (Exception exception) when (CanForwardUndecoded(container.Identifier, exception))
+            catch (Exception exception) when (CanForwardUndecoded(container.Id, exception))
             {
-                LogUndecoded(_logger, container.Identifier, container.Version, exception.Message);
+                LogUndecoded(_logger, container.Id, container.Version, exception.Message);
 
-                return (new PassthroughMessage { Identifier = container.Identifier, Version = container.Version, Data = container.Payload.ToArray() }, container);
+                return new DecodedMessageFrame(new PassthroughMessage { Id = container.Id, Version = container.Version, Data = container.Payload.ToArray() }, container);
             }
         }
         catch (StreamClosedException exception)

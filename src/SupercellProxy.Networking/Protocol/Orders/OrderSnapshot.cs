@@ -18,11 +18,11 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// Gets the optional bonus reward amount.
     public int? BonusCount { get; init; }
 
-    /// Gets the event identifier associated with this order's bonus reward.
+    /// Gets the event id associated with this order's bonus reward.
     [JsonPropertyName("BonusEventId")]
-    public int BonusEventIdentifier { get; init; }
+    public int BonusEventId { get; init; }
 
-    /// Gets the optional bonus reward data-table identifier.
+    /// Gets the optional bonus reward data-table id.
     public int? BonusReward { get; init; }
 
     /// Gets whether the order's bonus reward is enabled.
@@ -57,9 +57,9 @@ public sealed record OrderSnapshot : ExtensibleDocument
     [JsonPropertyName("HG")]
     public ProtocolFlag HelperGranted { get; init; }
 
-    /// Gets the helper identifier checksum value.
+    /// Gets the helper id checksum value.
     [JsonPropertyName("HID")]
-    public int? HelperIdentifier { get; init; }
+    public int? HelperId { get; init; }
 
     /// Gets the helper reward data checksum value.
     [JsonPropertyName("HRD")]
@@ -79,9 +79,9 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// </summary>
     public int Receiver { get; init; }
 
-    /// Gets the optional reviver avatar identifier.
+    /// Gets the optional reviver avatar id.
     [JsonPropertyName("ReviverAvatarId")]
-    public EncodedDocumentValue? ReviverAvatarIdentifier { get; init; }
+    public EncodedDocumentValue? ReviverAvatarId { get; init; }
 
     /// Gets the seasonal-currency bonus marker.
     [JsonPropertyName("seasonalCurrencyBonus")]

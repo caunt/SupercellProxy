@@ -78,11 +78,11 @@ public record OtherHomeDataMessage : IMessage
     /// <summary>
     /// Creates a <c language="csharp">OtherHomeDataMessage</c> from the supplied data.
     /// </summary>
-    public static OtherHomeDataMessage Create(MessageContainer container)
+    public static OtherHomeDataMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return Decode(container.Payload.ReadToEnd());
+        return Decode(stream.ReadToEnd());
     }
 
     /// <summary>
@@ -94,22 +94,13 @@ public record OtherHomeDataMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Executes the <c language="csharp">Encode</c> operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        try
-        {
-            WritePayload(stream);
-
-            return stream;
-        }
-        finally
-        {
-            stream.Dispose();
-        }
+        WritePayload(stream);
     }
 
     private static bool TryDecode(ReadOnlyMemory<byte> data, out OtherHomeDataMessage message)
@@ -121,7 +112,7 @@ public record OtherHomeDataMessage : IMessage
             try
             {
                 ClientAvatar homeOwnerAvatar = ClientAvatar.Decode(stream);
-                int unknown0 = stream.ReadVariableInt();
+                int unknown0 = stream.ReadVarInt();
                 ClientAvatar clientAvatar = ClientAvatar.Decode(stream);
                 Memory<byte>? compressedAvatarDataDocument = stream.ReadOptionalByteArray();
                 Memory<byte>? unknownCompressedDocument = stream.ReadOptionalByteArray();
@@ -175,7 +166,7 @@ public record OtherHomeDataMessage : IMessage
             HomeOwnerAvatar
             ?? throw new InvalidOperationException($"{nameof(HomeOwnerAvatar)} is null.")
         ).Encode(stream);
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
         (
             ClientAvatar ?? throw new InvalidOperationException($"{nameof(ClientAvatar)} is null.")
         ).Encode(stream);

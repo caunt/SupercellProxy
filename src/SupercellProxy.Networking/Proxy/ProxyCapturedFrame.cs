@@ -8,7 +8,7 @@ public sealed record ProxyCapturedFrame(
     string File,
     string Stage,
     MessageDirection Direction,
-    ushort Identifier,
+    ushort Id,
     ushort Version,
     ReadOnlyMemory<byte> Bytes,
     long Timestamp,

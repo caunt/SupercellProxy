@@ -10,11 +10,10 @@ public sealed record NeighborhoodFullListMessage : IMessage
     public NeighborhoodProfile[]? Profiles { get; init; }
 
     /// <summary>Decodes the native optional profile list.</summary>
-    public static NeighborhoodFullListMessage Create(MessageContainer container)
+    public static NeighborhoodFullListMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int count = stream.ReadVarInt();
 
         if (count is < -1 or > 1024)
             throw new InvalidDataException(message: "The full neighborhood list count is invalid.");
@@ -33,25 +32,23 @@ public sealed record NeighborhoodFullListMessage : IMessage
     }
 
     /// <summary>Encodes the native optional profile list.</summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         if (Profiles?.Length is > 1024)
             throw new InvalidDataException(message: "The full neighborhood list count is invalid.");
 
-        stream.WriteVariableInt(Profiles?.Length ?? -1);
+        stream.WriteVarInt(Profiles?.Length ?? -1);
 
         if (Profiles is not null)
         {
             foreach (NeighborhoodProfile profile in Profiles)
                 profile.Encode(stream);
         }
-
-        return stream;
     }
 
-    /// <summary>Omits neighborhood names and identifiers from diagnostic text.</summary>
+    /// <summary>Omits neighborhood names and ids from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(NeighborhoodFullListMessage);

@@ -17,7 +17,7 @@ public sealed record SeasonalCatalogueGiftSnapshot
     /// Gets the Payment Global Id value.
     /// </summary>
     [JsonPropertyName("pd")]
-    public int PaymentGlobalIdentifier { get; init; }
+    public int PaymentGlobalId { get; init; }
 
     /// <summary>
     /// Gets the Purchase Limit value.
@@ -34,5 +34,5 @@ public sealed record SeasonalCatalogueGiftSnapshot
     /// Gets the Reward Global Id value.
     /// </summary>
     [JsonPropertyName("d")]
-    public int RewardGlobalIdentifier { get; init; }
+    public int RewardGlobalId { get; init; }
 }

@@ -7,22 +7,22 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// Represents <c language="csharp">RoadsideShopEntry</c>.
 /// </summary>
 public sealed record RoadsideShopEntry(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier? BuyerIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId? BuyerId,
     bool IsAdvertised,
     int Price,
     int Quantity,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId
 )
 {
     /// <summary>
     /// Gets the Has Buyer value.
     /// </summary>
-    public bool HasBuyer => BuyerIdentifier is { } buyer && buyer != LongIdentifier.Empty;
+    public bool HasBuyer => BuyerId is { } buyer && buyer != LongId.Empty;
 
     /// <summary>
     /// Gets the Is Available value.
     /// </summary>
-    public bool IsAvailable => ItemGlobalIdentifier is not 0 && Quantity > 0 && !HasBuyer;
+    public bool IsAvailable => ItemGlobalId is not 0 && Quantity > 0 && !HasBuyer;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -31,13 +31,7 @@ public sealed record RoadsideShopEntry(
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(
-            stream.ReadOptionalLongIdentifier(),
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
-        );
+        return new(stream.ReadOptionalLongId(), stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -46,10 +40,10 @@ public sealed record RoadsideShopEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongIdentifier(BuyerIdentifier);
+        stream.WriteOptionalLongId(BuyerId);
         stream.WriteBoolean(IsAdvertised);
-        stream.WriteVariableInt(Price);
-        stream.WriteVariableInt(Quantity);
-        stream.WriteVariableInt(ItemGlobalIdentifier);
+        stream.WriteVarInt(Price);
+        stream.WriteVarInt(Quantity);
+        stream.WriteVarInt(ItemGlobalId);
     }
 }

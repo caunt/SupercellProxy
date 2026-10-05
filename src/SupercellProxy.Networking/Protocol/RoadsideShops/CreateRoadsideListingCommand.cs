@@ -13,22 +13,11 @@ public sealed record CreateRoadsideListingCommand : Command
     /// <summary>
     /// Provides the Create Roadside Listing Command value or operation.
     /// </summary>
-    public CreateRoadsideListingCommand(
-        bool advertise,
-        int slotIndex,
-        int itemGlobalIdentifier,
-        bool usePrimaryInventory,
-        int price,
-        int quantity,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public CreateRoadsideListingCommand(bool advertise, int slotIndex, int itemGlobalId, bool usePrimaryInventory, int price, int quantity)
     {
         Advertise = advertise;
         SlotIndex = slotIndex;
-        ItemGlobalIdentifier = itemGlobalIdentifier;
+        ItemGlobalId = itemGlobalId;
         UsePrimaryInventory = usePrimaryInventory;
         Price = price;
         Quantity = quantity;
@@ -43,7 +32,7 @@ public sealed record CreateRoadsideListingCommand : Command
     /// Gets the Item Global Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")]
-    public int ItemGlobalIdentifier { get; }
+    public int ItemGlobalId { get; }
 
     /// <summary>
     /// Gets the Price value.
@@ -76,32 +65,20 @@ public sealed record CreateRoadsideListingCommand : Command
     public static CreateRoadsideListingCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new CreateRoadsideListingCommand(
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new CreateRoadsideListingCommand(stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(Advertise);
-        stream.WriteVariableInt(SlotIndex);
-        stream.WriteVariableInt(ItemGlobalIdentifier);
+        stream.WriteVarInt(SlotIndex);
+        stream.WriteVarInt(ItemGlobalId);
         stream.WriteBoolean(UsePrimaryInventory);
-        stream.WriteVariableInt(Price);
-        stream.WriteVariableInt(Quantity);
+        stream.WriteVarInt(Price);
+        stream.WriteVarInt(Quantity);
     }
 }

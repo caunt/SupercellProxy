@@ -43,9 +43,9 @@ public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, boo
         ArgumentNullException.ThrowIfNull(stream);
 
         return new(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
             stream.ReadBoolean(),
             stream.ReadOptionalString(),
             stream.ReadOptionalString(),
@@ -61,9 +61,9 @@ public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, boo
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Value0);
-        stream.WriteVariableInt(Value1);
-        stream.WriteVariableInt(Value2);
+        stream.WriteVarInt(Value0);
+        stream.WriteVarInt(Value1);
+        stream.WriteVarInt(Value2);
         stream.WriteBoolean(Flag);
         stream.WriteOptionalString(Text0);
         stream.WriteOptionalString(Text1);

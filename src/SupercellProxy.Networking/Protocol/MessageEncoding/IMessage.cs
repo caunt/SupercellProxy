@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 public interface IMessage
 {
     /// <summary>
-    /// Executes the <c language="csharp">ToStream</c> operation.
+    /// Encodes this message's payload into the supplied stream.
     /// </summary>
-    MessageStream ToStream();
+    void Encode(MessageStream stream);
 }

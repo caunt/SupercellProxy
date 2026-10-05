@@ -92,12 +92,12 @@ public sealed record MapGameConfiguration
     public static MapGameConfiguration Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
-        int unknown2 = stream.ReadVariableInt();
-        int unknown3 = stream.ReadVariableInt();
-        int unknown4 = stream.ReadVariableInt();
-        int unknown5 = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
+        int unknown1 = stream.ReadVarInt();
+        int unknown2 = stream.ReadVarInt();
+        int unknown3 = stream.ReadVarInt();
+        int unknown4 = stream.ReadVarInt();
+        int unknown5 = stream.ReadVarInt();
         int entryCount = MapGameFieldCodec.ReadCount(stream, name: "configuration entry");
         MapGameConfigurationEntry[] entries = new MapGameConfigurationEntry[entryCount];
 
@@ -112,9 +112,9 @@ public sealed record MapGameConfiguration
             unknown4,
             unknown5,
             entries,
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
@@ -124,19 +124,19 @@ public sealed record MapGameConfiguration
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
-        stream.WriteVariableInt(Unknown3);
-        stream.WriteVariableInt(Unknown4);
-        stream.WriteVariableInt(Unknown5);
-        stream.WriteVariableInt(Entries.Length);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
+        stream.WriteVarInt(Unknown3);
+        stream.WriteVarInt(Unknown4);
+        stream.WriteVarInt(Unknown5);
+        stream.WriteVarInt(Entries.Length);
 
         foreach (MapGameConfigurationEntry entry in Entries.Span)
             entry.Encode(stream);
 
-        stream.WriteVariableInt(Unknown6);
-        stream.WriteVariableInt(Unknown7);
-        stream.WriteVariableInt(Unknown8);
+        stream.WriteVarInt(Unknown6);
+        stream.WriteVarInt(Unknown7);
+        stream.WriteVarInt(Unknown8);
     }
 }

@@ -36,15 +36,7 @@ public sealed record MapGameTaskCommand : Command
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCommand"/> instance.
     /// </summary>
-    public MapGameTaskCommand(
-        int type,
-        MapGameTask? task,
-        ReadOnlyMemory<int>? optionalValues = null,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public MapGameTaskCommand(int type, MapGameTask? task, ReadOnlyMemory<int>? optionalValues = null)
     {
         if (!CommandTypes.Contains(type))
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {type} does not use the map-game task schema."));
@@ -78,22 +70,21 @@ public sealed record MapGameTaskCommand : Command
     public static MapGameTaskCommand Decode(int type, MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields = DecodeCommand(stream, environment);
+
         MapGameTask? task = stream.ReadBoolean() ? MapGameTask.Decode(stream, dataResolver) : null;
         ReadOnlyMemory<int>? optionalValues = null;
 
         if (TypesWithOptionalValues.Contains(type) && stream.ReadBoolean())
-            optionalValues = CommandVariableIntArrayField.DecodeValues(stream.ReadVariableInt(), stream);
+            optionalValues = CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream);
 
-        return new MapGameTaskCommand(type, task, optionalValues, commandFields.ExecutionPhaseCounter, commandFields.DebugData0, commandFields.DebugData1);
+        return new MapGameTaskCommand(type, task, optionalValues);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(Task is not null);
         Task?.Encode(stream);
 
@@ -105,9 +96,9 @@ public sealed record MapGameTaskCommand : Command
         if (OptionalValues is null)
             return;
 
-        stream.WriteVariableInt(OptionalValues.Value.Length);
+        stream.WriteVarInt(OptionalValues.Value.Length);
 
         foreach (int value in OptionalValues.Value.Span)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
     }
 }

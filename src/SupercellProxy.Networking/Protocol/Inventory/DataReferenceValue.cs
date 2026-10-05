@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 /// <summary>
 /// Represents <c language="csharp">DataReferenceValue</c>.
 /// </summary>
-public sealed record DataReferenceValue([property: System.Text.Json.Serialization.JsonPropertyName("GlobalDataId")] int GlobalDataIdentifier, int Value)
+public sealed record DataReferenceValue([property: System.Text.Json.Serialization.JsonPropertyName("GlobalDataId")] int GlobalDataId, int Value)
 {
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -15,7 +15,7 @@ public sealed record DataReferenceValue([property: System.Text.Json.Serializatio
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadVariableInt(), stream.ReadVariableInt());
+        return new(stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ public sealed record DataReferenceValue([property: System.Text.Json.Serializatio
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(GlobalDataIdentifier);
-        stream.WriteVariableInt(Value);
+        stream.WriteVarInt(GlobalDataId);
+        stream.WriteVarInt(Value);
     }
 }

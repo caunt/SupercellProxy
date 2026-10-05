@@ -5,24 +5,18 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>Sets Neighborhood Object leaderboard scores by their long identifiers.</summary>
+/// <summary>Sets Neighborhood Object leaderboard scores by their long ids.</summary>
 public sealed record SetNeighborhoodObjectLeaderboardScoresCommand : Command
 {
     /// <summary>Initializes a leaderboard score update command.</summary>
-    public SetNeighborhoodObjectLeaderboardScoresCommand(
-        ReadOnlyMemory<int> scores,
-        ReadOnlyMemory<long> scoreIdentifiers,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    ) : base(executionPhaseCounter, debugData0, debugData1)
+    public SetNeighborhoodObjectLeaderboardScoresCommand(ReadOnlyMemory<int> scores, ReadOnlyMemory<long> scoreIds)
     {
         Scores = scores.ToArray();
-        ScoreIdentifiers = scoreIdentifiers.ToArray();
+        ScoreIds = scoreIds.ToArray();
     }
 
-    /// <summary>Gets the corresponding long identifiers in wire order.</summary>
-    public ReadOnlyMemory<long> ScoreIdentifiers { get; }
+    /// <summary>Gets the corresponding long ids in wire order.</summary>
+    public ReadOnlyMemory<long> ScoreIds { get; }
 
     /// <summary>Gets the scores in wire order.</summary>
     public ReadOnlyMemory<int> Scores { get; }
@@ -30,23 +24,23 @@ public sealed record SetNeighborhoodObjectLeaderboardScoresCommand : Command
     /// <inheritdoc />
     public override int Type => CommandRegistry.SetNeighborhoodObjectLeaderboardScoresCommandType;
 
-    /// <summary>Decodes the base fields followed by scores and long identifiers.</summary>
+    /// <summary>Decodes the scores and long ids.</summary>
     public static SetNeighborhoodObjectLeaderboardScoresCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
-        ReadOnlyMemory<int> scores = CommandVariableIntArrayField.Decode(stream).Values;
-        ReadOnlyMemory<long> identifiers = CommandVariableLongArrayField.Decode(stream).Values;
 
-        return new SetNeighborhoodObjectLeaderboardScoresCommand(scores, identifiers, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        ReadOnlyMemory<int> scores = CommandVarIntArrayField.Decode(stream).Values;
+        ReadOnlyMemory<long> ids = CommandVarLongArrayField.Decode(stream).Values;
+
+        return new SetNeighborhoodObjectLeaderboardScoresCommand(scores, ids);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        EncodeCommand(stream, environment);
-        new CommandVariableIntArrayField(Scores).Encode(stream);
-        new CommandVariableLongArrayField(ScoreIdentifiers).Encode(stream);
+
+        new CommandVarIntArrayField(Scores).Encode(stream);
+        new CommandVarLongArrayField(ScoreIds).Encode(stream);
     }
 }

@@ -9,17 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <param name="UseDirectRewards">Selects direct inventory grants instead of per-resource presentation callbacks. Both paths update state synchronously.</param>
 /// <param name="CrateIndex">The zero-based crate within the selected order.</param>
 /// <param name="AllowCompletedOrder">Allows filling an unpaid crate after helpers completed the order.</param>
-/// <param name="ExecutionPhaseCounter"></param>
-/// <param name="DebugData0"></param>
-/// <param name="DebugData1"></param>
-public sealed record FillBoatCrateCommand(
-    bool UseDirectRewards,
-    int CrateIndex,
-    bool AllowCompletedOrder,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex, bool AllowCompletedOrder) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -32,26 +22,17 @@ public sealed record FillBoatCrateCommand(
     public static FillBoatCrateCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new FillBoatCrateCommand(
-            stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadBoolean(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new FillBoatCrateCommand(stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadBoolean());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
         stream.WriteBoolean(UseDirectRewards);
-        stream.WriteVariableInt(CrateIndex);
+        stream.WriteVarInt(CrateIndex);
         stream.WriteBoolean(AllowCompletedOrder);
     }
 }

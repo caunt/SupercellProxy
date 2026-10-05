@@ -4,30 +4,28 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// Requests that the client begin following the identified farm.
-public sealed record FollowMessage(LongIdentifier HomeIdentifier) : IMessage
+public sealed record FollowMessage(LongId HomeId) : IMessage
 {
-    /// Decodes the target farm identifier.
-    public static FollowMessage Create(MessageContainer container)
+    /// Decodes the target farm id.
+    public static FollowMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        FollowMessage result = new(container.Payload.ReadLongIdentifier());
+        ArgumentNullException.ThrowIfNull(stream);
+        FollowMessage result = new(stream.ReadLongId());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The follow request has trailing data.")
             : result;
     }
 
-    /// Encodes the target farm identifier as a payload.
-    public MessageStream ToStream()
+    /// Encodes the target farm id as a payload.
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteLongIdentifier(HomeIdentifier);
-
-        return stream;
+        stream.WriteLongId(HomeId);
     }
 
-    /// Omits the private farm identifier from diagnostic text.
+    /// Omits the private farm id from diagnostic text.
     public override string ToString()
     {
         return nameof(FollowMessage);

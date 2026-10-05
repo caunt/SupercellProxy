@@ -52,7 +52,7 @@ public sealed record MapGameTaskGroup
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteInt64(OwnerKey);
-        stream.WriteVariableInt(Tasks.Length);
+        stream.WriteVarInt(Tasks.Length);
 
         foreach (MapGameTask task in Tasks.Span)
             task.Encode(stream);

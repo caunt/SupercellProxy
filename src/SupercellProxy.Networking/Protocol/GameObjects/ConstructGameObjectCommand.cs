@@ -34,13 +34,10 @@ public sealed record ConstructGameObjectCommand(
     int Variant,
     int PositionY,
     bool LayoutMode,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalIdentifier,
-    bool Mirrored,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+    [property: System.Text.Json.Serialization.JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalId,
+    bool Mirrored
+) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -53,34 +50,29 @@ public sealed record ConstructGameObjectCommand(
     public static ConstructGameObjectCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
         return new ConstructGameObjectCommand(
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
             stream.ReadBoolean(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadBoolean(),
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadBoolean()
         );
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(PositionX);
-        stream.WriteVariableInt(Variant);
-        stream.WriteVariableInt(PositionY);
+        stream.WriteVarInt(PositionX);
+        stream.WriteVarInt(Variant);
+        stream.WriteVarInt(PositionY);
         stream.WriteBoolean(LayoutMode);
-        stream.WriteVariableInt(ReplacedObjectGlobalIdentifier);
-        stream.WriteVariableInt(TargetDataGlobalIdentifier);
+        stream.WriteVarInt(ReplacedObjectGlobalId);
+        stream.WriteVarInt(TargetDataGlobalId);
         stream.WriteBoolean(Mirrored);
     }
 }

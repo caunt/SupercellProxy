@@ -8,14 +8,13 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record FollowResponseMessage(FollowResultCode Result, FollowOperation Operation, FriendEntry? Entry) : IMessage
 {
     /// Decodes the result, operation, and optional entry in native wire order.
-    public static FollowResponseMessage Create(MessageContainer container)
+    public static FollowResponseMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         FollowResponseMessage result = new(
-            new FollowResultCode(stream.ReadVariableInt()),
-            new FollowOperation(stream.ReadVariableInt()),
+            new FollowResultCode(stream.ReadVarInt()),
+            new FollowOperation(stream.ReadVarInt()),
             stream.ReadBoolean() ? FriendEntry.Decode(stream) : null
         );
 
@@ -25,16 +24,14 @@ public sealed record FollowResponseMessage(FollowResultCode Result, FollowOperat
     }
 
     /// Encodes the result, operation, and optional entry as a payload.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Result.Value);
-        stream.WriteVariableInt(Operation.Value);
+        stream.WriteVarInt(Result.Value);
+        stream.WriteVarInt(Operation.Value);
         stream.WriteBoolean(Entry is not null);
         Entry?.Encode(stream);
-
-        return stream;
     }
 
     /// Omits the private friend entry from diagnostic text.

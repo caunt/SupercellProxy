@@ -22,13 +22,13 @@ public sealed record SeenEventSnapshot
     /// Gets the Event Id value.
     /// </summary>
     [JsonPropertyName("id")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>
     /// Gets the Impression Id value.
     /// </summary>
     [JsonPropertyName("imp")]
-    public int ImpressionIdentifier { get; init; }
+    public int ImpressionId { get; init; }
 
     /// <summary>
     /// Gets the Kind value.

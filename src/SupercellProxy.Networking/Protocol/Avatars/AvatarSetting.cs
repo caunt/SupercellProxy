@@ -15,7 +15,7 @@ public sealed record AvatarSetting(bool Enabled, int Value)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadBoolean(), stream.ReadVariableInt());
+        return new(stream.ReadBoolean(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -25,6 +25,6 @@ public sealed record AvatarSetting(bool Enabled, int Value)
     {
         ArgumentNullException.ThrowIfNull(stream);
         stream.WriteBoolean(Enabled);
-        stream.WriteVariableInt(Value);
+        stream.WriteVarInt(Value);
     }
 }

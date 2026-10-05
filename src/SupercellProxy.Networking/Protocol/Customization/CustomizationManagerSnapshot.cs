@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 /// </summary>
 public sealed record CustomizationManagerSnapshot
 {
-    /// <summary>Gets the event identifier that last forced the stock issue.</summary>
+    /// <summary>Gets the event id that last forced the stock issue.</summary>
     [JsonPropertyName("ForcedStockChronosEventID")]
-    public int ForcedStockChronosEventIdentifier { get; init; }
+    public int ForcedStockChronosEventId { get; init; }
 
     /// <summary>Gets the three offered-tag acknowledgement flags.</summary>
     public bool[]? InitialCustomizationTagsOfferedSeen { get; init; }

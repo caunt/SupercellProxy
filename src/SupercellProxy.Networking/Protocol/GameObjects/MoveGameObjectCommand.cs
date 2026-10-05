@@ -17,19 +17,10 @@ public sealed record MoveGameObjectCommand : Command
     /// <summary>
     /// Initializes a new <see cref="MoveGameObjectCommand"/> instance.
     /// </summary>
-    public MoveGameObjectCommand(
-        int gameObjectGlobalIdentifier,
-        int objectTableIdentifier,
-        int logicX,
-        int logicY,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(executionPhaseCounter, debugData0, debugData1)
+    public MoveGameObjectCommand(int gameObjectGlobalId, int objectTableId, int logicX, int logicY)
     {
-        GameObjectGlobalIdentifier = gameObjectGlobalIdentifier;
-        ObjectTableIdentifier = objectTableIdentifier;
+        GameObjectGlobalId = gameObjectGlobalId;
+        ObjectTableId = objectTableId;
         PositionX = logicX;
         PositionY = logicY;
     }
@@ -38,13 +29,13 @@ public sealed record MoveGameObjectCommand : Command
     /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("GameObjectGlobalId")]
-    public int GameObjectGlobalIdentifier { get; }
+    public int GameObjectGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">ObjectTableId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")]
-    public int ObjectTableIdentifier { get; }
+    public int ObjectTableId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">PositionX</c> value.
@@ -67,32 +58,22 @@ public sealed record MoveGameObjectCommand : Command
     public static MoveGameObjectCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int gameObjectGlobalIdentifier = stream.ReadVariableInt();
-        int objectTableIdentifier = stream.ReadVariableInt();
-        int logicX = stream.ReadVariableInt();
-        int logicY = stream.ReadVariableInt();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
+        int gameObjectGlobalId = stream.ReadVarInt();
+        int objectTableId = stream.ReadVarInt();
+        int logicX = stream.ReadVarInt();
+        int logicY = stream.ReadVarInt();
 
-        return new MoveGameObjectCommand(
-            gameObjectGlobalIdentifier,
-            objectTableIdentifier,
-            logicX,
-            logicY,
-            fields.ExecutionPhaseCounter,
-            fields.DebugData0,
-            fields.DebugData1
-        );
+        return new MoveGameObjectCommand(gameObjectGlobalId, objectTableId, logicX, logicY);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(GameObjectGlobalIdentifier);
-        stream.WriteVariableInt(ObjectTableIdentifier);
-        stream.WriteVariableInt(PositionX);
-        stream.WriteVariableInt(PositionY);
-        EncodeCommand(stream, environment);
+        stream.WriteVarInt(GameObjectGlobalId);
+        stream.WriteVarInt(ObjectTableId);
+        stream.WriteVarInt(PositionX);
+        stream.WriteVarInt(PositionY);
     }
 }

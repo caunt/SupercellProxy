@@ -10,5 +10,5 @@ public sealed record MiniPassTaskSnapshot
 
     /// <summary>Gets the task data row.</summary>
     [JsonPropertyName("TaskDataId")]
-    public int TaskDataGlobalIdentifier { get; init; }
+    public int TaskDataGlobalId { get; init; }
 }

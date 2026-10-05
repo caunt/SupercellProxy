@@ -11,20 +11,18 @@ public sealed record Clientbound29247Message : IMessage
     public Memory<byte> PayloadData { get; init; }
 
     /// Decodes clientbound message 29247 without inventing nested payload fields.
-    public static Clientbound29247Message Create(MessageContainer container)
+    public static Clientbound29247Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new Clientbound29247Message { PayloadData = container.Payload.ReadToEnd() };
+        return new Clientbound29247Message { PayloadData = stream.ReadToEnd() };
     }
 
     /// Encodes clientbound message 29247.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.Write(PayloadData.Span);
-
-        return stream;
     }
 }

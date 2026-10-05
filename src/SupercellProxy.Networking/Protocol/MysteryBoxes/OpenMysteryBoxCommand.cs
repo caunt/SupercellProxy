@@ -14,13 +14,7 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 /// <summary>
 /// Defines the Legacy Flag contract.
 /// </summary>
-public sealed record OpenMysteryBoxCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalIdentifier,
-    bool LegacyFlag,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record OpenMysteryBoxCommand([property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -33,20 +27,18 @@ public sealed record OpenMysteryBoxCommand(
     public static OpenMysteryBoxCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int box = stream.ReadVariableInt();
+        int box = stream.ReadVarInt();
         bool flag = stream.ReadBoolean();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new OpenMysteryBoxCommand(box, flag, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new OpenMysteryBoxCommand(box, flag);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(BoxGlobalIdentifier);
+        stream.WriteVarInt(BoxGlobalId);
         stream.WriteBoolean(LegacyFlag);
-        EncodeCommand(stream, environment);
     }
 }

@@ -11,7 +11,7 @@ public sealed record MapGameWalletSnapshot : ExtensibleDocument
     [JsonPropertyName("CoinsList")]
     public MapGameCoinBalanceSnapshot[] Coins { get; init; } = [];
 
-    /// <summary>Gets the configured global collection-goal coin identifiers.</summary>
+    /// <summary>Gets the configured global collection-goal coin ids.</summary>
     public int[] GlobalCollectGoalData { get; init; } = [];
 
     /// <summary>Gets whether this wallet is the piggy bank.</summary>
@@ -21,7 +21,7 @@ public sealed record MapGameWalletSnapshot : ExtensibleDocument
     /// <summary>Gets the map instance owned by a normal wallet.</summary>
     [JsonPropertyName("MapInstanceId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public MapGameInstanceIdentifierSnapshot? MapInstanceIdentifier { get; init; }
+    public MapGameInstanceIdSnapshot? MapInstanceId { get; init; }
 
     /// <summary>Gets whether the retained piggy bank has been broken.</summary>
     public bool PiggyBankBroken { get; init; }

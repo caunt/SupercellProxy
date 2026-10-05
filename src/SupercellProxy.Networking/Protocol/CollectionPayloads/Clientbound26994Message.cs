@@ -19,11 +19,10 @@ public sealed record Clientbound26994Message : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static Clientbound26994Message Create(MessageContainer container)
+    public static Clientbound26994Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int count = stream.ReadVarInt();
 
         if (count < -1 || count > MaximumEntryCount || count > (stream.Length - stream.Position) / 10)
             throw new InvalidDataException(message: "The entry-status collection count is invalid.");
@@ -44,18 +43,16 @@ public sealed record Clientbound26994Message : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Entries?.Length ?? -1);
+        stream.WriteVarInt(Entries?.Length ?? -1);
 
         if (Entries is not null)
         {
             foreach (Message26994Entry entry in Entries)
                 entry.Encode(stream);
         }
-
-        return stream;
     }
 }

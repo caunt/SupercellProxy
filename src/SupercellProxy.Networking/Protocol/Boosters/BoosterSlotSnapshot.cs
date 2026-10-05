@@ -5,9 +5,9 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 /// <summary>Represents one booster held in the player's booster storage.</summary>
 public sealed record BoosterSlotSnapshot
 {
-    /// <summary>Gets or sets the stored booster's data global identifier.</summary>
+    /// <summary>Gets or sets the stored booster's data global id.</summary>
     [JsonPropertyName("BoosterId")]
-    public int BoosterDataGlobalIdentifier { get; init; }
+    public int BoosterDataGlobalId { get; init; }
 
     /// <summary>Gets whether this booster was granted as a free reward.</summary>
     public bool IsFree { get; init; }

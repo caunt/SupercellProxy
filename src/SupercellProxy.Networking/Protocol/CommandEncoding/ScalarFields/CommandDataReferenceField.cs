@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.ScalarFields;
 /// <summary>
 /// Represents <c language="csharp">CommandDataReferenceField</c>.
 /// </summary>
-public sealed record CommandDataReferenceField([property: System.Text.Json.Serialization.JsonPropertyName("GlobalId")] int GlobalIdentifier) : CommandField
+public sealed record CommandDataReferenceField([property: System.Text.Json.Serialization.JsonPropertyName("GlobalId")] int GlobalId) : CommandField
 {
     /// <summary>
     /// Gets the Field Type value.
@@ -18,6 +18,6 @@ public sealed record CommandDataReferenceField([property: System.Text.Json.Seria
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(GlobalIdentifier);
+        stream.WriteVarInt(GlobalId);
     }
 }

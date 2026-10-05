@@ -16,7 +16,7 @@ public sealed record FarmPassSeasonSnapshot
     /// Gets the Chronos Event Id value.
     /// </summary>
     [JsonPropertyName("chronosEventId")]
-    public int ChronosEventIdentifier { get; init; }
+    public int ChronosEventId { get; init; }
 
     /// <summary>
     /// Gets the Farm Pass Thresholds value.

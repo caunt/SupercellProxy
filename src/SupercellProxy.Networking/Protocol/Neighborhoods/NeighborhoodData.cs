@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <summary>
 /// Represents <c language="csharp">NeighborhoodData</c>.
 /// </summary>
-/// <param name="NeighborhoodIdentifier">The <c language="csharp">NeighborhoodId</c> value.</param>
+/// <param name="NeighborhoodId">The <c language="csharp">NeighborhoodId</c> value.</param>
 /// <param name="NeighborhoodName">The <c language="csharp">NeighborhoodName</c> value.</param>
 /// <param name="NeighborhoodRole">The <c language="csharp">NeighborhoodRole</c> value.</param>
 /// <param name="BadgeUnknown0">The <c language="csharp">BadgeUnknown0</c> value.</param>
@@ -16,7 +16,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
 /// <param name="Unknown2">The <c language="csharp">Unknown2</c> value.</param>
 public sealed record NeighborhoodData(
-    [property: System.Text.Json.Serialization.JsonPropertyName("NeighborhoodId")] LongIdentifier NeighborhoodIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("NeighborhoodId")] LongId NeighborhoodId,
     string? NeighborhoodName,
     int NeighborhoodRole,
     int BadgeUnknown0,
@@ -35,15 +35,15 @@ public sealed record NeighborhoodData(
         ArgumentNullException.ThrowIfNull(stream);
 
         return new(
-            stream.ReadLongIdentifier(),
+            stream.ReadLongId(),
             stream.ReadOptionalString(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
@@ -53,14 +53,14 @@ public sealed record NeighborhoodData(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongIdentifier(NeighborhoodIdentifier);
+        stream.WriteLongId(NeighborhoodId);
         stream.WriteOptionalString(NeighborhoodName);
-        stream.WriteVariableInt(NeighborhoodRole);
-        stream.WriteVariableInt(BadgeUnknown0);
-        stream.WriteVariableInt(BadgeUnknown1);
-        stream.WriteVariableInt(BadgeUnknown2);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
-        stream.WriteVariableInt(Unknown2);
+        stream.WriteVarInt(NeighborhoodRole);
+        stream.WriteVarInt(BadgeUnknown0);
+        stream.WriteVarInt(BadgeUnknown1);
+        stream.WriteVarInt(BadgeUnknown2);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
+        stream.WriteVarInt(Unknown2);
     }
 }

@@ -7,12 +7,12 @@ namespace SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
 /// <summary>
 /// Represents <c language="csharp">CommandVarIntPairArrayField</c>.
 /// </summary>
-public sealed record CommandVariableIntPairArrayField : CommandField
+public sealed record CommandVarIntPairArrayField : CommandField
 {
     /// <summary>
-    /// Initializes a new <see cref="CommandVariableIntPairArrayField"/> instance.
+    /// Initializes a new <see cref="CommandVarIntPairArrayField"/> instance.
     /// </summary>
-    public CommandVariableIntPairArrayField(ReadOnlyMemory<CommandVariableIntPair> values)
+    public CommandVarIntPairArrayField(ReadOnlyMemory<CommandVarIntPair> values)
     {
         Values = values.ToArray();
     }
@@ -20,26 +20,26 @@ public sealed record CommandVariableIntPairArrayField : CommandField
     /// <summary>
     /// Gets the Field Type value.
     /// </summary>
-    public override CommandFieldType FieldType => CommandFieldType.VariableIntPairArray;
+    public override CommandFieldType FieldType => CommandFieldType.VarIntPairArray;
 
     /// <summary>
     /// Gets the <c language="csharp">Values</c> value.
     /// </summary>
-    public ReadOnlyMemory<CommandVariableIntPair> Values { get; }
+    public ReadOnlyMemory<CommandVarIntPair> Values { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static CommandVariableIntPairArrayField Decode(MessageStream stream)
+    public static CommandVarIntPairArrayField Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         int count = ReadCount(stream);
-        CommandVariableIntPair[] values = new CommandVariableIntPair[count];
+        CommandVarIntPair[] values = new CommandVarIntPair[count];
 
         for (int index = 0; index < values.Length; index++)
-            values[index] = new CommandVariableIntPair(stream.ReadVariableInt(), stream.ReadVariableInt());
+            values[index] = new CommandVarIntPair(stream.ReadVarInt(), stream.ReadVarInt());
 
-        return new CommandVariableIntPairArrayField(values);
+        return new CommandVarIntPairArrayField(values);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed record CommandVariableIntPairArrayField : CommandField
     public static int ReadCount(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVariableInt();
+        int count = stream.ReadVarInt();
 
         return count < 0 || count > (stream.Length - stream.Position) / 2
             ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid command pair array count: {count}."))
@@ -60,12 +60,12 @@ public sealed record CommandVariableIntPairArrayField : CommandField
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Values.Length);
+        stream.WriteVarInt(Values.Length);
 
-        foreach (CommandVariableIntPair value in Values.Span)
+        foreach (CommandVarIntPair value in Values.Span)
         {
-            stream.WriteVariableInt(value.Value0);
-            stream.WriteVariableInt(value.Value1);
+            stream.WriteVarInt(value.Value0);
+            stream.WriteVarInt(value.Value1);
         }
     }
 }

@@ -1,8 +1,8 @@
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Identifies a generated or retained Valley daily quest.</summary>
-/// <param name="QuestGlobalIdentifier">The quest data identifier.</param>
-public sealed record MapGameDailyQuestSnapshot([property: System.Text.Json.Serialization.JsonPropertyName("QuestGlobalId")] int QuestGlobalIdentifier)
+/// <param name="QuestGlobalId">The quest data id.</param>
+public sealed record MapGameDailyQuestSnapshot([property: System.Text.Json.Serialization.JsonPropertyName("QuestGlobalId")] int QuestGlobalId)
 {
     /// <summary>Gets whether the quest target has been reached.</summary>
     public bool Complete { get; init; }

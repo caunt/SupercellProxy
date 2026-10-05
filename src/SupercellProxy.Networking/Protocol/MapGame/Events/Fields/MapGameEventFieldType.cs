@@ -9,7 +9,7 @@ public enum MapGameEventFieldType
     /// Identifies the Var Int wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("VarInt")]
-    VariableInt,
+    VarInt,
 
     /// <summary>
     /// Identifies the Boolean wire value.
@@ -25,13 +25,13 @@ public enum MapGameEventFieldType
     /// Identifies the Long Id wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("LongId")]
-    LongIdentifier,
+    LongId,
 
     /// <summary>
     /// Identifies the Optional Long Id wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("OptionalLongId")]
-    OptionalLongIdentifier,
+    OptionalLongId,
 
     /// <summary>
     /// Identifies the Data Reference wire value.
@@ -57,7 +57,7 @@ public enum MapGameEventFieldType
     /// Identifies the Optional Var Int Array wire value.
     /// </summary>
     [System.Text.Json.Serialization.JsonStringEnumMemberName("OptionalVarIntArray")]
-    OptionalVariableIntArray,
+    OptionalVarIntArray,
 
     /// <summary>
     /// Identifies the Optional State wire value.

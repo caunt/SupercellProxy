@@ -23,22 +23,13 @@ public sealed record MapGameEventsServerCommand : ServerCommand
     /// <summary>
     /// Initializes a new <see cref="MapGameEventsServerCommand"/> instance.
     /// </summary>
-    public MapGameEventsServerCommand(
-        LongIdentifier? unknownLongIdentifier0,
-        LongIdentifier? mapGameIdentifier,
-        ReadOnlyMemory<MapGameEvent> events,
-        int serverCommandIdentifier,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
-    )
-        : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
+    public MapGameEventsServerCommand(LongId? unknownLongId0, LongId? mapGameId, ReadOnlyMemory<MapGameEvent> events)
     {
         if (events.Length > MaximumEventCount)
             throw new InvalidDataException($"Invalid map-game event count: {events.Length}.");
 
-        UnknownLongIdentifier0 = unknownLongIdentifier0;
-        MapGameIdentifier = mapGameIdentifier;
+        UnknownLongId0 = unknownLongId0;
+        MapGameId = mapGameId;
         Events = events.ToArray();
     }
 
@@ -48,10 +39,10 @@ public sealed record MapGameEventsServerCommand : ServerCommand
     public ReadOnlyMemory<MapGameEvent> Events { get; }
 
     /// <summary>
-    /// Gets the map-game session identifier.
+    /// Gets the map-game session id.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
-    public LongIdentifier? MapGameIdentifier { get; }
+    public LongId? MapGameId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
@@ -62,7 +53,7 @@ public sealed record MapGameEventsServerCommand : ServerCommand
     /// Gets the <c language="csharp">UnknownLongId0</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
-    public LongIdentifier? UnknownLongIdentifier0 { get; }
+    public LongId? UnknownLongId0 { get; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
@@ -70,10 +61,10 @@ public sealed record MapGameEventsServerCommand : ServerCommand
     public static MapGameEventsServerCommand Decode(MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
-        LongIdentifier? unknownLongIdentifier0 = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        LongIdentifier? mapGameIdentifier = MapGameFieldCodec.ReadOptionalLongIdentifier(stream);
-        int eventCount = stream.ReadVariableInt();
+
+        LongId? unknownLongId0 = MapGameFieldCodec.ReadOptionalLongId(stream);
+        LongId? mapGameId = MapGameFieldCodec.ReadOptionalLongId(stream);
+        int eventCount = stream.ReadVarInt();
 
         if (uint.CreateTruncating(eventCount) > MaximumEventCount)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid map-game event count: {eventCount}."));
@@ -83,26 +74,17 @@ public sealed record MapGameEventsServerCommand : ServerCommand
         for (int index = 0; index < events.Length; index++)
             events[index] = MapGameEvent.Decode(stream, dataResolver);
 
-        return new MapGameEventsServerCommand(
-            unknownLongIdentifier0,
-            mapGameIdentifier,
-            events,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+        return new MapGameEventsServerCommand(unknownLongId0, mapGameId, events);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeServerCommand(stream, environment);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, UnknownLongIdentifier0);
-        MapGameFieldCodec.WriteOptionalLongIdentifier(stream, MapGameIdentifier);
-        stream.WriteVariableInt(Events.Length);
+        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId0);
+        MapGameFieldCodec.WriteOptionalLongId(stream, MapGameId);
+        stream.WriteVarInt(Events.Length);
 
         foreach (MapGameEvent mapGameEvent in Events.Span)
             mapGameEvent.Encode(stream);

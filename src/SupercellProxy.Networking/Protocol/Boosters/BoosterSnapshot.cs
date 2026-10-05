@@ -13,7 +13,7 @@ public sealed record BoosterSnapshot
     /// Gets or sets the <c language="csharp">BoosterDataGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("LogicBoosterDataGlobalID")]
-    public int BoosterDataGlobalIdentifier { get; init; }
+    public int BoosterDataGlobalId { get; init; }
 
     /// <summary>Gets the retained game mode the booster is active in.</summary>
     public int GameMode { get; init; }

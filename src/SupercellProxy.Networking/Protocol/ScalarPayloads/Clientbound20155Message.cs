@@ -7,24 +7,22 @@ namespace SupercellProxy.Networking.Protocol.ScalarPayloads;
 /// Carries the decoded scalar value from clientbound message 20155.
 public sealed record Clientbound20155Message : IMessage
 {
-    /// Gets the decoded signed variable-length value.
+    /// Gets the decoded signed var-length value.
     public int Value { get; init; }
 
     /// Decodes clientbound message 20155.
-    public static Clientbound20155Message Create(MessageContainer container)
+    public static Clientbound20155Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        return new Clientbound20155Message { Value = container.Payload.ReadVariableInt() };
+        return new Clientbound20155Message { Value = stream.ReadVarInt() };
     }
 
     /// Encodes clientbound message 20155.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(Value);
-
-        return stream;
+        stream.WriteVarInt(Value);
     }
 }

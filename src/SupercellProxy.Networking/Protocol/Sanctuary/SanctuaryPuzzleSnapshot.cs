@@ -6,9 +6,9 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record SanctuaryPuzzleSnapshot
 {
-    /// <summary>Gets the Sanctuary animal data identifier.</summary>
+    /// <summary>Gets the Sanctuary animal data id.</summary>
     [JsonPropertyName("gid")]
-    public int AnimalGlobalIdentifier { get; init; }
+    public int AnimalGlobalId { get; init; }
 
     /// <summary>Gets whether every piece has been placed in the completed puzzle.</summary>
     [JsonPropertyName("Done")]

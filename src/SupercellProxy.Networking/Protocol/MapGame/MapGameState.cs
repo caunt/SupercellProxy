@@ -18,14 +18,14 @@ public sealed record MapGameState
         ReadOnlyMemory<MapGameTaskGroup> taskGroups,
         MapGameConfiguration configuration,
         ReadOnlyMemory<MapGameNodeEmoji> emojis,
-        int mapGlobalIdentifier
+        int mapGlobalId
     )
     {
         Pawns = pawns.ToArray();
         TaskGroups = taskGroups.ToArray();
         Configuration = configuration;
         Emojis = emojis.ToArray();
-        MapGlobalIdentifier = mapGlobalIdentifier;
+        MapGlobalId = mapGlobalId;
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed record MapGameState
     /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int MapGlobalIdentifier { get; }
+    public int MapGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">Pawns</c> value.
@@ -80,7 +80,7 @@ public sealed record MapGameState
         for (int index = 0; index < emojis.Length; index++)
             emojis[index] = MapGameNodeEmoji.Decode(stream);
 
-        return new MapGameState(pawns, taskGroups, configuration, emojis, stream.ReadVariableInt());
+        return new MapGameState(pawns, taskGroups, configuration, emojis, stream.ReadVarInt());
     }
 
     /// <summary>
@@ -89,22 +89,22 @@ public sealed record MapGameState
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Pawns.Length);
+        stream.WriteVarInt(Pawns.Length);
 
         foreach (MapGamePawn pawn in Pawns.Span)
             pawn.Encode(stream);
 
-        stream.WriteVariableInt(TaskGroups.Length);
+        stream.WriteVarInt(TaskGroups.Length);
 
         foreach (MapGameTaskGroup taskGroup in TaskGroups.Span)
             taskGroup.Encode(stream);
 
         Configuration.Encode(stream);
-        stream.WriteVariableInt(Emojis.Length);
+        stream.WriteVarInt(Emojis.Length);
 
         foreach (MapGameNodeEmoji entry in Emojis.Span)
             entry.Encode(stream);
 
-        stream.WriteVariableInt(MapGlobalIdentifier);
+        stream.WriteVarInt(MapGlobalId);
     }
 }

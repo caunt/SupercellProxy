@@ -38,7 +38,7 @@ public sealed record AvatarStateSection
     public static AvatarStateSection Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int version = stream.ReadVariableInt();
+        int version = stream.ReadVarInt();
 
         return version <= 0
             ? new AvatarStateSection { Version = version }
@@ -58,7 +58,7 @@ public sealed record AvatarStateSection
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Version);
+        stream.WriteVarInt(Version);
 
         if (Version <= 0)
             return;

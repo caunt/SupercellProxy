@@ -22,12 +22,12 @@ public sealed record AccountCandidatesMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static AccountCandidatesMessage Create(MessageContainer container)
+    public static AccountCandidatesMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        int count = container.Payload.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int count = stream.ReadVarInt();
 
-        if (count < -1 || count > (container.Payload.Length - container.Payload.Position) / 28)
+        if (count < -1 || count > (stream.Length - stream.Position) / 28)
             throw new InvalidDataException(message: "The account-entry response has an invalid payload.");
 
         AccountCandidateEntry[]? entries = count < 0 ? null : new AccountCandidateEntry[count];
@@ -35,10 +35,10 @@ public sealed record AccountCandidatesMessage : IMessage
         if (entries is not null)
         {
             for (int index = 0; index < entries.Length; index++)
-                entries[index] = AccountCandidateEntry.Decode(container.Payload);
+                entries[index] = AccountCandidateEntry.Decode(stream);
         }
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The account-entry response has trailing data.")
             : new AccountCandidatesMessage { Entries = entries };
     }
@@ -46,19 +46,17 @@ public sealed record AccountCandidatesMessage : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(EntryCount);
+        stream.WriteVarInt(EntryCount);
 
         if (Entries is not null)
         {
             foreach (AccountCandidateEntry entry in Entries)
                 entry.Encode(stream);
         }
-
-        return stream;
     }
 
     /// <summary>

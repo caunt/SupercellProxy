@@ -5,33 +5,25 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Forestry;
 
 /// <summary>Marks an exhausted plant for clearing, optionally buying its missing tool with coins.</summary>
-public sealed record StartPlantClearingCommand(
-    int PlantIdentifier,
-    bool BuyMissingTool,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record StartPlantClearingCommand(int PlantId, bool BuyMissingTool) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.StartPlantClearingCommandType;
 
-    /// <summary>Decodes the native plant identifier and coin-purchase flag before base command fields.</summary>
+    /// <summary>Decodes the native plant id and coin-purchase flag.</summary>
     public static StartPlantClearingCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int identifier = stream.ReadVariableInt();
+        int id = stream.ReadVarInt();
         bool buy = stream.ReadBoolean();
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new(identifier, buy, fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new(id, buy);
     }
 
     /// <inheritdoc />
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteVariableInt(PlantIdentifier);
+        stream.WriteVarInt(PlantId);
         stream.WriteBoolean(BuyMissingTool);
-        EncodeCommand(stream, environment);
     }
 }

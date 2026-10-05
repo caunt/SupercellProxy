@@ -4,30 +4,28 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// Requests the follower count of the identified farm.
-public sealed record RequestFollowerCountMessage(LongIdentifier HomeIdentifier) : IMessage
+public sealed record RequestFollowerCountMessage(LongId HomeId) : IMessage
 {
-    /// Decodes the fixed-width farm identifier.
-    public static RequestFollowerCountMessage Create(MessageContainer container)
+    /// Decodes the fixed-width farm id.
+    public static RequestFollowerCountMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        RequestFollowerCountMessage result = new(container.Payload.ReadLongIdentifier());
+        ArgumentNullException.ThrowIfNull(stream);
+        RequestFollowerCountMessage result = new(stream.ReadLongId());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The follower-count request has trailing data.")
             : result;
     }
 
-    /// Encodes the farm identifier as a payload.
-    public MessageStream ToStream()
+    /// Encodes the farm id as a payload.
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteLongIdentifier(HomeIdentifier);
-
-        return stream;
+        stream.WriteLongId(HomeId);
     }
 
-    /// Omits the private farm identifier from diagnostic text.
+    /// Omits the private farm id from diagnostic text.
     public override string ToString()
     {
         return nameof(RequestFollowerCountMessage);

@@ -15,7 +15,7 @@ public sealed record MapGameDeliveryTaskStatePayload(int Unknown0, int Unknown1,
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new MapGameDeliveryTaskStatePayload(stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadBoolean());
+        return new MapGameDeliveryTaskStatePayload(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadBoolean());
     }
 
     /// <summary>
@@ -23,8 +23,8 @@ public sealed record MapGameDeliveryTaskStatePayload(int Unknown0, int Unknown1,
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
         stream.WriteBoolean(UnknownBoolean0);
     }
 }

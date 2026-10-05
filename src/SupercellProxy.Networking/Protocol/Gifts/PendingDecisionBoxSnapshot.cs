@@ -9,9 +9,9 @@ public sealed record PendingDecisionBoxSnapshot
     [JsonPropertyName("details")]
     public DecisionBoxSourceDetail[] Details { get; init; } = [];
 
-    /// <summary>Gets the decision-box data identifier.</summary>
+    /// <summary>Gets the decision-box data id.</summary>
     [JsonPropertyName("GlobalId")]
-    public int GlobalIdentifier { get; init; }
+    public int GlobalId { get; init; }
 
     /// <summary>Gets the native acquisition reason carried by this reward.</summary>
     public int SourceTag { get; init; }

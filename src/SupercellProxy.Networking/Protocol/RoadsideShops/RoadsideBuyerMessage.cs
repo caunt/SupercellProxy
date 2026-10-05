@@ -13,18 +13,18 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// <summary>
 /// Defines the Buyer Id contract.
 /// </summary>
-public sealed record RoadsideBuyerMessage(int SlotIndex, [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier BuyerIdentifier) : IMessage
+public sealed record RoadsideBuyerMessage(int SlotIndex, [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId BuyerId) : IMessage
 {
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static RoadsideBuyerMessage Create(MessageContainer container)
+    public static RoadsideBuyerMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        RoadsideBuyerMessage result = new(container.Payload.ReadVariableInt(), container.Payload.ReadLongIdentifier());
+        RoadsideBuyerMessage result = new(stream.ReadVarInt(), stream.ReadLongId());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The roadside buyer update has trailing data.")
             : result;
     }
@@ -32,14 +32,12 @@ public sealed record RoadsideBuyerMessage(int SlotIndex, [property: System.Text.
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(SlotIndex);
-        stream.WriteLongIdentifier(BuyerIdentifier);
-
-        return stream;
+        stream.WriteVarInt(SlotIndex);
+        stream.WriteLongId(BuyerId);
     }
 
     /// <summary>

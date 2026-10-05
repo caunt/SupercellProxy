@@ -33,12 +33,12 @@ public sealed record CommandStructureArrayField : CommandField
     {
         if (Values is null)
         {
-            stream.WriteVariableInt(valueToWrite: -1);
+            stream.WriteVarInt(valueToWrite: -1);
 
             return;
         }
 
-        stream.WriteVariableInt(Values.Value.Length);
+        stream.WriteVarInt(Values.Value.Length);
 
         foreach (CommandStructure value in Values.Value.Span)
         {

@@ -10,7 +10,7 @@ public sealed record BoatCrateHelpEntry(
     [property: System.Text.Json.Serialization.JsonPropertyName("Unknown0")] int ExpirationTimestamp,
     [property: System.Text.Json.Serialization.JsonPropertyName("Unknown1")] int RequestKind,
     [property: System.Text.Json.Serialization.JsonPropertyName("Unknown2")] int CrateIndex,
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId")] LongIdentifier? HelperIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId")] LongId? HelperId
 )
 {
     /// <summary>
@@ -20,7 +20,7 @@ public sealed record BoatCrateHelpEntry(
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new(stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadVariableInt(), stream.ReadOptionalLongIdentifier());
+        return new(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadOptionalLongId());
     }
 
     /// <summary>
@@ -29,9 +29,9 @@ public sealed record BoatCrateHelpEntry(
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(ExpirationTimestamp);
-        stream.WriteVariableInt(RequestKind);
-        stream.WriteVariableInt(CrateIndex);
-        stream.WriteOptionalLongIdentifier(HelperIdentifier);
+        stream.WriteVarInt(ExpirationTimestamp);
+        stream.WriteVarInt(RequestKind);
+        stream.WriteVarInt(CrateIndex);
+        stream.WriteOptionalLongId(HelperId);
     }
 }

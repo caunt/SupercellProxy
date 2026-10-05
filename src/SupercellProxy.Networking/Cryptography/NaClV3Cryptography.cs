@@ -309,12 +309,7 @@ public static class NaClV3Cryptography
         return remainder.Sign < 0 ? remainder + modulus : remainder;
     }
 
-    private static (
-        BigInteger XCoordinate2,
-        BigInteger ZCoordinate2,
-        BigInteger XCoordinate3,
-        BigInteger ZCoordinate3
-    ) MontgomeryStep(BigInteger baseXCoordinate, BigInteger xCoordinate2, BigInteger zCoordinate2, BigInteger xCoordinate3, BigInteger zCoordinate3)
+    private static MontgomeryStepResult MontgomeryStep(BigInteger baseXCoordinate, BigInteger xCoordinate2, BigInteger zCoordinate2, BigInteger xCoordinate3, BigInteger zCoordinate3)
     {
         BigInteger sumX2Z2 = Modulo(xCoordinate2 + zCoordinate2, Curve25519PrimeModulus);
         BigInteger squaredSumX2Z2 = Modulo(sumX2Z2 * sumX2Z2, Curve25519PrimeModulus);
@@ -344,7 +339,7 @@ public static class NaClV3Cryptography
             Curve25519PrimeModulus
         );
 
-        return (xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3);
+        return new MontgomeryStepResult(xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3);
     }
 
     private static void Poly1305(ReadOnlySpan<byte> message, ReadOnlySpan<byte> key, Span<byte> macResult)
@@ -395,7 +390,7 @@ public static class NaClV3Cryptography
         span[indexB] = BitOperations.RotateLeft(span[indexB], offset: 7);
     }
 
-    private static (BigInteger XCoordinate, BigInteger ZCoordinate) RunMontgomeryLadder(BigInteger scalarValue, BigInteger baseXCoordinate)
+    private static MontgomeryPoint RunMontgomeryLadder(BigInteger scalarValue, BigInteger baseXCoordinate)
     {
         BigInteger xCoordinate2 = BigInteger.One;
         BigInteger zCoordinate2 = BigInteger.Zero;
@@ -424,6 +419,6 @@ public static class NaClV3Cryptography
             zCoordinate2 = zCoordinate3;
         }
 
-        return (xCoordinate2, zCoordinate2);
+        return new MontgomeryPoint(xCoordinate2, zCoordinate2);
     }
 }

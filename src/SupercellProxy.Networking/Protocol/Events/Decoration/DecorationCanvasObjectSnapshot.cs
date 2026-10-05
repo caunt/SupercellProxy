@@ -8,7 +8,7 @@ public sealed record DecorationCanvasObjectSnapshot
 {
     /// <summary>Gets the object's data identity.</summary>
     [JsonPropertyName("D")]
-    public int DataGlobalIdentifier { get; init; }
+    public int DataGlobalId { get; init; }
 
     /// <summary>Gets the optional mirror flag.</summary>
     [JsonPropertyName("M")]

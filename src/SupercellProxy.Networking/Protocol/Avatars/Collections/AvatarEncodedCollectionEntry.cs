@@ -63,10 +63,10 @@ public sealed record AvatarEncodedCollectionEntry
             UsesCompressedData = usesCompressedData,
             Text = usesCompressedData ? null : stream.ReadOptionalString(),
             CompressedData = usesCompressedData ? stream.ReadOptionalByteArray() : null,
-            Unknown0 = stream.ReadVariableInt(),
-            Unknown1 = stream.ReadVariableInt(),
+            Unknown0 = stream.ReadVarInt(),
+            Unknown1 = stream.ReadVarInt(),
             UnknownString0 = stream.ReadOptionalString(),
-            UnknownValues = stream.ReadVariableIntArray(count: 11),
+            UnknownValues = stream.ReadVarIntArray(count: 11),
             UnknownString1 = stream.ReadOptionalString(),
         };
     }
@@ -97,12 +97,12 @@ public sealed record AvatarEncodedCollectionEntry
         else
             stream.WriteOptionalString(Text);
 
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
         stream.WriteOptionalString(UnknownString0);
 
         foreach (int value in UnknownValues)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
         stream.WriteOptionalString(UnknownString1);
     }

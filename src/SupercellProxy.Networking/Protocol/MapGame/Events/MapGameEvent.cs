@@ -86,7 +86,7 @@ public sealed record MapGameEvent
     public static MapGameEvent Decode(MessageStream stream, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int type = stream.ReadVariableInt();
+        int type = stream.ReadVarInt();
 
         if (!Schemas.TryGetValue(type, out MapGameEventFieldSchema[]? schemas))
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Map-game event type {type} is not supported by the native 1.72.84 factory."));
@@ -105,7 +105,7 @@ public sealed record MapGameEvent
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Type);
+        stream.WriteVarInt(Type);
 
         foreach (MapGameEventField field in Fields.Span)
             field.Encode(stream);
@@ -113,18 +113,18 @@ public sealed record MapGameEvent
 
     private static Dictionary<int, MapGameEventFieldSchema[]> CreateSchemas()
     {
-        MapGameEventFieldSchema variableInt = new(MapGameEventFieldType.VariableInt);
+        MapGameEventFieldSchema varInt = new(MapGameEventFieldType.VarInt);
         MapGameEventFieldSchema boolean = new(MapGameEventFieldType.Boolean);
         MapGameEventFieldSchema int32Field = new(MapGameEventFieldType.Int32);
-        MapGameEventFieldSchema logicLong = new(MapGameEventFieldType.LongIdentifier);
-        MapGameEventFieldSchema optionalLongIdentifier = new(MapGameEventFieldType.OptionalLongIdentifier);
+        MapGameEventFieldSchema logicLong = new(MapGameEventFieldType.LongId);
+        MapGameEventFieldSchema optionalLongId = new(MapGameEventFieldType.OptionalLongId);
         MapGameEventFieldSchema dataReference = new(MapGameEventFieldType.DataReference);
         MapGameEventFieldSchema optionalPawn = new(MapGameEventFieldType.OptionalPawn);
         MapGameEventFieldSchema optionalTask = new(MapGameEventFieldType.OptionalTask);
 
         MapGameEventFieldSchema optionalTaskCollection = new(MapGameEventFieldType.OptionalTaskCollection);
 
-        MapGameEventFieldSchema optionalVariableIntArray = new(MapGameEventFieldType.OptionalVariableIntArray);
+        MapGameEventFieldSchema optionalVarIntArray = new(MapGameEventFieldType.OptionalVarIntArray);
 
         MapGameEventFieldSchema[] pawnAndTask = [optionalPawn, optionalTask];
 
@@ -138,26 +138,26 @@ public sealed record MapGameEvent
         {
             schemas[StateSynchronizationType] =
             [
-                optionalLongIdentifier,
-                variableInt,
+                optionalLongId,
+                varInt,
                 new(MapGameEventFieldType.OptionalState),
                 optionalPawn,
                 boolean,
             ];
             schemas[PawnMovedType] =
             [
-                variableInt,
-                variableInt,
-                variableInt,
+                varInt,
+                varInt,
+                varInt,
                 optionalPawn,
-                optionalVariableIntArray,
-                optionalVariableIntArray,
+                optionalVarIntArray,
+                optionalVarIntArray,
                 optionalTask,
                 optionalTask,
                 optionalTaskCollection,
             ];
             schemas[DumpTaskCompletedType] = pawnAndTask;
-            schemas[key: 5] = [logicLong, variableInt, variableInt];
+            schemas[key: 5] = [logicLong, varInt, varInt];
             schemas[PawnTaskExpiredType] = pawnAndTask;
             schemas[TaskRemovedType] = pawnAndTask;
             schemas[PawnTaskUpdatedType] = pawnAndTask;
@@ -166,17 +166,17 @@ public sealed record MapGameEvent
             schemas[SharedTaskUpdatedType] = pawnAndTask;
             schemas[key: 12] = pawnAndTask;
             schemas[key: 13] = pawnAndTask;
-            schemas[key: 14] = [optionalPawn, optionalTask, variableInt];
-            schemas[key: 15] = [optionalPawn, optionalTask, variableInt];
+            schemas[key: 14] = [optionalPawn, optionalTask, varInt];
+            schemas[key: 15] = [optionalPawn, optionalTask, varInt];
             schemas[key: 16] = pawnAndTask;
-            schemas[key: 17] = [optionalPawn, optionalTask, optionalVariableIntArray];
+            schemas[key: 17] = [optionalPawn, optionalTask, optionalVarIntArray];
             schemas[key: 18] =
             [
-                optionalLongIdentifier,
+                optionalLongId,
                 optionalPawn,
-                new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 219),
-                variableInt,
-                variableInt,
+                new(MapGameEventFieldType.DataReference, ExpectedTableId: 219),
+                varInt,
+                varInt,
             ];
             schemas[key: 19] = pawnAndTask;
             schemas[key: 20] = pawnAndTask;
@@ -184,45 +184,45 @@ public sealed record MapGameEvent
 
         void AddRemainingSchemas()
         {
-            schemas[key: 21] = [optionalPawn, optionalTask, optionalVariableIntArray];
-            schemas[NodeEmojiAddedType] = [optionalLongIdentifier, variableInt, dataReference, int32Field];
-            schemas[NodeEmojiRemovedType] = [optionalLongIdentifier, variableInt, dataReference];
-            schemas[NodeEmojiCollectedType] = [optionalLongIdentifier, variableInt, dataReference];
-            schemas[key: 25] = [optionalLongIdentifier, variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 162)];
-            schemas[key: 26] = [variableInt, boolean];
+            schemas[key: 21] = [optionalPawn, optionalTask, optionalVarIntArray];
+            schemas[NodeEmojiAddedType] = [optionalLongId, varInt, dataReference, int32Field];
+            schemas[NodeEmojiRemovedType] = [optionalLongId, varInt, dataReference];
+            schemas[NodeEmojiCollectedType] = [optionalLongId, varInt, dataReference];
+            schemas[key: 25] = [optionalLongId, varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 162)];
+            schemas[key: 26] = [varInt, boolean];
             schemas[key: 27] =
             [
                 logicLong,
-                variableInt,
-                variableInt,
-                new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 226),
+                varInt,
+                varInt,
+                new(MapGameEventFieldType.DataReference, ExpectedTableId: 226),
             ];
             schemas[key: 28] = [optionalPawn];
             schemas[key: 29] =
             [
-                variableInt,
+                varInt,
                 optionalPawn,
                 optionalTask,
                 new(MapGameEventFieldType.OptionalDumpTaskState),
             ];
             schemas[PawnProfileUpdatedType] = [optionalPawn];
             schemas[key: 31] = [optionalPawn];
-            schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVariableIntArray];
-            schemas[key: 33] = [variableInt, optionalPawn];
+            schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVarIntArray];
+            schemas[key: 33] = [varInt, optionalPawn];
             schemas[key: 34] = pawnAndTask;
-            schemas[key: 35] = [optionalPawn, optionalTask, variableInt];
+            schemas[key: 35] = [optionalPawn, optionalTask, varInt];
             schemas[key: 36] = pawnAndTask;
             schemas[key: 37] =
             [
-                optionalLongIdentifier,
+                optionalLongId,
                 optionalPawn,
-                new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 219),
-                variableInt,
-                variableInt,
+                new(MapGameEventFieldType.DataReference, ExpectedTableId: 219),
+                varInt,
+                varInt,
             ];
             schemas[key: 38] = [optionalPawn, optionalTaskCollection];
-            schemas[key: 39] = [variableInt, new(MapGameEventFieldType.OptionalProfileData)];
-            schemas[key: 40] = [variableInt, new(MapGameEventFieldType.DataReference, ExpectedTableIdentifier: 260)];
+            schemas[key: 39] = [varInt, new(MapGameEventFieldType.OptionalProfileData)];
+            schemas[key: 40] = [varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 260)];
         }
     }
 }

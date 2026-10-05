@@ -17,7 +17,7 @@ public sealed record Clientbound22903Message : IMessage
     /// Gets the Event Id value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("EventId")]
-    public int EventIdentifier { get; init; }
+    public int EventId { get; init; }
 
     /// <summary>
     /// Gets the Trailing Value value.
@@ -32,22 +32,21 @@ public sealed record Clientbound22903Message : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static Clientbound22903Message Create(MessageContainer container)
+    public static Clientbound22903Message Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int eventIdentifier = stream.ReadVariableInt();
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int eventId = stream.ReadVarInt();
+        int count = stream.ReadVarInt();
 
         if (count > 0)
             throw new NotSupportedException(message: "Populated clientbound event collections are not implemented.");
 
         Clientbound22903Message message = new()
         {
-            EventIdentifier = eventIdentifier,
+            EventId = eventId,
             EntriesPresent = count is 0,
-            Value = stream.ReadVariableLong(),
-            TrailingValue = stream.ReadVariableInt(),
+            Value = stream.ReadVarLong(),
+            TrailingValue = stream.ReadVarInt(),
         };
 
         return stream.Position != stream.Length
@@ -58,15 +57,13 @@ public sealed record Clientbound22903Message : IMessage
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVariableInt(EventIdentifier);
-        stream.WriteVariableInt(EntriesPresent ? 0 : -1);
-        stream.WriteVariableLong(Value);
-        stream.WriteVariableInt(TrailingValue);
-
-        return stream;
+        stream.WriteVarInt(EventId);
+        stream.WriteVarInt(EntriesPresent ? 0 : -1);
+        stream.WriteVarLong(Value);
+        stream.WriteVarInt(TrailingValue);
     }
 }

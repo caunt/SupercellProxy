@@ -17,8 +17,8 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 /// Defines the Flag contract.
 /// </summary>
 public sealed record HomeVisitStatusMessage(
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier HomeOwnerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("VisitorId")] LongIdentifier VisitorIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("VisitorId")] LongId VisitorId,
     bool Flag
 )
     : IMessage
@@ -26,13 +26,13 @@ public sealed record HomeVisitStatusMessage(
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static HomeVisitStatusMessage Create(MessageContainer container)
+    public static HomeVisitStatusMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        HomeVisitStatusMessage result = new(container.Payload.ReadLongIdentifier(), container.Payload.ReadLongIdentifier(), container.Payload.ReadBoolean());
+        HomeVisitStatusMessage result = new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadBoolean());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The visit-pair status has trailing data.")
             : result;
     }
@@ -40,15 +40,13 @@ public sealed record HomeVisitStatusMessage(
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteLongIdentifier(HomeOwnerIdentifier);
-        stream.WriteLongIdentifier(VisitorIdentifier);
+        stream.WriteLongId(HomeOwnerId);
+        stream.WriteLongId(VisitorId);
         stream.WriteBoolean(Flag);
-
-        return stream;
     }
 
     /// <summary>

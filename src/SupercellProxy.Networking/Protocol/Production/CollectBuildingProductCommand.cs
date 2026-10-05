@@ -11,12 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Production;
 /// <summary>
 /// Defines the Building Global Id contract.
 /// </summary>
-public sealed record CollectBuildingProductCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalIdentifier,
-    int ExecutionPhaseCounter = -1,
-    CommandData? DebugData0 = null,
-    CommandData? DebugData1 = null
-) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
+public sealed record CollectBuildingProductCommand([property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId) : Command
 {
     /// <summary>
     /// Gets the Type value.
@@ -29,17 +24,15 @@ public sealed record CollectBuildingProductCommand(
     public static CollectBuildingProductCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) fields = DecodeCommand(stream, environment);
 
-        return new CollectBuildingProductCommand(stream.ReadVariableInt(), fields.ExecutionPhaseCounter, fields.DebugData0, fields.DebugData1);
+        return new CollectBuildingProductCommand(stream.ReadVarInt());
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        EncodeCommand(stream, environment);
-        stream.WriteVariableInt(BuildingGlobalIdentifier);
+        stream.WriteVarInt(BuildingGlobalId);
     }
 }

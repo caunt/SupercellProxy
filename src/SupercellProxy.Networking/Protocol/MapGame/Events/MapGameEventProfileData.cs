@@ -95,13 +95,13 @@ public sealed record MapGameEventProfileData
         bool usesBinaryData = stream.ReadBoolean();
         Memory<byte>? binaryData = usesBinaryData ? stream.ReadOptionalByteArray() : null;
         string? optionalTextData = usesBinaryData ? null : stream.ReadOptionalString();
-        int unknown0 = stream.ReadVariableInt();
-        int unknown1 = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
+        int unknown1 = stream.ReadVarInt();
         string unknownString0 = stream.ReadString();
         int[] unknownValues = new int[UnknownValueCount];
 
         for (int index = 0; index < unknownValues.Length; index++)
-            unknownValues[index] = stream.ReadVariableInt();
+            unknownValues[index] = stream.ReadVarInt();
 
         return new MapGameEventProfileData(usesBinaryData, binaryData, optionalTextData, unknown0, unknown1, unknownString0, unknownValues, stream.ReadString());
     }
@@ -119,12 +119,12 @@ public sealed record MapGameEventProfileData
         else
             stream.WriteOptionalString(OptionalTextData);
 
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Unknown1);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Unknown1);
         stream.WriteString(UnknownString0);
 
         foreach (int value in UnknownValues.Span)
-            stream.WriteVariableInt(value);
+            stream.WriteVarInt(value);
 
         stream.WriteString(UnknownString1);
     }

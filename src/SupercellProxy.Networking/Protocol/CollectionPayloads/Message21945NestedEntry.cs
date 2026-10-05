@@ -3,46 +3,35 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.CollectionPayloads;
 
 /// <summary>The fixed fields of a message-21945 nested record.</summary>
-public sealed record Message21945NestedEntry(
-    LongIdentifier Identifier,
-    string? Text,
-    int Value0,
-    int Value1,
-    int Value2,
-    int Value3,
-    int Value4,
-    int Value5,
-    int Value6,
-    int Value7
-)
+public sealed record Message21945NestedEntry(LongId Id, string? Text, int Value0, int Value1, int Value2, int Value3, int Value4, int Value5, int Value6, int Value7)
 {
     internal static Message21945NestedEntry Decode(MessageStream stream)
     {
         return new(
-            stream.ReadLongIdentifier(),
+            stream.ReadLongId(),
             stream.ReadOptionalString(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
     }
 
     internal void Encode(MessageStream stream)
     {
-        stream.WriteLongIdentifier(Identifier);
+        stream.WriteLongId(Id);
         stream.WriteOptionalString(Text);
-        stream.WriteVariableInt(Value0);
-        stream.WriteVariableInt(Value1);
-        stream.WriteVariableInt(Value2);
-        stream.WriteVariableInt(Value3);
-        stream.WriteVariableInt(Value4);
-        stream.WriteVariableInt(Value5);
-        stream.WriteVariableInt(Value6);
-        stream.WriteVariableInt(Value7);
+        stream.WriteVarInt(Value0);
+        stream.WriteVarInt(Value1);
+        stream.WriteVarInt(Value2);
+        stream.WriteVarInt(Value3);
+        stream.WriteVarInt(Value4);
+        stream.WriteVarInt(Value5);
+        stream.WriteVarInt(Value6);
+        stream.WriteVarInt(Value7);
     }
 }

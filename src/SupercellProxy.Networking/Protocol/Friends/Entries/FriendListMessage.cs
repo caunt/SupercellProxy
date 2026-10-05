@@ -14,12 +14,11 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMess
     private const int MaximumEntryCount = 100_000;
 
     /// Decodes the mode and friend-entry collection.
-    public static FriendListMessage Create(MessageContainer container)
+    public static FriendListMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
-        int mode = stream.ReadVariableInt();
-        int count = stream.ReadVariableInt();
+        ArgumentNullException.ThrowIfNull(stream);
+        int mode = stream.ReadVarInt();
+        int count = stream.ReadVarInt();
 
         if (count < -1 || count > MaximumEntryCount || count > (stream.Length - stream.Position) / FriendEntry.MinimumEncodedSize)
             throw new InvalidDataException(message: "The friend-entry count is invalid.");
@@ -38,15 +37,15 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMess
     }
 
     /// Encodes this list as a payload.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+
         if (Entries?.Length > MaximumEntryCount)
             throw new InvalidDataException(message: "The friend-entry count exceeds the native limit.");
 
-        using MessageStream stream = MessageStream.Create();
-
-        stream.WriteVariableInt(Mode);
-        stream.WriteVariableInt(Entries?.Length ?? -1);
+        stream.WriteVarInt(Mode);
+        stream.WriteVarInt(Entries?.Length ?? -1);
 
         if (Entries is not null)
         {
@@ -56,8 +55,6 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMess
                 entry.Encode(stream);
             }
         }
-
-        return stream;
     }
 
     /// Omits private entries from diagnostics.

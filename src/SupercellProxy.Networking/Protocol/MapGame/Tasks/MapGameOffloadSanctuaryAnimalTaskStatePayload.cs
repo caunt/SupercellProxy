@@ -16,7 +16,7 @@ public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int Unknown0)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new MapGameOffloadSanctuaryAnimalTaskStatePayload(stream.ReadVariableInt());
+        return new MapGameOffloadSanctuaryAnimalTaskStatePayload(stream.ReadVarInt());
     }
 
     /// <summary>
@@ -24,6 +24,6 @@ public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int Unknown0)
     /// </summary>
     public override void Encode(MessageStream stream)
     {
-        stream.WriteVariableInt(Unknown0);
+        stream.WriteVarInt(Unknown0);
     }
 }

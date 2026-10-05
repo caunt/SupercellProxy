@@ -34,7 +34,7 @@ public sealed record MapGameTaskCollection
     public static MapGameTaskCollection Decode(MessageStream stream, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVariableInt();
+        int unknown0 = stream.ReadVarInt();
         int taskCount = MapGameFieldCodec.ReadCount(stream, name: "task");
         MapGameTask[] tasks = new MapGameTask[taskCount];
 
@@ -50,8 +50,8 @@ public sealed record MapGameTaskCollection
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVariableInt(Unknown0);
-        stream.WriteVariableInt(Tasks.Length);
+        stream.WriteVarInt(Unknown0);
+        stream.WriteVarInt(Tasks.Length);
 
         foreach (MapGameTask task in Tasks.Span)
             task.Encode(stream);

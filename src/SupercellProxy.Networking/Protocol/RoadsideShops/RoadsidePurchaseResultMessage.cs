@@ -32,14 +32,14 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// Defines the Item Global Id contract.
 /// </summary>
 public sealed record RoadsidePurchaseResultMessage(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongIdentifier? BuyerIdentifier,
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongIdentifier? HomeOwnerIdentifier,
+    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId? BuyerId,
+    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId? HomeOwnerId,
     int Status,
     int Quantity,
     int Price,
     int SlotIndex,
     int ContextValue,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalIdentifier
+    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId
 ) : IMessage
 {
     /// <summary>
@@ -54,20 +54,19 @@ public sealed record RoadsidePurchaseResultMessage(
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static RoadsidePurchaseResultMessage Create(MessageContainer container)
+    public static RoadsidePurchaseResultMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
-        MessageStream stream = container.Payload;
+        ArgumentNullException.ThrowIfNull(stream);
 
         RoadsidePurchaseResultMessage message = new(
-            stream.ReadOptionalLongIdentifier(),
-            stream.ReadOptionalLongIdentifier(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt(),
-            stream.ReadVariableInt()
+            stream.ReadOptionalLongId(),
+            stream.ReadOptionalLongId(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt(),
+            stream.ReadVarInt()
         );
 
         return stream.Position != stream.Length
@@ -78,19 +77,17 @@ public sealed record RoadsidePurchaseResultMessage(
     /// <summary>
     /// Provides the To Container value or operation.
     /// </summary>
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteOptionalLongIdentifier(BuyerIdentifier);
-        stream.WriteOptionalLongIdentifier(HomeOwnerIdentifier);
-        stream.WriteVariableInt(Status);
-        stream.WriteVariableInt(Quantity);
-        stream.WriteVariableInt(Price);
-        stream.WriteVariableInt(SlotIndex);
-        stream.WriteVariableInt(ContextValue);
-        stream.WriteVariableInt(ItemGlobalIdentifier);
-
-        return stream;
+        stream.WriteOptionalLongId(BuyerId);
+        stream.WriteOptionalLongId(HomeOwnerId);
+        stream.WriteVarInt(Status);
+        stream.WriteVarInt(Quantity);
+        stream.WriteVarInt(Price);
+        stream.WriteVarInt(SlotIndex);
+        stream.WriteVarInt(ContextValue);
+        stream.WriteVarInt(ItemGlobalId);
     }
 }

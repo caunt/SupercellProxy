@@ -15,21 +15,16 @@ public sealed record TownServiceHelpCompletedServerCommand : ServerCommand
     /// Provides the Passenger Service Completion Server Command value or operation.
     /// </summary>
     public TownServiceHelpCompletedServerCommand(
-        LongIdentifier ownerHomeIdentifier,
-        LongIdentifier helperHomeIdentifier,
-        int helpIdentifier,
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> requiredItems,
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> grantedRewards,
-        int serverCommandIdentifier,
-        int executionPhaseCounter = -1,
-        CommandData? debugData0 = null,
-        CommandData? debugData1 = null
+        LongId ownerHomeId,
+        LongId helperHomeId,
+        int helpId,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> requiredItems,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> grantedRewards
     )
-        : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
     {
-        OwnerHomeIdentifier = ownerHomeIdentifier;
-        HelperHomeIdentifier = helperHomeIdentifier;
-        HelpIdentifier = helpIdentifier;
+        OwnerHomeId = ownerHomeId;
+        HelperHomeId = helperHomeId;
+        HelpId = helpId;
         RequiredItems = requiredItems.ToArray();
         GrantedRewards = grantedRewards.ToArray();
     }
@@ -37,30 +32,30 @@ public sealed record TownServiceHelpCompletedServerCommand : ServerCommand
     /// <summary>
     /// <para>Gets the resource quantities granted for the completed service.</para>
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> GrantedRewards { get; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair> GrantedRewards { get; }
 
     /// <summary>
-    /// <para>Gets the unique service-help request identifier.</para>
+    /// <para>Gets the unique service-help request id.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HelpId")]
-    public int HelpIdentifier { get; }
+    public int HelpId { get; }
 
     /// <summary>
-    /// <para>Gets the helper's home identifier.</para>
+    /// <para>Gets the helper's home id.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HelperHomeId")]
-    public LongIdentifier HelperHomeIdentifier { get; }
+    public LongId HelperHomeId { get; }
 
     /// <summary>
     /// <para>Gets the home owning the service-help request.</para>
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("OwnerHomeId")]
-    public LongIdentifier OwnerHomeIdentifier { get; }
+    public LongId OwnerHomeId { get; }
 
     /// <summary>
     /// <para>Gets the item quantities consumed by the completed service.</para>
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVariableIntPair> RequiredItems { get; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair> RequiredItems { get; }
 
     /// <summary>
     /// Gets the Type value.
@@ -73,36 +68,25 @@ public sealed record TownServiceHelpCompletedServerCommand : ServerCommand
     public static TownServiceHelpCompletedServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier ownerHomeIdentifier = stream.ReadLongIdentifier();
-        LongIdentifier helperHomeIdentifier = stream.ReadLongIdentifier();
-        int helpIdentifier = stream.ReadVariableInt();
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> requiredItems = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
-        ReadOnlyMemory<CommandDataReferenceVariableIntPair> grantedRewards = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
-        (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
+        LongId ownerHomeId = stream.ReadLongId();
+        LongId helperHomeId = stream.ReadLongId();
+        int helpId = stream.ReadVarInt();
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> requiredItems = CommandDataReferenceVarIntPairArrayField.Decode(stream).Values;
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> grantedRewards = CommandDataReferenceVarIntPairArrayField.Decode(stream).Values;
 
-        return new TownServiceHelpCompletedServerCommand(
-            ownerHomeIdentifier,
-            helperHomeIdentifier,
-            helpIdentifier,
-            requiredItems,
-            grantedRewards,
-            serverCommandIdentifier,
-            commandFields.ExecutionPhaseCounter,
-            commandFields.DebugData0,
-            commandFields.DebugData1
-        );
+
+        return new TownServiceHelpCompletedServerCommand(ownerHomeId, helperHomeId, helpId, requiredItems, grantedRewards);
     }
 
     /// <summary>
     /// Encodes this value using the selected wire format.
     /// </summary>
-    public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
+    public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(OwnerHomeIdentifier);
-        stream.WriteLongIdentifier(HelperHomeIdentifier);
-        stream.WriteVariableInt(HelpIdentifier);
-        new CommandDataReferenceVariableIntPairArrayField(RequiredItems).Encode(stream);
-        new CommandDataReferenceVariableIntPairArrayField(GrantedRewards).Encode(stream);
-        EncodeServerCommand(stream, environment);
+        stream.WriteLongId(OwnerHomeId);
+        stream.WriteLongId(HelperHomeId);
+        stream.WriteVarInt(HelpId);
+        new CommandDataReferenceVarIntPairArrayField(RequiredItems).Encode(stream);
+        new CommandDataReferenceVarIntPairArrayField(GrantedRewards).Encode(stream);
     }
 }

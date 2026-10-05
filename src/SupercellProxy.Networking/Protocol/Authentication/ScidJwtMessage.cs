@@ -8,26 +8,24 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds) : IMessage
 {
     /// Decodes a Supercell ID JSON Web Token response.
-    public static ScidJwtMessage Create(MessageContainer container)
+    public static ScidJwtMessage Decode(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(stream);
 
-        ScidJwtMessage message = new(container.Payload.ReadString(), container.Payload.ReadInt64());
+        ScidJwtMessage message = new(stream.ReadString(), stream.ReadInt64());
 
-        return container.Payload.Position != container.Payload.Length
+        return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The Supercell ID JWT message has trailing data.")
             : message;
     }
 
     /// Encodes a Supercell ID JSON Web Token response.
-    public MessageStream ToStream()
+    public void Encode(MessageStream stream)
     {
-        using MessageStream stream = MessageStream.Create();
+        ArgumentNullException.ThrowIfNull(stream);
 
         stream.WriteString(Token);
         stream.WriteInt64(ExpiresAtUnixTimeSeconds);
-
-        return stream;
     }
 
     /// Omits the credential from logs.
