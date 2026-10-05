@@ -45,7 +45,8 @@ internal sealed class DecryptDayClient(HttpClient client)
             IPage page = await browser.NewPageAsync(new BrowserNewPageOptions { AcceptDownloads = true })
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await page.Context.Tracing.StartAsync(new TracingStartOptions { Screenshots = true, Snapshots = true })
+            // DOM snapshots inject scripts and patch browser APIs in every frame, disrupting Turnstile.
+            await page.Context.Tracing.StartAsync(new TracingStartOptions { Screenshots = true, Snapshots = false })
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             try
