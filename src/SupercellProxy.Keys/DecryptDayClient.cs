@@ -128,35 +128,32 @@ internal sealed class DecryptDayClient(HttpClient client)
         return string.Join(separator: ',', bytes);
     }
 
-    private static async Task<ILocator> CompleteVerificationAsync(IPage page, ILocator verificationButton)
+    private static async Task ClickDownloadControlAsync(ILocator control, CancellationToken cancellationToken)
+    {
+        // Run the overlay handlers and actionability checks without sending the actual click.
+        await Humanize.Unwrap(control).ClickAsync(new LocatorClickOptions { Trial = true, Timeout = 30_000 })
+            .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await control.ClickAsync(new LocatorClickOptions { Timeout = 30_000 })
+            .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+    }
+
+    private static async Task<ILocator> CompleteVerificationAsync(IPage page, ILocator verificationButton, CancellationToken cancellationToken)
     {
         await Console
             .Error.WriteLineAsync(value: "Running Turnstile verification...")
             .ConfigureAwait(continueOnCapturedContext: false);
-        // Playwright assertions require the underlying locator.
-        await Assertions
-            .Expect(Humanize.Unwrap(verificationButton))
-            .ToBeEnabledAsync(new LocatorAssertionsToBeEnabledOptions { Timeout = 60_000 })
+
+        // The Turnstile component renders its errors next to its .turnstile mount, outside .form-error.
+        ILocator verificationError = page.Locator(selector: ".form-error:visible, .turnstile-container > div:not(.turnstile):visible").First;
+        ILocator enabledButton = verificationButton.And(page.Locator(selector: "button:enabled:visible"));
+        await WaitForVerificationControlAsync(enabledButton, verificationError, timeout: 60_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
-        // Use Playwright's actionability checks so an advertisement cannot receive this click.
-        await Humanize.Unwrap(verificationButton)
-            .ClickAsync(new LocatorClickOptions { Timeout = 30_000 })
+        await ClickDownloadControlAsync(verificationButton, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         ILocator downloadButton = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Download", Exact = true });
-
-        ILocator formError = page.Locator(selector: ".form-error");
-        await downloadButton
-            .Or(formError)
-            .First.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 90_000 })
+        await WaitForVerificationControlAsync(downloadButton, verificationError, timeout: 90_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
-
-        if (await formError.IsVisibleAsync().ConfigureAwait(continueOnCapturedContext: false))
-        {
-            string message = (await formError.InnerTextAsync().ConfigureAwait(continueOnCapturedContext: false)).Trim();
-
-            throw new InvalidOperationException($"decrypt.day rejected the download verification: {message}");
-        }
 
         return downloadButton;
     }
@@ -247,7 +244,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
             stage = "completing Turnstile verification";
 
-            ILocator downloadButton = await CompleteVerificationAsync(page, verificationButton).WaitAsync(cancellationToken)
+            ILocator downloadButton = await CompleteVerificationAsync(page, verificationButton, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await Console
@@ -555,7 +552,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         try
         {
-            await Humanize.Unwrap(downloadButton).ClickAsync(new LocatorClickOptions { Timeout = 30_000 }).WaitAsync(deadline.Token)
+            await ClickDownloadControlAsync(downloadButton, deadline.Token)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             Task result = await Task.WhenAny(completion.Task, responseFailure.Task).WaitAsync(deadline.Token)
@@ -579,6 +576,22 @@ internal sealed class DecryptDayClient(HttpClient client)
 
             foreach (IPage observedPage in observedPages.Keys)
                 observedPage.Download -= onDownload;
+        }
+    }
+
+    private static async Task WaitForVerificationControlAsync(ILocator control, ILocator verificationError, float timeout, CancellationToken cancellationToken)
+    {
+        // Assertions also run overlay handlers while waiting for verification to finish.
+        await Assertions.Expect(Humanize.Unwrap(control.Or(verificationError).First))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = timeout })
+            .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        if (await verificationError.IsVisibleAsync().WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+        {
+            string message = (await verificationError.InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5_000 })
+                .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false)).Trim();
+
+            throw new InvalidOperationException($"decrypt.day rejected the download verification: {message}");
         }
     }
 
