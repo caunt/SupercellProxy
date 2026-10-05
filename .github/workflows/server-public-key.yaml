@@ -103,6 +103,12 @@ jobs:
 
           git diff --binary -- KEYS.md > "$result_directory/KEYS.patch"
 
+          for diagnostic in decrypt-day-failure-*; do
+            if [ -e "$diagnostic" ]; then
+              mv -- "$diagnostic" "$result_directory/"
+            fi
+          done
+
       - name: Upload game result
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
