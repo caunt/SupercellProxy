@@ -106,7 +106,7 @@ internal static partial class Application
         return Print(
             string.Join(
                 Environment.NewLine,
-                value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]
+                value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT [--key-version]", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]
             )
         );
     }

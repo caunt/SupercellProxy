@@ -42,8 +42,8 @@ internal sealed class KeysUpdateReport
             .Append(warnings)
             .AppendLine(value: "**.")
             .AppendLine()
-            .AppendLine(value: "| App | Version | Outcome | Key | Reason |")
-            .AppendLine(value: "| --- | --- | --- | --- | --- |");
+            .AppendLine(value: "| App | Game version | Key version | Key | Outcome | Reason |")
+            .AppendLine(value: "| --- | --- | --- | --- | --- | --- |");
 
         foreach (KeysUpdateResult result in _results)
         {
@@ -53,16 +53,18 @@ internal sealed class KeysUpdateReport
                 .Append(value: " | ")
                 .Append(EscapeMarkdown(result.Version ?? "—"))
                 .Append(value: " | ")
-                .Append(result.Outcome is KeysUpdateOutcome.Updated ? "Updated" : "Not updated")
+                .Append(result.KeyVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—")
                 .Append(value: " | ")
                 .Append(result.Key is null ? "—" : $"`{result.Key}`")
+                .Append(value: " | ")
+                .Append(result.Outcome is KeysUpdateOutcome.Updated ? "Updated" : "Not updated")
                 .Append(value: " | ")
                 .Append(EscapeMarkdown(result.Reason))
                 .AppendLine(value: " |");
         }
 
         if (_results.Count is 0)
-            markdown = markdown.AppendLine(value: "| — | — | Not updated | — | No apps were processed. |");
+            markdown = markdown.AppendLine(value: "| — | — | — | — | Not updated | No apps were processed. |");
 
         return markdown.ToString();
     }

@@ -209,7 +209,11 @@ internal sealed class MessageTransport(MessageStream stream)
     internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
         where TValue : IMessage
     {
-        await WriteContainerAsync(message.ToContainer(MessageRegistry.GetIdentifier(message), MessageRegistry.GetVersion(message)), cancellationToken)
+        ushort version = _encryption is not null && stream.OutboundMessageVersion is { } configured
+            ? configured
+            : MessageRegistry.GetVersion(message);
+
+        await WriteContainerAsync(message.ToContainer(MessageRegistry.GetIdentifier(message), version), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 }

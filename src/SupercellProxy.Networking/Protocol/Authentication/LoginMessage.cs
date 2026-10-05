@@ -11,9 +11,9 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record LoginMessage : IMessage
 {
     /// <summary>
-    /// Defines the <c language="csharp">CurrentLoginVersion</c> value.
+    /// Gets the login version for the current native protocol configuration.
     /// </summary>
-    public const int CurrentLoginVersion = 1122388;
+    public static int CurrentLoginVersion => ProtocolConfiguration.Current.LoginVersion;
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AccountId</c> value.

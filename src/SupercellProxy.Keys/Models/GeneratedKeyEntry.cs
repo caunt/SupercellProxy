@@ -1,3 +1,3 @@
 namespace SupercellProxy.Keys.Models;
 
-internal sealed record GeneratedKeyEntry(string Version, string Key);
+internal sealed record GeneratedKeyEntry(string Version, string Key, int? KeyVersion);

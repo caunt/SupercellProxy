@@ -57,14 +57,27 @@ internal static class ServerPublicKeyExtractor
     /// </summary>
     public static async ValueTask<byte[]> ExtractFileAsync(string path, CancellationToken cancellationToken = default)
     {
+        byte[] binary = await ReadBinaryFileAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        return ExtractBinary(binary);
+    }
+
+    /// <summary>Extracts the public key and, when recognized, its numeric version.</summary>
+    public static async ValueTask<ExtractedServerKey> ExtractKeyFileAsync(string path, CancellationToken cancellationToken = default)
+    {
+        byte[] binary = await ReadBinaryFileAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        return new ExtractedServerKey(KeyVersionExtractor.Extract(binary), Convert.ToHexString(ExtractBinary(binary)));
+    }
+
+    private static async ValueTask<byte[]> ReadBinaryFileAsync(string path, CancellationToken cancellationToken)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         byte[] content = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         ReadOnlyMemory<byte> contentMemory = content;
 
-        byte[] binary = content.HasZipArchiveHeader()
+        return content.HasZipArchiveHeader()
             ? await contentMemory.GetIpaAppEntryAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false)
             : content;
-
-        return ExtractBinary(binary);
     }
 }

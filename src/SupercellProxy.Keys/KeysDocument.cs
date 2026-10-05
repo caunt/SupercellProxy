@@ -117,10 +117,11 @@ internal sealed class KeysDocument
             )];
     }
 
-    private static string[] CreateGeneratedCells(KeysSection section, string version, string key)
+    private static string[] CreateGeneratedCells(KeysSection section, string version, string key, int? keyVersion)
     {
         string[] cells = [.. Enumerable.Repeat(string.Empty, section.Headers.Count)];
         cells[section.VersionColumnIndex] = version;
+        cells[section.KeyVersionColumnIndex] = keyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—";
         cells[section.KeyColumnIndex] = $"`{key}`";
 
         return cells;
@@ -133,24 +134,33 @@ internal sealed class KeysDocument
 
     private static RenderedKeysSection CreateRenderedSection(KeysSection section, KeysSectionUpdate update)
     {
-        Dictionary<string, (string Key, string[] Cells)> rowsByVersion = new(StringComparer.Ordinal);
+        Dictionary<string, (string Key, int? KeyVersion, string[] Cells)> rowsByVersion = new(StringComparer.Ordinal);
 
         foreach (ExistingKeyEntry entry in section.Entries)
-            rowsByVersion.Add(entry.Version, (entry.Key, [.. entry.Cells]));
+            rowsByVersion.Add(entry.Version, (entry.Key, entry.KeyVersion, [.. entry.Cells]));
 
         foreach (GeneratedKeyEntry key in update.NewKeys)
         {
             string version = AppVersion.Normalize(key.Version);
 
-            if (rowsByVersion.TryGetValue(version, out (string Key, string[] Cells) existing))
+            if (rowsByVersion.TryGetValue(version, out (string Key, int? KeyVersion, string[] Cells) existing))
             {
                 if (!string.Equals(existing.Key, key.Key, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException($"The {section.Name} table contains conflicting keys for version {version}.");
 
+                if (existing.KeyVersion is not null && key.KeyVersion is not null && existing.KeyVersion != key.KeyVersion)
+                    throw new InvalidDataException($"The {section.Name} table contains conflicting key versions for version {version}.");
+
+                if (key.KeyVersion is not null)
+                {
+                    existing.Cells[section.KeyVersionColumnIndex] = key.KeyVersion.Value.ToString(CultureInfo.InvariantCulture);
+                    rowsByVersion[version] = (existing.Key, key.KeyVersion, existing.Cells);
+                }
+
                 continue;
             }
 
-            rowsByVersion.Add(version, (key.Key, CreateGeneratedCells(section, version, key.Key)));
+            rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
         }
 
         string[][] rows = [.. rowsByVersion
@@ -194,10 +204,18 @@ internal sealed class KeysDocument
         return -1;
     }
 
-    private static (IReadOnlyList<ExistingKeyEntry> Entries, int DataEndIndex) ParseEntries(string[] parsedLines, int dataStartIndex, int columnCount, int versionColumnIndex, int keyColumnIndex, string sectionName)
+    private static (IReadOnlyList<ExistingKeyEntry> Entries, int DataEndIndex) ParseEntries(
+        string[] parsedLines,
+        int dataStartIndex,
+        int columnCount,
+        int versionColumnIndex,
+        int keyColumnIndex,
+        int keyVersionColumnIndex,
+        string sectionName
+    )
     {
         List<ExistingKeyEntry> entries = [];
-        Dictionary<string, string> versions = new(StringComparer.Ordinal);
+        Dictionary<string, int> versions = new(StringComparer.Ordinal);
         int dataEndIndex = dataStartIndex;
 
         while (HasDataRow())
@@ -215,21 +233,43 @@ internal sealed class KeysDocument
 
             string version = AppVersion.Normalize(sourceVersion);
             string key = keyMatch.Groups[groupname: "key"].Value;
-            cells[versionColumnIndex] = version;
+            int? keyVersion = null;
+            string keyVersionCell = keyVersionColumnIndex < 0 ? "—" : cells[keyVersionColumnIndex];
 
-            if (versions.TryGetValue(version, out string? existingKey))
+            if (keyVersionCell is not ("" or "—"))
             {
-                if (!string.Equals(existingKey, key, StringComparison.OrdinalIgnoreCase))
+                if (!int.TryParse(keyVersionCell, NumberStyles.None, CultureInfo.InvariantCulture, out int parsed) || parsed <= 0)
+                    throw CreateInvalidRowException(sectionName, dataEndIndex);
+
+                keyVersion = parsed;
+            }
+
+            string[] normalizedCells = [version, keyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—", $"`{key}`",
+                .. Enumerable.Range(start: 0, cells.Length)
+                    .Where(index => index != versionColumnIndex && index != keyColumnIndex && index != keyVersionColumnIndex)
+                    .Select(index => cells[index])];
+
+            if (versions.TryGetValue(version, out int existingIndex))
+            {
+                ExistingKeyEntry existing = entries[existingIndex];
+
+                if (!string.Equals(existing.Key, key, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException($"The {sectionName} table contains conflicting keys for version {version}.");
+
+                if (existing.KeyVersion is not null && keyVersion is not null && existing.KeyVersion != keyVersion)
+                    throw new InvalidDataException($"The {sectionName} table contains conflicting key versions for version {version}.");
+
+                if (existing.KeyVersion is null && keyVersion is not null)
+                    entries[existingIndex] = new ExistingKeyEntry(version, key, keyVersion, dataEndIndex, normalizedCells);
 
                 dataEndIndex++;
 
                 continue;
             }
 
-            versions[version] = key;
+            versions[version] = entries.Count;
 
-            entries.Add(new ExistingKeyEntry(version, key, dataEndIndex, cells));
+            entries.Add(new ExistingKeyEntry(version, key, keyVersion, dataEndIndex, normalizedCells));
             dataEndIndex++;
         }
 
@@ -256,7 +296,15 @@ internal sealed class KeysDocument
 
         int versionColumnIndex = headers is null
             ? -1
-            : Array.FindIndex(headers, static header => string.Equals(header, b: "Version", StringComparison.OrdinalIgnoreCase));
+            : Array.FindIndex(
+                headers,
+                static header => header.Equals(value: "Version", StringComparison.OrdinalIgnoreCase)
+                || header.Equals(value: "Game version", StringComparison.OrdinalIgnoreCase)
+            );
+
+        int keyVersionColumnIndex = headers is null
+            ? -1
+            : Array.FindIndex(headers, static header => header.Equals(value: "Key version", StringComparison.OrdinalIgnoreCase));
 
         int keyColumnIndex = headers is null
             ? -1
@@ -275,7 +323,10 @@ internal sealed class KeysDocument
             throw new InvalidDataException($"The {name} table has an invalid separator row.");
 
         int dataStartIndex = separatorIndex + 1;
-        (IReadOnlyList<ExistingKeyEntry>? entries, int dataEndIndex) = ParseEntries(parsedLines, dataStartIndex, headers.Length, versionColumnIndex, keyColumnIndex, name);
+        (IReadOnlyList<ExistingKeyEntry>? entries, int dataEndIndex) = ParseEntries(parsedLines, dataStartIndex, headers.Length, versionColumnIndex, keyColumnIndex, keyVersionColumnIndex, name);
+
+        int[] extraColumns = [.. Enumerable.Range(start: 0, headers.Length)
+            .Where(index => index != versionColumnIndex && index != keyColumnIndex && index != keyVersionColumnIndex)];
 
         return new KeysSection(
             name,
@@ -284,10 +335,12 @@ internal sealed class KeysDocument
             separatorIndex,
             dataStartIndex,
             dataEndIndex,
-            headers,
-            separators,
-            versionColumnIndex,
-            keyColumnIndex,
+            ["Game version", "Key version", "Key", .. extraColumns.Select(index => headers[index])],
+            [separators[versionColumnIndex], keyVersionColumnIndex < 0 ? "---" : separators[keyVersionColumnIndex],
+                separators[keyColumnIndex], .. extraColumns.Select(index => separators[index])],
+            VersionColumnIndex: 0,
+            KeyVersionColumnIndex: 1,
+            KeyColumnIndex: 2,
             entries
         );
     }

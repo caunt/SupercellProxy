@@ -10,6 +10,7 @@ internal sealed record KeysSection(
     IReadOnlyList<string> Headers,
     IReadOnlyList<string> Separators,
     int VersionColumnIndex,
+    int KeyVersionColumnIndex,
     int KeyColumnIndex,
     IReadOnlyList<ExistingKeyEntry> Entries
 );

@@ -21,4 +21,8 @@ public sealed record ClientConfiguration(
     // OutdatedContent LoginFailed. The current fingerprint is detected from that response.
     string? BootstrapFingerprintSha = null,
     string? AssetDirectory = null
-);
+)
+{
+    /// <summary>Uses the latest KEYS.md version for the default protocol; set false to pin a version.</summary>
+    public bool AutoUpdateVersion { get; init; } = Protocol == ProtocolConfiguration.Current;
+}

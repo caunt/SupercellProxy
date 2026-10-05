@@ -247,13 +247,15 @@ internal static partial class Application
                 return;
             }
 
-            IReadOnlyList<AppVersion> sourceVersions = app.Versions;
+            AppVersion[] sourceVersions = [.. app.Versions
+                .Concat(AppVersion.CreateMany(section.Entries.Where(static entry => entry.KeyVersion is null).Select(static entry => entry.Version)))
+                .DistinctBy(static version => version.Value)];
 
             Dictionary<string, ExistingKeyEntry> existing = section.Entries.ToDictionary(static entry => entry.Version, StringComparer.Ordinal);
 
             List<GeneratedKeyEntry> generated = [];
 
-            if (sourceVersions.Count is 0)
+            if (sourceVersions.Length is 0)
             {
                 AddWarning(report, section.Name, version: null, reason: "decrypt.day returned no versions.");
                 updates[section.AppStoreIdentifier] = new KeysSectionUpdate(generated);
@@ -266,9 +268,20 @@ internal static partial class Application
 
             async Task UpdateVersionAsync(AppVersion version)
             {
-                if (existing.TryGetValue(version.Value, out ExistingKeyEntry? existingEntry))
+                ExistingKeyEntry? existingEntry = existing.GetValueOrDefault(version.Value);
+
+                if (existingEntry?.KeyVersion is not null)
                 {
-                    report.Add(new KeysUpdateResult(section.Name, version.Value, KeysUpdateOutcome.NotUpdated, existingEntry.Key, Reason: "Already present"));
+                    report.Add(
+                        new KeysUpdateResult(
+                            section.Name,
+                            version.Value,
+                            KeysUpdateOutcome.NotUpdated,
+                            existingEntry.Key,
+                            Reason: "Already present",
+                            KeyVersion: existingEntry.KeyVersion
+                        )
+                    );
 
                     return;
                 }
@@ -278,13 +291,27 @@ internal static partial class Application
                 if (download is null)
                     return;
 
-                string? key = await TryExtractVersionKeyAsync(download).ConfigureAwait(continueOnCapturedContext: false);
+                ExtractedServerKey? key = await TryExtractVersionKeyAsync(download).ConfigureAwait(continueOnCapturedContext: false);
 
                 if (key is null)
                     return;
 
-                generated.Add(new GeneratedKeyEntry(version.Value, key));
-                report.Add(new KeysUpdateResult(section.Name, version.Value, KeysUpdateOutcome.Updated, key, Reason: "Added to KEYS.md"));
+                generated.Add(new GeneratedKeyEntry(version.Value, key.Key, key.KeyVersion));
+                bool changed = existingEntry is null || key.KeyVersion is not null;
+
+                string reason = existingEntry is null ? "Added to KEYS.md"
+                    : changed ? "Filled missing key version" : "Key version anchor not found; existing public key retained";
+
+                report.Add(
+                    new KeysUpdateResult(
+                        section.Name,
+                        version.Value,
+                        changed ? KeysUpdateOutcome.Updated : KeysUpdateOutcome.NotUpdated,
+                        key.Key,
+                        reason,
+                        KeyVersion: key.KeyVersion
+                    )
+                );
 
                 async Task<IpaDownload?> TryAuthorizeVersionAsync()
                 {
@@ -308,7 +335,7 @@ internal static partial class Application
                     }
                 }
 
-                async Task<string?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
+                async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
                     string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreIdentifier}-{Guid.NewGuid():N}.ipa");
 
@@ -329,11 +356,9 @@ internal static partial class Application
 
                         try
                         {
-                            return Convert.ToHexString(
-                                await ServerPublicKeyExtractor
-                                    .ExtractFileAsync(temporaryPath, cancellationToken)
-                                    .ConfigureAwait(continueOnCapturedContext: false)
-                            );
+                            return await ServerPublicKeyExtractor
+                                .ExtractKeyFileAsync(temporaryPath, cancellationToken)
+                                .ConfigureAwait(continueOnCapturedContext: false);
                         }
                         catch (Exception exception)
                             when (IsRecoverableUpdateFailure(exception, cancellationToken))
@@ -367,7 +392,7 @@ internal static partial class Application
 
         int addedKeyCount = report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
 
-        Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Updated {keysPath}; added {addedKeyCount} new key(s)."));
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
     }
 
     private static async Task WriteAtomicallyAsync(string path, string content, CancellationToken cancellationToken)

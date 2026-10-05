@@ -11,14 +11,14 @@ namespace SupercellProxy.Networking.Client;
 
 internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache assets)
 {
-    internal static LoginMessage CreateLoginMessage(string fingerprintSha1, SessionTokenData? sessionToken, AppStore appStore)
+    internal static LoginMessage CreateLoginMessage(string fingerprintSha1, SessionTokenData? sessionToken, AppStore appStore, ProtocolConfiguration? protocol = null)
     {
         return new LoginMessage
         {
             AccountIdentifier = LongIdentifier.Empty,
             PassToken = null,
             ResourceSha = fingerprintSha1,
-            LoginVersion = LoginMessage.CurrentLoginVersion,
+            LoginVersion = (protocol ?? ProtocolConfiguration.Current).LoginVersion,
             UniqueDeviceIdentifier = "",
             OpenUniqueDeviceIdentifier = "",
             MacAddress = "",
@@ -104,11 +104,11 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
     {
         return new ClientHelloMessage
         {
-            ProtocolVersion = client.Configuration.Protocol.ProtocolVersion,
-            KeyVersion = client.Configuration.Protocol.KeyVersion,
-            MajorVersion = client.Configuration.Protocol.MajorVersion,
-            MinorVersion = client.Configuration.Protocol.MinorVersion,
-            PatchVersion = client.Configuration.Protocol.PatchVersion,
+            ProtocolVersion = client.Protocol.ProtocolVersion,
+            KeyVersion = client.Protocol.KeyVersion,
+            MajorVersion = client.Protocol.MajorVersion,
+            MinorVersion = client.Protocol.MinorVersion,
+            PatchVersion = client.Protocol.PatchVersion,
             FingerprintSha1 = fingerprintSha1,
             DeviceType = 2,
             AppStore = appStore,
@@ -142,7 +142,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         }
     }
 
-    private async Task<LoginOkMessage> LoginCoreAsync(
+    private async Task<LoginOkMessage> LoginAttemptAsync(
         string fingerprintSha1,
         SessionTokenData? sessionToken,
         AppStore appStore,
@@ -167,7 +167,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
                 .SetupEncryptionAsync(RemotePeerRole.Server, serverHello.SessionKey, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            LoginMessage loginMessage = CreateLoginMessage(fingerprintSha1, sessionToken, appStore);
+            LoginMessage loginMessage = CreateLoginMessage(fingerprintSha1, sessionToken, appStore, client.Protocol);
 
             if (allowAnonymous)
             {
@@ -202,6 +202,30 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             await client.DisconnectAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             throw;
+        }
+    }
+
+    private async Task<LoginOkMessage> LoginCoreAsync(
+        string fingerprintSha1,
+        SessionTokenData? sessionToken,
+        AppStore appStore,
+        bool requestOwnHome,
+        bool allowAnonymous,
+        CancellationToken cancellationToken = default
+    )
+    {
+        try
+        {
+            return await LoginAttemptAsync(fingerprintSha1, sessionToken, appStore, requestOwnHome, allowAnonymous, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+        catch (LoginException exception)
+            when (exception.LoginFailedMessage?.ErrorCode == LoginFailureType.OutdatedVersion && client.CanUpdateVersion)
+        {
+            await client.RefreshVersionAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            return await LoginAttemptAsync(fingerprintSha1, sessionToken, appStore, requestOwnHome, allowAnonymous, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }

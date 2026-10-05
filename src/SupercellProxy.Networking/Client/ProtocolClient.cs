@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Cryptography;
+using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
@@ -19,6 +20,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     private readonly IServerPublicKeySource _serverKeys;
     private readonly TimeProvider _timeProvider;
     private readonly HttpClient _webClient;
+    private HayDayServerKey? _clientVersion;
     private ClientLoginResult? _login;
     private NetworkStream? _networkStream;
     private TcpClient? _socketClient;
@@ -63,9 +65,13 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <summary>Gets the authenticated or externally supplied message stream.</summary>
     public MessageStream Stream =>
         _supercellStream ?? throw new InvalidOperationException(message: "The client is not connected.");
+    internal bool CanUpdateVersion => Configuration.AutoUpdateVersion && _serverKeys is HayDayServerPublicKeySource;
+
     internal ClientConfiguration Configuration =>
         field
         ?? throw new InvalidOperationException(message: "This client has no online configuration.");
+
+    internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol(Configuration.Protocol) ?? Configuration.Protocol;
 
     /// <summary>Creates an anonymous account for this connection without requesting or retaining its home state.</summary>
     public async Task<ClientLoginResult> ConnectAnonymousAsync(CancellationToken cancellationToken = default)
@@ -168,16 +174,30 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     {
         if (_supercellStream is null)
         {
+            if (CanUpdateVersion && _serverKeys is HayDayServerPublicKeySource source)
+                _clientVersion = await source.GetLatestAsync(refresh: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            ProtocolConfiguration protocol = Protocol;
             _socketClient = new TcpClient();
             await _socketClient
                 .ConnectAsync(Configuration.UpstreamHost, Configuration.UpstreamPort, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             _networkStream = _socketClient.GetStream();
-            _supercellStream = new MessageStream(_networkStream) { ServerKeySource = _serverKeys };
+            _supercellStream = new MessageStream(_networkStream)
+            {
+                ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
+                OutboundMessageVersion = unchecked((ushort)protocol.LoginVersion),
+            };
         }
 
         return _supercellStream;
+    }
+
+    internal async Task RefreshVersionAsync(CancellationToken cancellationToken)
+    {
+        if (_serverKeys is HayDayServerPublicKeySource source)
+            _clientVersion = await source.GetLatestAsync(refresh: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Authenticating protocol connection")]

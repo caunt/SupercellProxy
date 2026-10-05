@@ -53,6 +53,9 @@ public sealed class MessageStream : IDisposable
     /// </summary>
     public long Length => GetMemoryStream().Length;
 
+    /// <summary>Optionally supplies the application version for encrypted typed messages; explicit containers retain their version.</summary>
+    public ushort? OutboundMessageVersion { get; set; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Position</c> value.
     /// </summary>

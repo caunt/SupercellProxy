@@ -94,9 +94,9 @@ jobs:
             printf '%s\n' \
               "## $APP_NAME" \
               '' \
-              '| App | Version | Outcome | Key | Reason |' \
-              '| --- | --- | --- | --- | --- |' \
-              "| $APP_NAME | — | Not updated | — | Updater ended before producing a report. |" \
+              '| App | Game version | Key version | Key | Outcome | Reason |' \
+              '| --- | --- | --- | --- | --- | --- |' \
+              "| $APP_NAME | — | — | — | Not updated | Updater ended before producing a report. |" \
               > "$result_directory/summary.md"
             cat "$result_directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
           fi
@@ -158,9 +158,9 @@ jobs:
               printf '%s\n' \
                 "## $app_name" \
                 '' \
-                '| App | Version | Outcome | Key | Reason |' \
-                '| --- | --- | --- | --- | --- |' \
-                "| $app_name | — | Not updated | — | Matrix job did not upload a result. |" \
+                '| App | Game version | Key version | Key | Outcome | Reason |' \
+                '| --- | --- | --- | --- | --- | --- |' \
+                "| $app_name | — | — | — | Not updated | Matrix job did not upload a result. |" \
                 '' >> "$GITHUB_STEP_SUMMARY"
             fi
 
