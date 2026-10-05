@@ -13,6 +13,9 @@ public sealed record TownPassengerActionCommand(
     CommandData? DebugData1 = null
 ) : Command(ExecutionPhaseCounter, DebugData0, DebugData1)
 {
+    /// <summary>Completes a passenger's personal-train pickup.</summary>
+    public const int CompletePersonalTrainPickupAction = 5;
+
     /// <summary>Moves the passenger toward a booked service building.</summary>
     public const int GoToServiceBuildingAction = 1;
 
@@ -21,6 +24,9 @@ public sealed record TownPassengerActionCommand(
 
     /// <summary>Holds the passenger in place during an interaction.</summary>
     public const int HoldForInteractionAction = 3;
+
+    /// <summary>Releases the passenger after an interaction.</summary>
+    public const int ReleaseInteractionAction = 4;
 
     /// <inheritdoc />
     public override int Type => CommandRegistry.TownPassengerActionCommandType;

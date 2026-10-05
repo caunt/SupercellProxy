@@ -1,10 +1,14 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Protocol.Events;
+
 namespace SupercellProxy.Networking.Protocol.MovieTickets;
 
 /// <summary>Represents the decoded MovieTicketEventDefinition JSON contract.</summary>
 public sealed record MovieTicketEventDefinition
 {
+    /// <summary>The shop-event type carrying movie-ticket placement overrides.</summary>
+    public const int EventType = 47;
     /// <summary>Gets the AdPlacement value.</summary>
     [JsonPropertyName("AdPlacement")]
     public string? AdPlacement { get; init; }
@@ -25,7 +29,7 @@ public sealed record MovieTicketEventDefinition
     [JsonPropertyName("MoviesCycle")]
     public MovieTicketCycleDefinition[] MoviesCycle { get; init; } = [];
 
-    /// <summary>Gets the SpenderMoviesCycle value.</summary>
+    /// <summary>Gets the legacy spender-cycle array; current native cycle limits use MoviesCycle for both account categories.</summary>
     [JsonPropertyName("MoviesCycleSpender")]
     public MovieTicketCycleDefinition[] SpenderMoviesCycle { get; init; } = [];
 
@@ -35,11 +39,11 @@ public sealed record MovieTicketEventDefinition
 
     /// <summary>Gets the Requirements value.</summary>
     [JsonPropertyName("requirements")]
-    public MovieTicketRequirements? Requirements { get; init; }
+    public EventLevelRequirements? Requirements { get; init; }
 
     /// <summary>Gets the SeasonalCurrency value.</summary>
     [JsonPropertyName("SeasonalCurrency")]
-    public MovieTicketCurrencyDefinition? SeasonalCurrency { get; init; }
+    public EventSeasonalCurrencyDefinition? SeasonalCurrency { get; init; }
 
     /// <summary>Gets the SpenderDailyAds value.</summary>
     [JsonPropertyName("DailyAdsSpender")]

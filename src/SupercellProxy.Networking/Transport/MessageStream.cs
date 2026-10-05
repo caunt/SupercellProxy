@@ -47,11 +47,13 @@ public sealed class MessageStream : IDisposable
     /// Gets or sets the <c language="csharp">CommandDataResolver</c> value.
     /// </summary>
     public ICommandDataResolver? CommandDataResolver { get; set; }
-
     /// <summary>
     /// Gets the <c language="csharp">Length</c> value.
     /// </summary>
     public long Length => GetMemoryStream().Length;
+
+    /// <summary>Optionally observes received messages and successfully written plaintext frames; payloads are borrowed for the callback only.</summary>
+    public Func<MessageDirection, MessageContainer, IMessage?, ValueTask>? ObserveMessage { get; set; }
 
     /// <summary>Optionally supplies the application version for encrypted typed messages; explicit containers retain their version.</summary>
     public ushort? OutboundMessageVersion { get; set; }
@@ -613,6 +615,8 @@ public sealed class MessageStream : IDisposable
     public Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
         where TValue : class, IMessage
     {
+        ArgumentNullException.ThrowIfNull(message);
+
         return _transport.WriteMessageAsync(message, cancellationToken);
     }
 

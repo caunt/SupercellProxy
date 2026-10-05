@@ -14,6 +14,13 @@
 +-----------------------------------+---------------------------------------------------------------------------------------------------------------+
 ```
 
+# No unsolicited testing or verification code
+
+- Do not create, modify, extend, or relocate test or verification code unless the user explicitly requests those code changes.
+- This applies everywhere: all present and future projects, languages, directories, existing files, and temporary scripts. There is no exception based on project purpose, location, naming, or existing verification code.
+- Do not disguise testing or verification code as checks, fixtures, diagnostics, self-tests, assertions, or test-only entry points to bypass this restriction. Do not add dependencies, references, interfaces, or production-code hooks solely to support unrequested testing or verification.
+- Requests to debug, verify behavior, ensure correctness, run tests, or implement full simulation authorize using existing tools and real observed inputs, not writing new testing or verification code.
+
 # Repository conventions
 
 - Never create unit test projects.

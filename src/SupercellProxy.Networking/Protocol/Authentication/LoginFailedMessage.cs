@@ -35,6 +35,13 @@ public sealed record LoginFailedMessage : IMessage
     public required LoginFailureType ErrorCode { get; init; }
 
     /// <summary>
+    /// Gets the server's estimated remaining maintenance duration in seconds.
+    /// Nonpositive values do not provide a positive countdown. Used when <see cref="ErrorCode"/> is <see cref="LoginFailureType.Maintenance"/>.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("Unknown1")]
+    public int EstimatedMaintenanceSeconds { get; init; }
+
+    /// <summary>
     /// Gets the <c language="csharp">GameAssetFingerprint</c> value.
     /// </summary>
     public GameAssetFingerprint GameAssetFingerprint
@@ -67,11 +74,6 @@ public sealed record LoginFailedMessage : IMessage
     /// Gets or sets the <c language="csharp">RedirectHost</c> value.
     /// </summary>
     public string? RedirectHost { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
-    /// </summary>
-    public int Unknown1 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown2</c> value.
@@ -130,7 +132,7 @@ public sealed record LoginFailedMessage : IMessage
 
         string? resourceFingerprintData = container.Payload.ReadOptionalString();
         string? reason = container.Payload.ReadOptionalString();
-        int unknown1 = container.Payload.ReadInt32();
+        int estimatedMaintenanceSeconds = container.Payload.ReadInt32();
         bool unknown2 = container.Payload.ReadBoolean();
         string? updateAddress = container.Payload.ReadOptionalString();
         int unknown3 = container.Payload.ReadVariableInt();
@@ -168,7 +170,7 @@ public sealed record LoginFailedMessage : IMessage
             ErrorCode = errorCode,
             GameAssetFingerprintData = resourceFingerprintData,
             Reason = reason,
-            Unknown1 = unknown1,
+            EstimatedMaintenanceSeconds = estimatedMaintenanceSeconds,
             Unknown2 = unknown2,
             UpdateAddress = updateAddress,
             Unknown3 = unknown3,
@@ -193,7 +195,7 @@ public sealed record LoginFailedMessage : IMessage
         supercellStream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<LoginFailureType, int>(ErrorCode));
         supercellStream.WriteOptionalString(GameAssetFingerprintData);
         supercellStream.WriteOptionalString(Reason);
-        supercellStream.WriteInt32(Unknown1);
+        supercellStream.WriteInt32(EstimatedMaintenanceSeconds);
         supercellStream.WriteBoolean(Unknown2);
         supercellStream.WriteOptionalString(UpdateAddress);
         supercellStream.WriteVariableInt(Unknown3);

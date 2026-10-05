@@ -7,6 +7,7 @@ using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Friends;
 using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
+using SupercellProxy.Networking.Protocol.Homes.Requests;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
@@ -30,7 +31,6 @@ public static class MessageRegistry
 {
     /// Identifies a clientbound avatar-stream page.
     public const ushort AvatarStreamPageMessageType = 26542;
-
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
 
@@ -58,6 +58,9 @@ public static class MessageRegistry
     /// <summary>Identifies the player's town home snapshot.</summary>
     public const ushort OwnTownDataMessageType = 28543;
 
+    /// <summary>Requests Greg's farm in the selected language.</summary>
+    public const ushort RequestGregFarmMessageType = 14038;
+
     /// Identifies the serverbound startup pulse observed before a zero-command home turn.
     public const ushort Serverbound38101MessageType = 38101;
 
@@ -74,6 +77,12 @@ public static class MessageRegistry
 
     private static readonly Dictionary<ushort, MessageRegistryEntry> Map = new()
     {
+        [RequestGregFarmMessageType] = new MessageRegistryEntry(typeof(RequestGregFarmMessage), RequestGregFarmMessage.Create)
+        { CaptureName = nameof(RequestGregFarmMessage) },
+        [key: 14049] = new MessageRegistryEntry(typeof(RequestOwnTownMessage), RequestOwnTownMessage.Create)
+        { CaptureName = nameof(RequestOwnTownMessage) },
+        [key: 18475] = new MessageRegistryEntry(typeof(RequestOwnFishingHomeMessage), RequestOwnFishingHomeMessage.Create)
+        { CaptureName = nameof(RequestOwnFishingHomeMessage) },
         [key: 18335] = new MessageRegistryEntry(typeof(FollowMessage), FollowMessage.Create)
         { CaptureName = nameof(FollowMessage) },
         [key: 21236] = new MessageRegistryEntry(typeof(FollowResponseMessage), FollowResponseMessage.Create)

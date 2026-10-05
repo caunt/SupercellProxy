@@ -62,6 +62,9 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
+    /// <summary>Gets the transport keep-alive cadence, independently of game turns.</summary>
+    public static TimeSpan KeepAliveInterval { get; } = TimeSpan.FromSeconds(seconds: 5);
+
     /// <summary>Gets the authenticated or externally supplied message stream.</summary>
     public MessageStream Stream =>
         _supercellStream ?? throw new InvalidOperationException(message: "The client is not connected.");
@@ -188,6 +191,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
             _supercellStream = new MessageStream(_networkStream)
             {
                 ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
+                ObserveMessage = Configuration.ObserveMessage,
                 OutboundMessageVersion = protocol.MessageVersion,
             };
         }
@@ -216,7 +220,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
 
     private async Task KeepAliveAsync(CancellationToken cancellationToken)
     {
-        using PeriodicTimer timer = new(TimeSpan.FromSeconds(seconds: 5), _timeProvider);
+        using PeriodicTimer timer = new(KeepAliveInterval, _timeProvider);
 
         while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
             await SendAsync(new KeepAliveMessage(), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
-/// <summary>Represents the items waiting in a helper collection area.</summary>
-public sealed record HelperAreaItemListSnapshot
+/// <summary>Represents item identifiers and quantities stored in a collection area.</summary>
+public sealed record ItemQuantityListSnapshot
 {
     /// <summary>Gets the pending item global identifiers.</summary>
     [JsonPropertyName("Donations")]

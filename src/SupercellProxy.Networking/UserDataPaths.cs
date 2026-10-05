@@ -7,6 +7,7 @@ public static class UserDataPaths
     private const string ApplicationDirectoryName = "SupercellProxy";
     private const string AssetDirectoryName = "assets";
     private const string CaptureDirectoryName = "captures";
+    private const string OutOfSyncDirectoryName = "out-of-sync";
 
     /// <summary>Gets the shared root directory for persisted SupercellProxy application data.</summary>
     public static string RootDirectoryPath { get; } = CreateRootDirectoryPath();
@@ -16,6 +17,8 @@ public static class UserDataPaths
 
     /// <summary>Gets the shared directory for retained proxy captures.</summary>
     public static string CaptureDirectoryPath { get; } = Path.Combine(RootDirectoryPath, CaptureDirectoryName);
+    /// <summary>Gets managed connection failure recordings, separate from retained real-device replay captures.</summary>
+    public static string OutOfSyncDirectoryPath { get; } = Path.Combine(RootDirectoryPath, OutOfSyncDirectoryName);
 
 
     private static string CreateRootDirectoryPath()

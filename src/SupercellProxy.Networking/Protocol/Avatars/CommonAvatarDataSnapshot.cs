@@ -15,6 +15,7 @@ using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.Orders;
 using SupercellProxy.Networking.Protocol.Reengagement;
+using SupercellProxy.Networking.Protocol.Sanctuary;
 using SupercellProxy.Networking.Protocol.Tutorials;
 
 namespace SupercellProxy.Networking.Protocol.Avatars;
@@ -30,7 +31,12 @@ public sealed record CommonAvatarDataSnapshot
     public OrderTrackSnapshot? BoatTrackManager { get; init; }
     /// <summary>Gets the retained booster manager state.</summary>
     public BoosterManagerSnapshot? BoosterManager { get; init; }
+    /// <summary>Gets the retained calendar-gift collection flags.</summary>
+    [JsonPropertyName("CalendarGiftBoxEventManager")]
+    public Events.Calendar.CalendarGiftManagerSnapshot? CalendarGifts { get; init; }
 
+    /// <summary>Gets saved chain-offer requirements and claims.</summary>
+    public Events.ChainOffers.ChainOfferManagerSnapshot? ChainOfferManager { get; init; }
     /// <summary>
     /// Gets or sets the <c language="csharp">ChronosEvents</c> value.
     /// </summary>
@@ -70,6 +76,10 @@ public sealed record CommonAvatarDataSnapshot
     /// </summary>
     public FarmPassSnapshot? FarmPassManager { get; init; }
 
+    /// <summary>Gets the shared sequence used to identify passengers and help requests.</summary>
+    [JsonPropertyName("LogicUniqueHelpId")]
+    public HelpIdentifierSequenceSnapshot? HelpIdentifiers { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">MapGameManager</c> value.
     /// </summary>
@@ -90,6 +100,10 @@ public sealed record CommonAvatarDataSnapshot
     [JsonPropertyName("LogicNeighborhoodObjectManager")]
     public NeighborhoodObjectManagerSnapshot? NeighborhoodObjectManager { get; init; }
 
+    /// <summary>Gets received neighborhood donations.</summary>
+    [JsonPropertyName("LogicNeighborhoodRequestsManager")]
+    public Neighborhoods.Requests.NeighborhoodRequestsSnapshot? NeighborhoodRequests { get; init; }
+
     /// <summary>
     /// Gets the Newspaper Manager value.
     /// </summary>
@@ -104,6 +118,10 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Inventory-owned roadside listing cancellation history.</summary>
     [JsonPropertyName("LogicInventory")]
     public RoadsideShops.RoadsideCancellationSnapshot? RoadsideCancellation { get; init; }
+
+    /// <summary>Gets the saved Sanctuary puzzle progression.</summary>
+    [JsonPropertyName("SanctuaryManager")]
+    public SanctuaryManagerSnapshot? SanctuaryManager { get; init; }
     /// <summary>
     /// Gets the Truck Track Manager value.
     /// </summary>

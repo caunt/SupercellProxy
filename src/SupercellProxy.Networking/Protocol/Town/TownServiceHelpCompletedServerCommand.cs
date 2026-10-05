@@ -7,17 +7,17 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>
-/// <para>Settles a completed Town passenger service.</para>
+/// <para>Reconciles a town service fulfilled by another farm.</para>
 /// </summary>
-public sealed record PassengerServiceCompletionServerCommand : ServerCommand
+public sealed record TownServiceHelpCompletedServerCommand : ServerCommand
 {
     /// <summary>
     /// Provides the Passenger Service Completion Server Command value or operation.
     /// </summary>
-    public PassengerServiceCompletionServerCommand(
-        LongIdentifier sourceHomeIdentifier,
-        LongIdentifier destinationHomeIdentifier,
-        int passengerInstanceIdentifier,
+    public TownServiceHelpCompletedServerCommand(
+        LongIdentifier ownerHomeIdentifier,
+        LongIdentifier helperHomeIdentifier,
+        int helpIdentifier,
         ReadOnlyMemory<CommandDataReferenceVariableIntPair> requiredItems,
         ReadOnlyMemory<CommandDataReferenceVariableIntPair> grantedRewards,
         int serverCommandIdentifier,
@@ -27,18 +27,12 @@ public sealed record PassengerServiceCompletionServerCommand : ServerCommand
     )
         : base(serverCommandIdentifier, executionPhaseCounter, debugData0, debugData1)
     {
-        SourceHomeIdentifier = sourceHomeIdentifier;
-        DestinationHomeIdentifier = destinationHomeIdentifier;
-        PassengerInstanceIdentifier = passengerInstanceIdentifier;
+        OwnerHomeIdentifier = ownerHomeIdentifier;
+        HelperHomeIdentifier = helperHomeIdentifier;
+        HelpIdentifier = helpIdentifier;
         RequiredItems = requiredItems.ToArray();
         GrantedRewards = grantedRewards.ToArray();
     }
-
-    /// <summary>
-    /// <para>Gets the home in which the passenger service was completed.</para>
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("DestinationHomeId")]
-    public LongIdentifier DestinationHomeIdentifier { get; }
 
     /// <summary>
     /// <para>Gets the resource quantities granted for the completed service.</para>
@@ -46,10 +40,22 @@ public sealed record PassengerServiceCompletionServerCommand : ServerCommand
     public ReadOnlyMemory<CommandDataReferenceVariableIntPair> GrantedRewards { get; }
 
     /// <summary>
-    /// <para>Gets the serviced passenger's instance identifier.</para>
+    /// <para>Gets the unique service-help request identifier.</para>
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("PassengerInstanceId")]
-    public int PassengerInstanceIdentifier { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("HelpId")]
+    public int HelpIdentifier { get; }
+
+    /// <summary>
+    /// <para>Gets the helper's home identifier.</para>
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("HelperHomeId")]
+    public LongIdentifier HelperHomeIdentifier { get; }
+
+    /// <summary>
+    /// <para>Gets the home owning the service-help request.</para>
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("OwnerHomeId")]
+    public LongIdentifier OwnerHomeIdentifier { get; }
 
     /// <summary>
     /// <para>Gets the item quantities consumed by the completed service.</para>
@@ -57,33 +63,27 @@ public sealed record PassengerServiceCompletionServerCommand : ServerCommand
     public ReadOnlyMemory<CommandDataReferenceVariableIntPair> RequiredItems { get; }
 
     /// <summary>
-    /// <para>Gets the home from which the serviced passenger originated.</para>
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("SourceHomeId")]
-    public LongIdentifier SourceHomeIdentifier { get; }
-
-    /// <summary>
     /// Gets the Type value.
     /// </summary>
-    public override int Type => CommandRegistry.PassengerServiceCompletionServerCommandType;
+    public override int Type => CommandRegistry.TownServiceHelpCompletedServerCommandType;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static PassengerServiceCompletionServerCommand Decode(MessageStream stream, CommandEnvironment environment)
+    public static TownServiceHelpCompletedServerCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        LongIdentifier sourceHomeIdentifier = stream.ReadLongIdentifier();
-        LongIdentifier destinationHomeIdentifier = stream.ReadLongIdentifier();
-        int passengerInstanceIdentifier = stream.ReadVariableInt();
+        LongIdentifier ownerHomeIdentifier = stream.ReadLongIdentifier();
+        LongIdentifier helperHomeIdentifier = stream.ReadLongIdentifier();
+        int helpIdentifier = stream.ReadVariableInt();
         ReadOnlyMemory<CommandDataReferenceVariableIntPair> requiredItems = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
         ReadOnlyMemory<CommandDataReferenceVariableIntPair> grantedRewards = CommandDataReferenceVariableIntPairArrayField.Decode(stream).Values;
         (int serverCommandIdentifier, (int ExecutionPhaseCounter, CommandData? DebugData0, CommandData? DebugData1) commandFields) = DecodeServerCommand(stream, environment);
 
-        return new PassengerServiceCompletionServerCommand(
-            sourceHomeIdentifier,
-            destinationHomeIdentifier,
-            passengerInstanceIdentifier,
+        return new TownServiceHelpCompletedServerCommand(
+            ownerHomeIdentifier,
+            helperHomeIdentifier,
+            helpIdentifier,
             requiredItems,
             grantedRewards,
             serverCommandIdentifier,
@@ -98,9 +98,9 @@ public sealed record PassengerServiceCompletionServerCommand : ServerCommand
     /// </summary>
     public override void EncodeBody(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteLongIdentifier(SourceHomeIdentifier);
-        stream.WriteLongIdentifier(DestinationHomeIdentifier);
-        stream.WriteVariableInt(PassengerInstanceIdentifier);
+        stream.WriteLongIdentifier(OwnerHomeIdentifier);
+        stream.WriteLongIdentifier(HelperHomeIdentifier);
+        stream.WriteVariableInt(HelpIdentifier);
         new CommandDataReferenceVariableIntPairArrayField(RequiredItems).Encode(stream);
         new CommandDataReferenceVariableIntPairArrayField(GrantedRewards).Encode(stream);
         EncodeServerCommand(stream, environment);

@@ -1,5 +1,3 @@
-using SupercellProxy.Networking.Json;
-
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Gifts;
@@ -13,7 +11,7 @@ public sealed record DecisionBoxManagerSnapshot
     /// Gets the Pending Boxes value.
     /// </summary>
     [JsonPropertyName("PendingBoxes")]
-    public EncodedDocumentValue[] PendingBoxes { get; init; } = [];
+    public PendingDecisionBoxSnapshot[] PendingBoxes { get; init; } = [];
     /// <summary>
     /// Gets the Rand Seed value.
     /// </summary>

@@ -19,7 +19,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">AccurateX</c> value.
     /// </summary>
     public int? AccurateX { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">AccurateY</c> value.
     /// </summary>
@@ -28,28 +27,31 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">AdsSpins</c> value.
     /// </summary>
     public int AdsSpins { get; init; }
-
     /// <summary>Gets per-stand roadside advertisement timers, in native timer ticks.</summary>
     [JsonPropertyName("AdTimers")]
     public int[]? AdvertisementTimers { get; init; }
 
+    /// <summary>Gets the passenger's sanctuary-visit bonus row.</summary>
+    [JsonPropertyName("AnimalBonusID")]
+    public int? AnimalBonusIdentifier { get; init; }
     /// <summary>Gets the retained AnimalHabitatIndex value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimalHabitatIndex { get; init; }
+
     /// <summary>Gets the retained adult-pet animation index, read only when pet animation indices are part of logic.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AnimationIndex { get; init; }
 
-
-
     /// <summary>Gets per-stand automatic-buyer timers for a roadside shop.</summary>
     [JsonPropertyName("AITimer")]
     public int[] AutomaticBuyerTimers { get; init; } = [];
-
     /// <summary>Gets the saved Balloon height counter.</summary>
     [JsonPropertyName("Height")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? BalloonHeight { get; init; }
+
+
+
     /// <summary>Gets the Balloon reward row selected when it was popped.</summary>
     [JsonPropertyName("rewardIndex")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -59,7 +61,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">BeatsTimer</c> value.
     /// </summary>
     public int? BeatsTimer { get; init; }
-
     /// Gets the retained boat-order groups.
     [JsonPropertyName("boat_orders")]
     public BoatOrderSnapshot[] BoatOrders { get; init; } = [];
@@ -106,6 +107,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public bool CarryingResources { get; init; }
 
+    /// <summary>Gets the town service coin-bonus upgrade level.</summary>
+    public int? CoinBonus { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">ConsecutiveSpinDays</c> value.
     /// </summary>
@@ -126,6 +130,14 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     public int Count { get; init; }
 
+    /// <summary>Gets whether the creature has been collected.</summary>
+    [JsonPropertyName("Collected")]
+    public bool? CreatureCollected { get; init; }
+
+    /// <summary>Gets the creature's spawning-rule identifier.</summary>
+    [JsonPropertyName("SpawningRuleID")]
+    public int? CreatureSpawningRuleIdentifier { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">DailyResetTime</c> value.
     /// </summary>
@@ -135,16 +147,23 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">DailyVisitorsSpawned</c> value.
     /// </summary>
     public int DailyVisitorsSpawned { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">DataGlobalId</c> value.
     /// </summary>
     [JsonPropertyName("ID")]
     public int DataGlobalIdentifier { get; init; }
+
     /// <summary>Gets the retained DeliveryRewards value.</summary>
     [JsonPropertyName("rewards")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TruckDeliveryRewardSnapshot[]? DeliveryRewards { get; init; }
+
+    /// <summary>Gets the sanctuary animal requested by the passenger.</summary>
+    [JsonPropertyName("DesiredAnimalID")]
+    public int? DesiredAnimalIdentifier { get; init; }
+
+    /// <summary>Gets whether a tree or bush has started its native clearing sequence.</summary>
+    public bool DestructionStarted { get; init; }
 
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -160,6 +179,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("EventID")]
     public int EventIdentifier { get; init; }
 
+    /// <summary>Gets the town service experience and reputation upgrade level.</summary>
+    [JsonPropertyName("ExpBonus")]
+    public int? ExpAndRepBonus { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">FarmPassSpins</c> value.
     /// </summary>
@@ -172,7 +195,12 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the last finished town-passenger service index when saved.</summary>
     public int? FinishedServiceIndex { get; init; }
 
-    /// <summary>Gets the retained fishing-spot row this fish is attached to.</summary>
+    /// <summary>Gets the duck's retained random value selected when processing starts.</summary>
+    [JsonPropertyName("ARand")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? FishingAnimalRandomValue { get; init; }
+
+    /// <summary>Gets the fishing-spot instance index; an omitted value denotes index zero.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? FishingSpotIndex { get; init; }
 
@@ -194,6 +222,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the roadside free-advertisement cooldown.</summary>
     [JsonPropertyName("FreeAdTimer")]
     public TimerSnapshot? FreeAdvertisementTimer { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">FreeReEngagementAvailable</c> value.
     /// </summary>
@@ -255,7 +284,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// </summary>
     [JsonPropertyName("GiftCnt")]
     public int GiftCount { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">GiftGid</c> value.
     /// </summary>
@@ -265,6 +293,10 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("slot4")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GiftMailboxSlotSnapshot? GiftMailboxSlot4 { get; init; }
+
+    /// <summary>Gets the native acquisition reason assigned to this gift.</summary>
+    [JsonPropertyName("CustomTag")]
+    public int GiftRewardReason { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">GoodAmount</c> value.
@@ -298,10 +330,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TimerSnapshot? GrowTimer { get; init; }
 
-    /// <summary>Gets the retained helper-area item list.</summary>
-    [JsonPropertyName("ItemList")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public HelperAreaItemListSnapshot? HelperAreaItemList { get; init; }
+    /// <summary>Gets the passenger's identifier in the avatar's help sequence.</summary>
+    [JsonPropertyName("HID")]
+    public int? HelpIdentifier { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">HireEnded</c> value.
@@ -340,6 +371,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("ItemID")]
     public int ItemGlobalIdentifier { get; init; }
 
+    /// <summary>Gets the retained collection-area item list.</summary>
+    [JsonPropertyName("ItemList")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ItemQuantityListSnapshot? ItemList { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">JackpotCount</c> value.
     /// </summary>
@@ -347,6 +383,7 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets the last roadside advertisement timestamp.</summary>
     public long LastAdvertisementTimestamp { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">LastDailyResetHourIndex</c> value.
     /// </summary>
@@ -402,7 +439,6 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained LockedChecked value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? LockedChecked { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">MasteryGatherCount</c> value.
     /// </summary>
@@ -421,6 +457,12 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">Mirrored</c> value.
     /// </summary>
     public bool Mirrored { get; init; }
+
+    /// <summary>Gets the passenger's displayed name index.</summary>
+    public int? NameIndex { get; init; }
+
+    /// <summary>Gets a fishing spot's retained net or trap and drops.</summary>
+    public Fishing.FishingNetSnapshot? Net { get; init; }
 
     /// <summary>
     /// Gets the retained timestamp that controls the visitor spawner's next daily refresh
@@ -453,6 +495,38 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">Rank</c> value.
     /// </summary>
     public int Rank { get; init; } = 1;
+
+    /// <summary>Gets the passenger's completion-bonus quantity.</summary>
+    [JsonPropertyName("BonusAmount")]
+    public int? PassengerBonusAmount { get; init; }
+
+    /// <summary>Gets whether the passenger's completion bonus belongs to an event.</summary>
+    [JsonPropertyName("BonusEvent")]
+    public bool? PassengerBonusEvent { get; init; }
+
+    /// <summary>Gets the legacy passenger completion-bonus row.</summary>
+    [JsonPropertyName("BonusID")]
+    public int? PassengerBonusIdentifier { get; init; }
+
+    /// <summary>Gets the passenger's completion-bonus resource.</summary>
+    [JsonPropertyName("BonusID2")]
+    public int? PassengerBonusResourceIdentifier { get; init; }
+
+    /// <summary>Gets the high part of the passenger's pickup-origin home identifier.</summary>
+    [JsonPropertyName("PH")]
+    public int? PassengerOriginHigh { get; init; }
+
+    /// <summary>Gets the low part of the passenger's pickup-origin home identifier.</summary>
+    [JsonPropertyName("PL")]
+    public int? PassengerOriginLow { get; init; }
+
+    /// <summary>Gets the number of personal-train pickups for this passenger.</summary>
+    [JsonPropertyName("PC")]
+    public int? PassengerPickupCount { get; init; }
+
+    /// <summary>Gets the passenger spawner's private service-request RNG state.</summary>
+    [JsonPropertyName("ServiceRandomizer")]
+    public int? PassengerServiceRandomState { get; init; }
 
     /// <summary>Gets saved town-passenger service requests.</summary>
     public TownPassengerServiceSnapshot[]? PassengerServices { get; init; }
@@ -515,6 +589,8 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">RandomSeed</c> value.
     /// </summary>
     public int RandomSeed { get; init; }
+    /// <summary>Gets the fishing spot's saved random-seed migration version.</summary>
+    public int RandomSeedFix { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">SlotStates</c> value.
@@ -539,8 +615,11 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets saved town service entries.</summary>
     public TownServiceListSnapshot? ServiceList { get; init; }
 
-    /// <summary>Gets saved town service slots.</summary>
+    /// <summary>Gets the town service-slot upgrade level.</summary>
     public int? ServiceSlots { get; init; }
+
+    /// <summary>Gets a lobster or duck's slot in its processing facility.</summary>
+    public int Slot { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Orders</c> value.
@@ -581,10 +660,19 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? SubState { get; init; }
 
+    /// <summary>Gets the passenger's retained walking destination.</summary>
+    public int? TargetAccurateX { get; init; }
+
+    /// <summary>Gets the passenger's retained walking destination.</summary>
+    public int? TargetAccurateY { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">TargetData</c> value.
     /// </summary>
     public int TargetData { get; init; }
+
+    /// <summary>Gets the passenger request currently associated with a service building.</summary>
+    public int? TargetPassengerServiceIndex { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">TargetX</c> value.
@@ -595,6 +683,9 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">TargetY</c> value.
     /// </summary>
     public int TargetY { get; init; }
+
+    /// <summary>Gets the town service time-reduction upgrade level.</summary>
+    public int? TimeBonus { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Timer</c> value.

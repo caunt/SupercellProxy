@@ -4,6 +4,12 @@ This public library connects clients and proxies and encodes and decodes protoco
 
 ## Finding code
 
+Town service command 147 is `CancelTownServiceCommand`: its wire operands are
+the running-service index and service-building global identifier, followed by
+base command metadata. It cancels an unstarted queued service; it is not a help
+request. The identifier has one authoritative definition in `CommandRegistry`
+and no duplicate primitive registration.
+
 | Directory | Responsibility |
 | --- | --- |
 | `Client` | Protocol client lifetime, authentication, hosted service, and typed client options. |
@@ -46,3 +52,22 @@ Authenticated clients require `SessionAccountIdentifier` and load that account f
 `MessageDirection.Clientbound` means traffic travelling toward the game client; `Serverbound` means traffic travelling toward the upstream server. `RemotePeerRole` identifies the peer during encryption setup, so an upstream connection uses `RemotePeerRole.Server`.
 
 Registry entries expose stable `CaptureName` labels. `MessageRegistry.GetCaptureName` supplies capture filenames independently of CLR type renames. Packet versions, JSON member names, session paths, capture formats, and raw payload preservation are independent of this source layout.
+
+`LoginFailedMessage.EstimatedMaintenanceSeconds` names the server's estimated remaining maintenance
+duration for `LoginFailureType.Maintenance`. It preserves the existing signed, big-endian 32-bit wire
+field immediately after `Reason`, as well as the legacy `Unknown1` JSON member. Nonpositive values do
+not supply a positive countdown; an estimate is not confirmation that the server is available.
+
+Town commands distinguish passenger request indices from running and finished service
+queue indices. `BookTownPassengerServiceCommand.TutorialDataGlobalIdentifier` is a
+tutorial reference, not a building identifier. `TownServiceHelpCompletedServerCommand`
+names command 253's actual owner/helper-home and help-request operands; its binary
+layout is unchanged. `ItemQuantityListSnapshot` is shared by helper and sanctuary
+collection areas and preserves the native `ItemList`/`Donations`/`Amounts` JSON shape.
+
+`CustomizationManagerSnapshot` retains the concrete selected, stock, free-stock,
+reroll, sold, used, and seen-part lists, offered-tag flags, private RNG seed,
+tutorial timer/active flag, and forced-stock event identifier. Its
+`ForcedStockChronosEventIdentifier` property preserves the
+`ForcedStockChronosEventID` JSON member name. Stock scheduling and builder behavior
+belong to Simulation, not the protocol decoder or transport.

@@ -133,6 +133,11 @@ public sealed record ClientAvatar
     public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
 
     /// <summary>
+    /// Gets elapsed seconds without real-money spending at the avatar's load boundary.
+    /// </summary>
+    public int SecondsWithoutSpending { get; init; }
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">Settings</c> value.
     /// </summary>
     public AvatarSettings? Settings { get; init; }
@@ -156,11 +161,6 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public int Unknown1 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown3</c> value.
-    /// </summary>
-    public int Unknown3 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown4</c> value.
@@ -259,7 +259,7 @@ public sealed record ClientAvatar
         int unknown0 = stream.ReadVariableInt();
         int unknown1 = stream.ReadVariableInt();
         int avatarVersion = stream.ReadVariableInt();
-        int unknown3 = stream.ReadVariableInt();
+        int secondsWithoutSpending = stream.ReadVariableInt();
         string? name = stream.ReadOptionalString();
         LongIdentifier homeIdentifier = stream.ReadLongIdentifier();
         LongIdentifier accountIdentifier = stream.ReadLongIdentifier();
@@ -272,7 +272,7 @@ public sealed record ClientAvatar
             Unknown0 = unknown0,
             Unknown1 = unknown1,
             AvatarVersion = avatarVersion,
-            Unknown3 = unknown3,
+            SecondsWithoutSpending = secondsWithoutSpending,
             FarmName = name,
             HomeIdentifier = homeIdentifier,
             AccountIdentifier = accountIdentifier,
@@ -460,7 +460,7 @@ public sealed record ClientAvatar
         stream.WriteVariableInt(Unknown0);
         stream.WriteVariableInt(Unknown1);
         stream.WriteVariableInt(AvatarVersion);
-        stream.WriteVariableInt(Unknown3);
+        stream.WriteVariableInt(SecondsWithoutSpending);
         stream.WriteOptionalString(FarmName);
         stream.WriteLongIdentifier(HomeIdentifier);
         stream.WriteLongIdentifier(AccountIdentifier);

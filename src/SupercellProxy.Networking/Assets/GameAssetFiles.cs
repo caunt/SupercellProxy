@@ -7,7 +7,6 @@ public static partial class GameAssetFiles
 {
     /// <summary>Path of the About Layout asset.</summary>
     public const string AboutLayout = "data/about_layout.csv";
-
     /// <summary>Path of the Achievements asset.</summary>
     public const string Achievements = "data/achievements.csv";
 
@@ -289,6 +288,9 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Emotes asset.</summary>
     public const string Emotes = "data/emotes.csv";
+
+    /// <summary>English text keys and captions shared by the client assets.</summary>
+    public const string EnglishTexts = "localization/texts.csv";
 
     /// <summary>Path of the Event Board asset.</summary>
     public const string EventBoard = "data/eventboard.csv";

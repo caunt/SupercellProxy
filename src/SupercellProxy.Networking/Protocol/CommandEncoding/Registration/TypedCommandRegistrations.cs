@@ -5,6 +5,7 @@ using SupercellProxy.Networking.Protocol.Boats;
 using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CropFields;
+using SupercellProxy.Networking.Protocol.Creatures;
 using SupercellProxy.Networking.Protocol.Events;
 using SupercellProxy.Networking.Protocol.Events.Boards;
 using SupercellProxy.Networking.Protocol.Events.Chronos;
@@ -22,6 +23,7 @@ using SupercellProxy.Networking.Protocol.Helpers;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.MiniPass;
+using SupercellProxy.Networking.Protocol.Mining;
 using SupercellProxy.Networking.Protocol.MapGame.Events;
 using SupercellProxy.Networking.Protocol.MapGame.Movement;
 using SupercellProxy.Networking.Protocol.MapGame.Notifications;
@@ -51,6 +53,27 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [CollectNeighborhoodDonationCommandType] = new CommandRegistryEntry(
+            typeof(CollectNeighborhoodDonationCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CollectNeighborhoodDonationCommand.Decode(stream, environment)
+        ),
+        [MineCommandType] = new CommandRegistryEntry(
+            typeof(MineCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => MineCommand.Decode(stream, environment)
+        ),
+        [CatchCreatureCommandType] = new CommandRegistryEntry(
+            typeof(CatchCreatureCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CatchCreatureCommand.Decode(stream, environment)
+        ),
         [PopBalloonCommandType] = new CommandRegistryEntry(
             typeof(PopBalloonCommand),
             MessageDirection.Serverbound,
@@ -71,6 +94,34 @@ internal static class TypedCommandRegistrations
             BaseFirst: false,
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) => TownPassengerActionCommand.Decode(stream, environment)
+        ),
+        [ValidateTownPassengerCommandType] = new CommandRegistryEntry(
+            typeof(ValidateTownPassengerCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => ValidateTownPassengerCommand.Decode(stream, environment)
+        ),
+        [SpeedUpTownServiceCommandType] = new CommandRegistryEntry(
+            typeof(SpeedUpTownServiceCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => SpeedUpTownServiceCommand.Decode(stream, environment)
+        ),
+        [CollectTownServiceCommandType] = new CommandRegistryEntry(
+            typeof(CollectTownServiceCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CollectTownServiceCommand.Decode(stream, environment)
+        ),
+        [CancelTownServiceCommandType] = new CommandRegistryEntry(
+            typeof(CancelTownServiceCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CancelTownServiceCommand.Decode(stream, environment)
         ),
         [BookTownPassengerServiceCommandType] = new CommandRegistryEntry(
             typeof(BookTownPassengerServiceCommand),
@@ -216,13 +267,13 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 RoadsidePurchaseServerCommand.Decode(stream, environment)
         ),
-        [PassengerServiceCompletionServerCommandType] = new CommandRegistryEntry(
-            typeof(PassengerServiceCompletionServerCommand),
+        [TownServiceHelpCompletedServerCommandType] = new CommandRegistryEntry(
+            typeof(TownServiceHelpCompletedServerCommand),
             MessageDirection.Clientbound,
             BaseFirst: false,
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
-                PassengerServiceCompletionServerCommand.Decode(stream, environment)
+                TownServiceHelpCompletedServerCommand.Decode(stream, environment)
         ),
         [VisitedBoatHelpRequestServerCommandType] = new CommandRegistryEntry(
             typeof(VisitedBoatHelpRequestServerCommand),
@@ -584,6 +635,27 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 CollectFishingSpotCommand.Decode(stream, environment)
         ),
+        [CollectFishingTrapCommandType] = new CommandRegistryEntry(
+            typeof(CollectFishingTrapCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => CollectFishingTrapCommand.Decode(stream, environment)
+        ),
+        [CollectLobsterCommandType] = new CommandRegistryEntry(
+            typeof(CollectFishingAnimalCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => CollectFishingAnimalCommand.Decode(stream, environment, duck: false)
+        ),
+        [CollectDuckCommandType] = new CommandRegistryEntry(
+            typeof(CollectFishingAnimalCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => CollectFishingAnimalCommand.Decode(stream, environment, duck: true)
+        ),
         [CompleteFishingCatchCommandType] = new CommandRegistryEntry(
             typeof(CompleteFishingCatchCommand),
             MessageDirection.Serverbound,
@@ -631,6 +703,20 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 CollectFruitCommand.Decode(stream, environment)
+        ),
+        [StartPlantClearingCommandType] = new CommandRegistryEntry(
+            typeof(StartPlantClearingCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => StartPlantClearingCommand.Decode(stream, environment)
+        ),
+        [CompletePlantClearingCommandType] = new CommandRegistryEntry(
+            typeof(CompletePlantClearingCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => CompletePlantClearingCommand.Decode(stream, environment)
         ),
         [StartForestClearingCommandType] = new CommandRegistryEntry(
             typeof(StartForestClearingCommand),

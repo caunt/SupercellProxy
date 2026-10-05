@@ -22,20 +22,16 @@ public static class CommandRegistry
     /// Provides the Activate Movie Ticket Command Type value or operation.
     /// </summary>
     public const int ActivateMovieTicketCommandType = 643;
-
     /// <summary>
     /// Provides the Advance Boat State Command Type value or operation.
     /// </summary>
     public const int AdvanceBoatStateCommandType = 663;
-
     /// <summary>
     /// Provides the Advance Reengagement Flow Command Type value or operation.
     /// </summary>
     public const int AdvanceReengagementFlowCommandType = 684;
-
     /// <summary>Advertises an existing roadside listing.</summary>
     public const int AdvertiseRoadsideListingCommandType = 511;
-
     /// <summary>
     /// Provides the Base Event Scene Command Type value or operation.
     /// </summary>
@@ -43,13 +39,10 @@ public static class CommandRegistry
 
     /// <summary>Reports a boat help request result.</summary>
     public const int BoatCrateHelpResponseServerCommandType = 389;
-
     /// <summary>Books a town passenger into a service slot.</summary>
     public const int BookTownPassengerServiceCommandType = 145;
-
     /// <summary>Buys a package from the ordinary gift catalogue.</summary>
     public const int BuyCatalogueGiftCommandType = 104;
-
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>
@@ -58,9 +51,14 @@ public static class CommandRegistry
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
-
     /// <summary>Cancels an unsold roadside listing.</summary>
     public const int CancelRoadsideListingCommandType = 589;
+
+    /// <summary>Cancels an unstarted service in the player's town.</summary>
+    public const int CancelTownServiceCommandType = 147;
+
+    /// <summary>Starts a seasonal creature's catch animation and collection timer.</summary>
+    public const int CatchCreatureCommandType = 669;
 
     /// <summary>
     /// Provides the Check Mystery Box Lock Command Type value or operation.
@@ -94,7 +92,6 @@ public static class CommandRegistry
 
     /// <summary>Provides the Claim Farm Pass Baby Pet Reward Command Type.</summary>
     public const int ClaimFarmPassBabyPetRewardCommandType = 346;
-
     /// <summary>Provides the Claim Farm Pass Level Reward Command Type.</summary>
     public const int ClaimFarmPassLevelRewardCommandType = 336;
 
@@ -154,8 +151,17 @@ public static class CommandRegistry
     /// </summary>
     public const int CollectBuildingProductCommandType = 518;
 
+    /// <summary>Collects an unlocked gift from Greg's calendar.</summary>
+    public const int CollectCalendarGiftCommandType = 516;
+
+    /// <summary>Collects the product of a ready duck.</summary>
+    public const int CollectDuckCommandType = 159;
+
     /// <summary>Collects one fish from a fishing spot.</summary>
     public const int CollectFishingSpotCommandType = 109;
+
+    /// <summary>Collects a completed fishing net or animal trap.</summary>
+    public const int CollectFishingTrapCommandType = 119;
 
     /// <summary>
     /// Provides the Collect Fruit Command Type value or operation.
@@ -177,16 +183,33 @@ public static class CommandRegistry
     /// </summary>
     public const int CollectHelperAreaCommandType = 660;
 
+    /// <summary>Collects the product of a ready lobster.</summary>
+    public const int CollectLobsterCommandType = 121;
+
     /// <summary>Collects a sanctuary animal from a shared Valley task.</summary>
     public const int CollectMapGameSanctuaryAnimalCommandType = 310;
+
+    /// <summary>
+    /// Collects the prepared Movie Ticket reward after its activation.
+    /// </summary>
+    public const int CollectMovieTicketRewardCommandType = 510;
 
     /// <summary>
     /// Provides the Collect Mystery Box Reward Command Type value or operation.
     /// </summary>
     public const int CollectMysteryBoxRewardCommandType = 48;
 
+    /// <summary>Collects goods received through a neighborhood donation.</summary>
+    public const int CollectNeighborhoodDonationCommandType = 623;
+
     /// <summary>Collects the proceeds of a sold roadside listing.</summary>
     public const int CollectRoadsideSaleProceedsCommandType = 649;
+
+    /// <summary>Collects the last pending sanctuary visitor gift in town.</summary>
+    public const int CollectSanctuaryVisitorGiftCommandType = 566;
+
+    /// <summary>Collects a completed town service.</summary>
+    public const int CollectTownServiceCommandType = 144;
 
     /// <summary>
     /// Provides the Collect Truck Delivery Rewards Command Type value or operation.
@@ -197,6 +220,7 @@ public static class CommandRegistry
     /// Provides the Collect Wheel Reward Command Type value or operation.
     /// </summary>
     public const int CollectWheelRewardCommandType = 80;
+
     /// <summary>Provides the Complete Boy Interaction Command Type.</summary>
     public const int CompleteBoyInteractionCommandType = 653;
 
@@ -212,12 +236,14 @@ public static class CommandRegistry
     /// Provides the Complete Forest Clearing Command Type value or operation.
     /// </summary>
     public const int CompleteForestClearingCommandType = 20;
-
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
 
     /// <summary>Completes a finished Neighborhood Object task.</summary>
     public const int CompleteNeighborhoodObjectTaskCommandType = 576;
+
+    /// <summary>Collects clearing rewards and removes the cleared plant.</summary>
+    public const int CompletePlantClearingCommandType = 61;
 
     /// <summary>
     /// Provides the Construct Game Object Command Type value or operation.
@@ -255,6 +281,7 @@ public static class CommandRegistry
     /// Provides the Fill Boat Crate Command Type value or operation.
     /// </summary>
     public const int FillBoatCrateCommandType = 634;
+
     /// <summary>Accepts a waiting farm visitor's goods order.</summary>
     public const int FulfillFarmVisitorOrderCommandType = 569;
 
@@ -263,7 +290,6 @@ public static class CommandRegistry
 
     /// <summary>Hires one farm helper at a configured duration tier.</summary>
     public const int HireHelperCommandType = 204;
-
     /// <summary>
     /// Provides the Home Loaded Command Type value or operation.
     /// </summary>
@@ -283,6 +309,9 @@ public static class CommandRegistry
     /// Provides the Mark Chronos Event Ui Opened Command Type value or operation.
     /// </summary>
     public const int MarkChronosEventUserInterfaceOpenedCommandType = 502;
+
+    /// <summary>Acknowledges opening a County Fair event.</summary>
+    public const int MarkCountyFairOpenedCommandType = 522;
 
     /// <summary>
     /// Provides the Mark Event Board Seen Command Type value or operation.
@@ -315,6 +344,9 @@ public static class CommandRegistry
     /// </summary>
     public const int MarkMapGameSunPointsSeenCommandType = 592;
 
+    /// <summary>Records the timestamp of the latest read neighborhood chat entry.</summary>
+    public const int MarkNeighborhoodChatReadCommandType = 139;
+
     /// <summary>
     /// Provides the Mark Neighborhood Tasks Seen Command Type value or operation.
     /// </summary>
@@ -346,11 +378,6 @@ public static class CommandRegistry
     /// <summary>Moves the local Valley pawn toward a target map node.</summary>
     public const int MoveMapGameCommandType = 270;
 
-    /// <summary>
-    /// Provides the Movie Ticket Ad Watched Command Type value or operation.
-    /// </summary>
-    public const int MovieTicketAdWatchedCommandType = 510;
-
     /// <summary>Updates points for an active Neighborhood Object event.</summary>
     public const int NeighborhoodObjectPointsServerCommandType = 384;
 
@@ -362,16 +389,14 @@ public static class CommandRegistry
     /// <summary>Reports a helper's completion at the player's own boat.</summary>
     public const int OwnBoatCrateHelpedServerCommandType = 387;
 
-    /// <summary>
-    /// Provides the Passenger Service Completion Server Command Type value or operation.
-    /// </summary>
-    public const int PassengerServiceCompletionServerCommandType = 253;
-
     /// <summary>Places a bait from <c language="csharp">data/baits.csv</c> on a fishing spot.</summary>
     public const int PlaceFishingBaitCommandType = 111;
 
     /// <summary>Places a net from <c language="csharp">data/nets.csv</c> on a fishing spot.</summary>
     public const int PlaceFishingNetCommandType = 118;
+
+    /// <summary>Places all newly received pieces in a Sanctuary animal puzzle.</summary>
+    public const int PlaceSanctuaryPuzzlePiecesCommandType = 221;
 
     /// <summary>
     /// Provides the Plant Field Command Type value or operation.
@@ -444,6 +469,9 @@ public static class CommandRegistry
     /// </summary>
     public const int RequestRoadsidePurchaseCommandType = 509;
 
+    /// <summary>Requests a shop package; inventory changes arrive in the server receipt.</summary>
+    public const int RequestShopPurchaseCommandType = 227;
+
     /// <summary>
     /// Provides the Reset Wheel Car Command Type value or operation.
     /// </summary>
@@ -451,6 +479,7 @@ public static class CommandRegistry
 
     /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
     public const int RoadsideFriendCountServerCommandType = 210;
+
     /// <summary>Identifies the roadside purchase notification delivered to the client listener.</summary>
     public const int RoadsidePurchaseRejectedServerCommandType = 309;
 
@@ -466,9 +495,9 @@ public static class CommandRegistry
     /// Provides the Roadside Stock Server Command Type value or operation.
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
-
     /// <summary>Starts panic movement for all residents of a livestock habitat.</summary>
     public const int ScareLivestockCommandType = 6;
+
     /// <summary>Provides the Search With Boy Command Type.</summary>
     public const int SearchWithBoyCommandType = 71;
 
@@ -484,7 +513,6 @@ public static class CommandRegistry
     /// Provides the Select Livestock Animal Command Type value or operation.
     /// </summary>
     public const int SelectLivestockAnimalCommandType = 21;
-
     /// <summary>Sends a thank-you gift for boat or plant help.</summary>
     public const int SendThankYouGiftCommandType = 102;
 
@@ -511,6 +539,12 @@ public static class CommandRegistry
     /// <summary>Changes a notification or advanced user setting.</summary>
     public const int SetUserSettingCommandType = 131;
 
+    /// <summary>Applies a shop package receipt and its currency adjustments.</summary>
+    public const int ShopPurchaseServerCommandType = 229;
+
+    /// <summary>Completes a running town service using premium currency.</summary>
+    public const int SpeedUpTownServiceCommandType = 143;
+
     /// <summary>Spins the active Valley fuel wheel.</summary>
     public const int SpinMapGameFuelWheelCommandType = 616;
 
@@ -528,6 +562,9 @@ public static class CommandRegistry
     /// Provides the Start Forest Clearing Command Type value or operation.
     /// </summary>
     public const int StartForestClearingCommandType = 18;
+
+    /// <summary>Starts clearing a depleted fruit tree or gatherer source.</summary>
+    public const int StartPlantClearingCommandType = 60;
 
     /// <summary>Starts a selected service at a town service building.</summary>
     public const int StartTownServiceCommandType = 142;
@@ -548,8 +585,16 @@ public static class CommandRegistry
     /// <summary>Taps an ambient animal identified by its runtime object identifier.</summary>
     public const int TapAmbientAnimalCommandType = 42;
 
+    /// <summary>Plays the tap reaction of an available Sanctuary animal.</summary>
+    public const int TapSanctuaryAnimalCommandType = 220;
+
     /// <summary>Applies a town-passenger action.</summary>
     public const int TownPassengerActionCommandType = 140;
+
+    /// <summary>
+    /// Provides the Passenger Service Completion Server Command Type value or operation.
+    /// </summary>
+    public const int TownServiceHelpCompletedServerCommandType = 253;
 
     /// <summary>
     /// Provides the Tree Revival Server Command Type value or operation.
@@ -568,6 +613,9 @@ public static class CommandRegistry
     /// Provides the Upgrade Building Command Type value or operation.
     /// </summary>
     public const int UpgradeBuildingCommandType = 11;
+
+    /// <summary>Validates a town passenger without changing its state.</summary>
+    public const int ValidateTownPassengerCommandType = 141;
 
     /// <summary>
     /// Provides the Visited Boat Departure Server Command Type value or operation.
@@ -591,6 +639,9 @@ public static class CommandRegistry
 
     /// <summary>Wakes the Boy from his interval rest.</summary>
     public const int WakeBoyFromRestCommandType = 595;
+
+    /// <summary>Wakes a sleeping pet and collects its feeding reward.</summary>
+    public const int WakePetCommandType = 87;
 
     private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> LazyEntries = new(CreateEntries);
     private static readonly HashSet<int> NonProductionCommandTypes = [7, 84, 85];

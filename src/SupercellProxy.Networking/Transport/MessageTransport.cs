@@ -12,6 +12,7 @@ namespace SupercellProxy.Networking.Transport;
 
 internal sealed class MessageTransport(MessageStream stream)
 {
+    private const int HeaderLength = 7;
     private readonly AsyncLock _readLock = new();
     private readonly AsyncLock _writeLock = new();
     private MessageEncryption? _encryption;
@@ -25,13 +26,15 @@ internal sealed class MessageTransport(MessageStream stream)
 
         try
         {
-            Memory<byte> headerMemory = await stream.ReadExactlyAsync(stream.RentExactly(length: 7), cancellationToken)
+            // Reads can remain pending while a turn is written. Each operation owns its header,
+            // including when cancellation returns before the underlying I/O has unwound.
+            Memory<byte> headerMemory = await stream.ReadExactlyAsync(new byte[HeaderLength], cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             Span<byte> headerSpan = headerMemory.Span;
             ushort identifier = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
             int length = (headerSpan[index: 2] << 16) | (headerSpan[index: 3] << 8) | headerSpan[index: 4];
-            ushort version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..7]);
+            ushort version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..HeaderLength]);
 
             byte[] buffer = new byte[length];
 
@@ -88,7 +91,12 @@ internal sealed class MessageTransport(MessageStream stream)
     {
         MessageContainer container = await ReadContainerAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        return ResolveMessage(container);
+        IMessage message = ResolveMessage(container);
+
+        if (stream.ObserveMessage is { } observe)
+            await observe(MessageDirection.Clientbound, container, message).ConfigureAwait(continueOnCapturedContext: false);
+
+        return message;
     }
 
     /// <summary>
@@ -162,7 +170,24 @@ internal sealed class MessageTransport(MessageStream stream)
     /// <summary>
     /// Writes <c language="csharp">ContainerAsync</c> to the stream.
     /// </summary>
-    internal async ValueTask WriteContainerAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
+    internal ValueTask WriteContainerAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
+    {
+        return WriteContainerAsync(messageContainer, message: null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Writes <c language="csharp">MessageAsync</c> to the stream.
+    /// </summary>
+    internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
+        where TValue : class, IMessage
+    {
+        ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
+
+        await WriteContainerAsync(MessageContainer.Create(message, version), message, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
+    }
+
+    private async ValueTask WriteContainerAsync(MessageContainer messageContainer, IMessage? message, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(messageContainer);
         ArgumentNullException.ThrowIfNull(messageContainer);
@@ -179,7 +204,7 @@ internal sealed class MessageTransport(MessageStream stream)
             if (_encryption is not null)
                 memoryStream = _encryption.Encrypt(memoryStream);
 
-            Memory<byte> headerMemory = stream.RentExactly(length: 7);
+            Memory<byte> headerMemory = new byte[HeaderLength];
             Span<byte> headerSpan = headerMemory.Span;
 
             BinaryPrimitives.WriteUInt16BigEndian(headerSpan[..2], messageContainer.Identifier);
@@ -190,28 +215,19 @@ internal sealed class MessageTransport(MessageStream stream)
             headerSpan[index: 3] = byte.CreateTruncating(length >> 8);
             headerSpan[index: 4] = byte.CreateTruncating(length);
 
-            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..7], messageContainer.Version);
+            BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..HeaderLength], messageContainer.Version);
 
             await stream.WriteAsync(headerMemory, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            if (stream.ObserveMessage is { } observe)
+                await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (Exception exception)
             when (exception is EndOfStreamException or IOException { InnerException: SocketException })
         {
             throw new StreamClosedException(StreamClosedException.DefaultMessage, exception);
         }
-    }
-
-    /// <summary>
-    /// Writes <c language="csharp">MessageAsync</c> to the stream.
-    /// </summary>
-    internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
-        where TValue : class, IMessage
-    {
-        ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
-
-        await WriteContainerAsync(MessageContainer.Create(message, version), cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
     }
 }

@@ -1,5 +1,6 @@
 using SupercellProxy.Networking.Sessions;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Client;
 
@@ -21,4 +22,8 @@ public sealed record ClientConfiguration(
     // OutdatedContent LoginFailed. The current fingerprint is detected from that response.
     string? BootstrapFingerprintSha = null,
     string? AssetDirectory = null
-);
+)
+{
+    /// <summary>Optionally observes received plaintext and successfully written plaintext frames without changing their contents.</summary>
+    public Func<MessageDirection, MessageContainer, IMessage?, ValueTask>? ObserveMessage { get; init; }
+}

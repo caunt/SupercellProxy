@@ -32,6 +32,12 @@ public sealed record OrderTrackSnapshot
     public int ResetTimestamp { get; init; }
 
     /// <summary>
+    /// Gets whether the current milestone's rewards have already been granted.
+    /// </summary>
+    [JsonPropertyName("claimed")]
+    public bool RewardClaimed { get; init; }
+
+    /// <summary>
     /// Gets the Rewards value.
     /// </summary>
     [JsonPropertyName("rewards")]

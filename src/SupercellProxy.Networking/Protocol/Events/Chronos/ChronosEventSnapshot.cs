@@ -14,10 +14,13 @@ public sealed record ChronosEventSnapshot
     /// </summary>
     [JsonPropertyName("birthdayTasks")]
     public TaskEventSnapshot? BirthdayTasks { get; init; }
-
     /// Gets whether home-farm completion has already run for the event.
     [JsonPropertyName("finishedAtHomeFarm")]
     public bool CompletionProcessedAtHome { get; init; }
+
+    /// <summary>Gets the County Fair state associated with this event.</summary>
+    [JsonPropertyName("countyFair")]
+    public CountyFair.CountyFairSnapshot? CountyFair { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">EndTime</c> value.
