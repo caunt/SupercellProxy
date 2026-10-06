@@ -9,15 +9,17 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 public sealed record MessageContainer([property: System.Text.Json.Serialization.JsonPropertyName("Id")] ushort Id, ushort Version, MessageStream Payload)
 {
     /// <summary>Frames an encoded message with its registered id and resolved or recorded header version.</summary>
-    public static MessageContainer Create(IMessage message, ushort? version = null)
+    public static MessageContainer Create(IMessage message, ushort? version = null, Version? gameVersion = null)
     {
         ArgumentNullException.ThrowIfNull(message);
 
         ushort headerVersion = version ?? (message is PassthroughMessage passthrough ? passthrough.Version : (ushort)0);
 
-        ushort id = MessageRegistry.GetId(message);
+        ushort id = MessageRegistry.GetId(message, gameVersion);
 
         using MessageStream payload = MessageStream.Create();
+
+        payload.GameVersion = gameVersion;
 
         message.Encode(payload);
         payload.FlushWriteBoolean();

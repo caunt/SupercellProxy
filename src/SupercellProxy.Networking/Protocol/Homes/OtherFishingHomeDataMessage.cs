@@ -22,7 +22,7 @@ public sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage
     {
         ArgumentNullException.ThrowIfNull(stream);
         Memory<byte> rawPayload = stream.ReadToEnd();
-        OtherHomeDataMessage message = Decode(rawPayload);
+        OtherHomeDataMessage message = Decode(rawPayload, stream.GameVersion);
 
         return new OtherFishingHomeDataMessage
         {
@@ -33,6 +33,7 @@ public sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage
             CompressedAvatarDataDocument = message.CompressedAvatarDataDocument,
             CompressedHomeDataDocument = message.CompressedHomeDataDocument,
             Fallback = message.Fallback,
+            DecodeError = message.DecodeError,
             RawPayload = rawPayload,
         };
     }

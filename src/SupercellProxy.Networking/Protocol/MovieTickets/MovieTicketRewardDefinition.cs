@@ -5,6 +5,10 @@ namespace SupercellProxy.Networking.Protocol.MovieTickets;
 /// <summary>Represents the decoded MovieTicketRewardDefinition JSON contract.</summary>
 public sealed record MovieTicketRewardDefinition
 {
+    /// <summary>Gets the decoration, fence, ditch, or modular decoration reward.</summary>
+    [JsonPropertyName("Decorations")]
+    public MovieTicketRewardValue? Decorations { get; init; }
+
     /// <summary>Gets the Money value.</summary>
     [JsonPropertyName("Money")]
     public MovieTicketRewardValue? Money { get; init; }

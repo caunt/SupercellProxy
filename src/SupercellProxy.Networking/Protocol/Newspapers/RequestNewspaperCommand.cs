@@ -24,12 +24,21 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
     /// </summary>
     public override int Type => CommandRegistry.RequestNewspaperCommandType;
 
+    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
+
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
     public static RequestNewspaperCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            string countryCode = stream.ReadString();
+
+            return new RequestNewspaperCommand(stream.ReadBoolean(), countryCode, stream.ReadBoolean());
+        }
 
         return new RequestNewspaperCommand(stream.ReadBoolean(), stream.ReadString(), stream.ReadBoolean());
     }
@@ -39,8 +48,17 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
     /// </summary>
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteBoolean(SpendDiamonds);
-        stream.WriteString(CountryCode);
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            stream.WriteString(CountryCode);
+            stream.WriteBoolean(SpendDiamonds);
+        }
+        else
+        {
+            stream.WriteBoolean(SpendDiamonds);
+            stream.WriteString(CountryCode);
+        }
+
         stream.WriteBoolean(Alternate);
     }
 }

@@ -11,4 +11,7 @@ public sealed record BoosterManagerSnapshot
 
     /// <summary>Gets the boosters the player owns but has not activated.</summary>
     public BoosterStorageSnapshot? BoosterStorage { get; init; }
+
+    /// <summary>Gets newly received boosters awaiting a storage decision.</summary>
+    public PendingBoosterStorageSnapshot? PendingBoosters { get; init; }
 }

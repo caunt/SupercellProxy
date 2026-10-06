@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 using SupercellProxy.Networking.Protocol.Accounts;
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
@@ -33,7 +35,6 @@ public static class MessageRegistry
     public const ushort AvatarStreamPageMessageType = 26542;
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
-
     /// Identifies clientbound decoration-gallery data for a home.
     public const ushort DecorationGalleryDataMessageType = 25133;
 
@@ -219,8 +220,8 @@ public static class MessageRegistry
         [key: 26199] = new MessageRegistryEntry(typeof(FriendMetadataMessage), FriendMetadataMessage.Decode)
         { CaptureName = "Clientbound26199Message" },
 
-        [key: 26385] = new MessageRegistryEntry(typeof(Clientbound26385Message), Clientbound26385Message.Decode)
-        { CaptureName = "Clientbound26385Message" },
+        [key: 26385] = new MessageRegistryEntry(typeof(PerformanceProfilingSettingsMessage), PerformanceProfilingSettingsMessage.Decode)
+        { CaptureName = nameof(PerformanceProfilingSettingsMessage) },
 
         [key: 27398] = new MessageRegistryEntry(typeof(ResourceAssociationsMessage), ResourceAssociationsMessage.Decode)
         { CaptureName = "Clientbound27398Message" },
@@ -267,7 +268,24 @@ public static class MessageRegistry
         [key: 29734] = new MessageRegistryEntry(typeof(Clientbound29734Message), Clientbound29734Message.Decode)
         { CaptureName = "Clientbound29734Message" },
     };
-    /// <summary>Gets all registered packet contracts and their wire versions by id.</summary>
+    // The baseline above is retained once. Each revision starts at its first confirmed
+    // release and remains in effect until the next revision for that message.
+    // Set a revision's id to null to unregister the message from that release onward.
+    private static readonly FrozenDictionary<Type, ProtocolIdChange[]> Changes = new Dictionary<Type, ProtocolIdChange[]>
+    {
+        [typeof(EndClientTurnMessage)] = [new(new Version(major: 1, minor: 73, build: 81), Id: 11657)],
+        [typeof(PerformanceProfilingSettingsMessage)] = [new(PerformanceProfilingSettingsMessage.ReorderedFieldsVersion, Id: 22324)],
+        [typeof(VisitHomeMessage)] = [new(new Version(major: 1, minor: 73, build: 81), Id: null)],
+    }.ToFrozenDictionary();
+
+    private static readonly FrozenDictionary<Type, MessageIdHistory> ByType = Map.ToFrozenDictionary(
+        static pair => pair.Value.Type,
+        static pair => new MessageIdHistory(pair.Value, new ProtocolIdHistory(pair.Key, Changes.GetValueOrDefault(pair.Value.Type) ?? []))
+    );
+
+    private static readonly FrozenDictionary<ushort, MessageIdHistory[]> ById = IndexIds();
+
+    /// <summary>Gets the baseline packet contracts. Use GetId or Is with a game version for active ids.</summary>
     public static IReadOnlyDictionary<ushort, MessageRegistryEntry> Registrations =>
         Map.AsReadOnly();
 
@@ -292,29 +310,34 @@ public static class MessageRegistry
     /// <summary>
     /// Gets <c language="csharp">Id</c>.
     /// </summary>
-    public static ushort GetId<TValue>(TValue message)
+    public static ushort GetId<TValue>(TValue message, Version? gameVersion = null)
         where TValue : IMessage
     {
-        return message is PassthroughMessage passthroughMessage ? passthroughMessage.Id : GetId(message.GetType());
+        return message is PassthroughMessage passthroughMessage ? passthroughMessage.Id : GetId(message.GetType(), gameVersion);
     }
 
     /// <summary>
     /// Gets <c language="csharp">Id</c>.
     /// </summary>
-    public static ushort GetId<TValue>()
+    public static ushort GetId<TValue>(Version? gameVersion = null)
         where TValue : IMessage
     {
-        return GetId(typeof(TValue));
+        return GetId(typeof(TValue), gameVersion);
     }
 
     /// <summary>
     /// Gets <c language="csharp">Id</c>.
     /// </summary>
-    public static ushort GetId(Type type)
+    public static ushort GetId(Type type, Version? gameVersion = null)
     {
-        MessageRegistryEntry entry = GetEntry(type);
+        return checked((ushort)(GetHistory(type).Ids.GetId(gameVersion)
+            ?? throw new NotSupportedException($"Message type {type} is not registered for game version {gameVersion}.")));
+    }
 
-        return Map.First(kv => kv.Value == entry).Key;
+    /// <summary>Recognizes all registered wire ids belonging to the same message contract.</summary>
+    public static bool Is<TMessage>(ushort id, Version? gameVersion = null) where TMessage : IMessage
+    {
+        return FindEntry(id, gameVersion)?.Type == typeof(TMessage);
     }
 
     /// <summary>
@@ -332,18 +355,72 @@ public static class MessageRegistry
     {
         ArgumentNullException.ThrowIfNull(container);
 
-        return !Map.TryGetValue(container.Id, out MessageRegistryEntry? entry)
+        MessageRegistryEntry? entry = FindEntry(container.Id, container.Payload.GameVersion);
+
+        return entry is null
             ? PassthroughMessage.Decode(container)
-            : container.Id == GetId<EndClientTurnMessage>()
+            : entry.Type == typeof(EndClientTurnMessage)
             ? EndClientTurnMessage.Decode(container.Payload, CommandEnvironment.Production, dataResolver)
-            : container.Id == GetId<AvailableServerCommandMessage>()
+            : entry.Type == typeof(AvailableServerCommandMessage)
             ? AvailableServerCommandMessage.Decode(container.Payload, dataResolver)
             : entry.Factory(container.Payload);
     }
 
+    private static MessageRegistryEntry? FindEntry(ushort id, Version? gameVersion)
+    {
+        if (!ById.TryGetValue(id, out MessageIdHistory[]? histories))
+            return null;
+
+        MessageRegistryEntry? entry = null;
+
+        foreach (MessageIdHistory history in histories)
+        {
+            if (gameVersion is not null && history.Ids.GetId(gameVersion) != id)
+                continue;
+
+            if (entry is not null)
+                throw new InvalidDataException($"Packet id {id} has multiple message contracts. Game version: {gameVersion?.ToString() ?? "unknown"}.");
+
+            entry = history.Entry;
+        }
+
+        return entry;
+    }
+
     private static MessageRegistryEntry GetEntry(Type type)
     {
-        return Map.Values.FirstOrDefault(entry => entry.Type == type)
-            ?? throw new InvalidOperationException($"Message type {type} is not registered.");
+        return GetHistory(type).Entry;
+    }
+
+    private static MessageIdHistory GetHistory(Type type)
+    {
+        return ByType.TryGetValue(type, out MessageIdHistory? history)
+            ? history
+            : throw new InvalidOperationException($"Message type {type} is not registered.");
+    }
+
+    private static FrozenDictionary<ushort, MessageIdHistory[]> IndexIds()
+    {
+        Dictionary<ushort, List<MessageIdHistory>> index = [];
+
+        foreach (KeyValuePair<Type, MessageIdHistory> registration in ByType)
+        {
+            MessageIdHistory history = registration.Value;
+
+            foreach (int value in history.Ids.Ids.Distinct())
+            {
+                ushort id = checked((ushort)value);
+
+                if (!index.TryGetValue(id, out List<MessageIdHistory>? histories))
+                {
+                    histories = [];
+                    index.Add(id, histories);
+                }
+
+                histories.Add(history);
+            }
+        }
+
+        return index.ToFrozenDictionary(static pair => pair.Key, static pair => pair.Value.ToArray());
     }
 }

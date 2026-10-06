@@ -19,9 +19,6 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
 
         try
         {
-            await connection.WriteMessageAsync(new VisitHomeMessage { Unknown0 = 0x01, Unknown1 = 0x02 }, MessageDirection.Serverbound, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
-
             await connection.WriteMessageAsync(new VisitHomeTargetMessage { Unknown0 = 0x00, Target = target }, MessageDirection.Serverbound, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 

@@ -2,6 +2,8 @@ using System.Net.Sockets;
 
 using Microsoft.Extensions.Logging;
 
+using Nito.AsyncEx;
+
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Cryptography;
@@ -9,18 +11,24 @@ using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Sessions.Anonymous;
 
 namespace SupercellProxy.Networking.Client;
 
 /// <summary>Authenticates and exchanges protocol messages without executing game actions.</summary>
 public sealed partial class ProtocolClient : IAsyncDisposable
 {
+    private readonly IAnonymousAccountPool? _anonymousAccounts;
+    private readonly AsyncLock _authenticationGate = new();
     private readonly ClientAuthenticator _authenticator;
+    private readonly CancellationTokenSource _lifetime = new();
     private readonly ILogger<ProtocolClient> _logger;
     private readonly IServerPublicKeySource _serverKeys;
     private readonly TimeProvider _timeProvider;
     private readonly HttpClient _webClient;
+    private AnonymousAccountLease? _anonymousLease;
     private HayDayServerKey? _clientVersion;
+    private int _disposed;
     private ClientLoginResult? _login;
     private NetworkStream? _networkStream;
     private TcpClient? _socketClient;
@@ -32,7 +40,8 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         HttpClient webClient,
         TimeProvider timeProvider,
         ILogger<ProtocolClient> logger,
-        IServerPublicKeySource serverKeys
+        IServerPublicKeySource serverKeys,
+        IAnonymousAccountPool? anonymousAccounts = null
     )
     {
         Configuration = configuration;
@@ -40,6 +49,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         _serverKeys = serverKeys;
         _timeProvider = timeProvider;
         _logger = logger;
+        _anonymousAccounts = anonymousAccounts;
         _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
@@ -77,48 +87,53 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol() ?? Configuration.Protocol
         ?? throw new InvalidOperationException(message: "The protocol version has not been resolved. Custom key sources require an explicit version.");
 
-    /// <summary>Creates an anonymous account for this connection without requesting or retaining its home state.</summary>
+    /// <summary>Exclusively reuses a saved anonymous account or creates and saves one, without loading its home.</summary>
     public async Task<ClientLoginResult> ConnectAnonymousAsync(CancellationToken cancellationToken = default)
     {
-        if (_login is not null)
-            return _login;
-
-        LogAuthenticating(_logger);
-        _login = await _authenticator.LoginAnonymousAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
-        if (_login.Resources.Length > 0)
-            Stream.CommandDataResolver = new DataTableResolver(_login.Resources);
-
-        return _login;
+        return await AuthenticateAsync(anonymous: true, requestOwnHome: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>Connects, authenticates, and configures all asset-dependent message codecs.</summary>
     public async Task<ClientLoginResult> ConnectAsync(CancellationToken cancellationToken = default)
     {
-        if (_login is not null)
-            return _login;
-
-        LogAuthenticating(_logger);
-        _login = await _authenticator.LoginAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
-        if (_login.Resources.Length > 0)
-            Stream.CommandDataResolver = new DataTableResolver(_login.Resources);
-
-        return _login;
+        return await AuthenticateAsync(Configuration.AnonymousAccountId is not null, requestOwnHome: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
     /// Provides the Load Catalog Async value or operation.
     /// </summary>
-    public Task<DataTableResolver> LoadCatalogAsync(CancellationToken cancellationToken)
+    public async Task<DataTableResolver> LoadCatalogAsync(CancellationToken cancellationToken)
     {
-        return _authenticator.LoadCatalogAsync(cancellationToken);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+
+        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
+
+        using IDisposable gate = await _authenticationGate.LockAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
+
+        return _login is { Resources.Length: > 0 } login
+            ? new DataTableResolver(login.Resources)
+            : await _authenticator.LoadCatalogAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>Receives and decodes the next message without applying game behavior.</summary>
-    public Task<IMessage> ReceiveAsync(CancellationToken cancellationToken = default)
+    public async Task<IMessage> ReceiveAsync(CancellationToken cancellationToken = default)
     {
-        return Stream.ReadMessageAsync(cancellationToken);
+        MessageStream stream = Stream;
+
+        try
+        {
+            IMessage message = await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            if (message is DisconnectedMessage) await CloseFailedStreamAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+
+            return message;
+        }
+        catch
+        {
+            await CloseFailedStreamAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+
+            throw;
+        }
     }
 
     /// <summary>Runs an authenticated message consumer with protocol keep-alives until disconnected or cancelled.</summary>
@@ -153,25 +168,47 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     }
 
     /// <summary>Sends a public message contract without executing its commands or calculating checksums.</summary>
-    public Task SendAsync(IMessage message, CancellationToken cancellationToken = default)
+    public async Task SendAsync(IMessage message, CancellationToken cancellationToken = default)
     {
-        return Stream.WriteMessageAsync(message, cancellationToken);
+        MessageStream stream = Stream;
+
+        try { await stream.WriteMessageAsync(message, cancellationToken).ConfigureAwait(continueOnCapturedContext: false); }
+        catch
+        {
+            await CloseFailedStreamAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+
+            throw;
+        }
     }
 
-    internal async Task DisconnectAsync(CancellationToken cancellationToken = default)
+    internal async Task CloseTransportAsync()
     {
         _login = null;
-        _supercellStream?.Dispose();
-        _supercellStream = null;
 
-        if (_networkStream is not null)
+        try
         {
-            await _networkStream.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
-            _networkStream = null;
-        }
+            _supercellStream?.Dispose();
 
-        _socketClient?.Dispose();
-        _socketClient = null;
+            if (_networkStream is not null) await _networkStream.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
+        }
+        finally
+        {
+            _socketClient?.Dispose();
+            _supercellStream = null;
+            _networkStream = null;
+            _socketClient = null;
+        }
+    }
+
+    internal async Task DisconnectAsync()
+    {
+        AnonymousAccountLease? lease = Interlocked.Exchange(ref _anonymousLease, value: null);
+
+        try { await CloseTransportAsync().ConfigureAwait(continueOnCapturedContext: false); }
+        finally
+        {
+            if (lease is not null) await lease.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
+        }
     }
 
     internal async Task<MessageStream> GetStreamAsync(CancellationToken cancellationToken = default)
@@ -191,7 +228,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
             _supercellStream = new MessageStream(_networkStream)
             {
                 ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
-                ObserveMessage = Configuration.ObserveMessage,
+                ObserveMessage = ObserveMessageAsync,
                 OutboundMessageVersion = protocol.MessageVersion,
             };
         }
@@ -211,11 +248,28 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     [LoggerMessage(Level = LogLevel.Debug, Message = "Client heartbeat and receive loop stopped.")]
     private static partial void LogLoopsStopped(ILogger logger);
 
+    private async Task CloseFailedStreamAsync(MessageStream stream)
+    {
+        using IDisposable gate = await _authenticationGate.LockAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+        if (ReferenceEquals(stream, _supercellStream)) await DisconnectAsync().ConfigureAwait(continueOnCapturedContext: false);
+    }
+
     /// <summary>Disconnects and releases this client's transport and HTTP client.</summary>
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        await DisconnectAsync().ConfigureAwait(continueOnCapturedContext: false);
-        _webClient.Dispose();
+        if (Interlocked.Exchange(ref _disposed, value: 1) != 0) return;
+
+        await _lifetime.CancelAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+        using IDisposable gate = await _authenticationGate.LockAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+        try { await DisconnectAsync().ConfigureAwait(continueOnCapturedContext: false); }
+        finally
+        {
+            _webClient.Dispose();
+            _lifetime.Dispose();
+        }
     }
 
     private async Task KeepAliveAsync(CancellationToken cancellationToken)

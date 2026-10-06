@@ -32,7 +32,7 @@ public sealed record AvailableServerCommandMessage(Command Command) : IMessage
 
         AvailableServerCommandMessage message = new(command);
         // Container serialization finalizes any trailing packed boolean before comparison.
-        byte[] roundTrip = MessageContainer.Create(message).Payload.ToArray();
+        byte[] roundTrip = MessageContainer.Create(message, gameVersion: stream.GameVersion).Payload.ToArray();
         int difference = 0;
 
         while (difference < payload.Length && difference < roundTrip.Length && payload[difference] == roundTrip[difference])

@@ -189,7 +189,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
         MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
 
-        MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion);
+        MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion, destination.GameVersion);
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
@@ -433,7 +433,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         bool preserveOriginal = (direction is MessageDirection.Clientbound && message is LoginFailedMessage)
             || (TrafficCapture.PreserveForwardedFrames && message is not LoginMessage);
 
-        MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message, original.Version);
+        MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message, original.Version, destination.GameVersion);
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)

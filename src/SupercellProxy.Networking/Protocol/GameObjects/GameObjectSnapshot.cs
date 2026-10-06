@@ -1,8 +1,8 @@
+using SupercellProxy.Networking.Protocol.Boats;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
 using SupercellProxy.Networking.Protocol.Timing;
-using SupercellProxy.Networking.Protocol.Boats;
 using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.Orders;
 using SupercellProxy.Networking.Protocol.Visitors;
@@ -13,12 +13,13 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>
 /// Represents decoded <c language="csharp">GameObjectSnapshot</c> home data.
 /// </summary>
-public sealed record GameObjectSnapshot : ExtensibleDocument
+public sealed partial record GameObjectSnapshot : ExtensibleDocument
 {
     /// <summary>
     /// Gets or sets the <c language="csharp">AccurateX</c> value.
     /// </summary>
     public int? AccurateX { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">AccurateY</c> value.
     /// </summary>
@@ -30,6 +31,15 @@ public sealed record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets per-stand roadside advertisement timers, in native timer ticks.</summary>
     [JsonPropertyName("AdTimers")]
     public int[]? AdvertisementTimers { get; init; }
+    /// <summary>Gets the fishing helper's saved activity and orders.</summary>
+    [JsonPropertyName("Helper")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HelperHouseStateSnapshot? AngusHelper { get; init; }
+
+    /// <summary>Gets the uncollected pearls stored in Angus's bucket.</summary>
+    [JsonPropertyName("PearlCount")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AngusPearlCount { get; init; }
 
     /// <summary>Gets the passenger's sanctuary-visit bonus row.</summary>
     [JsonPropertyName("AnimalBonusID")]

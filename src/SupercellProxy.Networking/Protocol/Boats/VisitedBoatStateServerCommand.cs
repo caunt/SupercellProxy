@@ -36,6 +36,8 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
     /// </summary>
     public override int Type => CommandRegistry.VisitedBoatStateServerCommandType;
 
+    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
+
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
@@ -43,6 +45,18 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
     {
         ArgumentNullException.ThrowIfNull(stream);
 
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            int stateTicks = stream.ReadVarInt();
+            int newState = stream.ReadVarInt();
+            int ownerHigh = stream.ReadVarInt();
+            int stateDuration = stream.ReadVarInt();
+            int orderIndex = stream.ReadVarInt();
+            int expectedState = stream.ReadVarInt();
+            int ownerLow = stream.ReadVarInt();
+
+            return new(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks);
+        }
 
         return new VisitedBoatStateServerCommand(
             stream.ReadVarInt(),
@@ -60,6 +74,19 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
     /// </summary>
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            stream.WriteVarInt(StateTicks);
+            stream.WriteVarInt(NewState);
+            stream.WriteVarInt(OwnerHigh);
+            stream.WriteVarInt(StateDuration);
+            stream.WriteVarInt(OrderIndex);
+            stream.WriteVarInt(ExpectedState);
+            stream.WriteVarInt(OwnerLow);
+
+            return;
+        }
+
         stream.WriteVarInt(NewState);
         stream.WriteVarInt(ExpectedState);
         stream.WriteVarInt(OrderIndex);

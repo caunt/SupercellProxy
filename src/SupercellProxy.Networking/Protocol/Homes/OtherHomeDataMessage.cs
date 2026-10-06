@@ -82,15 +82,15 @@ public record OtherHomeDataMessage : IMessage
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return Decode(stream.ReadToEnd());
+        return Decode(stream.ReadToEnd(), stream.GameVersion);
     }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static OtherHomeDataMessage Decode(Memory<byte> data)
+    public static OtherHomeDataMessage Decode(Memory<byte> data, Version? gameVersion = null)
     {
-        return TryDecode(data, out OtherHomeDataMessage? message) ? message : message with { Fallback = data };
+        return TryDecode(data, gameVersion, out OtherHomeDataMessage? message) ? message : message with { Fallback = data };
     }
 
     /// <summary>
@@ -103,11 +103,12 @@ public record OtherHomeDataMessage : IMessage
         WritePayload(stream);
     }
 
-    private static bool TryDecode(ReadOnlyMemory<byte> data, out OtherHomeDataMessage message)
+    private static bool TryDecode(ReadOnlyMemory<byte> data, Version? gameVersion, out OtherHomeDataMessage message)
     {
         try
         {
             MessageStream stream = MessageStream.Create(data);
+            stream.GameVersion = gameVersion;
 
             try
             {

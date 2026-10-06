@@ -7,6 +7,10 @@ namespace SupercellProxy.Networking.Assets.Tables;
 /// </summary>
 public static class DataTableRegistry
 {
+    /// <summary>The native table id for Angus's fishing-area objects.</summary>
+    public const int AngusDockTableId = 363;
+    /// <summary>The native table id of the supply shed.</summary>
+    public const int SupplyShedTableId = 371;
     private static readonly IReadOnlyDictionary<int, string> NativeDataTableFiles = new Dictionary<
         int,
         string
@@ -361,6 +365,18 @@ public static class DataTableRegistry
         Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
 
         Dictionary<int, string> dataTableFiles = new(NativeDataTableFiles);
+
+        if (resourcesByFile.ContainsKey(GameAssetFiles.SupplyShed))
+            dataTableFiles.Add(SupplyShedTableId, GameAssetFiles.SupplyShed);
+
+        if (resourcesByFile.ContainsKey(GameAssetFiles.AngusDock))
+            dataTableFiles.Add(AngusDockTableId, GameAssetFiles.AngusDock);
+
+        if (resourcesByFile.ContainsKey(GameAssetFiles.AngusCapacity))
+            dataTableFiles.Add(key: 360, GameAssetFiles.AngusCapacity);
+
+        if (resourcesByFile.ContainsKey(GameAssetFiles.BoatTimingModifiers))
+            dataTableFiles.Add(key: 362, GameAssetFiles.BoatTimingModifiers);
 
         if (!resourcesByFile.TryGetValue(GameAssetFiles.ProductionBuildingsGoods, out GameAsset? productionBuildingsGoodsResource))
             throw new InvalidOperationException($"GameAsset {GameAssetFiles.ProductionBuildingsGoods} was not downloaded.");

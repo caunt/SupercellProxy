@@ -16,7 +16,7 @@ public sealed record VisitHomeTargetMessage : IMessage
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
-    public required byte Unknown0 { get; init; }
+    public required int Unknown0 { get; init; }
 
     /// <summary>
     /// Creates a <c language="csharp">VisitHomeTargetMessage</c> from the supplied data.
@@ -27,7 +27,7 @@ public sealed record VisitHomeTargetMessage : IMessage
 
         return new VisitHomeTargetMessage
         {
-            Unknown0 = stream.ReadByte(),
+            Unknown0 = stream.ReadVarInt(),
             Target = stream.ReadLongId(),
         };
     }
@@ -39,7 +39,7 @@ public sealed record VisitHomeTargetMessage : IMessage
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteByte(Unknown0);
+        stream.WriteVarInt(Unknown0);
         stream.WriteLongId(Target);
     }
 }

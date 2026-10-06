@@ -47,6 +47,9 @@ public sealed class MessageStream : IDisposable
     /// Gets or sets the <c language="csharp">CommandDataResolver</c> value.
     /// </summary>
     public ICommandDataResolver? CommandDataResolver { get; set; }
+
+    /// <summary>Gets or sets the full client release governing versioned message bodies.</summary>
+    public Version? GameVersion { get; set; }
     /// <summary>
     /// Gets the <c language="csharp">Length</c> value.
     /// </summary>

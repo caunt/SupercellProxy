@@ -59,12 +59,23 @@ public sealed record CreateRoadsideListingCommand : Command
     /// </summary>
     public bool UsePrimaryInventory { get; }
 
+    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
+
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
     public static CreateRoadsideListingCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            int itemGlobalId = stream.ReadVarInt();
+            bool advertise = stream.ReadBoolean();
+            int slotIndex = stream.ReadVarInt();
+
+            return new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt());
+        }
 
         return new CreateRoadsideListingCommand(stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt());
     }
@@ -74,9 +85,19 @@ public sealed record CreateRoadsideListingCommand : Command
     /// </summary>
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
-        stream.WriteBoolean(Advertise);
-        stream.WriteVarInt(SlotIndex);
-        stream.WriteVarInt(ItemGlobalId);
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            stream.WriteVarInt(ItemGlobalId);
+            stream.WriteBoolean(Advertise);
+            stream.WriteVarInt(SlotIndex);
+        }
+        else
+        {
+            stream.WriteBoolean(Advertise);
+            stream.WriteVarInt(SlotIndex);
+            stream.WriteVarInt(ItemGlobalId);
+        }
+
         stream.WriteBoolean(UsePrimaryInventory);
         stream.WriteVarInt(Price);
         stream.WriteVarInt(Quantity);

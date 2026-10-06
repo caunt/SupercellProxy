@@ -30,7 +30,7 @@ public abstract record Command
     }
 
     /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
+    /// Identifies the command contract. CommandRegistry selects its version-specific wire id.
     /// </summary>
     public abstract int Type { get; }
 

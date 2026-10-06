@@ -6,6 +6,9 @@ namespace SupercellProxy.Networking.Assets;
 /// <summary>Loads a local fingerprint directory for asset-dependent protocol codecs.</summary>
 public static class GameAssetDirectory
 {
+    /// <summary>The original server catalog retained alongside downloaded asset files.</summary>
+    public const string CatalogFileName = "catalog.json";
+
     /// <summary>Reads asset files without constructing or executing game state.</summary>
     public static async Task<DataTableResolver> LoadAsync(string directory, CancellationToken cancellationToken = default)
     {

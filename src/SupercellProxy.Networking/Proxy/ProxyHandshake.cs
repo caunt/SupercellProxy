@@ -11,6 +11,9 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
 {
     internal async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken)
     {
+        if (@event.Message is ClientHelloMessage)
+            @event.Destination.GameVersion = @event.Source.GameVersion;
+
         if (@event.Message is LoginMessage login && @event.Direction is MessageDirection.Serverbound && sessionTokenProvider is not null)
         {
             SessionTokenData token = await sessionTokenProvider(arg1: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

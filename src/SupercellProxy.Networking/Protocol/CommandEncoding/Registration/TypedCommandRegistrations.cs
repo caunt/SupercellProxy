@@ -14,7 +14,6 @@ using SupercellProxy.Networking.Protocol.Events.Tasks;
 using SupercellProxy.Networking.Protocol.Events.TradingSeasons;
 using SupercellProxy.Networking.Protocol.FarmLayouts;
 using SupercellProxy.Networking.Protocol.FarmPass;
-using SupercellProxy.Networking.Protocol.Fishing;
 using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.Forestry;
 using SupercellProxy.Networking.Protocol.GameObjects;
@@ -53,6 +52,13 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [CancelTruckOrderCommandType] = new(
+            typeof(CancelTruckOrderCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, resolver) => CancelTruckOrderCommand.Decode(stream, environment)
+        ),
         [CollectNeighborhoodDonationCommandType] = new CommandRegistryEntry(
             typeof(CollectNeighborhoodDonationCommand),
             MessageDirection.Serverbound,
@@ -221,6 +227,13 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 ActivateBoosterCommand.Decode(stream, environment)
+        ),
+        [DiscardPendingBoosterCommandType] = new CommandRegistryEntry(
+            typeof(DiscardPendingBoosterCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => DiscardPendingBoosterCommand.Decode(stream, environment)
         ),
         [ExchangeBoosterCommandType] = new CommandRegistryEntry(
             typeof(ExchangeBoosterCommand),
@@ -491,6 +504,13 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 MarkChronosEventUserInterfaceOpenedCommand.Decode(stream, environment)
         ),
+        [MarkBoatTrackCycleIntroSeenCommandType] = new CommandRegistryEntry(
+            typeof(Boats.MarkBoatTrackCycleIntroSeenCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => Boats.MarkBoatTrackCycleIntroSeenCommand.Decode(stream, environment)
+        ),
         [BuySeasonalCatalogueGiftCommandType] = new CommandRegistryEntry(
             typeof(BuySeasonalCatalogueGiftCommand),
             MessageDirection.Serverbound,
@@ -618,67 +638,6 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 CollectGathererNestCommand.Decode(stream, environment)
-        ),
-        [SetFishStateCommandType] = new CommandRegistryEntry(
-            typeof(SetFishStateCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter2) =>
-                SetFishStateCommand.Decode(stream, environment)
-        ),
-        [CollectFishingSpotCommandType] = new CommandRegistryEntry(
-            typeof(CollectFishingSpotCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter2) =>
-                CollectFishingSpotCommand.Decode(stream, environment)
-        ),
-        [CollectFishingTrapCommandType] = new CommandRegistryEntry(
-            typeof(CollectFishingTrapCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter) => CollectFishingTrapCommand.Decode(stream, environment)
-        ),
-        [CollectLobsterCommandType] = new CommandRegistryEntry(
-            typeof(CollectFishingAnimalCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter) => CollectFishingAnimalCommand.Decode(stream, environment, duck: false)
-        ),
-        [CollectDuckCommandType] = new CommandRegistryEntry(
-            typeof(CollectFishingAnimalCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter) => CollectFishingAnimalCommand.Decode(stream, environment, duck: true)
-        ),
-        [CompleteFishingCatchCommandType] = new CommandRegistryEntry(
-            typeof(CompleteFishingCatchCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter2) =>
-                CompleteFishingCatchCommand.Decode(stream, environment)
-        ),
-        [PlaceFishingBaitCommandType] = new CommandRegistryEntry(
-            typeof(PlaceFishingBaitCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter2) =>
-                PlaceFishingBaitCommand.Decode(stream, environment)
-        ),
-        [PlaceFishingNetCommandType] = new CommandRegistryEntry(
-            typeof(PlaceFishingNetCommand),
-            MessageDirection.Serverbound,
-            BaseFirst: false,
-            FieldSchemas: null,
-            static (stream, environment, unusedParameter2) =>
-                PlaceFishingNetCommand.Decode(stream, environment)
         ),
         [StartBuildingProductionCommandType] = new CommandRegistryEntry(
             typeof(StartBuildingProductionCommand),
@@ -884,7 +843,14 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 MoveGameObjectCommand.Decode(stream, environment)
         ),
-        [key: 544] = new CommandRegistryEntry(
+        [SetAngusInteractionCommandType] = new CommandRegistryEntry(
+            typeof(Characters.SetAngusInteractionCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter2) => Characters.SetAngusInteractionCommand.Decode(stream, environment)
+        ),
+        [StartHarvestFieldCommandType] = new CommandRegistryEntry(
             typeof(StartHarvestFieldCommand),
             MessageDirection.Serverbound,
             BaseFirst: true,
@@ -892,7 +858,7 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 StartHarvestFieldCommand.Decode(stream, environment)
         ),
-        [key: 506] = new CommandRegistryEntry(
+        [HarvestFieldCommandType] = new CommandRegistryEntry(
             typeof(HarvestFieldCommand),
             MessageDirection.Serverbound,
             BaseFirst: true,
@@ -900,7 +866,7 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 HarvestFieldCommand.Decode(stream, environment)
         ),
-        [key: 657] = new CommandRegistryEntry(
+        [HarvestFieldGainCommandType] = new CommandRegistryEntry(
             typeof(HarvestFieldGainCommand),
             MessageDirection.Serverbound,
             BaseFirst: true,
@@ -930,7 +896,7 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) => Command599.Decode(stream, environment)
         ),
-        [key: 694] = new CommandRegistryEntry(
+        [PostmanStateCommandType] = new CommandRegistryEntry(
             typeof(PostmanStateCommand),
             MessageDirection.Serverbound,
             BaseFirst: true,

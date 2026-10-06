@@ -12,6 +12,9 @@ public sealed record OrderTrackSnapshot
     /// </summary>
     [JsonPropertyName("completed")]
     public int Completed { get; init; }
+    /// <summary>Gets whether the player has seen this boat-track cycle's introduction.</summary>
+    [JsonPropertyName("cycleIntroSeen")]
+    public bool CycleIntroSeen { get; init; }
 
     /// <summary>
     /// Gets the Index value.
@@ -24,6 +27,14 @@ public sealed record OrderTrackSnapshot
     /// </summary>
     [JsonPropertyName("pendingCompletionPoints")]
     public int PendingCompletionPoints { get; init; }
+
+    /// <summary>Gets the boat order associated with pending completion points.</summary>
+    [JsonPropertyName("pendingCompletionPointsOrderId")]
+    public int PendingCompletionPointsOrderId { get; init; } = -1;
+
+    /// <summary>Gets the boat associated with pending completion points.</summary>
+    [JsonPropertyName("pendingCompletionPointsBoatId")]
+    public int PendingCompletionPointsBoatId { get; init; } = -1;
 
     /// <summary>
     /// Gets the Reset Timestamp value.

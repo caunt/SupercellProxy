@@ -18,6 +18,11 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TimerSnapshot? FreeTimer { get; init; }
 
+    /// <summary>Gets Angus's automatic tackle targets in native goods order.</summary>
+    [JsonPropertyName("LureAutoTargets")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int[]? LureAutoTargets { get; init; }
+
     /// <summary>Gets the OfferDeclined value.</summary>
     [JsonPropertyName("OfferDeclined")]
     public bool OfferDeclined { get; init; }

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Protocol.Boats.Snapshots;
 using SupercellProxy.Networking.Protocol.Boosters;
 using SupercellProxy.Networking.Protocol.Creatures;
 using SupercellProxy.Networking.Protocol.Customization;
@@ -25,6 +26,8 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// </summary>
 public sealed record CommonAvatarDataSnapshot
 {
+    /// <summary>Gets the retained boat difficulty pool.</summary>
+    public BoatOrderManagerSnapshot? BoatOrderManager { get; init; }
     /// <summary>
     /// Gets the Boat Track Manager value.
     /// </summary>

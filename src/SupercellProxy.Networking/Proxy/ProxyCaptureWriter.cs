@@ -4,7 +4,10 @@ using System.Text;
 
 using Nito.AsyncEx;
 
+using SupercellProxy.Networking.Captures;
+using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
+using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
 
@@ -15,12 +18,14 @@ public sealed class ProxyCaptureWriter
 {
     private const long MaximumPendingBytes = 64L * 1024 * 1024;
 
-    private readonly string? _directoryPath;
     private readonly AsyncLock _storageLock = new();
     private readonly List<PendingFrame> _pendingFrames = [];
     private readonly Dictionary<ArtifactName, byte[]> _pendingArtifacts = [];
     private readonly TimeProvider _timeProvider;
     private bool _abandoned;
+    private bool _assetsRetained;
+    private string? _directoryPath;
+    private CaptureIdentity? _identity;
     private long _pendingBytes;
     private int _persisted;
     private int _preserveForwardedFrames;
@@ -49,6 +54,9 @@ public sealed class ProxyCaptureWriter
 
     /// <summary>Optionally attaches metadata to each captured frame.</summary>
     public Func<ProxyCapturedFrame, ProxyCaptureAnnotation?>? AnnotateFrame { get; set; }
+
+    /// <summary>Optionally retains recording assets and groups captures by their handshake version.</summary>
+    public CaptureArchive? Archive { get; init; }
 
     /// <summary>Whether capture publication waits for an explicit call to <see cref="PublishAsync"/>.</summary>
     public bool DeferPublication { get; set; }
@@ -92,6 +100,14 @@ public sealed class ProxyCaptureWriter
 
         if (!IsPersisted)
             _abandoned = true;
+    }
+
+    /// <summary>Prepares a recording whose retained window starts after its client handshake.</summary>
+    public async Task PrepareAsync(CaptureIdentity identity, CancellationToken cancellationToken = default)
+    {
+        using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        await PrepareCoreAsync(identity, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>Approves publication once at least one captured frame is available.</summary>
@@ -150,6 +166,24 @@ public sealed class ProxyCaptureWriter
 
         long sequence = ++_sequence;
         byte[] payload = container.Payload.ToArray();
+
+        bool clientHello = Archive is not null && stage == "incoming" && direction == MessageDirection.Serverbound
+            && container.Id == MessageRegistry.GetId<ClientHelloMessage>();
+
+        if (clientHello)
+        {
+            using MessageStream stream = MessageStream.Create(payload);
+
+            CaptureIdentity identity = CaptureIdentity.FromHello(ClientHelloMessage.Decode(stream));
+            ConfigureIdentity(identity);
+        }
+
+        bool loginAccepted = Archive is not null && stage == "incoming" && direction == MessageDirection.Clientbound
+            && container.Id == MessageRegistry.GetId<LoginOkMessage>();
+
+        if (loginAccepted)
+            await PrepareCoreAsync(_identity ?? throw new InvalidDataException(message: "The accepted login has no captured client handshake."), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         byte[] frame = new byte[7 + payload.Length];
 
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 0, length: 2), container.Id);
@@ -237,14 +271,56 @@ public sealed class ProxyCaptureWriter
         }
     }
 
+    private void ConfigureIdentity(CaptureIdentity identity)
+    {
+        CaptureArchive archive = Archive ?? throw new InvalidOperationException(message: "The capture archive is unavailable.");
+
+        if (_identity is not null)
+        {
+            if (_identity != identity) throw new InvalidDataException(message: "A capture cannot change its game version or asset fingerprint.");
+
+            return;
+        }
+
+        if (IsPersisted) throw new InvalidOperationException(message: "The capture was published before its version was selected.");
+
+        string name = Path.GetFileName(_directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled."));
+        _directoryPath = Path.Combine(archive.VersionDirectory(identity), name);
+        _identity = identity;
+    }
+
+    private async Task PrepareCoreAsync(CaptureIdentity identity, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(identity);
+        CaptureArchive archive = Archive ?? throw new InvalidOperationException(message: "The capture archive is unavailable.");
+        ConfigureIdentity(identity);
+
+        if (_assetsRetained) return;
+
+        string retained = await archive.RetainAssetsAsync(identity, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+        if (!Directory.Exists(retained)) throw new DirectoryNotFoundException(message: "The recording's assets were not retained.");
+
+        _assetsRetained = true;
+    }
+
     private async Task PublishPendingCoreAsync(CancellationToken cancellationToken)
     {
         if (_abandoned || IsPersisted || _pendingFrames.Count == 0 || (DeferPublication && !_publicationApproved))
             return;
 
+        // An outdated-content handshake must reach the server even when its old fingerprint is not
+        // available. Only accepted sessions publish a replay archive with retained assets.
+        if (Archive is not null && !_assetsRetained)
+            return;
+
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         DirectoryInfo directory = Directory.CreateDirectory(path);
         TrySetDirectoryPermissions(directory.FullName);
+
+        if (_identity is not null)
+            await _identity.SaveAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         Volatile.Write(ref _persisted, value: 1);
 
         foreach ((ArtifactName artifact, byte[] bytes) in _pendingArtifacts)

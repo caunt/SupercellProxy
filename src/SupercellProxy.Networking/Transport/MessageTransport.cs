@@ -122,7 +122,9 @@ internal sealed class MessageTransport(MessageStream stream)
     internal IMessage ResolveMessage(MessageContainer container)
     {
         ArgumentNullException.ThrowIfNull(container);
+        container.Payload.GameVersion ??= stream.GameVersion;
         IMessage message = MessageRegistry.Resolve(container, stream.CommandDataResolver);
+        ObserveGameVersion(message);
 
         if (container.Payload.Position != container.Payload.Length)
         {
@@ -181,10 +183,19 @@ internal sealed class MessageTransport(MessageStream stream)
     internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
         where TValue : class, IMessage
     {
+        ObserveGameVersion(message);
         ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
 
-        await WriteContainerAsync(MessageContainer.Create(message, version), message, cancellationToken)
+        await WriteContainerAsync(MessageContainer.Create(message, version, stream.GameVersion), message, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+    }
+
+    private void ObserveGameVersion(IMessage message)
+    {
+        if (message is SupercellProxy.Networking.Protocol.Authentication.ClientHelloMessage hello)
+            stream.GameVersion = new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion);
+        else if (message is SupercellProxy.Networking.Protocol.Authentication.LoginMessage login)
+            stream.GameVersion = new Version(login.LoginVersion >> 20, (login.LoginVersion >> 10) & 1023, login.LoginVersion & 1023);
     }
 
     private async ValueTask WriteContainerAsync(MessageContainer messageContainer, IMessage? message, CancellationToken cancellationToken)

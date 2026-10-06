@@ -24,6 +24,9 @@ public sealed record ClientConfiguration(
     string? AssetDirectory = null
 )
 {
+    /// <summary>Selects a saved anonymous account for an own-farm connection.</summary>
+    public long? AnonymousAccountId { get; init; }
+
     /// <summary>Optionally observes received plaintext and successfully written plaintext frames without changing their contents.</summary>
     public Func<MessageDirection, MessageContainer, IMessage?, ValueTask>? ObserveMessage { get; init; }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace SupercellProxy.Networking.Assets;
 
 internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDirectory)
@@ -38,6 +40,11 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
         int downloadedAssetCount = downloadedAssets.Count(static downloaded => downloaded);
 
+        if (resources.Any(static resource => resource is null))
+            throw new IOException($"The asset catalog {fingerprint.Sha} could not be downloaded completely.");
+
+        await SaveCatalogAsync(assetsDirectory.FullName, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         if (downloadedAssetCount > 0)
             Console.WriteLine($"Downloaded {downloadedAssetCount} game assets.");
 
@@ -47,6 +54,22 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     private static async Task<GameAsset> ReadAssetAsync(GameAssetFingerprintEntry file, string filePath, CancellationToken cancellationToken)
     {
         return new GameAsset(file, await File.ReadAllBytesAsync(filePath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+    }
+
+    private static async Task SaveCatalogAsync(string directory, GameAssetFingerprint fingerprint, CancellationToken cancellationToken)
+    {
+        string path = Path.Combine(directory, GameAssetDirectory.CatalogFileName);
+        string temporary = $"{path}.{Guid.NewGuid():N}.pending";
+
+        try
+        {
+            await File.WriteAllBytesAsync(temporary, JsonSerializer.SerializeToUtf8Bytes(fingerprint), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            File.Move(temporary, path, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
     }
 
     private async Task<GameAsset?> GetAssetAsync(

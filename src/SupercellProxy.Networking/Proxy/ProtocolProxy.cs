@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Client;
+using SupercellProxy.Networking.Captures;
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Transport;
@@ -29,6 +30,7 @@ public sealed partial class ProtocolProxy(
 {
     private readonly TaskCompletionSource<IPEndPoint> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
+    private CaptureArchive? _archive;
     private ICommandDataResolver? _commandDataResolver = commandDataResolver;
 
     /// <summary>Completes with the actual endpoint when the listener starts, including an assigned ephemeral port.</summary>
@@ -40,6 +42,7 @@ public sealed partial class ProtocolProxy(
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
+        _archive = configuration.CaptureDirectory is { } captureRoot ? new CaptureArchive(captureRoot, configuration.AssetDirectory) : null;
 
         if (configuration.AssetDirectory is { } directory)
         {
@@ -62,7 +65,7 @@ public sealed partial class ProtocolProxy(
         await RunConnectionsAsync(listener, configuration, lifetime).ConfigureAwait(continueOnCapturedContext: false);
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Saving proxy traffic to {CaptureDirectory}")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Saving versioned proxy recordings under {CaptureDirectory}")]
     private static partial void LogCaptureDirectory(ILogger logger, string captureDirectory);
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Proxy client stopped.")]
@@ -122,9 +125,10 @@ public sealed partial class ProtocolProxy(
         ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, remoteEndPoint, timeProvider)
         {
             DeferPublication = captureSession is not null,
+            Archive = _archive,
         };
 
-        LogCaptureDirectory(logger, trafficCapture.DirectoryPath);
+        if (configuration.CaptureDirectory is { } archiveRoot) LogCaptureDirectory(logger, archiveRoot);
 
         IAsyncDisposable? recording = captureSession is null
             ? null

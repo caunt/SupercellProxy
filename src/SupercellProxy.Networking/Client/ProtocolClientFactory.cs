@@ -2,11 +2,18 @@ using Microsoft.Extensions.Logging;
 
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Sessions.Anonymous;
 
 namespace SupercellProxy.Networking.Client;
 
 /// <summary>Creates independent protocol connections using shared DI infrastructure.</summary>
-public sealed class ProtocolClientFactory(IHttpClientFactory webClients, TimeProvider timeProvider, ILoggerFactory loggerFactory, IServerPublicKeySource serverKeys)
+public sealed class ProtocolClientFactory(
+    IHttpClientFactory webClients,
+    TimeProvider timeProvider,
+    ILoggerFactory loggerFactory,
+    IServerPublicKeySource serverKeys,
+    IAnonymousAccountPool? anonymousAccounts = null
+)
 {
     private const string ClientWebClientName = "ScClient";
 
@@ -18,7 +25,8 @@ public sealed class ProtocolClientFactory(IHttpClientFactory webClients, TimePro
             webClients.CreateClient(ClientWebClientName),
             timeProvider,
             loggerFactory.CreateLogger<ProtocolClient>(),
-            serverKeys
+            serverKeys,
+            anonymousAccounts
         );
     }
 

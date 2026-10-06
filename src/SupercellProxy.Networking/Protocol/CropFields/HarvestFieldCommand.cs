@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 
@@ -9,11 +10,6 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 /// </summary>
 public sealed record HarvestFieldCommand : Command
 {
-    /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 506;
-
     /// <summary>
     /// Initializes a new <see cref="HarvestFieldCommand"/> instance.
     /// </summary>
@@ -31,7 +27,7 @@ public sealed record HarvestFieldCommand : Command
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
-    public override int Type => CommandType;
+    public override int Type => CommandRegistry.HarvestFieldCommandType;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

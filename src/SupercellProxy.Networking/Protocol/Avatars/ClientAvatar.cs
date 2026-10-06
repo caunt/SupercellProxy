@@ -15,17 +15,17 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// </summary>
 public sealed record ClientAvatar
 {
-    /// <summary>Number of encoded inventory arrays.</summary>
-    public const int InventoryArrayCount = 93;
-
-    /// <summary>Number of encoded inventory maps.</summary>
-    public const int InventoryMapCount = 3;
-
     /// <summary>Length of the first fixed progression group.</summary>
     public const int UnknownValues1Count = 11;
 
     /// <summary>Length of the second fixed progression group.</summary>
     public const int UnknownValues2Count = 6;
+
+    /// <summary>Number of inventory arrays in the legacy 1.72 layout.</summary>
+    public static int InventoryArrayCount => AvatarInventoryLayout.Legacy.ArrayCount;
+
+    /// <summary>Number of inventory maps in the legacy 1.72 layout.</summary>
+    public static int InventoryMapCount => AvatarInventoryLayout.Legacy.MapCount;
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AccountId</c> value.
@@ -44,10 +44,9 @@ public sealed record ClientAvatar
     /// Gets the retained birth timestamp used by age restrictions.
     public int BirthTimestamp { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
-    /// </summary>
-    public int[][] InventoryValues { get; init; } = [];
+    /// <summary>Gets the native inventory layout used to decode this avatar.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public AvatarInventoryLayout InventoryLayout { get; init; } = AvatarInventoryLayout.Legacy;
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CanEditFarm</c> value.
@@ -69,6 +68,11 @@ public sealed record ClientAvatar
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
     public LongId HomeId { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// </summary>
+    public int[][] InventoryValues { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
@@ -280,6 +284,7 @@ public sealed record ClientAvatar
             HomeId = homeId,
             AccountId = accountId,
             InventoryValues = inventory.Values,
+            InventoryLayout = AvatarInventoryLayout.ForVersion(stream.GameVersion),
             InventoryMaps = inventory.Maps,
             DeprecatedInventoryDataCount = inventory.DeprecatedDataCount,
             InventoryUnknown0 = inventory.Unknown0,
@@ -333,12 +338,13 @@ public sealed record ClientAvatar
 
     private static AvatarInventorySection DecodeInventory(MessageStream stream)
     {
-        int[][] values = new int[InventoryArrayCount][];
+        AvatarInventoryLayout layout = AvatarInventoryLayout.ForVersion(stream.GameVersion);
+        int[][] values = new int[layout.ArrayCount][];
 
         for (int index = 0; index < values.Length; index++)
             values[index] = stream.ReadArray(static valueStream => valueStream.ReadVarInt());
 
-        DataReferenceValue[][] maps = new DataReferenceValue[InventoryMapCount][];
+        DataReferenceValue[][] maps = new DataReferenceValue[layout.MapCount][];
 
         for (int index = 0; index < maps.Length; index++)
             maps[index] = stream.ReadArray(DataReferenceValue.Decode);
@@ -497,7 +503,7 @@ public sealed record ClientAvatar
 
     private void ValidateEncodableState()
     {
-        if (InventoryValues.Length != InventoryArrayCount || InventoryMaps.Length != InventoryMapCount)
+        if (InventoryValues.Length != InventoryLayout.ArrayCount || InventoryMaps.Length != InventoryLayout.MapCount)
             throw new InvalidOperationException(message: "Unexpected inventory field count.");
 
         if (DeprecatedInventoryDataCount is not 0 || UnknownNullableListCount > 0)

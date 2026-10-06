@@ -16,12 +16,22 @@ public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex,
     /// </summary>
     public override int Type => CommandRegistry.FillBoatCrateCommandType;
 
+    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
+
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
     public static FillBoatCrateCommand Decode(MessageStream stream, CommandEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            bool useDirectRewards = stream.ReadBoolean();
+            bool allowCompletedOrder = stream.ReadBoolean();
+
+            return new FillBoatCrateCommand(useDirectRewards, stream.ReadVarInt(), allowCompletedOrder);
+        }
 
         return new FillBoatCrateCommand(stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadBoolean());
     }
@@ -31,6 +41,15 @@ public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex,
     /// </summary>
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            stream.WriteBoolean(UseDirectRewards);
+            stream.WriteBoolean(AllowCompletedOrder);
+            stream.WriteVarInt(CrateIndex);
+
+            return;
+        }
+
         stream.WriteBoolean(UseDirectRewards);
         stream.WriteVarInt(CrateIndex);
         stream.WriteBoolean(AllowCompletedOrder);

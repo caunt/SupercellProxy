@@ -40,6 +40,8 @@ public sealed record ActivateMovieTicketCommand(
     /// </summary>
     public override int Type => CommandRegistry.ActivateMovieTicketCommandType;
 
+    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
+
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
@@ -47,7 +49,19 @@ public sealed record ActivateMovieTicketCommand(
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        return new ActivateMovieTicketCommand(stream.ReadString(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
+        string requestId = stream.ReadString();
+
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            int dataGlobalId = stream.ReadVarInt();
+            int orderIndex = stream.ReadVarInt();
+            int slotIndex = stream.ReadVarInt();
+            int objectGlobalId = stream.ReadVarInt();
+
+            return new ActivateMovieTicketCommand(requestId, orderIndex, stream.ReadVarInt(), objectGlobalId, dataGlobalId, slotIndex);
+        }
+
+        return new ActivateMovieTicketCommand(requestId, stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
     }
 
     /// <summary>
@@ -56,6 +70,18 @@ public sealed record ActivateMovieTicketCommand(
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteString(RequestId);
+
+        if (stream.GameVersion >= ReorderedFieldsVersion)
+        {
+            stream.WriteVarInt(DataGlobalId);
+            stream.WriteVarInt(OrderIndex);
+            stream.WriteVarInt(SlotIndex);
+            stream.WriteVarInt(ObjectGlobalId);
+            stream.WriteVarInt(TicketIndex);
+
+            return;
+        }
+
         stream.WriteVarInt(OrderIndex);
         stream.WriteVarInt(TicketIndex);
         stream.WriteVarInt(ObjectGlobalId);

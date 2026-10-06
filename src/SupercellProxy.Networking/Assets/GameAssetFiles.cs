@@ -28,6 +28,12 @@ public static partial class GameAssetFiles
     /// <summary>Path of the Angus asset.</summary>
     public const string Angus = "data/angus.csv";
 
+    /// <summary>Path of Angus's storage capacities by farm level.</summary>
+    public const string AngusCapacity = "data/angus_capacity.csv";
+
+    /// <summary>Path of Angus's dock and pearl bucket definitions.</summary>
+    public const string AngusDock = "data/angus_dock.csv";
+
     /// <summary>Path of the Animal Accessories asset.</summary>
     public const string AnimalAccessories = "data/animal_accessories.csv";
 
@@ -97,6 +103,9 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Boat Order Reward Sets asset.</summary>
     public const string BoatOrderRewardSets = "data/boat_order_reward_sets.csv";
+
+    /// <summary>Path of boat stay and return durations by daily completion count.</summary>
+    public const string BoatTimingModifiers = "data/boat_timing_modifiers.csv";
 
     /// <summary>Path of the Boats asset.</summary>
     public const string Boats = "data/boats.csv";

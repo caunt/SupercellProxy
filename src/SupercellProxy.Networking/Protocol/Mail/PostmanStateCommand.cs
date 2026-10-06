@@ -1,19 +1,15 @@
 using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 using SupercellProxy.Networking.Transport;
 
 
 namespace SupercellProxy.Networking.Protocol.Mail;
 
 /// <summary>
-/// <para>Applies the native command-694 postman state transition.</para>
+/// <para>Applies the saved postman state transition.</para>
 /// </summary>
 public sealed record PostmanStateCommand : Command
 {
-    /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 694;
-
     /// <summary>
     /// Defines the <c language="csharp">RequiredState</c> value.
     /// </summary>
@@ -32,7 +28,7 @@ public sealed record PostmanStateCommand : Command
     /// <summary>
     /// Gets the <c language="csharp">Type</c> value.
     /// </summary>
-    public override int Type => CommandType;
+    public override int Type => CommandRegistry.PostmanStateCommandType;
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

@@ -8,12 +8,17 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
 
 /// <summary>Maps native command ids to wire contracts and validates their registered encoding schemas.</summary>
-public static class CommandRegistry
+public static partial class CommandRegistry
 {
     /// <summary>
     /// Provides the Acknowledge Boat Command Type value or operation.
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
+    /// <summary>
+    /// Acknowledges receipt of the platform profiling settings without changing farm state.
+    /// </summary>
+    public const int AcknowledgePerformanceProfilingCommandType = 530;
+
     /// <summary>Activates a booster held in the player's booster storage.</summary>
     public const int ActivateBoosterCommandType = 212;
     /// <summary>Provides the Activate Farm Pass Perk Command Type.</summary>
@@ -36,9 +41,9 @@ public static class CommandRegistry
     /// Provides the Base Event Scene Command Type value or operation.
     /// </summary>
     public const int BaseEventSceneCommandType = 637;
-
     /// <summary>Reports a boat help request result.</summary>
     public const int BoatCrateHelpResponseServerCommandType = 389;
+
     /// <summary>Books a town passenger into a service slot.</summary>
     public const int BookTownPassengerServiceCommandType = 145;
     /// <summary>Buys a package from the ordinary gift catalogue.</summary>
@@ -53,9 +58,11 @@ public static class CommandRegistry
     public const int BuySeasonalCatalogueGiftCommandType = 381;
     /// <summary>Cancels an unsold roadside listing.</summary>
     public const int CancelRoadsideListingCommandType = 589;
-
     /// <summary>Cancels an unstarted service in the player's town.</summary>
     public const int CancelTownServiceCommandType = 147;
+
+    /// <summary>Discards a truck order without paying to skip its replacement timer.</summary>
+    public const int CancelTruckOrderCommandType = 27;
 
     /// <summary>Starts a seasonal creature's catch animation and collection timer.</summary>
     public const int CatchCreatureCommandType = 669;
@@ -141,6 +148,9 @@ public static class CommandRegistry
     /// <summary>Collects eligible letters and their gift-card rewards.</summary>
     public const int CollectAllLettersCommandType = 672;
 
+    /// <summary>Identifies collection from Angus's pearl bucket.</summary>
+    public const int CollectAngusPearlsCommandType = 701;
+
     /// <summary>
     /// Provides the Collect Animal Product Command Type value or operation.
     /// </summary>
@@ -189,6 +199,9 @@ public static class CommandRegistry
     /// <summary>Collects a sanctuary animal from a shared Valley task.</summary>
     public const int CollectMapGameSanctuaryAnimalCommandType = 310;
 
+    /// <summary>Identifies collection of a grown mollusc.</summary>
+    public const int CollectMolluscCommandType = 703;
+
     /// <summary>
     /// Collects the prepared Movie Ticket reward after its activation.
     /// </summary>
@@ -221,6 +234,9 @@ public static class CommandRegistry
     /// </summary>
     public const int CollectWheelRewardCommandType = 80;
 
+    /// <summary>Completes the selected boat order and grants its rewards.</summary>
+    public const int CompleteBoatOrderCommandType = 662;
+
     /// <summary>Provides the Complete Boy Interaction Command Type.</summary>
     public const int CompleteBoyInteractionCommandType = 653;
 
@@ -231,11 +247,11 @@ public static class CommandRegistry
 
     /// <summary>Completes a hooked fishing catch, either keeping it or releasing it.</summary>
     public const int CompleteFishingCatchCommandType = 110;
-
     /// <summary>
     /// Provides the Complete Forest Clearing Command Type value or operation.
     /// </summary>
     public const int CompleteForestClearingCommandType = 20;
+
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
 
@@ -261,6 +277,9 @@ public static class CommandRegistry
     /// </summary>
     public const int DiscardMysteryBoxCommandType = 45;
 
+    /// <summary>Discards one pending booster without changing stored boosters.</summary>
+    public const int DiscardPendingBoosterCommandType = 215;
+
     /// <summary>
     /// Provides the Dismiss Farm Pass Notification Command Type value or operation.
     /// </summary>
@@ -285,20 +304,24 @@ public static class CommandRegistry
     /// <summary>Accepts a waiting farm visitor's goods order.</summary>
     public const int FulfillFarmVisitorOrderCommandType = 569;
 
+    /// <summary>Completes harvesting a crop field.</summary>
+    public const int HarvestFieldCommandType = 506;
+
+    /// <summary>Applies the crop and experience rewards during a field harvest.</summary>
+    public const int HarvestFieldGainCommandType = 657;
+
     /// <summary>Provides the Hire Boy Command Type.</summary>
     public const int HireBoyCommandType = 68;
 
     /// <summary>Hires one farm helper at a configured duration tier.</summary>
     public const int HireHelperCommandType = 204;
     /// <summary>
-    /// Provides the Home Loaded Command Type value or operation.
-    /// </summary>
-    public const int HomeLoadedCommandType = 530;
-
-    /// <summary>
     /// Provides the Load Farm Layouts Command Type value or operation.
     /// </summary>
     public const int LoadFarmLayoutsCommandType = 743;
+
+    /// <summary>Acknowledges the introduction of a boat-track reward cycle.</summary>
+    public const int MarkBoatTrackCycleIntroSeenCommandType = 702;
 
     /// <summary>
     /// Provides the Mark Chain Offer Seen Command Type value or operation.
@@ -381,6 +404,9 @@ public static class CommandRegistry
     /// <summary>Updates points for an active Neighborhood Object event.</summary>
     public const int NeighborhoodObjectPointsServerCommandType = 384;
 
+    /// <summary>Identifies opening a stored mollusc with Angus.</summary>
+    public const int OpenMolluscCommandType = 704;
+
     /// <summary>
     /// Provides the Open Mystery Box Command Type value or operation.
     /// </summary>
@@ -405,6 +431,9 @@ public static class CommandRegistry
 
     /// <summary>Pops an unpopped balloon and collects its selected reward.</summary>
     public const int PopBalloonCommandType = 98;
+
+    /// <summary>Applies the saved postman state transition.</summary>
+    public const int PostmanStateCommandType = 694;
 
     /// <summary>Processes the helper's confirmed boat-crate payment.</summary>
     public const int ProcessBoatCrateHelpServerCommandType = 304;
@@ -447,6 +476,12 @@ public static class CommandRegistry
     /// Provides the Remote Order Updates Server Command Type value or operation.
     /// </summary>
     public const int RemoteOrderUpdatesServerCommandType = 263;
+
+    /// <summary>Removes a departing duck from the duck salon.</summary>
+    public const int RemoveDuckCommandType = 161;
+
+    /// <summary>Removes a departing lobster from the lobster pool.</summary>
+    public const int RemoveLobsterCommandType = 122;
 
     /// <summary>Removes one pending Valley notification after presentation.</summary>
     public const int RemoveMapGameNotificationCommandType = 288;
@@ -521,6 +556,9 @@ public static class CommandRegistry
     /// </summary>
     public const int ServerCommand148Type = 148;
 
+    /// <summary>Identifies the Angus interaction contract, which has no baseline wire id.</summary>
+    public const int SetAngusInteractionCommandType = 700;
+
     /// <summary>Provides the Set Boy Offer Flag Command Type.</summary>
     public const int SetBoyOfferFlagCommandType = 132;
 
@@ -562,6 +600,9 @@ public static class CommandRegistry
     /// Provides the Start Forest Clearing Command Type value or operation.
     /// </summary>
     public const int StartForestClearingCommandType = 18;
+
+    /// <summary>Starts harvesting a ready crop field.</summary>
+    public const int StartHarvestFieldCommandType = 544;
 
     /// <summary>Starts clearing a depleted fruit tree or gatherer source.</summary>
     public const int StartPlantClearingCommandType = 60;
@@ -667,6 +708,7 @@ public static class CommandRegistry
     public static Command Decode(int commandType, MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
+        commandType = GetCommandType(commandType, stream.GameVersion);
 
         if (!Entries.TryGetValue(commandType, out CommandRegistryEntry? entry))
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {commandType} is not supported."));
@@ -704,7 +746,7 @@ public static class CommandRegistry
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {command.Type} is not supported."));
 
         EnsureAllowedEnvironment(command.Type, environment);
-        stream.WriteVarInt(command.Type);
+        stream.WriteVarInt(GetId(command, stream.GameVersion));
 
         if (entry.BaseFirst)
             CommandMetadata.Encode(stream, command, environment);
@@ -816,6 +858,10 @@ public static class CommandRegistry
     private static Dictionary<int, CommandRegistryEntry> CreateEntries()
     {
         Dictionary<int, CommandRegistryEntry> entries = new(TypedCommandRegistrations.Entries);
+
+        foreach (KeyValuePair<int, CommandRegistryEntry> entry in FishingCommandRegistrations.Entries)
+            entries.Add(entry.Key, entry.Value);
+
         AddVarCommandEntries(entries);
         AddPrimitiveSchemas(entries, PrimitiveCommandSchemas.Entries);
         StructuredCommandRegistrations.AddStructuredCommands(entries);
@@ -828,7 +874,6 @@ public static class CommandRegistry
         if (environment is CommandEnvironment.Production && NonProductionCommandTypes.Contains(commandType))
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command type {commandType} is not allowed in the production environment."));
     }
-
 
     private static CommandRegistryEntry? FindEntry(int type)
     {
