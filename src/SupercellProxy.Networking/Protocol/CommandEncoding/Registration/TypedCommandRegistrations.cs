@@ -504,6 +504,13 @@ internal static class TypedCommandRegistrations
             static (stream, environment, unusedParameter2) =>
                 MarkChronosEventUserInterfaceOpenedCommand.Decode(stream, environment)
         ),
+        [ToggleEventTypeLikeCommandType] = new CommandRegistryEntry(
+            typeof(ToggleEventTypeLikeCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedParameter) => ToggleEventTypeLikeCommand.Decode(stream, environment)
+        ),
         [MarkBoatTrackCycleIntroSeenCommandType] = new CommandRegistryEntry(
             typeof(Boats.MarkBoatTrackCycleIntroSeenCommand),
             MessageDirection.Serverbound,

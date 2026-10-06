@@ -629,6 +629,9 @@ public static partial class CommandRegistry
     /// <summary>Plays the tap reaction of an available Sanctuary animal.</summary>
     public const int TapSanctuaryAnimalCommandType = 220;
 
+    /// <summary>Toggles an event type's liked state using a linked event instance.</summary>
+    public const int ToggleEventTypeLikeCommandType = 565;
+
     /// <summary>Applies a town-passenger action.</summary>
     public const int TownPassengerActionCommandType = 140;
 

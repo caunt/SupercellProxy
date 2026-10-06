@@ -19,7 +19,6 @@ internal static class PrimitiveCommandSchemas
                 556,
                 558,
                 559,
-                565,
                 597,
                 602,
                 605,

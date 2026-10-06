@@ -86,6 +86,12 @@ public static class MessageRegistry
         { CaptureName = nameof(RequestOwnFishingHomeMessage) },
         [key: 18335] = new MessageRegistryEntry(typeof(FollowMessage), FollowMessage.Decode)
         { CaptureName = nameof(FollowMessage) },
+        [key: 14664] = new MessageRegistryEntry(typeof(UnfollowMessage), UnfollowMessage.Decode)
+        { CaptureName = nameof(UnfollowMessage) },
+        [key: 15117] = new MessageRegistryEntry(typeof(LikeFarmMessage), LikeFarmMessage.Decode)
+        { CaptureName = nameof(LikeFarmMessage) },
+        [key: 16037] = new MessageRegistryEntry(typeof(RequestFarmLikeStatusMessage), RequestFarmLikeStatusMessage.Decode)
+        { CaptureName = nameof(RequestFarmLikeStatusMessage) },
         [key: 21236] = new MessageRegistryEntry(typeof(FollowResponseMessage), FollowResponseMessage.Decode)
         { CaptureName = nameof(FollowResponseMessage) },
         [key: 19845] = new MessageRegistryEntry(typeof(RequestFollowerListPageMessage), RequestFollowerListPageMessage.Decode)
@@ -136,7 +142,7 @@ public static class MessageRegistry
         [key: 22158] = new MessageRegistryEntry(typeof(RoadsideBuyerMessage), RoadsideBuyerMessage.Decode)
         { CaptureName = "RoadsideBuyerMessage" },
 
-        [key: 26668] = new MessageRegistryEntry(typeof(HomeVisitStatusMessage), HomeVisitStatusMessage.Decode)
+        [key: 26668] = new MessageRegistryEntry(typeof(FarmLikeStatusMessage), FarmLikeStatusMessage.Decode)
         { CaptureName = "Clientbound26668Message" },
 
         [key: 20100] = new MessageRegistryEntry(typeof(ServerHelloMessage), ServerHelloMessage.Decode)

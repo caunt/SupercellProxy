@@ -2,38 +2,27 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Transport;
 
 
-namespace SupercellProxy.Networking.Protocol.Homes;
+namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// <summary>
-/// Defines the Clientbound26668 Message contract.
-/// </summary>
-/// <summary>
-/// Defines the Home Owner Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Visitor Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Flag contract.
-/// </summary>
-public sealed record HomeVisitStatusMessage(
+/// <summary>Reports whether a particular visitor has liked a farm.</summary>
+public sealed record FarmLikeStatusMessage(
     [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
     [property: System.Text.Json.Serialization.JsonPropertyName("VisitorId")] LongId VisitorId,
-    bool Flag
+    bool HasLiked
 )
     : IMessage
 {
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static HomeVisitStatusMessage Decode(MessageStream stream)
+    public static FarmLikeStatusMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        HomeVisitStatusMessage result = new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadBoolean());
+        FarmLikeStatusMessage result = new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadBoolean());
 
         return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The visit-pair status has trailing data.")
+            ? throw new InvalidDataException(message: "The farm-like status has trailing data.")
             : result;
     }
 
@@ -46,7 +35,7 @@ public sealed record HomeVisitStatusMessage(
 
         stream.WriteLongId(HomeOwnerId);
         stream.WriteLongId(VisitorId);
-        stream.WriteBoolean(Flag);
+        stream.WriteBoolean(HasLiked);
     }
 
     /// <summary>
@@ -54,6 +43,6 @@ public sealed record HomeVisitStatusMessage(
     /// </summary>
     public override string ToString()
     {
-        return nameof(HomeVisitStatusMessage);
+        return nameof(FarmLikeStatusMessage);
     }
 }
