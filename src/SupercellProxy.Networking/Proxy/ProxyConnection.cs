@@ -14,6 +14,7 @@ using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Turns;
 using SupercellProxy.Networking.Sessions;
+using SupercellProxy.Networking.Sessions.Anonymous;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -32,6 +33,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         ProxyCaptureWriter trafficCapture,
         Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider,
         ILogger? logger,
+        AnonymousAccountLease? anonymousAccount,
         CancellationToken cancellationToken
     )
     {
@@ -44,7 +46,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         TrafficCapture = trafficCapture;
         RemoteEndPoint = socketClient.GetRemoteEndPoint();
-        _handshake = new ProxyHandshake(sessionTokenProvider);
+        _handshake = new ProxyHandshake(sessionTokenProvider, anonymousAccount);
     }
 
     /// <summary>
@@ -98,7 +100,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// <summary>
     /// Provides the Connect Async value or operation.
     /// </summary>
-    public static async Task<ProxyConnection> ConnectAsync(
+    public static Task<ProxyConnection> ConnectAsync(
         TcpClient socketClient,
         string upstreamHost,
         int upstreamPort,
@@ -110,8 +112,36 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationToken cancellationToken = default
     )
     {
+        return ConnectAsync(
+            socketClient,
+            upstreamHost,
+            upstreamPort,
+            trafficCapture,
+            sessionTokenProvider,
+            serverKeys,
+            commandDataResolver,
+            logger,
+            anonymousAccount: null,
+            cancellationToken
+        );
+    }
+
+    /// <summary>Opens a proxy connection using a host-owned anonymous account lease.</summary>
+    public static async Task<ProxyConnection> ConnectAsync(
+        TcpClient socketClient,
+        string upstreamHost,
+        int upstreamPort,
+        ProxyCaptureWriter trafficCapture,
+        Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider,
+        IServerPublicKeySource? serverKeys,
+        ICommandDataResolver? commandDataResolver,
+        ILogger? logger,
+        AnonymousAccountLease? anonymousAccount,
+        CancellationToken cancellationToken = default
+    )
+    {
         ArgumentNullException.ThrowIfNull(socketClient);
-        ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, cancellationToken);
+        ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, anonymousAccount, cancellationToken);
 
         try
         {

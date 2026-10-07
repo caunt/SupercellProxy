@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
+using SupercellProxy.Networking.Protocol.Boats;
 using SupercellProxy.Networking.Protocol.Timing;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
@@ -43,11 +44,11 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// </summary>
     public int[] Amounts { get; init; } = [];
 
-
     /// <summary>
     /// Gets or sets the <c language="csharp">Exp</c> value.
     /// </summary>
     public int Exp { get; init; }
+
 
     /// Gets the helper completion checksum flag.
     [JsonPropertyName("HC")]
@@ -64,15 +65,20 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// Gets the helper reward data checksum value.
     [JsonPropertyName("HRD")]
     public int? HelperRewardData { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Lvl</c> value.
     /// </summary>
     public int Lvl { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">New</c> value.
     /// </summary>
     public bool New { get; init; }
+
+    /// <summary>Gets the promotion reward attached to this truck order.</summary>
+    [JsonPropertyName("PopPromoBox")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BoatPromotionRewardSnapshot? PromotionReward { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Receiver</c> value.

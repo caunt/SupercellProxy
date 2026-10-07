@@ -1,4 +1,6 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
+using SupercellProxy.Networking.Protocol.Events.Derby.Messages;
+using SupercellProxy.Networking.Protocol.Events.Derby.Race;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
@@ -6,8 +8,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 /// <summary>Clientbound league-member list with two native selection values.</summary>
 public sealed record LeagueMemberListMessage : IMessage
 {
-    /// <summary>Gets the count of the optional entry list; only its empty form is currently understood.</summary>
-    public int? EntryCount { get; init; }
+    /// <summary>Gets the optional neighborhood race entries.</summary>
+    public DerbyRaceEntry[]? Entries { get; init; }
+
+    /// <summary>Gets the optional entry count, including existing empty-page callers.</summary>
+    public int? EntryCount { get => Entries?.Length ?? field; init; }
 
     /// <summary>Gets the first native stream selector.</summary>
     public int FirstSelector { get; init; }
@@ -15,10 +20,13 @@ public sealed record LeagueMemberListMessage : IMessage
     /// <summary>Gets the second native stream selector.</summary>
     public int SecondSelector { get; init; }
 
+    /// <summary>Gets the optional native derby race supplement.</summary>
+    public DerbyBoardSupplement? Supplement { get; init; }
+
     /// <summary>Gets the seconds timestamp carried by this stream page.</summary>
     public int TimestampSeconds { get; init; }
 
-    /// <summary>Decodes the proven empty-list form of a league-member list message.</summary>
+    /// <summary>Decodes the complete native race page.</summary>
     public static LeagueMemberListMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -27,14 +35,16 @@ public sealed record LeagueMemberListMessage : IMessage
         int secondSelector = stream.ReadVarInt();
         int count = stream.ReadVarInt();
 
-        if (count is < -1 or > 1024)
+        if (count < -1 || count > stream.Length - stream.Position)
             throw new InvalidDataException(message: "The avatar-stream entry count is invalid.");
 
-        if (count > 0)
-            throw new NotSupportedException(message: "Nonempty avatar-stream entries have an unconfirmed layout.");
+        DerbyRaceEntry[]? entries = count < 0 ? null : new DerbyRaceEntry[count];
 
-        if (stream.ReadBoolean())
-            throw new NotSupportedException(message: "The avatar-stream supplemental entry has an unconfirmed layout.");
+        if (entries is not null)
+        {
+            for (int index = 0; index < entries.Length; index++)
+                entries[index] = DerbyRaceEntry.Decode(stream);
+        }
 
         LeagueMemberListMessage message = new()
         {
@@ -42,6 +52,8 @@ public sealed record LeagueMemberListMessage : IMessage
             FirstSelector = firstSelector,
             SecondSelector = secondSelector,
             EntryCount = count < 0 ? null : count,
+            Entries = entries,
+            Supplement = stream.ReadBoolean() ? DerbyBoardSupplement.Decode(stream) : null,
         };
 
         return stream.Position != stream.Length
@@ -49,22 +61,30 @@ public sealed record LeagueMemberListMessage : IMessage
             : message;
     }
 
-    /// <summary>Encodes the proven empty-list form of a league-member list message.</summary>
+    /// <summary>Encodes the complete native race page.</summary>
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        if (EntryCount is < 0 or > 1024)
+        if (EntryCount is < 0)
             throw new InvalidDataException(message: "The avatar-stream entry count is invalid.");
 
-        if (EntryCount is > 0)
-            throw new NotSupportedException(message: "Nonempty avatar-stream entries have an unconfirmed layout.");
+        if (EntryCount is > 0 && Entries is null)
+            throw new NotSupportedException(message: "The declared race entry count requires concrete entry data.");
 
         stream.WriteVarInt(TimestampSeconds);
         stream.WriteVarInt(FirstSelector);
         stream.WriteVarInt(SecondSelector);
         stream.WriteVarInt(EntryCount ?? -1);
-        stream.WriteBoolean(value: false);
+
+        if (Entries is not null)
+        {
+            foreach (DerbyRaceEntry entry in Entries)
+                entry.Encode(stream);
+        }
+
+        stream.WriteBoolean(Supplement is not null);
+        Supplement?.Encode(stream);
     }
 
     /// <summary>Omits stream contents from diagnostic text.</summary>

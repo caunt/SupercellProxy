@@ -6,6 +6,8 @@ public static partial class CommandRegistry
 {
     private static readonly FrozenDictionary<int, ProtocolIdHistory> IdChanges = new Dictionary<int, ProtocolIdHistory>
     {
+        [ResetDerbyRewardsCommandType] = new(ResetDerbyRewardsCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 538)]),
+        [ClearActiveDerbyTaskCommandType] = new(ClearActiveDerbyTaskCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 536)]),
         [ToggleEventTypeLikeCommandType] = new(ToggleEventTypeLikeCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 526)]),
         [SetAngusInteractionCommandType] = new(baselineId: null, [new(Characters.SetAngusInteractionCommand.SinceVersion, Id: 582)]),
         [CollectAngusPearlsCommandType] = new(baselineId: null, [new(Characters.SetAngusInteractionCommand.SinceVersion, Id: 545)]),

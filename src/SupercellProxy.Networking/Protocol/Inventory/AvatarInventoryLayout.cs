@@ -116,11 +116,14 @@ public sealed class AvatarInventoryLayout
     /// <summary>The 1.73 layout adds mollusc goods, mollusc beds, the supply shed, and Angus's store.</summary>
     public static AvatarInventoryLayout WithAngus { get; } = new([.. LegacyUnlockTableIds, 353, 354, Assets.Tables.DataTableRegistry.SupplyShedTableId], mapCount: 4);
 
-    /// <summary>Includes the ordered unlock bitsets and the final special-value list.</summary>
+    /// <summary>Includes the ordered unlock bitsets and the final shop-badge list.</summary>
     public int ArrayCount => _unlockTableIds.Length + 1;
 
     /// <summary>Gets the primary and helper inventory map count.</summary>
     public int MapCount { get; }
+
+    /// <summary>Gets the array containing data ids with new-item shop badges.</summary>
+    public int ShopBadgeArrayIndex => _unlockTableIds.Length;
 
     /// <summary>Gets the table ids in native ascending serialization order.</summary>
     public ReadOnlyCollection<int> UnlockTableIds { get; }

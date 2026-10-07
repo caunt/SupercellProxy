@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
+using SupercellProxy.Networking.Protocol.Boats;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
@@ -27,9 +28,9 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     /// <summary>Gets the BonusGlobalId value.</summary>
     [JsonPropertyName("BonusGlobalID")]
     public int BonusGlobalId { get; init; }
+
     /// <summary>Gets the Cash value.</summary>
     public int Cash { get; init; }
-
     /// <summary>Gets the Experience value.</summary>
     [JsonPropertyName("Exp")]
     public int Experience { get; init; }
@@ -45,4 +46,9 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     /// <summary>Gets the ItemGlobalId value.</summary>
     [JsonPropertyName("ItemGlobalID")]
     public int ItemGlobalId { get; init; }
+
+    /// <summary>Gets the promotion box carried by the delivery.</summary>
+    [JsonPropertyName("PopPromoBox")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BoatPromotionRewardSnapshot? PromotionReward { get; init; }
 }

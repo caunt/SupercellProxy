@@ -38,6 +38,12 @@ public sealed record MapGameEvent
     /// <summary>Assigns an existing shared sanctuary-animal task to a Valley participant.</summary>
     public const int SanctuaryAnimalCollectedType = 32;
 
+    /// <summary>Expires an existing task in the shared task group.</summary>
+    public const int SharedTaskExpiredType = 9;
+
+    /// <summary>Removes an existing task from the shared task group.</summary>
+    public const int SharedTaskRemovedType = 10;
+
     /// <summary>Replaces a task in the shared task group.</summary>
     public const int SharedTaskUpdatedType = 11;
 
@@ -161,8 +167,8 @@ public sealed record MapGameEvent
             schemas[PawnTaskExpiredType] = pawnAndTask;
             schemas[TaskRemovedType] = pawnAndTask;
             schemas[PawnTaskUpdatedType] = pawnAndTask;
-            schemas[key: 9] = pawnAndTask;
-            schemas[key: 10] = pawnAndTask;
+            schemas[SharedTaskExpiredType] = pawnAndTask;
+            schemas[SharedTaskRemovedType] = pawnAndTask;
             schemas[SharedTaskUpdatedType] = pawnAndTask;
             schemas[key: 12] = pawnAndTask;
             schemas[key: 13] = pawnAndTask;

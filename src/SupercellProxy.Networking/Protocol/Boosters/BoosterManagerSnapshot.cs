@@ -6,6 +6,9 @@ public sealed record BoosterManagerSnapshot
     /// <summary>Gets the currently active Fresh Beats.</summary>
     public BoosterListSnapshot? BeatList { get; init; }
 
+    /// <summary>Gets the Fresh Beats retained for later activation.</summary>
+    public BoosterStorageSnapshot? BeatStorage { get; init; }
+
     /// <summary>Gets the currently active boosters.</summary>
     public BoosterListSnapshot? BoosterList { get; init; }
 

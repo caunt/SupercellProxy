@@ -14,6 +14,7 @@ public static partial class CommandRegistry
     /// Provides the Acknowledge Boat Command Type value or operation.
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
+
     /// <summary>
     /// Acknowledges receipt of the platform profiling settings without changing farm state.
     /// </summary>
@@ -27,6 +28,9 @@ public static partial class CommandRegistry
     /// Provides the Activate Movie Ticket Command Type value or operation.
     /// </summary>
     public const int ActivateMovieTicketCommandType = 643;
+
+    /// <summary>Adds new-item badges to the shop.</summary>
+    public const int AddShopBadgesCommandType = 668;
     /// <summary>
     /// Provides the Advance Boat State Command Type value or operation.
     /// </summary>
@@ -43,11 +47,11 @@ public static partial class CommandRegistry
     public const int BaseEventSceneCommandType = 637;
     /// <summary>Reports a boat help request result.</summary>
     public const int BoatCrateHelpResponseServerCommandType = 389;
-
     /// <summary>Books a town passenger into a service slot.</summary>
     public const int BookTownPassengerServiceCommandType = 145;
     /// <summary>Buys a package from the ordinary gift catalogue.</summary>
     public const int BuyCatalogueGiftCommandType = 104;
+
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>
@@ -60,10 +64,8 @@ public static partial class CommandRegistry
     public const int CancelRoadsideListingCommandType = 589;
     /// <summary>Cancels an unstarted service in the player's town.</summary>
     public const int CancelTownServiceCommandType = 147;
-
     /// <summary>Discards a truck order without paying to skip its replacement timer.</summary>
     public const int CancelTruckOrderCommandType = 27;
-
     /// <summary>Starts a seasonal creature's catch animation and collection timer.</summary>
     public const int CatchCreatureCommandType = 669;
 
@@ -71,6 +73,9 @@ public static partial class CommandRegistry
     /// Provides the Check Mystery Box Lock Command Type value or operation.
     /// </summary>
     public const int CheckMysteryBoxLockCommandType = 46;
+
+    /// <summary>Claims an account-link reward.</summary>
+    public const int ClaimAccountLinkRewardCommandType = 300;
 
     /// <summary>
     /// Provides the Claim Achievement Reward Command Type value or operation.
@@ -99,9 +104,9 @@ public static partial class CommandRegistry
 
     /// <summary>Provides the Claim Farm Pass Baby Pet Reward Command Type.</summary>
     public const int ClaimFarmPassBabyPetRewardCommandType = 346;
+
     /// <summary>Provides the Claim Farm Pass Level Reward Command Type.</summary>
     public const int ClaimFarmPassLevelRewardCommandType = 336;
-
     /// <summary>Claims the selected Valley fuel prize.</summary>
     public const int ClaimMapGameFuelPrizeCommandType = 614;
 
@@ -221,6 +226,9 @@ public static partial class CommandRegistry
     /// <summary>Collects the last pending sanctuary visitor gift in town.</summary>
     public const int CollectSanctuaryVisitorGiftCommandType = 566;
 
+    /// <summary>Collects a seasonal gift such as the Halloween ghost chicken.</summary>
+    public const int CollectSeasonalCollectibleCommandType = 128;
+
     /// <summary>Collects a completed town service.</summary>
     public const int CollectTownServiceCommandType = 144;
 
@@ -247,11 +255,11 @@ public static partial class CommandRegistry
 
     /// <summary>Completes a hooked fishing catch, either keeping it or releasing it.</summary>
     public const int CompleteFishingCatchCommandType = 110;
+
     /// <summary>
     /// Provides the Complete Forest Clearing Command Type value or operation.
     /// </summary>
     public const int CompleteForestClearingCommandType = 20;
-
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
 
@@ -315,11 +323,11 @@ public static partial class CommandRegistry
 
     /// <summary>Hires one farm helper at a configured duration tier.</summary>
     public const int HireHelperCommandType = 204;
+
     /// <summary>
     /// Provides the Load Farm Layouts Command Type value or operation.
     /// </summary>
     public const int LoadFarmLayoutsCommandType = 743;
-
     /// <summary>Acknowledges the introduction of a boat-track reward cycle.</summary>
     public const int MarkBoatTrackCycleIntroSeenCommandType = 702;
 
@@ -384,6 +392,9 @@ public static partial class CommandRegistry
     /// Provides the Mark Task Event Seen Command Type value or operation.
     /// </summary>
     public const int MarkTaskEventSeenCommandType = 359;
+
+    /// <summary>Records the current terms-of-service notice version as seen.</summary>
+    public const int MarkTermsOfServiceSeenCommandType = 683;
 
     /// <summary>Records the trading season most recently checked by the player.</summary>
     public const int MarkTradingSeasonCheckedCommandType = 202;
@@ -863,6 +874,9 @@ public static partial class CommandRegistry
         Dictionary<int, CommandRegistryEntry> entries = new(TypedCommandRegistrations.Entries);
 
         foreach (KeyValuePair<int, CommandRegistryEntry> entry in FishingCommandRegistrations.Entries)
+            entries.Add(entry.Key, entry.Value);
+
+        foreach (KeyValuePair<int, CommandRegistryEntry> entry in DerbyCommandRegistrations.Entries)
             entries.Add(entry.Key, entry.Value);
 
         AddVarCommandEntries(entries);

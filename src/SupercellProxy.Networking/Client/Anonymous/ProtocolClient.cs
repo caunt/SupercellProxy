@@ -119,7 +119,14 @@ public sealed partial class ProtocolClient
 
         if (level is null) return;
 
-        lease.Observe(new(avatar.FarmName, level.Value, experience ?? 0));
+        lease.Observe(
+            new(avatar.FarmName, level.Value, experience ?? 0)
+            {
+                HomeId = avatar.HomeId.AsInt64,
+                Coins = ProfileValue(resolver, avatar, resource: "Cash"),
+                Diamonds = ProfileValue(resolver, avatar, resource: "Diamonds"),
+            }
+        );
     }
 
     private async ValueTask ObserveMessageAsync(MessageDirection direction, MessageContainer container, IMessage? message)

@@ -50,7 +50,7 @@ internal static class PrimitiveCommandSchemas
         new( [ 130, SetBoyOfferFlagCommandType, 196 ], [ CommandFieldType.Boolean ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 138, 334 ], [ CommandFieldType.LongId ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 33 ], [ CommandFieldType.UInt16 ], MessageDirection.Serverbound, baseFirst: false ),
-        new( [ 240, 300 ], [ CommandFieldType.Int32 ], MessageDirection.Serverbound, baseFirst: false ),
+        new( [ 240 ], [ CommandFieldType.Int32 ], MessageDirection.Serverbound, baseFirst: false ),
         new(
             [
                 15,
@@ -80,7 +80,6 @@ internal static class PrimitiveCommandSchemas
                 115,
                 123,
                 125,
-                128,
                 MarkNeighborhoodChatReadCommandType,
                 150,
                 155,
@@ -106,7 +105,6 @@ internal static class PrimitiveCommandSchemas
                 241,
                 297,
                 324,
-                326,
                 329,
                 330,
                 335,
@@ -122,8 +120,7 @@ internal static class PrimitiveCommandSchemas
         new( [ 54 ], new CommandFieldType[1], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 152 ], [ CommandFieldType.VarIntArray ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 303, 318 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound, baseFirst: false ),
-        new( [ 135 ], [ CommandFieldType.LongId ], MessageDirection.Clientbound, baseFirst: false ),
-        new( [ 38, 181, 184, 269 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
+        new( [ 38, 269 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 25 ], [ CommandFieldType.VarInt, CommandFieldType.Byte ], MessageDirection.Serverbound, baseFirst: false ),
         new(
             [ 86 ],
@@ -167,7 +164,7 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new(
-            [ 178, 213 ],
+            [ 213 ],
             [
                 CommandFieldType.VarInt,
                 CommandFieldType.Boolean,
@@ -186,48 +183,14 @@ internal static class PrimitiveCommandSchemas
             MessageDirection.Serverbound,
             baseFirst: false
         ),
-        new([169, 250, 251, MarkTaskEventSeenCommandType], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false),
+        new([250, 251, MarkTaskEventSeenCommandType], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false),
 
-        new(
-            [ 179 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.LongId,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 171 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.LongId,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.Boolean,
-                CommandFieldType.VarInt,
-                CommandFieldType.Boolean,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
         new(
             [ 207 ],
             [
                 CommandFieldType.VarInt,
                 CommandFieldType.LongId,
                 CommandFieldType.LongId,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 211 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.LongId,
-                CommandFieldType.Boolean,
             ],
             MessageDirection.Clientbound,
             baseFirst: false
@@ -254,28 +217,6 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VarInt,
                 CommandFieldType.VarInt,
                 CommandFieldType.String,
-            ],
-            MessageDirection.Serverbound,
-            baseFirst: false
-        ),
-        new(
-            [ 267 ],
-            [
-                CommandFieldType.String,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Serverbound,
-            baseFirst: false
-        ),
-        new(
-            [ 172, 173 ],
-            [
-                CommandFieldType.VarIntArray,
-                CommandFieldType.VarIntArray,
-                CommandFieldType.VarIntArray,
             ],
             MessageDirection.Serverbound,
             baseFirst: false
@@ -341,52 +282,6 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new(
-            [ 234 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.LongId,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarIntArray,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.Boolean,
-                CommandFieldType.Boolean,
-                CommandFieldType.Boolean,
-                CommandFieldType.Boolean,
-                CommandFieldType.Boolean,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 167 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.OptionalLongId,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 174 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.OptionalLongId,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
             [ 182 ],
             [
                 CommandFieldType.VarInt,
@@ -397,47 +292,8 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new(
-            [ 231 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.LongId,
-                CommandFieldType.OptionalLongId,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 323 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.LongId,
-                CommandFieldType.OptionalLongId,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
             [245],
             [CommandFieldType.Int32, CommandFieldType.String, CommandFieldType.Boolean, ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [ 246 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.LongId,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.Boolean,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-            ],
             MessageDirection.Clientbound,
             baseFirst: false
         ),
@@ -654,29 +510,8 @@ internal static class PrimitiveCommandSchemas
             MessageDirection.Clientbound,
             baseFirst: false
         ),
-        new( [ 378 ], [ CommandFieldType.VarInt, CommandFieldType.Boolean ], MessageDirection.Clientbound, baseFirst: false ),
-        new( [ 379 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
 
 
-        new(
-            [ 134 ],
-            [
-                CommandFieldType.LongId,
-                CommandFieldType.DataReference,
-                CommandFieldType.Boolean,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.Boolean,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
         new(
             [ 136 ],
             [

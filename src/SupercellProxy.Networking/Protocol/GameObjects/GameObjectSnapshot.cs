@@ -340,6 +340,10 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TimerSnapshot? GrowTimer { get; init; }
 
+    /// <summary>Gets whether the saved object explicitly supplied its random seed.</summary>
+    [JsonIgnore]
+    public bool HasRandomSeed { get; private set; }
+
     /// <summary>Gets the passenger's id in the avatar's help sequence.</summary>
     [JsonPropertyName("HID")]
     public int? HelpId { get; init; }
@@ -445,10 +449,10 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets the retained Locked value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Locked { get; init; }
-
     /// <summary>Gets the retained LockedChecked value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? LockedChecked { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">MasteryGatherCount</c> value.
     /// </summary>
@@ -594,11 +598,18 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets accumulated production minutes used by legacy building mastery.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProductionTime { get; init; }
-
     /// <summary>
     /// Gets or sets the <c language="csharp">RandomSeed</c> value.
     /// </summary>
-    public int RandomSeed { get; init; }
+    public int RandomSeed
+    {
+        get;
+        init
+        {
+            field = value;
+            HasRandomSeed = true;
+        }
+    }
     /// <summary>Gets the fishing spot's saved random-seed migration version.</summary>
     public int RandomSeedFix { get; init; }
 

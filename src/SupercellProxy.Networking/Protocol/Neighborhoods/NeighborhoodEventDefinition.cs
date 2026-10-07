@@ -5,6 +5,10 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <summary>Represents the decoded NeighborhoodEventDefinition JSON contract.</summary>
 public sealed record NeighborhoodEventDefinition
 {
+    /// <summary>Gets the neighborhood object selected for this event.</summary>
+    [JsonPropertyName("object")]
+    public string? ObjectName { get; init; }
+
     /// <summary>Gets the TaskSet value.</summary>
     [JsonPropertyName("taskSet")]
     public string[] TaskSet { get; init; } = [];

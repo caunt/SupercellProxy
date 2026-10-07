@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 
 using SupercellProxy.Networking.Protocol.Accounts;
+using SupercellProxy.Networking.Protocol.Accounts.Permissions;
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
@@ -29,7 +30,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// <summary>
 /// Represents <c language="csharp">MessageRegistry</c>.
 /// </summary>
-public static class MessageRegistry
+public static partial class MessageRegistry
 {
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
@@ -76,204 +77,205 @@ public static class MessageRegistry
         [key: 40000] = "updateConversionValue",
     };
 
-    private static readonly Dictionary<ushort, MessageRegistryEntry> Map = new()
-    {
-        [RequestGregFarmMessageType] = new MessageRegistryEntry(typeof(RequestGregFarmMessage), RequestGregFarmMessage.Decode)
-        { CaptureName = nameof(RequestGregFarmMessage) },
-        [key: 14049] = new MessageRegistryEntry(typeof(RequestOwnTownMessage), RequestOwnTownMessage.Decode)
-        { CaptureName = nameof(RequestOwnTownMessage) },
-        [key: 18475] = new MessageRegistryEntry(typeof(RequestOwnFishingHomeMessage), RequestOwnFishingHomeMessage.Decode)
-        { CaptureName = nameof(RequestOwnFishingHomeMessage) },
-        [key: 18335] = new MessageRegistryEntry(typeof(FollowMessage), FollowMessage.Decode)
-        { CaptureName = nameof(FollowMessage) },
-        [key: 14664] = new MessageRegistryEntry(typeof(UnfollowMessage), UnfollowMessage.Decode)
-        { CaptureName = nameof(UnfollowMessage) },
-        [key: 15117] = new MessageRegistryEntry(typeof(LikeFarmMessage), LikeFarmMessage.Decode)
-        { CaptureName = nameof(LikeFarmMessage) },
-        [key: 16037] = new MessageRegistryEntry(typeof(RequestFarmLikeStatusMessage), RequestFarmLikeStatusMessage.Decode)
-        { CaptureName = nameof(RequestFarmLikeStatusMessage) },
-        [key: 21236] = new MessageRegistryEntry(typeof(FollowResponseMessage), FollowResponseMessage.Decode)
-        { CaptureName = nameof(FollowResponseMessage) },
-        [key: 19845] = new MessageRegistryEntry(typeof(RequestFollowerListPageMessage), RequestFollowerListPageMessage.Decode)
-        { CaptureName = nameof(RequestFollowerListPageMessage) },
-        [key: 26605] = new MessageRegistryEntry(typeof(FollowerListPageMessage), FollowerListPageMessage.Decode)
-        { CaptureName = nameof(FollowerListPageMessage) },
-        [key: 18272] = new MessageRegistryEntry(typeof(RequestFollowerCountMessage), RequestFollowerCountMessage.Decode)
-        { CaptureName = nameof(RequestFollowerCountMessage) },
-        [key: 23455] = new MessageRegistryEntry(typeof(FollowerCountMessage), FollowerCountMessage.Decode)
-        { CaptureName = nameof(FollowerCountMessage) },
-        [key: 25679] = new MessageRegistryEntry(typeof(FriendCountMessage), FriendCountMessage.Decode)
-        { CaptureName = nameof(FriendCountMessage) },
-        [key: 26582] = new MessageRegistryEntry(typeof(FriendListUpdateMessage), FriendListUpdateMessage.Decode)
-        { CaptureName = nameof(FriendListUpdateMessage) },
-        [key: 22878] = new MessageRegistryEntry(typeof(BuyFromStandResponseMessage), BuyFromStandResponseMessage.Decode)
-        { CaptureName = "RoadsidePurchaseResultMessage" },
-        [key: 28562] = new MessageRegistryEntry(typeof(RoadsideListingBuyerMessage), RoadsideListingBuyerMessage.Decode)
-        { CaptureName = "RoadsideListingBuyerMessage" },
-        [key: 21767] = new MessageRegistryEntry(typeof(HomeLoadFailedMessage), HomeLoadFailedMessage.Decode)
-        { CaptureName = "HomeLoadFailedMessage" },
-        [key: 10100] = new MessageRegistryEntry(typeof(ClientHelloMessage), ClientHelloMessage.Decode)
-        { CaptureName = "ClientHelloMessage" },
+    private static readonly Dictionary<ushort, MessageRegistryEntry> Map = RegisterDerbyMessages(
+        new()
+        {
+            [RequestGregFarmMessageType] = new MessageRegistryEntry(typeof(RequestGregFarmMessage), RequestGregFarmMessage.Decode)
+            { CaptureName = nameof(RequestGregFarmMessage) },
+            [key: 14049] = new MessageRegistryEntry(typeof(RequestOwnTownMessage), RequestOwnTownMessage.Decode)
+            { CaptureName = nameof(RequestOwnTownMessage) },
+            [key: 18475] = new MessageRegistryEntry(typeof(RequestOwnFishingHomeMessage), RequestOwnFishingHomeMessage.Decode)
+            { CaptureName = nameof(RequestOwnFishingHomeMessage) },
+            [key: 18335] = new MessageRegistryEntry(typeof(FollowMessage), FollowMessage.Decode)
+            { CaptureName = nameof(FollowMessage) },
+            [key: 14664] = new MessageRegistryEntry(typeof(UnfollowMessage), UnfollowMessage.Decode)
+            { CaptureName = nameof(UnfollowMessage) },
+            [key: 15117] = new MessageRegistryEntry(typeof(LikeFarmMessage), LikeFarmMessage.Decode)
+            { CaptureName = nameof(LikeFarmMessage) },
+            [key: 16037] = new MessageRegistryEntry(typeof(RequestFarmLikeStatusMessage), RequestFarmLikeStatusMessage.Decode)
+            { CaptureName = nameof(RequestFarmLikeStatusMessage) },
+            [key: 21236] = new MessageRegistryEntry(typeof(FollowResponseMessage), FollowResponseMessage.Decode)
+            { CaptureName = nameof(FollowResponseMessage) },
+            [key: 19845] = new MessageRegistryEntry(typeof(RequestFollowerListPageMessage), RequestFollowerListPageMessage.Decode)
+            { CaptureName = nameof(RequestFollowerListPageMessage) },
+            [key: 26605] = new MessageRegistryEntry(typeof(FollowerListPageMessage), FollowerListPageMessage.Decode)
+            { CaptureName = nameof(FollowerListPageMessage) },
+            [key: 18272] = new MessageRegistryEntry(typeof(RequestFollowerCountMessage), RequestFollowerCountMessage.Decode)
+            { CaptureName = nameof(RequestFollowerCountMessage) },
+            [key: 23455] = new MessageRegistryEntry(typeof(FollowerCountMessage), FollowerCountMessage.Decode)
+            { CaptureName = nameof(FollowerCountMessage) },
+            [key: 25679] = new MessageRegistryEntry(typeof(FriendCountMessage), FriendCountMessage.Decode)
+            { CaptureName = nameof(FriendCountMessage) },
+            [key: 26582] = new MessageRegistryEntry(typeof(FriendListUpdateMessage), FriendListUpdateMessage.Decode)
+            { CaptureName = nameof(FriendListUpdateMessage) },
+            [key: 22878] = new MessageRegistryEntry(typeof(BuyFromStandResponseMessage), BuyFromStandResponseMessage.Decode)
+            { CaptureName = "RoadsidePurchaseResultMessage" },
+            [key: 28562] = new MessageRegistryEntry(typeof(RoadsideListingBuyerMessage), RoadsideListingBuyerMessage.Decode)
+            { CaptureName = "RoadsideListingBuyerMessage" },
+            [key: 21767] = new MessageRegistryEntry(typeof(HomeLoadFailedMessage), HomeLoadFailedMessage.Decode)
+            { CaptureName = "HomeLoadFailedMessage" },
+            [key: 29901] = new MessageRegistryEntry(typeof(PlayerPermissionsMessage), PlayerPermissionsMessage.Decode)
+            { CaptureName = nameof(PlayerPermissionsMessage) },
+            [key: 10100] = new MessageRegistryEntry(typeof(ClientHelloMessage), ClientHelloMessage.Decode)
+            { CaptureName = "ClientHelloMessage" },
 
-        [key: 10101] = new MessageRegistryEntry(typeof(LoginMessage), LoginMessage.Decode)
-        { CaptureName = "LoginMessage" },
+            [key: 10101] = new MessageRegistryEntry(typeof(LoginMessage), LoginMessage.Decode)
+            { CaptureName = "LoginMessage" },
 
-        [key: 10108] = new MessageRegistryEntry(typeof(KeepAliveMessage), KeepAliveMessage.Decode)
-        { CaptureName = "KeepAliveMessage" },
+            [key: 10108] = new MessageRegistryEntry(typeof(KeepAliveMessage), KeepAliveMessage.Decode)
+            { CaptureName = "KeepAliveMessage" },
 
-        [key: 14484] = new MessageRegistryEntry(typeof(VisitHomeMessage), VisitHomeMessage.Decode)
-        { CaptureName = "VisitHomeMessage" },
+            [key: 14484] = new MessageRegistryEntry(typeof(VisitHomeMessage), VisitHomeMessage.Decode)
+            { CaptureName = "VisitHomeMessage" },
 
-        [key: 17703] = new MessageRegistryEntry(typeof(VisitOtherFishingHomeMessage), VisitOtherFishingHomeMessage.Decode)
-        { CaptureName = "VisitOtherFishingHomeMessage" },
+            [key: 17703] = new MessageRegistryEntry(typeof(VisitOtherFishingHomeMessage), VisitOtherFishingHomeMessage.Decode)
+            { CaptureName = "VisitOtherFishingHomeMessage" },
 
-        [key: 18671] = new MessageRegistryEntry(typeof(VisitHomeTargetMessage), VisitHomeTargetMessage.Decode)
-        { CaptureName = "VisitHomeTargetMessage" },
+            [key: 18671] = new MessageRegistryEntry(typeof(VisitHomeTargetMessage), VisitHomeTargetMessage.Decode)
+            { CaptureName = "VisitHomeTargetMessage" },
 
-        [key: 10224] = new MessageRegistryEntry(typeof(EndClientTurnMessage), EndClientTurnMessage.Decode)
-        { CaptureName = "EndClientTurnMessage" },
+            [key: 10224] = new MessageRegistryEntry(typeof(EndClientTurnMessage), EndClientTurnMessage.Decode)
+            { CaptureName = "EndClientTurnMessage" },
 
-        [key: 19949] = new MessageRegistryEntry(typeof(RequestOwnHomeMessage), RequestOwnHomeMessage.Decode)
-        { CaptureName = "RequestOwnHomeMessage" },
+            [key: 19949] = new MessageRegistryEntry(typeof(RequestOwnHomeMessage), RequestOwnHomeMessage.Decode)
+            { CaptureName = "RequestOwnHomeMessage" },
 
-        [key: 20013] = new MessageRegistryEntry(typeof(NeighborhoodListsMessage), NeighborhoodListsMessage.Decode)
-        { CaptureName = "NeighborhoodListsMessage" },
+            [key: 20013] = new MessageRegistryEntry(typeof(NeighborhoodListsMessage), NeighborhoodListsMessage.Decode)
+            { CaptureName = "NeighborhoodListsMessage" },
 
-        [key: 22158] = new MessageRegistryEntry(typeof(RoadsideBuyerMessage), RoadsideBuyerMessage.Decode)
-        { CaptureName = "RoadsideBuyerMessage" },
+            [key: 22158] = new MessageRegistryEntry(typeof(RoadsideBuyerMessage), RoadsideBuyerMessage.Decode)
+            { CaptureName = "RoadsideBuyerMessage" },
 
-        [key: 26668] = new MessageRegistryEntry(typeof(FarmLikeStatusMessage), FarmLikeStatusMessage.Decode)
-        { CaptureName = "Clientbound26668Message" },
+            [key: 26668] = new MessageRegistryEntry(typeof(FarmLikeStatusMessage), FarmLikeStatusMessage.Decode)
+            { CaptureName = "Clientbound26668Message" },
 
-        [key: 20100] = new MessageRegistryEntry(typeof(ServerHelloMessage), ServerHelloMessage.Decode)
-        { CaptureName = "ServerHelloMessage" },
+            [key: 20100] = new MessageRegistryEntry(typeof(ServerHelloMessage), ServerHelloMessage.Decode)
+            { CaptureName = "ServerHelloMessage" },
 
-        [key: 20103] = new MessageRegistryEntry(typeof(LoginFailedMessage), LoginFailedMessage.Decode)
-        { CaptureName = "LoginFailedMessage" },
+            [key: 20103] = new MessageRegistryEntry(typeof(LoginFailedMessage), LoginFailedMessage.Decode)
+            { CaptureName = "LoginFailedMessage" },
 
-        [key: 20108] = new MessageRegistryEntry(typeof(KeepAliveOkMessage), KeepAliveOkMessage.Decode)
-        { CaptureName = "KeepAliveOkMessage" },
+            [key: 20108] = new MessageRegistryEntry(typeof(KeepAliveOkMessage), KeepAliveOkMessage.Decode)
+            { CaptureName = "KeepAliveOkMessage" },
 
-        [key: 20155] = new MessageRegistryEntry(typeof(Clientbound20155Message), Clientbound20155Message.Decode)
-        { CaptureName = "Clientbound20155Message" },
+            [key: 20155] = new MessageRegistryEntry(typeof(Clientbound20155Message), Clientbound20155Message.Decode)
+            { CaptureName = "Clientbound20155Message" },
 
-        [key: 20187] = new MessageRegistryEntry(typeof(AvailableServerCommandMessage), AvailableServerCommandMessage.Decode)
-        { CaptureName = "AvailableServerCommandMessage" },
+            [key: 20187] = new MessageRegistryEntry(typeof(AvailableServerCommandMessage), AvailableServerCommandMessage.Decode)
+            { CaptureName = "AvailableServerCommandMessage" },
 
-        [key: 20621] = new MessageRegistryEntry(typeof(NeighborhoodNotificationStreamMessage), NeighborhoodNotificationStreamMessage.Decode)
-        { CaptureName = "Clientbound20621Message" },
+            [key: 20621] = new MessageRegistryEntry(typeof(NeighborhoodNotificationStreamMessage), NeighborhoodNotificationStreamMessage.Decode)
+            { CaptureName = "Clientbound20621Message" },
 
-        [key: 21915] = new MessageRegistryEntry(typeof(MailListMessage), MailListMessage.Decode)
-        { CaptureName = nameof(MailListMessage) },
+            [key: 21915] = new MessageRegistryEntry(typeof(MailListMessage), MailListMessage.Decode)
+            { CaptureName = nameof(MailListMessage) },
 
-        [key: 21945] = new MessageRegistryEntry(typeof(Clientbound21945Message), Clientbound21945Message.Decode)
-        { CaptureName = "Clientbound21945Message" },
+            [key: 21945] = new MessageRegistryEntry(typeof(Clientbound21945Message), Clientbound21945Message.Decode)
+            { CaptureName = "Clientbound21945Message" },
 
-        [key: 22903] = new MessageRegistryEntry(typeof(Clientbound22903Message), Clientbound22903Message.Decode)
-        { CaptureName = "Clientbound22903Message" },
-        [key: 28967] = new MessageRegistryEntry(typeof(NewspaperDataMessage), NewspaperDataMessage.Decode)
-        { CaptureName = "NewspaperDataMessage" },
-        [key: 26994] = new MessageRegistryEntry(typeof(Clientbound26994Message), Clientbound26994Message.Decode)
-        { CaptureName = "Clientbound26994Message" },
+            [key: 22903] = new MessageRegistryEntry(typeof(Clientbound22903Message), Clientbound22903Message.Decode)
+            { CaptureName = "Clientbound22903Message" },
+            [key: 28967] = new MessageRegistryEntry(typeof(NewspaperDataMessage), NewspaperDataMessage.Decode)
+            { CaptureName = "NewspaperDataMessage" },
+            [key: 26994] = new MessageRegistryEntry(typeof(Clientbound26994Message), Clientbound26994Message.Decode)
+            { CaptureName = "Clientbound26994Message" },
 
-        [key: 22302] = new MessageRegistryEntry(typeof(GoogleServiceAccountBoundMessage), GoogleServiceAccountBoundMessage.Decode)
-        { CaptureName = "Clientbound22302Message" },
+            [key: 22302] = new MessageRegistryEntry(typeof(GoogleServiceAccountBoundMessage), GoogleServiceAccountBoundMessage.Decode)
+            { CaptureName = "Clientbound22302Message" },
 
-        [key: 22802] = new MessageRegistryEntry(typeof(Clientbound22802Message), Clientbound22802Message.Decode)
-        { CaptureName = "Clientbound22802Message" },
+            [key: 22802] = new MessageRegistryEntry(typeof(Clientbound22802Message), Clientbound22802Message.Decode)
+            { CaptureName = "Clientbound22802Message" },
 
-        [key: 23074] = new MessageRegistryEntry(typeof(Clientbound23074Message), Clientbound23074Message.Decode)
-        { CaptureName = "Clientbound23074Message" },
+            [key: 23443] = new MessageRegistryEntry(typeof(PlayerRankingsMessage), PlayerRankingsMessage.Decode)
+            { CaptureName = "PlayerRankingsMessage" },
 
-        [key: 23443] = new MessageRegistryEntry(typeof(PlayerRankingsMessage), PlayerRankingsMessage.Decode)
-        { CaptureName = "PlayerRankingsMessage" },
+            [key: 23444] = new MessageRegistryEntry(typeof(NeighborhoodObjectLeaderboardListMessage), NeighborhoodObjectLeaderboardListMessage.Decode)
+            { CaptureName = "PlayerRankingsPageMessage" },
 
-        [key: 23444] = new MessageRegistryEntry(typeof(NeighborhoodObjectLeaderboardListMessage), NeighborhoodObjectLeaderboardListMessage.Decode)
-        { CaptureName = "PlayerRankingsPageMessage" },
+            [key: 23626] = new MessageRegistryEntry(typeof(OutOfSyncMessage), OutOfSyncMessage.Decode)
+            { CaptureName = "OutOfSyncMessage" },
+            [key: 23708] = new MessageRegistryEntry(typeof(PlayerRankings23708Message), PlayerRankings23708Message.Decode)
+            { CaptureName = "PlayerRankings23708Message" },
 
-        [key: 23626] = new MessageRegistryEntry(typeof(OutOfSyncMessage), OutOfSyncMessage.Decode)
-        { CaptureName = "OutOfSyncMessage" },
-        [key: 23708] = new MessageRegistryEntry(typeof(PlayerRankings23708Message), PlayerRankings23708Message.Decode)
-        { CaptureName = "PlayerRankings23708Message" },
+            [key: 24149] = new MessageRegistryEntry(typeof(GoogleServiceAccountAlreadyBoundMessage), GoogleServiceAccountAlreadyBoundMessage.Decode)
+            { CaptureName = "AccountLoadResponseMessage" },
 
-        [key: 24149] = new MessageRegistryEntry(typeof(GoogleServiceAccountAlreadyBoundMessage), GoogleServiceAccountAlreadyBoundMessage.Decode)
-        { CaptureName = "AccountLoadResponseMessage" },
+            [key: 24180] = new MessageRegistryEntry(typeof(OwnHomeDataMessage), OwnHomeDataMessage.Decode)
+            { CaptureName = "OwnHomeDataMessage" },
 
-        [key: 24180] = new MessageRegistryEntry(typeof(OwnHomeDataMessage), OwnHomeDataMessage.Decode)
-        { CaptureName = "OwnHomeDataMessage" },
+            [key: 24222] = new MessageRegistryEntry(typeof(FishingDataMessage), FishingDataMessage.Decode)
+            { CaptureName = "FishingDataMessage" },
 
-        [key: 24222] = new MessageRegistryEntry(typeof(FishingDataMessage), FishingDataMessage.Decode)
-        { CaptureName = "FishingDataMessage" },
+            [DecoCanvasDataMessageType] = new MessageRegistryEntry(typeof(DecoCanvasDataMessage), DecoCanvasDataMessage.Decode)
+            { CaptureName = "DecoCanvasDataMessage" },
 
-        [DecoCanvasDataMessageType] = new MessageRegistryEntry(typeof(DecoCanvasDataMessage), DecoCanvasDataMessage.Decode)
-        { CaptureName = "DecoCanvasDataMessage" },
+            [key: 20699] = new MessageRegistryEntry(typeof(GregFarmDataMessage), GregFarmDataMessage.Decode)
+            { CaptureName = "GregFarmDataMessage" },
 
-        [key: 20699] = new MessageRegistryEntry(typeof(GregFarmDataMessage), GregFarmDataMessage.Decode)
-        { CaptureName = "GregFarmDataMessage" },
+            [key: 24489] = new MessageRegistryEntry(typeof(OtherHomeDataMessage), OtherHomeDataMessage.Decode)
+            { CaptureName = "OtherHomeDataMessage" },
 
-        [key: 24489] = new MessageRegistryEntry(typeof(OtherHomeDataMessage), OtherHomeDataMessage.Decode)
-        { CaptureName = "OtherHomeDataMessage" },
+            [key: 24843] = new MessageRegistryEntry(typeof(AccountCandidatesMessage), AccountCandidatesMessage.Decode)
+            { CaptureName = "Clientbound24843Message" },
 
-        [key: 24843] = new MessageRegistryEntry(typeof(AccountCandidatesMessage), AccountCandidatesMessage.Decode)
-        { CaptureName = "Clientbound24843Message" },
+            [key: 25220] = new MessageRegistryEntry(typeof(LoginOkMessage), LoginOkMessage.Decode)
+            { CaptureName = "LoginOkMessage" },
 
-        [key: 25220] = new MessageRegistryEntry(typeof(LoginOkMessage), LoginOkMessage.Decode)
-        { CaptureName = "LoginOkMessage" },
+            [key: 25892] = new MessageRegistryEntry(typeof(DisconnectedMessage), DisconnectedMessage.Decode)
+            { CaptureName = "DisconnectedMessage" },
 
-        [key: 25892] = new MessageRegistryEntry(typeof(DisconnectedMessage), DisconnectedMessage.Decode)
-        { CaptureName = "DisconnectedMessage" },
+            [key: 26199] = new MessageRegistryEntry(typeof(FriendMetadataMessage), FriendMetadataMessage.Decode)
+            { CaptureName = "Clientbound26199Message" },
 
-        [key: 26199] = new MessageRegistryEntry(typeof(FriendMetadataMessage), FriendMetadataMessage.Decode)
-        { CaptureName = "Clientbound26199Message" },
+            [key: 26385] = new MessageRegistryEntry(typeof(PerformanceProfilingSettingsMessage), PerformanceProfilingSettingsMessage.Decode)
+            { CaptureName = nameof(PerformanceProfilingSettingsMessage) },
 
-        [key: 26385] = new MessageRegistryEntry(typeof(PerformanceProfilingSettingsMessage), PerformanceProfilingSettingsMessage.Decode)
-        { CaptureName = nameof(PerformanceProfilingSettingsMessage) },
+            [key: 27398] = new MessageRegistryEntry(typeof(ResourceAssociationsMessage), ResourceAssociationsMessage.Decode)
+            { CaptureName = "Clientbound27398Message" },
 
-        [key: 27398] = new MessageRegistryEntry(typeof(ResourceAssociationsMessage), ResourceAssociationsMessage.Decode)
-        { CaptureName = "Clientbound27398Message" },
+            [FeaturingDesignListMessageType] = new MessageRegistryEntry(typeof(FeaturingDesignListMessage), FeaturingDesignListMessage.Decode)
+            { CaptureName = nameof(FeaturingDesignListMessage) },
 
-        [FeaturingDesignListMessageType] = new MessageRegistryEntry(typeof(FeaturingDesignListMessage), FeaturingDesignListMessage.Decode)
-        { CaptureName = nameof(FeaturingDesignListMessage) },
+            [DecorationGalleryDataMessageType] = new MessageRegistryEntry(typeof(DecorationGalleryDataMessage), DecorationGalleryDataMessage.Decode)
+            { CaptureName = nameof(DecorationGalleryDataMessage) },
 
-        [DecorationGalleryDataMessageType] = new MessageRegistryEntry(typeof(DecorationGalleryDataMessage), DecorationGalleryDataMessage.Decode)
-        { CaptureName = nameof(DecorationGalleryDataMessage) },
+            [NeighborhoodFullListMessageType] = new MessageRegistryEntry(typeof(NeighborhoodFullListMessage), NeighborhoodFullListMessage.Decode)
+            { CaptureName = nameof(NeighborhoodFullListMessage) },
 
-        [NeighborhoodFullListMessageType] = new MessageRegistryEntry(typeof(NeighborhoodFullListMessage), NeighborhoodFullListMessage.Decode)
-        { CaptureName = nameof(NeighborhoodFullListMessage) },
+            [LeagueMemberListMessageType] = new MessageRegistryEntry(typeof(LeagueMemberListMessage), LeagueMemberListMessage.Decode)
+            { CaptureName = "AvatarStreamPageMessage" },
 
-        [LeagueMemberListMessageType] = new MessageRegistryEntry(typeof(LeagueMemberListMessage), LeagueMemberListMessage.Decode)
-        { CaptureName = "AvatarStreamPageMessage" },
+            [NeighborhoodChatMessageType] = new MessageRegistryEntry(typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Decode)
+            { CaptureName = nameof(NeighborhoodChatMessage) },
 
-        [NeighborhoodChatMessageType] = new MessageRegistryEntry(typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Decode)
-        { CaptureName = nameof(NeighborhoodChatMessage) },
+            [NeighborhoodStreamEntryFlagMessageType] = new MessageRegistryEntry(typeof(NeighborhoodStreamEntryFlagMessage), NeighborhoodStreamEntryFlagMessage.Decode)
+            { CaptureName = nameof(NeighborhoodStreamEntryFlagMessage) },
 
-        [NeighborhoodStreamEntryFlagMessageType] = new MessageRegistryEntry(typeof(NeighborhoodStreamEntryFlagMessage), NeighborhoodStreamEntryFlagMessage.Decode)
-        { CaptureName = nameof(NeighborhoodStreamEntryFlagMessage) },
+            [NeighborhoodMembersMessageType] = new MessageRegistryEntry(typeof(NeighborhoodMembersMessage), NeighborhoodMembersMessage.Decode)
+            { CaptureName = nameof(NeighborhoodMembersMessage) },
 
-        [NeighborhoodMembersMessageType] = new MessageRegistryEntry(typeof(NeighborhoodMembersMessage), NeighborhoodMembersMessage.Decode)
-        { CaptureName = nameof(NeighborhoodMembersMessage) },
+            [OwnTownDataMessageType] = new MessageRegistryEntry(typeof(OwnTownDataMessage), OwnTownDataMessage.Decode)
+            { CaptureName = nameof(OwnTownDataMessage) },
 
-        [OwnTownDataMessageType] = new MessageRegistryEntry(typeof(OwnTownDataMessage), OwnTownDataMessage.Decode)
-        { CaptureName = nameof(OwnTownDataMessage) },
+            [key: 28061] = new MessageRegistryEntry(typeof(NeighborhoodStreamMessage), NeighborhoodStreamMessage.Decode)
+            { CaptureName = "Clientbound28061Message" },
 
-        [key: 28061] = new MessageRegistryEntry(typeof(NeighborhoodStreamMessage), NeighborhoodStreamMessage.Decode)
-        { CaptureName = "Clientbound28061Message" },
+            [key: 28917] = new MessageRegistryEntry(typeof(OtherFishingHomeDataMessage), OtherFishingHomeDataMessage.Decode)
+            { CaptureName = "OtherFishingHomeDataMessage" },
 
-        [key: 28917] = new MessageRegistryEntry(typeof(OtherFishingHomeDataMessage), OtherFishingHomeDataMessage.Decode)
-        { CaptureName = "OtherFishingHomeDataMessage" },
+            [key: 29247] = new MessageRegistryEntry(typeof(Clientbound29247Message), Clientbound29247Message.Decode)
+            { CaptureName = "Clientbound29247Message" },
 
-        [key: 29247] = new MessageRegistryEntry(typeof(Clientbound29247Message), Clientbound29247Message.Decode)
-        { CaptureName = "Clientbound29247Message" },
+            [key: 29275] = new MessageRegistryEntry(typeof(ScidJwtMessage), ScidJwtMessage.Decode)
+            { CaptureName = "ScidJwtMessage" },
 
-        [key: 29275] = new MessageRegistryEntry(typeof(ScidJwtMessage), ScidJwtMessage.Decode)
-        { CaptureName = "ScidJwtMessage" },
+            [key: 29415] = new MessageRegistryEntry(typeof(FriendListMessage), FriendListMessage.Decode)
+            { CaptureName = nameof(FriendListMessage) },
 
-        [key: 29415] = new MessageRegistryEntry(typeof(FriendListMessage), FriendListMessage.Decode)
-        { CaptureName = nameof(FriendListMessage) },
-
-        [key: 29734] = new MessageRegistryEntry(typeof(Clientbound29734Message), Clientbound29734Message.Decode)
-        { CaptureName = "Clientbound29734Message" },
-    };
+            [key: 29734] = new MessageRegistryEntry(typeof(Clientbound29734Message), Clientbound29734Message.Decode)
+            { CaptureName = "Clientbound29734Message" },
+        }
+    );
     // The baseline above is retained once. Each revision starts at its first confirmed
     // release and remains in effect until the next revision for that message.
     // Set a revision's id to null to unregister the message from that release onward.

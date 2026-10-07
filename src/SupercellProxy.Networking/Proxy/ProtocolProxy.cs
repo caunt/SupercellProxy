@@ -146,6 +146,7 @@ public sealed partial class ProtocolProxy(
                     serverKeys,
                     _commandDataResolver,
                     logger,
+                    configuration.AnonymousAccount,
                     cancellationToken
                 )
                 .ConfigureAwait(continueOnCapturedContext: false);

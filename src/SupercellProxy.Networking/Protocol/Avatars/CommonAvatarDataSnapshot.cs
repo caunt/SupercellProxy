@@ -7,6 +7,7 @@ using SupercellProxy.Networking.Protocol.Customization;
 using SupercellProxy.Networking.Protocol.Emotes;
 using SupercellProxy.Networking.Protocol.Events.Chronos;
 using SupercellProxy.Networking.Protocol.Events.Decoration;
+using SupercellProxy.Networking.Protocol.Events.Derby;
 using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Gifts;
 using SupercellProxy.Networking.Protocol.MapGame;
@@ -26,6 +27,10 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// </summary>
 public sealed record CommonAvatarDataSnapshot
 {
+    /// <summary>Gets account-link reward claims retained by the native offer manager.</summary>
+    [JsonPropertyName("LogicOfferManager")]
+    public Accounts.Rewards.AccountLinkRewardsSnapshot? AccountLinkRewards { get; init; }
+
     /// <summary>Gets the retained boat difficulty pool.</summary>
     public BoatOrderManagerSnapshot? BoatOrderManager { get; init; }
     /// <summary>
@@ -71,6 +76,8 @@ public sealed record CommonAvatarDataSnapshot
     [JsonPropertyName("DecoEventVotingMgr")]
     public DecorationVotingSnapshot? DecorationVoting { get; init; }
 
+    /// <summary>Gets the saved active derby task and its progress.</summary>
+    public DerbyManagerSnapshot? DerbyManager { get; init; }
     /// Gets the retained emote state used by home creation gates.
     public EmoteManagerSnapshot? EmoteManager { get; init; }
 
@@ -111,6 +118,9 @@ public sealed record CommonAvatarDataSnapshot
     /// Gets the Newspaper Manager value.
     /// </summary>
     public NewspaperSnapshot? NewspaperManager { get; init; }
+
+    /// <summary>Gets saved derby promotion rewards and eligibility.</summary>
+    public PopPromotionManagerSnapshot? PopPromoManager { get; init; }
 
     /// <summary>
     /// Gets the Reengagement Flow value.

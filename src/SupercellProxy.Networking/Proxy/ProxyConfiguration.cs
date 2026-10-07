@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Sessions;
+using SupercellProxy.Networking.Sessions.Anonymous;
 using SupercellProxy.Networking.Protocol.Authentication;
 
 namespace SupercellProxy.Networking.Proxy;
@@ -14,5 +15,6 @@ public sealed record ProxyConfiguration(
     ProtocolConfiguration? Protocol = null,
     Func<bool, CancellationToken, Task<SessionTokenData>>? SessionTokenProvider = null,
     string? CaptureDirectory = null,
-    string? AssetDirectory = null
+    string? AssetDirectory = null,
+    AnonymousAccountLease? AnonymousAccount = null
 );

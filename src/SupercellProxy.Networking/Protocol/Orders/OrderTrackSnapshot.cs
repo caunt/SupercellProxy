@@ -54,6 +54,10 @@ public sealed record OrderTrackSnapshot
     [JsonPropertyName("rewards")]
     public OrderTrackReward[][] Rewards { get; init; } = [];
 
+    /// <summary>Gets milestone rewards awaiting delivery after the previous track expired.</summary>
+    [JsonPropertyName("savedUnclaimedRewards")]
+    public OrderTrackReward[][] SavedUnclaimedRewards { get; init; } = [];
+
     /// <summary>
     /// Gets the Target value.
     /// </summary>

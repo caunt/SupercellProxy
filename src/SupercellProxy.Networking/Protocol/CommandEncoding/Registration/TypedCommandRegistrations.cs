@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.Achievements;
+using SupercellProxy.Networking.Protocol.Accounts.Rewards;
 using SupercellProxy.Networking.Protocol.Animals;
 using SupercellProxy.Networking.Protocol.Balloons;
 using SupercellProxy.Networking.Protocol.Boats;
@@ -40,6 +41,8 @@ using SupercellProxy.Networking.Protocol.Production;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
 using SupercellProxy.Networking.Protocol.ShopEvents;
 using SupercellProxy.Networking.Protocol.Settings;
+using SupercellProxy.Networking.Protocol.Inventory.Shop;
+using SupercellProxy.Networking.Protocol.SeasonalCollectibles;
 using SupercellProxy.Networking.Protocol.Town;
 using SupercellProxy.Networking.Protocol.Tutorials;
 using SupercellProxy.Networking.Protocol.Visitors;
@@ -52,6 +55,20 @@ internal static class TypedCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [ClaimAccountLinkRewardCommandType] = new(
+            typeof(ClaimAccountLinkRewardCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => ClaimAccountLinkRewardCommand.Decode(stream, environment)
+        ),
+        [AddShopBadgesCommandType] = new(
+            typeof(AddShopBadgesCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => AddShopBadgesCommand.Decode(stream, environment)
+        ),
         [CancelTruckOrderCommandType] = new(
             typeof(CancelTruckOrderCommand),
             MessageDirection.Serverbound,
@@ -589,6 +606,13 @@ internal static class TypedCommandRegistrations
             FieldSchemas: null,
             static (stream, environment, unusedParameter2) =>
                 MarkTruckOrdersSeenCommand.Decode(stream, environment)
+        ),
+        [CollectSeasonalCollectibleCommandType] = new CommandRegistryEntry(
+            typeof(CollectSeasonalCollectibleCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => CollectSeasonalCollectibleCommand.Decode(stream, environment)
         ),
         [CollectMysteryBoxRewardCommandType] = new CommandRegistryEntry(
             typeof(CollectMysteryBoxRewardCommand),
