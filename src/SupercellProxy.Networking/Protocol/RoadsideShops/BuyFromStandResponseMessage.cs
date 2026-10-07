@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
-/// Defines the Roadside Purchase Result Message contract.
+/// Defines the buy from stand response message contract.
 /// </summary>
 /// <summary>
 /// Defines the Buyer Id contract.
@@ -31,7 +31,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// <summary>
 /// Defines the Item Global Id contract.
 /// </summary>
-public sealed record RoadsidePurchaseResultMessage(
+public sealed record BuyFromStandResponseMessage(
     [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId? BuyerId,
     [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId? HomeOwnerId,
     int Status,
@@ -54,11 +54,11 @@ public sealed record RoadsidePurchaseResultMessage(
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static RoadsidePurchaseResultMessage Decode(MessageStream stream)
+    public static BuyFromStandResponseMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        RoadsidePurchaseResultMessage message = new(
+        BuyFromStandResponseMessage message = new(
             stream.ReadOptionalLongId(),
             stream.ReadOptionalLongId(),
             stream.ReadVarInt(),

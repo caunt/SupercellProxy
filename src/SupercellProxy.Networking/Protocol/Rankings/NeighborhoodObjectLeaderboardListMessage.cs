@@ -5,9 +5,9 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>
-/// Defines the Player Rankings Page Message contract.
+/// Defines the neighborhood object leaderboard list message contract.
 /// </summary>
-public sealed record PlayerRankingsPageMessage : IMessage
+public sealed record NeighborhoodObjectLeaderboardListMessage : IMessage
 {
     /// <summary>
     /// Gets the Entries value.
@@ -31,11 +31,11 @@ public sealed record PlayerRankingsPageMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static PlayerRankingsPageMessage Decode(MessageStream stream)
+    public static NeighborhoodObjectLeaderboardListMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        PlayerRankingsPageMessage message = new()
+        NeighborhoodObjectLeaderboardListMessage message = new()
         {
             Value0 = stream.ReadVarInt(),
             Value1 = stream.ReadVarInt(),
@@ -66,6 +66,6 @@ public sealed record PlayerRankingsPageMessage : IMessage
     /// </summary>
     public override string ToString()
     {
-        return nameof(PlayerRankingsPageMessage);
+        return nameof(NeighborhoodObjectLeaderboardListMessage);
     }
 }

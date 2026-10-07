@@ -31,18 +31,18 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// </summary>
 public static class MessageRegistry
 {
-    /// Identifies a clientbound avatar-stream page.
-    public const ushort AvatarStreamPageMessageType = 26542;
     /// Identifies the clientbound deco-canvas home snapshot, loaded in native game mode 9.
     public const ushort DecoCanvasDataMessageType = 28544;
     /// Identifies clientbound decoration-gallery data for a home.
     public const ushort DecorationGalleryDataMessageType = 25133;
-
     /// Identifies the clientbound featured-decoration-design list.
     public const ushort FeaturingDesignListMessageType = 27413;
 
     /// Identifies the clientbound loading-complete gate used to initialize home turns.
     public const ushort HomeInitializationMessageType = 27439;
+
+    /// Identifies a clientbound league-member list for a derby race.
+    public const ushort LeagueMemberListMessageType = 26542;
 
     /// <summary>Identifies a clientbound neighborhood chat entry.</summary>
     public const ushort NeighborhoodChatMessageType = 27910;
@@ -106,7 +106,7 @@ public static class MessageRegistry
         { CaptureName = nameof(FriendCountMessage) },
         [key: 26582] = new MessageRegistryEntry(typeof(FriendListUpdateMessage), FriendListUpdateMessage.Decode)
         { CaptureName = nameof(FriendListUpdateMessage) },
-        [key: 22878] = new MessageRegistryEntry(typeof(RoadsidePurchaseResultMessage), RoadsidePurchaseResultMessage.Decode)
+        [key: 22878] = new MessageRegistryEntry(typeof(BuyFromStandResponseMessage), BuyFromStandResponseMessage.Decode)
         { CaptureName = "RoadsidePurchaseResultMessage" },
         [key: 28562] = new MessageRegistryEntry(typeof(RoadsideListingBuyerMessage), RoadsideListingBuyerMessage.Decode)
         { CaptureName = "RoadsideListingBuyerMessage" },
@@ -160,7 +160,7 @@ public static class MessageRegistry
         [key: 20187] = new MessageRegistryEntry(typeof(AvailableServerCommandMessage), AvailableServerCommandMessage.Decode)
         { CaptureName = "AvailableServerCommandMessage" },
 
-        [key: 20621] = new MessageRegistryEntry(typeof(Clientbound20621Message), Clientbound20621Message.Decode)
+        [key: 20621] = new MessageRegistryEntry(typeof(NeighborhoodNotificationStreamMessage), NeighborhoodNotificationStreamMessage.Decode)
         { CaptureName = "Clientbound20621Message" },
 
         [key: 21915] = new MessageRegistryEntry(typeof(MailListMessage), MailListMessage.Decode)
@@ -176,7 +176,7 @@ public static class MessageRegistry
         [key: 26994] = new MessageRegistryEntry(typeof(Clientbound26994Message), Clientbound26994Message.Decode)
         { CaptureName = "Clientbound26994Message" },
 
-        [key: 22302] = new MessageRegistryEntry(typeof(Clientbound22302Message), Clientbound22302Message.Decode)
+        [key: 22302] = new MessageRegistryEntry(typeof(GoogleServiceAccountBoundMessage), GoogleServiceAccountBoundMessage.Decode)
         { CaptureName = "Clientbound22302Message" },
 
         [key: 22802] = new MessageRegistryEntry(typeof(Clientbound22802Message), Clientbound22802Message.Decode)
@@ -188,7 +188,7 @@ public static class MessageRegistry
         [key: 23443] = new MessageRegistryEntry(typeof(PlayerRankingsMessage), PlayerRankingsMessage.Decode)
         { CaptureName = "PlayerRankingsMessage" },
 
-        [key: 23444] = new MessageRegistryEntry(typeof(PlayerRankingsPageMessage), PlayerRankingsPageMessage.Decode)
+        [key: 23444] = new MessageRegistryEntry(typeof(NeighborhoodObjectLeaderboardListMessage), NeighborhoodObjectLeaderboardListMessage.Decode)
         { CaptureName = "PlayerRankingsPageMessage" },
 
         [key: 23626] = new MessageRegistryEntry(typeof(OutOfSyncMessage), OutOfSyncMessage.Decode)
@@ -196,7 +196,7 @@ public static class MessageRegistry
         [key: 23708] = new MessageRegistryEntry(typeof(PlayerRankings23708Message), PlayerRankings23708Message.Decode)
         { CaptureName = "PlayerRankings23708Message" },
 
-        [key: 24149] = new MessageRegistryEntry(typeof(AccountLoadResponseMessage), AccountLoadResponseMessage.Decode)
+        [key: 24149] = new MessageRegistryEntry(typeof(GoogleServiceAccountAlreadyBoundMessage), GoogleServiceAccountAlreadyBoundMessage.Decode)
         { CaptureName = "AccountLoadResponseMessage" },
 
         [key: 24180] = new MessageRegistryEntry(typeof(OwnHomeDataMessage), OwnHomeDataMessage.Decode)
@@ -241,8 +241,8 @@ public static class MessageRegistry
         [NeighborhoodFullListMessageType] = new MessageRegistryEntry(typeof(NeighborhoodFullListMessage), NeighborhoodFullListMessage.Decode)
         { CaptureName = nameof(NeighborhoodFullListMessage) },
 
-        [AvatarStreamPageMessageType] = new MessageRegistryEntry(typeof(AvatarStreamPageMessage), AvatarStreamPageMessage.Decode)
-        { CaptureName = nameof(AvatarStreamPageMessage) },
+        [LeagueMemberListMessageType] = new MessageRegistryEntry(typeof(LeagueMemberListMessage), LeagueMemberListMessage.Decode)
+        { CaptureName = "AvatarStreamPageMessage" },
 
         [NeighborhoodChatMessageType] = new MessageRegistryEntry(typeof(NeighborhoodChatMessage), NeighborhoodChatMessage.Decode)
         { CaptureName = nameof(NeighborhoodChatMessage) },
@@ -256,7 +256,7 @@ public static class MessageRegistry
         [OwnTownDataMessageType] = new MessageRegistryEntry(typeof(OwnTownDataMessage), OwnTownDataMessage.Decode)
         { CaptureName = nameof(OwnTownDataMessage) },
 
-        [key: 28061] = new MessageRegistryEntry(typeof(Clientbound28061Message), Clientbound28061Message.Decode)
+        [key: 28061] = new MessageRegistryEntry(typeof(NeighborhoodStreamMessage), NeighborhoodStreamMessage.Decode)
         { CaptureName = "Clientbound28061Message" },
 
         [key: 28917] = new MessageRegistryEntry(typeof(OtherFishingHomeDataMessage), OtherFishingHomeDataMessage.Decode)

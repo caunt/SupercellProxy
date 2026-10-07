@@ -3,8 +3,8 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 
-/// <summary>Clientbound avatar-stream page with two native selection values.</summary>
-public sealed record AvatarStreamPageMessage : IMessage
+/// <summary>Clientbound league-member list with two native selection values.</summary>
+public sealed record LeagueMemberListMessage : IMessage
 {
     /// <summary>Gets the count of the optional entry list; only its empty form is currently understood.</summary>
     public int? EntryCount { get; init; }
@@ -18,8 +18,8 @@ public sealed record AvatarStreamPageMessage : IMessage
     /// <summary>Gets the seconds timestamp carried by this stream page.</summary>
     public int TimestampSeconds { get; init; }
 
-    /// <summary>Decodes the proven empty-page form of an avatar-stream message.</summary>
-    public static AvatarStreamPageMessage Decode(MessageStream stream)
+    /// <summary>Decodes the proven empty-list form of a league-member list message.</summary>
+    public static LeagueMemberListMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         int timestamp = stream.ReadVarInt();
@@ -36,7 +36,7 @@ public sealed record AvatarStreamPageMessage : IMessage
         if (stream.ReadBoolean())
             throw new NotSupportedException(message: "The avatar-stream supplemental entry has an unconfirmed layout.");
 
-        AvatarStreamPageMessage message = new()
+        LeagueMemberListMessage message = new()
         {
             TimestampSeconds = timestamp,
             FirstSelector = firstSelector,
@@ -49,7 +49,7 @@ public sealed record AvatarStreamPageMessage : IMessage
             : message;
     }
 
-    /// <summary>Encodes the proven empty-page form of an avatar-stream message.</summary>
+    /// <summary>Encodes the proven empty-list form of a league-member list message.</summary>
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -70,6 +70,6 @@ public sealed record AvatarStreamPageMessage : IMessage
     /// <summary>Omits stream contents from diagnostic text.</summary>
     public override string ToString()
     {
-        return nameof(AvatarStreamPageMessage);
+        return nameof(LeagueMemberListMessage);
     }
 }

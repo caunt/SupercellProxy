@@ -7,9 +7,9 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Accounts;
 
 /// <summary>
-/// Defines the Account Load Response Message contract.
+/// Defines the Google service account already bound message contract.
 /// </summary>
-public sealed record AccountLoadResponseMessage : IMessage
+public sealed record GoogleServiceAccountAlreadyBoundMessage : IMessage
 {
     /// <summary>
     /// Gets the Account Id value.
@@ -45,11 +45,11 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// <summary>
     /// Decodes a value from the supplied protocol payload.
     /// </summary>
-    public static AccountLoadResponseMessage Decode(MessageStream stream)
+    public static GoogleServiceAccountAlreadyBoundMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        AccountLoadResponseMessage message = new()
+        GoogleServiceAccountAlreadyBoundMessage message = new()
         {
             Value = stream.ReadVarInt(),
             StatusText = stream.ReadOptionalString(),
@@ -90,6 +90,6 @@ public sealed record AccountLoadResponseMessage : IMessage
     /// </summary>
     public override string ToString()
     {
-        return nameof(AccountLoadResponseMessage);
+        return nameof(GoogleServiceAccountAlreadyBoundMessage);
     }
 }

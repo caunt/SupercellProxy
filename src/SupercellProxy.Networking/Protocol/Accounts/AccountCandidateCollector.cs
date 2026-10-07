@@ -13,7 +13,7 @@ public sealed class AccountCandidateCollector
     /// <summary>
     /// Gets the Response value.
     /// </summary>
-    public AccountLoadResponseMessage? Response { get; private set; }
+    public GoogleServiceAccountAlreadyBoundMessage? Response { get; private set; }
 
     /// <summary>
     /// Gets the Response Entry Count value.
@@ -33,7 +33,7 @@ public sealed class AccountCandidateCollector
     /// <summary>
     /// Provides the Apply value or operation.
     /// </summary>
-    public void Apply(AccountLoadResponseMessage response)
+    public void Apply(GoogleServiceAccountAlreadyBoundMessage response)
     {
         ArgumentNullException.ThrowIfNull(response);
         Response = response;
