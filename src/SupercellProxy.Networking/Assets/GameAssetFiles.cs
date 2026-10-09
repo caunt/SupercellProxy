@@ -585,7 +585,6 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Neighborhood Object Perks asset.</summary>
     public const string NeighborhoodObjectPerks = "data/neighborhood_object_perks.csv";
-
     /// <summary>Path of the Neighborhood Object Tasks asset.</summary>
     public const string NeighborhoodObjectTasks = "data/neighborhood_object_tasks.csv";
 
@@ -750,6 +749,9 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Reputation Levels asset.</summary>
     public const string ReputationLevels = "data/reputation_levels.csv";
+
+    /// <summary>Defines fallback rewards for unavailable resources.</summary>
+    public const string RewardFallbacks = "data/reward_fallbacks.csv";
 
     /// <summary>Path of the Reward Limits asset.</summary>
     public const string RewardLimits = "data/reward_limits.csv";

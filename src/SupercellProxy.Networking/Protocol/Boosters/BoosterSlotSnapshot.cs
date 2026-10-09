@@ -9,7 +9,7 @@ public sealed record BoosterSlotSnapshot
     [JsonPropertyName("BoosterId")]
     public int BoosterDataGlobalId { get; init; }
 
-    /// <summary>Gets whether this booster was granted as a free reward.</summary>
+    /// <summary>Gets whether this booster is exempt from the normal storage-slot limit.</summary>
     public bool IsFree { get; init; }
 
     /// <summary>Gets or sets the retained native booster level.</summary>

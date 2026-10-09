@@ -10,6 +10,8 @@ public sealed record NeighborhoodObjectManagerSnapshot
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("ActiveEventId")]
     public int ActiveEventId { get; init; }
+    /// <summary>Gets the last neighborhood used by this event manager.</summary>
+    public long LastKnownNeighborhoodId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">State</c> value.

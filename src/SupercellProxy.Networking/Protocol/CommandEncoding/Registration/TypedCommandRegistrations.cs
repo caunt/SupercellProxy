@@ -9,6 +9,7 @@ using SupercellProxy.Networking.Protocol.CropFields;
 using SupercellProxy.Networking.Protocol.Creatures;
 using SupercellProxy.Networking.Protocol.Events;
 using SupercellProxy.Networking.Protocol.Events.Boards;
+using SupercellProxy.Networking.Protocol.Events.ChainOffers;
 using SupercellProxy.Networking.Protocol.Events.Chronos;
 using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Events.Tasks;
@@ -68,6 +69,13 @@ internal static class TypedCommandRegistrations
             BaseFirst: true,
             FieldSchemas: null,
             static (stream, environment, unusedResolver) => AddShopBadgesCommand.Decode(stream, environment)
+        ),
+        [RemoveShopBadgesCommandType] = new(
+            typeof(RemoveShopBadgesCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => RemoveShopBadgesCommand.Decode(stream, environment)
         ),
         [CancelTruckOrderCommandType] = new(
             typeof(CancelTruckOrderCommand),
@@ -187,6 +195,13 @@ internal static class TypedCommandRegistrations
             BaseFirst: true,
             FieldSchemas: null,
             static (stream, environment, unusedResolver) => SetMiniPassStateFlagsCommand.Decode(stream, environment)
+        ),
+        [AcknowledgeChainOfferChapterIntroCommandType] = new CommandRegistryEntry(
+            typeof(AcknowledgeChainOfferChapterIntroCommand),
+            MessageDirection.Serverbound,
+            BaseFirst: true,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => AcknowledgeChainOfferChapterIntroCommand.Decode(stream, environment)
         ),
         [SetNeighborhoodObjectLeaderboardScoresCommandType] = new CommandRegistryEntry(
             typeof(SetNeighborhoodObjectLeaderboardScoresCommand),

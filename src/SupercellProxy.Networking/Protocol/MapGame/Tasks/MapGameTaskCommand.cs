@@ -19,19 +19,19 @@ public sealed record MapGameTaskCommand : Command
     [
         CommandRegistry.CompleteMapGameDumpTaskCommandType,
         279,
-        280,
+        CommandRegistry.CompleteMapGameDeliveryTaskCommandType,
         281,
         282,
         283,
         284,
         290,
-        291,
+        CommandRegistry.CollectMapGameChickenCommandType,
         295,
         CommandRegistry.CollectMapGameSanctuaryAnimalCommandType,
-        312,
+        CommandRegistry.CollectMapGameGasStationCommandType,
         314,
     ];
-    private static readonly HashSet<int> TypesWithOptionalValues = [284, 291, CommandRegistry.CollectMapGameSanctuaryAnimalCommandType];
+    private static readonly HashSet<int> TypesWithOptionalValues = [284, CommandRegistry.CollectMapGameChickenCommandType, CommandRegistry.CollectMapGameSanctuaryAnimalCommandType];
 
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCommand"/> instance.

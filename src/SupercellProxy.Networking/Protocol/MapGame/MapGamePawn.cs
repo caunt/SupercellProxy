@@ -60,7 +60,7 @@ public sealed record MapGamePawn
     /// Gets the participant's emblem.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownNestedData")]
-    public MapGamePawnEmblem? Emblem { get; }
+    public MapGamePawnEmblem? Emblem { get; init; }
 
     /// <summary>
     /// Gets the number of empty nodes travelled.
@@ -72,19 +72,19 @@ public sealed record MapGamePawn
     /// Gets the <c language="csharp">ExperienceLevel</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
-    public int ExperienceLevel { get; }
+    public int ExperienceLevel { get; init; }
 
     /// <summary>
     /// Gets the participant's name.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownString")]
-    public string? Name { get; }
+    public string? Name { get; init; }
 
     /// <summary>
     /// Gets the participant's neighborhood id.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
-    public LongId? NeighborhoodId { get; }
+    public LongId? NeighborhoodId { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">Notifications</c> value.
@@ -108,13 +108,13 @@ public sealed record MapGamePawn
     /// Gets the selected map-game profile options.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalIds")]
-    public ReadOnlyMemory<int> SelectedOptions { get; }
+    public ReadOnlyMemory<int> SelectedOptions { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int UnknownGlobalId { get; }
+    public int UnknownGlobalId { get; init; }
 
     /// <summary>
     /// Gets the ordered, unique node ids revealed by this pawn's movements.

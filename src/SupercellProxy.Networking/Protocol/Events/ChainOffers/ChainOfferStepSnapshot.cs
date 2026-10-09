@@ -8,6 +8,9 @@ public sealed record ChainOfferStepSnapshot
     /// <summary>Gets accumulated gameplay progress.</summary>
     [JsonPropertyName("farmTaskAmount")]
     public int FarmTaskAmount { get; init; }
+    /// <summary>Gets whether the step's reward sequence has been acknowledged.</summary>
+    [JsonPropertyName("hasSeenSequence")]
+    public bool HasSeenSequence { get; init; }
     /// <summary>Gets the last displayed gameplay progress.</summary>
     [JsonPropertyName("lastSeenAmount")]
     public int LastSeenAmount { get; init; }

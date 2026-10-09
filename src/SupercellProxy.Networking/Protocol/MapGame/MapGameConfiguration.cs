@@ -39,7 +39,7 @@ public sealed record MapGameConfiguration
     /// <summary>
     /// Gets the <c language="csharp">Entries</c> value.
     /// </summary>
-    public ReadOnlyMemory<MapGameConfigurationEntry> Entries { get; }
+    public ReadOnlyMemory<MapGameConfigurationEntry> Entries { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown0</c> value.
@@ -74,12 +74,12 @@ public sealed record MapGameConfiguration
     /// <summary>
     /// Gets the <c language="csharp">Unknown6</c> value.
     /// </summary>
-    public int Unknown6 { get; }
+    public int Unknown6 { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown7</c> value.
     /// </summary>
-    public int Unknown7 { get; }
+    public int Unknown7 { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">Unknown8</c> value.

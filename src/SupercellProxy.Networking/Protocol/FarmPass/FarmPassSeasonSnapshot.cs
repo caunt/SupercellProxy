@@ -53,4 +53,8 @@ public sealed record FarmPassSeasonSnapshot
     /// </summary>
     [JsonPropertyName("seenPoints")]
     public int SeenPoints { get; init; }
+
+    /// <summary>Gets whether the tier containing the last seen points was purchased.</summary>
+    [JsonPropertyName("seenPurchased")]
+    public bool SeenPurchased { get; init; }
 }

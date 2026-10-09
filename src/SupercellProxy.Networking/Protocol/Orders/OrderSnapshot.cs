@@ -15,7 +15,6 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">Datas</c> value.
     /// </summary>
     public int[] Datas { get; init; } = [];
-
     /// Gets the optional bonus reward amount.
     public int? BonusCount { get; init; }
 
@@ -49,10 +48,10 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// </summary>
     public int Exp { get; init; }
 
-
     /// Gets the helper completion checksum flag.
     [JsonPropertyName("HC")]
     public ProtocolFlag HelperCompleted { get; init; }
+
 
     /// Gets the helper grant checksum flag.
     [JsonPropertyName("HG")]
@@ -70,10 +69,14 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">Lvl</c> value.
     /// </summary>
     public int Lvl { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">New</c> value.
     /// </summary>
     public bool New { get; init; }
+    /// <summary>Gets the native order-source data reference retained with a generated order.</summary>
+    [JsonPropertyName("OSI")]
+    public int OrderSourceDataId { get; init; }
 
     /// <summary>Gets the promotion reward attached to this truck order.</summary>
     [JsonPropertyName("PopPromoBox")]

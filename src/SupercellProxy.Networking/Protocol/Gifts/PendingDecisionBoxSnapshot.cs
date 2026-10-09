@@ -13,6 +13,9 @@ public sealed record PendingDecisionBoxSnapshot
     [JsonPropertyName("GlobalId")]
     public int GlobalId { get; init; }
 
+    /// <summary>Gets whether currency rewards use purchased rather than earned currency counters.</summary>
+    public bool Paid { get; init; }
+
     /// <summary>Gets the native acquisition reason carried by this reward.</summary>
     public int SourceTag { get; init; }
 }

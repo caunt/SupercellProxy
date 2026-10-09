@@ -148,6 +148,11 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     [JsonPropertyName("SpawningRuleID")]
     public int? CreatureSpawningRuleId { get; init; }
 
+    /// <summary>Gets the player-selected pet or sanctuary animal name.</summary>
+    [JsonPropertyName("Name")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CustomName { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">DailyResetTime</c> value.
     /// </summary>
@@ -727,6 +732,9 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// Gets or sets the <c language="csharp">TutorialPeopleSpawned</c> value.
     /// </summary>
     public int TutorialPeopleSpawned { get; init; }
+
+    /// <summary>Gets upgrade materials already paid for the current building rank.</summary>
+    public int[] UpgradeCollectionToolReadyDatas { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UpgradeReady</c> value.

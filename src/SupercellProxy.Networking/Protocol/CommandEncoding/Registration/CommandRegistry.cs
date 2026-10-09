@@ -15,6 +15,11 @@ public static partial class CommandRegistry
     /// </summary>
     public const int AcknowledgeBoatCommandType = 674;
 
+    /// <summary>Provides the chain-offer chapter introduction acknowledgement contract.</summary>
+    public const int AcknowledgeChainOfferChapterIntroCommandType = 705;
+    /// <summary>Acknowledges an event's completed reward sequence.</summary>
+    public const int AcknowledgeEventSequenceCommandType = 709;
+
     /// <summary>
     /// Acknowledges receipt of the platform profiling settings without changing farm state.
     /// </summary>
@@ -31,6 +36,7 @@ public static partial class CommandRegistry
 
     /// <summary>Adds new-item badges to the shop.</summary>
     public const int AddShopBadgesCommandType = 668;
+
     /// <summary>
     /// Provides the Advance Boat State Command Type value or operation.
     /// </summary>
@@ -51,11 +57,11 @@ public static partial class CommandRegistry
     public const int BookTownPassengerServiceCommandType = 145;
     /// <summary>Buys a package from the ordinary gift catalogue.</summary>
     public const int BuyCatalogueGiftCommandType = 104;
-
     /// <summary>
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>
     public const int BuyCropSeedsCommandType = 665;
+
     /// <summary>
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
@@ -68,7 +74,6 @@ public static partial class CommandRegistry
     public const int CancelTruckOrderCommandType = 27;
     /// <summary>Starts a seasonal creature's catch animation and collection timer.</summary>
     public const int CatchCreatureCommandType = 669;
-
     /// <summary>
     /// Provides the Check Mystery Box Lock Command Type value or operation.
     /// </summary>
@@ -107,9 +112,9 @@ public static partial class CommandRegistry
 
     /// <summary>Provides the Claim Farm Pass Level Reward Command Type.</summary>
     public const int ClaimFarmPassLevelRewardCommandType = 336;
+
     /// <summary>Claims the selected Valley fuel prize.</summary>
     public const int ClaimMapGameFuelPrizeCommandType = 614;
-
     /// <summary>Claims one Valley quest-progression mystery-box prize.</summary>
     public const int ClaimMapGameQuestProgressionPrizeCommandType = 285;
 
@@ -201,6 +206,12 @@ public static partial class CommandRegistry
     /// <summary>Collects the product of a ready lobster.</summary>
     public const int CollectLobsterCommandType = 121;
 
+    /// <summary>Requests collection of a chicken from a shared Valley task.</summary>
+    public const int CollectMapGameChickenCommandType = 291;
+
+    /// <summary>Requests collection of a free Valley gas-station task.</summary>
+    public const int CollectMapGameGasStationCommandType = 312;
+
     /// <summary>Collects a sanctuary animal from a shared Valley task.</summary>
     public const int CollectMapGameSanctuaryAnimalCommandType = 310;
 
@@ -260,9 +271,12 @@ public static partial class CommandRegistry
     /// Provides the Complete Forest Clearing Command Type value or operation.
     /// </summary>
     public const int CompleteForestClearingCommandType = 20;
+
+    /// <summary>Requests completion of a personal Valley delivery task.</summary>
+    public const int CompleteMapGameDeliveryTaskCommandType = 280;
+
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
-
     /// <summary>Completes a finished Neighborhood Object task.</summary>
     public const int CompleteNeighborhoodObjectTaskCommandType = 576;
 
@@ -303,6 +317,9 @@ public static partial class CommandRegistry
     /// Provides the Feed Livestock Animal Command Type value or operation.
     /// </summary>
     public const int FeedLivestockAnimalCommandType = 532;
+
+    /// <summary>Fills the next empty sanctuary food bowl using its configured feed.</summary>
+    public const int FeedSanctuaryHabitatCommandType = 218;
 
     /// <summary>
     /// Provides the Fill Boat Crate Command Type value or operation.
@@ -353,6 +370,9 @@ public static partial class CommandRegistry
     /// Provides the Mark Event Tasks Seen Command Type value or operation.
     /// </summary>
     public const int MarkEventTasksSeenCommandType = 549;
+
+    /// <summary>Acknowledges the current Farm Pass points and their tier's purchase state.</summary>
+    public const int MarkFarmPassPointsSeenCommandType = 710;
 
     /// <summary>
     /// Provides the Mark Farm Pass Tasks Seen Command Type value or operation.
@@ -502,6 +522,9 @@ public static partial class CommandRegistry
     /// </summary>
     public const int RemoveNewShopItemsCommandType = 601;
 
+    /// <summary>Removes new-item badges from the shop.</summary>
+    public const int RemoveShopBadgesCommandType = 711;
+
     /// <summary>Requests an item from the player's neighborhood.</summary>
     public const int RequestNeighborhoodItemCommandType = 199;
 
@@ -523,6 +546,9 @@ public static partial class CommandRegistry
     /// </summary>
     public const int ResetWheelCarCommandType = 517;
 
+    /// <summary>Requests free revival of a tree or gatherer source on another farm.</summary>
+    public const int RevivePlantCommandType = 63;
+
     /// <summary>Updates friend-count-based roadside stand unlocks.</summary>
     public const int RoadsideFriendCountServerCommandType = 210;
 
@@ -533,7 +559,6 @@ public static partial class CommandRegistry
     /// Provides the Roadside Purchase Server Command Type value or operation.
     /// </summary>
     public const int RoadsidePurchaseServerCommandType = 243;
-
     /// <summary>Records a roadside listing's buyer.</summary>
     public const int RoadsideSaleServerCommandType = 375;
 
@@ -541,6 +566,7 @@ public static partial class CommandRegistry
     /// Provides the Roadside Stock Server Command Type value or operation.
     /// </summary>
     public const int RoadsideStockServerCommandType = 244;
+
     /// <summary>Starts panic movement for all residents of a livestock habitat.</summary>
     public const int ScareLivestockCommandType = 6;
 
@@ -551,7 +577,6 @@ public static partial class CommandRegistry
     /// Provides the Select Boat Order Command Type value or operation.
     /// </summary>
     public const int SelectBoatOrderCommandType = 570;
-
     /// <summary>Provides the Select Boy Offer Command Type.</summary>
     public const int SelectBoyOfferCommandType = 70;
 
@@ -559,6 +584,7 @@ public static partial class CommandRegistry
     /// Provides the Select Livestock Animal Command Type value or operation.
     /// </summary>
     public const int SelectLivestockAnimalCommandType = 21;
+
     /// <summary>Sends a thank-you gift for boat or plant help.</summary>
     public const int SendThankYouGiftCommandType = 102;
 
@@ -633,10 +659,8 @@ public static partial class CommandRegistry
 
     /// <summary>Submits a vote for a decoration-event canvas candidate.</summary>
     public const int SubmitDecorationVoteCommandType = 687;
-
     /// <summary>Taps an ambient animal identified by its runtime object id.</summary>
     public const int TapAmbientAnimalCommandType = 42;
-
     /// <summary>Plays the tap reaction of an available Sanctuary animal.</summary>
     public const int TapSanctuaryAnimalCommandType = 220;
 
@@ -697,6 +721,9 @@ public static partial class CommandRegistry
 
     /// <summary>Wakes a sleeping pet and collects its feeding reward.</summary>
     public const int WakePetCommandType = 87;
+
+    /// <summary>Wakes a sleeping sanctuary animal and collects its feeding reward.</summary>
+    public const int WakeSanctuaryAnimalCommandType = 219;
 
     private static readonly Lazy<Dictionary<int, CommandRegistryEntry>> LazyEntries = new(CreateEntries);
     private static readonly HashSet<int> NonProductionCommandTypes = [7, 84, 85];
@@ -873,12 +900,16 @@ public static partial class CommandRegistry
     {
         Dictionary<int, CommandRegistryEntry> entries = new(TypedCommandRegistrations.Entries);
 
+        foreach (KeyValuePair<int, CommandRegistryEntry> entry in EventCommandRegistrations.Entries)
+            entries.Add(entry.Key, entry.Value);
+
         foreach (KeyValuePair<int, CommandRegistryEntry> entry in FishingCommandRegistrations.Entries)
             entries.Add(entry.Key, entry.Value);
 
         foreach (KeyValuePair<int, CommandRegistryEntry> entry in DerbyCommandRegistrations.Entries)
             entries.Add(entry.Key, entry.Value);
 
+        AddPetEntries(entries);
         AddVarCommandEntries(entries);
         AddPrimitiveSchemas(entries, PrimitiveCommandSchemas.Entries);
         StructuredCommandRegistrations.AddStructuredCommands(entries);

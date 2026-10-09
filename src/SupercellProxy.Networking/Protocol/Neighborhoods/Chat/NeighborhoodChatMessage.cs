@@ -3,34 +3,73 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 
-/// <summary>Clientbound neighborhood chat entry; the item-request form is currently proven.</summary>
-public sealed record NeighborhoodChatMessage(NeighborhoodItemRequestChatEntry ItemRequest) : IMessage
+/// <summary>Receives an individual neighborhood stream entry.</summary>
+public sealed record NeighborhoodChatMessage : IMessage
 {
     private const int ItemRequestEntryType = 7;
+    private readonly NeighborhoodItemRequestChatEntry? _itemRequest;
 
-    /// <summary>Decodes the proven item-request chat entry.</summary>
+    /// <summary>Creates an item-request message.</summary>
+    public NeighborhoodChatMessage(NeighborhoodItemRequestChatEntry itemRequest)
+    {
+        _itemRequest = itemRequest;
+    }
+
+    /// <summary>Creates an action-entry message.</summary>
+    public NeighborhoodChatMessage(NeighborhoodActionChatEntry action)
+    {
+        Action = action;
+    }
+
+    /// <summary>Gets the action entry, when present.</summary>
+    public NeighborhoodActionChatEntry? Action { get; init; }
+
+    /// <summary>Gets whether the entry announces an item request.</summary>
+    public bool IsItemRequest => _itemRequest is not null;
+
+    /// <summary>Gets or replaces the item request; unavailable for other entry types.</summary>
+    public NeighborhoodItemRequestChatEntry ItemRequest
+    {
+        get => _itemRequest ?? throw new InvalidOperationException(message: "The chat entry is not an item request.");
+        init => _itemRequest = value;
+    }
+
+    /// <summary>Decodes a supported native neighborhood stream entry.</summary>
     public static NeighborhoodChatMessage Decode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         int entryType = stream.ReadVarInt();
 
-        if (entryType != ItemRequestEntryType)
-            throw new NotSupportedException($"Neighborhood chat entry type {entryType} is not implemented.");
-
-        NeighborhoodItemRequestChatEntry entry = NeighborhoodItemRequestChatEntry.Decode(stream);
+        NeighborhoodChatMessage message = entryType == ItemRequestEntryType
+            ? new(NeighborhoodItemRequestChatEntry.Decode(stream))
+            : NeighborhoodActionChatEntry.Supports(entryType)
+            ? new(NeighborhoodActionChatEntry.Decode(entryType, stream))
+            : throw new NotSupportedException($"Neighborhood chat entry type {entryType} is not implemented.");
 
         return stream.Position != stream.Length
             ? throw new InvalidDataException(message: "The neighborhood chat message has trailing data.")
-            : new NeighborhoodChatMessage(entry);
+            : message;
     }
 
-    /// <summary>Encodes the proven item-request chat entry.</summary>
+    /// <summary>Encodes the entry with its native discriminator.</summary>
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        stream.WriteVarInt(ItemRequestEntryType);
-        ItemRequest.Encode(stream);
+        if (_itemRequest is { } request && Action is null)
+        {
+            stream.WriteVarInt(ItemRequestEntryType);
+            request.Encode(stream);
+        }
+        else if (Action is { } action && _itemRequest is null)
+        {
+            stream.WriteVarInt(action.EntryType);
+            action.Encode(stream);
+        }
+        else
+        {
+            throw new InvalidDataException(message: "A neighborhood chat message requires exactly one entry.");
+        }
     }
 
     /// <summary>Omits player details from diagnostic text.</summary>

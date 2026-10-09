@@ -62,15 +62,12 @@ internal static class PrimitiveCommandSchemas
                 49,
                 53,
                 59,
-                63,
+                RevivePlantCommandType,
                 65,
                 66,
                 HireBoyCommandType,
                 SelectBoyOfferCommandType,
                 SearchWithBoyCommandType,
-                WakePetCommandType,
-                88,
-                89,
                 93,
                 96,
                 100,
@@ -95,9 +92,8 @@ internal static class PrimitiveCommandSchemas
                 194,
                 208,
                 209,
-                217,
-                218,
-                219,
+                FeedSanctuaryHabitatCommandType,
+                WakeSanctuaryAnimalCommandType,
                 TapSanctuaryAnimalCommandType,
                 225,
                 236,
@@ -109,7 +105,6 @@ internal static class PrimitiveCommandSchemas
                 330,
                 335,
                 338,
-                340,
                 393,
                 394,
             ],
@@ -122,16 +117,6 @@ internal static class PrimitiveCommandSchemas
         new( [ 303, 318 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 38, 269 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 25 ], [ CommandFieldType.VarInt, CommandFieldType.Byte ], MessageDirection.Serverbound, baseFirst: false ),
-        new(
-            [ 86 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.DataReference,
-                CommandFieldType.VarInt,
-            ],
-            MessageDirection.Serverbound,
-            baseFirst: false
-        ),
         new( [ 91 ], [ CommandFieldType.UInt16, CommandFieldType.UInt16 ], MessageDirection.Serverbound, baseFirst: false ),
         new([137], [CommandFieldType.LongId, CommandFieldType.VarInt], MessageDirection.Clientbound, baseFirst: false),
         new( [ 272 ], [ CommandFieldType.OptionalLongId ], MessageDirection.Clientbound, baseFirst: false ),
@@ -270,30 +255,12 @@ internal static class PrimitiveCommandSchemas
             baseFirst: false
         ),
         new(
-            [ 228 ],
-            [
-                CommandFieldType.Int32,
-                CommandFieldType.Int32,
-                CommandFieldType.Int32,
-                CommandFieldType.VarInt,
-                CommandFieldType.OptionalInt32String,
-            ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
             [ 182 ],
             [
                 CommandFieldType.VarInt,
                 CommandFieldType.LongId,
                 CommandFieldType.OptionalLongId,
             ],
-            MessageDirection.Clientbound,
-            baseFirst: false
-        ),
-        new(
-            [245],
-            [CommandFieldType.Int32, CommandFieldType.String, CommandFieldType.Boolean, ],
             MessageDirection.Clientbound,
             baseFirst: false
         ),

@@ -37,6 +37,10 @@ public sealed record MovieTicketEventDefinition
     [JsonPropertyName("RewardRandomSetNonSpender")]
     public MovieTicketRewardDefinition[] RandomNonSpenderRewards { get; init; } = [];
 
+    /// <summary>Gets the placement level override used by movie-ticket availability.</summary>
+    [JsonPropertyName("RequiredLevel")]
+    public int RequiredLevel { get; init; }
+
     /// <summary>Gets the Requirements value.</summary>
     [JsonPropertyName("requirements")]
     public EventLevelRequirements? Requirements { get; init; }

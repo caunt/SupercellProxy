@@ -10,6 +10,7 @@ using SupercellProxy.Networking.Protocol.Events.Decoration;
 using SupercellProxy.Networking.Protocol.Friends;
 using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
+using SupercellProxy.Networking.Protocol.Homes.Details;
 using SupercellProxy.Networking.Protocol.Homes.Requests;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
@@ -19,10 +20,12 @@ using SupercellProxy.Networking.Protocol.Neighborhoods.Members;
 using SupercellProxy.Networking.Protocol.Newspapers;
 using SupercellProxy.Networking.Protocol.OpaquePayloads;
 using SupercellProxy.Networking.Protocol.Rankings;
+using SupercellProxy.Networking.Protocol.Recipients;
 using SupercellProxy.Networking.Protocol.ResourceAssociations;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
 using SupercellProxy.Networking.Protocol.ScalarPayloads;
 using SupercellProxy.Networking.Protocol.Turns;
+using SupercellProxy.Networking.Protocol.Town;
 
 
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -57,11 +60,17 @@ public static partial class MessageRegistry
     /// <summary>Marks the second state flag on one Neighborhood stream entry.</summary>
     public const ushort NeighborhoodStreamEntryFlagMessageType = 23867;
 
+    /// <summary>Identifies another player's Town snapshot.</summary>
+    public const ushort OtherTownDataMessageType = 21179;
+
     /// <summary>Identifies the player's town home snapshot.</summary>
     public const ushort OwnTownDataMessageType = 28543;
 
     /// <summary>Requests Greg's farm in the selected language.</summary>
     public const ushort RequestGregFarmMessageType = 14038;
+
+    /// <summary>Requests another player's Town.</summary>
+    public const ushort RequestOtherTownMessageType = 18919;
 
     /// Identifies the serverbound startup pulse observed before a zero-command home turn.
     public const ushort Serverbound38101MessageType = 38101;
@@ -80,10 +89,26 @@ public static partial class MessageRegistry
     private static readonly Dictionary<ushort, MessageRegistryEntry> Map = RegisterDerbyMessages(
         new()
         {
+            [key: 14598] = new MessageRegistryEntry(typeof(RequestHomeIntegerListsMessage), RequestHomeIntegerListsMessage.Decode)
+            { CaptureName = nameof(RequestHomeIntegerListsMessage) },
+            [key: 27850] = new MessageRegistryEntry(typeof(HomeIntegerListsMessage), HomeIntegerListsMessage.Decode)
+            { CaptureName = nameof(HomeIntegerListsMessage) },
+            [key: 19658] = new MessageRegistryEntry(typeof(SelectRecipientMessage), SelectRecipientMessage.Decode)
+            { CaptureName = nameof(SelectRecipientMessage) },
+            [key: 29926] = new MessageRegistryEntry(typeof(RecipientSelectedMessage), RecipientSelectedMessage.Decode)
+            { CaptureName = nameof(RecipientSelectedMessage) },
             [RequestGregFarmMessageType] = new MessageRegistryEntry(typeof(RequestGregFarmMessage), RequestGregFarmMessage.Decode)
             { CaptureName = nameof(RequestGregFarmMessage) },
             [key: 14049] = new MessageRegistryEntry(typeof(RequestOwnTownMessage), RequestOwnTownMessage.Decode)
             { CaptureName = nameof(RequestOwnTownMessage) },
+            [RequestOtherTownMessageType] = new MessageRegistryEntry(typeof(RequestOtherTownMessage), RequestOtherTownMessage.Decode)
+            { CaptureName = nameof(RequestOtherTownMessage) },
+            [OtherTownDataMessageType] = new MessageRegistryEntry(typeof(OtherTownDataMessage), OtherTownDataMessage.Decode)
+            { CaptureName = nameof(OtherTownDataMessage) },
+            [key: 19430] = new MessageRegistryEntry(typeof(RequestTownPassengerPickupMessage), RequestTownPassengerPickupMessage.Decode)
+            { CaptureName = nameof(RequestTownPassengerPickupMessage) },
+            [key: 25372] = new MessageRegistryEntry(typeof(TownPassengerPickupResultMessage), TownPassengerPickupResultMessage.Decode)
+            { CaptureName = nameof(TownPassengerPickupResultMessage) },
             [key: 18475] = new MessageRegistryEntry(typeof(RequestOwnFishingHomeMessage), RequestOwnFishingHomeMessage.Decode)
             { CaptureName = nameof(RequestOwnFishingHomeMessage) },
             [key: 18335] = new MessageRegistryEntry(typeof(FollowMessage), FollowMessage.Decode)

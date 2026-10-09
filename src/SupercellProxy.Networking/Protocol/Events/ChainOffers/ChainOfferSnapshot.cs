@@ -5,6 +5,9 @@ namespace SupercellProxy.Networking.Protocol.Events.ChainOffers;
 /// <summary>Retains progress and claimed rewards for one chain event.</summary>
 public sealed record ChainOfferSnapshot
 {
+    /// <summary>Gets the bit mask of acknowledged chapter introductions.</summary>
+    [JsonPropertyName("acknowledgedChapterIntros")]
+    public ulong AcknowledgedChapterIntros { get; init; }
     /// <summary>Gets the completed prefix retained by older sequential-offer saves.</summary>
     [JsonPropertyName("chainProgress")]
     public int ChainProgress { get; init; }

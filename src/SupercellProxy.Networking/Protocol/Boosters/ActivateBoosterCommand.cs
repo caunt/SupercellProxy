@@ -6,14 +6,12 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 
 /// <summary>
 /// Activates a booster held in the player's booster storage.
-/// The native purpose of the trailing modifier fields is unestablished; every retained input uses
-/// <c>0, false, false</c>.
 /// </summary>
 /// <param name="BoosterDataGlobalId">The activated booster's data row in the boosters table.</param>
-/// <param name="Unknown0">Retained native modifier; only zero is proven.</param>
-/// <param name="Unknown1">Retained native modifier; only false is proven.</param>
+/// <param name="DiamondCost">The quoted activation price, zero for a free active slot.</param>
+/// <param name="IsFree">Matches the stored booster slot's IsFree flag.</param>
 /// <param name="Unknown2">Retained native modifier; only false is proven.</param>
-public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int Unknown0, bool Unknown1, bool Unknown2) : Command
+public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int DiamondCost, bool IsFree, bool Unknown2) : Command
 {
     /// <inheritdoc />
     public override int Type => CommandRegistry.ActivateBoosterCommandType;
@@ -23,19 +21,19 @@ public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int Unknown
     {
         ArgumentNullException.ThrowIfNull(stream);
         int boosterDataGlobalId = stream.ReadVarInt();
-        int unknown0 = stream.ReadVarInt();
-        bool unknown1 = stream.ReadBoolean();
+        int diamondCost = stream.ReadVarInt();
+        bool isFree = stream.ReadBoolean();
         bool unknown2 = stream.ReadBoolean();
 
-        return new ActivateBoosterCommand(boosterDataGlobalId, unknown0, unknown1, unknown2);
+        return new ActivateBoosterCommand(boosterDataGlobalId, diamondCost, isFree, unknown2);
     }
 
     /// <inheritdoc />
     public override void Encode(MessageStream stream, CommandEnvironment environment)
     {
         stream.WriteVarInt(BoosterDataGlobalId);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteBoolean(Unknown1);
+        stream.WriteVarInt(DiamondCost);
+        stream.WriteBoolean(IsFree);
         stream.WriteBoolean(Unknown2);
     }
 }

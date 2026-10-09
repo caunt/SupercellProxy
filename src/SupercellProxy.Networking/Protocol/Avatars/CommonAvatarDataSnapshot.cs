@@ -135,6 +135,9 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets the saved Sanctuary puzzle progression.</summary>
     [JsonPropertyName("SanctuaryManager")]
     public SanctuaryManagerSnapshot? SanctuaryManager { get; init; }
+    /// <summary>Gets the truck-generation daily progression.</summary>
+    public Orders.TruckOrderManagerSnapshot? TruckOrderManager { get; init; }
+
     /// <summary>
     /// Gets the Truck Track Manager value.
     /// </summary>

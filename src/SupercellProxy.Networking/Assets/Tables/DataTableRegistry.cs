@@ -322,6 +322,7 @@ public static class DataTableRegistry
         [key: 321] = GameAssetFiles.NeighborhoodObjects,
         [key: 322] = GameAssetFiles.NeighborhoodObjectTasks,
         [key: 323] = GameAssetFiles.Emotes,
+        [key: 324] = GameAssetFiles.RewardFallbacks,
         [key: 325] = GameAssetFiles.NeighborhoodObjectPerks,
         [key: 326] = GameAssetFiles.WeightedRewardGroups,
         [key: 327] = GameAssetFiles.OrderTracks,
@@ -365,6 +366,9 @@ public static class DataTableRegistry
         Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
 
         Dictionary<int, string> dataTableFiles = new(NativeDataTableFiles);
+
+        if (resourcesByFile.ContainsKey(GameAssetFiles.ConsumableBoosters))
+            dataTableFiles.Add(key: 370, GameAssetFiles.ConsumableBoosters);
 
         if (resourcesByFile.ContainsKey(GameAssetFiles.SupplyShed))
             dataTableFiles.Add(SupplyShedTableId, GameAssetFiles.SupplyShed);

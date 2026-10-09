@@ -11,8 +11,29 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEvent
 {
-    /// <summary>Completes one personal Valley dump task and carries its authoritative pawn and task.</summary>
+    /// <summary>Records a participant collecting a chicken task.</summary>
+    public const int ChickenTaskCollectedType = 21;
+
+    /// <summary>Records a participant's contribution to the shared chicken goal.</summary>
+    public const int ChickensCollectedType = 18;
+
+    /// <summary>Completes a personal Valley task, including dump and delivery tasks, with its authoritative pawn and task.</summary>
     public const int DumpTaskCompletedType = 4;
+
+    /// <summary>Removes the participant's escaped sanctuary-animal tasks.</summary>
+    public const int EscapedSanctuaryAnimalsRemovedType = 38;
+
+    /// <summary>Updates the transient Valley flag of a linked Chronos event.</summary>
+    public const int EventFlagUpdatedType = 26;
+
+    /// <summary>Collects a free gas-station offer.</summary>
+    public const int GasStationCollectedType = 34;
+
+    /// <summary>Collects a paid gas-station offer.</summary>
+    public const int GasStationPurchasedType = 35;
+
+    /// <summary>Replaces a participant's gas-station offer.</summary>
+    public const int GasStationUpdatedType = 36;
 
     /// <summary>Adds an emoji to a map node.</summary>
     public const int NodeEmojiAddedType = 22;
@@ -23,8 +44,29 @@ public sealed record MapGameEvent
     /// <summary>Removes every node emoji matching the supplied avatar, node, and data filters.</summary>
     public const int NodeEmojiRemovedType = 23;
 
+    /// <summary>Completes an obstacle and records its helper.</summary>
+    public const int ObstacleCompletedType = 17;
+
+    /// <summary>Requests another participant's help with an obstacle.</summary>
+    public const int ObstacleHelpRequestedType = 16;
+
+    /// <summary>Completes an obstacle using the transmitted diamond charge.</summary>
+    public const int ObstaclePaidCompletionType = 15;
+
+    /// <summary>Refreshes an existing pawn's level, name, options and neighborhood profile.</summary>
+    public const int PawnDetailsUpdatedType = 28;
+
     /// <summary>Moves a Valley pawn and carries the authoritative movement projection.</summary>
     public const int PawnMovedType = 2;
+
+    /// <summary>Sets or clears the neighborhood task attached to a pawn.</summary>
+    public const int PawnNeighborhoodTaskUpdatedType = 25;
+
+    /// <summary>Refreshes an existing pawn's neighborhood identity and emblem.</summary>
+    public const int PawnNeighborhoodUpdatedType = 31;
+
+    /// <summary>Changes a pawn's retained notification and value entries.</summary>
+    public const int PawnNotificationUpdatedType = 27;
 
     /// <summary>Adds or refreshes a Valley pawn's social profile.</summary>
     public const int PawnProfileUpdatedType = 30;
@@ -38,8 +80,26 @@ public sealed record MapGameEvent
     /// <summary>Assigns an existing shared sanctuary-animal task to a Valley participant.</summary>
     public const int SanctuaryAnimalCollectedType = 32;
 
+    /// <summary>Records a participant's contribution to the shared sanctuary-animal goal.</summary>
+    public const int SanctuaryAnimalsDeliveredType = 37;
+
+    /// <summary>Offloads a participant's carried sanctuary animals.</summary>
+    public const int SanctuaryAnimalsOffloadedType = 33;
+
+    /// <summary>Confirms or releases a participant's shared-task submission.</summary>
+    public const int SharedTaskCommitResultType = 29;
+
+    /// <summary>Processes shared-task completion and participant rewards.</summary>
+    public const int SharedTaskCompletedType = 13;
+
     /// <summary>Expires an existing task in the shared task group.</summary>
     public const int SharedTaskExpiredType = 9;
+
+    /// <summary>Assigns a free participant slot in a shared task.</summary>
+    public const int SharedTaskJoinedType = 12;
+
+    /// <summary>Marks a shared dump task and records the participant who marked it.</summary>
+    public const int SharedTaskMarkedType = 20;
 
     /// <summary>Removes an existing task from the shared task group.</summary>
     public const int SharedTaskRemovedType = 10;
@@ -49,6 +109,9 @@ public sealed record MapGameEvent
 
     /// <summary>Identifies a shared map-game state synchronization event.</summary>
     public const int StateSynchronizationType = 1;
+
+    /// <summary>Skips a task's remaining replacement cooldown.</summary>
+    public const int TaskCooldownSkippedType = 14;
 
     /// <summary>Removes an existing task from its owner or shared group.</summary>
     public const int TaskRemovedType = 7;
@@ -170,13 +233,13 @@ public sealed record MapGameEvent
             schemas[SharedTaskExpiredType] = pawnAndTask;
             schemas[SharedTaskRemovedType] = pawnAndTask;
             schemas[SharedTaskUpdatedType] = pawnAndTask;
-            schemas[key: 12] = pawnAndTask;
-            schemas[key: 13] = pawnAndTask;
-            schemas[key: 14] = [optionalPawn, optionalTask, varInt];
-            schemas[key: 15] = [optionalPawn, optionalTask, varInt];
-            schemas[key: 16] = pawnAndTask;
-            schemas[key: 17] = [optionalPawn, optionalTask, optionalVarIntArray];
-            schemas[key: 18] =
+            schemas[SharedTaskJoinedType] = pawnAndTask;
+            schemas[SharedTaskCompletedType] = pawnAndTask;
+            schemas[TaskCooldownSkippedType] = [optionalPawn, optionalTask, varInt];
+            schemas[ObstaclePaidCompletionType] = [optionalPawn, optionalTask, varInt];
+            schemas[ObstacleHelpRequestedType] = pawnAndTask;
+            schemas[ObstacleCompletedType] = [optionalPawn, optionalTask, optionalVarIntArray];
+            schemas[ChickensCollectedType] =
             [
                 optionalLongId,
                 optionalPawn,
@@ -185,26 +248,26 @@ public sealed record MapGameEvent
                 varInt,
             ];
             schemas[key: 19] = pawnAndTask;
-            schemas[key: 20] = pawnAndTask;
+            schemas[SharedTaskMarkedType] = pawnAndTask;
         }
 
         void AddRemainingSchemas()
         {
-            schemas[key: 21] = [optionalPawn, optionalTask, optionalVarIntArray];
+            schemas[ChickenTaskCollectedType] = [optionalPawn, optionalTask, optionalVarIntArray];
             schemas[NodeEmojiAddedType] = [optionalLongId, varInt, dataReference, int32Field];
             schemas[NodeEmojiRemovedType] = [optionalLongId, varInt, dataReference];
             schemas[NodeEmojiCollectedType] = [optionalLongId, varInt, dataReference];
-            schemas[key: 25] = [optionalLongId, varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 162)];
-            schemas[key: 26] = [varInt, boolean];
-            schemas[key: 27] =
+            schemas[PawnNeighborhoodTaskUpdatedType] = [optionalLongId, varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 162)];
+            schemas[EventFlagUpdatedType] = [varInt, boolean];
+            schemas[PawnNotificationUpdatedType] =
             [
                 logicLong,
                 varInt,
                 varInt,
                 new(MapGameEventFieldType.DataReference, ExpectedTableId: 226),
             ];
-            schemas[key: 28] = [optionalPawn];
-            schemas[key: 29] =
+            schemas[PawnDetailsUpdatedType] = [optionalPawn];
+            schemas[SharedTaskCommitResultType] =
             [
                 varInt,
                 optionalPawn,
@@ -212,13 +275,13 @@ public sealed record MapGameEvent
                 new(MapGameEventFieldType.OptionalDumpTaskState),
             ];
             schemas[PawnProfileUpdatedType] = [optionalPawn];
-            schemas[key: 31] = [optionalPawn];
+            schemas[PawnNeighborhoodUpdatedType] = [optionalPawn];
             schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVarIntArray];
-            schemas[key: 33] = [varInt, optionalPawn];
-            schemas[key: 34] = pawnAndTask;
-            schemas[key: 35] = [optionalPawn, optionalTask, varInt];
-            schemas[key: 36] = pawnAndTask;
-            schemas[key: 37] =
+            schemas[SanctuaryAnimalsOffloadedType] = [varInt, optionalPawn];
+            schemas[GasStationCollectedType] = pawnAndTask;
+            schemas[GasStationPurchasedType] = [optionalPawn, optionalTask, varInt];
+            schemas[GasStationUpdatedType] = pawnAndTask;
+            schemas[SanctuaryAnimalsDeliveredType] =
             [
                 optionalLongId,
                 optionalPawn,
@@ -226,7 +289,7 @@ public sealed record MapGameEvent
                 varInt,
                 varInt,
             ];
-            schemas[key: 38] = [optionalPawn, optionalTaskCollection];
+            schemas[EscapedSanctuaryAnimalsRemovedType] = [optionalPawn, optionalTaskCollection];
             schemas[key: 39] = [varInt, new(MapGameEventFieldType.OptionalProfileData)];
             schemas[key: 40] = [varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 260)];
         }

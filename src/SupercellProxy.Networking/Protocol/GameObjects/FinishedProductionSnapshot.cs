@@ -7,6 +7,10 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <summary>Represents decoded FinishedProductionSnapshot state.</summary>
 public sealed record FinishedProductionSnapshot : ExtensibleDocument
 {
+    /// <summary>Gets the saved neighborhood perk bonus count.</summary>
+    public int BonusProductAmount { get; init; }
+    /// <summary>Gets whether this finished product was created by a neighborhood perk.</summary>
+    public bool CreatedFromBonusProduct { get; init; }
     /// <summary>Gets the DataGlobalId value.</summary>
     [JsonPropertyName("ID")]
     public int DataGlobalId { get; init; }

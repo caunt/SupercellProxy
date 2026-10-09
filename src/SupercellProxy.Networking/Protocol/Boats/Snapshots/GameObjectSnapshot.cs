@@ -23,6 +23,9 @@ public sealed partial record GameObjectSnapshot
     public int Eta { get; init; }
     /// <summary>Gets the boat's last daily reset time.</summary>
     public int LastDailyResetTime { get; init; }
+    /// <summary>Gets the event whose arrival requires refreshing the current order bonuses.</summary>
+    [JsonPropertyName("pending_boat_order_bonus_refresh_event_id")]
+    public int PendingBoatBonusRefreshEventId { get; init; }
     /// <summary>Gets the current boat's sequence number.</summary>
     [JsonPropertyName("running_boat_id")]
     public int RunningBoatId { get; init; }

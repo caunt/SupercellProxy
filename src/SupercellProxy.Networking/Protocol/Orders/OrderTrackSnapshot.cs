@@ -7,6 +7,10 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// </summary>
 public sealed record OrderTrackSnapshot
 {
+    /// <summary>Gets the saved account-specific calendar offset in seconds.</summary>
+    [JsonPropertyName("calOff")]
+    public int CalendarOffsetSeconds { get; init; } = -1;
+
     /// <summary>
     /// Gets the Completed value.
     /// </summary>

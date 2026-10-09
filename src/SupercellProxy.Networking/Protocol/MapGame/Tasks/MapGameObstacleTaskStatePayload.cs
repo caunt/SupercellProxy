@@ -40,13 +40,13 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
     /// <summary>
     /// Gets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
-    public bool UnknownBoolean1 { get; }
+    public bool UnknownBoolean1 { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongId? UnknownLongId { get; }
+    public LongId? UnknownLongId { get; init; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

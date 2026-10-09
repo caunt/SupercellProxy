@@ -40,7 +40,7 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     /// <summary>
     /// Gets the <c language="csharp">UnknownBoolean1</c> value.
     /// </summary>
-    public bool UnknownBoolean1 { get; }
+    public bool UnknownBoolean1 { get; init; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

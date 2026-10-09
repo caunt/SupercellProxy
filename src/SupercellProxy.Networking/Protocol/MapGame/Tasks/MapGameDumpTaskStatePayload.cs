@@ -45,7 +45,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     /// <summary>
     /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
-    public bool Unknown0 { get; }
+    public bool Unknown0 { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownGlobalId0</c> value.
@@ -63,7 +63,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     /// Gets the <c language="csharp">UnknownLongId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongId? UnknownLongId { get; }
+    public LongId? UnknownLongId { get; init; }
 
     /// <summary>
     /// Decodes a value from the supplied protocol payload.

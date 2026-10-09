@@ -33,7 +33,7 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
     /// Gets the <c language="csharp">LongIds</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("LongIds")]
-    public ReadOnlyMemory<LongId> LongIds { get; }
+    public ReadOnlyMemory<LongId> LongIds { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">OptionalValues</c> value.

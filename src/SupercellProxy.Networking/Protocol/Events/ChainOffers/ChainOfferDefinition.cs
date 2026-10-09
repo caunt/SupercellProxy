@@ -9,6 +9,8 @@ public sealed record ChainOfferDefinition
     public string ProgressType { get; init; } = "Single";
     /// <summary>Gets whether rewards must be claimed in order.</summary>
     public string ClaimType { get; init; } = "StepByStep";
+    /// <summary>Gets the timed chapters in native order.</summary>
+    public ChainOfferChapterDefinition[] Chapters { get; init; } = [];
     /// <summary>Gets the steps in native order.</summary>
     public ChainOfferStepDefinition[] Steps { get; init; } = [];
 }
