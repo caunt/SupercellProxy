@@ -1,5 +1,9 @@
-# Supercell Tools & Proxy
+Supercell Tools - Unofficial
+---
 
+A collection of .NET tools and libraries for researching Supercell game protocols, networking, encryption, authentication, and traffic analysis.
+
+[**Public server keys**](https://github.com/caunt/SupercellProxy/blob/main/KEYS.md)
 - Brawl Stars
 - Hay Day
 - Clash of Clans
@@ -8,21 +12,14 @@
 - Boom Beach
 - mo\.co
 
-## Supercell Games Public Server Keys
-[**Table of public server keys**](https://github.com/caunt/SupercellProxy/blob/main/KEYS.md)
+❗**Do not connect to or interfere with Supercell production services, cheat, automate live gameplay, collect others’ private data without authorization, or unlawfully bypass technical protections.**
 
-If the key you need is not there, use [`SupercellProxy.Keys extract`](https://github.com/caunt/SupercellProxy/tree/main/src/SupercellProxy.Keys) to extract it from a native binary or IPA.
+---
 
-## Notes
-
-<sub>
-This repository is a noncommercial, educational playground for protocol research.<br>
-Not affiliated with or endorsed by Supercell.<br>
-Use only on systems you own or have written permission to test, in isolated environments.<br>
-Provided “AS IS” without warranty; use at your own risk.
-</sub>
-<br>
-<br>
-
-**Do not connect to or interfere with Supercell production services.  
-Do not cheat, automate against live games, harvest others' data, or bypass technical protection measures**.
+Independent, noncommercial research project. Not affiliated with, authorized by, or endorsed by Supercell. All trademarks belong to their respective owners.
+<br><br>
+Use only where lawful and expressly authorized. This project grants no rights over third-party software or services.
+<br><br>
+To the fullest extent permitted by law, all software and information are provided **AS IS**, without express or implied warranties, including merchantability, fitness for a particular purpose, or noninfringement. Authors and contributors disclaim liability for claims, losses, or damages arising from use of, or inability to use, this project.
+<br><br>
+Licensed under the [MIT License](LICENSE). The responsible-use statements above do not modify the license or impose additional license conditions.
