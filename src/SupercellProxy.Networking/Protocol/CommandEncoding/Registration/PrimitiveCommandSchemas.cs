@@ -117,7 +117,6 @@ internal static class PrimitiveCommandSchemas
         new( [ 303, 318 ], [ CommandFieldType.DataReference ], MessageDirection.Serverbound, baseFirst: false ),
         new( [ 38, 269 ], new CommandFieldType[1], MessageDirection.Clientbound, baseFirst: false ),
         new( [ 25 ], [ CommandFieldType.VarInt, CommandFieldType.Byte ], MessageDirection.Serverbound, baseFirst: false ),
-        new( [ 91 ], [ CommandFieldType.UInt16, CommandFieldType.UInt16 ], MessageDirection.Serverbound, baseFirst: false ),
         new([137], [CommandFieldType.LongId, CommandFieldType.VarInt], MessageDirection.Clientbound, baseFirst: false),
         new( [ 272 ], [ CommandFieldType.OptionalLongId ], MessageDirection.Clientbound, baseFirst: false ),
         new(
@@ -128,7 +127,6 @@ internal static class PrimitiveCommandSchemas
         ),
         new(
             [
-                90,
                 120,
                 126,
                 162,
@@ -208,7 +206,7 @@ internal static class PrimitiveCommandSchemas
         ),
         new( [ 342 ], new CommandFieldType[3], MessageDirection.Serverbound, baseFirst: false ),
         new(
-            [ 350 ],
+            [ ConfirmShopPurchaseServerCommandType ],
             [
                 CommandFieldType.Int32,
                 CommandFieldType.Int32,
@@ -252,16 +250,6 @@ internal static class PrimitiveCommandSchemas
                 CommandFieldType.VarInt,
             ],
             MessageDirection.Serverbound,
-            baseFirst: false
-        ),
-        new(
-            [ 182 ],
-            [
-                CommandFieldType.VarInt,
-                CommandFieldType.LongId,
-                CommandFieldType.OptionalLongId,
-            ],
-            MessageDirection.Clientbound,
             baseFirst: false
         ),
         new(

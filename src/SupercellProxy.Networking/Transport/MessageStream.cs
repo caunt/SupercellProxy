@@ -17,15 +17,16 @@ public sealed class MessageStream : IDisposable
     /// Defines the <c language="csharp">MaxPayloadLength</c> value.
     /// </summary>
     public const int MaximumPayloadLength = 0x1000000;
-    private readonly byte[] _buffer = new byte[65536];
+    private const int RentBufferLength = 65536;
     private readonly bool _leaveOpen;
     private readonly MessageTransport _transport;
     private byte _booleanReadAdditionalValue;
-
     private int _booleanReadOffset;
-    private byte _booleanWriteAccumulator;
 
+    private byte _booleanWriteAccumulator;
     private int _booleanWriteOffset;
+
+    private byte[]? _buffer;
 
     /// <summary>Wraps a binary protocol stream, optionally retaining ownership of the underlying stream.</summary>
     public MessageStream(Stream stream, bool leaveOpen = true)
@@ -79,6 +80,7 @@ public sealed class MessageStream : IDisposable
     public IServerPublicKeySource? ServerKeySource { get; set; }
 
     internal Stream BaseStream { get; }
+    internal ConnectionTraffic? Traffic { get; init; }
 
     /// <summary>
     /// Creates a <c language="csharp">MessageStream</c> from the supplied data.
@@ -210,6 +212,8 @@ public sealed class MessageStream : IDisposable
             .AsTask()
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
+        Traffic?.Receive(buffer.Length);
 
         return buffer;
     }
@@ -442,7 +446,10 @@ public sealed class MessageStream : IDisposable
     /// </summary>
     public Memory<byte> RentExactly(int length)
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, _buffer.Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, RentBufferLength);
+
+        // Allocated on first use: a stream is created per decoded message, and most never rent.
+        _buffer ??= new byte[RentBufferLength];
 
         return _buffer.AsMemory(start: 0, length);
     }
@@ -534,6 +541,8 @@ public sealed class MessageStream : IDisposable
             .AsTask()
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
+        Traffic?.Send(source.Length);
     }
 
     /// <summary>

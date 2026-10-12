@@ -5,8 +5,8 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// <summary>Defines native truck-order generation and delivery event settings.</summary>
 public sealed record TruckOrderEventDefinition
 {
-    /// <summary>Gets the native truck-event type.</summary>
-    public const int EventType = 3;
+    /// <summary>Gets the truck-bonus type in the serialized event collection.</summary>
+    public const int EventType = 8;
 
     /// <summary>Gets the coin percentage applied when the order is dispatched.</summary>
     [JsonPropertyName("bonusCoins")]

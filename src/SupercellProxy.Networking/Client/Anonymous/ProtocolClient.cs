@@ -42,7 +42,7 @@ public sealed partial class ProtocolClient
                 ? await LoginAnonymousAccountAsync(requestOwnHome, request.Token).ConfigureAwait(continueOnCapturedContext: false)
                 : await _authenticator.LoginAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
 
-            if (_login.Resources.Length > 0) Stream.CommandDataResolver = new DataTableResolver(_login.Resources);
+            if (_login.Resources.Length > 0) Stream.CommandDataResolver = DataTableResolver.Shared(_login.Fingerprint, _login.Resources);
 
             return _login;
         }

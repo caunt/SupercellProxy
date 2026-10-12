@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.CropFields;
 
-/// <summary>Configures the crops and planting duration affected by a crop-growth event.</summary>
+/// <summary>Configures the crops affected by a growth-duration or harvest-yield event.</summary>
 public sealed record CropGrowthEventDefinition
 {
     /// <summary>Gets the affected crop data names.</summary>
@@ -20,4 +20,8 @@ public sealed record CropGrowthEventDefinition
     /// <summary>Gets the percentage of the catalog growth duration used when planting.</summary>
     [JsonPropertyName("cropPercentTime")]
     public int TimePercentage { get; init; } = 100;
+
+    /// <summary>Gets the percentage of the catalog harvest quantity credited by a yield event.</summary>
+    [JsonPropertyName("cropYield")]
+    public int YieldPercentage { get; init; } = 100;
 }

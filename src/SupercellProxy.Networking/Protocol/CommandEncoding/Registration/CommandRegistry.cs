@@ -17,6 +17,7 @@ public static partial class CommandRegistry
 
     /// <summary>Provides the chain-offer chapter introduction acknowledgement contract.</summary>
     public const int AcknowledgeChainOfferChapterIntroCommandType = 705;
+
     /// <summary>Acknowledges an event's completed reward sequence.</summary>
     public const int AcknowledgeEventSequenceCommandType = 709;
 
@@ -24,27 +25,28 @@ public static partial class CommandRegistry
     /// Acknowledges receipt of the platform profiling settings without changing farm state.
     /// </summary>
     public const int AcknowledgePerformanceProfilingCommandType = 530;
-
     /// <summary>Activates a booster held in the player's booster storage.</summary>
     public const int ActivateBoosterCommandType = 212;
+
     /// <summary>Provides the Activate Farm Pass Perk Command Type.</summary>
     public const int ActivateFarmPassPerkCommandType = 343;
+
     /// <summary>
     /// Provides the Activate Movie Ticket Command Type value or operation.
     /// </summary>
     public const int ActivateMovieTicketCommandType = 643;
-
     /// <summary>Adds new-item badges to the shop.</summary>
     public const int AddShopBadgesCommandType = 668;
-
     /// <summary>
     /// Provides the Advance Boat State Command Type value or operation.
     /// </summary>
     public const int AdvanceBoatStateCommandType = 663;
+
     /// <summary>
     /// Provides the Advance Reengagement Flow Command Type value or operation.
     /// </summary>
     public const int AdvanceReengagementFlowCommandType = 684;
+
     /// <summary>Advertises an existing roadside listing.</summary>
     public const int AdvertiseRoadsideListingCommandType = 511;
     /// <summary>
@@ -61,13 +63,13 @@ public static partial class CommandRegistry
     /// Provides the Buy Crop Seeds Command Type value or operation.
     /// </summary>
     public const int BuyCropSeedsCommandType = 665;
-
     /// <summary>
     /// Provides the Buy Seasonal Catalogue Gift Command Type value or operation.
     /// </summary>
     public const int BuySeasonalCatalogueGiftCommandType = 381;
     /// <summary>Cancels an unsold roadside listing.</summary>
     public const int CancelRoadsideListingCommandType = 589;
+
     /// <summary>Cancels an unstarted service in the player's town.</summary>
     public const int CancelTownServiceCommandType = 147;
     /// <summary>Discards a truck order without paying to skip its replacement timer.</summary>
@@ -78,10 +80,8 @@ public static partial class CommandRegistry
     /// Provides the Check Mystery Box Lock Command Type value or operation.
     /// </summary>
     public const int CheckMysteryBoxLockCommandType = 46;
-
     /// <summary>Claims an account-link reward.</summary>
     public const int ClaimAccountLinkRewardCommandType = 300;
-
     /// <summary>
     /// Provides the Claim Achievement Reward Command Type value or operation.
     /// </summary>
@@ -115,6 +115,7 @@ public static partial class CommandRegistry
 
     /// <summary>Claims the selected Valley fuel prize.</summary>
     public const int ClaimMapGameFuelPrizeCommandType = 614;
+
     /// <summary>Claims one Valley quest-progression mystery-box prize.</summary>
     public const int ClaimMapGameQuestProgressionPrizeCommandType = 285;
 
@@ -122,7 +123,6 @@ public static partial class CommandRegistry
     /// Provides the Clear Event Leaderboard Notification Command Type value or operation.
     /// </summary>
     public const int ClearEventLeaderboardNotificationCommandType = 371;
-
     /// <summary>
     /// Provides the Clear Movie Ticket Shop Notifications Command Type value or operation.
     /// </summary>
@@ -277,11 +277,14 @@ public static partial class CommandRegistry
 
     /// <summary>Completes one personal Valley dump task by submitting its required goods.</summary>
     public const int CompleteMapGameDumpTaskCommandType = 278;
+
     /// <summary>Completes a finished Neighborhood Object task.</summary>
     public const int CompleteNeighborhoodObjectTaskCommandType = 576;
 
     /// <summary>Collects clearing rewards and removes the cleared plant.</summary>
     public const int CompletePlantClearingCommandType = 61;
+    /// <summary>Confirms that a pending shop package purchase has started.</summary>
+    public const int ConfirmShopPurchaseServerCommandType = 350;
 
     /// <summary>
     /// Provides the Construct Game Object Command Type value or operation.
@@ -545,6 +548,7 @@ public static partial class CommandRegistry
     /// Provides the Reset Wheel Car Command Type value or operation.
     /// </summary>
     public const int ResetWheelCarCommandType = 517;
+
 
     /// <summary>Requests free revival of a tree or gatherer source on another farm.</summary>
     public const int RevivePlantCommandType = 63;
@@ -910,6 +914,8 @@ public static partial class CommandRegistry
             entries.Add(entry.Key, entry.Value);
 
         AddPetEntries(entries);
+        AddExpansionEntries(entries);
+        AddBoatEntries(entries);
         AddVarCommandEntries(entries);
         AddPrimitiveSchemas(entries, PrimitiveCommandSchemas.Entries);
         StructuredCommandRegistrations.AddStructuredCommands(entries);

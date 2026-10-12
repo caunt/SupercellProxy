@@ -12,6 +12,13 @@ internal static class DerbyCommandRegistrations
 {
     internal static readonly Dictionary<int, CommandRegistryEntry> Entries = new()
     {
+        [NeighborhoodNotificationServerCommandType] = new(
+            typeof(NeighborhoodNotificationServerCommand),
+            MessageDirection.Clientbound,
+            BaseFirst: false,
+            FieldSchemas: null,
+            static (stream, environment, unusedResolver) => NeighborhoodNotificationServerCommand.Decode(stream, environment)
+        ),
         [AdjustDiamondsServerCommandType] = new(
             typeof(AdjustDiamondsServerCommand),
             MessageDirection.Clientbound,

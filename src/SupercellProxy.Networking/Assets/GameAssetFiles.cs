@@ -387,6 +387,9 @@ public static partial class GameAssetFiles
     /// <summary>Path of the Fishing Hut asset.</summary>
     public const string FishingHut = "data/fishing_hut.csv";
 
+    /// <summary>Path of the fishing-area tile layout.</summary>
+    public const string FishingLayout = "data/fishing_0.csv";
+
     /// <summary>Path of the Fishing Spots asset.</summary>
     public const string FishingSpots = "data/fishing_spots.csv";
 
@@ -875,6 +878,9 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Truck Difficulties asset.</summary>
     public const string TruckDifficulties = "data/truck_difficulties.csv";
+
+    /// <summary>Path of the Tutorial Configuration asset.</summary>
+    public const string TutorialConfiguration = "data/tutorial_config.csv";
 
     /// <summary>Path of the Tutorial Groups asset.</summary>
     public const string TutorialGroups = "data/tutorial_groups.csv";

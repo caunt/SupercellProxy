@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 
-namespace SupercellProxy.Keys.Extract;
+namespace SupercellProxy.Networking.Cryptography;
 
 /// <summary>Encodes and decodes the native server-public-key representation.</summary>
-internal static class PublicKeyCodec
+public static class PublicKeyCodec
 {
     /// <summary>Length of a decoded public key.</summary>
     public const int DecodedLength = 32;

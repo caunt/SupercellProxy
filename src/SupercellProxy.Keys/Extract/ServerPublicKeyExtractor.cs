@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using SupercellProxy.Keys.Extract.Extensions;
+using SupercellProxy.Networking.Cryptography;
 
 namespace SupercellProxy.Keys.Extract;
 

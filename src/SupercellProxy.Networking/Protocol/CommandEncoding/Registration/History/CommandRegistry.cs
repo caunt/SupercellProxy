@@ -32,6 +32,7 @@ public static partial class CommandRegistry
         [AcknowledgeChainOfferChapterIntroCommandType] = new(baselineId: null, [new(new Version(major: 1, minor: 73, build: 81), Id: 656)]),
         [Boats.MarkBoatSeenCommand.CommandType] = new(Boats.MarkBoatSeenCommand.CommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 560)]),
         [SelectBoatOrderCommandType] = new(SelectBoatOrderCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 585)]),
+        [RespondToBoatTimeExtensionCommandType] = new(baselineId: null, [new(new Version(major: 1, minor: 73, build: 81), Id: 650)]),
         [FillBoatCrateCommandType] = new(FillBoatCrateCommandType, [new(Boats.FillBoatCrateCommand.ReorderedFieldsVersion, Id: 551)]),
         [CompleteBoatOrderCommandType] = new(CompleteBoatOrderCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 590)]),
         [AdvanceBoatStateCommandType] = new(AdvanceBoatStateCommandType, [new(new Version(major: 1, minor: 73, build: 81), Id: 588)]),

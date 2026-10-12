@@ -12,6 +12,14 @@ public sealed partial record GameObjectSnapshot
     /// <summary>Gets whether the next boat's preview was opened.</summary>
     [JsonPropertyName("boat_preview_seen")]
     public bool BoatPreviewSeen { get; init; }
+
+    /// <summary>Gets whether the current cargo deadline has already been extended.</summary>
+    [JsonPropertyName("time_extended")]
+    public bool BoatTimeExtended { get; init; }
+
+    /// <summary>Gets whether the visited owner's boat supports an extension offer.</summary>
+    [JsonPropertyName("time_extension_feature_enabled")]
+    public bool BoatTimeExtensionEnabled { get; init; }
     /// <summary>Gets the number of completed orders for each boat difficulty.</summary>
     public BoatDifficultyCompletionSnapshot[] CompletionsPerDifficulty { get; init; } = [];
     /// <summary>Gets whether orders need generation on the next normal update.</summary>

@@ -33,6 +33,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     private NetworkStream? _networkStream;
     private TcpClient? _socketClient;
     private MessageStream? _supercellStream;
+    private ConnectionTraffic? _traffic;
 
     /// <summary>Creates an online connection using injected infrastructure.</summary>
     public ProtocolClient(
@@ -78,6 +79,9 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <summary>Gets the authenticated or externally supplied message stream.</summary>
     public MessageStream Stream =>
         _supercellStream ?? throw new InvalidOperationException(message: "The client is not connected.");
+
+    /// <summary>Gets traffic for the current or most recently closed socket, reset when a new socket connects.</summary>
+    public ConnectionTrafficSnapshot? Traffic => _traffic?.Read();
     internal bool CanUpdateVersion => Configuration.Protocol is null && _serverKeys is HayDayServerPublicKeySource;
 
     internal ClientConfiguration Configuration =>
@@ -111,7 +115,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         using IDisposable gate = await _authenticationGate.LockAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
 
         return _login is { Resources.Length: > 0 } login
-            ? new DataTableResolver(login.Resources)
+            ? DataTableResolver.Shared(login.Fingerprint, login.Resources)
             : await _authenticator.LoadCatalogAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -225,8 +229,10 @@ public sealed partial class ProtocolClient : IAsyncDisposable
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             _networkStream = _socketClient.GetStream();
+            _traffic = new ConnectionTraffic(_timeProvider);
             _supercellStream = new MessageStream(_networkStream)
             {
+                Traffic = _traffic,
                 ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
                 ObserveMessage = ObserveMessageAsync,
                 OutboundMessageVersion = protocol.MessageVersion,

@@ -14,6 +14,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     public const int GlobalIdTableSize = 100000;
 
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, DataTableResolver> SharedResolvers = new(StringComparer.Ordinal);
     private readonly Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> _dataTables;
     private readonly Dictionary<string, GameAsset> _resourcesByFile;
     private readonly Dictionary<string, int> _tableIdsByFile;
@@ -46,6 +47,14 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("HighestTableId")]
     public int HighestTableId { get; }
+
+    /// <summary>Returns one resolver per asset fingerprint, so connections on the same assets share parsed tables.</summary>
+    public static DataTableResolver Shared(GameAssetFingerprint? fingerprint, GameAsset[] resources)
+    {
+        ArgumentNullException.ThrowIfNull(resources);
+
+        return fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha, static (sha, assets) => new DataTableResolver(assets), resources);
+    }
 
     /// <summary>
     /// Provides the Read Asset Text value or operation.

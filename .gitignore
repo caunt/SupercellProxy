@@ -10,11 +10,11 @@ sc-client-session-ledger.json.legacy-*
 
 # Local private implementations; public builds use SupercellProxy.Public.slnf.
 /src/SupercellProxy.Simulation/
-/src/SupercellProxy.Buyer/
 /src/SupercellProxy.Assistant/
 /src/SupercellProxy.Capture/
 /src/SupercellProxy.Replay/
 /src/SupercellProxy.Ledger/
+/src/SupercellProxy.Hardware/
 
 # Local captures and game bundles
 /bin/

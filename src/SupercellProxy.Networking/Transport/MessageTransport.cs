@@ -43,14 +43,15 @@ internal sealed class MessageTransport(MessageStream stream)
 
             if (_encryption is not null)
             {
-                MemoryStream encryptedStream = new(buffer);
+                // Publicly visible so decryption reads the received array in place instead of copying it.
+                MemoryStream encryptedStream = new(buffer, index: 0, buffer.Length, writable: false, publiclyVisible: true);
 
                 await using (encryptedStream.ConfigureAwait(continueOnCapturedContext: false))
                 {
                     MemoryStream decryptedStream = _encryption.Decrypt(encryptedStream);
 
                     await using (decryptedStream.ConfigureAwait(continueOnCapturedContext: false))
-                        payload = decryptedStream.ToArray();
+                        payload = decryptedStream.TryGetBuffer(out ArraySegment<byte> decrypted) ? decrypted.AsMemory() : decryptedStream.ToArray();
                 }
             }
 
@@ -231,6 +232,7 @@ internal sealed class MessageTransport(MessageStream stream)
             await stream.WriteAsync(headerMemory, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            stream.Traffic?.Send(length);
 
             if (stream.ObserveMessage is { } observe)
                 await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);

@@ -39,6 +39,16 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     [JsonPropertyName("HelperAvatarID")]
     public string? HelperAvatarId { get; init; }
 
+    /// <summary>Gets the saved helper account's high word.</summary>
+    [JsonPropertyName("HelperAvatarID_hi")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? HelperAvatarIdHigh { get; init; }
+
+    /// <summary>Gets the saved helper account's low word.</summary>
+    [JsonPropertyName("HelperAvatarID_lo")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? HelperAvatarIdLow { get; init; }
+
     /// <summary>Gets the ItemCount value.</summary>
     [JsonPropertyName("VoucherCount")]
     public int ItemCount { get; init; }

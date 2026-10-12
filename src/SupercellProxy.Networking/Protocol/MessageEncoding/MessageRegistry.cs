@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using SupercellProxy.Networking.Protocol.Accounts;
 using SupercellProxy.Networking.Protocol.Accounts.Permissions;
 using SupercellProxy.Networking.Protocol.Authentication;
+using SupercellProxy.Networking.Protocol.Avatars;
 using SupercellProxy.Networking.Protocol.CollectionPayloads;
 using SupercellProxy.Networking.Protocol.CommandEncoding;
 using SupercellProxy.Networking.Protocol.ConnectionControl;
@@ -12,6 +13,7 @@ using SupercellProxy.Networking.Protocol.Friends.Entries;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.Homes.Details;
 using SupercellProxy.Networking.Protocol.Homes.Requests;
+using SupercellProxy.Networking.Protocol.Screens;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
@@ -26,6 +28,7 @@ using SupercellProxy.Networking.Protocol.RoadsideShops;
 using SupercellProxy.Networking.Protocol.ScalarPayloads;
 using SupercellProxy.Networking.Protocol.Turns;
 using SupercellProxy.Networking.Protocol.Town;
+using SupercellProxy.Networking.Protocol.ShopEvents;
 
 
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -77,7 +80,6 @@ public static partial class MessageRegistry
 
     private static readonly Dictionary<ushort, string> Hints = new()
     {
-        [key: 10518] = "open friend book",
         [key: 14972] = "last helpers request",
         [key: 20155] = "???",
         [key: 21628] = "last helpers response",
@@ -107,6 +109,8 @@ public static partial class MessageRegistry
             { CaptureName = nameof(OtherTownDataMessage) },
             [key: 19430] = new MessageRegistryEntry(typeof(RequestTownPassengerPickupMessage), RequestTownPassengerPickupMessage.Decode)
             { CaptureName = nameof(RequestTownPassengerPickupMessage) },
+            [key: 20200] = new MessageRegistryEntry(typeof(ReceiptVerificationMessage), ReceiptVerificationMessage.Decode)
+            { CaptureName = nameof(ReceiptVerificationMessage) },
             [key: 25372] = new MessageRegistryEntry(typeof(TownPassengerPickupResultMessage), TownPassengerPickupResultMessage.Decode)
             { CaptureName = nameof(TownPassengerPickupResultMessage) },
             [key: 18475] = new MessageRegistryEntry(typeof(RequestOwnFishingHomeMessage), RequestOwnFishingHomeMessage.Decode)
@@ -119,6 +123,12 @@ public static partial class MessageRegistry
             { CaptureName = nameof(LikeFarmMessage) },
             [key: 16037] = new MessageRegistryEntry(typeof(RequestFarmLikeStatusMessage), RequestFarmLikeStatusMessage.Decode)
             { CaptureName = nameof(RequestFarmLikeStatusMessage) },
+            [key: 10518] = new MessageRegistryEntry(typeof(RequestFriendListMessage), RequestFriendListMessage.Decode)
+            { CaptureName = nameof(RequestFriendListMessage) },
+            [key: 12816] = new MessageRegistryEntry(typeof(ChangeHomeNameMessage), ChangeHomeNameMessage.Decode)
+            { CaptureName = nameof(ChangeHomeNameMessage) },
+            [key: 14322] = new MessageRegistryEntry(typeof(ClientScreenEventMessage), ClientScreenEventMessage.Decode)
+            { CaptureName = nameof(ClientScreenEventMessage) },
             [key: 21236] = new MessageRegistryEntry(typeof(FollowResponseMessage), FollowResponseMessage.Decode)
             { CaptureName = nameof(FollowResponseMessage) },
             [key: 19845] = new MessageRegistryEntry(typeof(RequestFollowerListPageMessage), RequestFollowerListPageMessage.Decode)

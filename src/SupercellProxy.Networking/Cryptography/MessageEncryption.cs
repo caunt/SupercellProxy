@@ -25,7 +25,10 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
             _encryption.ReceiveNonce.Increment();
 
-            return new MemoryStream(NaClV3Cryptography.SecretBoxOpen(payload, _encryption.ReceiveNonce.Span, _encryption.SharedKey.Span), writable: false);
+            byte[] plaintext = NaClV3Cryptography.SecretBoxOpen(payload, _encryption.ReceiveNonce.Span, _encryption.SharedKey.Span);
+
+            // The plaintext array is owned by this stream alone, so readers may take it without another copy.
+            return new MemoryStream(plaintext, index: 0, plaintext.Length, writable: false, publiclyVisible: true);
         }
 
         return _encryption.With is RemotePeerRole.Server

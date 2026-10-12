@@ -7,6 +7,11 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 /// </summary>
 public sealed record ChronosEventsSnapshot
 {
+    /// <summary>Gets retained player-specific event selections and state.</summary>
+    [JsonPropertyName("av_datas")]
+    [JsonConverter(typeof(ChronosEventPlayerDataConverter))]
+    public ChronosEventPlayerData[] PlayerData { get; init; } = [];
+
     /// <summary>
     /// Gets the Seen Active Event Ids value.
     /// </summary>

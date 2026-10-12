@@ -3,10 +3,16 @@ namespace SupercellProxy.Networking.Protocol.Events.ChainOffers;
 /// <summary>Identifies a resource granted by a chain step.</summary>
 public sealed record ChainOfferRewardDefinition
 {
+    /// <summary>Gets a named booster reward.</summary>
+    public ChainOfferRewardValue? Boosters { get; init; }
     /// <summary>Gets a decision-box reward.</summary>
     public ChainOfferRewardValue? DecisionBoxes { get; init; }
     /// <summary>Gets a decoration reward.</summary>
     public ChainOfferRewardValue? Decorations { get; init; }
+    /// <summary>Gets an emote reward.</summary>
+    public ChainOfferRewardValue? Emotes { get; init; }
+    /// <summary>Gets a Farm Pass perk reward.</summary>
+    public ChainOfferRewardValue? FarmPassPerks { get; init; }
     /// <summary>Gets a money reward.</summary>
     public ChainOfferRewardValue? Money { get; init; }
     /// <summary>Gets an inventory-goods reward.</summary>

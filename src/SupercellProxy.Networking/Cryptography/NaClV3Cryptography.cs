@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Globalization;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -12,12 +11,13 @@ public static class NaClV3Cryptography
 {
     private const int ChaChaIterationsCount = 8;
     private const int HChaChaIterationsCount = 17;
+    private const uint LimbMask = 0x3ffffff;
 
-    private static readonly BigInteger Poly1305ClampConstant = BigInteger.Parse(value: "0ffffffc0ffffffc0ffffffc0fffffff", NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
-    private static readonly BigInteger Poly1305PrimeModulus = (BigInteger.One << 130) - 5;
     private static readonly BigInteger Curve25519PrimeModulus = BigInteger.Pow(value: 2, exponent: 255) - 19;
     private static readonly BigInteger CurveConstantA24 = new(value: 121665);
 
+    // A static array: a uint span literal is materialized per access on this runtime and showed up as a per-block allocation.
+    private static readonly uint[] SigmaConstants = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
     private static ReadOnlySpan<byte> Curve25519BasePoint =>
         [
             9,
@@ -53,8 +53,6 @@ public static class NaClV3Cryptography
             0,
             0,
         ];
-    private static ReadOnlySpan<uint> SigmaConstants =>
-        [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
 
     /// <summary>
     /// Executes the <c language="csharp">Box</c> operation.
@@ -344,31 +342,125 @@ public static class NaClV3Cryptography
 
     private static void Poly1305(ReadOnlySpan<byte> message, ReadOnlySpan<byte> key, Span<byte> macResult)
     {
-        BigInteger clampedKeyBigInt =
-            new BigInteger(key[..16], isUnsigned: true, isBigEndian: false) & Poly1305ClampConstant;
+        // Radix 2^26 limbs (poly1305-donna); every product fits in 64 bits, so no per-block allocation is needed.
+        uint keyLimb0 = BinaryPrimitives.ReadUInt32LittleEndian(key) & 0x3ffffff;
+        uint keyLimb1 = (BinaryPrimitives.ReadUInt32LittleEndian(key[3..]) >> 2) & 0x3ffff03;
+        uint keyLimb2 = (BinaryPrimitives.ReadUInt32LittleEndian(key[6..]) >> 4) & 0x3ffc0ff;
+        uint keyLimb3 = (BinaryPrimitives.ReadUInt32LittleEndian(key[9..]) >> 6) & 0x3f03fff;
+        uint keyLimb4 = (BinaryPrimitives.ReadUInt32LittleEndian(key[12..]) >> 8) & 0x00fffff;
 
-        BigInteger secretStateBigInt = new(key.Slice(start: 16, length: 16), isUnsigned: true, isBigEndian: false);
+        ulong scaledLimb1 = keyLimb1 * 5UL;
+        ulong scaledLimb2 = keyLimb2 * 5UL;
+        ulong scaledLimb3 = keyLimb3 * 5UL;
+        ulong scaledLimb4 = keyLimb4 * 5UL;
 
-        BigInteger accumulatorBigInt = BigInteger.Zero;
+        uint accumulator0 = 0;
+        uint accumulator1 = 0;
+        uint accumulator2 = 0;
+        uint accumulator3 = 0;
+        uint accumulator4 = 0;
 
-        for (int chunkStartIndex = 0; chunkStartIndex < message.Length; chunkStartIndex += 16)
+        Span<byte> finalBlock = stackalloc byte[16];
+
+        for (int offset = 0; offset < message.Length; offset += 16)
         {
-            int currentChunkLength = Math.Min(val1: 16, message.Length - chunkStartIndex);
+            int length = Math.Min(val1: 16, message.Length - offset);
+            scoped ReadOnlySpan<byte> block = message.Slice(offset, length);
+            uint highBit = 1U << 24;
 
-            BigInteger chunkValueBigInt =
-                new BigInteger(message.Slice(chunkStartIndex, currentChunkLength), isUnsigned: true, isBigEndian: false) + (BigInteger.One << (8 * currentChunkLength));
+            if (length < 16)
+            {
+                // A short final block carries its 1 byte inside the block instead of the 2^128 bit.
+                finalBlock.Clear();
+                block.CopyTo(finalBlock);
+                finalBlock[length] = 1;
+                block = finalBlock;
+                highBit = 0;
+            }
 
-            accumulatorBigInt =
-                (accumulatorBigInt + chunkValueBigInt) * clampedKeyBigInt % Poly1305PrimeModulus;
+            accumulator0 += BinaryPrimitives.ReadUInt32LittleEndian(block) & LimbMask;
+            accumulator1 += (BinaryPrimitives.ReadUInt32LittleEndian(block[3..]) >> 2) & LimbMask;
+            accumulator2 += (BinaryPrimitives.ReadUInt32LittleEndian(block[6..]) >> 4) & LimbMask;
+            accumulator3 += (BinaryPrimitives.ReadUInt32LittleEndian(block[9..]) >> 6) & LimbMask;
+            accumulator4 += (BinaryPrimitives.ReadUInt32LittleEndian(block[12..]) >> 8) | highBit;
+
+            ulong product0 = ((ulong)accumulator0 * keyLimb0) + (accumulator1 * scaledLimb4) + (accumulator2 * scaledLimb3) + (accumulator3 * scaledLimb2) + (accumulator4 * scaledLimb1);
+            ulong product1 = ((ulong)accumulator0 * keyLimb1) + ((ulong)accumulator1 * keyLimb0) + (accumulator2 * scaledLimb4) + (accumulator3 * scaledLimb3) + (accumulator4 * scaledLimb2);
+            ulong product2 = ((ulong)accumulator0 * keyLimb2) + ((ulong)accumulator1 * keyLimb1) + ((ulong)accumulator2 * keyLimb0) + (accumulator3 * scaledLimb4) + (accumulator4 * scaledLimb3);
+            ulong product3 = ((ulong)accumulator0 * keyLimb3) + ((ulong)accumulator1 * keyLimb2) + ((ulong)accumulator2 * keyLimb1) + ((ulong)accumulator3 * keyLimb0) + (accumulator4 * scaledLimb4);
+            ulong product4 = ((ulong)accumulator0 * keyLimb4) + ((ulong)accumulator1 * keyLimb3) + ((ulong)accumulator2 * keyLimb2) + ((ulong)accumulator3 * keyLimb1) + ((ulong)accumulator4 * keyLimb0);
+
+            ulong carry = product0 >> 26;
+            accumulator0 = (uint)product0 & LimbMask;
+            product1 += carry;
+            carry = product1 >> 26;
+            accumulator1 = (uint)product1 & LimbMask;
+            product2 += carry;
+            carry = product2 >> 26;
+            accumulator2 = (uint)product2 & LimbMask;
+            product3 += carry;
+            carry = product3 >> 26;
+            accumulator3 = (uint)product3 & LimbMask;
+            product4 += carry;
+            carry = product4 >> 26;
+            accumulator4 = (uint)product4 & LimbMask;
+            accumulator0 += (uint)carry * 5;
+            accumulator1 += accumulator0 >> 26;
+            accumulator0 &= LimbMask;
         }
 
-        BigInteger finalCalculatedMac =
-            (accumulatorBigInt + secretStateBigInt) & ((BigInteger.One << 128) - 1);
+        uint finalCarry = accumulator1 >> 26;
+        accumulator1 &= LimbMask;
+        accumulator2 += finalCarry;
+        finalCarry = accumulator2 >> 26;
+        accumulator2 &= LimbMask;
+        accumulator3 += finalCarry;
+        finalCarry = accumulator3 >> 26;
+        accumulator3 &= LimbMask;
+        accumulator4 += finalCarry;
+        finalCarry = accumulator4 >> 26;
+        accumulator4 &= LimbMask;
+        accumulator0 += finalCarry * 5;
+        finalCarry = accumulator0 >> 26;
+        accumulator0 &= LimbMask;
+        accumulator1 += finalCarry;
 
-        macResult.Clear();
+        // Subtract the prime 2^130 - 5 once when the accumulator is not below it.
+        uint reduced0 = accumulator0 + 5;
+        finalCarry = reduced0 >> 26;
+        reduced0 &= LimbMask;
+        uint reduced1 = accumulator1 + finalCarry;
+        finalCarry = reduced1 >> 26;
+        reduced1 &= LimbMask;
+        uint reduced2 = accumulator2 + finalCarry;
+        finalCarry = reduced2 >> 26;
+        reduced2 &= LimbMask;
+        uint reduced3 = accumulator3 + finalCarry;
+        finalCarry = reduced3 >> 26;
+        reduced3 &= LimbMask;
+        uint reduced4 = unchecked(accumulator4 + finalCarry - (1U << 26));
 
-        if (!finalCalculatedMac.TryWriteBytes(macResult, out _, isUnsigned: true, isBigEndian: false))
-            throw new CryptographicException(message: "The message authentication code does not fit its output buffer.");
+        uint selectReduced = unchecked((reduced4 >> 31) - 1);
+        uint selectOriginal = ~selectReduced;
+        accumulator0 = (accumulator0 & selectOriginal) | (reduced0 & selectReduced);
+        accumulator1 = (accumulator1 & selectOriginal) | (reduced1 & selectReduced);
+        accumulator2 = (accumulator2 & selectOriginal) | (reduced2 & selectReduced);
+        accumulator3 = (accumulator3 & selectOriginal) | (reduced3 & selectReduced);
+        accumulator4 = (accumulator4 & selectOriginal) | (reduced4 & selectReduced);
+
+        uint word0 = accumulator0 | (accumulator1 << 26);
+        uint word1 = (accumulator1 >> 6) | (accumulator2 << 20);
+        uint word2 = (accumulator2 >> 12) | (accumulator3 << 14);
+        uint word3 = (accumulator3 >> 18) | (accumulator4 << 8);
+
+        ulong sum = (ulong)word0 + BinaryPrimitives.ReadUInt32LittleEndian(key[16..]);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult, (uint)sum);
+        sum = (ulong)word1 + BinaryPrimitives.ReadUInt32LittleEndian(key[20..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[4..], (uint)sum);
+        sum = (ulong)word2 + BinaryPrimitives.ReadUInt32LittleEndian(key[24..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[8..], (uint)sum);
+        sum = (ulong)word3 + BinaryPrimitives.ReadUInt32LittleEndian(key[28..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[12..], (uint)sum);
     }
 
     private static void QuarterRound(Span<uint> span, int indexA, int indexB, int indexC, int indexD)

@@ -180,6 +180,10 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets whether a tree or bush has started its native clearing sequence.</summary>
     public bool DestructionStarted { get; init; }
 
+    /// <summary>Gets the remaining timer of a wild obstacle that is being cleared.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TimerSnapshot? DestructionTimer { get; init; }
+
     /// <summary>Gets the retained DiamondCost value.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? DiamondCost { get; init; }

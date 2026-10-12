@@ -7,9 +7,9 @@
 | SupercellProxy.Networking         | Public protocol, transport, cryptography, session, client, and proxy library.                                 |
 | SupercellProxy.Capture            | Git-ignored live capture host for protocol traffic plus native RNG, checksum, and turn recording.             |
 | SupercellProxy.Simulation         | Git-ignored managed port of game state, actions, turns, RNG, and checksums; native behavior is authoritative. |
-| SupercellProxy.Buyer              | Git-ignored Hay Day roadside-shop buyer built on Simulation.                                                  |
 | SupercellProxy.Assistant          | Git-ignored Hay Day farm assistant: a queued task loop with recurring background publishers.                  |
 | SupercellProxy.Replay             | Git-ignored replay, inspection, and verification of retained captures.                                        |
+| SupercellProxy.Hardware           | Git-ignored ADB device integration shared by Ledger and Capture.                                              |
 | SupercellProxy.Keys               | Public tool that searches and downloads IPAs, extracts server public keys, and updates KEYS.md.               |
 +-----------------------------------+---------------------------------------------------------------------------------------------------------------+
 ```
