@@ -1,5 +1,4 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Newspapers;
 
@@ -35,38 +34,24 @@ public sealed record NewspaperPlacement(
     int Value2,
     int Value3,
     bool Flag
-)
+) : ICodecProvider<NewspaperPlacement>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static NewspaperPlacement Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadVarInt(),
-            stream.ReadLongId(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadBoolean()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Index);
-        stream.WriteLongId(HomeId);
-        stream.WriteVarInt(Value0);
-        stream.WriteVarInt(Value1);
-        stream.WriteVarInt(Value2);
-        stream.WriteVarInt(Value3);
-        stream.WriteBoolean(Flag);
-    }
+    /// <inheritdoc />
+    public static ICodec<NewspaperPlacement> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Index,
+        Codecs.LongId,
+        static value => value.HomeId,
+        Codecs.VarInt,
+        static value => value.Value0,
+        Codecs.VarInt,
+        static value => value.Value1,
+        Codecs.VarInt,
+        static value => value.Value2,
+        Codecs.VarInt,
+        static value => value.Value3,
+        Codecs.Boolean,
+        static value => value.Flag,
+        static (index, homeId, value0, value1, value2, value3, flag) => new NewspaperPlacement(index, homeId, value0, value1, value2, value3, flag)
+    );
 }

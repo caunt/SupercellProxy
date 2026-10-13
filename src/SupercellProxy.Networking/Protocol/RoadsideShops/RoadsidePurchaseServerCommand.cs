@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
@@ -37,47 +35,32 @@ public sealed record RoadsidePurchaseServerCommand(
     int SlotIndex,
     int Quantity,
     int Price
-) : ServerCommand
+) : CodecServerCommand<RoadsidePurchaseServerCommand>, ICommandCodecProvider<RoadsidePurchaseServerCommand>
 {
     /// <summary>
     /// Provides the Daily Collection Tool Limit value or operation.
     /// </summary>
     public const int DailyCollectionToolLimit = 80;
 
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.RoadsidePurchaseServerCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RoadsidePurchaseServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId buyer = stream.ReadLongId();
-        LongId owner = stream.ReadLongId();
-        LongId context = stream.ReadLongId();
-        int item = stream.ReadInt32();
-        int slot = stream.ReadInt32();
-        int quantity = stream.ReadInt32();
-        int price = stream.ReadInt32();
-
-
-        return new(buyer, owner, context, item, slot, quantity, price);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(BuyerId);
-        stream.WriteLongId(ShopOwnerId);
-        stream.WriteLongId(ContextId);
-        stream.WriteInt32(ItemGlobalId);
-        stream.WriteInt32(SlotIndex);
-        stream.WriteInt32(Quantity);
-        stream.WriteInt32(Price);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RoadsidePurchaseServerCommand> Codec { get; } = Codecs.Command(
+        type: 243,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.BuyerId,
+            Codecs.LongId,
+            static command => command.ShopOwnerId,
+            Codecs.LongId,
+            static command => command.ContextId,
+            Codecs.Int32,
+            static command => command.ItemGlobalId,
+            Codecs.Int32,
+            static command => command.SlotIndex,
+            Codecs.Int32,
+            static command => command.Quantity,
+            Codecs.Int32,
+            static command => command.Price,
+            static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer, owner, context, item, slot, quantity, price)
+        )
+    );
 }

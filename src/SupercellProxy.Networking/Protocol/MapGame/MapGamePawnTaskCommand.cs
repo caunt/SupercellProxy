@@ -1,20 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.MapGame.Tasks;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
 /// <para>Logic command 321. The native class and semantic field names are not present in the stripped client.</para>
 /// </summary>
-public sealed record MapGamePawnTaskCommand : Command
+public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskCommand>, ICommandCodecProvider<MapGamePawnTaskCommand>
 {
-    /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 321;
-
     /// <summary>
     /// Initializes a new <see cref="MapGamePawnTaskCommand"/> instance.
     /// </summary>
@@ -23,6 +17,19 @@ public sealed record MapGamePawnTaskCommand : Command
         Pawn = pawn;
         TaskCollection = taskCollection;
     }
+
+    /// <inheritdoc />
+    public static CommandCodec<MapGamePawnTaskCommand> Codec { get; } = Codecs.Command(
+        type: 321,
+        Codecs.Composite(
+            Codecs.Optional(MapGamePawn.Codec),
+            static command => command.Pawn,
+            Codecs.Optional(MapGameTaskCollection.Codec),
+            static command => command.TaskCollection,
+            static (pawn, taskCollection) => new MapGamePawnTaskCommand(pawn, taskCollection)
+        ),
+        CommandLayout.MetadataFirst
+    );
 
     /// <summary>
     /// Gets the <c language="csharp">Pawn</c> value.
@@ -33,36 +40,4 @@ public sealed record MapGamePawnTaskCommand : Command
     /// Gets the <c language="csharp">TaskCollection</c> value.
     /// </summary>
     public MapGameTaskCollection? TaskCollection { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGamePawnTaskCommand Decode(MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        MapGamePawn? pawn = stream.ReadBoolean() ? MapGamePawn.Decode(stream) : null;
-
-        MapGameTaskCollection? taskCollection = stream.ReadBoolean()
-            ? MapGameTaskCollection.Decode(stream, dataResolver)
-            : null;
-
-        return new MapGamePawnTaskCommand(pawn, taskCollection);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteBoolean(Pawn is not null);
-        Pawn?.Encode(stream);
-        stream.WriteBoolean(TaskCollection is not null);
-        TaskCollection?.Encode(stream);
-    }
 }

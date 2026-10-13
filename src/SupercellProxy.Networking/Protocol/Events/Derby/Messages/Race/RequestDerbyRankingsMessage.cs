@@ -1,27 +1,20 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.Race;
 
 /// <summary>Requests derby rankings, optionally selecting a neighborhood.</summary>
-public sealed record RequestDerbyRankingsMessage(LongId? NeighborhoodId) : IMessage
+public sealed record RequestDerbyRankingsMessage(LongId? NeighborhoodId) : CodecMessage<RequestDerbyRankingsMessage>, ICodecProvider<RequestDerbyRankingsMessage>
 {
-    /// <summary>Decodes the optional neighborhood selector.</summary>
-    public static RequestDerbyRankingsMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        RequestDerbyRankingsMessage message = new(stream.ReadOptionalLongId());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the optional neighborhood selector.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongId(NeighborhoodId);
-    }
+    /// <inheritdoc />
+    public static ICodec<RequestDerbyRankingsMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.OptionalLongId,
+            static message => message.NeighborhoodId,
+            static (neighborhoodId) => new RequestDerbyRankingsMessage(neighborhoodId)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits the neighborhood identifier from diagnostic text.</summary>
     public override string ToString()

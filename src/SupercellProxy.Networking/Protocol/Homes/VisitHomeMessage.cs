@@ -1,14 +1,22 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>
 /// Represents the <c language="csharp">VisitHomeMessage</c> protocol message.
 /// </summary>
-public sealed record VisitHomeMessage : IMessage
+public sealed record VisitHomeMessage : CodecMessage<VisitHomeMessage>, ICodecProvider<VisitHomeMessage>
 {
+    /// <inheritdoc />
+    public static ICodec<VisitHomeMessage> Codec { get; } = Codecs.Composite(
+        Codecs.Byte,
+        static message => message.Unknown0,
+        Codecs.Byte,
+        static message => message.Unknown1,
+        static (unknown0, unknown1) => new VisitHomeMessage { Unknown0 = unknown0, Unknown1 = unknown1 }
+    );
+
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown0</c> value.
     /// </summary>
@@ -18,29 +26,4 @@ public sealed record VisitHomeMessage : IMessage
     /// Gets or sets the <c language="csharp">Unknown1</c> value.
     /// </summary>
     public required byte Unknown1 { get; init; }
-
-    /// <summary>
-    /// Creates a <c language="csharp">VisitHomeMessage</c> from the supplied data.
-    /// </summary>
-    public static VisitHomeMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new VisitHomeMessage
-        {
-            Unknown0 = stream.ReadByte(),
-            Unknown1 = stream.ReadByte(),
-        };
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteByte(Unknown0);
-        stream.WriteByte(Unknown1);
-    }
 }

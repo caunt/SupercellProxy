@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
 /// <summary>
 /// <para>Moves an existing game object after validating its object-table category.</para>
 /// </summary>
-public sealed record MoveGameObjectCommand : Command
+public sealed record MoveGameObjectCommand : CodecCommand<MoveGameObjectCommand>, ICommandCodecProvider<MoveGameObjectCommand>
 {
     /// <summary>
     /// Defines the <c language="csharp">CommandType</c> value.
@@ -24,6 +23,22 @@ public sealed record MoveGameObjectCommand : Command
         PositionX = logicX;
         PositionY = logicY;
     }
+
+    /// <inheritdoc />
+    public static CommandCodec<MoveGameObjectCommand> Codec { get; } = Codecs.Command(
+        type: 124,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.GameObjectGlobalId,
+            Codecs.VarInt,
+            static command => command.ObjectTableId,
+            Codecs.VarInt,
+            static command => command.PositionX,
+            Codecs.VarInt,
+            static command => command.PositionY,
+            static (gameObjectGlobalId, objectTableId, logicX, logicY) => new MoveGameObjectCommand(gameObjectGlobalId, objectTableId, logicX, logicY)
+        )
+    );
 
     /// <summary>
     /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
@@ -46,34 +61,4 @@ public sealed record MoveGameObjectCommand : Command
     /// Gets the <c language="csharp">PositionY</c> value.
     /// </summary>
     public int PositionY { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MoveGameObjectCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int gameObjectGlobalId = stream.ReadVarInt();
-        int objectTableId = stream.ReadVarInt();
-        int logicX = stream.ReadVarInt();
-        int logicY = stream.ReadVarInt();
-
-        return new MoveGameObjectCommand(gameObjectGlobalId, objectTableId, logicX, logicY);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(GameObjectGlobalId);
-        stream.WriteVarInt(ObjectTableId);
-        stream.WriteVarInt(PositionX);
-        stream.WriteVarInt(PositionY);
-    }
 }

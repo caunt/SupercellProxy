@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
@@ -17,31 +15,17 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record SelectLivestockAnimalCommand(
     [property: System.Text.Json.Serialization.JsonPropertyName("HabitatGlobalId")] int HabitatGlobalId,
     [property: System.Text.Json.Serialization.JsonPropertyName("AnimalGlobalId")] int AnimalGlobalId
-) : Command
+) : CodecCommand<SelectLivestockAnimalCommand>, ICommandCodecProvider<SelectLivestockAnimalCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.SelectLivestockAnimalCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static SelectLivestockAnimalCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int habitat = stream.ReadVarInt();
-        int animal = stream.ReadVarInt();
-
-        return new SelectLivestockAnimalCommand(habitat, animal);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(HabitatGlobalId);
-        stream.WriteVarInt(AnimalGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<SelectLivestockAnimalCommand> Codec { get; } = Codecs.Command(
+        type: 21,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.HabitatGlobalId,
+            Codecs.VarInt,
+            static command => command.AnimalGlobalId,
+            static (habitat, animal) => new SelectLivestockAnimalCommand(habitat, animal)
+        )
+    );
 }

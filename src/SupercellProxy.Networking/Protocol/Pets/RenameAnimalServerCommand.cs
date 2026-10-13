@@ -1,28 +1,22 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Pets;
 
 /// <summary>Applies a server-approved name to a pet or sanctuary animal.</summary>
-public sealed record RenameAnimalServerCommand(int AnimalGlobalId, string Name, bool Approved) : ServerCommand
+public sealed record RenameAnimalServerCommand(int AnimalGlobalId, string Name, bool Approved) : CodecServerCommand<RenameAnimalServerCommand>, ICommandCodecProvider<RenameAnimalServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.RenameAnimalServerCommandType;
-
-    /// <summary>Decodes the target, name and approval before server-command metadata.</summary>
-    public static RenameAnimalServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadInt32(), stream.ReadString(), stream.ReadBoolean());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteInt32(AnimalGlobalId);
-        stream.WriteString(Name);
-        stream.WriteBoolean(Approved);
-    }
+    public static CommandCodec<RenameAnimalServerCommand> Codec { get; } = Codecs.Command(
+        type: 245,
+        Codecs.Composite(
+            Codecs.Int32,
+            static command => command.AnimalGlobalId,
+            Codecs.String,
+            static command => command.Name,
+            Codecs.Boolean,
+            static command => command.Approved,
+            static (animalGlobalId, name, approved) => new RenameAnimalServerCommand(animalGlobalId, name, approved)
+        )
+    );
 }

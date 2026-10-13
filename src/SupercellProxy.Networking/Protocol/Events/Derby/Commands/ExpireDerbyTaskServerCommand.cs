@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
@@ -14,38 +13,29 @@ public sealed record ExpireDerbyTaskServerCommand(
     int Points,
     int DurationMinutes,
     int TaskGlobalId
-) : ServerCommand
+) : CodecServerCommand<ExpireDerbyTaskServerCommand>, ICommandCodecProvider<ExpireDerbyTaskServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ExpireDerbyTaskServerCommandType;
-
-    /// <summary>Decodes the task result before its server-command metadata.</summary>
-    public static ExpireDerbyTaskServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadLongId(),
-            stream.ReadLongId(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadBoolean(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(Status);
-        stream.WriteBoolean(Discarded);
-        stream.WriteVarInt(Points);
-        stream.WriteVarInt(DurationMinutes);
-        stream.WriteVarInt(TaskGlobalId);
-    }
+    public static CommandCodec<ExpireDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
+        type: 246,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            Codecs.LongId,
+            static command => command.PlayerId,
+            Codecs.VarInt,
+            static command => command.TaskBoardIndex,
+            Codecs.VarInt,
+            static command => command.Status,
+            Codecs.Boolean,
+            static command => command.Discarded,
+            Codecs.VarInt,
+            static command => command.Points,
+            Codecs.VarInt,
+            static command => command.DurationMinutes,
+            Codecs.VarInt,
+            static command => command.TaskGlobalId,
+            static (neighborhoodId, playerId, taskBoardIndex, status, discarded, points, durationMinutes, taskGlobalId) => new ExpireDerbyTaskServerCommand(neighborhoodId, playerId, taskBoardIndex, status, discarded, points, durationMinutes, taskGlobalId)
+        )
+    );
 }

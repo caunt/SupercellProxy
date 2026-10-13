@@ -1,86 +1,79 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
 /// Represents <c language="csharp">MapGameChickenTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload
+public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameChickenTaskStatePayload>
 {
+    /// <summary>
+    /// The native <c>TaskType</c> name of this payload.
+    /// </summary>
+    internal const string NativeTaskType = "Chicken";
+
     /// <summary>
     /// Initializes a new <see cref="MapGameChickenTaskStatePayload"/> instance.
     /// </summary>
     public MapGameChickenTaskStatePayload(
-        int unknown0,
-        bool unknownBoolean0,
-        LongId? unknownLongId,
-        ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues,
-        ReadOnlyMemory<LongId> logicLongs
+        int requiredCollectorCount,
+        bool helpRequestSent,
+        LongId? helperAvatarId,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData,
+        ReadOnlyMemory<LongId> collectorAvatarIds
     )
     {
-        Unknown0 = unknown0;
-        UnknownBoolean0 = unknownBoolean0;
-        UnknownLongId = unknownLongId;
-        OptionalValues = optionalValues is null
+        RequiredCollectorCount = requiredCollectorCount;
+        HelpRequestSent = helpRequestSent;
+        HelperAvatarId = helperAvatarId;
+        RewardData = rewardData is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
-        LongIds = logicLongs.ToArray();
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
+        CollectorAvatarIds = collectorAvatarIds.ToArray();
     }
 
-    /// <summary>
-    /// Gets the <c language="csharp">LongIds</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("LongIds")]
-    public ReadOnlyMemory<LongId> LongIds { get; init; }
+    /// <inheritdoc />
+    public static ICodec<MapGameChickenTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.RequiredCollectorCount,
+        Codecs.Boolean,
+        static value => value.HelpRequestSent,
+        Codecs.OptionalLongId,
+        static value => value.HelperAvatarId,
+        Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
+        static value => value.RewardData,
+        Codecs.Memory(Codecs.LongId),
+        static value => value.CollectorAvatarIds,
+        static (requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds) => new MapGameChickenTaskStatePayload(requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds)
+    );
 
     /// <summary>
-    /// Gets the <c language="csharp">OptionalValues</c> value.
+    /// Gets the avatars that collected (native JSON <c>CollectorAvatarIDs</c>).
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("CollectorAvatarIds")]
+    public ReadOnlyMemory<LongId> CollectorAvatarIds { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
+    /// Gets a value indicating whether help was requested (native JSON <c>HelpRequestSent</c>).
     /// </summary>
-    public int Unknown0 { get; }
+    public bool HelpRequestSent { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
+    /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
     /// </summary>
-    public bool UnknownBoolean0 { get; }
+    public LongId? HelperAvatarId { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId</c> value.
+    /// Gets the number of collectors the task needs (native JSON <c>RequiredCollectorCount</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongId? UnknownLongId { get; }
+    public int RequiredCollectorCount { get; }
 
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// Gets the reward granted for the task (native JSON <c>RewardData</c>).
     /// </summary>
-    public static MapGameChickenTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? RewardData { get; }
 
-        return new MapGameChickenTaskStatePayload(
-            stream.ReadVarInt(),
-            stream.ReadBoolean(),
-            MapGameFieldCodec.ReadOptionalLongId(stream),
-            MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream),
-            MapGameFieldCodec.ReadLongIds(stream)
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        stream.WriteVarInt(Unknown0);
-        stream.WriteBoolean(UnknownBoolean0);
-        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId);
-        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
-        MapGameFieldCodec.WriteLongIds(stream, LongIds.Span);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

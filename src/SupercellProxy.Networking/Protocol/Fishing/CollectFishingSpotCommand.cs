@@ -1,27 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects one fish from a fishing spot.</summary>
-public sealed record CollectFishingSpotCommand([property: System.Text.Json.Serialization.JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId) : Command
+public sealed record CollectFishingSpotCommand([property: System.Text.Json.Serialization.JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId) : CodecCommand<CollectFishingSpotCommand>, ICommandCodecProvider<CollectFishingSpotCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CollectFishingSpotCommandType;
-
-    /// <summary>Decodes a value from the supplied protocol payload.</summary>
-    public static CollectFishingSpotCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int fishingSpotGlobalId = stream.ReadVarInt();
-
-        return new CollectFishingSpotCommand(fishingSpotGlobalId);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(FishingSpotGlobalId);
-    }
+    public static CommandCodec<CollectFishingSpotCommand> Codec { get; } = Codecs.Command(
+        type: 109,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.FishingSpotGlobalId,
+            static (fishingSpotGlobalId) => new CollectFishingSpotCommand(fishingSpotGlobalId)
+        )
+    );
 }

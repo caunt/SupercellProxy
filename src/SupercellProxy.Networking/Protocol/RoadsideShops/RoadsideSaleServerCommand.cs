@@ -1,14 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
 /// <para>Records the sale of one roadside-shop listing.</para>
 /// </summary>
-public sealed record RoadsideSaleServerCommand : ServerCommand
+public sealed record RoadsideSaleServerCommand : CodecServerCommand<RoadsideSaleServerCommand>, ICommandCodecProvider<RoadsideSaleServerCommand>
 {
     /// <summary>
     /// <para>Initializes a roadside-sale server command.</para>
@@ -22,6 +20,26 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
         Price = price;
         Quantity = quantity;
     }
+
+    /// <inheritdoc />
+    public static CommandCodec<RoadsideSaleServerCommand> Codec { get; } = Codecs.Command(
+        type: 375,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.BuyerAvatarId,
+            Codecs.LongId,
+            static command => command.RoadsideOwnerAvatarId,
+            Codecs.Int32,
+            static command => command.ItemGlobalId,
+            Codecs.Int32,
+            static command => command.SlotIndex,
+            Codecs.Int32,
+            static command => command.Price,
+            Codecs.Int32,
+            static command => command.Quantity,
+            static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity)
+        )
+    );
 
     /// <summary>
     /// <para>Gets the buyer's avatar id.</para>
@@ -55,37 +73,4 @@ public sealed record RoadsideSaleServerCommand : ServerCommand
     /// <para>Gets the sold roadside-shop slot.</para>
     /// </summary>
     public int SlotIndex { get; }
-
-    /// <inheritdoc />
-    public override int Type => CommandRegistry.RoadsideSaleServerCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RoadsideSaleServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId buyerAvatarId = stream.ReadLongId();
-        LongId roadsideOwnerAvatarId = stream.ReadLongId();
-        int itemGlobalId = stream.ReadInt32();
-        int slotIndex = stream.ReadInt32();
-        int price = stream.ReadInt32();
-        int quantity = stream.ReadInt32();
-
-
-        return new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(BuyerAvatarId);
-        stream.WriteLongId(RoadsideOwnerAvatarId);
-        stream.WriteInt32(ItemGlobalId);
-        stream.WriteInt32(SlotIndex);
-        stream.WriteInt32(Price);
-        stream.WriteInt32(Quantity);
-    }
 }

@@ -1,5 +1,6 @@
 using System.Text;
 
+using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
@@ -15,43 +16,33 @@ public sealed record FriendEntry(
     int SortValue,
     int RelationshipStatus,
     int BlockTimestamp
-)
+) : ICodecProvider<FriendEntry>
 {
     internal const int MinimumEncodedSize = 28;
+
     private const int MaximumStringByteLength = 900_000;
-
-    /// Decodes every field in native wire order without interpreting unknown relationship-status values.
-    public static FriendEntry Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new FriendEntry(
-            stream.ReadLongId(),
-            ReadText(stream),
-            ReadText(stream),
-            ReadText(stream),
-            ReadText(stream),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// Encodes this entry in native wire order.
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(HomeId);
-        WriteText(stream, Name);
-        WriteText(stream, FacebookId);
-        WriteText(stream, GameCenterId);
-        WriteText(stream, ProfilePictureAddress);
-        stream.WriteVarInt(ExperienceLevel);
-        stream.WriteVarInt(SortValue);
-        stream.WriteVarInt(RelationshipStatus);
-        stream.WriteVarInt(BlockTimestamp);
-    }
+    /// <inheritdoc />
+    public static ICodec<FriendEntry> Codec { get; } = Codecs.Composite(
+        Codecs.LongId,
+        static entry => entry.HomeId,
+        TextCodec(),
+        static entry => entry.Name,
+        TextCodec(),
+        static entry => entry.FacebookId,
+        TextCodec(),
+        static entry => entry.GameCenterId,
+        TextCodec(),
+        static entry => entry.ProfilePictureAddress,
+        Codecs.VarInt,
+        static entry => entry.ExperienceLevel,
+        Codecs.VarInt,
+        static entry => entry.SortValue,
+        Codecs.VarInt,
+        static entry => entry.RelationshipStatus,
+        Codecs.VarInt,
+        static entry => entry.BlockTimestamp,
+        static (homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp) => new FriendEntry(homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp)
+    );
 
     /// Omits private farm and social-provider data from diagnostics.
     public override string ToString()
@@ -70,11 +61,16 @@ public sealed record FriendEntry(
             : Encoding.UTF8.GetString(stream.ReadBytes(length));
     }
 
-    private static void WriteText(MessageStream stream, string? value)
+    private static ICodec<string?> TextCodec()
+    {
+        return Codecs.Create(ReadText, WriteText);
+    }
+
+    private static void WriteText(ProtocolEncoder encoder, string? value)
     {
         if (value is not null && Encoding.UTF8.GetByteCount(value) > MaximumStringByteLength)
             throw new InvalidDataException(message: "Friend-entry text exceeds the native byte limit.");
 
-        stream.WriteOptionalString(value);
+        encoder.WriteOptionalString(value);
     }
 }

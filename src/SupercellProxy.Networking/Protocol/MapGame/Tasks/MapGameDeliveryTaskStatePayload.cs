@@ -1,30 +1,31 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameDeliveryTaskStatePayload</c>.
+/// A delivery task state, saved natively with the keys <c>Pickup</c>, <c>Delivery</c> and <c>Started</c>.
 /// </summary>
-public sealed record MapGameDeliveryTaskStatePayload(int Unknown0, int Unknown1, bool UnknownBoolean0) : MapGameTaskStatePayload
+/// <param name="Pickup">The pickup value saved under <c>Pickup</c>.</param>
+/// <param name="Delivery">The delivery value saved under <c>Delivery</c>.</param>
+/// <param name="Started">Whether the pawn picked up the delivery and is carrying it.</param>
+public sealed record MapGameDeliveryTaskStatePayload(int Pickup, int Delivery, bool Started) : MapGameTaskStatePayload, ICodecProvider<MapGameDeliveryTaskStatePayload>
 {
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// The native <c>TaskType</c> name of this payload.
     /// </summary>
-    public static MapGameDeliveryTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+    internal const string NativeTaskType = "Delivery";
 
-        return new MapGameDeliveryTaskStatePayload(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadBoolean());
-    }
+    /// <inheritdoc />
+    public static ICodec<MapGameDeliveryTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Pickup,
+        Codecs.VarInt,
+        static value => value.Delivery,
+        Codecs.Boolean,
+        static value => value.Started,
+        static (pickup, delivery, started) => new MapGameDeliveryTaskStatePayload(pickup, delivery, started)
+    );
 
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteBoolean(UnknownBoolean0);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

@@ -5,13 +5,13 @@ using System.Text;
 
 using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Protocol;
-using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Transport;
 
 /// <summary>Reads and writes protocol values and delegates framed message exchange to its connection transport.</summary>
-public sealed class MessageStream : IDisposable
+public sealed class MessageStream : ProtocolEncoder, IDisposable
 {
     /// <summary>
     /// Defines the <c language="csharp">MaxPayloadLength</c> value.
@@ -49,8 +49,6 @@ public sealed class MessageStream : IDisposable
     /// </summary>
     public ICommandDataResolver? CommandDataResolver { get; set; }
 
-    /// <summary>Gets or sets the full client release governing versioned message bodies.</summary>
-    public Version? GameVersion { get; set; }
     /// <summary>
     /// Gets the <c language="csharp">Length</c> value.
     /// </summary>
@@ -113,26 +111,6 @@ public sealed class MessageStream : IDisposable
             return;
 
         BaseStream.Dispose();
-    }
-
-    /// <summary>
-    /// Reads <c language="csharp">Array</c> from the stream.
-    /// </summary>
-    public TValue[] ReadArray<TValue>(Func<MessageStream, TValue> decode)
-    {
-        ArgumentNullException.ThrowIfNull(decode);
-        const int maximumCollectionCount = 0x10000;
-        int count = ReadVarInt();
-
-        if (count is < 0 or > maximumCollectionCount)
-            throw new InvalidDataException(message: "Invalid collection count.");
-
-        TValue[] values = new TValue[count];
-
-        for (int index = 0; index < values.Length; index++)
-            values[index] = decode(this);
-
-        return values;
     }
 
     /// <summary>
@@ -385,19 +363,6 @@ public sealed class MessageStream : IDisposable
     }
 
     /// <summary>
-    /// Reads <c language="csharp">Values</c> from the stream.
-    /// </summary>
-    public int[] ReadVarIntArray(int count)
-    {
-        int[] values = new int[count];
-
-        for (int index = 0; index < values.Length; index++)
-            values[index] = ReadVarInt();
-
-        return values;
-    }
-
-    /// <summary>
     /// Reads <c language="csharp">VarIntByteArray</c> from the stream.
     /// </summary>
     public Memory<byte> ReadVarIntByteArray()
@@ -470,7 +435,7 @@ public sealed class MessageStream : IDisposable
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation of setting up encryption.</returns>
     /// <exception cref="InvalidOperationException">Thrown if encryption has already been set up for this connection.</exception>
-    public ValueTask SetupEncryptionAsync(RemotePeerRole with, Memory<byte> sessionKey, CancellationToken cancellationToken = default)
+    public ValueTask SetupEncryptionAsync(RemotePeerRole with, ReadOnlyMemory<byte> sessionKey, CancellationToken cancellationToken = default)
     {
         return _transport.SetupEncryptionAsync(with, sessionKey, cancellationToken);
     }
@@ -512,22 +477,10 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp"></c> to the stream.
     /// </summary>
-    public void Write(ReadOnlySpan<byte> source)
+    public override void Write(ReadOnlySpan<byte> source)
     {
         FlushWriteBoolean();
         BaseStream.Write(source);
-    }
-
-    /// <summary>
-    /// Writes <c language="csharp">Array</c> to the stream.
-    /// </summary>
-    public void WriteArray<TValue>(ReadOnlySpan<TValue> values, Action<MessageStream, TValue> encode)
-    {
-        ArgumentNullException.ThrowIfNull(encode);
-        WriteVarInt(values.Length);
-
-        foreach (TValue value in values)
-            encode(this, value);
     }
 
     /// <summary>
@@ -548,7 +501,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">Boolean</c> to the stream.
     /// </summary>
-    public void WriteBoolean(bool value)
+    public override void WriteBoolean(bool value)
     {
         if (_booleanWriteOffset is 0)
             _booleanWriteAccumulator = 0;
@@ -565,7 +518,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">Byte</c> to the stream.
     /// </summary>
-    public void WriteByte(byte value)
+    public override void WriteByte(byte value)
     {
         FlushWriteBoolean();
         BaseStream.WriteByte(value);
@@ -574,7 +527,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">ByteArray</c> to the stream.
     /// </summary>
-    public void WriteByteArray(ReadOnlySpan<byte> source)
+    public override void WriteByteArray(ReadOnlySpan<byte> source)
     {
         WriteInt32(source.Length);
         Write(source);
@@ -589,9 +542,21 @@ public sealed class MessageStream : IDisposable
     }
 
     /// <summary>
+    /// Writes a big-endian 16-bit integer.
+    /// </summary>
+    public override void WriteInt16(short value)
+    {
+        FlushWriteBoolean();
+
+        Span<byte> span = stackalloc byte[sizeof(short)];
+        BinaryPrimitives.WriteInt16BigEndian(span, value);
+        BaseStream.Write(span);
+    }
+
+    /// <summary>
     /// Writes <c language="csharp">Int32</c> to the stream.
     /// </summary>
-    public void WriteInt32(int value)
+    public override void WriteInt32(int value)
     {
         FlushWriteBoolean();
 
@@ -603,7 +568,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">Int64</c> to the stream.
     /// </summary>
-    public void WriteInt64(long value)
+    public override void WriteInt64(long value)
     {
         FlushWriteBoolean();
 
@@ -615,7 +580,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">LongId</c> to the stream.
     /// </summary>
-    public void WriteLongId(LongId logicLong)
+    public override void WriteLongId(LongId logicLong)
     {
         WriteInt32(logicLong.HighInt32);
         WriteInt32(logicLong.LowInt32);
@@ -635,7 +600,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">OptionalByteArray</c> to the stream.
     /// </summary>
-    public void WriteOptionalByteArray(ReadOnlyMemory<byte>? source = null)
+    public override void WriteOptionalByteArray(ReadOnlyMemory<byte>? source = null)
     {
         if (source is null)
         {
@@ -650,7 +615,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">OptionalLongId</c> to the stream.
     /// </summary>
-    public void WriteOptionalLongId(LongId? value)
+    public override void WriteOptionalLongId(LongId? value)
     {
         WriteBoolean(value is not null);
 
@@ -661,7 +626,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">OptionalString</c> to the stream.
     /// </summary>
-    public void WriteOptionalString(string? value = null)
+    public override void WriteOptionalString(string? value = null)
     {
         if (value is null)
         {
@@ -684,7 +649,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">String</c> to the stream.
     /// </summary>
-    public void WriteString(string value)
+    public override void WriteString(string value)
     {
         int length = Encoding.UTF8.GetByteCount(value);
         WriteInt32(length);
@@ -700,7 +665,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">UInt16</c> to the stream.
     /// </summary>
-    public void WriteUInt16(ushort value)
+    public override void WriteUInt16(ushort value)
     {
         FlushWriteBoolean();
 
@@ -712,7 +677,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">UInt32</c> to the stream.
     /// </summary>
-    public void WriteUInt32(uint value)
+    public override void WriteUInt32(uint value)
     {
         FlushWriteBoolean();
 
@@ -724,7 +689,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">UInt64</c> to the stream.
     /// </summary>
-    public void WriteUInt64(ulong value)
+    public override void WriteUInt64(ulong value)
     {
         FlushWriteBoolean();
 
@@ -736,7 +701,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">VarInt</c> to the stream.
     /// </summary>
-    public void WriteVarInt(int valueToWrite)
+    public override void WriteVarInt(int valueToWrite)
     {
         FlushWriteBoolean();
 
@@ -781,7 +746,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">VarIntByteArray</c> to the stream.
     /// </summary>
-    public void WriteVarIntByteArray(ReadOnlySpan<byte> source)
+    public override void WriteVarIntByteArray(ReadOnlySpan<byte> source)
     {
         if (source.Length > MaximumPayloadLength)
             throw new InvalidDataException(message: "Var-length byte array is too large.");
@@ -793,7 +758,7 @@ public sealed class MessageStream : IDisposable
     /// <summary>
     /// Writes <c language="csharp">VarLong</c> to the stream.
     /// </summary>
-    public void WriteVarLong(long valueToWrite)
+    public override void WriteVarLong(long valueToWrite)
     {
         FlushWriteBoolean();
 

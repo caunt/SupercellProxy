@@ -1,31 +1,16 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
 /// Carries one server-pushed friend-list update.
-public sealed record FriendListUpdateMessage(FriendEntry Entry) : IMessage
+public sealed record FriendListUpdateMessage(FriendEntry Entry) : CodecMessage<FriendListUpdateMessage>, ICodecProvider<FriendListUpdateMessage>
 {
-    /// Decodes one complete friend entry.
-    public static FriendListUpdateMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        FriendEntry entry = FriendEntry.Decode(stream);
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The friend-list update has trailing data.")
-            : new FriendListUpdateMessage(entry);
-    }
-
-    /// Encodes this update as a payload.
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        ArgumentNullException.ThrowIfNull(Entry);
-
-        Entry.Encode(stream);
-    }
+    /// <inheritdoc />
+    public static ICodec<FriendListUpdateMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(FriendEntry.Codec, static message => message.Entry, static (entry) => new FriendListUpdateMessage(entry)),
+        trailingDataMessage: "The friend-list update has trailing data."
+    );
 
     /// Omits the private entry from diagnostics.
     public override string ToString()

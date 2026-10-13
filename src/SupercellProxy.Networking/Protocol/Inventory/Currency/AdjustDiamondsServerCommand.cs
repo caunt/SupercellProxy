@@ -1,28 +1,20 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Inventory.Currency;
 
 /// <summary>Applies a server-directed diamond credit or debit.</summary>
-public sealed record AdjustDiamondsServerCommand(int Amount, bool Credit) : ServerCommand
+public sealed record AdjustDiamondsServerCommand(int Amount, bool Credit) : CodecServerCommand<AdjustDiamondsServerCommand>, ICommandCodecProvider<AdjustDiamondsServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.AdjustDiamondsServerCommandType;
-
-    /// <summary>Decodes the amount followed by the credit selector.</summary>
-    public static AdjustDiamondsServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt(), stream.ReadBoolean());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Amount);
-        stream.WriteBoolean(Credit);
-    }
+    public static CommandCodec<AdjustDiamondsServerCommand> Codec { get; } = Codecs.Command(
+        type: 378,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.Amount,
+            Codecs.Boolean,
+            static command => command.Credit,
+            static (amount, credit) => new AdjustDiamondsServerCommand(amount, credit)
+        )
+    );
 }

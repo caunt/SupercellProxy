@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
 
@@ -11,29 +9,15 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 /// <summary>
 /// Defines the Notification Global Id contract.
 /// </summary>
-public sealed record DismissFarmPassNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("NotificationGlobalId")] int NotificationGlobalId) : Command
+public sealed record DismissFarmPassNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("NotificationGlobalId")] int NotificationGlobalId) : CodecCommand<DismissFarmPassNotificationCommand>, ICommandCodecProvider<DismissFarmPassNotificationCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.DismissFarmPassNotificationCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static DismissFarmPassNotificationCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int notification = stream.ReadVarInt();
-
-        return new DismissFarmPassNotificationCommand(notification);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(NotificationGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<DismissFarmPassNotificationCommand> Codec { get; } = Codecs.Command(
+        type: 333,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.NotificationGlobalId,
+            static (notification) => new DismissFarmPassNotificationCommand(notification)
+        )
+    );
 }

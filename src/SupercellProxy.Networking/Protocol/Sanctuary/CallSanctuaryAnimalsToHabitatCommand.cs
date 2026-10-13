@@ -1,26 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Sanctuary;
 
 /// <summary>Calls compatible sanctuary animals home and collects rewards from animals woken by the call.</summary>
-public sealed record CallSanctuaryAnimalsToHabitatCommand(int HabitatGlobalId) : Command
+public sealed record CallSanctuaryAnimalsToHabitatCommand(int HabitatGlobalId) : CodecCommand<CallSanctuaryAnimalsToHabitatCommand>, ICommandCodecProvider<CallSanctuaryAnimalsToHabitatCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CallSanctuaryAnimalsToHabitatCommandType;
-
-    /// <summary>Decodes the habitat instance before the command metadata.</summary>
-    public static CallSanctuaryAnimalsToHabitatCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(HabitatGlobalId);
-    }
+    public static CommandCodec<CallSanctuaryAnimalsToHabitatCommand> Codec { get; } = Codecs.Command(
+        type: 217,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.HabitatGlobalId,
+            static (habitatGlobalId) => new CallSanctuaryAnimalsToHabitatCommand(habitatGlobalId)
+        )
+    );
 }

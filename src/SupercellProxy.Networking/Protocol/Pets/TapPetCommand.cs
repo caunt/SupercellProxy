@@ -1,26 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Pets;
 
 /// <summary>Makes an awake pet without an active care movement run around its habitat.</summary>
-public sealed record TapPetCommand(int PetGlobalId) : Command
+public sealed record TapPetCommand(int PetGlobalId) : CodecCommand<TapPetCommand>, ICommandCodecProvider<TapPetCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.TapPetCommandType;
-
-    /// <summary>Decodes the pet instance before the command metadata.</summary>
-    public static TapPetCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(PetGlobalId);
-    }
+    public static CommandCodec<TapPetCommand> Codec { get; } = Codecs.Command(
+        type: 88,
+        Codecs.Composite(Codecs.VarInt, static command => command.PetGlobalId, static (petGlobalId) => new TapPetCommand(petGlobalId))
+    );
 }

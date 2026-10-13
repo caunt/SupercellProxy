@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 
@@ -14,31 +12,17 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 /// <summary>
 /// Defines the Legacy Flag contract.
 /// </summary>
-public sealed record OpenMysteryBoxCommand([property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : Command
+public sealed record OpenMysteryBoxCommand([property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : CodecCommand<OpenMysteryBoxCommand>, ICommandCodecProvider<OpenMysteryBoxCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.OpenMysteryBoxCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static OpenMysteryBoxCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int box = stream.ReadVarInt();
-        bool flag = stream.ReadBoolean();
-
-        return new OpenMysteryBoxCommand(box, flag);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(BoxGlobalId);
-        stream.WriteBoolean(LegacyFlag);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<OpenMysteryBoxCommand> Codec { get; } = Codecs.Command(
+        type: 44,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.BoxGlobalId,
+            Codecs.Boolean,
+            static command => command.LegacyFlag,
+            static (box, flag) => new OpenMysteryBoxCommand(box, flag)
+        )
+    );
 }

@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 
@@ -14,35 +12,18 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 /// <summary>
 /// Defines the Compressed Layouts contract.
 /// </summary>
-public sealed record LoadFarmLayoutsServerCommand(int GameMode, ReadOnlyMemory<byte>? CompressedLayouts) : ServerCommand
+public sealed record LoadFarmLayoutsServerCommand(int GameMode, ReadOnlyMemory<byte>? CompressedLayouts) : CodecServerCommand<LoadFarmLayoutsServerCommand>, ICommandCodecProvider<LoadFarmLayoutsServerCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.LoadFarmLayoutsCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static LoadFarmLayoutsServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        int mode = stream.ReadVarInt();
-        ReadOnlyMemory<byte>? layouts = stream.ReadBoolean() ? stream.ReadByteArray() : null;
-
-        return new LoadFarmLayoutsServerCommand(mode, layouts);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(GameMode);
-        stream.WriteBoolean(CompressedLayouts is not null);
-
-        if (CompressedLayouts is { } layouts)
-            stream.WriteByteArray(layouts.Span);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<LoadFarmLayoutsServerCommand> Codec { get; } = Codecs.Command(
+        type: 743,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.GameMode,
+            Codecs.OptionalValue(Codecs.ByteArray),
+            static command => command.CompressedLayouts,
+            static (mode, layouts) => new LoadFarmLayoutsServerCommand(mode, layouts)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

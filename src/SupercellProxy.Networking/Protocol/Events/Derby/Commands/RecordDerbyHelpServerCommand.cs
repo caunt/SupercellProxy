@@ -1,28 +1,22 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
 /// <summary>Reports successful help that advances the requesting player's derby task.</summary>
-public sealed record RecordDerbyHelpServerCommand(LongId NeighborhoodId, LongId PlayerId, int Status) : ServerCommand
+public sealed record RecordDerbyHelpServerCommand(LongId NeighborhoodId, LongId PlayerId, int Status) : CodecServerCommand<RecordDerbyHelpServerCommand>, ICommandCodecProvider<RecordDerbyHelpServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.RecordDerbyHelpServerCommandType;
-
-    /// <summary>Decodes the help result before server-command metadata.</summary>
-    public static RecordDerbyHelpServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteVarInt(Status);
-    }
+    public static CommandCodec<RecordDerbyHelpServerCommand> Codec { get; } = Codecs.Command(
+        type: 179,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            Codecs.LongId,
+            static command => command.PlayerId,
+            Codecs.VarInt,
+            static command => command.Status,
+            static (neighborhoodId, playerId, status) => new RecordDerbyHelpServerCommand(neighborhoodId, playerId, status)
+        )
+    );
 }

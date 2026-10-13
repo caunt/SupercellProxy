@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Tutorials;
 
 /// <summary>
 /// <para>Marks a tutorial data entry complete.</para>
 /// </summary>
-public sealed record FinishTutorialCommand : Command
+public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>, ICommandCodecProvider<FinishTutorialCommand>
 {
     /// <summary>
     /// Defines the <c language="csharp">CommandType</c> value.
@@ -22,33 +21,19 @@ public sealed record FinishTutorialCommand : Command
         TutorialGlobalId = tutorialGlobalId;
     }
 
+    /// <inheritdoc />
+    public static CommandCodec<FinishTutorialCommand> Codec { get; } = Codecs.Command(
+        type: 34,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.TutorialGlobalId,
+            static (tutorialGlobalId) => new FinishTutorialCommand(tutorialGlobalId)
+        )
+    );
+
     /// <summary>
     /// Gets the <c language="csharp">TutorialGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("TutorialGlobalId")]
     public int TutorialGlobalId { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static FinishTutorialCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int tutorialGlobalId = stream.ReadVarInt();
-
-        return new FinishTutorialCommand(tutorialGlobalId);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(TutorialGlobalId);
-    }
 }

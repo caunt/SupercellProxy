@@ -1,38 +1,24 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
 /// <summary>
 /// Represents the <c language="csharp">ServerHelloMessage</c> protocol message.
 /// </summary>
-public sealed record ServerHelloMessage : IMessage
+public sealed record ServerHelloMessage : CodecMessage<ServerHelloMessage>, ICodecProvider<ServerHelloMessage>
 {
+    /// <inheritdoc />
+    public static ICodec<ServerHelloMessage> Codec { get; } = Codecs.Composite(
+        Codecs.ByteArray,
+        static message => message.SessionKey,
+        static (sessionKey) => new ServerHelloMessage { SessionKey = sessionKey }
+    );
+
     /// <summary>
     /// Gets or sets the <c language="csharp">SessionKey</c> value.
     /// </summary>
-    public required Memory<byte> SessionKey { get; init; }
-
-    /// <summary>
-    /// Creates a <c language="csharp">ServerHelloMessage</c> from the supplied data.
-    /// </summary>
-    public static ServerHelloMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new ServerHelloMessage { SessionKey = stream.ReadByteArray() };
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteByteArray(SessionKey.Span);
-    }
+    public required ReadOnlyMemory<byte> SessionKey { get; init; }
 
     /// <summary>
     /// Executes the <c language="csharp">ToString</c> operation.

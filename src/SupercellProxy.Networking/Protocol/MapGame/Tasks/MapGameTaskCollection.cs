@@ -1,13 +1,11 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
 /// <para>Native value and task collection embedded in logic command 321.</para>
 /// </summary>
-public sealed record MapGameTaskCollection
+public sealed record MapGameTaskCollection : ICodecProvider<MapGameTaskCollection>
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameTaskCollection"/> instance.
@@ -18,6 +16,15 @@ public sealed record MapGameTaskCollection
         Tasks = tasks.ToArray();
     }
 
+    /// <inheritdoc />
+    public static ICodec<MapGameTaskCollection> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static collection => collection.Unknown0,
+        Codecs.Memory(MapGameTask.Codec),
+        static collection => collection.Tasks,
+        static (unknown0, tasks) => new MapGameTaskCollection(unknown0, tasks)
+    );
+
     /// <summary>
     /// Gets the <c language="csharp">Tasks</c> value.
     /// </summary>
@@ -27,33 +34,4 @@ public sealed record MapGameTaskCollection
     /// Gets the <c language="csharp">Unknown0</c> value.
     /// </summary>
     public int Unknown0 { get; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameTaskCollection Decode(MessageStream stream, ICommandDataResolver? dataResolver)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVarInt();
-        int taskCount = MapGameFieldCodec.ReadCount(stream, name: "task");
-        MapGameTask[] tasks = new MapGameTask[taskCount];
-
-        for (int index = 0; index < tasks.Length; index++)
-            tasks[index] = MapGameTask.Decode(stream, dataResolver);
-
-        return new MapGameTaskCollection(unknown0, tasks);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Tasks.Length);
-
-        foreach (MapGameTask task in Tasks.Span)
-            task.Encode(stream);
-    }
 }

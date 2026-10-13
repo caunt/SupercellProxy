@@ -1,12 +1,10 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Helpers;
 
 /// Replaces the selected helper's production order quantities.
-public sealed record SetHelperOrdersCommand : Command
+public sealed record SetHelperOrdersCommand : CodecCommand<SetHelperOrdersCommand>, ICommandCodecProvider<SetHelperOrdersCommand>
 {
     /// <inheritdoc/>
     public SetHelperOrdersCommand(byte helperIndex, ReadOnlyMemory<int> amounts)
@@ -15,27 +13,21 @@ public sealed record SetHelperOrdersCommand : Command
         Amounts = amounts.ToArray();
     }
 
+    /// <inheritdoc />
+    public static CommandCodec<SetHelperOrdersCommand> Codec { get; } = Codecs.Command(
+        type: 205,
+        Codecs.Composite(
+            Codecs.Byte,
+            static command => command.HelperIndex,
+            Codecs.Memory(Codecs.VarInt, CollectionCount.SignedByte),
+            static command => command.Amounts,
+            static (helperIndex, amounts) => new SetHelperOrdersCommand(helperIndex, amounts)
+        )
+    );
+
     /// <inheritdoc/>
     public ReadOnlyMemory<int> Amounts { get; }
+
     /// <inheritdoc/>
     public byte HelperIndex { get; }
-    /// <inheritdoc/>
-    public override int Type => CommandRegistry.SetHelperOrdersCommandType;
-
-    /// <inheritdoc/>
-    public static SetHelperOrdersCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        byte helperIndex = stream.ReadByte();
-        ReadOnlyMemory<int> amounts = CommandByteCountedVarIntArrayField.Decode(stream).Values;
-
-        return new SetHelperOrdersCommand(helperIndex, amounts);
-    }
-
-    /// <inheritdoc/>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteByte(HelperIndex);
-        new CommandByteCountedVarIntArrayField(Amounts).Encode(stream);
-    }
 }

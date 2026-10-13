@@ -1,5 +1,4 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Accounts;
 
@@ -43,44 +42,30 @@ public sealed record AccountCandidateEntry(
     int Value1,
     int Value2,
     int Value3
-)
+) : ICodecProvider<AccountCandidateEntry>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static AccountCandidateEntry Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadLongId(),
-            stream.ReadOptionalString(),
-            stream.ReadOptionalString(),
-            stream.ReadOptionalString(),
-            stream.ReadOptionalString(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(AccountId);
-        stream.WriteOptionalString(Text0);
-        stream.WriteOptionalString(Text1);
-        stream.WriteOptionalString(Text2);
-        stream.WriteOptionalString(Text3);
-        stream.WriteVarInt(Value0);
-        stream.WriteVarInt(Value1);
-        stream.WriteVarInt(Value2);
-        stream.WriteVarInt(Value3);
-    }
+    /// <inheritdoc />
+    public static ICodec<AccountCandidateEntry> Codec { get; } = Codecs.Composite(
+        Codecs.LongId,
+        static value => value.AccountId,
+        Codecs.OptionalString,
+        static value => value.Text0,
+        Codecs.OptionalString,
+        static value => value.Text1,
+        Codecs.OptionalString,
+        static value => value.Text2,
+        Codecs.OptionalString,
+        static value => value.Text3,
+        Codecs.VarInt,
+        static value => value.Value0,
+        Codecs.VarInt,
+        static value => value.Value1,
+        Codecs.VarInt,
+        static value => value.Value2,
+        Codecs.VarInt,
+        static value => value.Value3,
+        static (accountId, text0, text1, text2, text3, value0, value1, value2, value3) => new AccountCandidateEntry(accountId, text0, text1, text2, text3, value0, value1, value2, value3)
+    );
 
     /// <summary>
     /// Provides the To String value or operation.

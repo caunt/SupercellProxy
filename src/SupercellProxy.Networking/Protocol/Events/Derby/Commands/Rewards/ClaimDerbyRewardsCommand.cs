@@ -1,23 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 
 /// <summary>Claims the selected ordinary, bingo and bunny derby reward choices.</summary>
-public sealed record ClaimDerbyRewardsCommand(DerbyRewardSelection Selection) : Command
+public sealed record ClaimDerbyRewardsCommand(DerbyRewardSelection Selection) : CodecCommand<ClaimDerbyRewardsCommand>, ICommandCodecProvider<ClaimDerbyRewardsCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimDerbyRewardsCommandType;
-    /// <summary>Decodes the selected reward choices.</summary>
-    public static ClaimDerbyRewardsCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        return new(DerbyRewardSelection.Decode(stream));
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        Selection.Encode(stream);
-    }
+    public static CommandCodec<ClaimDerbyRewardsCommand> Codec { get; } = Codecs.Command(
+        type: 173,
+        Codecs.Composite(DerbyRewardSelection.Codec, static command => command.Selection, static (selection) => new ClaimDerbyRewardsCommand(selection))
+    );
 }

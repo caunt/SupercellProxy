@@ -1,26 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Confirms removal of the player from the specified neighborhood.</summary>
-public sealed record LeaveNeighborhoodServerCommand(LongId NeighborhoodId) : ServerCommand
+public sealed record LeaveNeighborhoodServerCommand(LongId NeighborhoodId) : CodecServerCommand<LeaveNeighborhoodServerCommand>, ICommandCodecProvider<LeaveNeighborhoodServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.LeaveNeighborhoodServerCommandType;
-
-    /// <summary>Decodes the neighborhood identifier before server-command metadata.</summary>
-    public static LeaveNeighborhoodServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadLongId());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-    }
+    public static CommandCodec<LeaveNeighborhoodServerCommand> Codec { get; } = Codecs.Command(
+        type: 135,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            static (neighborhoodId) => new LeaveNeighborhoodServerCommand(neighborhoodId)
+        )
+    );
 }

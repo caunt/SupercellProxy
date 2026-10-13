@@ -1,29 +1,25 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameOffloadSanctuaryAnimalTaskStatePayload</c>.
+/// An offload-sanctuary-animal task state, saved natively with the key <c>DiamondPrice</c>.
 /// </summary>
-public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int Unknown0)
-    : MapGameTaskStatePayload
+/// <param name="DiamondPrice">The diamond price of offloading the animal.</param>
+public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int DiamondPrice) : MapGameTaskStatePayload, ICodecProvider<MapGameOffloadSanctuaryAnimalTaskStatePayload>
 {
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// The native <c>TaskType</c> name of this payload.
     /// </summary>
-    public static MapGameOffloadSanctuaryAnimalTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+    internal const string NativeTaskType = "Offload Sanctuary Animal";
 
-        return new MapGameOffloadSanctuaryAnimalTaskStatePayload(stream.ReadVarInt());
-    }
+    /// <inheritdoc />
+    public static ICodec<MapGameOffloadSanctuaryAnimalTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.DiamondPrice,
+        static (diamondPrice) => new MapGameOffloadSanctuaryAnimalTaskStatePayload(diamondPrice)
+    );
 
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        stream.WriteVarInt(Unknown0);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

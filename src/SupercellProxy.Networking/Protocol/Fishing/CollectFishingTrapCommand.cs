@@ -1,26 +1,11 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects the retained drops of a completed fishing net or trap.</summary>
-public sealed record CollectFishingTrapCommand(int SpotId) : Command
+public sealed record CollectFishingTrapCommand(int SpotId) : CodecCommand<CollectFishingTrapCommand>, ICommandCodecProvider<CollectFishingTrapCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CollectFishingTrapCommandType;
-    /// <summary>Decodes the fishing-spot id.</summary>
-    public static CollectFishingTrapCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadVarInt();
-
-        return new(id);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(SpotId);
-    }
+    public static CommandCodec<CollectFishingTrapCommand> Codec { get; } = Codecs.Command(type: 119, Codecs.Composite(Codecs.VarInt, static command => command.SpotId, static (id) => new CollectFishingTrapCommand(id)));
 }

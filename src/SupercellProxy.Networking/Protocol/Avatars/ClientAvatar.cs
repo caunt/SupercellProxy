@@ -1,25 +1,132 @@
 using SupercellProxy.Networking.Protocol.Avatars.Collections;
+using SupercellProxy.Networking.Protocol.Avatars.Derby;
 using SupercellProxy.Networking.Protocol.Inventory;
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.MapGame;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
+using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Town;
-using SupercellProxy.Networking.Transport;
-
 
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>
 /// Represents <c language="csharp">ClientAvatar</c>.
 /// </summary>
-public sealed record ClientAvatar
+public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
 {
-    /// <summary>Length of the first fixed progression group.</summary>
-    public const int UnknownValues1Count = 11;
-
-    /// <summary>Length of the second fixed progression group.</summary>
-    public const int UnknownValues2Count = 6;
+    /// <inheritdoc />
+    public static ICodec<ClientAvatar> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static avatar => avatar.AvatarTimestamp,
+        Codecs.VarInt,
+        static avatar => avatar.Unknown1,
+        Codecs.VarInt,
+        static avatar => avatar.AvatarVersion,
+        Codecs.VarInt,
+        static avatar => avatar.SecondsWithoutSpending,
+        Codecs.OptionalString,
+        static avatar => avatar.FarmName,
+        Codecs.LongId,
+        static avatar => avatar.HomeId,
+        Codecs.LongId,
+        static avatar => avatar.AccountId,
+        AvatarInventorySection.Codec,
+        static avatar => new AvatarInventorySection(
+            avatar.InventoryLayout,
+            avatar.InventoryValues,
+            avatar.InventoryMaps,
+            avatar.DeprecatedInventoryDataCount,
+            avatar.InventoryUnknown0
+        ),
+        AvatarSocialSection.Codec,
+        static avatar => new AvatarSocialSection(
+            avatar.RoadsideShop,
+            avatar.Neighborhood,
+            avatar.MailEntries,
+            avatar.UnknownValues0,
+            avatar.BoatCrateHelpEntries,
+            avatar.TrainStationReady,
+            avatar.IsMuted,
+            avatar.CanEditFarm,
+            avatar.PassengerReservations,
+            avatar.PickedPassengers,
+            avatar.ServiceHelpRequests,
+            avatar.UnknownEntries3
+        ),
+        AvatarProgressionSection.Codec,
+        static avatar => new AvatarProgressionSection(
+            avatar.UnknownNullableListCount,
+            avatar.CurrentDerbyInstanceId,
+            avatar.PreviousDerbyInstanceId,
+            avatar.LeagueType,
+            avatar.PreviousLeagueType,
+            avatar.LeagueScore,
+            avatar.DerbyProgress,
+            avatar.EventManager,
+            avatar.LiveGlobals,
+            avatar.DerbyMinigameCounters,
+            avatar.MapGameId,
+            avatar.UnknownOptionalId3,
+            avatar.Unknown4,
+            avatar.MapGameParticipants,
+            avatar.BirthTimestamp,
+            avatar.AgeCountryCode,
+            avatar.StorePromotionAllowed,
+            avatar.UnknownString1,
+            avatar.UnknownBoolean1,
+            avatar.ShopPurchaseHistory,
+            avatar.Settings
+        ),
+        static (avatarTimestamp, unknown1, avatarVersion, secondsWithoutSpending, farmName, homeId, accountId, inventory, social, progression) => new ClientAvatar
+        {
+            AvatarTimestamp = avatarTimestamp,
+            Unknown1 = unknown1,
+            AvatarVersion = avatarVersion,
+            SecondsWithoutSpending = secondsWithoutSpending,
+            FarmName = farmName,
+            HomeId = homeId,
+            AccountId = accountId,
+            InventoryValues = inventory.Values,
+            InventoryLayout = inventory.Layout,
+            InventoryMaps = inventory.Maps,
+            DeprecatedInventoryDataCount = inventory.DeprecatedDataCount,
+            InventoryUnknown0 = inventory.Unknown0,
+            RoadsideShop = social.RoadsideShop,
+            Neighborhood = social.Neighborhood,
+            MailEntries = social.MailEntries,
+            UnknownValues0 = social.UnknownValues0,
+            BoatCrateHelpEntries = social.BoatCrateHelpEntries,
+            TrainStationReady = social.TrainStationReady,
+            IsMuted = social.IsMuted,
+            CanEditFarm = social.CanEditFarm,
+            PassengerReservations = social.PassengerReservations,
+            PickedPassengers = social.PickedPassengers,
+            ServiceHelpRequests = social.ServiceHelpRequests,
+            UnknownEntries3 = social.UnknownEntries3,
+            UnknownNullableListCount = progression.UnknownNullableListCount,
+            CurrentDerbyInstanceId = progression.CurrentDerbyInstanceId,
+            PreviousDerbyInstanceId = progression.PreviousDerbyInstanceId,
+            LeagueType = progression.LeagueType,
+            PreviousLeagueType = progression.PreviousLeagueType,
+            LeagueScore = progression.LeagueScore,
+            DerbyProgress = progression.DerbyProgress,
+            EventManager = progression.EventManager,
+            LiveGlobals = progression.LiveGlobals,
+            DerbyMinigameCounters = progression.DerbyMinigameCounters,
+            MapGameId = progression.MapGameId,
+            MapGameParticipants = progression.MapGameParticipants,
+            UnknownOptionalId3 = progression.UnknownOptionalId3,
+            Unknown4 = progression.Unknown4,
+            BirthTimestamp = progression.BirthTimestamp,
+            AgeCountryCode = progression.AgeCountryCode,
+            StorePromotionAllowed = progression.StorePromotionAllowed,
+            UnknownString1 = progression.UnknownString1,
+            UnknownBoolean1 = progression.UnknownBoolean1,
+            ShopPurchaseHistory = progression.ShopPurchaseHistory,
+            Settings = progression.Settings,
+        }
+    );
 
     /// <summary>Number of inventory arrays in the legacy 1.72 layout.</summary>
     public static int InventoryArrayCount => AvatarInventoryLayout.Legacy.ArrayCount;
@@ -35,6 +142,11 @@ public sealed record ClientAvatar
 
     /// Gets the country code used by age restrictions.
     public string? AgeCountryCode { get; init; }
+
+    /// <summary>
+    /// Gets the avatar timestamp.
+    /// </summary>
+    public int AvatarTimestamp { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">AvatarVersion</c> value.
@@ -53,10 +165,28 @@ public sealed record ClientAvatar
     /// </summary>
     public bool CanEditFarm { get; init; }
 
+    /// <summary>Gets the instance id of the derby the avatar takes part in.</summary>
+    public LongId? CurrentDerbyInstanceId { get; init; }
+
     /// <summary>
     /// Gets or sets the <c language="csharp">DeprecatedInventoryDataCount</c> value.
     /// </summary>
     public int DeprecatedInventoryDataCount { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// </summary>
+    public int[][] InventoryValues { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
+    /// </summary>
+    public DataReferenceValue[][] InventoryMaps { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
+    /// </summary>
+    public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the in-game farm name.
@@ -70,14 +200,14 @@ public sealed record ClientAvatar
     public LongId HomeId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// Gets or sets the <c language="csharp">MailEntries</c> value.
     /// </summary>
-    public int[][] InventoryValues { get; init; } = [];
+    public MailEntry[] MailEntries { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
+    /// Gets or sets the <c language="csharp">UnknownValues0</c> value.
     /// </summary>
-    public DataReferenceValue[][] InventoryMaps { get; init; } = [];
+    public int[] UnknownValues0 { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">InventoryUnknown0</c> value.
@@ -85,9 +215,9 @@ public sealed record ClientAvatar
     public int InventoryUnknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
+    /// Gets or sets the <c language="csharp">BoatCrateHelpEntries</c> value.
     /// </summary>
-    public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
+    public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">IsMuted</c> value.
@@ -105,9 +235,14 @@ public sealed record ClientAvatar
     public int LeagueType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MailEntries</c> value.
+    /// Gets the town passenger pickups reserved by helpers, keyed by passenger help id.
     /// </summary>
-    public MailEntry[] MailEntries { get; set; } = [];
+    public PassengerReservation[] PassengerReservations { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">PickedPassengers</c> value.
+    /// </summary>
+    public PickedPassenger[] PickedPassengers { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">MapGameId</c> value.
@@ -126,15 +261,25 @@ public sealed record ClientAvatar
     public NeighborhoodData? Neighborhood { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownValues0</c> value.
+    /// Gets the town service help requests and the helpers that completed them.
     /// </summary>
-    public int[] UnknownValues0 { get; init; } = [];
+    public ServiceHelpRequest[] ServiceHelpRequests { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">BoatCrateHelpEntries</c> value.
+    /// Gets a second help request list with the service request layout; captures never carry entries.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownEntries0")]
-    public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
+    public ServiceHelpRequest[] UnknownEntries3 { get; init; } = [];
+
+    /// <summary>Gets the instance id of the previous derby; native drops the previous rank, keys, bunnies and bingo lines without it.</summary>
+    public LongId? PreviousDerbyInstanceId { get; init; }
+
+    /// <summary>Gets the league type of the previous derby.</summary>
+    public int PreviousLeagueType { get; init; }
+
+    /// <summary>
+    /// Gets the native <c language="csharp">LogicEventManager</c> data: live events, purchases and seen offers.
+    /// </summary>
+    public EventManagerData EventManager { get; init; } = new();
 
     /// <summary>
     /// Gets elapsed seconds without real-money spending at the avatar's load boundary.
@@ -142,9 +287,19 @@ public sealed record ClientAvatar
     public int SecondsWithoutSpending { get; init; }
 
     /// <summary>
+    /// Gets the native <c language="csharp">LogicLiveGlobalManager</c> configurations.
+    /// </summary>
+    public LiveGlobalConfigurations LiveGlobals { get; init; } = new();
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">Settings</c> value.
     /// </summary>
     public AvatarSettings? Settings { get; init; }
+
+    /// <summary>
+    /// Gets the shop purchase receipts and spending totals.
+    /// </summary>
+    public PurchaseHistory ShopPurchaseHistory { get; init; } = new();
 
     /// <summary>
     /// Gets or sets the <c language="csharp">StorePromotionAllowed</c> value.
@@ -155,11 +310,6 @@ public sealed record ClientAvatar
     /// Gets or sets the <c language="csharp">TrainStationReady</c> value.
     /// </summary>
     public bool TrainStationReady { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
-    /// </summary>
-    public int Unknown0 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Unknown1</c> value.
@@ -176,57 +326,13 @@ public sealed record ClientAvatar
     /// </summary>
     public bool UnknownBoolean1 { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownEntries1</c> value.
-    /// </summary>
-    public AvatarIdFlagEntry[] UnknownEntries1 { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">PickedPassengers</c> value.
-    /// </summary>
-    public PickedPassenger[] PickedPassengers { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownEntries2</c> value.
-    /// </summary>
-    public AvatarIdPairEntry[] UnknownEntries2 { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownLeagueValue</c> value.
-    /// </summary>
-    public int UnknownLeagueValue { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownEntries3</c> value.
-    /// </summary>
-    public AvatarIdPairEntry[] UnknownEntries3 { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownValues1</c> value.
-    /// </summary>
-    public int[] UnknownValues1 { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownManager0</c> value.
-    /// </summary>
-    public AvatarCollectionSection UnknownManager0 { get; init; } = new();
+    /// <summary>Gets the bingo and bunny counters of the running and previous derby.</summary>
+    public AvatarDerbyMinigameCounters DerbyMinigameCounters { get; init; } = new();
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownNullableListCount</c> value.
     /// </summary>
     public int UnknownNullableListCount { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownOptionalId0</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId0")]
-    public LongId? UnknownOptionalId0 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownOptionalId1</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId1")]
-    public LongId? UnknownOptionalId1 { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">UnknownOptionalId3</c> value.
@@ -239,277 +345,6 @@ public sealed record ClientAvatar
     /// </summary>
     public string? UnknownString1 { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownManager1</c> value.
-    /// </summary>
-    public AvatarStringSection UnknownManager1 { get; init; } = new();
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownValues2</c> value.
-    /// </summary>
-    public int[] UnknownValues2 { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownManager2</c> value.
-    /// </summary>
-    public AvatarStateSection UnknownManager2 { get; init; } = new();
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ClientAvatar Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVarInt();
-        int unknown1 = stream.ReadVarInt();
-        int avatarVersion = stream.ReadVarInt();
-        int secondsWithoutSpending = stream.ReadVarInt();
-        string? name = stream.ReadOptionalString();
-        LongId homeId = stream.ReadLongId();
-        LongId accountId = stream.ReadLongId();
-
-        AvatarInventorySection inventory = DecodeInventory(stream);
-
-        AvatarSocialSection social = DecodeSocialState(stream);
-
-        AvatarProgressionSection progression = DecodeProgressionState(stream);
-
-        return new ClientAvatar
-        {
-            Unknown0 = unknown0,
-            Unknown1 = unknown1,
-            AvatarVersion = avatarVersion,
-            SecondsWithoutSpending = secondsWithoutSpending,
-            FarmName = name,
-            HomeId = homeId,
-            AccountId = accountId,
-            InventoryValues = inventory.Values,
-            InventoryLayout = AvatarInventoryLayout.ForVersion(stream.GameVersion),
-            InventoryMaps = inventory.Maps,
-            DeprecatedInventoryDataCount = inventory.DeprecatedDataCount,
-            InventoryUnknown0 = inventory.Unknown0,
-            RoadsideShop = social.RoadsideShop,
-            Neighborhood = social.Neighborhood,
-            MailEntries = social.MailEntries,
-            UnknownValues0 = social.UnknownValues0,
-            BoatCrateHelpEntries = social.BoatCrateHelpEntries,
-            TrainStationReady = social.TrainStationReady,
-            IsMuted = social.IsMuted,
-            CanEditFarm = social.CanEditFarm,
-            UnknownEntries1 = social.UnknownEntries1,
-            PickedPassengers = social.PickedPassengers,
-            UnknownEntries2 = social.UnknownEntries2,
-            UnknownEntries3 = social.UnknownEntries3,
-            UnknownNullableListCount = progression.UnknownNullableListCount,
-            UnknownOptionalId0 = progression.UnknownOptionalId0,
-            UnknownOptionalId1 = progression.UnknownOptionalId1,
-            LeagueType = progression.LeagueType,
-            UnknownLeagueValue = progression.UnknownLeagueValue,
-            LeagueScore = progression.LeagueScore,
-            UnknownValues1 = progression.UnknownValues1,
-            UnknownManager0 = progression.UnknownManager0,
-            UnknownManager1 = progression.UnknownManager1,
-            UnknownValues2 = progression.UnknownValues2,
-            MapGameId = progression.MapGameId,
-            MapGameParticipants = progression.MapGameParticipants,
-            UnknownOptionalId3 = progression.UnknownOptionalId3,
-            Unknown4 = progression.Unknown4,
-            BirthTimestamp = progression.BirthTimestamp,
-            AgeCountryCode = progression.AgeCountryCode,
-            StorePromotionAllowed = progression.StorePromotionAllowed,
-            UnknownString1 = progression.UnknownString1,
-            UnknownBoolean1 = progression.UnknownBoolean1,
-            UnknownManager2 = progression.UnknownManager2,
-            Settings = progression.Settings,
-        };
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ValidateEncodableState();
-        EncodeIdentityAndInventory(stream);
-        EncodeSocialState(stream);
-        EncodeProgressionState(stream);
-    }
-
-    private static AvatarInventorySection DecodeInventory(MessageStream stream)
-    {
-        AvatarInventoryLayout layout = AvatarInventoryLayout.ForVersion(stream.GameVersion);
-        int[][] values = new int[layout.ArrayCount][];
-
-        for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadArray(static valueStream => valueStream.ReadVarInt());
-
-        DataReferenceValue[][] maps = new DataReferenceValue[layout.MapCount][];
-
-        for (int index = 0; index < maps.Length; index++)
-            maps[index] = stream.ReadArray(DataReferenceValue.Decode);
-
-        int deprecatedDataCount = stream.ReadVarInt();
-
-        return deprecatedDataCount is not 0
-            ? throw new InvalidDataException(message: "The deprecated polymorphic inventory section is not implemented.")
-            : new AvatarInventorySection(values, maps, deprecatedDataCount, stream.ReadVarInt());
-    }
-
-    private static AvatarProgressionSection DecodeProgressionState(MessageStream stream)
-    {
-        int unknownNullableListCount = stream.ReadVarInt();
-
-        if (unknownNullableListCount > 0)
-            throw new InvalidDataException(message: "The nullable polymorphic avatar section is not implemented.");
-
-        LongId? unknownOptionalId0 = stream.ReadOptionalLongId();
-        LongId? unknownOptionalId1 = stream.ReadOptionalLongId();
-        int leagueType = stream.ReadVarInt();
-        int unknownLeagueValue = stream.ReadVarInt();
-        int leagueScore = stream.ReadVarInt();
-        int[] unknownValues1 = stream.ReadVarIntArray(count: 11);
-        AvatarCollectionSection unknownManager0 = AvatarCollectionSection.Decode(stream);
-        AvatarStringSection unknownManager1 = AvatarStringSection.Decode(stream);
-        int[] unknownValues2 = stream.ReadVarIntArray(count: 6);
-        LongId? mapGameId = stream.ReadOptionalLongId();
-        LongId? unknownOptionalId3 = stream.ReadOptionalLongId();
-        int unknown4 = stream.ReadVarInt();
-
-        MapGameParticipant[]? participants =
-            mapGameId is not null && stream.ReadBoolean()
-                ? stream.ReadArray(MapGameParticipant.Decode)
-                : null;
-
-        return new AvatarProgressionSection(
-            unknownNullableListCount,
-            unknownOptionalId0,
-            unknownOptionalId1,
-            leagueType,
-            unknownLeagueValue,
-            leagueScore,
-            unknownValues1,
-            unknownManager0,
-            unknownManager1,
-            unknownValues2,
-            mapGameId,
-            unknownOptionalId3,
-            unknown4,
-            participants,
-            stream.ReadVarInt(),
-            stream.ReadOptionalString(),
-            stream.ReadBoolean(),
-            stream.ReadOptionalString(),
-            stream.ReadBoolean(),
-            AvatarStateSection.Decode(stream),
-            stream.ReadBoolean() ? AvatarSettings.Decode(stream) : null
-        );
-    }
-
-    private static AvatarSocialSection DecodeSocialState(MessageStream stream)
-    {
-        return new AvatarSocialSection(
-            stream.ReadArray(RoadsideShopEntry.Decode),
-            stream.ReadBoolean() ? NeighborhoodData.Decode(stream) : null,
-            stream.ReadArray(MailEntry.Decode),
-            stream.ReadArray(static valueStream => valueStream.ReadVarInt()),
-            stream.ReadArray(BoatCrateHelpEntry.Decode),
-            stream.ReadBoolean(),
-            stream.ReadBoolean(),
-            stream.ReadBoolean(),
-            stream.ReadArray(AvatarIdFlagEntry.Decode),
-            stream.ReadArray(PickedPassenger.Decode),
-            stream.ReadArray(AvatarIdPairEntry.Decode),
-            stream.ReadArray(AvatarIdPairEntry.Decode)
-        );
-    }
-
-    private void EncodeIdentityAndInventory(MessageStream stream)
-    {
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(AvatarVersion);
-        stream.WriteVarInt(SecondsWithoutSpending);
-        stream.WriteOptionalString(FarmName);
-        stream.WriteLongId(HomeId);
-        stream.WriteLongId(AccountId);
-
-        foreach (int[] values in InventoryValues)
-            stream.WriteArray(values, static (valueStream, value) => valueStream.WriteVarInt(value));
-
-        foreach (DataReferenceValue[] values in InventoryMaps)
-            stream.WriteArray(values, static (valueStream, value) => value.Encode(valueStream));
-
-        stream.WriteVarInt(DeprecatedInventoryDataCount);
-        stream.WriteVarInt(InventoryUnknown0);
-    }
-
-    private void EncodeProgressionState(MessageStream stream)
-    {
-        stream.WriteVarInt(UnknownNullableListCount);
-        stream.WriteOptionalLongId(UnknownOptionalId0);
-        stream.WriteOptionalLongId(UnknownOptionalId1);
-        stream.WriteVarInt(LeagueType);
-        stream.WriteVarInt(UnknownLeagueValue);
-        stream.WriteVarInt(LeagueScore);
-
-        foreach (int value in UnknownValues1)
-            stream.WriteVarInt(value);
-
-        UnknownManager0.Encode(stream);
-        UnknownManager1.Encode(stream);
-
-        foreach (int value in UnknownValues2)
-            stream.WriteVarInt(value);
-
-        stream.WriteOptionalLongId(MapGameId);
-        stream.WriteOptionalLongId(UnknownOptionalId3);
-        stream.WriteVarInt(Unknown4);
-
-        if (MapGameId is not null)
-        {
-            stream.WriteBoolean(MapGameParticipants is not null);
-
-            if (MapGameParticipants is { } participants)
-                stream.WriteArray(participants, static (output, value) => value.Encode(output));
-        }
-
-        stream.WriteVarInt(BirthTimestamp);
-        stream.WriteOptionalString(AgeCountryCode);
-        stream.WriteBoolean(StorePromotionAllowed);
-        stream.WriteOptionalString(UnknownString1);
-        stream.WriteBoolean(UnknownBoolean1);
-        UnknownManager2.Encode(stream);
-        stream.WriteBoolean(Settings is not null);
-        Settings?.Encode(stream);
-    }
-
-    private void EncodeSocialState(MessageStream stream)
-    {
-        stream.WriteArray(RoadsideShop, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteBoolean(Neighborhood is not null);
-        Neighborhood?.Encode(stream);
-        stream.WriteArray(MailEntries, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteArray(UnknownValues0, static (valueStream, value) => valueStream.WriteVarInt(value));
-        stream.WriteArray(BoatCrateHelpEntries, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteBoolean(TrainStationReady);
-        stream.WriteBoolean(IsMuted);
-        stream.WriteBoolean(CanEditFarm);
-        stream.WriteArray(UnknownEntries1, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteArray(PickedPassengers, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteArray(UnknownEntries2, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteArray(UnknownEntries3, static (valueStream, value) => value.Encode(valueStream));
-    }
-
-    private void ValidateEncodableState()
-    {
-        if (InventoryValues.Length != InventoryLayout.ArrayCount || InventoryMaps.Length != InventoryLayout.MapCount)
-            throw new InvalidOperationException(message: "Unexpected inventory field count.");
-
-        if (DeprecatedInventoryDataCount is not 0 || UnknownNullableListCount > 0)
-            throw new InvalidOperationException(message: "Cannot encode an unsupported avatar section.");
-
-        if (UnknownValues1.Length != UnknownValues1Count || UnknownValues2.Length != UnknownValues2Count)
-            throw new InvalidOperationException(message: "Unexpected fixed avatar field count.");
-    }
+    /// <summary>Gets the current and previous derby points, ranks, seasons and leagues.</summary>
+    public AvatarDerbyProgress DerbyProgress { get; init; } = new();
 }

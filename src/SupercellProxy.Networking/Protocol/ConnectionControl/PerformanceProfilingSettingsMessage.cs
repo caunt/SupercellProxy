@@ -1,43 +1,33 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
+using SupercellProxy.Networking.Protocol.Releases;
 
 namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 
 /// <summary>Configures the native platform profiler and its segment reporting.</summary>
-public sealed record PerformanceProfilingSettingsMessage(bool UseDefaultJsonCallback, int Mode, bool Enabled) : IMessage
+public sealed record PerformanceProfilingSettingsMessage(bool UseDefaultJsonCallback, int Mode, bool Enabled)
+    : CodecMessage<PerformanceProfilingSettingsMessage>, ICodecProvider<PerformanceProfilingSettingsMessage>
 {
-    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
-
-    /// <summary>Reads the profiler callback flag, mode, and enable flag in native wire order.</summary>
-    public static PerformanceProfilingSettingsMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-            return new(stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadBoolean());
-
-        int mode = stream.ReadVarInt();
-        bool enabled = stream.ReadBoolean();
-
-        return new(stream.ReadBoolean(), mode, enabled);
-    }
-
-    /// <summary>Writes the platform profiling settings without changing farm simulation state.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            stream.WriteBoolean(UseDefaultJsonCallback);
-            stream.WriteVarInt(Mode);
-            stream.WriteBoolean(Enabled);
-        }
-        else
-        {
-            stream.WriteVarInt(Mode);
-            stream.WriteBoolean(Enabled);
-            stream.WriteBoolean(UseDefaultJsonCallback);
-        }
-    }
+    /// <inheritdoc />
+    public static ICodec<PerformanceProfilingSettingsMessage> Codec { get; } = Codecs.Versioned(
+        Release17381.Version,
+        Codecs.Composite(
+            Codecs.Boolean,
+            static message => message.UseDefaultJsonCallback,
+            Codecs.VarInt,
+            static message => message.Mode,
+            Codecs.Boolean,
+            static message => message.Enabled,
+            static (useDefaultJsonCallback, mode, enabled) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback, mode, enabled)
+        ),
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.Mode,
+            Codecs.Boolean,
+            static message => message.Enabled,
+            Codecs.Boolean,
+            static message => message.UseDefaultJsonCallback,
+            static (mode, enabled, useDefaultJsonCallback) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback, mode, enabled)
+        )
+    );
 }

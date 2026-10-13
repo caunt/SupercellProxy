@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
@@ -8,7 +7,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// Native map-game pawn structure encoded by the shared 1.72.84 helper at 0x10065c78c.
 /// Semantic names for the stripped fields are not yet proven.
 /// </summary>
-public sealed record MapGamePawn
+public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
 {
     /// <summary>
     /// Initializes a new <see cref="MapGamePawn"/> instance.
@@ -19,14 +18,14 @@ public sealed record MapGamePawn
         int experienceLevel,
         int currentNodeId,
         int emptyNodesTravelled,
-        int sanctuaryAnimalEscapeAllowance,
-        int sanctuaryAnimalEscapeProgress,
+        int emptyNodesTravelledDeliveringAnimalsImmunity,
+        int emptyNodesTravelledDeliveringAnimals,
         ReadOnlyMemory<int> visitedNodeIds,
         ReadOnlyMemory<int> selectedOptions,
         string? name,
         MapGamePawnEmblem? emblem,
-        int unknownGlobalId,
-        ReadOnlyMemory<CommandDataReferenceVarIntPair> notifications
+        int derbyTaskGlobalId,
+        ReadOnlyMemory<CommandDataReferenceVarIntPair> pendingNotifications
     )
     {
         AvatarId = avatarId;
@@ -34,154 +33,137 @@ public sealed record MapGamePawn
         ExperienceLevel = experienceLevel;
         CurrentNodeId = currentNodeId;
         EmptyNodesTravelled = emptyNodesTravelled;
-        SanctuaryAnimalEscapeAllowance = sanctuaryAnimalEscapeAllowance;
-        SanctuaryAnimalEscapeProgress = sanctuaryAnimalEscapeProgress;
+        EmptyNodesTravelledDeliveringAnimalsImmunity = emptyNodesTravelledDeliveringAnimalsImmunity;
+        EmptyNodesTravelledDeliveringAnimals = emptyNodesTravelledDeliveringAnimals;
         VisitedNodeIds = visitedNodeIds.ToArray();
         SelectedOptions = selectedOptions.ToArray();
         Name = name;
         Emblem = emblem;
-        UnknownGlobalId = unknownGlobalId;
-        Notifications = notifications.ToArray();
+        DerbyTaskGlobalId = derbyTaskGlobalId;
+        PendingNotifications = pendingNotifications.ToArray();
     }
 
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId0</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
-    public LongId? AvatarId { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">CurrentNodeId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown1")]
-    public int CurrentNodeId { get; }
-
-    /// <summary>
-    /// Gets the participant's emblem.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownNestedData")]
-    public MapGamePawnEmblem? Emblem { get; init; }
-
-    /// <summary>
-    /// Gets the number of empty nodes travelled.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown2")]
-    public int EmptyNodesTravelled { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">ExperienceLevel</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
-    public int ExperienceLevel { get; init; }
-
-    /// <summary>
-    /// Gets the participant's name.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownString")]
-    public string? Name { get; init; }
-
-    /// <summary>
-    /// Gets the participant's neighborhood id.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId1")]
-    public LongId? NeighborhoodId { get; init; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Notifications</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownPairs")]
-    public ReadOnlyMemory<CommandDataReferenceVarIntPair> Notifications { get; init; }
-
-    /// <summary>
-    /// Gets the current empty-node allowance before a carried sanctuary animal can escape.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown3")]
-    public int SanctuaryAnimalEscapeAllowance { get; }
-
-    /// <summary>
-    /// Gets the retained sanctuary-animal escape progress counter.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown4")]
-    public int SanctuaryAnimalEscapeProgress { get; }
-
-    /// <summary>
-    /// Gets the selected map-game profile options.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalIds")]
-    public ReadOnlyMemory<int> SelectedOptions { get; init; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
-    public int UnknownGlobalId { get; init; }
-
-    /// <summary>
-    /// Gets the ordered, unique node ids revealed by this pawn's movements.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownValues")]
-    public ReadOnlyMemory<int> VisitedNodeIds { get; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGamePawn Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId? avatarId = MapGameFieldCodec.ReadOptionalLongId(stream);
-        LongId? neighborhoodId = MapGameFieldCodec.ReadOptionalLongId(stream);
-        int experienceLevel = stream.ReadVarInt();
-        int currentNodeId = stream.ReadVarInt();
-        int emptyNodesTravelled = stream.ReadVarInt();
-        int sanctuaryAnimalEscapeAllowance = stream.ReadVarInt();
-        int sanctuaryAnimalEscapeProgress = stream.ReadVarInt();
-        int[] visitedNodeIds = CommandVarIntArrayField.DecodeValues(stream.ReadVarInt(), stream);
-        ReadOnlyMemory<int> selectedOptions = CommandDataReferenceArrayField.Decode(stream).GlobalIds;
-        string? name = stream.ReadBoolean() ? stream.ReadString() : null;
-        MapGamePawnEmblem? emblem = stream.ReadBoolean() ? MapGamePawnEmblem.Decode(stream) : null;
-        int unknownGlobalId = stream.ReadVarInt();
-        ReadOnlyMemory<CommandDataReferenceVarIntPair> notifications = CommandDataReferenceVarIntPairArrayField.Decode(stream).Values;
-
-        return new MapGamePawn(
+    /// <inheritdoc />
+    public static ICodec<MapGamePawn> Codec { get; } = Codecs.Composite(
+        Codecs.OptionalLongId,
+        static pawn => pawn.AvatarId,
+        Codecs.OptionalLongId,
+        static pawn => pawn.NeighborhoodId,
+        Codecs.VarInt,
+        static pawn => pawn.ExperienceLevel,
+        Codecs.VarInt,
+        static pawn => pawn.CurrentNodeId,
+        Codecs.VarInt,
+        static pawn => pawn.EmptyNodesTravelled,
+        Codecs.VarInt,
+        static pawn => pawn.EmptyNodesTravelledDeliveringAnimalsImmunity,
+        Codecs.VarInt,
+        static pawn => pawn.EmptyNodesTravelledDeliveringAnimals,
+        Codecs.Memory(Codecs.VarInt),
+        static pawn => pawn.VisitedNodeIds,
+        Codecs.Memory(Codecs.VarInt),
+        static pawn => pawn.SelectedOptions,
+        Codecs.Optional(Codecs.String),
+        static pawn => pawn.Name,
+        Codecs.Optional(MapGamePawnEmblem.Codec),
+        static pawn => pawn.Emblem,
+        Codecs.VarInt,
+        static pawn => pawn.DerbyTaskGlobalId,
+        Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount),
+        static pawn => pawn.PendingNotifications,
+        static (
             avatarId,
             neighborhoodId,
             experienceLevel,
             currentNodeId,
             emptyNodesTravelled,
-            sanctuaryAnimalEscapeAllowance,
-            sanctuaryAnimalEscapeProgress,
+            emptyNodesTravelledDeliveringAnimalsImmunity,
+            emptyNodesTravelledDeliveringAnimals,
             visitedNodeIds,
             selectedOptions,
             name,
             emblem,
-            unknownGlobalId,
-            notifications
-        );
-    }
+            derbyTaskGlobalId,
+            pendingNotifications
+        ) => new MapGamePawn(
+            avatarId,
+            neighborhoodId,
+            experienceLevel,
+            currentNodeId,
+            emptyNodesTravelled,
+            emptyNodesTravelledDeliveringAnimalsImmunity,
+            emptyNodesTravelledDeliveringAnimals,
+            visitedNodeIds,
+            selectedOptions,
+            name,
+            emblem,
+            derbyTaskGlobalId,
+            pendingNotifications
+        )
+    );
 
     /// <summary>
-    /// Encodes this value using the selected wire format.
+    /// Gets the <c language="csharp">AvatarId</c> value.
     /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        MapGameFieldCodec.WriteOptionalLongId(stream, AvatarId);
-        MapGameFieldCodec.WriteOptionalLongId(stream, NeighborhoodId);
-        stream.WriteVarInt(ExperienceLevel);
-        stream.WriteVarInt(CurrentNodeId);
-        stream.WriteVarInt(EmptyNodesTravelled);
-        stream.WriteVarInt(SanctuaryAnimalEscapeAllowance);
-        stream.WriteVarInt(SanctuaryAnimalEscapeProgress);
-        new CommandVarIntArrayField(VisitedNodeIds).Encode(stream);
-        new CommandDataReferenceArrayField(SelectedOptions).Encode(stream);
-        stream.WriteBoolean(Name is not null);
+    public LongId? AvatarId { get; }
 
-        if (Name is not null)
-            stream.WriteString(Name);
+    /// <summary>
+    /// Gets the <c language="csharp">CurrentNodeId</c> value.
+    /// </summary>
+    public int CurrentNodeId { get; }
 
-        stream.WriteBoolean(Emblem is not null);
-        Emblem?.Encode(stream);
-        stream.WriteVarInt(UnknownGlobalId);
-        new CommandDataReferenceVarIntPairArrayField(Notifications).Encode(stream);
-    }
+    /// <summary>
+    /// Gets the derby task the pawn works on (native JSON <c>DerbyTaskGlobalId</c>).
+    /// </summary>
+    public int DerbyTaskGlobalId { get; init; }
+
+    /// <summary>
+    /// Gets the participant's emblem.
+    /// </summary>
+    public MapGamePawnEmblem? Emblem { get; init; }
+
+    /// <summary>
+    /// Gets the number of empty nodes travelled.
+    /// </summary>
+    public int EmptyNodesTravelled { get; }
+
+    /// <summary>
+    /// Gets the empty nodes travelled while carrying sanctuary animals (native JSON <c>EmptyNodesTravelledDeliveringAnimals</c>).
+    /// </summary>
+    public int EmptyNodesTravelledDeliveringAnimals { get; }
+
+    /// <summary>
+    /// Gets the remaining empty-node immunity before a carried sanctuary animal can escape (native JSON <c>EmptyNodesTravelledDeliveringAnimalsImmunity</c>).
+    /// </summary>
+    public int EmptyNodesTravelledDeliveringAnimalsImmunity { get; }
+
+    /// <summary>
+    /// Gets the <c language="csharp">ExperienceLevel</c> value.
+    /// </summary>
+    public int ExperienceLevel { get; init; }
+
+    /// <summary>
+    /// Gets the participant's name.
+    /// </summary>
+    public string? Name { get; init; }
+
+    /// <summary>
+    /// Gets the participant's neighborhood id.
+    /// </summary>
+    public LongId? NeighborhoodId { get; init; }
+
+    /// <summary>
+    /// Gets the pending pendingNotifications (native JSON <c>PendingNotifications</c>).
+    /// </summary>
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair> PendingNotifications { get; init; }
+
+    /// <summary>
+    /// Gets the selected map-game profile options.
+    /// </summary>
+    public ReadOnlyMemory<int> SelectedOptions { get; init; }
+
+    /// <summary>
+    /// Gets the ordered, unique node ids revealed by this pawn's movements.
+    /// </summary>
+    public ReadOnlyMemory<int> VisitedNodeIds { get; }
 }

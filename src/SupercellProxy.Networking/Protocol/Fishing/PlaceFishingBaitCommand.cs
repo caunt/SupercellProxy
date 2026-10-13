@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
@@ -16,27 +15,19 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 /// updates as <c language="csharp">value * 30 / 1000</c>; only non-negative values are accepted.
 /// </param>
 /// <param name="BaitGlobalId">The bait's data row in the baits table.</param>
-public sealed record PlaceFishingBaitCommand(int FishingSpotGlobalId, int BiteDelayMilliseconds, int BaitGlobalId) : Command
+public sealed record PlaceFishingBaitCommand(int FishingSpotGlobalId, int BiteDelayMilliseconds, int BaitGlobalId) : CodecCommand<PlaceFishingBaitCommand>, ICommandCodecProvider<PlaceFishingBaitCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.PlaceFishingBaitCommandType;
-
-    /// <summary>Decodes a value from the supplied protocol payload.</summary>
-    public static PlaceFishingBaitCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int fishingSpotGlobalId = stream.ReadVarInt();
-        int biteDelayMilliseconds = stream.ReadVarInt();
-        int baitGlobalId = stream.ReadVarInt();
-
-        return new PlaceFishingBaitCommand(fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(FishingSpotGlobalId);
-        stream.WriteVarInt(BiteDelayMilliseconds);
-        stream.WriteVarInt(BaitGlobalId);
-    }
+    public static CommandCodec<PlaceFishingBaitCommand> Codec { get; } = Codecs.Command(
+        type: 111,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.FishingSpotGlobalId,
+            Codecs.VarInt,
+            static command => command.BiteDelayMilliseconds,
+            Codecs.VarInt,
+            static command => command.BaitGlobalId,
+            static (fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId) => new PlaceFishingBaitCommand(fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId)
+        )
+    );
 }

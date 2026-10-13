@@ -1,7 +1,6 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
+using SupercellProxy.Networking.Protocol.Releases;
 
 namespace SupercellProxy.Networking.Protocol.MovieTickets;
 
@@ -33,59 +32,45 @@ public sealed record ActivateMovieTicketCommand(
     [property: System.Text.Json.Serialization.JsonPropertyName("ObjectGlobalId")] int ObjectGlobalId,
     [property: System.Text.Json.Serialization.JsonPropertyName("DataGlobalId")] int DataGlobalId,
     int SlotIndex
-) : Command
+)
+    : CodecCommand<ActivateMovieTicketCommand>, ICommandCodecProvider<ActivateMovieTicketCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.ActivateMovieTicketCommandType;
-
-    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ActivateMovieTicketCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        string requestId = stream.ReadString();
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            int dataGlobalId = stream.ReadVarInt();
-            int orderIndex = stream.ReadVarInt();
-            int slotIndex = stream.ReadVarInt();
-            int objectGlobalId = stream.ReadVarInt();
-
-            return new ActivateMovieTicketCommand(requestId, orderIndex, stream.ReadVarInt(), objectGlobalId, dataGlobalId, slotIndex);
-        }
-
-        return new ActivateMovieTicketCommand(requestId, stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteString(RequestId);
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            stream.WriteVarInt(DataGlobalId);
-            stream.WriteVarInt(OrderIndex);
-            stream.WriteVarInt(SlotIndex);
-            stream.WriteVarInt(ObjectGlobalId);
-            stream.WriteVarInt(TicketIndex);
-
-            return;
-        }
-
-        stream.WriteVarInt(OrderIndex);
-        stream.WriteVarInt(TicketIndex);
-        stream.WriteVarInt(ObjectGlobalId);
-        stream.WriteVarInt(DataGlobalId);
-        stream.WriteVarInt(SlotIndex);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<ActivateMovieTicketCommand> Codec { get; } = Codecs.Command(
+        type: 643,
+        Codecs.Versioned(
+            Release17381.Version,
+            Codecs.Composite(
+                Codecs.String,
+                static command => command.RequestId,
+                Codecs.VarInt,
+                static command => command.DataGlobalId,
+                Codecs.VarInt,
+                static command => command.OrderIndex,
+                Codecs.VarInt,
+                static command => command.SlotIndex,
+                Codecs.VarInt,
+                static command => command.ObjectGlobalId,
+                Codecs.VarInt,
+                static command => command.TicketIndex,
+                static (requestId, dataGlobalId, orderIndex, slotIndex, objectGlobalId, ticketIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)
+            ),
+            Codecs.Composite(
+                Codecs.String,
+                static command => command.RequestId,
+                Codecs.VarInt,
+                static command => command.OrderIndex,
+                Codecs.VarInt,
+                static command => command.TicketIndex,
+                Codecs.VarInt,
+                static command => command.ObjectGlobalId,
+                Codecs.VarInt,
+                static command => command.DataGlobalId,
+                Codecs.VarInt,
+                static command => command.SlotIndex,
+                static (requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)
+            )
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

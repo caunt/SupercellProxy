@@ -1,12 +1,11 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
 /// <para>Node emoji, including its expiry timer and collector identities.</para>
 /// </summary>
-public sealed record MapGameNodeEmoji
+public sealed record MapGameNodeEmoji : ICodecProvider<MapGameNodeEmoji>
 {
     /// <summary>
     /// Initializes a new <see cref="MapGameNodeEmoji"/> instance.
@@ -28,70 +27,50 @@ public sealed record MapGameNodeEmoji
         CollectorAvatarIds = collectorAvatarIds.ToArray();
     }
 
+    /// <inheritdoc />
+    public static ICodec<MapGameNodeEmoji> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.EmojiGlobalId,
+        Codecs.VarInt,
+        static value => value.NodeId,
+        Codecs.OptionalLongId,
+        static value => value.AvatarId,
+        Codecs.VarInt,
+        static value => value.ExpirationTime,
+        Codecs.VarInt,
+        static value => value.TicksRemaining,
+        Codecs.Memory(Codecs.LongId),
+        static value => value.CollectorAvatarIds,
+        static (emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds) => new MapGameNodeEmoji(emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds)
+    );
+
     /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId</c> value.
+    /// Gets the <c language="csharp">AvatarId</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
     public LongId? AvatarId { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownLongIds</c> value.
+    /// Gets the <c language="csharp">CollectorAvatarIds</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongIds")]
     public ReadOnlyMemory<LongId> CollectorAvatarIds { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalId</c> value.
+    /// Gets the <c language="csharp">EmojiGlobalId</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId")]
     public int EmojiGlobalId { get; }
 
     /// <summary>
     /// Gets the <c language="csharp">ExpirationTime</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown1")]
     public int ExpirationTime { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">NodeId</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown0")]
     public int NodeId { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">TicksRemaining</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Unknown2")]
     public int TicksRemaining { get; init; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameNodeEmoji Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MapGameNodeEmoji(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            MapGameFieldCodec.ReadOptionalLongId(stream),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            MapGameFieldCodec.ReadLongIds(stream)
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(EmojiGlobalId);
-        stream.WriteVarInt(NodeId);
-        MapGameFieldCodec.WriteOptionalLongId(stream, AvatarId);
-        stream.WriteVarInt(ExpirationTime);
-        stream.WriteVarInt(TicksRemaining);
-        MapGameFieldCodec.WriteLongIds(stream, CollectorAvatarIds.Span);
-    }
 }

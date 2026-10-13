@@ -1,8 +1,6 @@
-using System.Globalization;
-
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
+using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
+using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Turns;
@@ -10,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Turns;
 /// <summary>
 /// <para>EndClientTurnMessage (10224) wire representation.</para>
 /// </summary>
-public sealed record EndClientTurnMessage : IMessage
+public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, ICodecProvider<EndClientTurnMessage>
 {
     /// <summary>
     /// Defines the <c language="csharp">MaxCommandCount</c> value.
@@ -21,6 +19,10 @@ public sealed record EndClientTurnMessage : IMessage
     /// Defines the <c language="csharp">SubChecksumCount</c> value.
     /// </summary>
     public const int SubChecksumCount = 8;
+
+    /// <inheritdoc />
+    /// <remarks>Commands, debug data and development byte arrays follow the stream's command environment when read and the message's own environment when written.</remarks>
+    public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write), $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
 
     /// <summary>
     /// Gets or sets the <c language="csharp">Checksum</c> value.
@@ -40,7 +42,7 @@ public sealed record EndClientTurnMessage : IMessage
     /// <summary>
     /// Gets or sets the <c language="csharp">DevelopmentByteArrays</c> value.
     /// </summary>
-    public Memory<Memory<byte>> DevelopmentByteArrays { get; init; }
+    public Memory<ReadOnlyMemory<byte>> DevelopmentByteArrays { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">SubChecksums</c> value.
@@ -57,160 +59,67 @@ public sealed record EndClientTurnMessage : IMessage
     /// </summary>
     public int SubTick { get; init; }
 
-    /// <summary>
-    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
-    /// </summary>
-    public static EndClientTurnMessage Decode(MessageStream stream)
-    {
-        return Decode(stream, CommandEnvironment.Production);
-    }
+    private static ICodec<CommandData[]> DebugCommandDataCodec => field ??= Codecs.Array(CommandData.Codec);
 
-    /// <summary>
-    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
-    /// </summary>
-    public static EndClientTurnMessage Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        return Decode(stream, environment, dataResolver: null);
-    }
+    private static ICodec<ReadOnlyMemory<byte>[]> DevelopmentByteArraysCodec => field ??= Codecs.Array(Codecs.VarIntByteArray);
 
-    /// <summary>
-    /// Creates a <c language="csharp">EndClientTurnMessage</c> from the supplied data.
-    /// </summary>
-    public static EndClientTurnMessage Decode(MessageStream stream, CommandEnvironment environment, ICommandDataResolver? dataResolver)
+    private static EndClientTurnMessage Read(MessageStream stream)
     {
-        ArgumentNullException.ThrowIfNull(stream);
-        (int checksum, int subTick, int[] subChecksums, int commandCount) = ReadHeader(stream);
-        Command[] commands = new Command[commandCount];
+        ClientTurnHeader header = ClientTurnHeader.Codec.Read(stream);
+        Command[] commands = new Command[header.CommandCount];
 
         for (int index = 0; index < commands.Length; index++)
-            commands[index] = CommandRegistry.Decode(stream, environment, dataResolver);
+            commands[index] = CommandRegistry.Codec.Read(stream);
 
-        CommandData[] debugCommandData = ReadDebugCommandData(stream, environment);
-        Memory<byte>[] developmentByteArrays = ReadDevelopmentByteArrays(stream, environment);
+        CommandEnvironment environment = stream.CommandEnvironment;
 
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(
-                string.Create(CultureInfo.InvariantCulture, $"Unexpected trailing EndClientTurnMessage data at position {stream.Position} of {stream.Length}.")
-            )
-            : new EndClientTurnMessage
-            {
-                Checksum = checksum,
-                SubTick = subTick,
-                SubChecksums = subChecksums,
-                Commands = commands,
-                Environment = environment,
-                DebugCommandData = debugCommandData,
-                DevelopmentByteArrays = developmentByteArrays,
-            };
+        return new EndClientTurnMessage
+        {
+            Checksum = header.Checksum,
+            SubTick = header.SubTick,
+            SubChecksums = header.SubChecksums,
+            Commands = commands,
+            Environment = environment,
+            DebugCommandData = environment is CommandEnvironment.Production ? [] : DebugCommandDataCodec.Read(stream),
+            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream) : [],
+        };
     }
 
-    /// <summary>Reads the checksum header independently of optional command decoding.</summary>
-    public static ClientTurnHeader ReadHeader(MessageStream stream)
+    private static void Write(ProtocolEncoder encoder, EndClientTurnMessage message)
     {
-        ArgumentNullException.ThrowIfNull(stream);
-        int checksum = stream.ReadVarInt();
-        int subTick = stream.ReadVarInt();
-        int[] subChecksums = new int[SubChecksumCount];
-
-        for (int index = 0; index < subChecksums.Length; index++)
-            subChecksums[index] = stream.ReadVarInt();
-
-        int commandCount = ReadCollectionCount(stream, MaximumCommandCount, name: "command");
-
-        return new ClientTurnHeader(checksum, subTick, subChecksums, commandCount);
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (SubChecksums.Length != SubChecksumCount)
+        if (message.SubChecksums.Length != SubChecksumCount)
             throw new InvalidDataException($"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
 
-        if (Commands.Length > MaximumCommandCount)
-            throw new InvalidDataException($"Invalid command count: {Commands.Length}.");
+        if (message.Commands.Length > MaximumCommandCount)
+            throw new InvalidDataException($"Invalid command count: {message.Commands.Length}.");
 
-        if (Environment is CommandEnvironment.Production && (DebugCommandData.Length > 0 || DevelopmentByteArrays.Length > 0))
+        bool hasDiagnostics = message.DebugCommandData.Length > 0 || message.DevelopmentByteArrays.Length > 0;
+
+        if (message.Environment is CommandEnvironment.Production && hasDiagnostics)
             throw new InvalidDataException(message: "Production EndClientTurnMessage cannot contain diagnostic collections.");
 
-        if (Environment is not CommandEnvironment.Development && DevelopmentByteArrays.Length > 0)
+        if (message.Environment is not CommandEnvironment.Development && message.DevelopmentByteArrays.Length > 0)
             throw new InvalidDataException(message: "Development byte arrays are only encoded in the development environment.");
 
-        stream.WriteVarInt(Checksum);
-        stream.WriteVarInt(SubTick);
+        CommandEnvironment streamEnvironment = encoder.CommandEnvironment;
+        encoder.CommandEnvironment = message.Environment;
 
-        foreach (int subChecksum in SubChecksums.Span)
-            stream.WriteVarInt(subChecksum);
-
-        stream.WriteVarInt(Commands.Length);
-
-        foreach (Command command in Commands.Span)
-            CommandRegistry.Encode(stream, command, Environment);
-
-        if (Environment is not CommandEnvironment.Production)
+        try
         {
-            stream.WriteVarInt(DebugCommandData.Length);
+            ClientTurnHeader.Codec.Write(encoder, new ClientTurnHeader(message.Checksum, message.SubTick, message.SubChecksums.ToArray(), message.Commands.Length));
 
-            foreach (CommandData commandData in DebugCommandData.Span)
-                commandData.Encode(stream);
+            foreach (Command command in message.Commands.Span)
+                CommandRegistry.Codec.Write(encoder, command);
+
+            if (message.Environment is not CommandEnvironment.Production)
+                DebugCommandDataCodec.Write(encoder, message.DebugCommandData.ToArray());
+
+            if (message.Environment is CommandEnvironment.Development)
+                DevelopmentByteArraysCodec.Write(encoder, message.DevelopmentByteArrays.ToArray());
         }
-
-        if (Environment is CommandEnvironment.Development)
+        finally
         {
-            stream.WriteVarInt(DevelopmentByteArrays.Length);
-
-            foreach (Memory<byte> byteArray in DevelopmentByteArrays.Span)
-                stream.WriteVarIntByteArray(byteArray.Span);
+            encoder.CommandEnvironment = streamEnvironment;
         }
-    }
-
-    private static int ReadCollectionCount(MessageStream stream, int maximum, string name)
-    {
-        int count = stream.ReadVarInt();
-
-        return uint.CreateTruncating(count) > maximum
-            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid {name} count: {count}."))
-            : count;
-    }
-
-    private static CommandData[] ReadDebugCommandData(MessageStream stream, CommandEnvironment environment)
-    {
-        if (environment is CommandEnvironment.Production)
-            return [];
-
-        CommandData[] values = new CommandData[
-            ReadPayloadBoundedCollectionCount(stream, name: "debug command data")
-        ];
-
-        for (int index = 0; index < values.Length; index++)
-            values[index] = CommandData.Decode(stream);
-
-        return values;
-    }
-
-    private static Memory<byte>[] ReadDevelopmentByteArrays(MessageStream stream, CommandEnvironment environment)
-    {
-        if (environment is not CommandEnvironment.Development)
-            return [];
-
-        Memory<byte>[] values = new Memory<byte>[
-            ReadPayloadBoundedCollectionCount(stream, name: "development byte array")
-        ];
-
-        for (int index = 0; index < values.Length; index++)
-            values[index] = stream.ReadVarIntByteArray();
-
-        return values;
-    }
-
-    private static int ReadPayloadBoundedCollectionCount(MessageStream stream, string name)
-    {
-        long remainingPayloadLength = stream.Length - stream.Position;
-        int maximum = int.CreateTruncating(Math.Min(int.MaxValue, remainingPayloadLength));
-
-        return ReadCollectionCount(stream, maximum, name);
     }
 }

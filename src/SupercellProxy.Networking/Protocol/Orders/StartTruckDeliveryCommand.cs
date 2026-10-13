@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
@@ -11,28 +9,12 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// <summary>
 /// Defines the Order Index contract.
 /// </summary>
-public sealed record StartTruckDeliveryCommand(int OrderIndex) : Command
+public sealed record StartTruckDeliveryCommand(int OrderIndex) : CodecCommand<StartTruckDeliveryCommand>, ICommandCodecProvider<StartTruckDeliveryCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.StartTruckDeliveryCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static StartTruckDeliveryCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new StartTruckDeliveryCommand(stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(OrderIndex);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<StartTruckDeliveryCommand> Codec { get; } = Codecs.Command(
+        type: 612,
+        Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static (orderIndex) => new StartTruckDeliveryCommand(orderIndex)),
+        CommandLayout.MetadataFirst
+    );
 }

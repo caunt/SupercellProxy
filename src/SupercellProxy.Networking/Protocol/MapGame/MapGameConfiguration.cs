@@ -1,142 +1,82 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
-/// <para>Native map-game configuration structure. Semantic names for its stripped scalar fields are not yet proven.</para>
+/// <para>
+/// The map game's daily spawn and delivery counters and its chicken log, saved natively with the keys <c>CurrentDayIndex</c>,
+/// <c>DailySocialTaskSpawnCount</c>, <c>LastDailySocialTaskSpawnTime</c>, <c>DailyChickenSpawnCount</c>, <c>LastDailyChickenTaskSpawnTime</c>,
+/// <c>ChickenLogEntries</c>, <c>DailySanctuaryAnimalDeliveredCount</c>, <c>LastDailySanctuaryAnimalDeliveredTime</c>,
+/// <c>CollectedChickenCount</c> and <c>DeliveredSanctuaryAnimalCount</c> (save 0x100675460, decode 0x100675238).
+/// </para>
 /// </summary>
-public sealed record MapGameConfiguration
+/// <param name="CurrentDayIndex">The day index the daily counters belong to.</param>
+/// <param name="DailySocialTaskSpawnCount">How many social tasks spawned today.</param>
+/// <param name="DailyChickenSpawnCount">How many chicken tasks spawned today.</param>
+/// <param name="LastDailyChickenTaskSpawnTime">When the last chicken task spawned.</param>
+/// <param name="DailySanctuaryAnimalDeliveredCount">How many sanctuary animals were delivered today.</param>
+/// <param name="LastDailySanctuaryAnimalDeliveredTime">When the last sanctuary animal was delivered.</param>
+/// <param name="ChickenLogEntries">The collected-chicken and delivered-animal contributions.</param>
+/// <param name="CollectedChickenCount">The total collected chickens.</param>
+/// <param name="DeliveredSanctuaryAnimalCount">The total delivered sanctuary animals.</param>
+/// <param name="LastDailySocialTaskSpawnTime">When the last social task spawned.</param>
+public sealed record MapGameConfiguration(
+    int CurrentDayIndex,
+    int DailySocialTaskSpawnCount,
+    int DailyChickenSpawnCount,
+    int LastDailyChickenTaskSpawnTime,
+    int DailySanctuaryAnimalDeliveredCount,
+    int LastDailySanctuaryAnimalDeliveredTime,
+    ReadOnlyMemory<MapGameChickenLogEntry> ChickenLogEntries,
+    int CollectedChickenCount,
+    int DeliveredSanctuaryAnimalCount,
+    int LastDailySocialTaskSpawnTime
+) : ICodecProvider<MapGameConfiguration>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameConfiguration"/> instance.
-    /// </summary>
-    public MapGameConfiguration(
-        int unknown0,
-        int unknown1,
-        int unknown2,
-        int unknown3,
-        int unknown4,
-        int unknown5,
-        ReadOnlyMemory<MapGameConfigurationEntry> entries,
-        int unknown6,
-        int unknown7,
-        int unknown8
-    )
-    {
-        Unknown0 = unknown0;
-        Unknown1 = unknown1;
-        Unknown2 = unknown2;
-        Unknown3 = unknown3;
-        Unknown4 = unknown4;
-        Unknown5 = unknown5;
-        Entries = entries.ToArray();
-        Unknown6 = unknown6;
-        Unknown7 = unknown7;
-        Unknown8 = unknown8;
-    }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Entries</c> value.
-    /// </summary>
-    public ReadOnlyMemory<MapGameConfigurationEntry> Entries { get; init; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
-    /// </summary>
-    public int Unknown0 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown1</c> value.
-    /// </summary>
-    public int Unknown1 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown2</c> value.
-    /// </summary>
-    public int Unknown2 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown3</c> value.
-    /// </summary>
-    public int Unknown3 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown4</c> value.
-    /// </summary>
-    public int Unknown4 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown5</c> value.
-    /// </summary>
-    public int Unknown5 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown6</c> value.
-    /// </summary>
-    public int Unknown6 { get; init; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown7</c> value.
-    /// </summary>
-    public int Unknown7 { get; init; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown8</c> value.
-    /// </summary>
-    public int Unknown8 { get; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameConfiguration Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int unknown0 = stream.ReadVarInt();
-        int unknown1 = stream.ReadVarInt();
-        int unknown2 = stream.ReadVarInt();
-        int unknown3 = stream.ReadVarInt();
-        int unknown4 = stream.ReadVarInt();
-        int unknown5 = stream.ReadVarInt();
-        int entryCount = MapGameFieldCodec.ReadCount(stream, name: "configuration entry");
-        MapGameConfigurationEntry[] entries = new MapGameConfigurationEntry[entryCount];
-
-        for (int index = 0; index < entries.Length; index++)
-            entries[index] = MapGameConfigurationEntry.Decode(stream);
-
-        return new MapGameConfiguration(
-            unknown0,
-            unknown1,
-            unknown2,
-            unknown3,
-            unknown4,
-            unknown5,
-            entries,
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(Unknown2);
-        stream.WriteVarInt(Unknown3);
-        stream.WriteVarInt(Unknown4);
-        stream.WriteVarInt(Unknown5);
-        stream.WriteVarInt(Entries.Length);
-
-        foreach (MapGameConfigurationEntry entry in Entries.Span)
-            entry.Encode(stream);
-
-        stream.WriteVarInt(Unknown6);
-        stream.WriteVarInt(Unknown7);
-        stream.WriteVarInt(Unknown8);
-    }
+    /// <inheritdoc />
+    public static ICodec<MapGameConfiguration> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static configuration => configuration.CurrentDayIndex,
+        Codecs.VarInt,
+        static configuration => configuration.DailySocialTaskSpawnCount,
+        Codecs.VarInt,
+        static configuration => configuration.DailyChickenSpawnCount,
+        Codecs.VarInt,
+        static configuration => configuration.LastDailyChickenTaskSpawnTime,
+        Codecs.VarInt,
+        static configuration => configuration.DailySanctuaryAnimalDeliveredCount,
+        Codecs.VarInt,
+        static configuration => configuration.LastDailySanctuaryAnimalDeliveredTime,
+        Codecs.Memory(MapGameChickenLogEntry.Codec),
+        static configuration => configuration.ChickenLogEntries,
+        Codecs.VarInt,
+        static configuration => configuration.CollectedChickenCount,
+        Codecs.VarInt,
+        static configuration => configuration.DeliveredSanctuaryAnimalCount,
+        Codecs.VarInt,
+        static configuration => configuration.LastDailySocialTaskSpawnTime,
+        static (
+            currentDayIndex,
+            dailySocialTaskSpawnCount,
+            dailyChickenSpawnCount,
+            lastDailyChickenTaskSpawnTime,
+            dailySanctuaryAnimalDeliveredCount,
+            lastDailySanctuaryAnimalDeliveredTime,
+            chickenLogEntries,
+            collectedChickenCount,
+            deliveredSanctuaryAnimalCount,
+            lastDailySocialTaskSpawnTime
+        ) => new MapGameConfiguration(
+            currentDayIndex,
+            dailySocialTaskSpawnCount,
+            dailyChickenSpawnCount,
+            lastDailyChickenTaskSpawnTime,
+            dailySanctuaryAnimalDeliveredCount,
+            lastDailySanctuaryAnimalDeliveredTime,
+            chickenLogEntries,
+            collectedChickenCount,
+            deliveredSanctuaryAnimalCount,
+            lastDailySocialTaskSpawnTime
+        )
+    );
 }

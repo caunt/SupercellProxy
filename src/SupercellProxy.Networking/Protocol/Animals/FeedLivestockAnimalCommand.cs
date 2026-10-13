@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
@@ -11,28 +9,16 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 /// <summary>
 /// Defines the Animal Global Id contract.
 /// </summary>
-public sealed record FeedLivestockAnimalCommand([property: System.Text.Json.Serialization.JsonPropertyName("AnimalGlobalId")] int AnimalGlobalId) : Command
+public sealed record FeedLivestockAnimalCommand([property: System.Text.Json.Serialization.JsonPropertyName("AnimalGlobalId")] int AnimalGlobalId) : CodecCommand<FeedLivestockAnimalCommand>, ICommandCodecProvider<FeedLivestockAnimalCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.FeedLivestockAnimalCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static FeedLivestockAnimalCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new FeedLivestockAnimalCommand(stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(AnimalGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<FeedLivestockAnimalCommand> Codec { get; } = Codecs.Command(
+        type: 532,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.AnimalGlobalId,
+            static (animalGlobalId) => new FeedLivestockAnimalCommand(animalGlobalId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

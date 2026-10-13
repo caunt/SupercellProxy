@@ -1,27 +1,19 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Inventory.Shop;
 
 /// <summary>Adds the supplied data entries to the shop's new-item badge list.</summary>
-public sealed record AddShopBadgesCommand(int[] DataIds) : Command
+public sealed record AddShopBadgesCommand(int[] DataIds) : CodecCommand<AddShopBadgesCommand>, ICommandCodecProvider<AddShopBadgesCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.AddShopBadgesCommandType;
-
-    /// <summary>Decodes the data ids following the command metadata.</summary>
-    public static AddShopBadgesCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadArray(static input => input.ReadVarInt()));
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteArray<int>(DataIds, static (writer, id) => writer.WriteVarInt(id));
-    }
+    public static CommandCodec<AddShopBadgesCommand> Codec { get; } = Codecs.Command(
+        type: 668,
+        Codecs.Composite(
+            Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+            static command => command.DataIds,
+            static (dataIds) => new AddShopBadgesCommand(dataIds)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

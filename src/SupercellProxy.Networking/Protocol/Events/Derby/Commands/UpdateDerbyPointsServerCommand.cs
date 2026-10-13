@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
@@ -13,36 +12,27 @@ public sealed record UpdateDerbyPointsServerCommand(
     int BunnyCount,
     int BingoLinesGained,
     LongId? InstanceId
-) : ServerCommand
+) : CodecServerCommand<UpdateDerbyPointsServerCommand>, ICommandCodecProvider<UpdateDerbyPointsServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.UpdateDerbyPointsServerCommandType;
-
-    /// <summary>Decodes progress before its server-command metadata.</summary>
-    public static UpdateDerbyPointsServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadOptionalLongId()
-        );
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(PlayerPoints);
-        stream.WriteVarInt(NeighborhoodPoints);
-        stream.WriteVarInt(BingoCount);
-        stream.WriteVarInt(BingoValue);
-        stream.WriteVarInt(BunnyCount);
-        stream.WriteVarInt(BingoLinesGained);
-        stream.WriteOptionalLongId(InstanceId);
-    }
+    public static CommandCodec<UpdateDerbyPointsServerCommand> Codec { get; } = Codecs.Command(
+        type: 174,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.PlayerPoints,
+            Codecs.VarInt,
+            static command => command.NeighborhoodPoints,
+            Codecs.VarInt,
+            static command => command.BingoCount,
+            Codecs.VarInt,
+            static command => command.BingoValue,
+            Codecs.VarInt,
+            static command => command.BunnyCount,
+            Codecs.VarInt,
+            static command => command.BingoLinesGained,
+            Codecs.OptionalLongId,
+            static command => command.InstanceId,
+            static (playerPoints, neighborhoodPoints, bingoCount, bingoValue, bunnyCount, bingoLinesGained, instanceId) => new UpdateDerbyPointsServerCommand(playerPoints, neighborhoodPoints, bingoCount, bingoValue, bunnyCount, bingoLinesGained, instanceId)
+        )
+    );
 }

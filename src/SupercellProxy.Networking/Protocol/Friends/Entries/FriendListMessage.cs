@@ -1,61 +1,29 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
 /// Carries a nullable, mode-specific list of friend entries.
-public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : IMessage
+public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : CodecMessage<FriendListMessage>, ICodecProvider<FriendListMessage>
 {
     /// Selects the separate recipient-list consumer.
     public const int RecipientMode = 4;
+
     /// Selects the native in-game friend and pending-request list.
     public const int RelationshipMode = 3;
-
     private const int MaximumEntryCount = 100_000;
 
-    /// Decodes the mode and friend-entry collection.
-    public static FriendListMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int mode = stream.ReadVarInt();
-        int count = stream.ReadVarInt();
-
-        if (count < -1 || count > MaximumEntryCount || count > (stream.Length - stream.Position) / FriendEntry.MinimumEncodedSize)
-            throw new InvalidDataException(message: "The friend-entry count is invalid.");
-
-        FriendEntry[]? entries = count < 0 ? null : new FriendEntry[count];
-
-        if (entries is not null)
-        {
-            for (int index = 0; index < entries.Length; index++)
-                entries[index] = FriendEntry.Decode(stream);
-        }
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The friend list has trailing data.")
-            : new FriendListMessage(mode, entries);
-    }
-
-    /// Encodes this list as a payload.
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (Entries?.Length > MaximumEntryCount)
-            throw new InvalidDataException(message: "The friend-entry count exceeds the native limit.");
-
-        stream.WriteVarInt(Mode);
-        stream.WriteVarInt(Entries?.Length ?? -1);
-
-        if (Entries is not null)
-        {
-            foreach (FriendEntry entry in Entries)
-            {
-                ArgumentNullException.ThrowIfNull(entry);
-                entry.Encode(stream);
-            }
-        }
-    }
+    /// <inheritdoc />
+    public static ICodec<FriendListMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.Mode,
+            Codecs.NullableArray(FriendEntry.Codec, CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).WithMaximum(MaximumEntryCount).WithStrictAbsence()),
+            static message => message.Entries,
+            static (mode, entries) => new FriendListMessage(mode, entries)
+        ),
+        trailingDataMessage: "The friend list has trailing data."
+    );
 
     /// Omits private entries from diagnostics.
     public override string ToString()

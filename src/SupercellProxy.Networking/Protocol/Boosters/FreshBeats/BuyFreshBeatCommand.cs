@@ -1,0 +1,16 @@
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
+
+namespace SupercellProxy.Networking.Protocol.Boosters.FreshBeats;
+
+/// <summary>Buys a Fresh Beats booster.</summary>
+/// <param name="BeatIndex">The beat index.</param>
+public sealed record BuyFreshBeatCommand(int BeatIndex) : CodecCommand<BuyFreshBeatCommand>, ICommandCodecProvider<BuyFreshBeatCommand>
+{
+    /// <inheritdoc />
+    public static CommandCodec<BuyFreshBeatCommand> Codec { get; } = Codecs.Command(
+        type: 556,
+        Codecs.Composite(Codecs.VarInt, static command => command.BeatIndex, static (beatIndex) => new BuyFreshBeatCommand(beatIndex)),
+        CommandLayout.MetadataFirst
+    );
+}

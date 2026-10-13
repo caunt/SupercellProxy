@@ -168,18 +168,18 @@ public sealed class ProxyCaptureWriter
         byte[] payload = container.Payload.ToArray();
 
         bool clientHello = Archive is not null && stage == "incoming" && direction == MessageDirection.Serverbound
-            && container.Id == MessageRegistry.GetId<ClientHelloMessage>();
+            && container.Id == MessageRegistry.GetId<ClientHelloMessage>(gameVersion: null);
 
         if (clientHello)
         {
             using MessageStream stream = MessageStream.Create(payload);
 
-            CaptureIdentity identity = CaptureIdentity.FromHello(ClientHelloMessage.Decode(stream));
+            CaptureIdentity identity = CaptureIdentity.FromHello(ClientHelloMessage.Codec.Read(stream));
             ConfigureIdentity(identity);
         }
 
         bool loginAccepted = Archive is not null && stage == "incoming" && direction == MessageDirection.Clientbound
-            && container.Id == MessageRegistry.GetId<LoginOkMessage>();
+            && container.Id == MessageRegistry.GetId<LoginOkMessage>(gameVersion: null);
 
         if (loginAccepted)
             await PrepareCoreAsync(_identity ?? throw new InvalidDataException(message: "The accepted login has no captured client handshake."), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

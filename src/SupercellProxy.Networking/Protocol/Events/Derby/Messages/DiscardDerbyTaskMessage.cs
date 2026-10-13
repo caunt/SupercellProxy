@@ -1,31 +1,28 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Requests resolution of the player's selected task using its current board status.</summary>
-public sealed record DiscardDerbyTaskMessage(int TaskBoardIndex, int TaskStatus, LongId NeighborhoodId, LongId PlayerId, bool Discarded) : IMessage
+public sealed record DiscardDerbyTaskMessage(int TaskBoardIndex, int TaskStatus, LongId NeighborhoodId, LongId PlayerId, bool Discarded) : CodecMessage<DiscardDerbyTaskMessage>, ICodecProvider<DiscardDerbyTaskMessage>
 {
-    /// <summary>Decodes the selected-task request.</summary>
-    public static DiscardDerbyTaskMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        DiscardDerbyTaskMessage message = new(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadLongId(), stream.ReadLongId(), stream.ReadBoolean());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the selected task and its discard classification.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(TaskStatus);
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteBoolean(Discarded);
-    }
+    /// <inheritdoc />
+    public static ICodec<DiscardDerbyTaskMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.TaskBoardIndex,
+            Codecs.VarInt,
+            static message => message.TaskStatus,
+            Codecs.LongId,
+            static message => message.NeighborhoodId,
+            Codecs.LongId,
+            static message => message.PlayerId,
+            Codecs.Boolean,
+            static message => message.Discarded,
+            static (taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded) => new DiscardDerbyTaskMessage(taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

@@ -1,6 +1,5 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
@@ -9,34 +8,21 @@ public sealed record FarmLikeStatusMessage(
     [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
     [property: System.Text.Json.Serialization.JsonPropertyName("VisitorId")] LongId VisitorId,
     bool HasLiked
-)
-    : IMessage
+) : CodecMessage<FarmLikeStatusMessage>, ICodecProvider<FarmLikeStatusMessage>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static FarmLikeStatusMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        FarmLikeStatusMessage result = new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadBoolean());
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The farm-like status has trailing data.")
-            : result;
-    }
-
-    /// <summary>
-    /// Provides the To Container value or operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteLongId(HomeOwnerId);
-        stream.WriteLongId(VisitorId);
-        stream.WriteBoolean(HasLiked);
-    }
+    /// <inheritdoc />
+    public static ICodec<FarmLikeStatusMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.LongId,
+            static message => message.HomeOwnerId,
+            Codecs.LongId,
+            static message => message.VisitorId,
+            Codecs.Boolean,
+            static message => message.HasLiked,
+            static (homeOwnerId, visitorId, hasLiked) => new FarmLikeStatusMessage(homeOwnerId, visitorId, hasLiked)
+        ),
+        trailingDataMessage: "The farm-like status has trailing data."
+    );
 
     /// <summary>
     /// Provides the To String value or operation.

@@ -128,7 +128,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         {
             IMessage message = await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-            if (message is DisconnectedMessage) await CloseFailedStreamAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+            if (message is TitanDisconnectedMessage) await CloseFailedStreamAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
 
             return message;
         }

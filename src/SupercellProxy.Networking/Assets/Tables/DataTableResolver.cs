@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.Commands;
 
 namespace SupercellProxy.Networking.Assets.Tables;
 

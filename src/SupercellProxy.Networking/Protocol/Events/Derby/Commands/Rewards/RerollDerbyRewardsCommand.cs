@@ -1,23 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 
 /// <summary>Purchases replacement choices for selected derby reward thresholds.</summary>
-public sealed record RerollDerbyRewardsCommand(DerbyRewardSelection Selection) : Command
+public sealed record RerollDerbyRewardsCommand(DerbyRewardSelection Selection) : CodecCommand<RerollDerbyRewardsCommand>, ICommandCodecProvider<RerollDerbyRewardsCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.RerollDerbyRewardsCommandType;
-    /// <summary>Decodes the selected reward thresholds.</summary>
-    public static RerollDerbyRewardsCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        return new(DerbyRewardSelection.Decode(stream));
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        Selection.Encode(stream);
-    }
+    public static CommandCodec<RerollDerbyRewardsCommand> Codec { get; } = Codecs.Command(
+        type: 172,
+        Codecs.Composite(DerbyRewardSelection.Codec, static command => command.Selection, static (selection) => new RerollDerbyRewardsCommand(selection))
+    );
 }

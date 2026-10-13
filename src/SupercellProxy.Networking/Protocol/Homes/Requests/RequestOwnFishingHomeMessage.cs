@@ -1,24 +1,14 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 
 /// <summary>Requests the authenticated player's native fishing-area snapshot.</summary>
-public sealed record RequestOwnFishingHomeMessage : IMessage
+public sealed record RequestOwnFishingHomeMessage : CodecMessage<RequestOwnFishingHomeMessage>, ICodecProvider<RequestOwnFishingHomeMessage>
 {
-    /// <summary>Decodes the captured empty fishing request.</summary>
-    public static RequestOwnFishingHomeMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return stream.Length != 0
-            ? throw new InvalidDataException(message: "The own-fishing-home request must have an empty payload.")
-            : new();
-    }
-
-    /// <summary>Encodes the empty request using its registry-owned id.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-    }
+    /// <inheritdoc />
+    public static ICodec<RequestOwnFishingHomeMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Unit(static () => new RequestOwnFishingHomeMessage()),
+        trailingDataMessage: "The own-fishing-home request must have an empty payload."
+    );
 }

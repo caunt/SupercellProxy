@@ -1,27 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Validates that a passenger is present in the player's town without changing its state.</summary>
-public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : Command
+public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : CodecCommand<ValidateTownPassengerCommand>, ICommandCodecProvider<ValidateTownPassengerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ValidateTownPassengerCommandType;
-
-    /// <summary>Decodes the passenger id and command fields.</summary>
-    public static ValidateTownPassengerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int passenger = stream.ReadVarInt();
-
-        return new(passenger);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(PassengerGlobalId);
-    }
+    public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(
+        type: 141,
+        Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static (passenger) => new ValidateTownPassengerCommand(passenger))
+    );
 }

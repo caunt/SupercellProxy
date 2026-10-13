@@ -14,10 +14,6 @@ public sealed record PassthroughMessage : IMessage
     public required Memory<byte> Data { get; set; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Hint</c> value.
-    /// </summary>
-    public string? Hint => MessageRegistry.GetHint(Id);
-    /// <summary>
     /// Gets or sets the <c language="csharp">Id</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Id")]
@@ -64,8 +60,7 @@ public sealed record PassthroughMessage : IMessage
 
         string hexDataString = Convert.ToHexString(Data.Span[..lengthToConvert]);
         string truncationSuffix = actualDataLength > maximumDataLength ? "..." : string.Empty;
-        string hintSuffix = string.IsNullOrWhiteSpace(Hint) ? string.Empty : $", Hint = {Hint}";
 
-        return $"{nameof(PassthroughMessage)} {{ Id = {Id}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix}{hintSuffix} }}";
+        return $"{nameof(PassthroughMessage)} {{ Id = {Id}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix} }}";
     }
 }

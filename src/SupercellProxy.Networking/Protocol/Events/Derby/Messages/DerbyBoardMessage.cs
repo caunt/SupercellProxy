@@ -1,11 +1,98 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Contains the complete native derby task-board response.</summary>
-public sealed record DerbyBoardMessage : IMessage
+public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodecProvider<DerbyBoardMessage>
 {
+    /// <inheritdoc />
+    public static ICodec<DerbyBoardMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            BoardCounters.Codec,
+            static message => new BoardCounters(
+                message.TaskLimit,
+                message.RemainingTasks,
+                message.ActiveTaskBoardIndex,
+                message.Unknown0,
+                message.Unknown1,
+                message.ExtraTaskOfferValue
+            ),
+            Codecs.OptionalLongId,
+            static message => message.CurrentInstanceId,
+            Codecs.Boolean,
+            static message => message.Flag0,
+            Codecs.Boolean,
+            static message => message.Flag1,
+            Codecs.Boolean,
+            static message => message.Flag2,
+            Codecs.OptionalLongId,
+            static message => message.PreviousInstanceId,
+            Codecs.NullableArray(DerbyTaskEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+            static message => message.Tasks,
+            Codecs.NullableArray(DerbyBoardAuxiliaryEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+            static message => message.AuxiliaryEntries,
+            Codecs.VarInt,
+            static message => message.Unknown2,
+            Codecs.VarInt,
+            static message => message.Unknown3,
+            Codecs.VarInt,
+            static message => message.Unknown4,
+            Codecs.VarInt,
+            static message => message.Unknown5,
+            Codecs.Boolean,
+            static message => message.Flag3,
+            Codecs.VarInt,
+            static message => message.Unknown6,
+            Codecs.Array(DerbyBoardGroupEntry.Codec, CollectionCount.Bounded),
+            static message => message.Groups,
+            Codecs.Optional(DerbyBoardSupplement.Codec),
+            static message => message.Supplement,
+            static (
+                boardCounters,
+                currentInstanceId,
+                flag0,
+                flag1,
+                flag2,
+                previousInstanceId,
+                tasks,
+                auxiliaryEntries,
+                unknown2,
+                unknown3,
+                unknown4,
+                unknown5,
+                flag3,
+                unknown6,
+                groups,
+                supplement
+            ) => new DerbyBoardMessage
+            {
+                TaskLimit = boardCounters.TaskLimit,
+                RemainingTasks = boardCounters.RemainingTasks,
+                ActiveTaskBoardIndex = boardCounters.ActiveTaskBoardIndex,
+                Unknown0 = boardCounters.Unknown0,
+                Unknown1 = boardCounters.Unknown1,
+                ExtraTaskOfferValue = boardCounters.ExtraTaskOfferValue,
+                CurrentInstanceId = currentInstanceId,
+                Flag0 = flag0,
+                Flag1 = flag1,
+                Flag2 = flag2,
+                PreviousInstanceId = previousInstanceId,
+                Tasks = tasks,
+                AuxiliaryEntries = auxiliaryEntries,
+                Unknown2 = unknown2,
+                Unknown3 = unknown3,
+                Unknown4 = unknown4,
+                Unknown5 = unknown5,
+                Flag3 = flag3,
+                Unknown6 = unknown6,
+                Groups = groups,
+                Supplement = supplement,
+            }
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
+
     /// <summary>Gets the player's active task-board index, or minus one.</summary>
     public int ActiveTaskBoardIndex { get; init; }
     /// <summary>Gets the optional auxiliary board entries.</summary>
@@ -49,72 +136,29 @@ public sealed record DerbyBoardMessage : IMessage
     /// <summary>Gets the retained value preceding board groups.</summary>
     public int Unknown6 { get; init; }
 
-    /// <summary>Decodes every board field in native order.</summary>
-    public static DerbyBoardMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        DerbyBoardMessage message = new()
-        {
-            TaskLimit = stream.ReadVarInt(),
-            RemainingTasks = stream.ReadVarInt(),
-            ActiveTaskBoardIndex = stream.ReadVarInt(),
-            Unknown0 = stream.ReadVarInt(),
-            Unknown1 = stream.ReadVarInt(),
-            ExtraTaskOfferValue = stream.ReadVarInt(),
-            CurrentInstanceId = stream.ReadOptionalLongId(),
-            Flag0 = stream.ReadBoolean(),
-            Flag1 = stream.ReadBoolean(),
-            Flag2 = stream.ReadBoolean(),
-            PreviousInstanceId = stream.ReadOptionalLongId(),
-            Tasks = DerbyMessageCodec.ReadOptionalArray(stream, DerbyTaskEntry.Decode),
-            AuxiliaryEntries = DerbyMessageCodec.ReadOptionalArray(stream, DerbyBoardAuxiliaryEntry.Decode),
-            Unknown2 = stream.ReadVarInt(),
-            Unknown3 = stream.ReadVarInt(),
-            Unknown4 = stream.ReadVarInt(),
-            Unknown5 = stream.ReadVarInt(),
-            Flag3 = stream.ReadBoolean(),
-            Unknown6 = stream.ReadVarInt(),
-            Groups = stream.ReadArray(DerbyBoardGroupEntry.Decode),
-            Supplement = stream.ReadBoolean() ? DerbyBoardSupplement.Decode(stream) : null,
-        };
-
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes every board field, preserving absent collections.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(TaskLimit);
-        stream.WriteVarInt(RemainingTasks);
-        stream.WriteVarInt(ActiveTaskBoardIndex);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(ExtraTaskOfferValue);
-        stream.WriteOptionalLongId(CurrentInstanceId);
-        stream.WriteBoolean(Flag0);
-        stream.WriteBoolean(Flag1);
-        stream.WriteBoolean(Flag2);
-        stream.WriteOptionalLongId(PreviousInstanceId);
-        DerbyMessageCodec.WriteOptionalArray(stream, Tasks, static (writer, entry) => entry.Encode(writer));
-        DerbyMessageCodec.WriteOptionalArray(stream, AuxiliaryEntries, static (writer, entry) => entry.Encode(writer));
-        stream.WriteVarInt(Unknown2);
-        stream.WriteVarInt(Unknown3);
-        stream.WriteVarInt(Unknown4);
-        stream.WriteVarInt(Unknown5);
-        stream.WriteBoolean(Flag3);
-        stream.WriteVarInt(Unknown6);
-        stream.WriteArray<DerbyBoardGroupEntry>(Groups, static (writer, entry) => entry.Encode(writer));
-        stream.WriteBoolean(Supplement is not null);
-        Supplement?.Encode(stream);
-    }
-
     /// <summary>Omits identifiers and player details from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(DerbyBoardMessage);
+    }
+
+    // The leading board counters, read as one group to keep the field list within a composite.
+    private readonly record struct BoardCounters(int TaskLimit, int RemainingTasks, int ActiveTaskBoardIndex, int Unknown0, int Unknown1, int ExtraTaskOfferValue)
+    {
+        public static ICodec<BoardCounters> Codec { get; } = Codecs.Composite(
+            Codecs.VarInt,
+            static segment => segment.TaskLimit,
+            Codecs.VarInt,
+            static segment => segment.RemainingTasks,
+            Codecs.VarInt,
+            static segment => segment.ActiveTaskBoardIndex,
+            Codecs.VarInt,
+            static segment => segment.Unknown0,
+            Codecs.VarInt,
+            static segment => segment.Unknown1,
+            Codecs.VarInt,
+            static segment => segment.ExtraTaskOfferValue,
+            static (taskLimit, remainingTasks, activeTaskBoardIndex, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, activeTaskBoardIndex, unknown0, unknown1, extraTaskOfferValue)
+        );
     }
 }

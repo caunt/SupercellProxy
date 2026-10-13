@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Tutorials;
 
 /// <summary>
 /// <para>Starts the selected tutorial.</para>
 /// </summary>
-public sealed record StartTutorialCommand : Command
+public sealed record StartTutorialCommand : CodecCommand<StartTutorialCommand>, ICommandCodecProvider<StartTutorialCommand>
 {
     /// <summary>
     /// Defines the <c language="csharp">CommandType</c> value.
@@ -22,33 +21,19 @@ public sealed record StartTutorialCommand : Command
         TutorialGlobalId = tutorialGlobalId;
     }
 
+    /// <inheritdoc />
+    public static CommandCodec<StartTutorialCommand> Codec { get; } = Codecs.Command(
+        type: 35,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.TutorialGlobalId,
+            static (tutorialGlobalId) => new StartTutorialCommand(tutorialGlobalId)
+        )
+    );
+
     /// <summary>
     /// Gets the <c language="csharp">TutorialGlobalId</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("TutorialGlobalId")]
     public int TutorialGlobalId { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static StartTutorialCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int tutorialGlobalId = stream.ReadVarInt();
-
-        return new StartTutorialCommand(tutorialGlobalId);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(TutorialGlobalId);
-    }
 }

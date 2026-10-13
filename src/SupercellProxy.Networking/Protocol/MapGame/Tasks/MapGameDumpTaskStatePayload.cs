@@ -1,40 +1,73 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
 /// Represents <c language="csharp">MapGameDumpTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
+public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameDumpTaskStatePayload>
 {
+    /// <summary>
+    /// The native <c>TaskType</c> name of this payload.
+    /// </summary>
+    internal const string NativeTaskType = "Dump";
+
     /// <summary>
     /// Initializes a new <see cref="MapGameDumpTaskStatePayload"/> instance.
     /// </summary>
     public MapGameDumpTaskStatePayload(
         ReadOnlyMemory<CommandDataReferenceVarIntPair> requiredGoods,
-        ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues,
-        bool unknown0,
-        LongId? unknownLongId,
-        int unknownGlobalId0,
-        int unknownGlobalId1
+        ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData,
+        bool helpRequestSent,
+        LongId? helperAvatarId,
+        int emojiGlobalId,
+        int sanctuaryAnimalGlobalId
     )
     {
         RequiredGoods = requiredGoods.ToArray();
-        OptionalValues = optionalValues is null
+        RewardData = rewardData is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
-        Unknown0 = unknown0;
-        UnknownLongId = unknownLongId;
-        UnknownGlobalId0 = unknownGlobalId0;
-        UnknownGlobalId1 = unknownGlobalId1;
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
+        HelpRequestSent = helpRequestSent;
+        HelperAvatarId = helperAvatarId;
+        EmojiGlobalId = emojiGlobalId;
+        SanctuaryAnimalGlobalId = sanctuaryAnimalGlobalId;
     }
 
+    /// <inheritdoc />
+    public static ICodec<MapGameDumpTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount),
+        static value => value.RequiredGoods,
+        Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
+        static value => value.RewardData,
+        Codecs.Boolean,
+        static value => value.HelpRequestSent,
+        Codecs.OptionalLongId,
+        static value => value.HelperAvatarId,
+        Codecs.VarInt,
+        static value => value.EmojiGlobalId,
+        Codecs.VarInt,
+        static value => value.SanctuaryAnimalGlobalId,
+        static (requiredGoods, rewardData, helpRequestSent, helperAvatarId, emojiGlobalId, sanctuaryAnimalGlobalId) => new MapGameDumpTaskStatePayload(requiredGoods, rewardData, helpRequestSent, helperAvatarId, emojiGlobalId, sanctuaryAnimalGlobalId)
+    );
+
     /// <summary>
-    /// Gets the <c language="csharp">OptionalValues</c> value.
+    /// Gets the emoji shown on the task (native JSON <c>EmojiData</c>).
     /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("EmojiGlobalId")]
+    public int EmojiGlobalId { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether help was requested (native JSON <c>HelpRequestSent</c>).
+    /// </summary>
+    public bool HelpRequestSent { get; init; }
+
+    /// <summary>
+    /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonPropertyName("HelperAvatarId")]
+    public LongId? HelperAvatarId { get; init; }
 
     /// <summary>
     /// Gets the goods and quantities required to complete this dump task.
@@ -43,55 +76,16 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload
     public ReadOnlyMemory<CommandDataReferenceVarIntPair> RequiredGoods { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
+    /// Gets the reward granted for the task (native JSON <c>RewardData</c>).
     /// </summary>
-    public bool Unknown0 { get; init; }
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? RewardData { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalId0</c> value.
+    /// Gets the sanctuary animal of the task (native JSON <c>SanctuaryAnimalData</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId0")]
-    public int UnknownGlobalId0 { get; }
+    [System.Text.Json.Serialization.JsonPropertyName("SanctuaryAnimalGlobalId")]
+    public int SanctuaryAnimalGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownGlobalId1</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownGlobalId1")]
-    public int UnknownGlobalId1 { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongId? UnknownLongId { get; init; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameDumpTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MapGameDumpTaskStatePayload(
-            MapGameFieldCodec.ReadDataReferenceVarIntPairs(stream),
-            MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream),
-            stream.ReadBoolean(),
-            MapGameFieldCodec.ReadOptionalLongId(stream),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        MapGameFieldCodec.WriteDataReferenceVarIntPairs(stream, RequiredGoods.Span);
-        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
-        stream.WriteBoolean(Unknown0);
-        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId);
-        stream.WriteVarInt(UnknownGlobalId0);
-        stream.WriteVarInt(UnknownGlobalId1);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

@@ -1,26 +1,19 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>Acknowledges the introduction for the current boat-track reward cycle.</summary>
-public sealed record MarkBoatTrackCycleIntroSeenCommand(long CycleResetTimestamp) : Command
+public sealed record MarkBoatTrackCycleIntroSeenCommand(long CycleResetTimestamp) : CodecCommand<MarkBoatTrackCycleIntroSeenCommand>, ICommandCodecProvider<MarkBoatTrackCycleIntroSeenCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.MarkBoatTrackCycleIntroSeenCommandType;
-
-    /// <summary>Decodes the reward cycle's reset timestamp.</summary>
-    public static MarkBoatTrackCycleIntroSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MarkBoatTrackCycleIntroSeenCommand(stream.ReadVarLong());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarLong(CycleResetTimestamp);
-    }
+    public static CommandCodec<MarkBoatTrackCycleIntroSeenCommand> Codec { get; } = Codecs.Command(
+        type: 702,
+        Codecs.Composite(
+            Codecs.VarLong,
+            static command => command.CycleResetTimestamp,
+            static (cycleResetTimestamp) => new MarkBoatTrackCycleIntroSeenCommand(cycleResetTimestamp)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

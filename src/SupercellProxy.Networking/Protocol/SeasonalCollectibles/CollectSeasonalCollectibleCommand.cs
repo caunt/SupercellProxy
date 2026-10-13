@@ -1,27 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.SeasonalCollectibles;
 
 /// <summary>Collects the reward from a spawned seasonal gift.</summary>
-public sealed record CollectSeasonalCollectibleCommand(int CollectibleId) : Command
+public sealed record CollectSeasonalCollectibleCommand(int CollectibleId) : CodecCommand<CollectSeasonalCollectibleCommand>, ICommandCodecProvider<CollectSeasonalCollectibleCommand>
 {
-    /// <summary>Gets the native command type.</summary>
-    public override int Type => CommandRegistry.CollectSeasonalCollectibleCommandType;
-
-    /// <summary>Decodes the collectible instance id.</summary>
-    public static CollectSeasonalCollectibleCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <summary>Encodes the collectible instance id.</summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(CollectibleId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<CollectSeasonalCollectibleCommand> Codec { get; } = Codecs.Command(
+        type: 128,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.CollectibleId,
+            static (collectibleId) => new CollectSeasonalCollectibleCommand(collectibleId)
+        )
+    );
 }

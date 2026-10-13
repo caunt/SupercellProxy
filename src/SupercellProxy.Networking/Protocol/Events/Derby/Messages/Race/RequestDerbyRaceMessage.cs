@@ -1,29 +1,24 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.Race;
 
 /// <summary>Requests the selected derby instance's race page.</summary>
-public sealed record RequestDerbyRaceMessage(LongId? InstanceId, LongId? NeighborhoodId, LongId? PlayerId) : IMessage
+public sealed record RequestDerbyRaceMessage(LongId? InstanceId, LongId? NeighborhoodId, LongId? PlayerId) : CodecMessage<RequestDerbyRaceMessage>, ICodecProvider<RequestDerbyRaceMessage>
 {
-    /// <summary>Decodes the three independently optional native identifiers.</summary>
-    public static RequestDerbyRaceMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        RequestDerbyRaceMessage message = new(stream.ReadOptionalLongId(), stream.ReadOptionalLongId(), stream.ReadOptionalLongId());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the instance, neighborhood and requesting player in native order.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongId(InstanceId);
-        stream.WriteOptionalLongId(NeighborhoodId);
-        stream.WriteOptionalLongId(PlayerId);
-    }
+    /// <inheritdoc />
+    public static ICodec<RequestDerbyRaceMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.OptionalLongId,
+            static message => message.InstanceId,
+            Codecs.OptionalLongId,
+            static message => message.NeighborhoodId,
+            Codecs.OptionalLongId,
+            static message => message.PlayerId,
+            static (instanceId, neighborhoodId, playerId) => new RequestDerbyRaceMessage(instanceId, neighborhoodId, playerId)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

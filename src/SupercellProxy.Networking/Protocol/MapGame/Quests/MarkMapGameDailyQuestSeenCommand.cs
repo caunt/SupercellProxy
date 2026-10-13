@@ -1,28 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Marks one completed Valley daily quest as presented to the player.</summary>
-public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType) : Command
+public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType) : CodecCommand<MarkMapGameDailyQuestSeenCommand>, ICommandCodecProvider<MarkMapGameDailyQuestSeenCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.MarkMapGameDailyQuestSeenCommandType;
-
-    /// <summary>Decodes a command from its native wire representation.</summary>
-    public static MarkMapGameDailyQuestSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int questType = stream.ReadVarInt();
-
-        return new MarkMapGameDailyQuestSeenCommand(questType);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(QuestType);
-    }
+    public static CommandCodec<MarkMapGameDailyQuestSeenCommand> Codec { get; } = Codecs.Command(
+        type: 286,
+        Codecs.Composite(Codecs.VarInt, static command => command.QuestType, static (questType) => new MarkMapGameDailyQuestSeenCommand(questType))
+    );
 }

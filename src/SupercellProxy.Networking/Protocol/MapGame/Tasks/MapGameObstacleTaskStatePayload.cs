@@ -1,76 +1,65 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
 /// Represents <c language="csharp">MapGameObstacleTaskStatePayload</c>.
 /// </summary>
-public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload
+public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameObstacleTaskStatePayload>
 {
+    /// <summary>
+    /// The native <c>TaskType</c> name of this payload.
+    /// </summary>
+    internal const string NativeTaskType = "Obstacle";
+
     /// <summary>
     /// Initializes a new <see cref="MapGameObstacleTaskStatePayload"/> instance.
     /// </summary>
-    public MapGameObstacleTaskStatePayload(
-        bool unknownBoolean0,
-        bool unknownBoolean1,
-        LongId? unknownLongId,
-        ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues
-    )
+    public MapGameObstacleTaskStatePayload(bool positive, bool helpRequestSent, LongId? helperAvatarId, ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData)
     {
-        UnknownBoolean0 = unknownBoolean0;
-        UnknownBoolean1 = unknownBoolean1;
-        UnknownLongId = unknownLongId;
-        OptionalValues = optionalValues is null
+        Positive = positive;
+        HelpRequestSent = helpRequestSent;
+        HelperAvatarId = helperAvatarId;
+        RewardData = rewardData is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
     }
 
-    /// <summary>
-    /// Gets the <c language="csharp">OptionalValues</c> value.
-    /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
+    /// <inheritdoc />
+    public static ICodec<MapGameObstacleTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.Boolean,
+        static value => value.Positive,
+        Codecs.Boolean,
+        static value => value.HelpRequestSent,
+        Codecs.OptionalLongId,
+        static value => value.HelperAvatarId,
+        Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
+        static value => value.RewardData,
+        static (positive, helpRequestSent, helperAvatarId, rewardData) => new MapGameObstacleTaskStatePayload(positive, helpRequestSent, helperAvatarId, rewardData)
+    );
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
+    /// Gets a value indicating whether help was requested (native JSON <c>HelpRequestSent</c>).
     /// </summary>
-    public bool UnknownBoolean0 { get; }
+    public bool HelpRequestSent { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownBoolean1</c> value.
+    /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
     /// </summary>
-    public bool UnknownBoolean1 { get; init; }
+    [System.Text.Json.Serialization.JsonPropertyName("HelperAvatarId")]
+    public LongId? HelperAvatarId { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId</c> value.
+    /// Gets the native <c>Positive</c> flag.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId")]
-    public LongId? UnknownLongId { get; init; }
+    public bool Positive { get; }
 
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// Gets the reward granted for the task (native JSON <c>RewardData</c>).
     /// </summary>
-    public static MapGameObstacleTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? RewardData { get; }
 
-        return new MapGameObstacleTaskStatePayload(
-            stream.ReadBoolean(),
-            stream.ReadBoolean(),
-            MapGameFieldCodec.ReadOptionalLongId(stream),
-            MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream)
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        stream.WriteBoolean(UnknownBoolean0);
-        stream.WriteBoolean(UnknownBoolean1);
-        MapGameFieldCodec.WriteOptionalLongId(stream, UnknownLongId);
-        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

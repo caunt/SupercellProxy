@@ -10,12 +10,12 @@ public static class CompressedDocumentValidator
     /// <summary>
     /// Provides the Is Valid value or operation.
     /// </summary>
-    public static bool IsValid(Memory<byte>? data)
+    public static bool IsValid(ReadOnlyMemory<byte>? data)
     {
         if (data is null || data.Value.IsEmpty)
             return true;
 
-        Span<byte> span = data.Value.Span;
+        ReadOnlySpan<byte> span = data.Value.Span;
 
         if (span.Length < 6 || BinaryPrimitives.ReadInt32LittleEndian(span) < 0)
             return false;

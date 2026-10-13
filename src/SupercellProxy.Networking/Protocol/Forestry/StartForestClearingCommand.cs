@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Forestry;
 
@@ -14,31 +12,17 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 /// <summary>
 /// Defines the Buy Missing Tool contract.
 /// </summary>
-public sealed record StartForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId, bool BuyMissingTool) : Command
+public sealed record StartForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId, bool BuyMissingTool) : CodecCommand<StartForestClearingCommand>, ICommandCodecProvider<StartForestClearingCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.StartForestClearingCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static StartForestClearingCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int forest = stream.ReadVarInt();
-        bool buyTool = stream.ReadBoolean();
-
-        return new StartForestClearingCommand(forest, buyTool);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(ForestGlobalId);
-        stream.WriteBoolean(BuyMissingTool);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<StartForestClearingCommand> Codec { get; } = Codecs.Command(
+        type: 18,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.ForestGlobalId,
+            Codecs.Boolean,
+            static command => command.BuyMissingTool,
+            static (forest, buyTool) => new StartForestClearingCommand(forest, buyTool)
+        )
+    );
 }

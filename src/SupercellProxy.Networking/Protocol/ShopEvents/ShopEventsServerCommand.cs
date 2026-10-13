@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.ShopEvents;
 
 /// <summary>
 /// <para>Server command 355. Native execution passes its optional value to the shop-event manager.</para>
 /// </summary>
-public sealed record ShopEventsServerCommand : ServerCommand
+public sealed record ShopEventsServerCommand : CodecServerCommand<ShopEventsServerCommand>, ICommandCodecProvider<ShopEventsServerCommand>
 {
     /// <summary>
     /// Defines the <c language="csharp">CommandType</c> value.
@@ -22,34 +21,18 @@ public sealed record ShopEventsServerCommand : ServerCommand
         ShopEventCollection = shopEvents;
     }
 
+    /// <inheritdoc />
+    public static CommandCodec<ShopEventsServerCommand> Codec { get; } = Codecs.Command(
+        type: 355,
+        Codecs.Composite(
+            Codecs.Optional(ShopEventCollection.Codec),
+            static command => command.ShopEventCollection,
+            static (shopEvents) => new ShopEventsServerCommand(shopEvents)
+        )
+    );
+
     /// <summary>
     /// Gets the <c language="csharp">ShopEventCollection</c> value.
     /// </summary>
     public ShopEventCollection? ShopEventCollection { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ShopEventsServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ShopEventCollection? shopEvents = stream.ReadBoolean() ? ShopEventCollection.Decode(stream) : null;
-
-
-        return new ShopEventsServerCommand(shopEvents);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteBoolean(ShopEventCollection is not null);
-        ShopEventCollection?.Encode(stream);
-    }
 }

@@ -1,29 +1,21 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Movement;
 
 /// <summary>Requests movement of the local Valley pawn from its current node toward another map node.</summary>
-public sealed record MoveMapGameCommand(int SourceNodeId, int TargetNodeId) : Command
+public sealed record MoveMapGameCommand(int SourceNodeId, int TargetNodeId) : CodecCommand<MoveMapGameCommand>, ICommandCodecProvider<MoveMapGameCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.MoveMapGameCommandType;
-
-    /// <summary>Decodes a command from its native wire representation.</summary>
-    public static MoveMapGameCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MoveMapGameCommand(stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteVarInt(SourceNodeId);
-        stream.WriteVarInt(TargetNodeId);
-    }
+    public static CommandCodec<MoveMapGameCommand> Codec { get; } = Codecs.Command(
+        type: 270,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.SourceNodeId,
+            Codecs.VarInt,
+            static command => command.TargetNodeId,
+            static (sourceNodeId, targetNodeId) => new MoveMapGameCommand(sourceNodeId, targetNodeId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

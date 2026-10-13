@@ -1,7 +1,6 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
+using SupercellProxy.Networking.Protocol.Releases;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
@@ -21,30 +20,33 @@ public sealed record RecordStorageSignpostRankCommand(
     [property: System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")] int ObjectTableId,
     bool MaterialsSignpost,
     [property: System.Text.Json.Serialization.JsonPropertyName("StorageGlobalId")] int StorageGlobalId
-) : Command
+)
+    : CodecCommand<RecordStorageSignpostRankCommand>, ICommandCodecProvider<RecordStorageSignpostRankCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.RecordStorageSignpostRankCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RecordStorageSignpostRankCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new RecordStorageSignpostRankCommand(stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(ObjectTableId);
-        stream.WriteBoolean(MaterialsSignpost);
-        stream.WriteVarInt(StorageGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RecordStorageSignpostRankCommand> Codec { get; } = Codecs.Command(
+        type: 594,
+        Codecs.Versioned(
+            Release17381.Version,
+            Codecs.Composite(
+                Codecs.Boolean,
+                static command => command.MaterialsSignpost,
+                Codecs.VarInt,
+                static command => command.StorageGlobalId,
+                Codecs.VarInt,
+                static command => command.ObjectTableId,
+                static (materialsSignpost, storageGlobalId, objectTableId) => new RecordStorageSignpostRankCommand(objectTableId, materialsSignpost, storageGlobalId)
+            ),
+            Codecs.Composite(
+                Codecs.VarInt,
+                static command => command.ObjectTableId,
+                Codecs.Boolean,
+                static command => command.MaterialsSignpost,
+                Codecs.VarInt,
+                static command => command.StorageGlobalId,
+                static (objectTableId, materialsSignpost, storageGlobalId) => new RecordStorageSignpostRankCommand(objectTableId, materialsSignpost, storageGlobalId)
+            )
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

@@ -1,28 +1,18 @@
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>Represents a map-game participant emblem.</summary>
-public sealed record MapGamePawnEmblem(
-    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown0")] int Background,
-    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown1")] int Pattern,
-    [property: System.Text.Json.Serialization.JsonPropertyName("Unknown2")] int Symbol
-)
+public sealed record MapGamePawnEmblem(int Background, int Pattern, int Symbol) : ICodecProvider<MapGamePawnEmblem>
 {
-    /// <summary>Decodes an emblem from the supplied protocol payload.</summary>
-    public static MapGamePawnEmblem Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MapGamePawnEmblem(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <summary>Encodes this emblem into the supplied protocol payload.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Background);
-        stream.WriteVarInt(Pattern);
-        stream.WriteVarInt(Symbol);
-    }
+    /// <inheritdoc />
+    public static ICodec<MapGamePawnEmblem> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Background,
+        Codecs.VarInt,
+        static value => value.Pattern,
+        Codecs.VarInt,
+        static value => value.Symbol,
+        static (background, pattern, symbol) => new MapGamePawnEmblem(background, pattern, symbol)
+    );
 }

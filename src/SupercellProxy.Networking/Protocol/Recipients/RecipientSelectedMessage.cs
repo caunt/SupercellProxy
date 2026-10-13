@@ -1,24 +1,14 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Recipients;
 
 /// <summary>Acknowledges the most recently selected recipient.</summary>
-public sealed record RecipientSelectedMessage : IMessage
+public sealed record RecipientSelectedMessage : CodecMessage<RecipientSelectedMessage>, ICodecProvider<RecipientSelectedMessage>
 {
-    /// <summary>Decodes the empty acknowledgement.</summary>
-    public static RecipientSelectedMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The recipient acknowledgement has trailing data.")
-            : new();
-    }
-
-    /// <summary>Encodes the empty acknowledgement.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-    }
+    /// <inheritdoc />
+    public static ICodec<RecipientSelectedMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Unit(static () => new RecipientSelectedMessage()),
+        trailingDataMessage: "The recipient acknowledgement has trailing data."
+    );
 }

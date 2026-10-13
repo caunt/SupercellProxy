@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
@@ -14,29 +12,18 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// <summary>
 /// Defines the Item Global Id contract.
 /// </summary>
-public sealed record RequestRoadsidePurchaseCommand(int SlotIndex, [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId) : Command
+public sealed record RequestRoadsidePurchaseCommand(int SlotIndex, [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId) : CodecCommand<RequestRoadsidePurchaseCommand>, ICommandCodecProvider<RequestRoadsidePurchaseCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.RequestRoadsidePurchaseCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RequestRoadsidePurchaseCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new RequestRoadsidePurchaseCommand(stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(SlotIndex);
-        stream.WriteVarInt(ItemGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RequestRoadsidePurchaseCommand> Codec { get; } = Codecs.Command(
+        type: 509,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.SlotIndex,
+            Codecs.VarInt,
+            static command => command.ItemGlobalId,
+            static (slotIndex, itemGlobalId) => new RequestRoadsidePurchaseCommand(slotIndex, itemGlobalId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

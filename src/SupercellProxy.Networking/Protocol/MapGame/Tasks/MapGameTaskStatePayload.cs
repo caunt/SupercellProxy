@@ -1,33 +1,39 @@
-using SupercellProxy.Networking.Transport;
+using System.Collections.Frozen;
 
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameTaskStatePayload</c>.
+/// The task-type specific part of a map-game task state; native selects its layout from the task data's <c>TaskType</c>.
 /// </summary>
 public abstract record MapGameTaskStatePayload
 {
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// Gets the native <c>TaskType</c> name that selects this payload layout.
     /// </summary>
-    public static MapGameTaskStatePayload Decode(string taskType, MessageStream stream)
+    public abstract string TaskType { get; }
+
+    private static FrozenDictionary<string, ICodec<MapGameTaskStatePayload>> Variants => field ??= new Dictionary<string, ICodec<MapGameTaskStatePayload>>(StringComparer.Ordinal)
     {
-        return taskType switch
-        {
-            "Dump" => MapGameDumpTaskStatePayload.Decode(stream),
-            "Delivery" => MapGameDeliveryTaskStatePayload.Decode(stream),
-            "Obstacle" => MapGameObstacleTaskStatePayload.Decode(stream),
-            "Chicken" => MapGameChickenTaskStatePayload.Decode(stream),
-            "Sanctuary Animal" => MapGameSanctuaryAnimalTaskStatePayload.Decode(stream),
-            "Gas Station" => MapGameGasStationTaskStatePayload.Decode(stream),
-            "Offload Sanctuary Animal" => MapGameOffloadSanctuaryAnimalTaskStatePayload.Decode(stream),
-            _ => throw new NotSupportedException($"Map-game task type '{taskType}' is not supported."),
-        };
-    }
+        [MapGameDumpTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameDumpTaskStatePayload>(MapGameDumpTaskStatePayload.Codec),
+        [MapGameDeliveryTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameDeliveryTaskStatePayload>(MapGameDeliveryTaskStatePayload.Codec),
+        [MapGameObstacleTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameObstacleTaskStatePayload>(MapGameObstacleTaskStatePayload.Codec),
+        [MapGameChickenTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameChickenTaskStatePayload>(MapGameChickenTaskStatePayload.Codec),
+        [MapGameSanctuaryAnimalTaskStatePayload.NativeTaskType] =
+            Codecs.Subtype<MapGameTaskStatePayload, MapGameSanctuaryAnimalTaskStatePayload>(MapGameSanctuaryAnimalTaskStatePayload.Codec),
+        [MapGameGasStationTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameGasStationTaskStatePayload>(MapGameGasStationTaskStatePayload.Codec),
+        [MapGameOffloadSanctuaryAnimalTaskStatePayload.NativeTaskType] =
+            Codecs.Subtype<MapGameTaskStatePayload, MapGameOffloadSanctuaryAnimalTaskStatePayload>(MapGameOffloadSanctuaryAnimalTaskStatePayload.Codec),
+    }.ToFrozenDictionary(StringComparer.Ordinal);
 
     /// <summary>
-    /// Encodes this value using the selected wire format.
+    /// Gets the payload codec for a native task type name.
     /// </summary>
-    public abstract void Encode(MessageStream stream);
+    internal static ICodec<MapGameTaskStatePayload> For(string taskType)
+    {
+        return Variants.TryGetValue(taskType, out ICodec<MapGameTaskStatePayload>? codec)
+            ? codec
+            : throw new NotSupportedException($"Map-game task type '{taskType}' is not supported.");
+    }
 }

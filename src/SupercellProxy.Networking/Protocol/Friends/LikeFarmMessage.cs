@@ -1,28 +1,16 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// <summary>Likes the identified farm.</summary>
-public sealed record LikeFarmMessage(LongId HomeId) : IMessage
+public sealed record LikeFarmMessage(LongId HomeId) : CodecMessage<LikeFarmMessage>, ICodecProvider<LikeFarmMessage>
 {
-    /// <summary>Decodes the target farm identifier.</summary>
-    public static LikeFarmMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LikeFarmMessage result = new(stream.ReadLongId());
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The farm-like request has trailing data.")
-            : result;
-    }
-
-    /// <summary>Encodes the target farm identifier.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(HomeId);
-    }
+    /// <inheritdoc />
+    public static ICodec<LikeFarmMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(Codecs.LongId, static message => message.HomeId, static (homeId) => new LikeFarmMessage(homeId)),
+        trailingDataMessage: "The farm-like request has trailing data."
+    );
 
     /// <summary>Omits the private farm identifier from diagnostics.</summary>
     public override string ToString()

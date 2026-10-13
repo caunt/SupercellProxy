@@ -1,21 +1,22 @@
-using System.Globalization;
-
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.MapGame.Events.Fields;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 
 /// <summary>
 /// <para>One polymorphic native map-game event carried by server command 274.</para>
+/// <para>The event type selects the event record; the records follow the native 1.72.84 event factory.</para>
 /// </summary>
-public sealed record MapGameEvent
+/// <param name="Type">The native event type.</param>
+public abstract record MapGameEvent(int Type) : ICodecProvider<MapGameEvent>
 {
     /// <summary>Records a participant collecting a chicken task.</summary>
     public const int ChickenTaskCollectedType = 21;
 
     /// <summary>Records a participant's contribution to the shared chicken goal.</summary>
     public const int ChickensCollectedType = 18;
+
+    /// <summary>Carries a value followed by a data reference.</summary>
+    public const int DataReferenceType = 40;
 
     /// <summary>Completes a personal Valley task, including dump and delivery tasks, with its authoritative pawn and task.</summary>
     public const int DumpTaskCompletedType = 4;
@@ -34,6 +35,9 @@ public sealed record MapGameEvent
 
     /// <summary>Replaces a participant's gas-station offer.</summary>
     public const int GasStationUpdatedType = 36;
+
+    /// <summary>Carries an id followed by two values; native names it nowhere in the client.</summary>
+    public const int IdValuesType = 5;
 
     /// <summary>Adds an emoji to a map node.</summary>
     public const int NodeEmojiAddedType = 22;
@@ -74,8 +78,14 @@ public sealed record MapGameEvent
     /// <summary>Expires an existing personal task using the server's task state.</summary>
     public const int PawnTaskExpiredType = 6;
 
+    /// <summary>Carries a pawn and a task; native names it nowhere in the client.</summary>
+    public const int PawnTaskType = 19;
+
     /// <summary>Replaces a personal task at its map node.</summary>
     public const int PawnTaskUpdatedType = 8;
+
+    /// <summary>Carries a value followed by an optional live event profile.</summary>
+    public const int ProfileType = 39;
 
     /// <summary>Assigns an existing shared sanctuary-animal task to a Valley participant.</summary>
     public const int SanctuaryAnimalCollectedType = 32;
@@ -116,182 +126,57 @@ public sealed record MapGameEvent
     /// <summary>Removes an existing task from its owner or shared group.</summary>
     public const int TaskRemovedType = 7;
 
-    private static readonly Dictionary<int, MapGameEventFieldSchema[]> Schemas = CreateSchemas();
-
     /// <summary>
-    /// Initializes a new <see cref="MapGameEvent"/> instance.
+    /// Gets the wire codec: the event type selects the event record.
     /// </summary>
-    public MapGameEvent(int type, ReadOnlyMemory<MapGameEventField> fields)
+    public static ICodec<MapGameEvent> Codec { get; } = Codecs.Dispatch(
+        Codecs.VarInt,
+        static mapGameEvent => mapGameEvent.Type,
+        [
+            Case(StateSynchronizationType, MapGameStateSynchronizationEvent.Codec),
+            Case(PawnMovedType, MapGamePawnMovedEvent.Codec),
+            Case(DumpTaskCompletedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(DumpTaskCompletedType)),
+            Case(IdValuesType, MapGameIdValuesEvent.Codec),
+            Case(PawnTaskExpiredType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskExpiredType)),
+            Case(TaskRemovedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(TaskRemovedType)),
+            Case(PawnTaskUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskUpdatedType)),
+            Case(SharedTaskExpiredType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskExpiredType)),
+            Case(SharedTaskRemovedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskRemovedType)),
+            Case(SharedTaskUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskUpdatedType)),
+            Case(SharedTaskJoinedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskJoinedType)),
+            Case(SharedTaskCompletedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskCompletedType)),
+            Case(TaskCooldownSkippedType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(TaskCooldownSkippedType)),
+            Case(ObstaclePaidCompletionType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(ObstaclePaidCompletionType)),
+            Case(ObstacleHelpRequestedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(ObstacleHelpRequestedType)),
+            Case(ObstacleCompletedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(ObstacleCompletedType)),
+            Case(ChickensCollectedType, TaskEvents.MapGameContributionEvent.CodecFor(ChickensCollectedType)),
+            Case(PawnTaskType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskType)),
+            Case(SharedTaskMarkedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskMarkedType)),
+            Case(ChickenTaskCollectedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(ChickenTaskCollectedType)),
+            Case(NodeEmojiAddedType, MapGameNodeEmojiAddedEvent.Codec),
+            Case(NodeEmojiRemovedType, MapGameNodeEmojiEvent.CodecFor(NodeEmojiRemovedType)),
+            Case(NodeEmojiCollectedType, MapGameNodeEmojiEvent.CodecFor(NodeEmojiCollectedType)),
+            Case(PawnNeighborhoodTaskUpdatedType, PawnEvents.MapGamePawnNeighborhoodTaskEvent.Codec),
+            Case(EventFlagUpdatedType, MapGameEventFlagEvent.Codec),
+            Case(PawnNotificationUpdatedType, PawnEvents.MapGamePawnNotificationEvent.Codec),
+            Case(PawnDetailsUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnDetailsUpdatedType)),
+            Case(SharedTaskCommitResultType, TaskEvents.MapGameSharedTaskCommitResultEvent.Codec),
+            Case(PawnProfileUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnProfileUpdatedType)),
+            Case(PawnNeighborhoodUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnNeighborhoodUpdatedType)),
+            Case(SanctuaryAnimalCollectedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(SanctuaryAnimalCollectedType)),
+            Case(SanctuaryAnimalsOffloadedType, TaskEvents.MapGameSanctuaryAnimalsOffloadedEvent.Codec),
+            Case(GasStationCollectedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(GasStationCollectedType)),
+            Case(GasStationPurchasedType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(GasStationPurchasedType)),
+            Case(GasStationUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(GasStationUpdatedType)),
+            Case(SanctuaryAnimalsDeliveredType, TaskEvents.MapGameContributionEvent.CodecFor(SanctuaryAnimalsDeliveredType)),
+            Case(EscapedSanctuaryAnimalsRemovedType, TaskEvents.MapGameEscapedSanctuaryAnimalsRemovedEvent.Codec),
+            Case(ProfileType, MapGameProfileEvent.Codec),
+            Case(DataReferenceType, MapGameDataReferenceEvent.Codec),
+        ]
+    );
+
+    private static KeyValuePair<int, ICodec<MapGameEvent>> Case<TEvent>(int type, ICodec<TEvent> codec) where TEvent : MapGameEvent
     {
-        if (!Schemas.TryGetValue(type, out MapGameEventFieldSchema[]? schemas))
-            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Map-game event type {type} is not supported by the native 1.72.84 factory."));
-
-        if (fields.Length != schemas.Length)
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Map-game event type {type} has an invalid field count: {fields.Length}."));
-
-        for (int index = 0; index < schemas.Length; index++)
-        {
-            if (!schemas[index].IsValid(fields.Span[index]))
-                throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Map-game event type {type} field {index} does not match the native schema."));
-        }
-
-        Type = type;
-        Fields = fields.ToArray();
-    }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Fields</c> value.
-    /// </summary>
-    public ReadOnlyMemory<MapGameEventField> Fields { get; }
-
-    /// <summary>
-    /// Gets the <c language="csharp">Type</c> value.
-    /// </summary>
-    public int Type { get; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameEvent Decode(MessageStream stream, ICommandDataResolver? dataResolver)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int type = stream.ReadVarInt();
-
-        if (!Schemas.TryGetValue(type, out MapGameEventFieldSchema[]? schemas))
-            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Map-game event type {type} is not supported by the native 1.72.84 factory."));
-
-        MapGameEventField[] fields = new MapGameEventField[schemas.Length];
-
-        for (int index = 0; index < fields.Length; index++)
-            fields[index] = schemas[index].Decode(stream, dataResolver);
-
-        return new MapGameEvent(type, fields);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Type);
-
-        foreach (MapGameEventField field in Fields.Span)
-            field.Encode(stream);
-    }
-
-    private static Dictionary<int, MapGameEventFieldSchema[]> CreateSchemas()
-    {
-        MapGameEventFieldSchema varInt = new(MapGameEventFieldType.VarInt);
-        MapGameEventFieldSchema boolean = new(MapGameEventFieldType.Boolean);
-        MapGameEventFieldSchema int32Field = new(MapGameEventFieldType.Int32);
-        MapGameEventFieldSchema logicLong = new(MapGameEventFieldType.LongId);
-        MapGameEventFieldSchema optionalLongId = new(MapGameEventFieldType.OptionalLongId);
-        MapGameEventFieldSchema dataReference = new(MapGameEventFieldType.DataReference);
-        MapGameEventFieldSchema optionalPawn = new(MapGameEventFieldType.OptionalPawn);
-        MapGameEventFieldSchema optionalTask = new(MapGameEventFieldType.OptionalTask);
-
-        MapGameEventFieldSchema optionalTaskCollection = new(MapGameEventFieldType.OptionalTaskCollection);
-
-        MapGameEventFieldSchema optionalVarIntArray = new(MapGameEventFieldType.OptionalVarIntArray);
-
-        MapGameEventFieldSchema[] pawnAndTask = [optionalPawn, optionalTask];
-
-        Dictionary<int, MapGameEventFieldSchema[]> schemas = [];
-        AddFirstSchemas();
-        AddRemainingSchemas();
-
-        return schemas;
-
-        void AddFirstSchemas()
-        {
-            schemas[StateSynchronizationType] =
-            [
-                optionalLongId,
-                varInt,
-                new(MapGameEventFieldType.OptionalState),
-                optionalPawn,
-                boolean,
-            ];
-            schemas[PawnMovedType] =
-            [
-                varInt,
-                varInt,
-                varInt,
-                optionalPawn,
-                optionalVarIntArray,
-                optionalVarIntArray,
-                optionalTask,
-                optionalTask,
-                optionalTaskCollection,
-            ];
-            schemas[DumpTaskCompletedType] = pawnAndTask;
-            schemas[key: 5] = [logicLong, varInt, varInt];
-            schemas[PawnTaskExpiredType] = pawnAndTask;
-            schemas[TaskRemovedType] = pawnAndTask;
-            schemas[PawnTaskUpdatedType] = pawnAndTask;
-            schemas[SharedTaskExpiredType] = pawnAndTask;
-            schemas[SharedTaskRemovedType] = pawnAndTask;
-            schemas[SharedTaskUpdatedType] = pawnAndTask;
-            schemas[SharedTaskJoinedType] = pawnAndTask;
-            schemas[SharedTaskCompletedType] = pawnAndTask;
-            schemas[TaskCooldownSkippedType] = [optionalPawn, optionalTask, varInt];
-            schemas[ObstaclePaidCompletionType] = [optionalPawn, optionalTask, varInt];
-            schemas[ObstacleHelpRequestedType] = pawnAndTask;
-            schemas[ObstacleCompletedType] = [optionalPawn, optionalTask, optionalVarIntArray];
-            schemas[ChickensCollectedType] =
-            [
-                optionalLongId,
-                optionalPawn,
-                new(MapGameEventFieldType.DataReference, ExpectedTableId: 219),
-                varInt,
-                varInt,
-            ];
-            schemas[key: 19] = pawnAndTask;
-            schemas[SharedTaskMarkedType] = pawnAndTask;
-        }
-
-        void AddRemainingSchemas()
-        {
-            schemas[ChickenTaskCollectedType] = [optionalPawn, optionalTask, optionalVarIntArray];
-            schemas[NodeEmojiAddedType] = [optionalLongId, varInt, dataReference, int32Field];
-            schemas[NodeEmojiRemovedType] = [optionalLongId, varInt, dataReference];
-            schemas[NodeEmojiCollectedType] = [optionalLongId, varInt, dataReference];
-            schemas[PawnNeighborhoodTaskUpdatedType] = [optionalLongId, varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 162)];
-            schemas[EventFlagUpdatedType] = [varInt, boolean];
-            schemas[PawnNotificationUpdatedType] =
-            [
-                logicLong,
-                varInt,
-                varInt,
-                new(MapGameEventFieldType.DataReference, ExpectedTableId: 226),
-            ];
-            schemas[PawnDetailsUpdatedType] = [optionalPawn];
-            schemas[SharedTaskCommitResultType] =
-            [
-                varInt,
-                optionalPawn,
-                optionalTask,
-                new(MapGameEventFieldType.OptionalDumpTaskState),
-            ];
-            schemas[PawnProfileUpdatedType] = [optionalPawn];
-            schemas[PawnNeighborhoodUpdatedType] = [optionalPawn];
-            schemas[SanctuaryAnimalCollectedType] = [optionalPawn, optionalTask, optionalVarIntArray];
-            schemas[SanctuaryAnimalsOffloadedType] = [varInt, optionalPawn];
-            schemas[GasStationCollectedType] = pawnAndTask;
-            schemas[GasStationPurchasedType] = [optionalPawn, optionalTask, varInt];
-            schemas[GasStationUpdatedType] = pawnAndTask;
-            schemas[SanctuaryAnimalsDeliveredType] =
-            [
-                optionalLongId,
-                optionalPawn,
-                new(MapGameEventFieldType.DataReference, ExpectedTableId: 219),
-                varInt,
-                varInt,
-            ];
-            schemas[EscapedSanctuaryAnimalsRemovedType] = [optionalPawn, optionalTaskCollection];
-            schemas[key: 39] = [varInt, new(MapGameEventFieldType.OptionalProfileData)];
-            schemas[key: 40] = [varInt, new(MapGameEventFieldType.DataReference, ExpectedTableId: 260)];
-        }
+        return new KeyValuePair<int, ICodec<MapGameEvent>>(type, Codecs.Subtype<MapGameEvent, TEvent>(codec));
     }
 }

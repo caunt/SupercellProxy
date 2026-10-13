@@ -1,28 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
 /// <summary>Starts panic movement for the animals in one habitat.</summary>
-public sealed record ScareLivestockCommand(int HabitatGlobalId) : Command
+public sealed record ScareLivestockCommand(int HabitatGlobalId) : CodecCommand<ScareLivestockCommand>, ICommandCodecProvider<ScareLivestockCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ScareLivestockCommandType;
-
-    /// <summary>Decodes the habitat id.</summary>
-    public static ScareLivestockCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadVarInt();
-
-        return new ScareLivestockCommand(id);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(HabitatGlobalId);
-    }
+    public static CommandCodec<ScareLivestockCommand> Codec { get; } = Codecs.Command(
+        type: 6,
+        Codecs.Composite(Codecs.VarInt, static command => command.HabitatGlobalId, static (id) => new ScareLivestockCommand(id))
+    );
 }

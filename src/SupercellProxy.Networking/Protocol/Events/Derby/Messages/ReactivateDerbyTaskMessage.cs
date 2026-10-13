@@ -1,11 +1,42 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Requests task reactivation with the original task entry and retained progress.</summary>
-public sealed record ReactivateDerbyTaskMessage : IMessage
+public sealed record ReactivateDerbyTaskMessage : CodecMessage<ReactivateDerbyTaskMessage>, ICodecProvider<ReactivateDerbyTaskMessage>
 {
+    /// <inheritdoc />
+    public static ICodec<ReactivateDerbyTaskMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.TaskBoardIndex,
+            Codecs.VarInt,
+            static message => message.TaskStatus,
+            Codecs.LongId,
+            static message => message.NeighborhoodId,
+            Codecs.LongId,
+            static message => message.PlayerId,
+            Codecs.Boolean,
+            static message => message.Discarded,
+            Codecs.Optional(DerbyTaskEntry.Codec),
+            static message => message.TaskEntry,
+            Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+            static message => message.Progress,
+            static (taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded, taskEntry, progress) => new ReactivateDerbyTaskMessage
+            {
+                TaskBoardIndex = taskBoardIndex,
+                TaskStatus = taskStatus,
+                NeighborhoodId = neighborhoodId,
+                PlayerId = playerId,
+                Discarded = discarded,
+                TaskEntry = taskEntry,
+                Progress = progress,
+            }
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
+
     /// <summary>Gets the native discard classification of the selected task.</summary>
     public bool Discarded { get; init; }
     /// <summary>Gets the neighborhood identifier.</summary>
@@ -20,41 +51,6 @@ public sealed record ReactivateDerbyTaskMessage : IMessage
     public DerbyTaskEntry? TaskEntry { get; init; }
     /// <summary>Gets the task's current native status.</summary>
     public int TaskStatus { get; init; }
-
-    /// <summary>Decodes the task reactivation request.</summary>
-    public static ReactivateDerbyTaskMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        ReactivateDerbyTaskMessage message = new()
-        {
-            TaskBoardIndex = stream.ReadVarInt(),
-            TaskStatus = stream.ReadVarInt(),
-            NeighborhoodId = stream.ReadLongId(),
-            PlayerId = stream.ReadLongId(),
-            Discarded = stream.ReadBoolean(),
-            TaskEntry = stream.ReadBoolean() ? DerbyTaskEntry.Decode(stream) : null,
-            Progress = stream.ReadArray(static reader => reader.ReadVarInt()),
-        };
-
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the original entry before its retained progress.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(TaskStatus);
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteBoolean(Discarded);
-        stream.WriteBoolean(TaskEntry is not null);
-        TaskEntry?.Encode(stream);
-        stream.WriteArray<int>(Progress, static (writer, value) => writer.WriteVarInt(value));
-    }
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

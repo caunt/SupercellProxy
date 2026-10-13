@@ -1,6 +1,5 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
@@ -40,54 +39,39 @@ public sealed record BuyFromStandResponseMessage(
     int SlotIndex,
     int ContextValue,
     [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId
-) : IMessage
+) : CodecMessage<BuyFromStandResponseMessage>, ICodecProvider<BuyFromStandResponseMessage>
 {
     /// <summary>
     /// Provides the Buyer Update Status value or operation.
     /// </summary>
     public const int BuyerUpdateStatus = 3;
+
     /// <summary>
     /// Provides the Successful Status value or operation.
     /// </summary>
     public const int SuccessfulStatus = 0;
 
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static BuyFromStandResponseMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        BuyFromStandResponseMessage message = new(
-            stream.ReadOptionalLongId(),
-            stream.ReadOptionalLongId(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "Roadside purchase result has trailing data.")
-            : message;
-    }
-
-    /// <summary>
-    /// Provides the To Container value or operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteOptionalLongId(BuyerId);
-        stream.WriteOptionalLongId(HomeOwnerId);
-        stream.WriteVarInt(Status);
-        stream.WriteVarInt(Quantity);
-        stream.WriteVarInt(Price);
-        stream.WriteVarInt(SlotIndex);
-        stream.WriteVarInt(ContextValue);
-        stream.WriteVarInt(ItemGlobalId);
-    }
+    /// <inheritdoc />
+    public static ICodec<BuyFromStandResponseMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.OptionalLongId,
+            static message => message.BuyerId,
+            Codecs.OptionalLongId,
+            static message => message.HomeOwnerId,
+            Codecs.VarInt,
+            static message => message.Status,
+            Codecs.VarInt,
+            static message => message.Quantity,
+            Codecs.VarInt,
+            static message => message.Price,
+            Codecs.VarInt,
+            static message => message.SlotIndex,
+            Codecs.VarInt,
+            static message => message.ContextValue,
+            Codecs.VarInt,
+            static message => message.ItemGlobalId,
+            static (buyerId, homeOwnerId, status, quantity, price, slotIndex, contextValue, itemGlobalId) => new BuyFromStandResponseMessage(buyerId, homeOwnerId, status, quantity, price, slotIndex, contextValue, itemGlobalId)
+        ),
+        trailingDataMessage: "Roadside purchase result has trailing data."
+    );
 }

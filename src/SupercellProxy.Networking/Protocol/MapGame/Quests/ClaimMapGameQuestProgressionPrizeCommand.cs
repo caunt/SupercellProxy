@@ -1,28 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Claims the mystery-box prize for one completed Valley quest-progression milestone.</summary>
-public sealed record ClaimMapGameQuestProgressionPrizeCommand(int ProgressionPrizeGlobalId) : Command
+public sealed record ClaimMapGameQuestProgressionPrizeCommand(int ProgressionPrizeGlobalId) : CodecCommand<ClaimMapGameQuestProgressionPrizeCommand>, ICommandCodecProvider<ClaimMapGameQuestProgressionPrizeCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimMapGameQuestProgressionPrizeCommandType;
-
-    /// <summary>Decodes the progression data reference.</summary>
-    public static ClaimMapGameQuestProgressionPrizeCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadVarInt();
-
-        return new ClaimMapGameQuestProgressionPrizeCommand(id);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(ProgressionPrizeGlobalId);
-    }
+    public static CommandCodec<ClaimMapGameQuestProgressionPrizeCommand> Codec { get; } = Codecs.Command(
+        type: 285,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.ProgressionPrizeGlobalId,
+            static (id) => new ClaimMapGameQuestProgressionPrizeCommand(id)
+        )
+    );
 }

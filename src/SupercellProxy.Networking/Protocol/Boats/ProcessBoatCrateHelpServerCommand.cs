@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
@@ -30,59 +29,63 @@ public sealed record ProcessBoatCrateHelpServerCommand(
     int BonusExperience,
     int RequestValue,
     bool UseDiamonds
-) : ServerCommand
+) : CodecServerCommand<ProcessBoatCrateHelpServerCommand>, ICommandCodecProvider<ProcessBoatCrateHelpServerCommand>
 {
-    /// <summary>Gets the native command type.</summary>
-    public override int Type => CommandRegistry.ProcessBoatCrateHelpServerCommandType;
-
-    /// <summary>Decodes the command-specific fields.</summary>
-    public static ProcessBoatCrateHelpServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId? helperId = stream.ReadOptionalLongId();
-        LongId? homeOwnerId = stream.ReadOptionalLongId();
-        int productDataGlobalId = stream.ReadVarInt();
-        int amount = stream.ReadVarInt();
-        int crateIndex = stream.ReadVarInt();
-        int baseCoins = stream.ReadVarInt();
-        int baseExperience = stream.ReadVarInt();
-        int diamondCost = stream.ReadVarInt();
-        int bonusCoins = stream.ReadVarInt();
-        int bonusExperience = stream.ReadVarInt();
-        int requestValue = stream.ReadVarInt();
-        bool useDiamonds = stream.ReadBoolean();
-
-
-        return new(
-            helperId,
-            homeOwnerId,
-            productDataGlobalId,
-            amount,
-            crateIndex,
-            baseCoins,
-            baseExperience,
-            diamondCost,
-            bonusCoins,
-            bonusExperience,
-            requestValue,
-            useDiamonds
-        );
-    }
-
-    /// <summary>Encodes the unchanged native field order.</summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteOptionalLongId(HelperId);
-        stream.WriteOptionalLongId(HomeOwnerId);
-        stream.WriteVarInt(ProductDataGlobalId);
-        stream.WriteVarInt(Amount);
-        stream.WriteVarInt(CrateIndex);
-        stream.WriteVarInt(BaseCoins);
-        stream.WriteVarInt(BaseExperience);
-        stream.WriteVarInt(DiamondCost);
-        stream.WriteVarInt(BonusCoins);
-        stream.WriteVarInt(BonusExperience);
-        stream.WriteVarInt(RequestValue);
-        stream.WriteBoolean(UseDiamonds);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<ProcessBoatCrateHelpServerCommand> Codec { get; } = Codecs.Command(
+        type: 304,
+        Codecs.Composite(
+            Codecs.OptionalLongId,
+            static command => command.HelperId,
+            Codecs.OptionalLongId,
+            static command => command.HomeOwnerId,
+            Codecs.VarInt,
+            static command => command.ProductDataGlobalId,
+            Codecs.VarInt,
+            static command => command.Amount,
+            Codecs.VarInt,
+            static command => command.CrateIndex,
+            Codecs.VarInt,
+            static command => command.BaseCoins,
+            Codecs.VarInt,
+            static command => command.BaseExperience,
+            Codecs.VarInt,
+            static command => command.DiamondCost,
+            Codecs.VarInt,
+            static command => command.BonusCoins,
+            Codecs.VarInt,
+            static command => command.BonusExperience,
+            Codecs.VarInt,
+            static command => command.RequestValue,
+            Codecs.Boolean,
+            static command => command.UseDiamonds,
+            static (
+                helperId,
+                homeOwnerId,
+                productDataGlobalId,
+                amount,
+                crateIndex,
+                baseCoins,
+                baseExperience,
+                diamondCost,
+                bonusCoins,
+                bonusExperience,
+                requestValue,
+                useDiamonds
+            ) => new ProcessBoatCrateHelpServerCommand(
+                helperId,
+                homeOwnerId,
+                productDataGlobalId,
+                amount,
+                crateIndex,
+                baseCoins,
+                baseExperience,
+                diamondCost,
+                bonusCoins,
+                bonusExperience,
+                requestValue,
+                useDiamonds
+            )
+        )
+    );
 }

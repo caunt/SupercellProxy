@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
@@ -17,29 +16,21 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 /// <param name="FishingSpotGlobalId">The spot's table-96 game-object global id.</param>
 /// <param name="FishGlobalId">The caught fish's table-97 game-object global id.</param>
 /// <param name="BaitGlobalId">The placed bait's data row in the baits table.</param>
-public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlobalId, int FishGlobalId, int BaitGlobalId) : Command
+public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlobalId, int FishGlobalId, int BaitGlobalId) : CodecCommand<CompleteFishingCatchCommand>, ICommandCodecProvider<CompleteFishingCatchCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CompleteFishingCatchCommandType;
-
-    /// <summary>Decodes a value from the supplied protocol payload.</summary>
-    public static CompleteFishingCatchCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        bool caught = stream.ReadBoolean();
-        int fishingSpotGlobalId = stream.ReadVarInt();
-        int fishGlobalId = stream.ReadVarInt();
-        int baitGlobalId = stream.ReadVarInt();
-
-        return new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteBoolean(Caught);
-        stream.WriteVarInt(FishingSpotGlobalId);
-        stream.WriteVarInt(FishGlobalId);
-        stream.WriteVarInt(BaitGlobalId);
-    }
+    public static CommandCodec<CompleteFishingCatchCommand> Codec { get; } = Codecs.Command(
+        type: 110,
+        Codecs.Composite(
+            Codecs.Boolean,
+            static command => command.Caught,
+            Codecs.VarInt,
+            static command => command.FishingSpotGlobalId,
+            Codecs.VarInt,
+            static command => command.FishGlobalId,
+            Codecs.VarInt,
+            static command => command.BaitGlobalId,
+            static (caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId) => new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId)
+        )
+    );
 }

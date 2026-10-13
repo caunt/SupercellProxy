@@ -1,30 +1,26 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Reserves a board task for the player; the server command starts the accepted task.</summary>
-public sealed record TakeDerbyTaskMessage(int TaskBoardIndex, bool RestoreActiveTask, LongId NeighborhoodId, LongId PlayerId) : IMessage
+public sealed record TakeDerbyTaskMessage(int TaskBoardIndex, bool RestoreActiveTask, LongId NeighborhoodId, LongId PlayerId) : CodecMessage<TakeDerbyTaskMessage>, ICodecProvider<TakeDerbyTaskMessage>
 {
-    /// <summary>Decodes the reservation request.</summary>
-    public static TakeDerbyTaskMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        TakeDerbyTaskMessage message = new(stream.ReadVarInt(), stream.ReadBoolean(), stream.ReadLongId(), stream.ReadLongId());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the reservation request in native order.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteBoolean(RestoreActiveTask);
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-    }
+    /// <inheritdoc />
+    public static ICodec<TakeDerbyTaskMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.TaskBoardIndex,
+            Codecs.Boolean,
+            static message => message.RestoreActiveTask,
+            Codecs.LongId,
+            static message => message.NeighborhoodId,
+            Codecs.LongId,
+            static message => message.PlayerId,
+            static (taskBoardIndex, restoreActiveTask, neighborhoodId, playerId) => new TakeDerbyTaskMessage(taskBoardIndex, restoreActiveTask, neighborhoodId, playerId)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

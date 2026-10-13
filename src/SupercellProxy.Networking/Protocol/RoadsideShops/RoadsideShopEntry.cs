@@ -1,5 +1,4 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
@@ -12,8 +11,23 @@ public sealed record RoadsideShopEntry(
     int Price,
     int Quantity,
     [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId
-)
+) : ICodecProvider<RoadsideShopEntry>
 {
+    /// <inheritdoc />
+    public static ICodec<RoadsideShopEntry> Codec { get; } = Codecs.Composite(
+        Codecs.OptionalLongId,
+        static value => value.BuyerId,
+        Codecs.Boolean,
+        static value => value.IsAdvertised,
+        Codecs.VarInt,
+        static value => value.Price,
+        Codecs.VarInt,
+        static value => value.Quantity,
+        Codecs.VarInt,
+        static value => value.ItemGlobalId,
+        static (buyerId, isAdvertised, price, quantity, itemGlobalId) => new RoadsideShopEntry(buyerId, isAdvertised, price, quantity, itemGlobalId)
+    );
+
     /// <summary>
     /// Gets the Has Buyer value.
     /// </summary>
@@ -23,27 +37,4 @@ public sealed record RoadsideShopEntry(
     /// Gets the Is Available value.
     /// </summary>
     public bool IsAvailable => ItemGlobalId is not 0 && Quantity > 0 && !HasBuyer;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RoadsideShopEntry Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadOptionalLongId(), stream.ReadBoolean(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongId(BuyerId);
-        stream.WriteBoolean(IsAdvertised);
-        stream.WriteVarInt(Price);
-        stream.WriteVarInt(Quantity);
-        stream.WriteVarInt(ItemGlobalId);
-    }
 }

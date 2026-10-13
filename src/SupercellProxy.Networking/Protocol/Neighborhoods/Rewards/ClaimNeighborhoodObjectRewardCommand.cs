@@ -1,27 +1,15 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
 /// <summary>Claims a free reward tier from the neighborhood event.</summary>
-public sealed record ClaimNeighborhoodObjectRewardCommand(int TierIndex) : Command
+public sealed record ClaimNeighborhoodObjectRewardCommand(int TierIndex) : CodecCommand<ClaimNeighborhoodObjectRewardCommand>, ICommandCodecProvider<ClaimNeighborhoodObjectRewardCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimNeighborhoodObjectRewardCommandType;
-
-    /// <summary>Decodes the zero-based reward-tier index.</summary>
-    public static ClaimNeighborhoodObjectRewardCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(TierIndex);
-    }
+    public static CommandCodec<ClaimNeighborhoodObjectRewardCommand> Codec { get; } = Codecs.Command(
+        type: 706,
+        Codecs.Composite(Codecs.VarInt, static command => command.TierIndex, static (tierIndex) => new ClaimNeighborhoodObjectRewardCommand(tierIndex)),
+        CommandLayout.MetadataFirst
+    );
 }

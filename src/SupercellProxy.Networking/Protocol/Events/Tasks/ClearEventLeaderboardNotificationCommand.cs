@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
@@ -14,31 +12,17 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 /// <summary>
 /// Defines the Button State contract.
 /// </summary>
-public sealed record ClearEventLeaderboardNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int ButtonState) : Command
+public sealed record ClearEventLeaderboardNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int ButtonState) : CodecCommand<ClearEventLeaderboardNotificationCommand>, ICommandCodecProvider<ClearEventLeaderboardNotificationCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.ClearEventLeaderboardNotificationCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ClearEventLeaderboardNotificationCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int eventId = stream.ReadVarInt();
-        int state = stream.ReadVarInt();
-
-        return new ClearEventLeaderboardNotificationCommand(eventId, state);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(EventId);
-        stream.WriteVarInt(ButtonState);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<ClearEventLeaderboardNotificationCommand> Codec { get; } = Codecs.Command(
+        type: 371,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.EventId,
+            Codecs.VarInt,
+            static command => command.ButtonState,
+            static (eventId, state) => new ClearEventLeaderboardNotificationCommand(eventId, state)
+        )
+    );
 }

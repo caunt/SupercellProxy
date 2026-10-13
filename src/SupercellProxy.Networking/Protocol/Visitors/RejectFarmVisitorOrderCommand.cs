@@ -1,28 +1,18 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Visitors;
 
 /// <summary>Declines a waiting farm visitor's goods offer.</summary>
-public sealed record RejectFarmVisitorOrderCommand(int VisitorGlobalId) : Command
+public sealed record RejectFarmVisitorOrderCommand(int VisitorGlobalId) : CodecCommand<RejectFarmVisitorOrderCommand>, ICommandCodecProvider<RejectFarmVisitorOrderCommand>
 {
-    /// <inheritdoc/>
-    public override int Type => CommandRegistry.RejectFarmVisitorOrderCommandType;
-
-    /// <inheritdoc/>
-    public static RejectFarmVisitorOrderCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int visitorGlobalId = stream.ReadVarInt();
-
-
-        return new RejectFarmVisitorOrderCommand(visitorGlobalId);
-    }
-
-    /// <inheritdoc/>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(VisitorGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RejectFarmVisitorOrderCommand> Codec { get; } = Codecs.Command(
+        type: 43,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.VisitorGlobalId,
+            static (visitorGlobalId) => new RejectFarmVisitorOrderCommand(visitorGlobalId)
+        )
+    );
 }

@@ -8,7 +8,7 @@ using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Client;
 using SupercellProxy.Networking.Captures;
 using SupercellProxy.Networking.Cryptography;
-using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Proxy;

@@ -9,7 +9,7 @@ using SupercellProxy.Networking.Cryptography;
 using SupercellProxy.Networking.Events;
 using SupercellProxy.Networking.Protocol;
 using SupercellProxy.Networking.Protocol.Authentication;
-using SupercellProxy.Networking.Protocol.CommandEncoding;
+using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Homes;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Turns;
@@ -242,11 +242,11 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         return TrafficCapture.PreserveForwardedFrames
             && exception is InvalidDataException or NotSupportedException or EndOfStreamException
-            && id != MessageRegistry.GetId<ClientHelloMessage>()
-            && id != MessageRegistry.GetId<ServerHelloMessage>()
-            && id != MessageRegistry.GetId<LoginMessage>()
-            && id != MessageRegistry.GetId<LoginOkMessage>()
-            && id != MessageRegistry.GetId<LoginFailedMessage>();
+            && id != MessageRegistry.GetId<ClientHelloMessage>(gameVersion: null)
+            && id != MessageRegistry.GetId<ServerHelloMessage>(gameVersion: null)
+            && id != MessageRegistry.GetId<LoginMessage>(gameVersion: null)
+            && id != MessageRegistry.GetId<LoginOkMessage>(gameVersion: null)
+            && id != MessageRegistry.GetId<LoginFailedMessage>(gameVersion: null);
     }
 
     /// <summary>
@@ -364,7 +364,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
                 .ReadContainerAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            if (direction is MessageDirection.Serverbound && container.Id == MessageRegistry.GetId<LoginMessage>())
+            if (direction is MessageDirection.Serverbound && container.Id == MessageRegistry.GetId<LoginMessage>(gameVersion: null))
                 ServerStream.OutboundMessageVersion = container.Version;
 
             await TrafficCapture

@@ -1,7 +1,6 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
+using SupercellProxy.Networking.Protocol.Releases;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
@@ -37,69 +36,49 @@ public sealed record ConstructGameObjectCommand(
     [property: System.Text.Json.Serialization.JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalId,
     [property: System.Text.Json.Serialization.JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalId,
     bool Mirrored
-) : Command
+)
+    : CodecCommand<ConstructGameObjectCommand>, ICommandCodecProvider<ConstructGameObjectCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.ConstructGameObjectCommandType;
-
-    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ConstructGameObjectCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            bool layoutMode = stream.ReadBoolean();
-            int variant = stream.ReadVarInt();
-            int targetDataGlobalId = stream.ReadVarInt();
-            int replacedObjectGlobalId = stream.ReadVarInt();
-            int positionY = stream.ReadVarInt();
-            int positionX = stream.ReadVarInt();
-
-            return new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, stream.ReadBoolean());
-        }
-
-        return new ConstructGameObjectCommand(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadBoolean(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadBoolean()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            stream.WriteBoolean(LayoutMode);
-            stream.WriteVarInt(Variant);
-            stream.WriteVarInt(TargetDataGlobalId);
-            stream.WriteVarInt(ReplacedObjectGlobalId);
-            stream.WriteVarInt(PositionY);
-            stream.WriteVarInt(PositionX);
-            stream.WriteBoolean(Mirrored);
-
-            return;
-        }
-
-        stream.WriteVarInt(PositionX);
-        stream.WriteVarInt(Variant);
-        stream.WriteVarInt(PositionY);
-        stream.WriteBoolean(LayoutMode);
-        stream.WriteVarInt(ReplacedObjectGlobalId);
-        stream.WriteVarInt(TargetDataGlobalId);
-        stream.WriteBoolean(Mirrored);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<ConstructGameObjectCommand> Codec { get; } = Codecs.Command(
+        type: 577,
+        Codecs.Versioned(
+            Release17381.Version,
+            Codecs.Composite(
+                Codecs.Boolean,
+                static command => command.LayoutMode,
+                Codecs.VarInt,
+                static command => command.Variant,
+                Codecs.VarInt,
+                static command => command.TargetDataGlobalId,
+                Codecs.VarInt,
+                static command => command.ReplacedObjectGlobalId,
+                Codecs.VarInt,
+                static command => command.PositionY,
+                Codecs.VarInt,
+                static command => command.PositionX,
+                Codecs.Boolean,
+                static command => command.Mirrored,
+                static (layoutMode, variant, targetDataGlobalId, replacedObjectGlobalId, positionY, positionX, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored)
+            ),
+            Codecs.Composite(
+                Codecs.VarInt,
+                static command => command.PositionX,
+                Codecs.VarInt,
+                static command => command.Variant,
+                Codecs.VarInt,
+                static command => command.PositionY,
+                Codecs.Boolean,
+                static command => command.LayoutMode,
+                Codecs.VarInt,
+                static command => command.ReplacedObjectGlobalId,
+                Codecs.VarInt,
+                static command => command.TargetDataGlobalId,
+                Codecs.Boolean,
+                static command => command.Mirrored,
+                static (positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored)
+            )
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

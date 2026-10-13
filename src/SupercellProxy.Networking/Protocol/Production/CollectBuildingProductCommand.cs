@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Production;
 
@@ -11,28 +9,16 @@ namespace SupercellProxy.Networking.Protocol.Production;
 /// <summary>
 /// Defines the Building Global Id contract.
 /// </summary>
-public sealed record CollectBuildingProductCommand([property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId) : Command
+public sealed record CollectBuildingProductCommand([property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId) : CodecCommand<CollectBuildingProductCommand>, ICommandCodecProvider<CollectBuildingProductCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.CollectBuildingProductCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static CollectBuildingProductCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new CollectBuildingProductCommand(stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(BuildingGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<CollectBuildingProductCommand> Codec { get; } = Codecs.Command(
+        type: 518,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.BuildingGlobalId,
+            static (buildingGlobalId) => new CollectBuildingProductCommand(buildingGlobalId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

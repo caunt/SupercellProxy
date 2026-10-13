@@ -1,12 +1,74 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
 /// <summary>Synchronizes task metadata without reserving another task allowance.</summary>
-public sealed record SynchronizeDerbyTaskServerCommand : ServerCommand
+public sealed record SynchronizeDerbyTaskServerCommand : CodecServerCommand<SynchronizeDerbyTaskServerCommand>, ICommandCodecProvider<SynchronizeDerbyTaskServerCommand>
 {
+    /// <inheritdoc />
+    public static CommandCodec<SynchronizeDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
+        type: 234,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            Codecs.LongId,
+            static command => command.PlayerId,
+            Codecs.VarInt,
+            static command => command.TaskBoardIndex,
+            Codecs.VarInt,
+            static command => command.TaskGlobalId,
+            Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+            static command => command.RequiredQuantities,
+            Codecs.VarInt,
+            static command => command.DurationMinutes,
+            Codecs.VarInt,
+            static command => command.Points,
+            Codecs.Boolean,
+            static command => command.BingoTask,
+            Codecs.Boolean,
+            static command => command.MysteryTask,
+            Codecs.Boolean,
+            static command => command.BlossomTask,
+            Codecs.Boolean,
+            static command => command.ChillDerbyTask,
+            Codecs.Boolean,
+            static command => command.BunnyDerbyTask,
+            Codecs.VarInt,
+            static command => command.ReactivateStatus,
+            static (
+                neighborhoodId,
+                playerId,
+                taskBoardIndex,
+                taskGlobalId,
+                requiredQuantities,
+                durationMinutes,
+                points,
+                bingoTask,
+                mysteryTask,
+                blossomTask,
+                chillDerbyTask,
+                bunnyDerbyTask,
+                reactivateStatus
+            ) => new SynchronizeDerbyTaskServerCommand
+            {
+                NeighborhoodId = neighborhoodId,
+                PlayerId = playerId,
+                TaskBoardIndex = taskBoardIndex,
+                TaskGlobalId = taskGlobalId,
+                RequiredQuantities = requiredQuantities,
+                DurationMinutes = durationMinutes,
+                Points = points,
+                BingoTask = bingoTask,
+                MysteryTask = mysteryTask,
+                BlossomTask = blossomTask,
+                ChillDerbyTask = chillDerbyTask,
+                BunnyDerbyTask = bunnyDerbyTask,
+                ReactivateStatus = reactivateStatus,
+            }
+        )
+    );
+
     /// <summary>Gets whether the task belongs to bingo derby.</summary>
     public bool BingoTask { get; init; }
     /// <summary>Gets whether the task belongs to blossom derby.</summary>
@@ -33,47 +95,4 @@ public sealed record SynchronizeDerbyTaskServerCommand : ServerCommand
     public int TaskBoardIndex { get; init; }
     /// <summary>Gets the task definition identifier.</summary>
     public int TaskGlobalId { get; init; }
-    /// <inheritdoc />
-    public override int Type => CommandRegistry.SynchronizeDerbyTaskServerCommandType;
-
-    /// <summary>Decodes the task metadata before server-command metadata.</summary>
-    public static SynchronizeDerbyTaskServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new()
-        {
-            NeighborhoodId = stream.ReadLongId(),
-            PlayerId = stream.ReadLongId(),
-            TaskBoardIndex = stream.ReadVarInt(),
-            TaskGlobalId = stream.ReadVarInt(),
-            RequiredQuantities = stream.ReadArray(static reader => reader.ReadVarInt()),
-            DurationMinutes = stream.ReadVarInt(),
-            Points = stream.ReadVarInt(),
-            BingoTask = stream.ReadBoolean(),
-            MysteryTask = stream.ReadBoolean(),
-            BlossomTask = stream.ReadBoolean(),
-            ChillDerbyTask = stream.ReadBoolean(),
-            BunnyDerbyTask = stream.ReadBoolean(),
-            ReactivateStatus = stream.ReadVarInt(),
-        };
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(TaskGlobalId);
-        stream.WriteArray<int>(RequiredQuantities, static (writer, value) => writer.WriteVarInt(value));
-        stream.WriteVarInt(DurationMinutes);
-        stream.WriteVarInt(Points);
-        stream.WriteBoolean(BingoTask);
-        stream.WriteBoolean(MysteryTask);
-        stream.WriteBoolean(BlossomTask);
-        stream.WriteBoolean(ChillDerbyTask);
-        stream.WriteBoolean(BunnyDerbyTask);
-        stream.WriteVarInt(ReactivateStatus);
-    }
 }

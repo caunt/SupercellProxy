@@ -1,5 +1,4 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town;
 
@@ -8,47 +7,26 @@ namespace SupercellProxy.Networking.Protocol.Town;
 /// </summary>
 /// <param name="Unknown0">The <c language="csharp">Unknown0</c> value.</param>
 /// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
-/// <param name="Unknown2">The <c language="csharp">Unknown2</c> value.</param>
-/// <param name="UnknownId0">The <c language="csharp">UnknownId0</c> value.</param>
+/// <param name="PassengerGlobalId">The <c language="csharp">PassengerGlobalId</c> value.</param>
+/// <param name="PickupHomeId">The <c language="csharp">PickupHomeId</c> value.</param>
 /// <param name="UnknownId1">The <c language="csharp">UnknownId1</c> value.</param>
-/// <param name="UnknownString0">The <c language="csharp">UnknownString0</c> value.</param>
-public sealed record PickedPassenger(
-    int Unknown0,
-    int Unknown1,
-    int Unknown2,
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId0")] LongId UnknownId0,
-    [property: System.Text.Json.Serialization.JsonPropertyName("UnknownId1")] LongId UnknownId1,
-    string? UnknownString0
-)
+/// <param name="PassengerDocument">The <c language="csharp">PassengerDocument</c> value.</param>
+public sealed record PickedPassenger(int Unknown0, int Unknown1, int PassengerGlobalId, LongId PickupHomeId, LongId UnknownId1, string? PassengerDocument) : ICodecProvider<PickedPassenger>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static PickedPassenger Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadLongId(),
-            stream.ReadLongId(),
-            stream.ReadOptionalString()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(Unknown2);
-        stream.WriteLongId(UnknownId0);
-        stream.WriteLongId(UnknownId1);
-        stream.WriteOptionalString(UnknownString0);
-    }
+    /// <inheritdoc />
+    public static ICodec<PickedPassenger> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Unknown0,
+        Codecs.VarInt,
+        static value => value.Unknown1,
+        Codecs.VarInt,
+        static value => value.PassengerGlobalId,
+        Codecs.LongId,
+        static value => value.PickupHomeId,
+        Codecs.LongId,
+        static value => value.UnknownId1,
+        Codecs.OptionalString,
+        static value => value.PassengerDocument,
+        static (unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument) => new PickedPassenger(unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument)
+    );
 }

@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boosters;
 
@@ -11,29 +10,21 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 /// <param name="DiamondCost">The quoted activation price, zero for a free active slot.</param>
 /// <param name="IsFree">Matches the stored booster slot's IsFree flag.</param>
 /// <param name="Unknown2">Retained native modifier; only false is proven.</param>
-public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int DiamondCost, bool IsFree, bool Unknown2) : Command
+public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int DiamondCost, bool IsFree, bool Unknown2) : CodecCommand<ActivateBoosterCommand>, ICommandCodecProvider<ActivateBoosterCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ActivateBoosterCommandType;
-
-    /// <summary>Decodes a booster activation command.</summary>
-    public static ActivateBoosterCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int boosterDataGlobalId = stream.ReadVarInt();
-        int diamondCost = stream.ReadVarInt();
-        bool isFree = stream.ReadBoolean();
-        bool unknown2 = stream.ReadBoolean();
-
-        return new ActivateBoosterCommand(boosterDataGlobalId, diamondCost, isFree, unknown2);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(BoosterDataGlobalId);
-        stream.WriteVarInt(DiamondCost);
-        stream.WriteBoolean(IsFree);
-        stream.WriteBoolean(Unknown2);
-    }
+    public static CommandCodec<ActivateBoosterCommand> Codec { get; } = Codecs.Command(
+        type: 212,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.BoosterDataGlobalId,
+            Codecs.VarInt,
+            static command => command.DiamondCost,
+            Codecs.Boolean,
+            static command => command.IsFree,
+            Codecs.Boolean,
+            static command => command.Unknown2,
+            static (boosterDataGlobalId, diamondCost, isFree, unknown2) => new ActivateBoosterCommand(boosterDataGlobalId, diamondCost, isFree, unknown2)
+        )
+    );
 }

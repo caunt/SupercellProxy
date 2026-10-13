@@ -1,27 +1,24 @@
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Preserves the board reply's optional six-value supplement.</summary>
-public sealed record DerbyBoardSupplement(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5)
+public sealed record DerbyBoardSupplement(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5) : ICodecProvider<DerbyBoardSupplement>
 {
-    /// <summary>Decodes the six native values.</summary>
-    public static DerbyBoardSupplement Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <summary>Encodes the six native values.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Value0);
-        stream.WriteVarInt(Value1);
-        stream.WriteVarInt(Value2);
-        stream.WriteVarInt(Value3);
-        stream.WriteVarInt(Value4);
-        stream.WriteVarInt(Value5);
-    }
+    /// <inheritdoc />
+    public static ICodec<DerbyBoardSupplement> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Value0,
+        Codecs.VarInt,
+        static value => value.Value1,
+        Codecs.VarInt,
+        static value => value.Value2,
+        Codecs.VarInt,
+        static value => value.Value3,
+        Codecs.VarInt,
+        static value => value.Value4,
+        Codecs.VarInt,
+        static value => value.Value5,
+        static (value0, value1, value2, value3, value4, value5) => new DerbyBoardSupplement(value0, value1, value2, value3, value4, value5)
+    );
 }

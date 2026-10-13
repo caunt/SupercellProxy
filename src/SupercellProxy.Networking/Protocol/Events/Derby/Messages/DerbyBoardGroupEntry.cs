@@ -1,40 +1,30 @@
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Preserves one board group and its associated player identifiers.</summary>
-public sealed record DerbyBoardGroupEntry(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5, int Value6, LongId[] PlayerIds)
+public sealed record DerbyBoardGroupEntry(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5, int Value6, LongId[] PlayerIds) : ICodecProvider<DerbyBoardGroupEntry>
 {
-    /// <summary>Decodes the native counters and player list.</summary>
-    public static DerbyBoardGroupEntry Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadArray(static reader => reader.ReadLongId())
-        );
-    }
-
-    /// <summary>Encodes the native counters and player list.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Value0);
-        stream.WriteVarInt(Value1);
-        stream.WriteVarInt(Value2);
-        stream.WriteVarInt(Value3);
-        stream.WriteVarInt(Value4);
-        stream.WriteVarInt(Value5);
-        stream.WriteVarInt(Value6);
-        stream.WriteArray<LongId>(PlayerIds, static (writer, value) => writer.WriteLongId(value));
-    }
+    /// <inheritdoc />
+    public static ICodec<DerbyBoardGroupEntry> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static value => value.Value0,
+        Codecs.VarInt,
+        static value => value.Value1,
+        Codecs.VarInt,
+        static value => value.Value2,
+        Codecs.VarInt,
+        static value => value.Value3,
+        Codecs.VarInt,
+        static value => value.Value4,
+        Codecs.VarInt,
+        static value => value.Value5,
+        Codecs.VarInt,
+        static value => value.Value6,
+        Codecs.Array(Codecs.LongId, CollectionCount.Bounded),
+        static value => value.PlayerIds,
+        static (value0, value1, value2, value3, value4, value5, value6, playerIds) => new DerbyBoardGroupEntry(value0, value1, value2, value3, value4, value5, value6, playerIds)
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

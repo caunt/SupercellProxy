@@ -1,31 +1,28 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Returns a board-slot speedup result and its actual diamond charge.</summary>
-public sealed record SpeedUpDerbyBoardTaskResponseMessage(LongId NeighborhoodId, LongId PlayerId, int TaskBoardIndex, int DiamondCost, int Status) : IMessage
+public sealed record SpeedUpDerbyBoardTaskResponseMessage(LongId NeighborhoodId, LongId PlayerId, int TaskBoardIndex, int DiamondCost, int Status) : CodecMessage<SpeedUpDerbyBoardTaskResponseMessage>, ICodecProvider<SpeedUpDerbyBoardTaskResponseMessage>
 {
-    /// <summary>Decodes the paid refresh result.</summary>
-    public static SpeedUpDerbyBoardTaskResponseMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        SpeedUpDerbyBoardTaskResponseMessage message = new(stream.ReadLongId(), stream.ReadLongId(), stream.ReadVarInt(), stream.ReadVarInt(), stream.ReadVarInt());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the paid refresh result.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(DiamondCost);
-        stream.WriteVarInt(Status);
-    }
+    /// <inheritdoc />
+    public static ICodec<SpeedUpDerbyBoardTaskResponseMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.LongId,
+            static message => message.NeighborhoodId,
+            Codecs.LongId,
+            static message => message.PlayerId,
+            Codecs.VarInt,
+            static message => message.TaskBoardIndex,
+            Codecs.VarInt,
+            static message => message.DiamondCost,
+            Codecs.VarInt,
+            static message => message.Status,
+            static (neighborhoodId, playerId, taskBoardIndex, diamondCost, status) => new SpeedUpDerbyBoardTaskResponseMessage(neighborhoodId, playerId, taskBoardIndex, diamondCost, status)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

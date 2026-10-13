@@ -1,28 +1,19 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
 /// <summary>Completes a finished Neighborhood Object task in the selected active slot.</summary>
-public sealed record CompleteNeighborhoodObjectTaskCommand(int TaskSlotIndex) : Command
+public sealed record CompleteNeighborhoodObjectTaskCommand(int TaskSlotIndex) : CodecCommand<CompleteNeighborhoodObjectTaskCommand>, ICommandCodecProvider<CompleteNeighborhoodObjectTaskCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CompleteNeighborhoodObjectTaskCommandType;
-
-    /// <summary>Decodes the task slot index.</summary>
-    public static CompleteNeighborhoodObjectTaskCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new CompleteNeighborhoodObjectTaskCommand(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteVarInt(TaskSlotIndex);
-    }
+    public static CommandCodec<CompleteNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(
+        type: 576,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.TaskSlotIndex,
+            static (taskSlotIndex) => new CompleteNeighborhoodObjectTaskCommand(taskSlotIndex)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

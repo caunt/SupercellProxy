@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
@@ -9,55 +8,72 @@ public sealed record JoinNeighborhoodServerCommand(
     LongId NeighborhoodId,
     string? NeighborhoodName,
     bool Created,
-    int BadgeUnknown0,
-    int BadgeUnknown1,
-    int BadgeUnknown2,
+    int BadgeBackground,
+    int BadgePattern,
+    int BadgeSymbol,
     int Source,
     int NextLeagueIndex,
     bool CompleteNeighborhoodTutorials,
-    int Unknown0,
-    int Unknown1,
-    int Unknown2
-) : ServerCommand
+    int ObjectEventId,
+    int ObjectVariantId,
+    int ObjectPoints
+) : CodecServerCommand<JoinNeighborhoodServerCommand>, ICommandCodecProvider<JoinNeighborhoodServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.JoinNeighborhoodServerCommandType;
-
-    /// <summary>Decodes the native membership payload before server-command metadata.</summary>
-    public static JoinNeighborhoodServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(
-            stream.ReadLongId(),
-            stream.ReadOptionalString(),
-            stream.ReadBoolean(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadBoolean(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteOptionalString(NeighborhoodName);
-        stream.WriteBoolean(Created);
-        stream.WriteVarInt(BadgeUnknown0);
-        stream.WriteVarInt(BadgeUnknown1);
-        stream.WriteVarInt(BadgeUnknown2);
-        stream.WriteVarInt(Source);
-        stream.WriteVarInt(NextLeagueIndex);
-        stream.WriteBoolean(CompleteNeighborhoodTutorials);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(Unknown2);
-    }
+    public static CommandCodec<JoinNeighborhoodServerCommand> Codec { get; } = Codecs.Command(
+        type: 134,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            Codecs.OptionalString,
+            static command => command.NeighborhoodName,
+            Codecs.Boolean,
+            static command => command.Created,
+            Codecs.VarInt,
+            static command => command.BadgeBackground,
+            Codecs.VarInt,
+            static command => command.BadgePattern,
+            Codecs.VarInt,
+            static command => command.BadgeSymbol,
+            Codecs.VarInt,
+            static command => command.Source,
+            Codecs.VarInt,
+            static command => command.NextLeagueIndex,
+            Codecs.Boolean,
+            static command => command.CompleteNeighborhoodTutorials,
+            Codecs.VarInt,
+            static command => command.ObjectEventId,
+            Codecs.VarInt,
+            static command => command.ObjectVariantId,
+            Codecs.VarInt,
+            static command => command.ObjectPoints,
+            static (
+                neighborhoodId,
+                neighborhoodName,
+                created,
+                badgeBackground,
+                badgePattern,
+                badgeSymbol,
+                source,
+                nextLeagueIndex,
+                completeNeighborhoodTutorials,
+                objectEventId,
+                objectVariantId,
+                objectPoints
+            ) => new JoinNeighborhoodServerCommand(
+                neighborhoodId,
+                neighborhoodName,
+                created,
+                badgeBackground,
+                badgePattern,
+                badgeSymbol,
+                source,
+                nextLeagueIndex,
+                completeNeighborhoodTutorials,
+                objectEventId,
+                objectVariantId,
+                objectPoints
+            )
+        )
+    );
 }

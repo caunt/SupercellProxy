@@ -1,11 +1,10 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Applies a passenger action such as booking movement or holding the visitor for interaction.</summary>
-public sealed record TownPassengerActionCommand(int PassengerGlobalId, int ActionCode) : Command
+public sealed record TownPassengerActionCommand(int PassengerGlobalId, int ActionCode) : CodecCommand<TownPassengerActionCommand>, ICommandCodecProvider<TownPassengerActionCommand>
 {
     /// <summary>Completes a passenger's personal-train pickup.</summary>
     public const int CompletePersonalTrainPickupAction = 5;
@@ -23,22 +22,14 @@ public sealed record TownPassengerActionCommand(int PassengerGlobalId, int Actio
     public const int ReleaseInteractionAction = 4;
 
     /// <inheritdoc />
-    public override int Type => CommandRegistry.TownPassengerActionCommandType;
-
-    /// <summary>Decodes the passenger and action.</summary>
-    public static TownPassengerActionCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int passenger = stream.ReadVarInt();
-        int action = stream.ReadVarInt();
-
-        return new TownPassengerActionCommand(passenger, action);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(PassengerGlobalId);
-        stream.WriteVarInt(ActionCode);
-    }
+    public static CommandCodec<TownPassengerActionCommand> Codec { get; } = Codecs.Command(
+        type: 140,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.PassengerGlobalId,
+            Codecs.VarInt,
+            static command => command.ActionCode,
+            static (passenger, action) => new TownPassengerActionCommand(passenger, action)
+        )
+    );
 }

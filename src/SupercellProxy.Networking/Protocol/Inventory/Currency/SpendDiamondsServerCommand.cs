@@ -1,27 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Inventory.Currency;
 
 /// <summary>Applies a server-directed diamond debit.</summary>
-public sealed record SpendDiamondsServerCommand(int Amount) : ServerCommand
+public sealed record SpendDiamondsServerCommand(int Amount) : CodecServerCommand<SpendDiamondsServerCommand>, ICommandCodecProvider<SpendDiamondsServerCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.SpendDiamondsServerCommandType;
-
-    /// <summary>Decodes the diamond amount.</summary>
-    public static SpendDiamondsServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Amount);
-    }
+    public static CommandCodec<SpendDiamondsServerCommand> Codec { get; } = Codecs.Command(
+        type: 379,
+        Codecs.Composite(Codecs.VarInt, static command => command.Amount, static (amount) => new SpendDiamondsServerCommand(amount))
+    );
 }

@@ -1,34 +1,32 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Requests the selected waiting passengers from the currently visited Town.</summary>
-public sealed record RequestTownPassengerPickupMessage(int[]? HelpIds) : IMessage
+public sealed record RequestTownPassengerPickupMessage(int[]? HelpIds) : CodecMessage<RequestTownPassengerPickupMessage>, ICodecProvider<RequestTownPassengerPickupMessage>
 {
-    /// <summary>Decodes the nullable list of passenger help identifiers.</summary>
-    public static RequestTownPassengerPickupMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int count = stream.ReadVarInt();
+    private const int MaximumHelpIdCount = 10_000;
 
-        if (count < 0 || count > 10_000) return new(HelpIds: null);
+    /// <inheritdoc />
+    /// <remarks>Native treats a negative count, or one above 10000, as no list and stops reading.</remarks>
+    public static ICodec<RequestTownPassengerPickupMessage> Codec { get; } = Codecs.Create(
+        static stream =>
+        {
+            int count = stream.ReadVarInt();
 
-        int[] ids = new int[count];
+            if (count is < 0 or > MaximumHelpIdCount)
+                return new RequestTownPassengerPickupMessage(HelpIds: null);
 
-        for (int index = 0; index < ids.Length; index++) ids[index] = stream.ReadVarInt();
+            int[] helpIds = new int[count];
 
-        return new(ids);
-    }
+            for (int index = 0; index < helpIds.Length; index++)
+                helpIds[index] = stream.ReadVarInt();
 
-    /// <summary>Encodes the selected passenger identifiers, preserving an absent list.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+            return new RequestTownPassengerPickupMessage(helpIds);
+        },
+        static (stream, message) => HelpIdsCodec.Write(stream, message.HelpIds)
+    );
 
-        if (HelpIds is { } ids)
-            stream.WriteArray(ids, static (output, id) => output.WriteVarInt(id));
-        else
-            stream.WriteVarInt(valueToWrite: -1);
-    }
+    private static ICodec<int[]?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt, CollectionCount.Unbounded);
 }

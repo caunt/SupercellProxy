@@ -1,32 +1,22 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
 /// Delivers a Supercell ID JSON Web Token and its expiration time.
-public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds) : IMessage
+public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds) : CodecMessage<ScidJwtMessage>, ICodecProvider<ScidJwtMessage>
 {
-    /// Decodes a Supercell ID JSON Web Token response.
-    public static ScidJwtMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        ScidJwtMessage message = new(stream.ReadString(), stream.ReadInt64());
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The Supercell ID JWT message has trailing data.")
-            : message;
-    }
-
-    /// Encodes a Supercell ID JSON Web Token response.
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteString(Token);
-        stream.WriteInt64(ExpiresAtUnixTimeSeconds);
-    }
+    /// <inheritdoc />
+    public static ICodec<ScidJwtMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.String,
+            static message => message.Token,
+            Codecs.Int64,
+            static message => message.ExpiresAtUnixTimeSeconds,
+            static (token, expiresAtUnixTimeSeconds) => new ScidJwtMessage(token, expiresAtUnixTimeSeconds)
+        ),
+        trailingDataMessage: "The Supercell ID JWT message has trailing data."
+    );
 
     /// Omits the credential from logs.
     public override string ToString()

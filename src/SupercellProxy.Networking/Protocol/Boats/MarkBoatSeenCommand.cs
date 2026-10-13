@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>
 /// Defines the Mark Boat Seen Command contract.
 /// </summary>
-public sealed record MarkBoatSeenCommand : Command
+public sealed record MarkBoatSeenCommand : CodecCommand<MarkBoatSeenCommand>, ICommandCodecProvider<MarkBoatSeenCommand>
 {
     /// <summary>
     /// Provides the Command Type value or operation.
@@ -22,31 +21,15 @@ public sealed record MarkBoatSeenCommand : Command
         NextBoat = nextBoat;
     }
 
+    /// <inheritdoc />
+    public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(
+        type: 600,
+        Codecs.Composite(Codecs.Boolean, static command => command.NextBoat, static (nextBoat) => new MarkBoatSeenCommand(nextBoat)),
+        CommandLayout.MetadataFirst
+    );
+
     /// <summary>
     /// Gets the Next Boat value.
     /// </summary>
     public bool NextBoat { get; }
-
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MarkBoatSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new MarkBoatSeenCommand(stream.ReadBoolean());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteBoolean(NextBoat);
-    }
 }

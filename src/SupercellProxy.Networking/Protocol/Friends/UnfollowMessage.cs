@@ -1,28 +1,16 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// <summary>Stops following the identified farm.</summary>
-public sealed record UnfollowMessage(LongId HomeId) : IMessage
+public sealed record UnfollowMessage(LongId HomeId) : CodecMessage<UnfollowMessage>, ICodecProvider<UnfollowMessage>
 {
-    /// <summary>Decodes the target farm identifier.</summary>
-    public static UnfollowMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        UnfollowMessage result = new(stream.ReadLongId());
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(message: "The unfollow request has trailing data.")
-            : result;
-    }
-
-    /// <summary>Encodes the target farm identifier.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(HomeId);
-    }
+    /// <inheritdoc />
+    public static ICodec<UnfollowMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(Codecs.LongId, static message => message.HomeId, static (homeId) => new UnfollowMessage(homeId)),
+        trailingDataMessage: "The unfollow request has trailing data."
+    );
 
     /// <summary>Omits the private farm identifier from diagnostics.</summary>
     public override string ToString()

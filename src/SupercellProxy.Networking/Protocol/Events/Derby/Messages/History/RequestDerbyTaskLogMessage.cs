@@ -1,28 +1,22 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.History;
 
 /// <summary>Requests the neighborhood's derby task-log tab.</summary>
-public sealed record RequestDerbyTaskLogMessage(LongId PlayerId, LongId NeighborhoodId) : IMessage
+public sealed record RequestDerbyTaskLogMessage(LongId PlayerId, LongId NeighborhoodId) : CodecMessage<RequestDerbyTaskLogMessage>, ICodecProvider<RequestDerbyTaskLogMessage>
 {
-    /// <summary>Decodes the requesting player and neighborhood.</summary>
-    public static RequestDerbyTaskLogMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        RequestDerbyTaskLogMessage message = new(stream.ReadLongId(), stream.ReadLongId());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the requesting player before the neighborhood.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteLongId(PlayerId);
-        stream.WriteLongId(NeighborhoodId);
-    }
+    /// <inheritdoc />
+    public static ICodec<RequestDerbyTaskLogMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.LongId,
+            static message => message.PlayerId,
+            Codecs.LongId,
+            static message => message.NeighborhoodId,
+            static (playerId, neighborhoodId) => new RequestDerbyTaskLogMessage(playerId, neighborhoodId)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     public override string ToString()

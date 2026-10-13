@@ -1,29 +1,20 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
 /// <summary>Requests a quantity of one item from the player's neighborhood.</summary>
-public sealed record RequestNeighborhoodItemCommand(int ItemGlobalId, int Quantity) : Command
+public sealed record RequestNeighborhoodItemCommand(int ItemGlobalId, int Quantity) : CodecCommand<RequestNeighborhoodItemCommand>, ICommandCodecProvider<RequestNeighborhoodItemCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.RequestNeighborhoodItemCommandType;
-
-    /// <summary>Decodes the item and quantity.</summary>
-    public static RequestNeighborhoodItemCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int item = stream.ReadVarInt();
-        int quantity = stream.ReadVarInt();
-
-        return new RequestNeighborhoodItemCommand(item, quantity);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(ItemGlobalId);
-        stream.WriteVarInt(Quantity);
-    }
+    public static CommandCodec<RequestNeighborhoodItemCommand> Codec { get; } = Codecs.Command(
+        type: 199,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.ItemGlobalId,
+            Codecs.VarInt,
+            static command => command.Quantity,
+            static (item, quantity) => new RequestNeighborhoodItemCommand(item, quantity)
+        )
+    );
 }

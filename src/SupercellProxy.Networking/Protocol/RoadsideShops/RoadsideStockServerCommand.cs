@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
@@ -29,38 +27,23 @@ public sealed record RoadsideStockServerCommand(
     int SlotIndex,
     int Price,
     int Quantity
-) : ServerCommand
+) : CodecServerCommand<RoadsideStockServerCommand>, ICommandCodecProvider<RoadsideStockServerCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.RoadsideStockServerCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RoadsideStockServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId owner = stream.ReadLongId();
-        int item = stream.ReadInt32();
-        int slot = stream.ReadInt32();
-        int price = stream.ReadInt32();
-        int quantity = stream.ReadInt32();
-
-
-        return new RoadsideStockServerCommand(owner, item, slot, price, quantity);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(HomeOwnerId);
-        stream.WriteInt32(ItemGlobalId);
-        stream.WriteInt32(SlotIndex);
-        stream.WriteInt32(Price);
-        stream.WriteInt32(Quantity);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RoadsideStockServerCommand> Codec { get; } = Codecs.Command(
+        type: 244,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.HomeOwnerId,
+            Codecs.Int32,
+            static command => command.ItemGlobalId,
+            Codecs.Int32,
+            static command => command.SlotIndex,
+            Codecs.Int32,
+            static command => command.Price,
+            Codecs.Int32,
+            static command => command.Quantity,
+            static (owner, item, slot, price, quantity) => new RoadsideStockServerCommand(owner, item, slot, price, quantity)
+        )
+    );
 }

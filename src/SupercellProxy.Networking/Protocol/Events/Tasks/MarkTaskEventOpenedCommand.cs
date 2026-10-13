@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
@@ -11,29 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 /// <summary>
 /// Defines the Event Id contract.
 /// </summary>
-public sealed record MarkTaskEventOpenedCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : Command
+public sealed record MarkTaskEventOpenedCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkTaskEventOpenedCommand>, ICommandCodecProvider<MarkTaskEventOpenedCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.MarkTaskEventOpenedCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MarkTaskEventOpenedCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int eventId = stream.ReadVarInt();
-
-        return new MarkTaskEventOpenedCommand(eventId);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(EventId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<MarkTaskEventOpenedCommand> Codec { get; } = Codecs.Command(
+        type: 361,
+        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkTaskEventOpenedCommand(eventId))
+    );
 }

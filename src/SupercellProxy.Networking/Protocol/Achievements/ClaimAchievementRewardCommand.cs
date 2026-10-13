@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Achievements;
 
@@ -11,29 +9,15 @@ namespace SupercellProxy.Networking.Protocol.Achievements;
 /// <summary>
 /// Defines the Achievement Global Id contract.
 /// </summary>
-public sealed record ClaimAchievementRewardCommand([property: System.Text.Json.Serialization.JsonPropertyName("AchievementGlobalId")] int AchievementGlobalId) : Command
+public sealed record ClaimAchievementRewardCommand([property: System.Text.Json.Serialization.JsonPropertyName("AchievementGlobalId")] int AchievementGlobalId) : CodecCommand<ClaimAchievementRewardCommand>, ICommandCodecProvider<ClaimAchievementRewardCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.ClaimAchievementRewardCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ClaimAchievementRewardCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int achievement = stream.ReadVarInt();
-
-        return new ClaimAchievementRewardCommand(achievement);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(AchievementGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<ClaimAchievementRewardCommand> Codec { get; } = Codecs.Command(
+        type: 51,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.AchievementGlobalId,
+            static (achievement) => new ClaimAchievementRewardCommand(achievement)
+        )
+    );
 }

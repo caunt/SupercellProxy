@@ -1,16 +1,22 @@
 using SupercellProxy.Networking.Json;
 using SupercellProxy.Networking.Protocol.Avatars;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
+using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
-
 
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>
 /// Represents the <c language="csharp">OtherHomeDataMessage</c> protocol message.
 /// </summary>
-public record OtherHomeDataMessage : IMessage
+public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecProvider<OtherHomeDataMessage>
 {
+    private const string InvalidTailMessage = "Invalid compressed JSON tail.";
+
+    /// <summary>
+    /// Gets the wire codec. A payload that does not parse is kept whole in <see cref="Fallback"/> with the error in <see cref="DecodeError"/>.
+    /// </summary>
+    public static ICodec<OtherHomeDataMessage> Codec { get; } = Codecs.Create(static stream => FromPayload(stream.ReadToEnd(), stream.GameVersion), static (stream, message) => message.WritePayload(stream));
     /// <summary>
     /// Gets or sets the <c language="csharp">ClientAvatar</c> value.
     /// </summary>
@@ -20,13 +26,18 @@ public record OtherHomeDataMessage : IMessage
     /// Gets or sets the <c language="csharp">CompressedAvatarDataJson</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("CompressedAvatarDataJson")]
-    public Memory<byte>? CompressedAvatarDataDocument { get; init; }
+    public ReadOnlyMemory<byte>? CompressedAvatarDataDocument { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedHomeDataJson</c> value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("CompressedHomeDataJson")]
-    public Memory<byte>? CompressedHomeDataDocument { get; init; }
+    public ReadOnlyMemory<byte>? CompressedHomeDataDocument { get; init; }
+    /// <summary>
+    /// Gets the visited home owner's compressed avatar data document; own homes send none.
+    /// </summary>
+    public ReadOnlyMemory<byte>? CompressedHomeOwnerAvatarDataDocument { get; init; }
+
     /// <summary>
     /// Gets the Decode Error value.
     /// </summary>
@@ -35,7 +46,7 @@ public record OtherHomeDataMessage : IMessage
     /// <summary>
     /// Gets or sets the <c language="csharp">Fallback</c> value.
     /// </summary>
-    public Memory<byte> Fallback { get; init; }
+    public ReadOnlyMemory<byte> Fallback { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">HomeOwnerAvatar</c> value.
@@ -43,20 +54,14 @@ public record OtherHomeDataMessage : IMessage
     public ClientAvatar? HomeOwnerAvatar { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// Gets the server timestamp of the snapshot.
     /// </summary>
-    public int Unknown0 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownCompressedJson</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownCompressedJson")]
-    public Memory<byte>? UnknownCompressedDocument { get; init; }
+    public int ServerTimestamp { get; init; }
 
     /// <summary>
     /// Gets the <c language="csharp">UnknownData</c> value.
     /// </summary>
-    public Memory<byte> UnknownData
+    public ReadOnlyMemory<byte> UnknownData
     {
         get
         {
@@ -75,104 +80,78 @@ public record OtherHomeDataMessage : IMessage
         }
     }
 
+    private static ICodec<OtherHomeDataMessage> Payload => field ??= Codecs.Complete(
+        Codecs.Composite(
+            ClientAvatar.Codec,
+            static message => message.HomeOwnerAvatar ?? throw new InvalidOperationException($"{nameof(HomeOwnerAvatar)} is null."),
+            Codecs.VarInt,
+            static message => message.ServerTimestamp,
+            ClientAvatar.Codec,
+            static message => message.ClientAvatar ?? throw new InvalidOperationException($"{nameof(ClientAvatar)} is null."),
+            CompressedDocumentCodec(),
+            static message => message.CompressedAvatarDataDocument,
+            CompressedDocumentCodec(),
+            static message => message.CompressedHomeOwnerAvatarDataDocument,
+            CompressedDocumentCodec(),
+            static message => message.CompressedHomeDataDocument,
+            static (
+                homeOwnerAvatar,
+                serverTimestamp,
+                clientAvatar,
+                compressedAvatarDataDocument,
+                compressedHomeOwnerAvatarDataDocument,
+                compressedHomeDataDocument
+            ) => new OtherHomeDataMessage
+            {
+                HomeOwnerAvatar = homeOwnerAvatar,
+                ServerTimestamp = serverTimestamp,
+                ClientAvatar = clientAvatar,
+                CompressedAvatarDataDocument = compressedAvatarDataDocument,
+                CompressedHomeOwnerAvatarDataDocument = compressedHomeOwnerAvatarDataDocument,
+                CompressedHomeDataDocument = compressedHomeDataDocument,
+            }
+        ),
+        InvalidTailMessage
+    );
+
     /// <summary>
-    /// Creates a <c language="csharp">OtherHomeDataMessage</c> from the supplied data.
+    /// Parses a visited-home payload, keeping it whole as <see cref="Fallback"/> when it does not parse.
     /// </summary>
-    public static OtherHomeDataMessage Decode(MessageStream stream)
+    internal static OtherHomeDataMessage FromPayload(ReadOnlyMemory<byte> data, Version? gameVersion)
     {
-        ArgumentNullException.ThrowIfNull(stream);
+        MessageStream stream = MessageStream.Create(data);
 
-        return Decode(stream.ReadToEnd(), stream.GameVersion);
-    }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static OtherHomeDataMessage Decode(Memory<byte> data, Version? gameVersion = null)
-    {
-        return TryDecode(data, gameVersion, out OtherHomeDataMessage? message) ? message : message with { Fallback = data };
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        WritePayload(stream);
-    }
-
-    private static bool TryDecode(ReadOnlyMemory<byte> data, Version? gameVersion, out OtherHomeDataMessage message)
-    {
         try
         {
-            MessageStream stream = MessageStream.Create(data);
             stream.GameVersion = gameVersion;
 
-            try
-            {
-                ClientAvatar homeOwnerAvatar = ClientAvatar.Decode(stream);
-                int unknown0 = stream.ReadVarInt();
-                ClientAvatar clientAvatar = ClientAvatar.Decode(stream);
-                Memory<byte>? compressedAvatarDataDocument = stream.ReadOptionalByteArray();
-                Memory<byte>? unknownCompressedDocument = stream.ReadOptionalByteArray();
-                Memory<byte>? compressedHomeDataDocument = stream.ReadOptionalByteArray();
-
-                if (stream.Position != stream.Length || !CompressedDocumentValidator.IsValid(unknownCompressedDocument))
-                    throw new InvalidDataException(message: "Invalid compressed JSON tail.");
-
-                if (!CompressedDocumentValidator.IsValid(compressedAvatarDataDocument))
-                    throw new InvalidDataException(message: "Invalid compressed JSON tail.");
-
-                if (!CompressedDocumentValidator.IsValid(compressedHomeDataDocument))
-                    throw new InvalidDataException(message: "Invalid compressed JSON tail.");
-
-                message = new OtherHomeDataMessage
-                {
-                    HomeOwnerAvatar = homeOwnerAvatar,
-                    Unknown0 = unknown0,
-                    ClientAvatar = clientAvatar,
-                    UnknownCompressedDocument = unknownCompressedDocument,
-                    CompressedAvatarDataDocument = compressedAvatarDataDocument,
-                    CompressedHomeDataDocument = compressedHomeDataDocument,
-                };
-
-                return true;
-            }
-            finally
-            {
-                stream.Dispose();
-            }
+            return Payload.Read(stream);
         }
         catch (Exception exception)
             when (exception is EndOfStreamException or InvalidDataException or ArgumentException or OverflowException)
         {
-            message = new OtherHomeDataMessage { DecodeError = exception };
-
-            return false;
+            return new OtherHomeDataMessage { DecodeError = exception, Fallback = data };
+        }
+        finally
+        {
+            stream.Dispose();
         }
     }
 
-    private void WritePayload(MessageStream stream)
+    private static ICodec<ReadOnlyMemory<byte>?> CompressedDocumentCodec()
     {
-        if (!Fallback.IsEmpty)
-        {
-            stream.Write(Fallback.Span);
+        return Codecs.Map(
+            Codecs.OptionalByteArray,
+            static document => CompressedDocumentValidator.IsValid(document) ? document : throw new InvalidDataException(InvalidTailMessage),
+            static document => document
+        );
+    }
 
-            return;
-        }
-
-        (
-            HomeOwnerAvatar
-            ?? throw new InvalidOperationException($"{nameof(HomeOwnerAvatar)} is null.")
-        ).Encode(stream);
-        stream.WriteVarInt(Unknown0);
-        (
-            ClientAvatar ?? throw new InvalidOperationException($"{nameof(ClientAvatar)} is null.")
-        ).Encode(stream);
-        stream.WriteOptionalByteArray(CompressedAvatarDataDocument);
-        stream.WriteOptionalByteArray(UnknownCompressedDocument);
-        stream.WriteOptionalByteArray(CompressedHomeDataDocument);
+    private void WritePayload(ProtocolEncoder encoder)
+    {
+        if (Fallback.IsEmpty)
+            Payload.Write(encoder, this);
+        else
+            encoder.Write(Fallback.Span);
     }
 }

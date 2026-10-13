@@ -1,17 +1,104 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.ShopEvents;
 
 /// <summary>
 /// <para>One shop event in server command 355.</para>
 /// </summary>
-public sealed record ShopEvent
+public sealed record ShopEvent : ICodecProvider<ShopEvent>
 {
+    /// <inheritdoc />
+    public static ICodec<ShopEvent> Codec { get; } = Codecs.Composite(
+        EventDocument.Codec,
+        static shopEvent => new EventDocument(shopEvent.BinaryData, shopEvent.TextData),
+        Codecs.VarInt,
+        static shopEvent => shopEvent.EventId,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.Version,
+        Codecs.String,
+        static shopEvent => shopEvent.Name,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.EventType,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.StartTime,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.EndTime,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.VisibleTime,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.VisibleEndTime,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.TargetingId,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.VariantId,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.SchedulingType,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.EventGroupId,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.EventTopGroupId,
+        Codecs.VarInt,
+        static shopEvent => shopEvent.ImpressionId,
+        Codecs.String,
+        static shopEvent => shopEvent.Category,
+        static (
+            eventDocument,
+            eventId,
+            version,
+            name,
+            eventType,
+            startTime,
+            endTime,
+            visibleTime,
+            visibleEndTime,
+            targetingId,
+            variantId,
+            schedulingType,
+            eventGroupId,
+            eventTopGroupId,
+            impressionId,
+            category
+        ) => new ShopEvent
+        {
+            BinaryData = eventDocument.BinaryData,
+            TextData = eventDocument.TextData,
+            EventId = eventId,
+            Version = version,
+            Name = name,
+            EventType = eventType,
+            StartTime = startTime,
+            EndTime = endTime,
+            VisibleTime = visibleTime,
+            VisibleEndTime = visibleEndTime,
+            TargetingId = targetingId,
+            VariantId = variantId,
+            SchedulingType = schedulingType,
+            EventGroupId = eventGroupId,
+            EventTopGroupId = eventTopGroupId,
+            ImpressionId = impressionId,
+            Category = category,
+        }
+    );
+
     /// <summary>
     /// Gets or sets the <c language="csharp">BinaryData</c> value.
     /// </summary>
-    public Memory<byte>? BinaryData { get; init; }
+    public ReadOnlyMemory<byte>? BinaryData { get; init; }
+
+    /// <summary>
+    /// Gets or sets the <c language="csharp">TextData</c> value.
+    /// </summary>
+    public string TextData { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the end of the event as a Unix timestamp.
+    /// </summary>
+    public int EndTime { get; init; }
+
+    /// <summary>
+    /// Gets the event group id, or -1 without a group.
+    /// </summary>
+    public int EventGroupId { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">EventId</c> value.
@@ -20,139 +107,85 @@ public sealed record ShopEvent
     public int EventId { get; init; }
 
     /// <summary>
+    /// Gets the top-level event group id, or -1 without a group.
+    /// </summary>
+    public int EventTopGroupId { get; init; }
+
+    /// <summary>
     /// Gets or sets the <c language="csharp">EventType</c> value.
     /// </summary>
     public int EventType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">TextData</c> value.
+    /// Gets the impression id of a targeted event, or -1.
     /// </summary>
-    public string TextData { get; init; } = string.Empty;
+    public int ImpressionId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// Gets the event name.
     /// </summary>
-    public int Unknown0 { get; init; }
+    public string Name { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
+    /// Gets the scheduling type.
     /// </summary>
-    public int Unknown1 { get; init; }
+    public int SchedulingType { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown10</c> value.
+    /// Gets the start of the event as a Unix timestamp.
     /// </summary>
-    public int Unknown10 { get; init; }
+    public int StartTime { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown2</c> value.
+    /// Gets the targeting id.
     /// </summary>
-    public int Unknown2 { get; init; }
+    public int TargetingId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown3</c> value.
+    /// Gets the event category.
     /// </summary>
-    public int Unknown3 { get; init; }
+    public string Category { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown4</c> value.
+    /// Gets the variant id.
     /// </summary>
-    public int Unknown4 { get; init; }
+    public int VariantId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown5</c> value.
+    /// Gets the definition version.
     /// </summary>
-    public int Unknown5 { get; init; }
+    public int Version { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown6</c> value.
+    /// Gets the end of the event's visibility as a Unix timestamp.
     /// </summary>
-    public int Unknown6 { get; init; }
+    public int VisibleEndTime { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown7</c> value.
+    /// Gets the start of the event's visibility as a Unix timestamp.
     /// </summary>
-    public int Unknown7 { get; init; }
+    public int VisibleTime { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown8</c> value.
-    /// </summary>
-    public int Unknown8 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown9</c> value.
-    /// </summary>
-    public int Unknown9 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
-    /// </summary>
-    public string UnknownString0 { get; init; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
-    /// </summary>
-    public string UnknownString1 { get; init; } = string.Empty;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static ShopEvent Decode(MessageStream stream)
+    // Native sends the event definition either as binary data or as text, chosen by the leading flag.
+    private readonly record struct EventDocument(ReadOnlyMemory<byte>? BinaryData, string TextData)
     {
-        ArgumentNullException.ThrowIfNull(stream);
-        bool usesBinaryData = stream.ReadBoolean();
-        Memory<byte> binaryData = usesBinaryData ? stream.ReadByteArray() : null;
-        string textData = usesBinaryData ? string.Empty : stream.ReadString();
-
-        return new ShopEvent
-        {
-            BinaryData = binaryData,
-            TextData = textData,
-            EventId = stream.ReadVarInt(),
-            Unknown0 = stream.ReadVarInt(),
-            UnknownString0 = stream.ReadString(),
-            EventType = stream.ReadVarInt(),
-            Unknown1 = stream.ReadVarInt(),
-            Unknown2 = stream.ReadVarInt(),
-            Unknown3 = stream.ReadVarInt(),
-            Unknown4 = stream.ReadVarInt(),
-            Unknown5 = stream.ReadVarInt(),
-            Unknown6 = stream.ReadVarInt(),
-            Unknown7 = stream.ReadVarInt(),
-            Unknown8 = stream.ReadVarInt(),
-            Unknown9 = stream.ReadVarInt(),
-            Unknown10 = stream.ReadVarInt(),
-            UnknownString1 = stream.ReadString(),
-        };
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteBoolean(BinaryData is not null);
-
-        if (BinaryData is not null)
-            stream.WriteByteArray(BinaryData.Value.Span);
-        else
-            stream.WriteString(TextData);
-
-        stream.WriteVarInt(EventId);
-        stream.WriteVarInt(Unknown0);
-        stream.WriteString(UnknownString0);
-        stream.WriteVarInt(EventType);
-        stream.WriteVarInt(Unknown1);
-        stream.WriteVarInt(Unknown2);
-        stream.WriteVarInt(Unknown3);
-        stream.WriteVarInt(Unknown4);
-        stream.WriteVarInt(Unknown5);
-        stream.WriteVarInt(Unknown6);
-        stream.WriteVarInt(Unknown7);
-        stream.WriteVarInt(Unknown8);
-        stream.WriteVarInt(Unknown9);
-        stream.WriteVarInt(Unknown10);
-        stream.WriteString(UnknownString1);
+        public static ICodec<EventDocument> Codec { get; } = Codecs.Dispatch(
+            Codecs.Boolean,
+            static document => document.BinaryData is not null,
+            [
+                new KeyValuePair<bool, ICodec<EventDocument>>(
+                    key: true,
+                    Codecs.Map(
+                        Codecs.ByteArray,
+                        static binaryData => new EventDocument(binaryData, string.Empty),
+                        static document => document.BinaryData.GetValueOrDefault()
+                    )
+                ),
+                new KeyValuePair<bool, ICodec<EventDocument>>(
+                    key: false,
+                    Codecs.Map(Codecs.String, static textData => new EventDocument(BinaryData: null, textData), static document => document.TextData)
+                ),
+            ]
+        );
     }
 }

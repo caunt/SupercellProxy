@@ -1,36 +1,20 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>
 /// Represents <c language="csharp">AvatarSettings</c>.
 /// </summary>
-public sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool Unknown0)
+public sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool Unknown0) : ICodecProvider<AvatarSettings>
 {
-    private AvatarSettings(int version, ReadOnlySpan<AvatarSetting> entries, bool unknown0)
-        : this(version, entries.ToArray(), unknown0) { }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static AvatarSettings Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int version = stream.ReadVarInt();
-        AvatarSetting[] entries = stream.ReadArray(AvatarSetting.Decode);
-
-        return new AvatarSettings(version, entries.AsSpan(), stream.ReadBoolean());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(Version);
-        stream.WriteArray(Entries, static (valueStream, value) => value.Encode(valueStream));
-        stream.WriteBoolean(Unknown0);
-    }
+    /// <inheritdoc />
+    public static ICodec<AvatarSettings> Codec { get; } = Codecs.Composite(
+        Codecs.VarInt,
+        static settings => settings.Version,
+        Codecs.Array(AvatarSetting.Codec, CollectionCount.Bounded),
+        static settings => settings.Entries,
+        Codecs.Boolean,
+        static settings => settings.Unknown0,
+        static (version, entries, unknown0) => new AvatarSettings(version, entries, unknown0)
+    );
 }

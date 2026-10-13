@@ -1,29 +1,20 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Forestry;
 
 /// <summary>Marks an exhausted plant for clearing, optionally buying its missing tool with coins.</summary>
-public sealed record StartPlantClearingCommand(int PlantId, bool BuyMissingTool) : Command
+public sealed record StartPlantClearingCommand(int PlantId, bool BuyMissingTool) : CodecCommand<StartPlantClearingCommand>, ICommandCodecProvider<StartPlantClearingCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.StartPlantClearingCommandType;
-
-    /// <summary>Decodes the native plant id and coin-purchase flag.</summary>
-    public static StartPlantClearingCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadVarInt();
-        bool buy = stream.ReadBoolean();
-
-        return new(id, buy);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(PlantId);
-        stream.WriteBoolean(BuyMissingTool);
-    }
+    public static CommandCodec<StartPlantClearingCommand> Codec { get; } = Codecs.Command(
+        type: 60,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.PlantId,
+            Codecs.Boolean,
+            static command => command.BuyMissingTool,
+            static (id, buy) => new StartPlantClearingCommand(id, buy)
+        )
+    );
 }

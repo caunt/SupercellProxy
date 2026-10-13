@@ -28,4 +28,4 @@
 - Never add diagnostic suppressions (`#pragma`, `SuppressMessage`, `NoWarn`); fix the code.
 - Use `[LoggerMessage]` for logging.
 - Use concrete types for all JSON serialization and deserialization; no untyped JSON access.
-- Define shared constants once in their authoritative owner. Packet ID mappings belong only in `MessageRegistry`; static game-asset paths belong only in `GameAssetFiles`; consumers must reference those definitions instead of repeating literals or aliases.
+- Define shared constants once in their authoritative owner. Static game-asset paths belong only in `GameAssetFiles`; consumers must reference those definitions instead of repeating literals or aliases.

@@ -1,26 +1,19 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Creatures;
 
 /// <summary>Starts catching an existing seasonal creature.</summary>
-public sealed record CatchCreatureCommand(int CreatureGlobalId) : Command
+public sealed record CatchCreatureCommand(int CreatureGlobalId) : CodecCommand<CatchCreatureCommand>, ICommandCodecProvider<CatchCreatureCommand>
 {
-    /// <summary>Gets the native command id.</summary>
-    public override int Type => CommandRegistry.CatchCreatureCommandType;
-
-    /// <summary>Decodes the creature instance id.</summary>
-    public static CatchCreatureCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt());
-    }
-
-    /// <summary>Encodes the creature instance id.</summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(CreatureGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<CatchCreatureCommand> Codec { get; } = Codecs.Command(
+        type: 669,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.CreatureGlobalId,
+            static (creatureGlobalId) => new CatchCreatureCommand(creatureGlobalId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

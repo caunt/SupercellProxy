@@ -1,6 +1,6 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
+using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Sessions;
-using SupercellProxy.Networking.Transport;
 
 
 namespace SupercellProxy.Networking.Protocol.Authentication;
@@ -8,8 +8,96 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 /// <summary>
 /// Represents the <c language="csharp">LoginMessage</c> protocol message.
 /// </summary>
-public sealed record LoginMessage : IMessage
+public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<LoginMessage>
 {
+    /// <summary>
+    /// Gets the wire codec.
+    /// </summary>
+    public static ICodec<LoginMessage> Codec { get; } = Codecs.Composite(
+        Codecs.LongId,
+        static message => message.AccountId,
+        Codecs.OptionalString,
+        static message => message.PassToken,
+        Codecs.OptionalString,
+        static message => message.ResourceSha,
+        Codecs.Int32,
+        static message => message.LoginVersion,
+        DeviceIdentity.Codec,
+        static message => new DeviceIdentity(
+            message.UniqueDeviceId,
+            message.OpenUniqueDeviceId,
+            message.MacAddress,
+            message.DeviceModel,
+            message.AdvertisingId,
+            message.IsAndroid,
+            message.OsVersion
+        ),
+        Codecs.String,
+        static message => message.UnknownString0,
+        Codecs.String,
+        static message => message.AndroidId,
+        Codecs.String,
+        static message => message.PreferredLanguage,
+        Codecs.String,
+        static message => message.UnknownString1,
+        Codecs.Boolean,
+        static message => message.AdvertisingTrackingEnabled,
+        Codecs.String,
+        static message => message.IdForVendor,
+        Codecs.Enum<AppStore>(Codecs.Int32),
+        static message => message.AppStore,
+        Codecs.Map(
+            Codecs.OptionalByteArray,
+            static compressedData => compressedData is { } data ? SessionTokenData.Decode(data) : null,
+            static sessionToken => sessionToken is null ? null : (ReadOnlyMemory<byte>?)sessionToken.Encode()
+        ),
+        static message => message.SessionToken,
+        Codecs.String,
+        static message => message.StorefrontCountryCode,
+        Codecs.String,
+        static message => message.StorefrontId,
+        static (
+            accountId,
+            passToken,
+            resourceSha,
+            loginVersion,
+            device,
+            unknownString0,
+            androidId,
+            preferredLanguage,
+            unknownString1,
+            advertisingTrackingEnabled,
+            idForVendor,
+            appStore,
+            sessionToken,
+            storefrontCountryCode,
+            storefrontId
+        ) => new LoginMessage
+        {
+            AccountId = accountId,
+            PassToken = passToken,
+            ResourceSha = resourceSha,
+            LoginVersion = loginVersion,
+            UniqueDeviceId = device.UniqueDeviceId,
+            OpenUniqueDeviceId = device.OpenUniqueDeviceId,
+            MacAddress = device.MacAddress,
+            DeviceModel = device.DeviceModel,
+            AdvertisingId = device.AdvertisingId,
+            IsAndroid = device.IsAndroid,
+            OsVersion = device.OsVersion,
+            UnknownString0 = unknownString0,
+            AndroidId = androidId,
+            PreferredLanguage = preferredLanguage,
+            UnknownString1 = unknownString1,
+            AdvertisingTrackingEnabled = advertisingTrackingEnabled,
+            IdForVendor = idForVendor,
+            AppStore = appStore,
+            SessionToken = sessionToken,
+            StorefrontCountryCode = storefrontCountryCode,
+            StorefrontId = storefrontId,
+        }
+    );
+
     /// <summary>
     /// Gets or sets the <c language="csharp">AccountId</c> value.
     /// </summary>
@@ -120,68 +208,33 @@ public sealed record LoginMessage : IMessage
     /// </summary>
     public required string UnknownString1 { get; set; }
 
-    /// <summary>
-    /// Creates a <c language="csharp">LoginMessage</c> from the supplied data.
-    /// </summary>
-    public static LoginMessage Decode(MessageStream stream)
+    // The device identity block, read as one group to keep the field list within a composite.
+    private readonly record struct DeviceIdentity(
+        string? UniqueDeviceId,
+        string? OpenUniqueDeviceId,
+        string? MacAddress,
+        string? DeviceModel,
+        string? AdvertisingId,
+        bool IsAndroid,
+        string? OsVersion
+    )
     {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new LoginMessage
-        {
-            AccountId = stream.ReadLongId(),
-            PassToken = stream.ReadOptionalString(),
-            ResourceSha = stream.ReadOptionalString(),
-            LoginVersion = stream.ReadInt32(),
-            UniqueDeviceId = stream.ReadOptionalString(),
-            OpenUniqueDeviceId = stream.ReadOptionalString(),
-            MacAddress = stream.ReadOptionalString(),
-            DeviceModel = stream.ReadOptionalString(),
-            AdvertisingId = stream.ReadOptionalString(),
-            IsAndroid = stream.ReadBoolean(),
-            OsVersion = stream.ReadOptionalString(),
-            UnknownString0 = stream.ReadString(),
-            AndroidId = stream.ReadString(),
-            PreferredLanguage = stream.ReadString(),
-            UnknownString1 = stream.ReadString(),
-            AdvertisingTrackingEnabled = stream.ReadBoolean(),
-            IdForVendor = stream.ReadString(),
-            AppStore = System.Runtime.CompilerServices.Unsafe.BitCast<int, AppStore>(stream.ReadInt32()),
-            SessionToken = stream.ReadOptionalByteArray() is { } compressedData
-                ? SessionTokenData.Decode(compressedData)
-                : null,
-            StorefrontCountryCode = stream.ReadString(),
-            StorefrontId = stream.ReadString(),
-        };
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteLongId(AccountId);
-        stream.WriteOptionalString(PassToken);
-        stream.WriteOptionalString(ResourceSha);
-        stream.WriteInt32(LoginVersion);
-        stream.WriteOptionalString(UniqueDeviceId);
-        stream.WriteOptionalString(OpenUniqueDeviceId);
-        stream.WriteOptionalString(MacAddress);
-        stream.WriteOptionalString(DeviceModel);
-        stream.WriteOptionalString(AdvertisingId);
-        stream.WriteBoolean(IsAndroid);
-        stream.WriteOptionalString(OsVersion);
-        stream.WriteString(UnknownString0);
-        stream.WriteString(AndroidId);
-        stream.WriteString(PreferredLanguage);
-        stream.WriteString(UnknownString1);
-        stream.WriteBoolean(AdvertisingTrackingEnabled);
-        stream.WriteString(IdForVendor);
-        stream.WriteInt32(System.Runtime.CompilerServices.Unsafe.BitCast<AppStore, int>(AppStore));
-        stream.WriteOptionalByteArray(SessionToken?.Encode().AsMemory());
-        stream.WriteString(StorefrontCountryCode);
-        stream.WriteString(StorefrontId);
+        public static ICodec<DeviceIdentity> Codec { get; } = Codecs.Composite(
+            Codecs.OptionalString,
+            static device => device.UniqueDeviceId,
+            Codecs.OptionalString,
+            static device => device.OpenUniqueDeviceId,
+            Codecs.OptionalString,
+            static device => device.MacAddress,
+            Codecs.OptionalString,
+            static device => device.DeviceModel,
+            Codecs.OptionalString,
+            static device => device.AdvertisingId,
+            Codecs.Boolean,
+            static device => device.IsAndroid,
+            Codecs.OptionalString,
+            static device => device.OsVersion,
+            static (uniqueDeviceId, openUniqueDeviceId, macAddress, deviceModel, advertisingId, isAndroid, osVersion) => new DeviceIdentity(uniqueDeviceId, openUniqueDeviceId, macAddress, deviceModel, advertisingId, isAndroid, osVersion)
+        );
     }
 }

@@ -148,14 +148,14 @@ internal sealed class MessageTransport(MessageStream stream)
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation of setting up encryption.</returns>
     /// <exception cref="InvalidOperationException">Thrown if encryption has already been set up for this connection.</exception>
-    internal async ValueTask SetupEncryptionAsync(RemotePeerRole with, Memory<byte> sessionKey, CancellationToken cancellationToken = default)
+    internal async ValueTask SetupEncryptionAsync(RemotePeerRole with, ReadOnlyMemory<byte> sessionKey, CancellationToken cancellationToken = default)
     {
         if (_encryption is not null)
             throw new InvalidOperationException(message: "Encryption is already set up.");
 
         _encryption = new MessageEncryption(
             with: with,
-            sessionKey: sessionKey,
+            sessionKey: sessionKey.ToArray(),
             localPrivateKey: with is RemotePeerRole.Server
                 ? RandomNumberGenerator.GetBytes(count: 32)
                 : ProxyKeyMaterial.StandardPrivateKey,

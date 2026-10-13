@@ -1,15 +1,38 @@
-using System.Globalization;
-
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Turns;
 
 /// <summary>
 /// <para>OutOfSyncMessage (23626) wire representation.</para>
 /// </summary>
-public sealed record OutOfSyncMessage : IMessage
+public sealed record OutOfSyncMessage : CodecMessage<OutOfSyncMessage>, ICodecProvider<OutOfSyncMessage>
 {
+    /// <inheritdoc />
+    public static ICodec<OutOfSyncMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.Boolean,
+            static message => message.HasDiagnostics,
+            Codecs.OptionalString,
+            static message => message.ServerChecksum,
+            Codecs.OptionalString,
+            static message => message.ClientChecksum,
+            Codecs.OptionalString,
+            static message => message.ServerState,
+            Codecs.OptionalString,
+            static message => message.ClientState,
+            static (hasDiagnostics, serverChecksum, clientChecksum, serverState, clientState) => new OutOfSyncMessage
+            {
+                HasDiagnostics = hasDiagnostics,
+                ServerChecksum = serverChecksum,
+                ClientChecksum = clientChecksum,
+                ServerState = serverState,
+                ClientState = clientState,
+            }
+        ),
+        $"Unexpected trailing {nameof(OutOfSyncMessage)} data."
+    );
+
     /// <summary>
     /// Gets or sets the <c language="csharp">ClientChecksum</c> value.
     /// </summary>
@@ -33,44 +56,4 @@ public sealed record OutOfSyncMessage : IMessage
     /// Gets or sets the <c language="csharp">ServerState</c> value.
     /// </summary>
     public string? ServerState { get; init; }
-
-    /// <summary>
-    /// Creates a <c language="csharp">OutOfSyncMessage</c> from the supplied data.
-    /// </summary>
-    public static OutOfSyncMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        OutOfSyncMessage message = new()
-        {
-            HasDiagnostics = stream.ReadBoolean(),
-            ServerChecksum = stream.ReadOptionalString(),
-            ClientChecksum = stream.ReadOptionalString(),
-            ServerState = stream.ReadOptionalString(),
-            ClientState = stream.ReadOptionalString(),
-        };
-
-        return stream.Position != stream.Length
-            ? throw new InvalidDataException(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"Unexpected trailing {nameof(OutOfSyncMessage)} data at position {stream.Position} of {stream.Length}."
-                )
-            )
-            : message;
-    }
-
-    /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        stream.WriteBoolean(HasDiagnostics);
-        stream.WriteOptionalString(ServerChecksum);
-        stream.WriteOptionalString(ClientChecksum);
-        stream.WriteOptionalString(ServerState);
-        stream.WriteOptionalString(ClientState);
-    }
 }

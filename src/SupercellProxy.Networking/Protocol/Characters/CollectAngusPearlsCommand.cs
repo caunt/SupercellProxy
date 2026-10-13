@@ -1,26 +1,19 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Characters;
 
 /// <summary>Collects Angus's accumulated pearls from the pearl bucket.</summary>
-public sealed record CollectAngusPearlsCommand(int BucketGlobalId) : Command
+public sealed record CollectAngusPearlsCommand(int BucketGlobalId) : CodecCommand<CollectAngusPearlsCommand>, ICommandCodecProvider<CollectAngusPearlsCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.CollectAngusPearlsCommandType;
-
-    /// <summary>Decodes the pearl bucket instance.</summary>
-    public static CollectAngusPearlsCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new CollectAngusPearlsCommand(stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(BucketGlobalId);
-    }
+    public static CommandCodec<CollectAngusPearlsCommand> Codec { get; } = Codecs.Command(
+        type: 701,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.BucketGlobalId,
+            static (bucketGlobalId) => new CollectAngusPearlsCommand(bucketGlobalId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

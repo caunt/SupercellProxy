@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Forestry;
 
@@ -11,29 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 /// <summary>
 /// Defines the Forest Global Id contract.
 /// </summary>
-public sealed record CompleteForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId) : Command
+public sealed record CompleteForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId) : CodecCommand<CompleteForestClearingCommand>, ICommandCodecProvider<CompleteForestClearingCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.CompleteForestClearingCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static CompleteForestClearingCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int forest = stream.ReadVarInt();
-
-        return new CompleteForestClearingCommand(forest);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(ForestGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<CompleteForestClearingCommand> Codec { get; } = Codecs.Command(
+        type: 20,
+        Codecs.Composite(Codecs.VarInt, static command => command.ForestGlobalId, static (forest) => new CompleteForestClearingCommand(forest))
+    );
 }

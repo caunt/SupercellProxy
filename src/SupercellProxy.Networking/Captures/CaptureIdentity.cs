@@ -38,7 +38,7 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
             return retained;
         }
 
-        ushort helloId = MessageRegistry.GetId<ClientHelloMessage>();
+        ushort helloId = MessageRegistry.GetId<ClientHelloMessage>(gameVersion: null);
         string pattern = $"*-incoming-serverbound-{helloId}-*.bin";
         CaptureIdentity? identity = null;
 
@@ -56,7 +56,7 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
 
             using MessageStream stream = MessageStream.Create(frame.AsMemory(start: 7));
 
-            CaptureIdentity candidate = FromHello(ClientHelloMessage.Decode(stream));
+            CaptureIdentity candidate = FromHello(ClientHelloMessage.Codec.Read(stream));
 
             if (identity is not null && identity != candidate)
                 throw new InvalidDataException(message: "The recording contains different client versions or asset fingerprints.");

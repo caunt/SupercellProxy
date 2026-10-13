@@ -1,6 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
@@ -8,27 +7,19 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <param name="GiftKind">The GiftKind value carried by the native command.</param>
 /// <param name="TargetIndex">The TargetIndex value carried by the native command.</param>
 /// <param name="HelperId">The HelperId value carried by the native command.</param>
-public sealed record SendThankYouGiftCommand(int GiftKind, int TargetIndex, LongId HelperId) : Command
+public sealed record SendThankYouGiftCommand(int GiftKind, int TargetIndex, LongId HelperId) : CodecCommand<SendThankYouGiftCommand>, ICommandCodecProvider<SendThankYouGiftCommand>
 {
-    /// <summary>Gets the native command type.</summary>
-    public override int Type => CommandRegistry.SendThankYouGiftCommandType;
-
-    /// <summary>Decodes the command-specific fields.</summary>
-    public static SendThankYouGiftCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int giftKind = stream.ReadVarInt();
-        int targetIndex = stream.ReadVarInt();
-        LongId helperId = stream.ReadLongId();
-
-        return new(giftKind, targetIndex, helperId);
-    }
-
-    /// <summary>Encodes the unchanged native field order.</summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(GiftKind);
-        stream.WriteVarInt(TargetIndex);
-        stream.WriteLongId(HelperId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<SendThankYouGiftCommand> Codec { get; } = Codecs.Command(
+        type: 102,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.GiftKind,
+            Codecs.VarInt,
+            static command => command.TargetIndex,
+            Codecs.LongId,
+            static command => command.HelperId,
+            static (giftKind, targetIndex, helperId) => new SendThankYouGiftCommand(giftKind, targetIndex, helperId)
+        )
+    );
 }

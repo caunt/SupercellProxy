@@ -1,28 +1,14 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
 /// <summary>Taps a registered ambient animal to resume its movement.</summary>
-public sealed record TapAmbientAnimalCommand(int AmbientAnimalGlobalId) : Command
+public sealed record TapAmbientAnimalCommand(int AmbientAnimalGlobalId) : CodecCommand<TapAmbientAnimalCommand>, ICommandCodecProvider<TapAmbientAnimalCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.TapAmbientAnimalCommandType;
-
-    /// <summary>Decodes the runtime animal id.</summary>
-    public static TapAmbientAnimalCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadVarInt();
-
-        return new TapAmbientAnimalCommand(id);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(AmbientAnimalGlobalId);
-    }
+    public static CommandCodec<TapAmbientAnimalCommand> Codec { get; } = Codecs.Command(
+        type: 42,
+        Codecs.Composite(Codecs.VarInt, static command => command.AmbientAnimalGlobalId, static (id) => new TapAmbientAnimalCommand(id))
+    );
 }

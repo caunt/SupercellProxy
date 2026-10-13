@@ -1,27 +1,21 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Gifts;
 
 /// <summary>Claims one reward step from a chain offer.</summary>
-public sealed record ClaimChainOfferStepCommand(int StepIndex, [property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : Command
+public sealed record ClaimChainOfferStepCommand(int StepIndex, [property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : CodecCommand<ClaimChainOfferStepCommand>, ICommandCodecProvider<ClaimChainOfferStepCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimChainOfferStepCommandType;
-
-    /// <summary>Decodes a chain-offer step claim.</summary>
-    public static ClaimChainOfferStepCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new ClaimChainOfferStepCommand(stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(StepIndex);
-        stream.WriteVarInt(EventId);
-    }
+    public static CommandCodec<ClaimChainOfferStepCommand> Codec { get; } = Codecs.Command(
+        type: 691,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.StepIndex,
+            Codecs.VarInt,
+            static command => command.EventId,
+            static (stepIndex, eventId) => new ClaimChainOfferStepCommand(stepIndex, eventId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

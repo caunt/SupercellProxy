@@ -1,28 +1,21 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.ChainOffers;
 
 /// <summary>Acknowledges the introduction for an available chapter of a chain offer.</summary>
-public sealed record AcknowledgeChainOfferChapterIntroCommand(int ChapterIndex, int EventId) : Command
+public sealed record AcknowledgeChainOfferChapterIntroCommand(int ChapterIndex, int EventId) : CodecCommand<AcknowledgeChainOfferChapterIntroCommand>, ICommandCodecProvider<AcknowledgeChainOfferChapterIntroCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.AcknowledgeChainOfferChapterIntroCommandType;
-
-    /// <summary>Decodes the chapter index followed by the event identifier.</summary>
-    public static AcknowledgeChainOfferChapterIntroCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(ChapterIndex);
-        stream.WriteVarInt(EventId);
-    }
+    public static CommandCodec<AcknowledgeChainOfferChapterIntroCommand> Codec { get; } = Codecs.Command(
+        type: 705,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.ChapterIndex,
+            Codecs.VarInt,
+            static command => command.EventId,
+            static (chapterIndex, eventId) => new AcknowledgeChainOfferChapterIntroCommand(chapterIndex, eventId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

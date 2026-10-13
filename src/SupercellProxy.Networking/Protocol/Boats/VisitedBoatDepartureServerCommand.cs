@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
@@ -11,30 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <summary>
 /// Defines the Home Owner Id contract.
 /// </summary>
-public sealed record VisitedBoatDepartureServerCommand([property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId) : ServerCommand
+public sealed record VisitedBoatDepartureServerCommand([property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId) : CodecServerCommand<VisitedBoatDepartureServerCommand>, ICommandCodecProvider<VisitedBoatDepartureServerCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.VisitedBoatDepartureServerCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static VisitedBoatDepartureServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId owner = stream.ReadLongId();
-
-
-        return new VisitedBoatDepartureServerCommand(owner);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(HomeOwnerId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<VisitedBoatDepartureServerCommand> Codec { get; } = Codecs.Command(
+        type: 385,
+        Codecs.Composite(Codecs.LongId, static command => command.HomeOwnerId, static (owner) => new VisitedBoatDepartureServerCommand(owner))
+    );
 }

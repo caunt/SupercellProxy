@@ -1,12 +1,90 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
 /// <summary>Reports the result of taking or reactivating a task and supplies its authoritative goals.</summary>
-public sealed record StartDerbyTaskServerCommand : ServerCommand
+public sealed record StartDerbyTaskServerCommand : CodecServerCommand<StartDerbyTaskServerCommand>, ICommandCodecProvider<StartDerbyTaskServerCommand>
 {
+    /// <inheritdoc />
+    public static CommandCodec<StartDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
+        type: 170,
+        Codecs.Composite(
+            Codecs.LongId,
+            static command => command.NeighborhoodId,
+            Codecs.LongId,
+            static command => command.PlayerId,
+            Codecs.VarInt,
+            static command => command.SelectedTaskBoardIndex,
+            Codecs.VarInt,
+            static command => command.TaskBoardIndex,
+            Codecs.VarInt,
+            static command => command.TaskGlobalId,
+            Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+            static command => command.RequiredQuantities,
+            Codecs.VarInt,
+            static command => command.DurationMinutes,
+            Codecs.VarInt,
+            static command => command.Points,
+            Codecs.VarInt,
+            static command => command.Status,
+            TaskKinds.Codec,
+            static command => new TaskKinds(command.BingoTask, command.MysteryTask, command.BlossomTask, command.ChillDerbyTask, command.BunnyDerbyTask),
+            Codecs.VarInt,
+            static command => command.HotPotatoTaskDataGlobalId,
+            Codecs.VarInt,
+            static command => command.HotPotatoTaskIndex,
+            Codecs.VarInt,
+            static command => command.MaximumTasks,
+            Codecs.VarInt,
+            static command => command.ReactivateStatus,
+            Codecs.Optional(DerbyTaskEntry.Codec),
+            static command => command.Entry,
+            Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+            static command => command.Progress,
+            static (
+                neighborhoodId,
+                playerId,
+                selectedTaskBoardIndex,
+                taskBoardIndex,
+                taskGlobalId,
+                requiredQuantities,
+                durationMinutes,
+                points,
+                status,
+                taskKinds,
+                hotPotatoTaskDataGlobalId,
+                hotPotatoTaskIndex,
+                maximumTasks,
+                reactivateStatus,
+                entry,
+                progress
+            ) => new StartDerbyTaskServerCommand
+            {
+                NeighborhoodId = neighborhoodId,
+                PlayerId = playerId,
+                SelectedTaskBoardIndex = selectedTaskBoardIndex,
+                TaskBoardIndex = taskBoardIndex,
+                TaskGlobalId = taskGlobalId,
+                RequiredQuantities = requiredQuantities,
+                DurationMinutes = durationMinutes,
+                Points = points,
+                Status = status,
+                BingoTask = taskKinds.BingoTask,
+                MysteryTask = taskKinds.MysteryTask,
+                BlossomTask = taskKinds.BlossomTask,
+                ChillDerbyTask = taskKinds.ChillDerbyTask,
+                BunnyDerbyTask = taskKinds.BunnyDerbyTask,
+                HotPotatoTaskDataGlobalId = hotPotatoTaskDataGlobalId,
+                HotPotatoTaskIndex = hotPotatoTaskIndex,
+                MaximumTasks = maximumTasks,
+                ReactivateStatus = reactivateStatus,
+                Entry = entry,
+                Progress = progress,
+            }
+        )
+    );
+
     /// <summary>Gets whether this is a bingo task.</summary>
     public bool BingoTask { get; init; }
     /// <summary>Gets whether this is a blossom task.</summary>
@@ -47,62 +125,22 @@ public sealed record StartDerbyTaskServerCommand : ServerCommand
     public int TaskBoardIndex { get; init; }
     /// <summary>Gets the task definition's global data identifier.</summary>
     public int TaskGlobalId { get; init; }
-    /// <inheritdoc />
-    public override int Type => CommandRegistry.StartDerbyTaskServerCommandType;
 
-    /// <summary>Decodes the reply before its server-command metadata.</summary>
-    public static StartDerbyTaskServerCommand Decode(MessageStream stream, CommandEnvironment environment)
+    // The task kind flags native writes together.
+    private readonly record struct TaskKinds(bool BingoTask, bool MysteryTask, bool BlossomTask, bool ChillDerbyTask, bool BunnyDerbyTask)
     {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new()
-        {
-            NeighborhoodId = stream.ReadLongId(),
-            PlayerId = stream.ReadLongId(),
-            SelectedTaskBoardIndex = stream.ReadVarInt(),
-            TaskBoardIndex = stream.ReadVarInt(),
-            TaskGlobalId = stream.ReadVarInt(),
-            RequiredQuantities = stream.ReadArray(static reader => reader.ReadVarInt()),
-            DurationMinutes = stream.ReadVarInt(),
-            Points = stream.ReadVarInt(),
-            Status = stream.ReadVarInt(),
-            BingoTask = stream.ReadBoolean(),
-            MysteryTask = stream.ReadBoolean(),
-            BlossomTask = stream.ReadBoolean(),
-            ChillDerbyTask = stream.ReadBoolean(),
-            BunnyDerbyTask = stream.ReadBoolean(),
-            HotPotatoTaskDataGlobalId = stream.ReadVarInt(),
-            HotPotatoTaskIndex = stream.ReadVarInt(),
-            MaximumTasks = stream.ReadVarInt(),
-            ReactivateStatus = stream.ReadVarInt(),
-            Entry = stream.ReadBoolean() ? DerbyTaskEntry.Decode(stream) : null,
-            Progress = stream.ReadArray(static reader => reader.ReadVarInt()),
-        };
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteLongId(NeighborhoodId);
-        stream.WriteLongId(PlayerId);
-        stream.WriteVarInt(SelectedTaskBoardIndex);
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(TaskGlobalId);
-        stream.WriteArray<int>(RequiredQuantities, static (writer, value) => writer.WriteVarInt(value));
-        stream.WriteVarInt(DurationMinutes);
-        stream.WriteVarInt(Points);
-        stream.WriteVarInt(Status);
-        stream.WriteBoolean(BingoTask);
-        stream.WriteBoolean(MysteryTask);
-        stream.WriteBoolean(BlossomTask);
-        stream.WriteBoolean(ChillDerbyTask);
-        stream.WriteBoolean(BunnyDerbyTask);
-        stream.WriteVarInt(HotPotatoTaskDataGlobalId);
-        stream.WriteVarInt(HotPotatoTaskIndex);
-        stream.WriteVarInt(MaximumTasks);
-        stream.WriteVarInt(ReactivateStatus);
-        stream.WriteBoolean(Entry is not null);
-        Entry?.Encode(stream);
-        stream.WriteArray<int>(Progress, static (writer, value) => writer.WriteVarInt(value));
+        public static ICodec<TaskKinds> Codec { get; } = Codecs.Composite(
+            Codecs.Boolean,
+            static segment => segment.BingoTask,
+            Codecs.Boolean,
+            static segment => segment.MysteryTask,
+            Codecs.Boolean,
+            static segment => segment.BlossomTask,
+            Codecs.Boolean,
+            static segment => segment.ChillDerbyTask,
+            Codecs.Boolean,
+            static segment => segment.BunnyDerbyTask,
+            static (bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask) => new TaskKinds(bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask)
+        );
     }
 }

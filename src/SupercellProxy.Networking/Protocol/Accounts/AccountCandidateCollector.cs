@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Protocol.Accounts.Binding;
+
 
 namespace SupercellProxy.Networking.Protocol.Accounts;
 

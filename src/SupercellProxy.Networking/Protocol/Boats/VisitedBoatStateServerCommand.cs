@@ -1,7 +1,6 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
+using SupercellProxy.Networking.Protocol.Releases;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
@@ -29,70 +28,49 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 /// <summary>
 /// Defines the State Ticks contract.
 /// </summary>
-public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedState, int OrderIndex, int OwnerHigh, int OwnerLow, int StateDuration, int StateTicks) : ServerCommand
+public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedState, int OrderIndex, int OwnerHigh, int OwnerLow, int StateDuration, int StateTicks)
+    : CodecServerCommand<VisitedBoatStateServerCommand>, ICommandCodecProvider<VisitedBoatStateServerCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.VisitedBoatStateServerCommandType;
-
-    internal static Version ReorderedFieldsVersion { get; } = new(major: 1, minor: 73, build: 81);
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static VisitedBoatStateServerCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            int stateTicks = stream.ReadVarInt();
-            int newState = stream.ReadVarInt();
-            int ownerHigh = stream.ReadVarInt();
-            int stateDuration = stream.ReadVarInt();
-            int orderIndex = stream.ReadVarInt();
-            int expectedState = stream.ReadVarInt();
-            int ownerLow = stream.ReadVarInt();
-
-            return new(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks);
-        }
-
-        return new VisitedBoatStateServerCommand(
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt(),
-            stream.ReadVarInt()
-        );
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        if (stream.GameVersion >= ReorderedFieldsVersion)
-        {
-            stream.WriteVarInt(StateTicks);
-            stream.WriteVarInt(NewState);
-            stream.WriteVarInt(OwnerHigh);
-            stream.WriteVarInt(StateDuration);
-            stream.WriteVarInt(OrderIndex);
-            stream.WriteVarInt(ExpectedState);
-            stream.WriteVarInt(OwnerLow);
-
-            return;
-        }
-
-        stream.WriteVarInt(NewState);
-        stream.WriteVarInt(ExpectedState);
-        stream.WriteVarInt(OrderIndex);
-        stream.WriteVarInt(OwnerHigh);
-        stream.WriteVarInt(OwnerLow);
-        stream.WriteVarInt(StateDuration);
-        stream.WriteVarInt(StateTicks);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<VisitedBoatStateServerCommand> Codec { get; } = Codecs.Command(
+        type: 810,
+        Codecs.Versioned(
+            Release17381.Version,
+            Codecs.Composite(
+                Codecs.VarInt,
+                static command => command.StateTicks,
+                Codecs.VarInt,
+                static command => command.NewState,
+                Codecs.VarInt,
+                static command => command.OwnerHigh,
+                Codecs.VarInt,
+                static command => command.StateDuration,
+                Codecs.VarInt,
+                static command => command.OrderIndex,
+                Codecs.VarInt,
+                static command => command.ExpectedState,
+                Codecs.VarInt,
+                static command => command.OwnerLow,
+                static (stateTicks, newState, ownerHigh, stateDuration, orderIndex, expectedState, ownerLow) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks)
+            ),
+            Codecs.Composite(
+                Codecs.VarInt,
+                static command => command.NewState,
+                Codecs.VarInt,
+                static command => command.ExpectedState,
+                Codecs.VarInt,
+                static command => command.OrderIndex,
+                Codecs.VarInt,
+                static command => command.OwnerHigh,
+                Codecs.VarInt,
+                static command => command.OwnerLow,
+                Codecs.VarInt,
+                static command => command.StateDuration,
+                Codecs.VarInt,
+                static command => command.StateTicks,
+                static (newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks)
+            )
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

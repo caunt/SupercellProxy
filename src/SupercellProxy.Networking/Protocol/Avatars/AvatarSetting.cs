@@ -1,30 +1,18 @@
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>
 /// Represents <c language="csharp">AvatarSetting</c>.
 /// </summary>
-public sealed record AvatarSetting(bool Enabled, int Value)
+public sealed record AvatarSetting(bool Enabled, int Value) : ICodecProvider<AvatarSetting>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static AvatarSetting Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadBoolean(), stream.ReadVarInt());
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteBoolean(Enabled);
-        stream.WriteVarInt(Value);
-    }
+    /// <inheritdoc />
+    public static ICodec<AvatarSetting> Codec { get; } = Codecs.Composite(
+        Codecs.Boolean,
+        static value => value.Enabled,
+        Codecs.VarInt,
+        static value => value.Value,
+        static (enabled, @value) => new AvatarSetting(enabled, value)
+    );
 }

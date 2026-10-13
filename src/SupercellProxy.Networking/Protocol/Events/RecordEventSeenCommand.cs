@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events;
 
@@ -17,33 +15,19 @@ namespace SupercellProxy.Networking.Protocol.Events;
 /// <summary>
 /// Defines the Context1 contract.
 /// </summary>
-public sealed record RecordEventSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int Context0, int Context1) : Command
+public sealed record RecordEventSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int Context0, int Context1) : CodecCommand<RecordEventSeenCommand>, ICommandCodecProvider<RecordEventSeenCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.RecordEventSeenCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static RecordEventSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int id = stream.ReadInt32();
-        int context0 = stream.ReadInt32();
-        int context1 = stream.ReadInt32();
-
-        return new RecordEventSeenCommand(id, context0, context1);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteInt32(EventId);
-        stream.WriteInt32(Context0);
-        stream.WriteInt32(Context1);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RecordEventSeenCommand> Codec { get; } = Codecs.Command(
+        type: 230,
+        Codecs.Composite(
+            Codecs.Int32,
+            static command => command.EventId,
+            Codecs.Int32,
+            static command => command.Context0,
+            Codecs.Int32,
+            static command => command.Context1,
+            static (id, context0, context1) => new RecordEventSeenCommand(id, context0, context1)
+        )
+    );
 }

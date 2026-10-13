@@ -1,6 +1,5 @@
 using SupercellProxy.Networking.Protocol.Inventory;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
@@ -48,54 +47,28 @@ public sealed record MapGameParticipant(
     int[]? OptionalValues,
     [property: System.Text.Json.Serialization.JsonPropertyName("DataId")] int DataId,
     DataReferenceValue[] Entries
-)
+) : ICodecProvider<MapGameParticipant>
 {
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MapGameParticipant Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        LongId? id0 = stream.ReadOptionalLongId();
-        LongId? id1 = stream.ReadOptionalLongId();
-        int[] values = stream.ReadVarIntArray(count: 5);
-        int[] route = stream.ReadArray(static input => input.ReadVarInt());
-        int[] tasks = stream.ReadArray(static input => input.ReadVarInt());
-        bool namePresent = stream.ReadBoolean();
-        string? name = namePresent ? stream.ReadOptionalString() : null;
-        int[]? optional = stream.ReadBoolean() ? stream.ReadVarIntArray(count: 3) : null;
-
-        return new MapGameParticipant(id0, id1, values, route, tasks, namePresent, name, optional, stream.ReadVarInt(), stream.ReadArray(DataReferenceValue.Decode));
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteOptionalLongId(Id0);
-        stream.WriteOptionalLongId(Id1);
-
-        foreach (int value in Values)
-            stream.WriteVarInt(value);
-
-        stream.WriteArray(RouteValues, static (output, value) => output.WriteVarInt(value));
-        stream.WriteArray(TaskDataIds, static (output, value) => output.WriteVarInt(value));
-        stream.WriteBoolean(NamePresent);
-
-        if (NamePresent)
-            stream.WriteOptionalString(Name);
-
-        stream.WriteBoolean(OptionalValues is not null);
-
-        if (OptionalValues is { } values)
-        {
-            foreach (int value in values)
-                stream.WriteVarInt(value);
-        }
-
-        stream.WriteVarInt(DataId);
-        stream.WriteArray(Entries, static (output, value) => value.Encode(output));
-    }
+    /// <inheritdoc />
+    public static ICodec<MapGameParticipant> Codec { get; } = Codecs.Composite(
+        Codecs.OptionalLongId,
+        static participant => participant.Id0,
+        Codecs.OptionalLongId,
+        static participant => participant.Id1,
+        Codecs.FixedArray(Codecs.VarInt, length: 5),
+        static participant => participant.Values,
+        Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+        static participant => participant.RouteValues,
+        Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+        static participant => participant.TaskDataIds,
+        Codecs.Flagged(Codecs.Present(Codecs.OptionalString), absent: default, static name => name.IsPresent),
+        static participant => new Presence<string?>(participant.NamePresent, participant.Name),
+        Codecs.Optional(Codecs.FixedArray(Codecs.VarInt, length: 3)),
+        static participant => participant.OptionalValues,
+        Codecs.VarInt,
+        static participant => participant.DataId,
+        Codecs.Array(DataReferenceValue.Codec, CollectionCount.Bounded),
+        static participant => participant.Entries,
+        static (id0, id1, values, routeValues, taskDataIds, name, optionalValues, dataId, entries) => new MapGameParticipant(id0, id1, values, routeValues, taskDataIds, name.IsPresent, name.Value, optionalValues, dataId, entries)
+    );
 }

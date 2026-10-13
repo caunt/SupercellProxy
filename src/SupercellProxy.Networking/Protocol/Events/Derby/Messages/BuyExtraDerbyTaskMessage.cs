@@ -1,26 +1,20 @@
 using SupercellProxy.Networking.Protocol.MessageEncoding;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 
 /// <summary>Buys an additional task using the offer value received with the board.</summary>
-public sealed record BuyExtraDerbyTaskMessage(int OfferValue, int DiamondCost) : IMessage
+public sealed record BuyExtraDerbyTaskMessage(int OfferValue, int DiamondCost) : CodecMessage<BuyExtraDerbyTaskMessage>, ICodecProvider<BuyExtraDerbyTaskMessage>
 {
-    /// <summary>Decodes the board offer and quoted diamond price.</summary>
-    public static BuyExtraDerbyTaskMessage Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        BuyExtraDerbyTaskMessage message = new(stream.ReadVarInt(), stream.ReadVarInt());
-        DerbyMessageCodec.RequireEnd(stream);
-
-        return message;
-    }
-
-    /// <summary>Encodes the additional-task purchase request.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteVarInt(OfferValue);
-        stream.WriteVarInt(DiamondCost);
-    }
+    /// <inheritdoc />
+    public static ICodec<BuyExtraDerbyTaskMessage> Codec { get; } = Codecs.Complete(
+        Codecs.Composite(
+            Codecs.VarInt,
+            static message => message.OfferValue,
+            Codecs.VarInt,
+            static message => message.DiamondCost,
+            static (offerValue, diamondCost) => new BuyExtraDerbyTaskMessage(offerValue, diamondCost)
+        ),
+        trailingDataMessage: "The derby message has trailing data."
+    );
 }

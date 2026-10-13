@@ -1,65 +1,64 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding.CollectionFields;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameGasStationTaskStatePayload</c>.
+/// A gas station task state, saved natively with the keys <c>FreeFuel</c>, <c>FuelCollected</c>, <c>DiamondPrice</c> and <c>FuelData</c>.
 /// </summary>
-public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
+public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameGasStationTaskStatePayload>
 {
+    /// <summary>
+    /// The native <c>TaskType</c> name of this payload.
+    /// </summary>
+    internal const string NativeTaskType = "Gas Station";
+
     /// <summary>
     /// Initializes a new <see cref="MapGameGasStationTaskStatePayload"/> instance.
     /// </summary>
-    public MapGameGasStationTaskStatePayload(bool unknownBoolean0, bool unknownBoolean1, int unknown0, ReadOnlyMemory<CommandDataReferenceVarIntPair>? optionalValues)
+    public MapGameGasStationTaskStatePayload(bool freeFuel, bool fuelCollected, int diamondPrice, ReadOnlyMemory<CommandDataReferenceVarIntPair>? fuelData)
     {
-        UnknownBoolean0 = unknownBoolean0;
-        UnknownBoolean1 = unknownBoolean1;
-        Unknown0 = unknown0;
-        OptionalValues = optionalValues is null
+        FreeFuel = freeFuel;
+        FuelCollected = fuelCollected;
+        DiamondPrice = diamondPrice;
+        FuelData = fuelData is null
             ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)optionalValues.Value.ToArray();
+            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)fuelData.Value.ToArray();
     }
 
-    /// <summary>
-    /// Gets the <c language="csharp">OptionalValues</c> value.
-    /// </summary>
-    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? OptionalValues { get; }
+    /// <inheritdoc />
+    public static ICodec<MapGameGasStationTaskStatePayload> Codec { get; } = Codecs.Composite(
+        Codecs.Boolean,
+        static value => value.FreeFuel,
+        Codecs.Boolean,
+        static value => value.FuelCollected,
+        Codecs.VarInt,
+        static value => value.DiamondPrice,
+        Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
+        static value => value.FuelData,
+        static (freeFuel, fuelCollected, diamondPrice, fuelData) => new MapGameGasStationTaskStatePayload(freeFuel, fuelCollected, diamondPrice, fuelData)
+    );
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
+    /// Gets the diamond price of buying the fuel.
     /// </summary>
-    public int Unknown0 { get; }
+    public int DiamondPrice { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownBoolean0</c> value.
+    /// Gets a value indicating whether the fuel is free.
     /// </summary>
-    public bool UnknownBoolean0 { get; }
+    public bool FreeFuel { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownBoolean1</c> value.
+    /// Gets a value indicating whether the fuel was collected.
     /// </summary>
-    public bool UnknownBoolean1 { get; init; }
+    public bool FuelCollected { get; init; }
 
     /// <summary>
-    /// Decodes a value from the supplied protocol payload.
+    /// Gets the fuel the station grants, or <see langword="null"/> before it is generated.
     /// </summary>
-    public static MapGameGasStationTaskStatePayload Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
+    public ReadOnlyMemory<CommandDataReferenceVarIntPair>? FuelData { get; }
 
-        return new MapGameGasStationTaskStatePayload(stream.ReadBoolean(), stream.ReadBoolean(), stream.ReadVarInt(), MapGameFieldCodec.ReadOptionalDataReferenceVarIntPairs(stream));
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream)
-    {
-        stream.WriteBoolean(UnknownBoolean0);
-        stream.WriteBoolean(UnknownBoolean1);
-        stream.WriteVarInt(Unknown0);
-        MapGameFieldCodec.WriteOptionalDataReferenceVarIntPairs(stream, OptionalValues);
-    }
+    /// <inheritdoc />
+    public override string TaskType => NativeTaskType;
 }

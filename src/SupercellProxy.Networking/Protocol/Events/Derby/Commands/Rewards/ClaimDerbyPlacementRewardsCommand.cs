@@ -1,20 +1,11 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 
 /// <summary>Claims the previous derby's podium rewards and finishes its presentation.</summary>
-public sealed record ClaimDerbyPlacementRewardsCommand : Command
+public sealed record ClaimDerbyPlacementRewardsCommand : CodecCommand<ClaimDerbyPlacementRewardsCommand>, ICommandCodecProvider<ClaimDerbyPlacementRewardsCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimDerbyPlacementRewardsCommandType;
-    /// <summary>Decodes the command without additional payload.</summary>
-    public static ClaimDerbyPlacementRewardsCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        return new();
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment) { }
+    public static CommandCodec<ClaimDerbyPlacementRewardsCommand> Codec { get; } = Codecs.Command(type: 508, Codecs.Unit(static () => new ClaimDerbyPlacementRewardsCommand()), CommandLayout.MetadataFirst);
 }

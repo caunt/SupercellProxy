@@ -1,13 +1,12 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
 /// <summary>
 /// Defines the Spawn Ambient Animal Command contract.
 /// </summary>
-public sealed record SpawnAmbientAnimalCommand : Command
+public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimalCommand>, ICommandCodecProvider<SpawnAmbientAnimalCommand>
 {
     /// <summary>
     /// Provides the Command Type value or operation.
@@ -26,6 +25,26 @@ public sealed record SpawnAmbientAnimalCommand : Command
         DestinationY = destinationY;
         NotifyListener = notifyListener;
     }
+
+    /// <inheritdoc />
+    public static CommandCodec<SpawnAmbientAnimalCommand> Codec { get; } = Codecs.Command(
+        type: 50,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.Behavior,
+            Codecs.VarInt,
+            static command => command.HorizontalCoordinate,
+            Codecs.VarInt,
+            static command => command.VerticalCoordinate,
+            Codecs.VarInt,
+            static command => command.DestinationX,
+            Codecs.VarInt,
+            static command => command.DestinationY,
+            Codecs.Boolean,
+            static command => command.NotifyListener,
+            static (behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener) => new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener)
+        )
+    );
 
     /// <summary>
     /// Gets the Behavior value.
@@ -54,42 +73,8 @@ public sealed record SpawnAmbientAnimalCommand : Command
     public bool NotifyListener { get; }
 
     /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandType;
-
-    /// <summary>
     /// Gets the Y value.
     /// </summary>
     [System.Text.Json.Serialization.JsonPropertyName("Y")]
     public int VerticalCoordinate { get; }
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static SpawnAmbientAnimalCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int behavior = stream.ReadVarInt();
-        int horizontalCoordinate = stream.ReadVarInt();
-        int verticalCoordinate = stream.ReadVarInt();
-        int destinationX = stream.ReadVarInt();
-        int destinationY = stream.ReadVarInt();
-        bool notifyListener = stream.ReadBoolean();
-
-        return new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(Behavior);
-        stream.WriteVarInt(HorizontalCoordinate);
-        stream.WriteVarInt(VerticalCoordinate);
-        stream.WriteVarInt(DestinationX);
-        stream.WriteVarInt(DestinationY);
-        stream.WriteBoolean(NotifyListener);
-    }
 }

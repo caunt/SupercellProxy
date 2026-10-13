@@ -1,28 +1,22 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 
 /// <summary>Records leaderboard credit or submits a completed task identified by its board slot and definition.</summary>
-public sealed record ResolveCompletedDerbyTaskCommand(int TaskBoardIndex, int TaskGlobalId, DerbyTaskCompletionAction Action) : Command
+public sealed record ResolveCompletedDerbyTaskCommand(int TaskBoardIndex, int TaskGlobalId, DerbyTaskCompletionAction Action) : CodecCommand<ResolveCompletedDerbyTaskCommand>, ICommandCodecProvider<ResolveCompletedDerbyTaskCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ResolveCompletedDerbyTaskCommandType;
-
-    /// <summary>Decodes the task identity and completion stage before the command metadata.</summary>
-    public static ResolveCompletedDerbyTaskCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt(), stream.ReadVarInt(), (DerbyTaskCompletionAction)stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(TaskBoardIndex);
-        stream.WriteVarInt(TaskGlobalId);
-        stream.WriteVarInt((int)Action);
-    }
+    public static CommandCodec<ResolveCompletedDerbyTaskCommand> Codec { get; } = Codecs.Command(
+        type: 169,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.TaskBoardIndex,
+            Codecs.VarInt,
+            static command => command.TaskGlobalId,
+            Codecs.Enum<DerbyTaskCompletionAction>(Codecs.VarInt),
+            static command => command.Action,
+            static (taskBoardIndex, taskGlobalId, action) => new ResolveCompletedDerbyTaskCommand(taskBoardIndex, taskGlobalId, action)
+        )
+    );
 }

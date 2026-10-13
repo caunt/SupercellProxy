@@ -1,7 +1,5 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
@@ -11,29 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 /// <summary>
 /// Defines the Order Table Global Id contract.
 /// </summary>
-public sealed record MarkTruckOrdersSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("OrderTableGlobalId")] int OrderTableGlobalId) : Command
+public sealed record MarkTruckOrdersSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("OrderTableGlobalId")] int OrderTableGlobalId) : CodecCommand<MarkTruckOrdersSeenCommand>, ICommandCodecProvider<MarkTruckOrdersSeenCommand>
 {
-    /// <summary>
-    /// Gets the Type value.
-    /// </summary>
-    public override int Type => CommandRegistry.MarkTruckOrdersSeenCommandType;
-
-    /// <summary>
-    /// Decodes a value from the supplied protocol payload.
-    /// </summary>
-    public static MarkTruckOrdersSeenCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int table = stream.ReadVarInt();
-
-        return new MarkTruckOrdersSeenCommand(table);
-    }
-
-    /// <summary>
-    /// Encodes this value using the selected wire format.
-    /// </summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(OrderTableGlobalId);
-    }
+    /// <inheritdoc />
+    public static CommandCodec<MarkTruckOrdersSeenCommand> Codec { get; } = Codecs.Command(
+        type: 26,
+        Codecs.Composite(Codecs.VarInt, static command => command.OrderTableGlobalId, static (table) => new MarkTruckOrdersSeenCommand(table))
+    );
 }

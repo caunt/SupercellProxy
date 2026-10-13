@@ -1,10 +1,29 @@
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 
 /// <summary>One featured decoration design and its voting identity.</summary>
-public sealed record FeaturingDesignEntry
+public sealed record FeaturingDesignEntry : ICodecProvider<FeaturingDesignEntry>
 {
+    /// <inheritdoc />
+    public static ICodec<FeaturingDesignEntry> Codec { get; } = Codecs.Composite(
+        Codecs.String,
+        static value => value.FarmName,
+        Codecs.OptionalValue(Codecs.ByteArray),
+        static value => value.EncodedDesign,
+        Codecs.VarInt,
+        static value => value.ChallengesComplete,
+        Codecs.VarInt,
+        static value => value.RnfLikes,
+        Codecs.VarInt,
+        static value => value.League,
+        Codecs.OptionalLongId,
+        static value => value.AvatarId,
+        Codecs.VarInt,
+        static value => value.FeaturingGroup,
+        static (farmName, design, challengesComplete, rnfLikes, league, avatarId, featuringGroup) => new FeaturingDesignEntry { FarmName = farmName, EncodedDesign = design, ChallengesComplete = challengesComplete, RnfLikes = rnfLikes, League = league, AvatarId = avatarId, FeaturingGroup = featuringGroup }
+    );
+
     /// <summary>Gets the candidate's avatar identity, when supplied.</summary>
     public LongId? AvatarId { get; init; }
 
@@ -25,48 +44,4 @@ public sealed record FeaturingDesignEntry
 
     /// <summary>Gets the saved RNF like count.</summary>
     public int RnfLikes { get; init; }
-
-    /// <summary>Decodes one featured design entry.</summary>
-    public static FeaturingDesignEntry Decode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        string farmName = stream.ReadString();
-        ReadOnlyMemory<byte>? design = stream.ReadBoolean() ? stream.ReadByteArray() : null;
-        int challengesComplete = stream.ReadVarInt();
-        int rnfLikes = stream.ReadVarInt();
-        int league = stream.ReadVarInt();
-        LongId? avatarId = stream.ReadBoolean() ? stream.ReadLongId() : null;
-
-        return new FeaturingDesignEntry
-        {
-            FarmName = farmName,
-            EncodedDesign = design,
-            ChallengesComplete = challengesComplete,
-            RnfLikes = rnfLikes,
-            League = league,
-            AvatarId = avatarId,
-            FeaturingGroup = stream.ReadVarInt(),
-        };
-    }
-
-    /// <summary>Encodes one featured design entry.</summary>
-    public void Encode(MessageStream stream)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        stream.WriteString(FarmName);
-        stream.WriteBoolean(EncodedDesign is not null);
-
-        if (EncodedDesign is { } design)
-            stream.WriteByteArray(design.Span);
-
-        stream.WriteVarInt(ChallengesComplete);
-        stream.WriteVarInt(RnfLikes);
-        stream.WriteVarInt(League);
-        stream.WriteBoolean(AvatarId is not null);
-
-        if (AvatarId is { } avatarId)
-            stream.WriteLongId(avatarId);
-
-        stream.WriteVarInt(FeaturingGroup);
-    }
 }

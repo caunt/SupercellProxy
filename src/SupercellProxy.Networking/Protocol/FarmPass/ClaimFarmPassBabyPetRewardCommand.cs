@@ -1,30 +1,20 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
-
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
 
 /// <summary>Claims the level's free or premium Farm Pass baby-pet reward group.</summary>
-public sealed record ClaimFarmPassBabyPetRewardCommand(int LevelIndex, bool Premium) : Command
+public sealed record ClaimFarmPassBabyPetRewardCommand(int LevelIndex, bool Premium) : CodecCommand<ClaimFarmPassBabyPetRewardCommand>, ICommandCodecProvider<ClaimFarmPassBabyPetRewardCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.ClaimFarmPassBabyPetRewardCommandType;
-
-    /// <summary>Decodes a Farm Pass baby-pet reward claim.</summary>
-    public static ClaimFarmPassBabyPetRewardCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int level = stream.ReadVarInt();
-        bool premium = stream.ReadBoolean();
-
-        return new ClaimFarmPassBabyPetRewardCommand(level, premium);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(LevelIndex);
-        stream.WriteBoolean(Premium);
-    }
+    public static CommandCodec<ClaimFarmPassBabyPetRewardCommand> Codec { get; } = Codecs.Command(
+        type: 346,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.LevelIndex,
+            Codecs.Boolean,
+            static command => command.Premium,
+            static (level, premium) => new ClaimFarmPassBabyPetRewardCommand(level, premium)
+        )
+    );
 }

@@ -1,27 +1,21 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Fishing.Molluscs;
 
 /// <summary>Gives Angus one stored mollusc to open for meat and possible bonus pearls.</summary>
-public sealed record OpenMolluscCommand(int MolluscDataId, int AngusId) : Command
+public sealed record OpenMolluscCommand(int MolluscDataId, int AngusId) : CodecCommand<OpenMolluscCommand>, ICommandCodecProvider<OpenMolluscCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.OpenMolluscCommandType;
-
-    /// <summary>Decodes the goods id and Angus instance id following metadata.</summary>
-    public static OpenMolluscCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new(stream.ReadVarInt(), stream.ReadVarInt());
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(MolluscDataId);
-        stream.WriteVarInt(AngusId);
-    }
+    public static CommandCodec<OpenMolluscCommand> Codec { get; } = Codecs.Command(
+        type: 704,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.MolluscDataId,
+            Codecs.VarInt,
+            static command => command.AngusId,
+            static (molluscDataId, angusId) => new OpenMolluscCommand(molluscDataId, angusId)
+        ),
+        CommandLayout.MetadataFirst
+    );
 }

@@ -1,31 +1,22 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Settings;
 
 /// <summary>Changes a notification or advanced user setting selected by its data row.</summary>
-public sealed record SetUserSettingCommand(int SettingGlobalId, int SettingTableId, bool Enabled) : Command
+public sealed record SetUserSettingCommand(int SettingGlobalId, int SettingTableId, bool Enabled) : CodecCommand<SetUserSettingCommand>, ICommandCodecProvider<SetUserSettingCommand>
 {
     /// <inheritdoc />
-    public override int Type => CommandRegistry.SetUserSettingCommandType;
-
-    /// <summary>Decodes the setting reference.</summary>
-    public static SetUserSettingCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        int settingGlobalId = stream.ReadVarInt();
-        int settingTableId = stream.ReadVarInt();
-        bool enabled = stream.ReadBoolean();
-
-        return new SetUserSettingCommand(settingGlobalId, settingTableId, enabled);
-    }
-
-    /// <inheritdoc />
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteVarInt(SettingGlobalId);
-        stream.WriteVarInt(SettingTableId);
-        stream.WriteBoolean(Enabled);
-    }
+    public static CommandCodec<SetUserSettingCommand> Codec { get; } = Codecs.Command(
+        type: 131,
+        Codecs.Composite(
+            Codecs.VarInt,
+            static command => command.SettingGlobalId,
+            Codecs.VarInt,
+            static command => command.SettingTableId,
+            Codecs.Boolean,
+            static command => command.Enabled,
+            static (settingGlobalId, settingTableId, enabled) => new SetUserSettingCommand(settingGlobalId, settingTableId, enabled)
+        )
+    );
 }

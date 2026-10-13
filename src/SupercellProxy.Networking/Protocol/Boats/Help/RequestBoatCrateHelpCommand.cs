@@ -1,27 +1,20 @@
-using SupercellProxy.Networking.Protocol.CommandEncoding;
-using SupercellProxy.Networking.Protocol.CommandEncoding.Registration;
-using SupercellProxy.Networking.Transport;
+using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>Requests public, neighbourhood, or Farm Pass help for a boat crate.</summary>
-public sealed record RequestBoatCrateHelpCommand(int CrateIndex, int RequestKind) : Command
+public sealed record RequestBoatCrateHelpCommand(int CrateIndex, int RequestKind) : CodecCommand<RequestBoatCrateHelpCommand>, ICommandCodecProvider<RequestBoatCrateHelpCommand>
 {
-    /// <summary>Gets the registered command identifier.</summary>
-    public override int Type => CommandRegistry.RequestBoatCrateHelpCommandType;
-
-    /// <summary>Reads the crate and request kind before the base command metadata.</summary>
-    public static RequestBoatCrateHelpCommand Decode(MessageStream stream, CommandEnvironment environment)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        return new RequestBoatCrateHelpCommand(stream.ReadUInt16(), stream.ReadUInt16());
-    }
-
-    /// <summary>Writes the native unsigned-short fields.</summary>
-    public override void Encode(MessageStream stream, CommandEnvironment environment)
-    {
-        stream.WriteUInt16(checked((ushort)CrateIndex));
-        stream.WriteUInt16(checked((ushort)RequestKind));
-    }
+    /// <inheritdoc />
+    public static CommandCodec<RequestBoatCrateHelpCommand> Codec { get; } = Codecs.Command(
+        type: 91,
+        Codecs.Composite(
+            Codecs.UInt16,
+            static command => (ushort)command.CrateIndex,
+            Codecs.UInt16,
+            static command => (ushort)command.RequestKind,
+            static (crateIndex, requestKind) => new RequestBoatCrateHelpCommand(crateIndex, requestKind)
+        )
+    );
 }
