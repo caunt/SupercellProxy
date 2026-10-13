@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Globalization;
 
-using SupercellProxy.Networking.Protocol.Releases;
+using SupercellProxy.Networking.Protocol.Versions;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
 

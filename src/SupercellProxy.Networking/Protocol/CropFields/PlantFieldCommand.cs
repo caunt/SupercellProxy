@@ -1,6 +1,6 @@
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
-using SupercellProxy.Networking.Protocol.Releases;
+using SupercellProxy.Networking.Protocol.Versions;
 
 namespace SupercellProxy.Networking.Protocol.CropFields;
 

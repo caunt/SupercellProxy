@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 
 using SupercellProxy.Networking.Protocol.Commands;
-using SupercellProxy.Networking.Protocol.Releases;
+using SupercellProxy.Networking.Protocol.Versions;
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
