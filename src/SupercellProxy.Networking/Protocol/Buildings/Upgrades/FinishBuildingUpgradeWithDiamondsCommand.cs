@@ -9,7 +9,6 @@ public sealed record FinishBuildingUpgradeWithDiamondsCommand(int ObjectGlobalId
 {
     /// <inheritdoc />
     public static CommandCodec<FinishBuildingUpgradeWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        type: 125,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,

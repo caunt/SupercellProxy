@@ -8,7 +8,6 @@ public sealed record MoveMapGameCommand(int SourceNodeId, int TargetNodeId) : Co
 {
     /// <inheritdoc />
     public static CommandCodec<MoveMapGameCommand> Codec { get; } = Codecs.Command(
-        type: 270,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SourceNodeId,

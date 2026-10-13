@@ -10,7 +10,6 @@ public sealed record SetChatMutedServerCommand(bool Permanent, bool Muted) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<SetChatMutedServerCommand> Codec { get; } = Codecs.Command(
-        type: 839,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.Permanent,

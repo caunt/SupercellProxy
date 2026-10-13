@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary;
 public sealed record CollectSanctuaryVisitorGiftCommand : CodecCommand<CollectSanctuaryVisitorGiftCommand>, ICommandCodecProvider<CollectSanctuaryVisitorGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectSanctuaryVisitorGiftCommand> Codec { get; } = Codecs.Command(type: 566, Codecs.Unit(static () => new CollectSanctuaryVisitorGiftCommand()));
+    public static CommandCodec<CollectSanctuaryVisitorGiftCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectSanctuaryVisitorGiftCommand()));
 }

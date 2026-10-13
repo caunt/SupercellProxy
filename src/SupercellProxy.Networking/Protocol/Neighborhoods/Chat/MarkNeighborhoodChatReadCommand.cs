@@ -9,7 +9,6 @@ public sealed record MarkNeighborhoodChatReadCommand(int Timestamp) : CodecComma
 {
     /// <inheritdoc />
     public static CommandCodec<MarkNeighborhoodChatReadCommand> Codec { get; } = Codecs.Command(
-        type: 139,
         Codecs.Composite(Codecs.VarInt, static command => command.Timestamp, static (timestamp) => new MarkNeighborhoodChatReadCommand(timestamp))
     );
 }

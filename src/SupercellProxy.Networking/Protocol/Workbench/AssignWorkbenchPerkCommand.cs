@@ -11,7 +11,6 @@ public sealed record AssignWorkbenchPerkCommand(int WorkbenchObjectGlobalId, int
 {
     /// <inheritdoc />
     public static CommandCodec<AssignWorkbenchPerkCommand> Codec { get; } = Codecs.Command(
-        type: 579,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.WorkbenchObjectGlobalId,

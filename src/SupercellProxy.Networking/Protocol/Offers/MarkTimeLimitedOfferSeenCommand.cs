@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record MarkTimeLimitedOfferSeenCommand : CodecCommand<MarkTimeLimitedOfferSeenCommand>, ICommandCodecProvider<MarkTimeLimitedOfferSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTimeLimitedOfferSeenCommand> Codec { get; } = Codecs.Command(type: 697, Codecs.Unit(static () => new MarkTimeLimitedOfferSeenCommand()));
+    public static CommandCodec<MarkTimeLimitedOfferSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkTimeLimitedOfferSeenCommand()));
 }

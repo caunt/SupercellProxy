@@ -9,7 +9,6 @@ public sealed record CollectMapGamePiggyBankCommand(LongId MapGameId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<CollectMapGamePiggyBankCommand> Codec { get; } = Codecs.Command(
-        type: 299,
         Codecs.Composite(Codecs.LongId, static command => command.MapGameId, static (mapGameId) => new CollectMapGamePiggyBankCommand(mapGameId)),
         CommandLayout.MetadataFirst
     );

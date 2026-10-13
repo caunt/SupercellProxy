@@ -8,7 +8,6 @@ public sealed record LeaveNeighborhoodServerCommand(LongId NeighborhoodId) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<LeaveNeighborhoodServerCommand> Codec { get; } = Codecs.Command(
-        type: 135,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

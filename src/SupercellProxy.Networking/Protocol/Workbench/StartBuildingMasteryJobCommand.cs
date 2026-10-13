@@ -11,7 +11,6 @@ public sealed record StartBuildingMasteryJobCommand(int JobKind, int BuildingGlo
 {
     /// <inheritdoc />
     public static CommandCodec<StartBuildingMasteryJobCommand> Codec { get; } = Codecs.Command(
-        type: 521,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.JobKind,

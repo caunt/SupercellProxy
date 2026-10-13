@@ -13,7 +13,6 @@ public sealed record ClaimAchievementRewardCommand([property: System.Text.Json.S
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimAchievementRewardCommand> Codec { get; } = Codecs.Command(
-        type: 51,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AchievementGlobalId,

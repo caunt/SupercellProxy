@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record MarkEditModeIntroSeenCommand : CodecCommand<MarkEditModeIntroSeenCommand>, ICommandCodecProvider<MarkEditModeIntroSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkEditModeIntroSeenCommand> Codec { get; } = Codecs.Command(type: 527, Codecs.Unit(static () => new MarkEditModeIntroSeenCommand()));
+    public static CommandCodec<MarkEditModeIntroSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkEditModeIntroSeenCommand()));
 }

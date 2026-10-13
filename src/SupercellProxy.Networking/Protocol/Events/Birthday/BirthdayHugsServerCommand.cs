@@ -9,7 +9,6 @@ public sealed record BirthdayHugsServerCommand(BirthdayHugs? Hugs) : CodecServer
 {
     /// <inheritdoc />
     public static CommandCodec<BirthdayHugsServerCommand> Codec { get; } = Codecs.Command(
-        type: 305,
         Codecs.Composite(Codecs.Optional(BirthdayHugs.Codec), static command => command.Hugs, static (hugs) => new BirthdayHugsServerCommand(hugs))
     );
 }

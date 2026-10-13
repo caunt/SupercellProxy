@@ -8,7 +8,6 @@ public sealed record AcknowledgeChainOfferChapterIntroCommand(int ChapterIndex, 
 {
     /// <inheritdoc />
     public static CommandCodec<AcknowledgeChainOfferChapterIntroCommand> Codec { get; } = Codecs.Command(
-        type: 705,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ChapterIndex,

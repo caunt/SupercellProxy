@@ -37,7 +37,6 @@ public sealed record ActivateMovieTicketCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<ActivateMovieTicketCommand> Codec { get; } = Codecs.Command(
-        type: 643,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

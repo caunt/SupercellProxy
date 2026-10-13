@@ -16,7 +16,6 @@ public sealed record ClearEventLeaderboardNotificationCommand([property: System.
 {
     /// <inheritdoc />
     public static CommandCodec<ClearEventLeaderboardNotificationCommand> Codec { get; } = Codecs.Command(
-        type: 371,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

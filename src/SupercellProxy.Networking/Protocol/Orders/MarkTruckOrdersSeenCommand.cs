@@ -13,7 +13,6 @@ public sealed record MarkTruckOrdersSeenCommand([property: System.Text.Json.Seri
 {
     /// <inheritdoc />
     public static CommandCodec<MarkTruckOrdersSeenCommand> Codec { get; } = Codecs.Command(
-        type: 26,
         Codecs.Composite(Codecs.VarInt, static command => command.OrderTableGlobalId, static (table) => new MarkTruckOrdersSeenCommand(table))
     );
 }

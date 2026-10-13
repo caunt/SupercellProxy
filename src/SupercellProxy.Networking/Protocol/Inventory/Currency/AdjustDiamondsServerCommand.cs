@@ -8,7 +8,6 @@ public sealed record AdjustDiamondsServerCommand(int Amount, bool Credit) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<AdjustDiamondsServerCommand> Codec { get; } = Codecs.Command(
-        type: 378,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Amount,

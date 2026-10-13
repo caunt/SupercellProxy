@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Seen;
 public sealed record ClaimMapGameFuelPrizeCommand : CodecCommand<ClaimMapGameFuelPrizeCommand>, ICommandCodecProvider<ClaimMapGameFuelPrizeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimMapGameFuelPrizeCommand> Codec { get; } = Codecs.Command(type: 614, Codecs.Unit(static () => new ClaimMapGameFuelPrizeCommand()));
+    public static CommandCodec<ClaimMapGameFuelPrizeCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimMapGameFuelPrizeCommand()));
 }

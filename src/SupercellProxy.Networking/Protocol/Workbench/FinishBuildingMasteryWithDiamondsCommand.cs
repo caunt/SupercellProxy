@@ -9,7 +9,6 @@ public sealed record FinishBuildingMasteryWithDiamondsCommand(int BuildingGlobal
 {
     /// <inheritdoc />
     public static CommandCodec<FinishBuildingMasteryWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        type: 588,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,

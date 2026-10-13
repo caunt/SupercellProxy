@@ -9,7 +9,6 @@ public sealed record ClaimVisitorFriendshipRewardCommand(int RewardGlobalId) : C
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimVisitorFriendshipRewardCommand> Codec { get; } = Codecs.Command(
-        type: 2596,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RewardGlobalId,

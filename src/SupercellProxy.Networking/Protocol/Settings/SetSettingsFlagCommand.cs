@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetSettingsFlagCommand(bool Enabled) : CodecCommand<SetSettingsFlagCommand>, ICommandCodecProvider<SetSettingsFlagCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetSettingsFlagCommand> Codec { get; } = Codecs.Command(
-        type: 130,
-        Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static (enabled) => new SetSettingsFlagCommand(enabled))
-    );
+    public static CommandCodec<SetSettingsFlagCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static (enabled) => new SetSettingsFlagCommand(enabled)));
 }

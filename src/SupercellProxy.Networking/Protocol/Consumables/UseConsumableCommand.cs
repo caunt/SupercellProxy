@@ -10,7 +10,6 @@ public sealed record UseConsumableCommand(int TargetObjectGlobalId, int Consumab
 {
     /// <inheritdoc />
     public static CommandCodec<UseConsumableCommand> Codec { get; } = Codecs.Command(
-        type: 546,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TargetObjectGlobalId,

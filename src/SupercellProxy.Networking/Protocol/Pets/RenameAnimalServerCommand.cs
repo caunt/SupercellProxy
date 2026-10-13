@@ -8,7 +8,6 @@ public sealed record RenameAnimalServerCommand(int AnimalGlobalId, string Name, 
 {
     /// <inheritdoc />
     public static CommandCodec<RenameAnimalServerCommand> Codec { get; } = Codecs.Command(
-        type: 245,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.AnimalGlobalId,

@@ -9,7 +9,6 @@ public sealed record MarkTownCalendarEventSeenCommand(int CalendarEventGlobalId)
 {
     /// <inheritdoc />
     public static CommandCodec<MarkTownCalendarEventSeenCommand> Codec { get; } = Codecs.Command(
-        type: 150,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CalendarEventGlobalId,

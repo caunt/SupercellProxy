@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record EnterBoyIntervalRestCommand : CodecCommand<EnterBoyIntervalRestCommand>, ICommandCodecProvider<EnterBoyIntervalRestCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<EnterBoyIntervalRestCommand> Codec { get; } = Codecs.Command(type: 537, Codecs.Unit(static () => new EnterBoyIntervalRestCommand()));
+    public static CommandCodec<EnterBoyIntervalRestCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new EnterBoyIntervalRestCommand()));
 }

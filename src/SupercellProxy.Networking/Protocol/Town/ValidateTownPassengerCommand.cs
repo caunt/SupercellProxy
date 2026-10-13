@@ -8,7 +8,6 @@ public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(
-        type: 141,
         Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static (passenger) => new ValidateTownPassengerCommand(passenger))
     );
 }

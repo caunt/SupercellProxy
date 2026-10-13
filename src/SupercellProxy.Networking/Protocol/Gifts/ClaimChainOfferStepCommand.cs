@@ -8,7 +8,6 @@ public sealed record ClaimChainOfferStepCommand(int StepIndex, [property: System
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimChainOfferStepCommand> Codec { get; } = Codecs.Command(
-        type: 691,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.StepIndex,

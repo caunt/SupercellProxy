@@ -8,7 +8,6 @@ public sealed record ClaimFarmPassBabyPetRewardCommand(int LevelIndex, bool Prem
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimFarmPassBabyPetRewardCommand> Codec { get; } = Codecs.Command(
-        type: 346,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LevelIndex,

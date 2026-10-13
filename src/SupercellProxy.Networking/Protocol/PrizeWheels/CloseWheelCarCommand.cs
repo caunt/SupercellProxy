@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.PrizeWheels;
 public sealed record CloseWheelCarCommand : CodecCommand<CloseWheelCarCommand>, ICommandCodecProvider<CloseWheelCarCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CloseWheelCarCommand> Codec { get; } = Codecs.Command(type: 590, Codecs.Unit(static () => new CloseWheelCarCommand()));
+    public static CommandCodec<CloseWheelCarCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CloseWheelCarCommand()));
 }

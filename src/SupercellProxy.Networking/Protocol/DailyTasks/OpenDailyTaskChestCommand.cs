@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record OpenDailyTaskChestCommand : CodecCommand<OpenDailyTaskChestCommand>, ICommandCodecProvider<OpenDailyTaskChestCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OpenDailyTaskChestCommand> Codec { get; } = Codecs.Command(type: 604, Codecs.Unit(static () => new OpenDailyTaskChestCommand()));
+    public static CommandCodec<OpenDailyTaskChestCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new OpenDailyTaskChestCommand()));
 }

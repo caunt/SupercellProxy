@@ -9,7 +9,6 @@ public sealed record MarkDecorationEventSeenCommand(int EventId) : CodecCommand<
 {
     /// <inheritdoc />
     public static CommandCodec<MarkDecorationEventSeenCommand> Codec { get; } = Codecs.Command(
-        type: 597,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkDecorationEventSeenCommand(eventId)),
         CommandLayout.MetadataFirst
     );

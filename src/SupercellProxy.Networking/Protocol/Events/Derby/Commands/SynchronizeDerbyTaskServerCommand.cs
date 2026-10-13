@@ -8,7 +8,6 @@ public sealed record SynchronizeDerbyTaskServerCommand : CodecServerCommand<Sync
 {
     /// <inheritdoc />
     public static CommandCodec<SynchronizeDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
-        type: 234,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

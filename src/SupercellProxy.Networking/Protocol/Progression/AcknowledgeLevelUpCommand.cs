@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Progression;
 public sealed record AcknowledgeLevelUpCommand(ushort Level) : CodecCommand<AcknowledgeLevelUpCommand>, ICommandCodecProvider<AcknowledgeLevelUpCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AcknowledgeLevelUpCommand> Codec { get; } = Codecs.Command(
-        type: 33,
-        Codecs.Composite(Codecs.UInt16, static command => command.Level, static (level) => new AcknowledgeLevelUpCommand(level))
-    );
+    public static CommandCodec<AcknowledgeLevelUpCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.UInt16, static command => command.Level, static (level) => new AcknowledgeLevelUpCommand(level)));
 }

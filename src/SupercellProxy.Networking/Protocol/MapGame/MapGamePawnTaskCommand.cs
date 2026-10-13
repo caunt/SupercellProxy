@@ -20,7 +20,6 @@ public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskComman
 
     /// <inheritdoc />
     public static CommandCodec<MapGamePawnTaskCommand> Codec { get; } = Codecs.Command(
-        type: 321,
         Codecs.Composite(
             Codecs.Optional(MapGamePawn.Codec),
             static command => command.Pawn,

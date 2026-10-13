@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Seen;
 public sealed record StartFarmPassSeasonCommand : CodecCommand<StartFarmPassSeasonCommand>, ICommandCodecProvider<StartFarmPassSeasonCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StartFarmPassSeasonCommand> Codec { get; } = Codecs.Command(type: 644, Codecs.Unit(static () => new StartFarmPassSeasonCommand()));
+    public static CommandCodec<StartFarmPassSeasonCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new StartFarmPassSeasonCommand()));
 }

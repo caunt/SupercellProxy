@@ -16,7 +16,6 @@ public sealed record RequestRoadsidePurchaseCommand(int SlotIndex, [property: Sy
 {
     /// <inheritdoc />
     public static CommandCodec<RequestRoadsidePurchaseCommand> Codec { get; } = Codecs.Command(
-        type: 509,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SlotIndex,

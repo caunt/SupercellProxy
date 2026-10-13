@@ -8,7 +8,6 @@ public sealed record CompleteNeighborhoodObjectTaskCommand(int TaskSlotIndex) : 
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(
-        type: 576,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TaskSlotIndex,

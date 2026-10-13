@@ -7,8 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Molluscs;
 public sealed record CollectMolluscCommand(int MolluscId) : CodecCommand<CollectMolluscCommand>, ICommandCodecProvider<CollectMolluscCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectMolluscCommand> Codec { get; } = Codecs.Command(
-        type: 703,
-        Codecs.Composite(Codecs.VarInt, static command => command.MolluscId, static (molluscId) => new CollectMolluscCommand(molluscId))
-    );
+    public static CommandCodec<CollectMolluscCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.MolluscId, static (molluscId) => new CollectMolluscCommand(molluscId)));
 }

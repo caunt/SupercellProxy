@@ -9,7 +9,6 @@ public sealed record BuyVisitorItemCommand(int VisitorObjectGlobalId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<BuyVisitorItemCommand> Codec { get; } = Codecs.Command(
-        type: 696,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorObjectGlobalId,

@@ -21,7 +21,6 @@ public sealed record TruckOrderHelpReceivedServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<TruckOrderHelpReceivedServerCommand> Codec { get; } = Codecs.Command(
-        type: 261,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

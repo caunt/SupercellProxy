@@ -9,7 +9,6 @@ public sealed record SelectTownHallSettingCommand(int SettingGlobalId) : CodecCo
 {
     /// <inheritdoc />
     public static CommandCodec<SelectTownHallSettingCommand> Codec { get; } = Codecs.Command(
-        type: 240,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.SettingGlobalId,

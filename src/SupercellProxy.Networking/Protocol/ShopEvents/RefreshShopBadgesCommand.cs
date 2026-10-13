@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents;
 public sealed record RefreshShopBadgesCommand : CodecCommand<RefreshShopBadgesCommand>, ICommandCodecProvider<RefreshShopBadgesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RefreshShopBadgesCommand> Codec { get; } = Codecs.Command(type: 681, Codecs.Unit(static () => new RefreshShopBadgesCommand()));
+    public static CommandCodec<RefreshShopBadgesCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RefreshShopBadgesCommand()));
 }

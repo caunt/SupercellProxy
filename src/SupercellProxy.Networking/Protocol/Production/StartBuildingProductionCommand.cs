@@ -19,7 +19,6 @@ public sealed record StartBuildingProductionCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<StartBuildingProductionCommand> Codec { get; } = Codecs.Command(
-        type: 606,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record CollectPostmanDeliveryCommand : CodecCommand<CollectPostmanDeliveryCommand>, ICommandCodecProvider<CollectPostmanDeliveryCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectPostmanDeliveryCommand> Codec { get; } = Codecs.Command(type: 678, Codecs.Unit(static () => new CollectPostmanDeliveryCommand()));
+    public static CommandCodec<CollectPostmanDeliveryCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectPostmanDeliveryCommand()));
 }

@@ -9,7 +9,6 @@ public sealed record SetActiveLayoutCommand(int SlotIndex) : CodecCommand<SetAct
 {
     /// <inheritdoc />
     public static CommandCodec<SetActiveLayoutCommand> Codec { get; } = Codecs.Command(
-        type: 193,
         Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new SetActiveLayoutCommand(slotIndex))
     );
 }

@@ -9,7 +9,6 @@ public sealed record SpeedUpConstructionCommand(int ConstructionGlobalId) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpConstructionCommand> Codec { get; } = Codecs.Command(
-        type: 16,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ConstructionGlobalId,

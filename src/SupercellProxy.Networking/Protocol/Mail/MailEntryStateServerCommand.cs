@@ -11,7 +11,6 @@ public sealed record MailEntryStateServerCommand(int GameObjectId, LongId HomeOw
 {
     /// <inheritdoc />
     public static CommandCodec<MailEntryStateServerCommand> Codec { get; } = Codecs.Command(
-        type: 207,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GameObjectId,

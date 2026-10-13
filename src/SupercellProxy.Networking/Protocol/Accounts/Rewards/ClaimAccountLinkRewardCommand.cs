@@ -8,7 +8,6 @@ public sealed record ClaimAccountLinkRewardCommand(AccountLinkRewardKind Kind) :
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimAccountLinkRewardCommand> Codec { get; } = Codecs.Command(
-        type: 300,
         Codecs.Composite(
             Codecs.Enum<AccountLinkRewardKind>(Codecs.Int32),
             static command => command.Kind,

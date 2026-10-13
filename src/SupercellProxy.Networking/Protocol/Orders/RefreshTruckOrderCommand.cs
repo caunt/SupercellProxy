@@ -10,7 +10,6 @@ public sealed record RefreshTruckOrderCommand(int Mode, int OrderIndex) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<RefreshTruckOrderCommand> Codec { get; } = Codecs.Command(
-        type: 2694,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Mode,

@@ -10,7 +10,6 @@ public sealed record UpgradeStorageBuildingCommand(int ObjectGlobalId, byte Rank
 {
     /// <inheritdoc />
     public static CommandCodec<UpgradeStorageBuildingCommand> Codec { get; } = Codecs.Command(
-        type: 25,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,

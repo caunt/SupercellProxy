@@ -11,7 +11,6 @@ public sealed record SendThankYouGiftCommand(int GiftKind, int TargetIndex, Long
 {
     /// <inheritdoc />
     public static CommandCodec<SendThankYouGiftCommand> Codec { get; } = Codecs.Command(
-        type: 102,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftKind,

@@ -8,7 +8,6 @@ public sealed record CollectTownServiceCommand(int ServiceBuildingGlobalId, int 
 {
     /// <inheritdoc />
     public static CommandCodec<CollectTownServiceCommand> Codec { get; } = Codecs.Command(
-        type: 144,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ServiceBuildingGlobalId,

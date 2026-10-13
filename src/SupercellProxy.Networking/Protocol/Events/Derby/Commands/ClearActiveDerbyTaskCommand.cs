@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 public sealed record ClearActiveDerbyTaskCommand : CodecCommand<ClearActiveDerbyTaskCommand>, ICommandCodecProvider<ClearActiveDerbyTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClearActiveDerbyTaskCommand> Codec { get; } = Codecs.Command(type: 615, Codecs.Unit(static () => new ClearActiveDerbyTaskCommand()), CommandLayout.MetadataFirst);
+    public static CommandCodec<ClearActiveDerbyTaskCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClearActiveDerbyTaskCommand()), CommandLayout.MetadataFirst);
 }

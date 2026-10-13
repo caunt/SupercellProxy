@@ -9,7 +9,6 @@ public sealed record SelectWorkbenchPerkCommand(int PerkGlobalId) : CodecCommand
 {
     /// <inheritdoc />
     public static CommandCodec<SelectWorkbenchPerkCommand> Codec { get; } = Codecs.Command(
-        type: 540,
         Codecs.Composite(Codecs.VarInt, static command => command.PerkGlobalId, static (perkGlobalId) => new SelectWorkbenchPerkCommand(perkGlobalId)),
         CommandLayout.MetadataFirst
     );

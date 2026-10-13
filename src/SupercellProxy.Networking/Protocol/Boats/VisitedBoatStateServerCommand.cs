@@ -33,7 +33,6 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
 {
     /// <inheritdoc />
     public static CommandCodec<VisitedBoatStateServerCommand> Codec { get; } = Codecs.Command(
-        type: 810,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

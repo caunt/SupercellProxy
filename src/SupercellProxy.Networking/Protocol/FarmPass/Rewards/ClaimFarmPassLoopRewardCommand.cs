@@ -9,7 +9,6 @@ public sealed record ClaimFarmPassLoopRewardCommand(bool UseDiamonds) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimFarmPassLoopRewardCommand> Codec { get; } = Codecs.Command(
-        type: 561,
         Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static (useDiamonds) => new ClaimFarmPassLoopRewardCommand(useDiamonds)),
         CommandLayout.MetadataFirst
     );

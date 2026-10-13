@@ -15,7 +15,6 @@ public sealed record ExchangeBoosterCommand(int RemovedBoosterDataGlobalId, int 
 {
     /// <inheritdoc />
     public static CommandCodec<ExchangeBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 214,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RemovedBoosterDataGlobalId,

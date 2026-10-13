@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.PrizeWheels;
 public sealed record BuyWheelSpinWithDiamondsCommand : CodecCommand<BuyWheelSpinWithDiamondsCommand>, ICommandCodecProvider<BuyWheelSpinWithDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyWheelSpinWithDiamondsCommand> Codec { get; } = Codecs.Command(type: 659, Codecs.Unit(static () => new BuyWheelSpinWithDiamondsCommand()));
+    public static CommandCodec<BuyWheelSpinWithDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new BuyWheelSpinWithDiamondsCommand()));
 }

@@ -9,7 +9,6 @@ public sealed record RequestInitialCustomizationOffersCommand(int OfferIndex) : 
 {
     /// <inheritdoc />
     public static CommandCodec<RequestInitialCustomizationOffersCommand> Codec { get; } = Codecs.Command(
-        type: 241,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.OfferIndex,

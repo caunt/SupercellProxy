@@ -14,7 +14,6 @@ public sealed record RoadsideAdvertisementServerCommand(LongId HomeId, int Stand
 {
     /// <inheritdoc />
     public static CommandCodec<RoadsideAdvertisementServerCommand> Codec { get; } = Codecs.Command(
-        type: 382,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.HomeId,

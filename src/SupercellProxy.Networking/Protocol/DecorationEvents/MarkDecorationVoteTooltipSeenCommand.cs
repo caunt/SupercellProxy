@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DecorationEvents;
 public sealed record MarkDecorationVoteTooltipSeenCommand : CodecCommand<MarkDecorationVoteTooltipSeenCommand>, ICommandCodecProvider<MarkDecorationVoteTooltipSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkDecorationVoteTooltipSeenCommand> Codec { get; } = Codecs.Command(type: 571, Codecs.Unit(static () => new MarkDecorationVoteTooltipSeenCommand()));
+    public static CommandCodec<MarkDecorationVoteTooltipSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkDecorationVoteTooltipSeenCommand()));
 }

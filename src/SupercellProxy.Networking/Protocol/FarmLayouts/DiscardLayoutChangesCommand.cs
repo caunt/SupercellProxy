@@ -9,7 +9,6 @@ public sealed record DiscardLayoutChangesCommand(int SlotIndex) : CodecCommand<D
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardLayoutChangesCommand> Codec { get; } = Codecs.Command(
-        type: 188,
         Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new DiscardLayoutChangesCommand(slotIndex))
     );
 }

@@ -15,7 +15,6 @@ public sealed record SetNeighborhoodObjectLeaderboardScoresCommand : CodecComman
 
     /// <inheritdoc />
     public static CommandCodec<SetNeighborhoodObjectLeaderboardScoresCommand> Codec { get; } = Codecs.Command(
-        type: 636,
         Codecs.Composite(
             Codecs.Memory(Codecs.VarInt),
             static command => command.Scores,

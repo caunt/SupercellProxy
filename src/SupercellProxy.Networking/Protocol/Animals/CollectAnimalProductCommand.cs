@@ -13,7 +13,6 @@ public sealed record CollectAnimalProductCommand([property: System.Text.Json.Ser
 {
     /// <inheritdoc />
     public static CommandCodec<CollectAnimalProductCommand> Codec { get; } = Codecs.Command(
-        type: 586,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

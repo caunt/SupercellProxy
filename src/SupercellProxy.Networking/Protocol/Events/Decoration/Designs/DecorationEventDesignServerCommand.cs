@@ -14,7 +14,6 @@ public sealed record DecorationEventDesignServerCommand(int Points, int EventId,
 {
     /// <inheritdoc />
     public static CommandCodec<DecorationEventDesignServerCommand> Codec { get; } = Codecs.Command(
-        type: 771,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Points,

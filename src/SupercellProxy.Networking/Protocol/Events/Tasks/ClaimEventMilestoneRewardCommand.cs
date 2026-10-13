@@ -10,7 +10,6 @@ public sealed record ClaimEventMilestoneRewardCommand(int EventId, int Milestone
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimEventMilestoneRewardCommand> Codec { get; } = Codecs.Command(
-        type: 367,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

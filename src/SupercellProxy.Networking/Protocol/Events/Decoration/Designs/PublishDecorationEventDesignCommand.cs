@@ -10,7 +10,6 @@ public sealed record PublishDecorationEventDesignCommand(bool Published, int Des
 {
     /// <inheritdoc />
     public static CommandCodec<PublishDecorationEventDesignCommand> Codec { get; } = Codecs.Command(
-        type: 525,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.Published,

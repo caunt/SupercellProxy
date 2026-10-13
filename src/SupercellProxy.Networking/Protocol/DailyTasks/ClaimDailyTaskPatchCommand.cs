@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record ClaimDailyTaskPatchCommand : CodecCommand<ClaimDailyTaskPatchCommand>, ICommandCodecProvider<ClaimDailyTaskPatchCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDailyTaskPatchCommand> Codec { get; } = Codecs.Command(type: 628, Codecs.Unit(static () => new ClaimDailyTaskPatchCommand()));
+    public static CommandCodec<ClaimDailyTaskPatchCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimDailyTaskPatchCommand()));
 }

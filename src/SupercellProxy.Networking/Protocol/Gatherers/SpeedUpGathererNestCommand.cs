@@ -9,7 +9,6 @@ public sealed record SpeedUpGathererNestCommand(int NestGlobalId) : CodecCommand
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpGathererNestCommand> Codec { get; } = Codecs.Command(
-        type: 157,
         Codecs.Composite(Codecs.VarInt, static command => command.NestGlobalId, static (nestGlobalId) => new SpeedUpGathererNestCommand(nestGlobalId))
     );
 }

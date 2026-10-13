@@ -9,7 +9,6 @@ public sealed record TapSanctuaryAnimalCommand(int AnimalGlobalId) : CodecComman
 {
     /// <inheritdoc />
     public static CommandCodec<TapSanctuaryAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 220,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

@@ -8,7 +8,6 @@ public sealed record NeighborhoodNotificationServerCommand(int Status, LongId Ne
 {
     /// <inheritdoc />
     public static CommandCodec<NeighborhoodNotificationServerCommand> Codec { get; } = Codecs.Command(
-        type: 182,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Status,

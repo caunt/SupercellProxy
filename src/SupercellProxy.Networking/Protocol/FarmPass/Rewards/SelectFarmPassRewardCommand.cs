@@ -9,7 +9,6 @@ public sealed record SelectFarmPassRewardCommand(int RewardIndex) : CodecCommand
 {
     /// <inheritdoc />
     public static CommandCodec<SelectFarmPassRewardCommand> Codec { get; } = Codecs.Command(
-        type: 335,
         Codecs.Composite(Codecs.VarInt, static command => command.RewardIndex, static (rewardIndex) => new SelectFarmPassRewardCommand(rewardIndex))
     );
 }

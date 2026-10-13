@@ -9,7 +9,6 @@ public sealed record RerollDailyTasksCommand(bool UseDiamonds) : CodecCommand<Re
 {
     /// <inheritdoc />
     public static CommandCodec<RerollDailyTasksCommand> Codec { get; } = Codecs.Command(
-        type: 609,
         Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static (useDiamonds) => new RerollDailyTasksCommand(useDiamonds)),
         CommandLayout.MetadataFirst
     );

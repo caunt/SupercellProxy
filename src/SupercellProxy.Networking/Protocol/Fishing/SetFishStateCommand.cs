@@ -8,7 +8,6 @@ public sealed record SetFishStateCommand([property: System.Text.Json.Serializati
 {
     /// <inheritdoc />
     public static CommandCodec<SetFishStateCommand> Codec { get; } = Codecs.Command(
-        type: 112,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FishGlobalId,

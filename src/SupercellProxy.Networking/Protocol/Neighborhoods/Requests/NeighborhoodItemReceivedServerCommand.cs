@@ -14,7 +14,6 @@ public sealed record NeighborhoodItemReceivedServerCommand(LongId RequesterHomeI
 {
     /// <inheritdoc />
     public static CommandCodec<NeighborhoodItemReceivedServerCommand> Codec { get; } = Codecs.Command(
-        type: 198,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.RequesterHomeId,

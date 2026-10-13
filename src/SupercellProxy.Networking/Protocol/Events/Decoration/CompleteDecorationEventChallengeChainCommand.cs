@@ -10,7 +10,6 @@ public sealed record CompleteDecorationEventChallengeChainCommand(int ChallengeI
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteDecorationEventChallengeChainCommand> Codec { get; } = Codecs.Command(
-        type: 552,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.ChallengeId,

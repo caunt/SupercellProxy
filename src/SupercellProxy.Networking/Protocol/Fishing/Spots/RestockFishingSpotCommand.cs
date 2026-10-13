@@ -9,7 +9,6 @@ public sealed record RestockFishingSpotCommand(int SpotObjectGlobalId) : CodecCo
 {
     /// <inheritdoc />
     public static CommandCodec<RestockFishingSpotCommand> Codec { get; } = Codecs.Command(
-        type: 113,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SpotObjectGlobalId,

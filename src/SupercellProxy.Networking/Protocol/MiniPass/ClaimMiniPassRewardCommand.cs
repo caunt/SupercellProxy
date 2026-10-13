@@ -16,7 +16,6 @@ public sealed record ClaimMiniPassRewardCommand(int Track, int Index) : CodecCom
 
     /// <inheritdoc />
     public static CommandCodec<ClaimMiniPassRewardCommand> Codec { get; } = Codecs.Command(
-        type: 811,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Track,

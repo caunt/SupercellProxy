@@ -16,7 +16,6 @@ public sealed record LoadFarmLayoutsServerCommand(int GameMode, ReadOnlyMemory<b
 {
     /// <inheritdoc />
     public static CommandCodec<LoadFarmLayoutsServerCommand> Codec { get; } = Codecs.Command(
-        type: 743,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GameMode,

@@ -9,7 +9,6 @@ public sealed record SelectDailyTaskCommand(int TaskIndex) : CodecCommand<Select
 {
     /// <inheritdoc />
     public static CommandCodec<SelectDailyTaskCommand> Codec { get; } = Codecs.Command(
-        type: 520,
         Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static (taskIndex) => new SelectDailyTaskCommand(taskIndex)),
         CommandLayout.MetadataFirst
     );

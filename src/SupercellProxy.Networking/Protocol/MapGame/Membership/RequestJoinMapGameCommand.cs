@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Membership;
 public sealed record RequestJoinMapGameCommand : CodecCommand<RequestJoinMapGameCommand>, ICommandCodecProvider<RequestJoinMapGameCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestJoinMapGameCommand> Codec { get; } = Codecs.Command(type: 671, Codecs.Unit(static () => new RequestJoinMapGameCommand()));
+    public static CommandCodec<RequestJoinMapGameCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RequestJoinMapGameCommand()));
 }

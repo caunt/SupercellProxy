@@ -8,7 +8,6 @@ public sealed record DiscardPendingBoosterCommand(int BoosterDataGlobalId) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardPendingBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 215,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterDataGlobalId,

@@ -10,7 +10,6 @@ public sealed record SpeedUpFishingSpotCommand(int SpotObjectGlobalId, bool UseD
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpFishingSpotCommand> Codec { get; } = Codecs.Command(
-        type: 114,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SpotObjectGlobalId,

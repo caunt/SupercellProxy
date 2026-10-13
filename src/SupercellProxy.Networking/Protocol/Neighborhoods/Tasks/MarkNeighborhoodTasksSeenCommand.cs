@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Tasks;
 public sealed record MarkNeighborhoodTasksSeenCommand : CodecCommand<MarkNeighborhoodTasksSeenCommand>, ICommandCodecProvider<MarkNeighborhoodTasksSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkNeighborhoodTasksSeenCommand> Codec { get; } = Codecs.Command(type: 596, Codecs.Unit(static () => new MarkNeighborhoodTasksSeenCommand()));
+    public static CommandCodec<MarkNeighborhoodTasksSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkNeighborhoodTasksSeenCommand()));
 }

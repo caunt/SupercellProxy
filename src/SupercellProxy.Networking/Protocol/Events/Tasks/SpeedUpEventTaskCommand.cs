@@ -10,7 +10,6 @@ public sealed record SpeedUpEventTaskCommand(int EventId, int TaskIndex) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpEventTaskCommand> Codec { get; } = Codecs.Command(
-        type: 363,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

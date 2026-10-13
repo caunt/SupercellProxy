@@ -15,7 +15,6 @@ public sealed record SetHelperOrdersCommand : CodecCommand<SetHelperOrdersComman
 
     /// <inheritdoc />
     public static CommandCodec<SetHelperOrdersCommand> Codec { get; } = Codecs.Command(
-        type: 205,
         Codecs.Composite(
             Codecs.Byte,
             static command => command.HelperIndex,

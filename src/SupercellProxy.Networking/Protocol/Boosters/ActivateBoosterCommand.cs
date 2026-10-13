@@ -14,7 +14,6 @@ public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int Diamond
 {
     /// <inheritdoc />
     public static CommandCodec<ActivateBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 212,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterDataGlobalId,

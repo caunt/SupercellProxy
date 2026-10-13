@@ -11,7 +11,6 @@ public sealed record ClaimFarmPassLevelRewardCommand(int LevelIndex, int LevelId
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimFarmPassLevelRewardCommand> Codec { get; } = Codecs.Command(
-        type: 336,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LevelIndex,

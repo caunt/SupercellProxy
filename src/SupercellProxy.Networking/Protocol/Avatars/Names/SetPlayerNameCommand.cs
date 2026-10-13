@@ -9,7 +9,6 @@ public sealed record SetPlayerNameCommand(string? Name) : CodecCommand<SetPlayer
 {
     /// <inheritdoc />
     public static CommandCodec<SetPlayerNameCommand> Codec { get; } = Codecs.Command(
-        type: 692,
         Codecs.Composite(Codecs.OptionalString, static command => command.Name, static (name) => new SetPlayerNameCommand(name)),
         CommandLayout.MetadataFirst
     );

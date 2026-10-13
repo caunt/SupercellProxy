@@ -9,7 +9,6 @@ public sealed record BuyFreshBeatCommand(int BeatIndex) : CodecCommand<BuyFreshB
 {
     /// <inheritdoc />
     public static CommandCodec<BuyFreshBeatCommand> Codec { get; } = Codecs.Command(
-        type: 556,
         Codecs.Composite(Codecs.VarInt, static command => command.BeatIndex, static (beatIndex) => new BuyFreshBeatCommand(beatIndex)),
         CommandLayout.MetadataFirst
     );

@@ -16,7 +16,6 @@ public sealed record UpdateDerbyPointsServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<UpdateDerbyPointsServerCommand> Codec { get; } = Codecs.Command(
-        type: 174,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PlayerPoints,

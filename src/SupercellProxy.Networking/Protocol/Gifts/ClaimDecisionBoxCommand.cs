@@ -13,7 +13,6 @@ public sealed record ClaimDecisionBoxCommand(int ChoiceIndex) : CodecCommand<Cla
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimDecisionBoxCommand> Codec { get; } = Codecs.Command(
-        type: 610,
         Codecs.Composite(Codecs.VarInt, static command => command.ChoiceIndex, static (choiceIndex) => new ClaimDecisionBoxCommand(choiceIndex)),
         CommandLayout.MetadataFirst
     );

@@ -8,7 +8,6 @@ public sealed record RequestBoatCrateHelpCommand(int CrateIndex, int RequestKind
 {
     /// <inheritdoc />
     public static CommandCodec<RequestBoatCrateHelpCommand> Codec { get; } = Codecs.Command(
-        type: 91,
         Codecs.Composite(
             Codecs.UInt16,
             static command => (ushort)command.CrateIndex,

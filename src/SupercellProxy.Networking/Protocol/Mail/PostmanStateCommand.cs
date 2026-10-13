@@ -24,5 +24,5 @@ public sealed record PostmanStateCommand : CodecCommand<PostmanStateCommand>, IC
     public PostmanStateCommand() { }
 
     /// <inheritdoc />
-    public static CommandCodec<PostmanStateCommand> Codec { get; } = Codecs.Command(type: 694, Codecs.Unit(static () => new PostmanStateCommand()), CommandLayout.MetadataFirst);
+    public static CommandCodec<PostmanStateCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new PostmanStateCommand()), CommandLayout.MetadataFirst);
 }

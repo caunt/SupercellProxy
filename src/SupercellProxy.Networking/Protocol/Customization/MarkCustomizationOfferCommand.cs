@@ -9,7 +9,6 @@ public sealed record MarkCustomizationOfferCommand(int CustomizationGlobalId) : 
 {
     /// <inheritdoc />
     public static CommandCodec<MarkCustomizationOfferCommand> Codec { get; } = Codecs.Command(
-        type: 236,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CustomizationGlobalId,

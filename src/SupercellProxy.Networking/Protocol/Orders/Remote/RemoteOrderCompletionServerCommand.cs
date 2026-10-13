@@ -19,7 +19,6 @@ public sealed record RemoteOrderCompletionServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<RemoteOrderCompletionServerCommand> Codec { get; } = Codecs.Command(
-        type: 262,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

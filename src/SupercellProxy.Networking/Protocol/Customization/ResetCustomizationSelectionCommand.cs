@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record ResetCustomizationSelectionCommand : CodecCommand<ResetCustomizationSelectionCommand>, ICommandCodecProvider<ResetCustomizationSelectionCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ResetCustomizationSelectionCommand> Codec { get; } = Codecs.Command(type: 515, Codecs.Unit(static () => new ResetCustomizationSelectionCommand()));
+    public static CommandCodec<ResetCustomizationSelectionCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ResetCustomizationSelectionCommand()));
 }

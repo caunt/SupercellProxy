@@ -13,7 +13,6 @@ public sealed record DerbyTaskProgressServerCommand(LongId NeighborhoodId, LongI
 {
     /// <inheritdoc />
     public static CommandCodec<DerbyTaskProgressServerCommand> Codec { get; } = Codecs.Command(
-        type: 249,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

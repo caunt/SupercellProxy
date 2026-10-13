@@ -15,7 +15,6 @@ public sealed record RecordPromotionPopupStateCommand(string? PromotionId, int E
 {
     /// <inheritdoc />
     public static CommandCodec<RecordPromotionPopupStateCommand> Codec { get; } = Codecs.Command(
-        type: 265,
         Codecs.Composite(
             Codecs.OptionalString,
             static command => command.PromotionId,

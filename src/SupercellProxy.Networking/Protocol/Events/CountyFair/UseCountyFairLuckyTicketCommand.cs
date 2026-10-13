@@ -9,7 +9,6 @@ public sealed record UseCountyFairLuckyTicketCommand(int EventId) : CodecCommand
 {
     /// <inheritdoc />
     public static CommandCodec<UseCountyFairLuckyTicketCommand> Codec { get; } = Codecs.Command(
-        type: 656,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new UseCountyFairLuckyTicketCommand(eventId)),
         CommandLayout.MetadataFirst
     );

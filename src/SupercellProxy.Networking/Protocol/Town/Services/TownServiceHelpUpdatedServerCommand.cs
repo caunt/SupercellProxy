@@ -11,7 +11,6 @@ public sealed record TownServiceHelpUpdatedServerCommand(LongId OwnerHomeId, int
 {
     /// <inheritdoc />
     public static CommandCodec<TownServiceHelpUpdatedServerCommand> Codec { get; } = Codecs.Command(
-        type: 256,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

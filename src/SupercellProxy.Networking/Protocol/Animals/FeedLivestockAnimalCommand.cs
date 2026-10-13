@@ -13,7 +13,6 @@ public sealed record FeedLivestockAnimalCommand([property: System.Text.Json.Seri
 {
     /// <inheritdoc />
     public static CommandCodec<FeedLivestockAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 532,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

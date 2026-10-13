@@ -28,7 +28,6 @@ public sealed record TownServiceHelpCompletedServerCommand : CodecServerCommand<
 
     /// <inheritdoc />
     public static CommandCodec<TownServiceHelpCompletedServerCommand> Codec { get; } = Codecs.Command(
-        type: 253,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

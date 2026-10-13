@@ -25,7 +25,6 @@ public sealed record CreateRoadsideListingCommand
 
     /// <inheritdoc />
     public static CommandCodec<CreateRoadsideListingCommand> Codec { get; } = Codecs.Command(
-        type: 574,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

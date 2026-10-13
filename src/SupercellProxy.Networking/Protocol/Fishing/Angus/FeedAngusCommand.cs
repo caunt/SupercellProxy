@@ -11,7 +11,6 @@ public sealed record FeedAngusCommand(int GoodGlobalId, int AngusObjectGlobalId,
 {
     /// <inheritdoc />
     public static CommandCodec<FeedAngusCommand> Codec { get; } = Codecs.Command(
-        type: 2502,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GoodGlobalId,

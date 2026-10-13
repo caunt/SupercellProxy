@@ -10,7 +10,6 @@ public sealed record ExternalPurchaseServerCommand(string? ProductId, int Amount
 {
     /// <inheritdoc />
     public static CommandCodec<ExternalPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        type: 325,
         Codecs.Composite(
             Codecs.OptionalString,
             static command => command.ProductId,

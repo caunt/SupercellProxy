@@ -9,7 +9,6 @@ public sealed record ClaimDecoStickerBookPageRewardCommand(int PageIndex) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimDecoStickerBookPageRewardCommand> Codec { get; } = Codecs.Command(
-        type: 605,
         Codecs.Composite(Codecs.VarInt, static command => command.PageIndex, static (pageIndex) => new ClaimDecoStickerBookPageRewardCommand(pageIndex)),
         CommandLayout.MetadataFirst
     );

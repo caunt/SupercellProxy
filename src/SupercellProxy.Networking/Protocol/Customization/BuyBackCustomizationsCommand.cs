@@ -25,7 +25,6 @@ public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomiz
     /// <inheritdoc />
     /// <remarks>Outside production native appends one Int32 diagnostic value per customization.</remarks>
     public static CommandCodec<BuyBackCustomizationsCommand> Codec { get; } = Codecs.Command(
-        type: 247,
         Codecs.Create(
             static stream =>
             {

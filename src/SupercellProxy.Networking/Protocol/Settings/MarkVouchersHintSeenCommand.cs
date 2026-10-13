@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record MarkVouchersHintSeenCommand : CodecCommand<MarkVouchersHintSeenCommand>, ICommandCodecProvider<MarkVouchersHintSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkVouchersHintSeenCommand> Codec { get; } = Codecs.Command(type: 572, Codecs.Unit(static () => new MarkVouchersHintSeenCommand()));
+    public static CommandCodec<MarkVouchersHintSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkVouchersHintSeenCommand()));
 }

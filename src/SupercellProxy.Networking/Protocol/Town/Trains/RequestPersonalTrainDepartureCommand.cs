@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Town.Trains;
 public sealed record RequestPersonalTrainDepartureCommand : CodecCommand<RequestPersonalTrainDepartureCommand>, ICommandCodecProvider<RequestPersonalTrainDepartureCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestPersonalTrainDepartureCommand> Codec { get; } = Codecs.Command(type: 902, Codecs.Unit(static () => new RequestPersonalTrainDepartureCommand()));
+    public static CommandCodec<RequestPersonalTrainDepartureCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RequestPersonalTrainDepartureCommand()));
 }

@@ -33,7 +33,6 @@ public sealed record ProcessBoatCrateHelpServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<ProcessBoatCrateHelpServerCommand> Codec { get; } = Codecs.Command(
-        type: 304,
         Codecs.Composite(
             Codecs.OptionalLongId,
             static command => command.HelperId,

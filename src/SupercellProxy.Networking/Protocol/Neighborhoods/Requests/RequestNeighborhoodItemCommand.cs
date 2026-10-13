@@ -8,7 +8,6 @@ public sealed record RequestNeighborhoodItemCommand(int ItemGlobalId, int Quanti
 {
     /// <inheritdoc />
     public static CommandCodec<RequestNeighborhoodItemCommand> Codec { get; } = Codecs.Command(
-        type: 199,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ItemGlobalId,

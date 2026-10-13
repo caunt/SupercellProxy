@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record SetBoyOfferFlagCommand(bool Enabled) : CodecCommand<SetBoyOfferFlagCommand>, ICommandCodecProvider<SetBoyOfferFlagCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetBoyOfferFlagCommand> Codec { get; } = Codecs.Command(
-        type: 132,
-        Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static (enabled) => new SetBoyOfferFlagCommand(enabled))
-    );
+    public static CommandCodec<SetBoyOfferFlagCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static (enabled) => new SetBoyOfferFlagCommand(enabled)));
 }

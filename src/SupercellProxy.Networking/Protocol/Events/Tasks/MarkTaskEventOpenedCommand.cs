@@ -12,8 +12,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record MarkTaskEventOpenedCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkTaskEventOpenedCommand>, ICommandCodecProvider<MarkTaskEventOpenedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTaskEventOpenedCommand> Codec { get; } = Codecs.Command(
-        type: 361,
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkTaskEventOpenedCommand(eventId))
-    );
+    public static CommandCodec<MarkTaskEventOpenedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkTaskEventOpenedCommand(eventId)));
 }

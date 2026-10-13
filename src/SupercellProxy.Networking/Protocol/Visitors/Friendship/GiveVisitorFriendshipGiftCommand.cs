@@ -10,7 +10,6 @@ public sealed record GiveVisitorFriendshipGiftCommand(int VisitorGlobalId, int G
 {
     /// <inheritdoc />
     public static CommandCodec<GiveVisitorFriendshipGiftCommand> Codec { get; } = Codecs.Command(
-        type: 617,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,

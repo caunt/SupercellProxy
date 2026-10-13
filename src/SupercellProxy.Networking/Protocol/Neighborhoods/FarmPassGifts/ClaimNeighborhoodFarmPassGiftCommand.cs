@@ -9,7 +9,6 @@ public sealed record ClaimNeighborhoodFarmPassGiftCommand(LongId GiftId) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimNeighborhoodFarmPassGiftCommand> Codec { get; } = Codecs.Command(
-        type: 334,
         Codecs.Composite(Codecs.LongId, static command => command.GiftId, static (giftId) => new ClaimNeighborhoodFarmPassGiftCommand(giftId))
     );
 }

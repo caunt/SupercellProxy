@@ -16,7 +16,6 @@ public sealed record RequestAutomaticNeighborhoodCreationCommand(string Name, in
 {
     /// <inheritdoc />
     public static CommandCodec<RequestAutomaticNeighborhoodCreationCommand> Codec { get; } = Codecs.Command(
-        type: 267,
         Codecs.Composite(
             Codecs.String,
             static command => command.Name,

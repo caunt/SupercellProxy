@@ -10,7 +10,6 @@ public sealed record ClaimDecoStickerBookRewardCommand(int RewardIndex, int Coll
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimDecoStickerBookRewardCommand> Codec { get; } = Codecs.Command(
-        type: 523,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RewardIndex,

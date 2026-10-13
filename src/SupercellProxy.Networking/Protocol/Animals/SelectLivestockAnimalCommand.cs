@@ -19,7 +19,6 @@ public sealed record SelectLivestockAnimalCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<SelectLivestockAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 21,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,

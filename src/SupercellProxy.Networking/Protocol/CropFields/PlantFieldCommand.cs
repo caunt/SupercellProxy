@@ -16,7 +16,6 @@ public sealed record PlantFieldCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<PlantFieldCommand> Codec { get; } = Codecs.Command(
-        type: 514,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

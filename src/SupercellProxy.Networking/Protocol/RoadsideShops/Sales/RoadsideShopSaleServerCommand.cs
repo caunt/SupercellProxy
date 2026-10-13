@@ -14,7 +14,6 @@ public sealed record RoadsideShopSaleServerCommand(LongId OwnerHomeId, LongId Bu
 {
     /// <inheritdoc />
     public static CommandCodec<RoadsideShopSaleServerCommand> Codec { get; } = Codecs.Command(
-        type: 353,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

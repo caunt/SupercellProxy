@@ -18,7 +18,6 @@ public sealed record DecorationEventTutorialCommand : CodecCommand<DecorationEve
 
     /// <inheritdoc />
     public static CommandCodec<DecorationEventTutorialCommand> Codec { get; } = Codecs.Command(
-        type: 654,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LastIntroStep,

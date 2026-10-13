@@ -19,7 +19,6 @@ public sealed record PlaceFishingBaitCommand(int FishingSpotGlobalId, int BiteDe
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceFishingBaitCommand> Codec { get; } = Codecs.Command(
-        type: 111,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FishingSpotGlobalId,

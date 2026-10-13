@@ -5,5 +5,5 @@ namespace SupercellProxy.Networking.Protocol.Commands;
 public abstract record CodecServerCommand<TSelf> : ServerCommand where TSelf : CodecServerCommand<TSelf>, ICommandCodecProvider<TSelf>
 {
     /// <inheritdoc />
-    public sealed override int Type => TSelf.Codec.Type;
+    public sealed override CommandContract Contract => TSelf.Codec;
 }

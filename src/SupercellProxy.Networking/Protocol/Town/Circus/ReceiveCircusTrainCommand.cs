@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Town.Circus;
 public sealed record ReceiveCircusTrainCommand : CodecCommand<ReceiveCircusTrainCommand>, ICommandCodecProvider<ReceiveCircusTrainCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ReceiveCircusTrainCommand> Codec { get; } = Codecs.Command(type: 903, Codecs.Unit(static () => new ReceiveCircusTrainCommand()));
+    public static CommandCodec<ReceiveCircusTrainCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ReceiveCircusTrainCommand()));
 }

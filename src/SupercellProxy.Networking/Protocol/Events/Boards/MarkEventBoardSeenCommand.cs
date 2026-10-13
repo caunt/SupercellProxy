@@ -12,8 +12,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Boards;
 public sealed record MarkEventBoardSeenCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkEventBoardSeenCommand>, ICommandCodecProvider<MarkEventBoardSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkEventBoardSeenCommand> Codec { get; } = Codecs.Command(
-        type: 116,
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkEventBoardSeenCommand(eventId))
-    );
+    public static CommandCodec<MarkEventBoardSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkEventBoardSeenCommand(eventId)));
 }

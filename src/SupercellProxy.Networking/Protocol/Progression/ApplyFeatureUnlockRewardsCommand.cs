@@ -10,7 +10,6 @@ public sealed record ApplyFeatureUnlockRewardsCommand(int Level, int FeatureInde
 {
     /// <inheritdoc />
     public static CommandCodec<ApplyFeatureUnlockRewardsCommand> Codec { get; } = Codecs.Command(
-        type: 655,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Level,

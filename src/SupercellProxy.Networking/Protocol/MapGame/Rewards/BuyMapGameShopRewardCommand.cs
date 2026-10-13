@@ -12,7 +12,6 @@ public sealed record BuyMapGameShopRewardCommand(LongId MapGameId, int RewardInd
 {
     /// <inheritdoc />
     public static CommandCodec<BuyMapGameShopRewardCommand> Codec { get; } = Codecs.Command(
-        type: 296,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.MapGameId,

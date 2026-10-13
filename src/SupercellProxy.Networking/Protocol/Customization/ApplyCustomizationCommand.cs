@@ -10,7 +10,6 @@ public sealed record ApplyCustomizationCommand(int PartGlobalId, int Customizati
 {
     /// <inheritdoc />
     public static CommandCodec<ApplyCustomizationCommand> Codec { get; } = Codecs.Command(
-        type: 237,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PartGlobalId,

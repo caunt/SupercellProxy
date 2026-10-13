@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings.Ads;
 public sealed record MarkFacebookAdClickedCommand : CodecCommand<MarkFacebookAdClickedCommand>, ICommandCodecProvider<MarkFacebookAdClickedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkFacebookAdClickedCommand> Codec { get; } = Codecs.Command(type: 505, Codecs.Unit(static () => new MarkFacebookAdClickedCommand()));
+    public static CommandCodec<MarkFacebookAdClickedCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkFacebookAdClickedCommand()));
 }

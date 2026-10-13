@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Wrapped;
 public sealed record CloseHayDayWrappedCommand : CodecCommand<CloseHayDayWrappedCommand>, ICommandCodecProvider<CloseHayDayWrappedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CloseHayDayWrappedCommand> Codec { get; } = Codecs.Command(type: 391, Codecs.Unit(static () => new CloseHayDayWrappedCommand()));
+    public static CommandCodec<CloseHayDayWrappedCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CloseHayDayWrappedCommand()));
 }

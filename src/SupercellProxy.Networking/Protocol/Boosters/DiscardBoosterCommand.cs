@@ -11,7 +11,6 @@ public sealed record DiscardBoosterCommand(int BoosterGlobalId, bool Active, boo
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 213,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterGlobalId,

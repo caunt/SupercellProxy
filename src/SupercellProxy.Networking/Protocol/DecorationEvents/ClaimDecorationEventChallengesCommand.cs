@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DecorationEvents;
 public sealed record ClaimDecorationEventChallengesCommand : CodecCommand<ClaimDecorationEventChallengesCommand>, ICommandCodecProvider<ClaimDecorationEventChallengesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDecorationEventChallengesCommand> Codec { get; } = Codecs.Command(type: 637, Codecs.Unit(static () => new ClaimDecorationEventChallengesCommand()));
+    public static CommandCodec<ClaimDecorationEventChallengesCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimDecorationEventChallengesCommand()));
 }

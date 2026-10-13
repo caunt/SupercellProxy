@@ -10,7 +10,6 @@ public sealed record PlaceSanctuaryPuzzlePiecesCommand(int AnimalGlobalId, bool 
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceSanctuaryPuzzlePiecesCommand> Codec { get; } = Codecs.Command(
-        type: 221,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

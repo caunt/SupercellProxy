@@ -13,7 +13,6 @@ public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex,
 {
     /// <inheritdoc />
     public static CommandCodec<FillBoatCrateCommand> Codec { get; } = Codecs.Command(
-        type: 634,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

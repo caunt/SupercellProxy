@@ -12,7 +12,6 @@ public sealed record SharedPassengersServerCommand(int Action, LongId? SharingHo
 {
     /// <inheritdoc />
     public static CommandCodec<SharedPassengersServerCommand> Codec { get; } = Codecs.Command(
-        type: 149,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Action,

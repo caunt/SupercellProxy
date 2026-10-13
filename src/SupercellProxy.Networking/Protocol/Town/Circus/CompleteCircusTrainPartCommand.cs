@@ -9,7 +9,6 @@ public sealed record CompleteCircusTrainPartCommand(int CircusTrainPartGlobalId)
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteCircusTrainPartCommand> Codec { get; } = Codecs.Command(
-        type: 166,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CircusTrainPartGlobalId,

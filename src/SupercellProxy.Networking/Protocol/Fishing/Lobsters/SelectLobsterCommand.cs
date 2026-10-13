@@ -10,7 +10,6 @@ public sealed record SelectLobsterCommand(int PoolGlobalId, int LobsterGlobalId)
 {
     /// <inheritdoc />
     public static CommandCodec<SelectLobsterCommand> Codec { get; } = Codecs.Command(
-        type: 120,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PoolGlobalId,

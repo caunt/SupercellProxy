@@ -18,7 +18,6 @@ public sealed record CollectRoadsideSaleProceedsCommand : CodecCommand<CollectRo
 
     /// <inheritdoc />
     public static CommandCodec<CollectRoadsideSaleProceedsCommand> Codec { get; } = Codecs.Command(
-        type: 649,
         Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new CollectRoadsideSaleProceedsCommand(slotIndex)),
         CommandLayout.MetadataFirst
     );

@@ -9,6 +9,9 @@ public abstract record Command
     private CommandData? _debugData1;
     private int _executionPhaseCounter = -1;
 
+    /// <summary>Gets the command's contract, its identity across releases; CommandRegistry selects its version-specific wire id.</summary>
+    public abstract CommandContract Contract { get; }
+
     /// <summary>Gets the first diagnostic state native sends outside production.</summary>
     public CommandData? DebugData0
     {
@@ -29,9 +32,6 @@ public abstract record Command
         get => _executionPhaseCounter;
         init => _executionPhaseCounter = value;
     }
-
-    /// <summary>Identifies the command contract. CommandRegistry selects its version-specific wire id.</summary>
-    public abstract int Type { get; }
 
     /// <summary>Sets the sub-tick at which the command executes.</summary>
     public void SetExecutionPhaseCounter(int executionPhaseCounter)

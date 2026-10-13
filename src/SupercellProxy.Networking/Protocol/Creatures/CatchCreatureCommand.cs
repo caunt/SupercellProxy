@@ -8,7 +8,6 @@ public sealed record CatchCreatureCommand(int CreatureGlobalId) : CodecCommand<C
 {
     /// <inheritdoc />
     public static CommandCodec<CatchCreatureCommand> Codec { get; } = Codecs.Command(
-        type: 669,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CreatureGlobalId,

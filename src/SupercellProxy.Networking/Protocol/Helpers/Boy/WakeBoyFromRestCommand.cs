@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record WakeBoyFromRestCommand : CodecCommand<WakeBoyFromRestCommand>, ICommandCodecProvider<WakeBoyFromRestCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<WakeBoyFromRestCommand> Codec { get; } = Codecs.Command(type: 595, Codecs.Unit(static () => new WakeBoyFromRestCommand()));
+    public static CommandCodec<WakeBoyFromRestCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new WakeBoyFromRestCommand()));
 }

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Reengagement;
 public sealed record AdvanceReengagementFlowCommand : CodecCommand<AdvanceReengagementFlowCommand>, ICommandCodecProvider<AdvanceReengagementFlowCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AdvanceReengagementFlowCommand> Codec { get; } = Codecs.Command(type: 684, Codecs.Unit(static () => new AdvanceReengagementFlowCommand()));
+    public static CommandCodec<AdvanceReengagementFlowCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new AdvanceReengagementFlowCommand()));
 }

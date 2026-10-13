@@ -9,7 +9,6 @@ public sealed record SwapNeighborhoodObjectTaskCommand(int TaskIndex) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<SwapNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(
-        type: 611,
         Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static (taskIndex) => new SwapNeighborhoodObjectTaskCommand(taskIndex)),
         CommandLayout.MetadataFirst
     );

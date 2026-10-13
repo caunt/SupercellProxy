@@ -21,7 +21,6 @@ public sealed record JoinNeighborhoodServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<JoinNeighborhoodServerCommand> Codec { get; } = Codecs.Command(
-        type: 134,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

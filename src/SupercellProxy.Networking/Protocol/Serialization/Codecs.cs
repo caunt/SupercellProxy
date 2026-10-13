@@ -86,12 +86,19 @@ public static class Codecs
         return new BindCodec<TKey, TValue>(key, keyOf, rest);
     }
 
-    /// <summary>Gets the contract of command <paramref name="type"/>: its fields wrapped with the shared command metadata.</summary>
-    public static CommandCodec<TCommand> Command<TCommand>(int type, ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Commands.Command
+    /// <summary>Gets the contract of a command record: its fields wrapped with the shared command metadata.</summary>
+    public static CommandCodec<TCommand> Command<TCommand>(ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Commands.Command
     {
+        return Command(typeof(TCommand).Name, fields, layout, productionAllowed);
+    }
+
+    /// <summary>Gets the contract named <paramref name="name"/> of a record that carries several native commands.</summary>
+    public static CommandCodec<TCommand> Command<TCommand>(string name, ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Commands.Command
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(fields);
 
-        return new CommandCodec<TCommand>(type, fields, layout, productionAllowed);
+        return new CommandCodec<TCommand>(name, fields, layout, productionAllowed);
     }
 
     /// <summary>Gets a payload codec that rejects bytes left after its last field with <paramref name="trailingDataMessage"/>.</summary>

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings.Ads;
 public sealed record MarkInstagramAdClickedCommand : CodecCommand<MarkInstagramAdClickedCommand>, ICommandCodecProvider<MarkInstagramAdClickedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkInstagramAdClickedCommand> Codec { get; } = Codecs.Command(type: 503, Codecs.Unit(static () => new MarkInstagramAdClickedCommand()));
+    public static CommandCodec<MarkInstagramAdClickedCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkInstagramAdClickedCommand()));
 }

@@ -23,7 +23,6 @@ public sealed record TownPassengerActionCommand(int PassengerGlobalId, int Actio
 
     /// <inheritdoc />
     public static CommandCodec<TownPassengerActionCommand> Codec { get; } = Codecs.Command(
-        type: 140,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PassengerGlobalId,

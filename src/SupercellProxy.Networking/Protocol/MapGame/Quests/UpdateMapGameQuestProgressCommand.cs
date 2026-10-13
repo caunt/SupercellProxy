@@ -10,7 +10,6 @@ public sealed record UpdateMapGameQuestProgressCommand(int QuestGlobalId, int Pr
 {
     /// <inheritdoc />
     public static CommandCodec<UpdateMapGameQuestProgressCommand> Codec { get; } = Codecs.Command(
-        type: 302,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.QuestGlobalId,

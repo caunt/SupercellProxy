@@ -8,7 +8,6 @@ public sealed record BuyCatalogueGiftCommand(int GiftDataGlobalId, int Catalogue
 {
     /// <inheritdoc />
     public static CommandCodec<BuyCatalogueGiftCommand> Codec { get; } = Codecs.Command(
-        type: 104,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftDataGlobalId,

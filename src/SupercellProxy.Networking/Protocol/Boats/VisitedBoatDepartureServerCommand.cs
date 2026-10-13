@@ -13,7 +13,6 @@ public sealed record VisitedBoatDepartureServerCommand([property: System.Text.Js
 {
     /// <inheritdoc />
     public static CommandCodec<VisitedBoatDepartureServerCommand> Codec { get; } = Codecs.Command(
-        type: 385,
         Codecs.Composite(Codecs.LongId, static command => command.HomeOwnerId, static (owner) => new VisitedBoatDepartureServerCommand(owner))
     );
 }

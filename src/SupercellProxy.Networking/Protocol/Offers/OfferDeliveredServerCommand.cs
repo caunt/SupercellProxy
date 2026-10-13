@@ -13,7 +13,6 @@ public sealed record OfferDeliveredServerCommand(ReadOnlyMemory<OfferGood> Goods
 {
     /// <inheritdoc />
     public static CommandCodec<OfferDeliveredServerCommand> Codec { get; } = Codecs.Command(
-        type: 372,
         Codecs.Composite(
             Codecs.Memory(OfferGood.Codec),
             static command => command.Goods,

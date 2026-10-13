@@ -9,7 +9,6 @@ public sealed record GrantResourcesServerCommand(ReadOnlyMemory<GrantedResource>
 {
     /// <inheritdoc />
     public static CommandCodec<GrantResourcesServerCommand> Codec { get; } = Codecs.Command(
-        type: 344,
         Codecs.Composite(
             Codecs.Memory(GrantedResource.Codec),
             static command => command.Resources,

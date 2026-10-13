@@ -10,7 +10,6 @@ public sealed record BuyBoosterCommand(int BoosterGlobalId, int Count) : CodecCo
 {
     /// <inheritdoc />
     public static CommandCodec<BuyBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 216,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterGlobalId,

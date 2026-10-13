@@ -11,7 +11,6 @@ public sealed record SelectCustomizationsCommand(int CustomizationGlobalId, Read
 {
     /// <inheritdoc />
     public static CommandCodec<SelectCustomizationsCommand> Codec { get; } = Codecs.Command(
-        type: 233,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CustomizationGlobalId,

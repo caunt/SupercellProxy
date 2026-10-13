@@ -13,7 +13,6 @@ public sealed record ClaimEventBoardSeenRewardCommand([property: System.Text.Jso
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimEventBoardSeenRewardCommand> Codec { get; } = Codecs.Command(
-        type: 534,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new ClaimEventBoardSeenRewardCommand(eventId)),
         CommandLayout.MetadataFirst
     );

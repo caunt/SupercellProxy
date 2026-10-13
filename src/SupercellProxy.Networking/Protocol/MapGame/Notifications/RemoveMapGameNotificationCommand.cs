@@ -8,7 +8,6 @@ public sealed record RemoveMapGameNotificationCommand([property: System.Text.Jso
 {
     /// <inheritdoc />
     public static CommandCodec<RemoveMapGameNotificationCommand> Codec { get; } = Codecs.Command(
-        type: 288,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.NotificationGlobalId,

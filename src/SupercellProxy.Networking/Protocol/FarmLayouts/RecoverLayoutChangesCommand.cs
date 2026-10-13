@@ -9,7 +9,6 @@ public sealed record RecoverLayoutChangesCommand(bool Recover) : CodecCommand<Re
 {
     /// <inheritdoc />
     public static CommandCodec<RecoverLayoutChangesCommand> Codec { get; } = Codecs.Command(
-        type: 196,
         Codecs.Composite(Codecs.Boolean, static command => command.Recover, static (recover) => new RecoverLayoutChangesCommand(recover))
     );
 }

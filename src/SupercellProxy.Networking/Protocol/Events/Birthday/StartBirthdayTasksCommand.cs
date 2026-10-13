@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 public sealed record StartBirthdayTasksCommand : CodecCommand<StartBirthdayTasksCommand>, ICommandCodecProvider<StartBirthdayTasksCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StartBirthdayTasksCommand> Codec { get; } = Codecs.Command(type: 699, Codecs.Unit(static () => new StartBirthdayTasksCommand()));
+    public static CommandCodec<StartBirthdayTasksCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new StartBirthdayTasksCommand()));
 }

@@ -10,7 +10,6 @@ public sealed record EndMapGameServerCommand(LongId? MapGameId, int LastPosition
 {
     /// <inheritdoc />
     public static CommandCodec<EndMapGameServerCommand> Codec { get; } = Codecs.Command(
-        type: 273,
         Codecs.Composite(
             Codecs.OptionalLongId,
             static command => command.MapGameId,

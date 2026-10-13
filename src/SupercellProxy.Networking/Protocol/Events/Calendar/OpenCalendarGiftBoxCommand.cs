@@ -9,7 +9,6 @@ public sealed record OpenCalendarGiftBoxCommand(int GiftBoxGlobalId) : CodecComm
 {
     /// <inheritdoc />
     public static CommandCodec<OpenCalendarGiftBoxCommand> Codec { get; } = Codecs.Command(
-        type: 667,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftBoxGlobalId,

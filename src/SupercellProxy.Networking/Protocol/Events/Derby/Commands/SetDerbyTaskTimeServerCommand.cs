@@ -8,7 +8,6 @@ public sealed record SetDerbyTaskTimeServerCommand(int RemainingSeconds) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<SetDerbyTaskTimeServerCommand> Codec { get; } = Codecs.Command(
-        type: 181,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RemainingSeconds,

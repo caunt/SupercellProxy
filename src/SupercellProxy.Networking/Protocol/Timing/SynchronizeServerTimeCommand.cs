@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Timing;
 public sealed record SynchronizeServerTimeCommand : CodecCommand<SynchronizeServerTimeCommand>, ICommandCodecProvider<SynchronizeServerTimeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SynchronizeServerTimeCommand> Codec { get; } = Codecs.Command(type: 676, Codecs.Unit(static () => new SynchronizeServerTimeCommand()));
+    public static CommandCodec<SynchronizeServerTimeCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new SynchronizeServerTimeCommand()));
 }

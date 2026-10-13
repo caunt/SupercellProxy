@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Boats.States;
 public sealed record AcknowledgeBoatCommand : CodecCommand<AcknowledgeBoatCommand>, ICommandCodecProvider<AcknowledgeBoatCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AcknowledgeBoatCommand> Codec { get; } = Codecs.Command(type: 674, Codecs.Unit(static () => new AcknowledgeBoatCommand()));
+    public static CommandCodec<AcknowledgeBoatCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new AcknowledgeBoatCommand()));
 }

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings.Ads;
 public sealed record MarkWeiboAdClickedCommand : CodecCommand<MarkWeiboAdClickedCommand>, ICommandCodecProvider<MarkWeiboAdClickedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkWeiboAdClickedCommand> Codec { get; } = Codecs.Command(type: 635, Codecs.Unit(static () => new MarkWeiboAdClickedCommand()));
+    public static CommandCodec<MarkWeiboAdClickedCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkWeiboAdClickedCommand()));
 }

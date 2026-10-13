@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Seen;
 public sealed record MarkFarmPassTasksSeenCommand : CodecCommand<MarkFarmPassTasksSeenCommand>, ICommandCodecProvider<MarkFarmPassTasksSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkFarmPassTasksSeenCommand> Codec { get; } = Codecs.Command(type: 539, Codecs.Unit(static () => new MarkFarmPassTasksSeenCommand()));
+    public static CommandCodec<MarkFarmPassTasksSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkFarmPassTasksSeenCommand()));
 }

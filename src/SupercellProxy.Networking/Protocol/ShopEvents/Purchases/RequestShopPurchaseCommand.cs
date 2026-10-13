@@ -13,7 +13,6 @@ public sealed record RequestShopPurchaseCommand(int EventId, int VariantId, int 
 {
     /// <inheritdoc />
     public static CommandCodec<RequestShopPurchaseCommand> Codec { get; } = Codecs.Command(
-        type: 227,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.EventId,

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 public sealed record SpeedUpMapGameTaskCommand : CodecCommand<SpeedUpMapGameTaskCommand>, ICommandCodecProvider<SpeedUpMapGameTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpMapGameTaskCommand> Codec { get; } = Codecs.Command(type: 553, Codecs.Unit(static () => new SpeedUpMapGameTaskCommand()));
+    public static CommandCodec<SpeedUpMapGameTaskCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new SpeedUpMapGameTaskCommand()));
 }

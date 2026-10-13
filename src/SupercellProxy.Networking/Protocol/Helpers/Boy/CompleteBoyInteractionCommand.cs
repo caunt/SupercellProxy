@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record CompleteBoyInteractionCommand : CodecCommand<CompleteBoyInteractionCommand>, ICommandCodecProvider<CompleteBoyInteractionCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CompleteBoyInteractionCommand> Codec { get; } = Codecs.Command(type: 653, Codecs.Unit(static () => new CompleteBoyInteractionCommand()));
+    public static CommandCodec<CompleteBoyInteractionCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CompleteBoyInteractionCommand()));
 }

@@ -8,7 +8,6 @@ public sealed record SetAngusInteractionCommand(bool Active, int AngusGlobalId) 
 {
     /// <inheritdoc />
     public static CommandCodec<SetAngusInteractionCommand> Codec { get; } = Codecs.Command(
-        type: 700,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.Active,

@@ -10,7 +10,6 @@ public sealed record RemoteOrderUpdatesServerCommand(LongId OwnerHomeId, ReadOnl
 {
     /// <inheritdoc />
     public static CommandCodec<RemoteOrderUpdatesServerCommand> Codec { get; } = Codecs.Command(
-        type: 263,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

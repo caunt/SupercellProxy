@@ -8,7 +8,6 @@ public sealed record StartPlantClearingCommand(int PlantId, bool BuyMissingTool)
 {
     /// <inheritdoc />
     public static CommandCodec<StartPlantClearingCommand> Codec { get; } = Codecs.Command(
-        type: 60,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PlantId,

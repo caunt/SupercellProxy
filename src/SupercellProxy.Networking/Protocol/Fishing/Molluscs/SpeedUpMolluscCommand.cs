@@ -9,7 +9,6 @@ public sealed record SpeedUpMolluscCommand(int MolluscGlobalId) : CodecCommand<S
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpMolluscCommand> Codec { get; } = Codecs.Command(
-        type: 395,
         Codecs.Composite(Codecs.VarInt, static command => command.MolluscGlobalId, static (molluscGlobalId) => new SpeedUpMolluscCommand(molluscGlobalId))
     );
 }

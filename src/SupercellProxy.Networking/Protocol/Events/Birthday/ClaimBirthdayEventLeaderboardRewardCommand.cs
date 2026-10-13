@@ -9,7 +9,6 @@ public sealed record ClaimBirthdayEventLeaderboardRewardCommand(int EventId) : C
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimBirthdayEventLeaderboardRewardCommand> Codec { get; } = Codecs.Command(
-        type: 370,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new ClaimBirthdayEventLeaderboardRewardCommand(eventId))
     );
 }

@@ -8,7 +8,6 @@ public sealed record ClaimNeighborhoodObjectRewardCommand(int TierIndex) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimNeighborhoodObjectRewardCommand> Codec { get; } = Codecs.Command(
-        type: 706,
         Codecs.Composite(Codecs.VarInt, static command => command.TierIndex, static (tierIndex) => new ClaimNeighborhoodObjectRewardCommand(tierIndex)),
         CommandLayout.MetadataFirst
     );

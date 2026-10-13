@@ -10,7 +10,6 @@ public sealed record SpeedUpCountyFairRegenerationCommand(int EventId, int Price
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpCountyFairRegenerationCommand> Codec { get; } = Codecs.Command(
-        type: 650,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

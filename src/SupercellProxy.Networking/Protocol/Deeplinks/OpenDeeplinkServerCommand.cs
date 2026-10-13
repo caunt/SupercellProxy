@@ -11,7 +11,6 @@ public sealed record OpenDeeplinkServerCommand(LongId HomeId, int DeeplinkGlobal
 {
     /// <inheritdoc />
     public static CommandCodec<OpenDeeplinkServerCommand> Codec { get; } = Codecs.Command(
-        type: 266,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.HomeId,

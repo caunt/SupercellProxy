@@ -12,7 +12,6 @@ public sealed record TreeRevivalServerCommand(LongId OwnerHomeId, LongId HelperH
 {
     /// <inheritdoc />
     public static CommandCodec<TreeRevivalServerCommand> Codec { get; } = Codecs.Command(
-        type: 328,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.OwnerHomeId,

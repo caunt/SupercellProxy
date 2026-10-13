@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Currency;
 public sealed record ClaimFreeDiamondsCommand : CodecCommand<ClaimFreeDiamondsCommand>, ICommandCodecProvider<ClaimFreeDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimFreeDiamondsCommand> Codec { get; } = Codecs.Command(type: 645, Codecs.Unit(static () => new ClaimFreeDiamondsCommand()));
+    public static CommandCodec<ClaimFreeDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimFreeDiamondsCommand()));
 }

@@ -35,7 +35,6 @@ public sealed record BoatCrateHelpResponseServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<BoatCrateHelpResponseServerCommand> Codec { get; } = Codecs.Command(
-        type: 389,
         Codecs.Composite(
             Codecs.OptionalLongId,
             static command => command.HomeOwnerId,

@@ -19,7 +19,6 @@ public sealed record RecordEventSeenCommand([property: System.Text.Json.Serializ
 {
     /// <inheritdoc />
     public static CommandCodec<RecordEventSeenCommand> Codec { get; } = Codecs.Command(
-        type: 230,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.EventId,

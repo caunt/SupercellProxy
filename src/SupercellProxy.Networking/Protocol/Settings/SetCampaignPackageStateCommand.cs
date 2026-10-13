@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetCampaignPackageStateCommand(int State) : CodecCommand<SetCampaignPackageStateCommand>, ICommandCodecProvider<SetCampaignPackageStateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetCampaignPackageStateCommand> Codec { get; } = Codecs.Command(
-        type: 183,
-        Codecs.Composite(Codecs.VarInt, static command => command.State, static (state) => new SetCampaignPackageStateCommand(state))
-    );
+    public static CommandCodec<SetCampaignPackageStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.State, static (state) => new SetCampaignPackageStateCommand(state)));
 }

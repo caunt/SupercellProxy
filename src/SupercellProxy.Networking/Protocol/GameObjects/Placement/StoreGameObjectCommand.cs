@@ -9,7 +9,6 @@ public sealed record StoreGameObjectCommand(int ObjectGlobalId) : CodecCommand<S
 {
     /// <inheritdoc />
     public static CommandCodec<StoreGameObjectCommand> Codec { get; } = Codecs.Command(
-        type: 93,
         Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static (objectGlobalId) => new StoreGameObjectCommand(objectGlobalId))
     );
 }

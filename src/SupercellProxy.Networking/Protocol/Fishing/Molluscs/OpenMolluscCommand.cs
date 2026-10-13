@@ -8,7 +8,6 @@ public sealed record OpenMolluscCommand(int MolluscDataId, int AngusId) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<OpenMolluscCommand> Codec { get; } = Codecs.Command(
-        type: 704,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.MolluscDataId,

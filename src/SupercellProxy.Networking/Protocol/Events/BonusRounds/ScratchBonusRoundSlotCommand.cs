@@ -12,7 +12,6 @@ public sealed record ScratchBonusRoundSlotCommand(int RoundId, int Round, int Sl
 {
     /// <inheritdoc />
     public static CommandCodec<ScratchBonusRoundSlotCommand> Codec { get; } = Codecs.Command(
-        type: 317,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RoundId,

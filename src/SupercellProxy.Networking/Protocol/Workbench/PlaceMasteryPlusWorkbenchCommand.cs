@@ -10,7 +10,6 @@ public sealed record PlaceMasteryPlusWorkbenchCommand(int PositionY, int Positio
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceMasteryPlusWorkbenchCommand> Codec { get; } = Codecs.Command(
-        type: 658,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PositionY,

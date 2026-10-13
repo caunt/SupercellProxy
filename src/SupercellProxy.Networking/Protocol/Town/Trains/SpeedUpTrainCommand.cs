@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Town.Trains;
 public sealed record SpeedUpTrainCommand : CodecCommand<SpeedUpTrainCommand>, ICommandCodecProvider<SpeedUpTrainCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpTrainCommand> Codec { get; } = Codecs.Command(type: 901, Codecs.Unit(static () => new SpeedUpTrainCommand()));
+    public static CommandCodec<SpeedUpTrainCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new SpeedUpTrainCommand()));
 }

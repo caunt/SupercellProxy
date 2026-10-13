@@ -13,7 +13,6 @@ public sealed record MarkChronosEventUserInterfaceOpenedCommand([property: Syste
 {
     /// <inheritdoc />
     public static CommandCodec<MarkChronosEventUserInterfaceOpenedCommand> Codec { get; } = Codecs.Command(
-        type: 502,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkChronosEventUserInterfaceOpenedCommand(eventId)),
         CommandLayout.MetadataFirst
     );

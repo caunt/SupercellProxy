@@ -9,7 +9,6 @@ public sealed record SetMapGameServerCommand(LongId? MapGameId) : CodecServerCom
 {
     /// <inheritdoc />
     public static CommandCodec<SetMapGameServerCommand> Codec { get; } = Codecs.Command(
-        type: 272,
         Codecs.Composite(Codecs.OptionalLongId, static command => command.MapGameId, static (mapGameId) => new SetMapGameServerCommand(mapGameId))
     );
 }

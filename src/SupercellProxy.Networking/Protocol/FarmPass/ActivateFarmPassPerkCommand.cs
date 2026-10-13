@@ -8,7 +8,6 @@ public sealed record ActivateFarmPassPerkCommand(int PerkDataGlobalId, int Param
 {
     /// <inheritdoc />
     public static CommandCodec<ActivateFarmPassPerkCommand> Codec { get; } = Codecs.Command(
-        type: 343,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PerkDataGlobalId,

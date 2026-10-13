@@ -9,7 +9,6 @@ public sealed record FailWithErrorCodeCommand(int ErrorCode) : CodecCommand<Fail
 {
     /// <inheritdoc />
     public static CommandCodec<FailWithErrorCodeCommand> Codec { get; } = Codecs.Command(
-        type: 373,
         Codecs.Composite(Codecs.VarInt, static command => command.ErrorCode, static (errorCode) => new FailWithErrorCodeCommand(errorCode))
     );
 }

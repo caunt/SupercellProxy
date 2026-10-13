@@ -8,7 +8,6 @@ public sealed record AdvertiseRoadsideListingCommand(int SlotIndex) : CodecComma
 {
     /// <inheritdoc />
     public static CommandCodec<AdvertiseRoadsideListingCommand> Codec { get; } = Codecs.Command(
-        type: 511,
         Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new AdvertiseRoadsideListingCommand(slotIndex)),
         CommandLayout.MetadataFirst
     );

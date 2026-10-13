@@ -9,7 +9,6 @@ public sealed record SpeedUpTruckOrderCommand(int OrderIndex) : CodecCommand<Spe
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpTruckOrderCommand> Codec { get; } = Codecs.Command(
-        type: 29,
         Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static (orderIndex) => new SpeedUpTruckOrderCommand(orderIndex))
     );
 }

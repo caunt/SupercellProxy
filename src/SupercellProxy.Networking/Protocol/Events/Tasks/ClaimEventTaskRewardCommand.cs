@@ -11,7 +11,6 @@ public sealed record ClaimEventTaskRewardCommand(int EventId, int RewardIndex, b
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimEventTaskRewardCommand> Codec { get; } = Codecs.Command(
-        type: 360,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

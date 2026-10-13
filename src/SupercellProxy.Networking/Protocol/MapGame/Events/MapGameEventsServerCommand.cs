@@ -28,7 +28,6 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
 
     /// <inheritdoc />
     public static CommandCodec<MapGameEventsServerCommand> Codec { get; } = Codecs.Command(
-        type: 274,
         Codecs.Composite(
             Codecs.OptionalLongId,
             static command => command.UnknownLongId0,

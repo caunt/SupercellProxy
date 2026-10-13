@@ -12,7 +12,6 @@ public sealed record RemoveLayoutObjectCommand(int ObjectGlobalId, int PositionX
 {
     /// <inheritdoc />
     public static CommandCodec<RemoveLayoutObjectCommand> Codec { get; } = Codecs.Command(
-        type: 190,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,

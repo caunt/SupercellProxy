@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Objects;
 public sealed record BuyExtraNeighborhoodObjectTaskCommand : CodecCommand<BuyExtraNeighborhoodObjectTaskCommand>, ICommandCodecProvider<BuyExtraNeighborhoodObjectTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyExtraNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(type: 547, Codecs.Unit(static () => new BuyExtraNeighborhoodObjectTaskCommand()));
+    public static CommandCodec<BuyExtraNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new BuyExtraNeighborhoodObjectTaskCommand()));
 }

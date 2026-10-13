@@ -12,7 +12,6 @@ public sealed record BuyNextBonusRoundCommand(int RoundId, int Round, int Price,
 {
     /// <inheritdoc />
     public static CommandCodec<BuyNextBonusRoundCommand> Codec { get; } = Codecs.Command(
-        type: 319,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RoundId,

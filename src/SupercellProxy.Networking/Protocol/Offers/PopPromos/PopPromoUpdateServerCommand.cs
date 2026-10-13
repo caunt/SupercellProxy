@@ -16,7 +16,6 @@ public sealed record PopPromoUpdateServerCommand(LongId HomeId, int PromoId, int
 {
     /// <inheritdoc />
     public static CommandCodec<PopPromoUpdateServerCommand> Codec { get; } = Codecs.Command(
-        type: 331,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.HomeId,

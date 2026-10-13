@@ -13,7 +13,6 @@ public sealed record DismissFarmPassNotificationCommand([property: System.Text.J
 {
     /// <inheritdoc />
     public static CommandCodec<DismissFarmPassNotificationCommand> Codec { get; } = Codecs.Command(
-        type: 333,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.NotificationGlobalId,

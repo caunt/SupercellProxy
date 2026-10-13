@@ -8,7 +8,6 @@ public sealed record ClaimDerbyRewardsCommand(DerbyRewardSelection Selection) : 
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimDerbyRewardsCommand> Codec { get; } = Codecs.Command(
-        type: 173,
         Codecs.Composite(DerbyRewardSelection.Codec, static command => command.Selection, static (selection) => new ClaimDerbyRewardsCommand(selection))
     );
 }

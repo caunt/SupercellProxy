@@ -10,7 +10,6 @@ public sealed record CompleteBuildingUpgradeCommand(int ObjectGlobalId, int Leve
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteBuildingUpgradeCommand> Codec { get; } = Codecs.Command(
-        type: 126,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,

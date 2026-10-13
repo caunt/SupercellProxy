@@ -9,7 +9,6 @@ public sealed record GrantEventPointsServerCommand(int Amount) : CodecServerComm
 {
     /// <inheritdoc />
     public static CommandCodec<GrantEventPointsServerCommand> Codec { get; } = Codecs.Command(
-        type: 226,
         Codecs.Composite(Codecs.Int32, static command => command.Amount, static (amount) => new GrantEventPointsServerCommand(amount)),
         CommandLayout.MetadataFirst
     );

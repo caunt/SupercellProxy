@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 public sealed record CallLumberjackCommand : CodecCommand<CallLumberjackCommand>, ICommandCodecProvider<CallLumberjackCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CallLumberjackCommand> Codec { get; } = Codecs.Command(type: 685, Codecs.Unit(static () => new CallLumberjackCommand()));
+    public static CommandCodec<CallLumberjackCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CallLumberjackCommand()));
 }

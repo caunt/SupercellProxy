@@ -8,7 +8,6 @@ public sealed record CollectGathererNestCommand([property: System.Text.Json.Seri
 {
     /// <inheritdoc />
     public static CommandCodec<CollectGathererNestCommand> Codec { get; } = Codecs.Command(
-        type: 156,
         Codecs.Composite(Codecs.VarInt, static command => command.GathererNestGlobalId, static (id) => new CollectGathererNestCommand(id))
     );
 }

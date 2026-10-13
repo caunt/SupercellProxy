@@ -13,7 +13,6 @@ public sealed record StartTruckDeliveryCommand(int OrderIndex) : CodecCommand<St
 {
     /// <inheritdoc />
     public static CommandCodec<StartTruckDeliveryCommand> Codec { get; } = Codecs.Command(
-        type: 612,
         Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static (orderIndex) => new StartTruckDeliveryCommand(orderIndex)),
         CommandLayout.MetadataFirst
     );

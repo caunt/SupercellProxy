@@ -9,7 +9,6 @@ public sealed record SetBirthdayHugsEnabledCommand(bool Enabled) : CodecCommand<
 {
     /// <inheritdoc />
     public static CommandCodec<SetBirthdayHugsEnabledCommand> Codec { get; } = Codecs.Command(
-        type: 306,
         Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static (enabled) => new SetBirthdayHugsEnabledCommand(enabled))
     );
 }

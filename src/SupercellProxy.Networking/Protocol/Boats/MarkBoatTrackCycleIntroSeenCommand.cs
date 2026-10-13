@@ -8,7 +8,6 @@ public sealed record MarkBoatTrackCycleIntroSeenCommand(long CycleResetTimestamp
 {
     /// <inheritdoc />
     public static CommandCodec<MarkBoatTrackCycleIntroSeenCommand> Codec { get; } = Codecs.Command(
-        type: 702,
         Codecs.Composite(
             Codecs.VarLong,
             static command => command.CycleResetTimestamp,

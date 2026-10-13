@@ -8,7 +8,6 @@ public sealed record RoadsidePurchaseRejectedServerCommand(LongId BuyerId, LongI
 {
     /// <inheritdoc />
     public static CommandCodec<RoadsidePurchaseRejectedServerCommand> Codec { get; } = Codecs.Command(
-        type: 309,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.BuyerId,

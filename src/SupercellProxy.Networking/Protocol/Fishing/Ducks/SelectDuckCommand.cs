@@ -10,7 +10,6 @@ public sealed record SelectDuckCommand(int SalonGlobalId, int DuckGlobalId) : Co
 {
     /// <inheritdoc />
     public static CommandCodec<SelectDuckCommand> Codec { get; } = Codecs.Command(
-        type: 162,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SalonGlobalId,

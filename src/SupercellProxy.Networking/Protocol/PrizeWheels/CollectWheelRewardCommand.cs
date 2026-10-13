@@ -13,7 +13,6 @@ public sealed record CollectWheelRewardCommand(bool ClientPresentation) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<CollectWheelRewardCommand> Codec { get; } = Codecs.Command(
-        type: 80,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.ClientPresentation,

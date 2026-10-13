@@ -8,7 +8,6 @@ public sealed record CallPetsToHabitatCommand(int HabitatGlobalId) : CodecComman
 {
     /// <inheritdoc />
     public static CommandCodec<CallPetsToHabitatCommand> Codec { get; } = Codecs.Command(
-        type: 89,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,

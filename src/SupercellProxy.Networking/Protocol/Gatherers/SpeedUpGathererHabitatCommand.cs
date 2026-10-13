@@ -9,7 +9,6 @@ public sealed record SpeedUpGathererHabitatCommand(int HabitatGlobalId) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpGathererHabitatCommand> Codec { get; } = Codecs.Command(
-        type: 155,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,

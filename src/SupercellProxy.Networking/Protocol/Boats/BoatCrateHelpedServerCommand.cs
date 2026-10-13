@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -9,26 +7,19 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record BoatCrateHelpedServerCommand(bool OwnHomeNotification, LongId HomeOwnerId, LongId HelperId, int CrateIndex, int RequestKind)
     : ServerCommand
 {
-    /// <summary>The contract id when <see cref="OwnHomeNotification"/> is true.</summary>
-    public const int OwnBoatCrateHelpedServerCommandType = 387;
+    /// <summary>Gets the contract of the native command that notifies the farm owner.</summary>
+    public static CommandCodec<BoatCrateHelpedServerCommand> OwnHomeCodec { get; } = Create(name: "OwnBoatCrateHelpedServerCommand", ownHomeNotification: true);
 
-    /// <summary>The contract id when <see cref="OwnHomeNotification"/> is false.</summary>
-    public const int VisitedBoatHelpServerCommandType = 386;
-
-    /// <summary>Gets the codec of each contract the record carries, by contract id.</summary>
-    public static FrozenDictionary<int, CommandCodec<BoatCrateHelpedServerCommand>> ContractCodecs { get; } = new Dictionary<int, CommandCodec<BoatCrateHelpedServerCommand>>
-    {
-        [VisitedBoatHelpServerCommandType] = Create(VisitedBoatHelpServerCommandType, ownHomeNotification: false),
-        [OwnBoatCrateHelpedServerCommandType] = Create(OwnBoatCrateHelpedServerCommandType, ownHomeNotification: true),
-    }.ToFrozenDictionary();
+    /// <summary>Gets the contract of the native command that notifies an observer of the farm.</summary>
+    public static CommandCodec<BoatCrateHelpedServerCommand> VisitedHomeCodec { get; } = Create(name: "VisitedBoatHelpServerCommand", ownHomeNotification: false);
 
     /// <inheritdoc />
-    public override int Type => OwnHomeNotification ? OwnBoatCrateHelpedServerCommandType : VisitedBoatHelpServerCommandType;
+    public override CommandContract Contract => OwnHomeNotification ? OwnHomeCodec : VisitedHomeCodec;
 
-    private static CommandCodec<BoatCrateHelpedServerCommand> Create(int type, bool ownHomeNotification)
+    private static CommandCodec<BoatCrateHelpedServerCommand> Create(string name, bool ownHomeNotification)
     {
         return Codecs.Command(
-            type,
+            name,
             Codecs.Composite(
                 Codecs.LongId,
                 static command => command.HomeOwnerId,

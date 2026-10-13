@@ -8,7 +8,6 @@ public sealed record SetMiniPassStateFlagsCommand(int Flags, bool SecondaryPass)
 {
     /// <inheritdoc />
     public static CommandCodec<SetMiniPassStateFlagsCommand> Codec { get; } = Codecs.Command(
-        type: 560,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Flags,

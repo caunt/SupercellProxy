@@ -9,7 +9,6 @@ public sealed record PickUpTownVisitorPassengersCommand(ReadOnlyMemory<int> Pass
 {
     /// <inheritdoc />
     public static CommandCodec<PickUpTownVisitorPassengersCommand> Codec { get; } = Codecs.Command(
-        type: 152,
         Codecs.Composite(
             Codecs.Memory(Codecs.VarInt),
             static command => command.PassengerGlobalIds,

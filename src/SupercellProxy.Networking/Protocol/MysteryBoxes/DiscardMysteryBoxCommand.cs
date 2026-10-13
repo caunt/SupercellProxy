@@ -9,7 +9,6 @@ public sealed record DiscardMysteryBoxCommand(int MysteryBoxGlobalId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardMysteryBoxCommand> Codec { get; } = Codecs.Command(
-        type: 45,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.MysteryBoxGlobalId,

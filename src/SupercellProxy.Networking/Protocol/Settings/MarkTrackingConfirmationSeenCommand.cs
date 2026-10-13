@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record MarkTrackingConfirmationSeenCommand : CodecCommand<MarkTrackingConfirmationSeenCommand>, ICommandCodecProvider<MarkTrackingConfirmationSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTrackingConfirmationSeenCommand> Codec { get; } = Codecs.Command(type: 580, Codecs.Unit(static () => new MarkTrackingConfirmationSeenCommand()));
+    public static CommandCodec<MarkTrackingConfirmationSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkTrackingConfirmationSeenCommand()));
 }

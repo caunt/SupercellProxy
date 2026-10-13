@@ -25,7 +25,6 @@ public sealed record RecordStorageSignpostRankCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<RecordStorageSignpostRankCommand> Codec { get; } = Codecs.Command(
-        type: 594,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

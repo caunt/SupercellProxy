@@ -8,7 +8,6 @@ public sealed record MarkDerbyRewardsSeenCommand(int Count, bool ThresholdReward
 {
     /// <inheritdoc />
     public static CommandCodec<MarkDerbyRewardsSeenCommand> Codec { get; } = Codecs.Command(
-        type: 178,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Count,

@@ -8,7 +8,6 @@ public sealed record ClaimNeighborhoodObjectVisualRewardCommand(int VisualLevel)
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimNeighborhoodObjectVisualRewardCommand> Codec { get; } = Codecs.Command(
-        type: 708,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisualLevel,

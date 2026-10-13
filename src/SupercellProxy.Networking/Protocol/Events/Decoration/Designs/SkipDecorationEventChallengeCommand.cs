@@ -11,7 +11,6 @@ public sealed record SkipDecorationEventChallengeCommand(int Price, int EventId,
 {
     /// <inheritdoc />
     public static CommandCodec<SkipDecorationEventChallengeCommand> Codec { get; } = Codecs.Command(
-        type: 666,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Price,

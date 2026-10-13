@@ -10,7 +10,6 @@ public sealed record PinDecorationEventPhotoCommand(bool Pinned, int PhotoIndex)
 {
     /// <inheritdoc />
     public static CommandCodec<PinDecorationEventPhotoCommand> Codec { get; } = Codecs.Command(
-        type: 625,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.Pinned,

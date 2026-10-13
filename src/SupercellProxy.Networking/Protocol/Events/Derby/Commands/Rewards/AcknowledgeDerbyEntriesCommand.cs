@@ -9,7 +9,6 @@ public sealed record AcknowledgeDerbyEntriesCommand(DerbyEntryState[] Entries, i
 {
     /// <inheritdoc />
     public static CommandCodec<AcknowledgeDerbyEntriesCommand> Codec { get; } = Codecs.Command(
-        type: 176,
         Codecs.Composite(
             Codecs.Array(DerbyEntryState.Codec, CollectionCount.Bounded),
             static command => command.Entries,

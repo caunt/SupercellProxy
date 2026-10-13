@@ -8,7 +8,6 @@ public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, i
 {
     /// <inheritdoc />
     public static CommandCodec<ShopPurchaseResultServerCommand> Codec { get; } = Codecs.Command(
-        type: 228,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.EventId,

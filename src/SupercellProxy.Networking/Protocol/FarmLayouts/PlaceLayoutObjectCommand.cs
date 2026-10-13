@@ -27,7 +27,6 @@ public sealed record PlaceLayoutObjectCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceLayoutObjectCommand> Codec { get; } = Codecs.Command(
-        type: 192,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.DataGlobalId,

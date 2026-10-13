@@ -9,7 +9,6 @@ public sealed record SpeedUpForestClearingCommand(int ForestGlobalId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpForestClearingCommand> Codec { get; } = Codecs.Command(
-        type: 19,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ForestGlobalId,

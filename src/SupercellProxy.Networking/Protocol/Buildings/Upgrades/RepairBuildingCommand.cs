@@ -13,7 +13,6 @@ public sealed record RepairBuildingCommand(int DataGlobalId, int ObjectGlobalId,
 {
     /// <inheritdoc />
     public static CommandCodec<RepairBuildingCommand> Codec { get; } = Codecs.Command(
-        type: 268,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.DataGlobalId,

@@ -8,7 +8,6 @@ public sealed record AcknowledgeEventSequenceCommand(int StepIndex, int EventId)
 {
     /// <inheritdoc />
     public static CommandCodec<AcknowledgeEventSequenceCommand> Codec { get; } = Codecs.Command(
-        type: 709,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.StepIndex,

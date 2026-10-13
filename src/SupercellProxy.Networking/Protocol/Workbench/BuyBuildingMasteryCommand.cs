@@ -9,7 +9,6 @@ public sealed record BuyBuildingMasteryCommand(int BuildingGlobalId) : CodecComm
 {
     /// <inheritdoc />
     public static CommandCodec<BuyBuildingMasteryCommand> Codec { get; } = Codecs.Command(
-        type: 563,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,

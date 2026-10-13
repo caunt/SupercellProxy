@@ -8,7 +8,6 @@ public sealed record ResolveDerbyTaskServerCommand(LongId NeighborhoodId, LongId
 {
     /// <inheritdoc />
     public static CommandCodec<ResolveDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
-        type: 171,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

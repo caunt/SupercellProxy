@@ -17,7 +17,6 @@ public sealed record ExpireDerbyTaskServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<ExpireDerbyTaskServerCommand> Codec { get; } = Codecs.Command(
-        type: 246,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

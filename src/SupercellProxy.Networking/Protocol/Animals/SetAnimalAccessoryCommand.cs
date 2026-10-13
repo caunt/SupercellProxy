@@ -11,7 +11,6 @@ public sealed record SetAnimalAccessoryCommand(int AnimalGlobalId, int Accessory
 {
     /// <inheritdoc />
     public static CommandCodec<SetAnimalAccessoryCommand> Codec { get; } = Codecs.Command(
-        type: 342,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

@@ -10,7 +10,6 @@ public sealed record NeighborhoodRoleChangedServerCommand(LongId NeighborhoodId,
 {
     /// <inheritdoc />
     public static CommandCodec<NeighborhoodRoleChangedServerCommand> Codec { get; } = Codecs.Command(
-        type: 137,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

@@ -9,7 +9,6 @@ public sealed record ReviveCountyFairStreakCommand(int EventId) : CodecCommand<R
 {
     /// <inheritdoc />
     public static CommandCodec<ReviveCountyFairStreakCommand> Codec { get; } = Codecs.Command(
-        type: 519,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new ReviveCountyFairStreakCommand(eventId)),
         CommandLayout.MetadataFirst
     );

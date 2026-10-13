@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record CollectDailyTaskYarnCommand : CodecCommand<CollectDailyTaskYarnCommand>, ICommandCodecProvider<CollectDailyTaskYarnCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectDailyTaskYarnCommand> Codec { get; } = Codecs.Command(type: 551, Codecs.Unit(static () => new CollectDailyTaskYarnCommand()));
+    public static CommandCodec<CollectDailyTaskYarnCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectDailyTaskYarnCommand()));
 }

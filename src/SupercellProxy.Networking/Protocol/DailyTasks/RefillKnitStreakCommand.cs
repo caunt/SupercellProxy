@@ -9,7 +9,6 @@ public sealed record RefillKnitStreakCommand(int Days) : CodecCommand<RefillKnit
 {
     /// <inheritdoc />
     public static CommandCodec<RefillKnitStreakCommand> Codec { get; } = Codecs.Command(
-        type: 632,
         Codecs.Composite(Codecs.VarInt, static command => command.Days, static (days) => new RefillKnitStreakCommand(days)),
         CommandLayout.MetadataFirst
     );

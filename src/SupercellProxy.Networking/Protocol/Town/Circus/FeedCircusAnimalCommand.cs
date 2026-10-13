@@ -10,7 +10,6 @@ public sealed record FeedCircusAnimalCommand(int CircusAnimalGlobalId, int ItemG
 {
     /// <inheritdoc />
     public static CommandCodec<FeedCircusAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 165,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CircusAnimalGlobalId,

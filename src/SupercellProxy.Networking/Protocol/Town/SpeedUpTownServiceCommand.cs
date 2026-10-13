@@ -8,7 +8,6 @@ public sealed record SpeedUpTownServiceCommand(int ServiceIndex, int ServiceBuil
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpTownServiceCommand> Codec { get; } = Codecs.Command(
-        type: 143,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ServiceIndex,

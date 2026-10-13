@@ -10,7 +10,6 @@ public sealed record RevokeGoodServerCommand(int GoodGlobalId, int Amount) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<RevokeGoodServerCommand> Codec { get; } = Codecs.Command(
-        type: 248,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.GoodGlobalId,

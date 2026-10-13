@@ -9,7 +9,6 @@ public sealed record DecorationVoteCandidatesServerCommand(DecorationVotePair? P
 {
     /// <inheritdoc />
     public static CommandCodec<DecorationVoteCandidatesServerCommand> Codec { get; } = Codecs.Command(
-        type: 755,
         Codecs.Composite(
             Codecs.Optional(DecorationVotePair.Codec),
             static command => command.Pair,

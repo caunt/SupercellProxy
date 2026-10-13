@@ -8,7 +8,6 @@ public sealed record StartTownServiceCommand(int ServiceIndex, int ServiceBuildi
 {
     /// <inheritdoc />
     public static CommandCodec<StartTownServiceCommand> Codec { get; } = Codecs.Command(
-        type: 142,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ServiceIndex,

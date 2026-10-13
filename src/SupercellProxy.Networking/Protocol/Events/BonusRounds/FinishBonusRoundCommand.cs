@@ -12,7 +12,6 @@ public sealed record FinishBonusRoundCommand(int RoundId, bool ToPiggyBank, int 
 {
     /// <inheritdoc />
     public static CommandCodec<FinishBonusRoundCommand> Codec { get; } = Codecs.Command(
-        type: 316,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RoundId,

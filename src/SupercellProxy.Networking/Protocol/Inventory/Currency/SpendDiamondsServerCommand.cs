@@ -7,8 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Inventory.Currency;
 public sealed record SpendDiamondsServerCommand(int Amount) : CodecServerCommand<SpendDiamondsServerCommand>, ICommandCodecProvider<SpendDiamondsServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpendDiamondsServerCommand> Codec { get; } = Codecs.Command(
-        type: 379,
-        Codecs.Composite(Codecs.VarInt, static command => command.Amount, static (amount) => new SpendDiamondsServerCommand(amount))
-    );
+    public static CommandCodec<SpendDiamondsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Amount, static (amount) => new SpendDiamondsServerCommand(amount)));
 }

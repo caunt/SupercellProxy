@@ -18,7 +18,6 @@ public sealed record HarvestFieldCommand : CodecCommand<HarvestFieldCommand>, IC
 
     /// <inheritdoc />
     public static CommandCodec<HarvestFieldCommand> Codec { get; } = Codecs.Command(
-        type: 506,
         Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static (fieldGlobalId) => new HarvestFieldCommand(fieldGlobalId)),
         CommandLayout.MetadataFirst
     );

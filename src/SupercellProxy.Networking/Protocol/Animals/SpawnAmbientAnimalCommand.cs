@@ -9,11 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimalCommand>, ICommandCodecProvider<SpawnAmbientAnimalCommand>
 {
     /// <summary>
-    /// Provides the Command Type value or operation.
-    /// </summary>
-    public const int CommandType = 50;
-
-    /// <summary>
     /// Provides the Spawn Ambient Animal Command value or operation.
     /// </summary>
     public SpawnAmbientAnimalCommand(int behavior, int horizontalCoordinate, int verticalCoordinate, int destinationX, int destinationY, bool notifyListener)
@@ -28,7 +23,6 @@ public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimal
 
     /// <inheritdoc />
     public static CommandCodec<SpawnAmbientAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 50,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Behavior,

@@ -8,7 +8,6 @@ public sealed record CollectFruitCommand(int FruitIndex, [property: System.Text.
 {
     /// <inheritdoc />
     public static CommandCodec<CollectFruitCommand> Codec { get; } = Codecs.Command(
-        type: 675,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FruitIndex,

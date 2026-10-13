@@ -9,7 +9,6 @@ public sealed record StartLayoutEditCommand(int SlotIndex) : CodecCommand<StartL
 {
     /// <inheritdoc />
     public static CommandCodec<StartLayoutEditCommand> Codec { get; } = Codecs.Command(
-        type: 187,
         Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new StartLayoutEditCommand(slotIndex))
     );
 }

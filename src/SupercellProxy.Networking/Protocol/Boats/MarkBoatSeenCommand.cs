@@ -9,11 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record MarkBoatSeenCommand : CodecCommand<MarkBoatSeenCommand>, ICommandCodecProvider<MarkBoatSeenCommand>
 {
     /// <summary>
-    /// Provides the Command Type value or operation.
-    /// </summary>
-    public const int CommandType = 600;
-
-    /// <summary>
     /// Provides the Mark Boat Seen Command value or operation.
     /// </summary>
     public MarkBoatSeenCommand(bool nextBoat)
@@ -23,7 +18,6 @@ public sealed record MarkBoatSeenCommand : CodecCommand<MarkBoatSeenCommand>, IC
 
     /// <inheritdoc />
     public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(
-        type: 600,
         Codecs.Composite(Codecs.Boolean, static command => command.NextBoat, static (nextBoat) => new MarkBoatSeenCommand(nextBoat)),
         CommandLayout.MetadataFirst
     );

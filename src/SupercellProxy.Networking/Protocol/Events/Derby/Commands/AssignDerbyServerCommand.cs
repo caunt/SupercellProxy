@@ -8,7 +8,6 @@ public sealed record AssignDerbyServerCommand(int LeagueType, int SeasonId, Long
 {
     /// <inheritdoc />
     public static CommandCodec<AssignDerbyServerCommand> Codec { get; } = Codecs.Command(
-        type: 167,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LeagueType,

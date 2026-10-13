@@ -10,7 +10,6 @@ public sealed record ApplyConsumableToFieldCommand(int FieldObjectGlobalId, int 
 {
     /// <inheritdoc />
     public static CommandCodec<ApplyConsumableToFieldCommand> Codec { get; } = Codecs.Command(
-        type: 2626,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FieldObjectGlobalId,

@@ -8,7 +8,6 @@ public sealed record CollectFishingSpotCommand([property: System.Text.Json.Seria
 {
     /// <inheritdoc />
     public static CommandCodec<CollectFishingSpotCommand> Codec { get; } = Codecs.Command(
-        type: 109,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FishingSpotGlobalId,

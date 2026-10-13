@@ -31,7 +31,7 @@ public sealed record AvailableServerCommandMessage(Command Command) : CodecMessa
                 ? throw new InvalidDataException(
                     string.Create(
                         CultureInfo.InvariantCulture,
-                        $"Server command {command.Type} did not encode back to the received payload; first difference {difference} ({payload.ElementAtOrDefault(difference)} versus {roundTrip.ElementAtOrDefault(difference)}), received length {payload.Length}, encoded length {roundTrip.Length}."
+                        $"Server command {command.Contract} did not encode back to the received payload; first difference {difference} ({payload.ElementAtOrDefault(difference)} versus {roundTrip.ElementAtOrDefault(difference)}), received length {payload.Length}, encoded length {roundTrip.Length}."
                     )
                 )
                 : message;

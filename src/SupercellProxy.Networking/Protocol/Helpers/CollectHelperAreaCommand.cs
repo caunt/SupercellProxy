@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers;
 public sealed record CollectHelperAreaCommand : CodecCommand<CollectHelperAreaCommand>, ICommandCodecProvider<CollectHelperAreaCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectHelperAreaCommand> Codec { get; } = Codecs.Command(type: 660, Codecs.Unit(static () => new CollectHelperAreaCommand()));
+    public static CommandCodec<CollectHelperAreaCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectHelperAreaCommand()));
 }

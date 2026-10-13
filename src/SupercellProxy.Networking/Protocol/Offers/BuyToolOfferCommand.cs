@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record BuyToolOfferCommand : CodecCommand<BuyToolOfferCommand>, ICommandCodecProvider<BuyToolOfferCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyToolOfferCommand> Codec { get; } = Codecs.Command(type: 97, Codecs.Unit(static () => new BuyToolOfferCommand()));
+    public static CommandCodec<BuyToolOfferCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new BuyToolOfferCommand()));
 }

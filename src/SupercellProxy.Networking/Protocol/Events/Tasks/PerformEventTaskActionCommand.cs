@@ -11,7 +11,6 @@ public sealed record PerformEventTaskActionCommand(int EventId, int TaskIndex, i
 {
     /// <inheritdoc />
     public static CommandCodec<PerformEventTaskActionCommand> Codec { get; } = Codecs.Command(
-        type: 359,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

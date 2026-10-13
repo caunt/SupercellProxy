@@ -16,7 +16,6 @@ public sealed record StartForestClearingCommand([property: System.Text.Json.Seri
 {
     /// <inheritdoc />
     public static CommandCodec<StartForestClearingCommand> Codec { get; } = Codecs.Command(
-        type: 18,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ForestGlobalId,

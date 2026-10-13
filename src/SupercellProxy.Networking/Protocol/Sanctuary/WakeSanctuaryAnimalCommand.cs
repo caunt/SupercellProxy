@@ -9,7 +9,6 @@ public sealed record WakeSanctuaryAnimalCommand(int AnimalGlobalId) : CodecComma
 {
     /// <inheritdoc />
     public static CommandCodec<WakeSanctuaryAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 219,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AnimalGlobalId,

@@ -8,7 +8,6 @@ public sealed record SetUserSettingCommand(int SettingGlobalId, int SettingTable
 {
     /// <inheritdoc />
     public static CommandCodec<SetUserSettingCommand> Codec { get; } = Codecs.Command(
-        type: 131,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SettingGlobalId,

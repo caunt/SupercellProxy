@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops.AiShop;
 public sealed record RerollAiRoadsideShopCommand : CodecCommand<RerollAiRoadsideShopCommand>, ICommandCodecProvider<RerollAiRoadsideShopCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RerollAiRoadsideShopCommand> Codec { get; } = Codecs.Command(type: 622, Codecs.Unit(static () => new RerollAiRoadsideShopCommand()));
+    public static CommandCodec<RerollAiRoadsideShopCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RerollAiRoadsideShopCommand()));
 }

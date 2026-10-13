@@ -8,7 +8,6 @@ public sealed record ExpandLandCommand(int ExpansionDataGlobalId, int SpendReaso
 {
     /// <inheritdoc />
     public static CommandCodec<ExpandLandCommand> Codec { get; } = Codecs.Command(
-        type: 90,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ExpansionDataGlobalId,

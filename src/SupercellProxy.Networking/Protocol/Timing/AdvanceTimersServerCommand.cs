@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Timing;
 public sealed record AdvanceTimersServerCommand(int Seconds) : CodecServerCommand<AdvanceTimersServerCommand>, ICommandCodecProvider<AdvanceTimersServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AdvanceTimersServerCommand> Codec { get; } = Codecs.Command(
-        type: 38,
-        Codecs.Composite(Codecs.VarInt, static command => command.Seconds, static (seconds) => new AdvanceTimersServerCommand(seconds))
-    );
+    public static CommandCodec<AdvanceTimersServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Seconds, static (seconds) => new AdvanceTimersServerCommand(seconds)));
 }

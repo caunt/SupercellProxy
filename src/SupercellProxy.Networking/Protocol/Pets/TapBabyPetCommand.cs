@@ -8,7 +8,6 @@ public sealed record TapBabyPetCommand(int PetGlobalId) : CodecCommand<TapBabyPe
 {
     /// <inheritdoc />
     public static CommandCodec<TapBabyPetCommand> Codec { get; } = Codecs.Command(
-        type: 340,
         Codecs.Composite(Codecs.VarInt, static command => command.PetGlobalId, static (petGlobalId) => new TapBabyPetCommand(petGlobalId))
     );
 }

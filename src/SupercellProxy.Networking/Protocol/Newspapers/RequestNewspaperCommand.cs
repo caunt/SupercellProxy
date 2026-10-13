@@ -21,7 +21,6 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
 {
     /// <inheritdoc />
     public static CommandCodec<RequestNewspaperCommand> Codec { get; } = Codecs.Command(
-        type: 661,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

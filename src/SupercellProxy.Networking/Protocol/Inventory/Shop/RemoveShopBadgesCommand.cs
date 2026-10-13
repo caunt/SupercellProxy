@@ -8,7 +8,6 @@ public sealed record RemoveShopBadgesCommand(int[] DataIds) : CodecCommand<Remov
 {
     /// <inheritdoc />
     public static CommandCodec<RemoveShopBadgesCommand> Codec { get; } = Codecs.Command(
-        type: 711,
         Codecs.Composite(
             Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
             static command => command.DataIds,

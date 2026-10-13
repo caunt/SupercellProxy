@@ -8,7 +8,6 @@ public sealed record RecordDerbyHelpServerCommand(LongId NeighborhoodId, LongId 
 {
     /// <inheritdoc />
     public static CommandCodec<RecordDerbyHelpServerCommand> Codec { get; } = Codecs.Command(
-        type: 179,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

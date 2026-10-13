@@ -8,7 +8,6 @@ public sealed record RespondToBoatTimeExtensionCommand(bool Extend) : CodecComma
 {
     /// <inheritdoc />
     public static CommandCodec<RespondToBoatTimeExtensionCommand> Codec { get; } = Codecs.Command(
-        type: 712,
         Codecs.Composite(Codecs.Boolean, static command => command.Extend, static (extend) => new RespondToBoatTimeExtensionCommand(extend)),
         CommandLayout.MetadataFirst
     );

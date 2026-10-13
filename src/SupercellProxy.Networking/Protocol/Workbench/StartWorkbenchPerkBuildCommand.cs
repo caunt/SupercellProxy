@@ -11,7 +11,6 @@ public sealed record StartWorkbenchPerkBuildCommand(int WorkbenchObjectGlobalId,
 {
     /// <inheritdoc />
     public static CommandCodec<StartWorkbenchPerkBuildCommand> Codec { get; } = Codecs.Command(
-        type: 543,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.WorkbenchObjectGlobalId,

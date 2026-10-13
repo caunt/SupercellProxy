@@ -8,7 +8,6 @@ public sealed record DerbySeasonNotificationServerCommand(int Status, LongId Nei
 {
     /// <inheritdoc />
     public static CommandCodec<DerbySeasonNotificationServerCommand> Codec { get; } = Codecs.Command(
-        type: 323,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Status,

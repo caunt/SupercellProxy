@@ -8,7 +8,6 @@ public sealed record SetCurrentDerbyLeagueServerCommand(int LeagueIndex) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<SetCurrentDerbyLeagueServerCommand> Codec { get; } = Codecs.Command(
-        type: 184,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LeagueIndex,

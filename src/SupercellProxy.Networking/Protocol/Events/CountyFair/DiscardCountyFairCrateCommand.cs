@@ -10,7 +10,6 @@ public sealed record DiscardCountyFairCrateCommand(int EventId, int CrateIndex) 
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardCountyFairCrateCommand> Codec { get; } = Codecs.Command(
-        type: 607,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

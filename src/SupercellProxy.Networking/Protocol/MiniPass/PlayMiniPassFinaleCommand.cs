@@ -9,7 +9,6 @@ public sealed record PlayMiniPassFinaleCommand(int MiniPassId) : CodecCommand<Pl
 {
     /// <inheritdoc />
     public static CommandCodec<PlayMiniPassFinaleCommand> Codec { get; } = Codecs.Command(
-        type: 512,
         Codecs.Composite(Codecs.VarInt, static command => command.MiniPassId, static (miniPassId) => new PlayMiniPassFinaleCommand(miniPassId)),
         CommandLayout.MetadataFirst
     );

@@ -13,7 +13,6 @@ public sealed record CollectBuildingProductCommand([property: System.Text.Json.S
 {
     /// <inheritdoc />
     public static CommandCodec<CollectBuildingProductCommand> Codec { get; } = Codecs.Command(
-        type: 518,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,

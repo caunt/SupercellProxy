@@ -11,7 +11,7 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
     private static readonly bool IsServerCommand = typeof(ServerCommand).IsAssignableFrom(typeof(TCommand));
     private readonly ICodec<TCommand> _fields;
 
-    internal CommandCodec(int type, ICodec<TCommand> fields, CommandLayout layout, bool productionAllowed) : base(type, layout, productionAllowed)
+    internal CommandCodec(string name, ICodec<TCommand> fields, CommandLayout layout, bool productionAllowed) : base(name, layout, productionAllowed)
     {
         _fields = fields;
     }

@@ -9,11 +9,6 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents;
 public sealed record ShopEventsServerCommand : CodecServerCommand<ShopEventsServerCommand>, ICommandCodecProvider<ShopEventsServerCommand>
 {
     /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 355;
-
-    /// <summary>
     /// Initializes a new <see cref="ShopEventsServerCommand"/> instance.
     /// </summary>
     public ShopEventsServerCommand(ShopEventCollection? shopEvents)
@@ -23,7 +18,6 @@ public sealed record ShopEventsServerCommand : CodecServerCommand<ShopEventsServ
 
     /// <inheritdoc />
     public static CommandCodec<ShopEventsServerCommand> Codec { get; } = Codecs.Command(
-        type: 355,
         Codecs.Composite(
             Codecs.Optional(ShopEventCollection.Codec),
             static command => command.ShopEventCollection,

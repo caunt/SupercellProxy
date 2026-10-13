@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Tasks;
 public sealed record RefreshFarmPassTasksCommand : CodecCommand<RefreshFarmPassTasksCommand>, ICommandCodecProvider<RefreshFarmPassTasksCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RefreshFarmPassTasksCommand> Codec { get; } = Codecs.Command(type: 513, Codecs.Unit(static () => new RefreshFarmPassTasksCommand()));
+    public static CommandCodec<RefreshFarmPassTasksCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RefreshFarmPassTasksCommand()));
 }

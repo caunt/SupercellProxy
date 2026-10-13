@@ -16,7 +16,6 @@ public sealed record UpgradeBuildingCommand([property: System.Text.Json.Serializ
 {
     /// <inheritdoc />
     public static CommandCodec<UpgradeBuildingCommand> Codec { get; } = Codecs.Command(
-        type: 11,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,

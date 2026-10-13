@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers;
 public sealed record SetHelperHouseModeCommand(int Mode) : CodecCommand<SetHelperHouseModeCommand>, ICommandCodecProvider<SetHelperHouseModeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetHelperHouseModeCommand> Codec { get; } = Codecs.Command(type: 208, Codecs.Composite(Codecs.VarInt, static command => command.Mode, static (mode) => new SetHelperHouseModeCommand(mode)));
+    public static CommandCodec<SetHelperHouseModeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Mode, static (mode) => new SetHelperHouseModeCommand(mode)));
 }

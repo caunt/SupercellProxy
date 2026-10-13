@@ -9,7 +9,6 @@ public sealed record CompleteFarmPassTaskWithDiamondsCommand(int TaskIndex) : Co
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteFarmPassTaskWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        type: 377,
         Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static (taskIndex) => new CompleteFarmPassTaskWithDiamondsCommand(taskIndex))
     );
 }

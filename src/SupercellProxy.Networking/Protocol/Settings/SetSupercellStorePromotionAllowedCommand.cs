@@ -9,7 +9,6 @@ public sealed record SetSupercellStorePromotionAllowedCommand(bool Allowed) : Co
 {
     /// <inheritdoc />
     public static CommandCodec<SetSupercellStorePromotionAllowedCommand> Codec { get; } = Codecs.Command(
-        type: 585,
         Codecs.Composite(Codecs.Boolean, static command => command.Allowed, static (allowed) => new SetSupercellStorePromotionAllowedCommand(allowed)),
         CommandLayout.MetadataFirst
     );

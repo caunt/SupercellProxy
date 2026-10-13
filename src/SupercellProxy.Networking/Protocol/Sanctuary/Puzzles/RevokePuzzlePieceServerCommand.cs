@@ -9,7 +9,6 @@ public sealed record RevokePuzzlePieceServerCommand(int PuzzlePieceGlobalId) : C
 {
     /// <inheritdoc />
     public static CommandCodec<RevokePuzzlePieceServerCommand> Codec { get; } = Codecs.Command(
-        type: 269,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PuzzlePieceGlobalId,

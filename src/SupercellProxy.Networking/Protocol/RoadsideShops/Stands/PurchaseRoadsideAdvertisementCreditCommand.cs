@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops.Stands;
 public sealed record PurchaseRoadsideAdvertisementCreditCommand : CodecCommand<PurchaseRoadsideAdvertisementCreditCommand>, ICommandCodecProvider<PurchaseRoadsideAdvertisementCreditCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PurchaseRoadsideAdvertisementCreditCommand> Codec { get; } = Codecs.Command(type: 555, Codecs.Unit(static () => new PurchaseRoadsideAdvertisementCreditCommand()));
+    public static CommandCodec<PurchaseRoadsideAdvertisementCreditCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new PurchaseRoadsideAdvertisementCreditCommand()));
 }

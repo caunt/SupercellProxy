@@ -9,7 +9,6 @@ public sealed record MarkCountyFairOpenedCommand(int EventId) : CodecCommand<Mar
 {
     /// <inheritdoc />
     public static CommandCodec<MarkCountyFairOpenedCommand> Codec { get; } = Codecs.Command(
-        type: 522,
         Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkCountyFairOpenedCommand(eventId)),
         CommandLayout.MetadataFirst
     );

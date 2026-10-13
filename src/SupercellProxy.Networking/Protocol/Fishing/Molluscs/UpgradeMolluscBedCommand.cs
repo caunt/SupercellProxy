@@ -9,7 +9,6 @@ public sealed record UpgradeMolluscBedCommand(int BedObjectGlobalId) : CodecComm
 {
     /// <inheritdoc />
     public static CommandCodec<UpgradeMolluscBedCommand> Codec { get; } = Codecs.Command(
-        type: 394,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BedObjectGlobalId,

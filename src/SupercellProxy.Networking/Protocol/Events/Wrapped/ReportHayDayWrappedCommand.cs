@@ -10,7 +10,6 @@ public sealed record ReportHayDayWrappedCommand(string? Locale, int State) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<ReportHayDayWrappedCommand> Codec { get; } = Codecs.Command(
-        type: 679,
         Codecs.Composite(
             Codecs.OptionalString,
             static command => command.Locale,

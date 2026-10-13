@@ -16,7 +16,6 @@ public sealed record MarkEventTasksSeenCommand(int TaskIndex, [property: System.
 {
     /// <inheritdoc />
     public static CommandCodec<MarkEventTasksSeenCommand> Codec { get; } = Codecs.Command(
-        type: 549,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TaskIndex,

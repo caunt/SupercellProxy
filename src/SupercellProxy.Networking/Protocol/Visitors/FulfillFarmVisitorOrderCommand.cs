@@ -8,7 +8,6 @@ public sealed record FulfillFarmVisitorOrderCommand(int VisitorGlobalId) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<FulfillFarmVisitorOrderCommand> Codec { get; } = Codecs.Command(
-        type: 569,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,

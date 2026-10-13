@@ -13,7 +13,6 @@ public sealed record BuyGathererCommand(int GathererGlobalId, int PositionX, int
 {
     /// <inheritdoc />
     public static CommandCodec<BuyGathererCommand> Codec { get; } = Codecs.Command(
-        type: 154,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GathererGlobalId,

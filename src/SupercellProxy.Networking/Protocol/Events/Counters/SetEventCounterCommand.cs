@@ -10,7 +10,6 @@ public sealed record SetEventCounterCommand(int Value, int CounterId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<SetEventCounterCommand> Codec { get; } = Codecs.Command(
-        type: 550,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Value,

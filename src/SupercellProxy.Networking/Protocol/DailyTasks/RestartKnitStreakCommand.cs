@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record RestartKnitStreakCommand : CodecCommand<RestartKnitStreakCommand>, ICommandCodecProvider<RestartKnitStreakCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RestartKnitStreakCommand> Codec { get; } = Codecs.Command(type: 664, Codecs.Unit(static () => new RestartKnitStreakCommand()));
+    public static CommandCodec<RestartKnitStreakCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RestartKnitStreakCommand()));
 }

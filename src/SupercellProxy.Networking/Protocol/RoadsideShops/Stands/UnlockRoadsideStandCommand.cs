@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops.Stands;
 public sealed record UnlockRoadsideStandCommand : CodecCommand<UnlockRoadsideStandCommand>, ICommandCodecProvider<UnlockRoadsideStandCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UnlockRoadsideStandCommand> Codec { get; } = Codecs.Command(type: 631, Codecs.Unit(static () => new UnlockRoadsideStandCommand()));
+    public static CommandCodec<UnlockRoadsideStandCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new UnlockRoadsideStandCommand()));
 }

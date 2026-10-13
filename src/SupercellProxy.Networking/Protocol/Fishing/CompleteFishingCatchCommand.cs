@@ -20,7 +20,6 @@ public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlo
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteFishingCatchCommand> Codec { get; } = Codecs.Command(
-        type: 110,
         Codecs.Composite(
             Codecs.Boolean,
             static command => command.Caught,

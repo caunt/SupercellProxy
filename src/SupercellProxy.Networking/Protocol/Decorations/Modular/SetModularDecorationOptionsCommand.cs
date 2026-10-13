@@ -10,7 +10,6 @@ public sealed record SetModularDecorationOptionsCommand(int ObjectGlobalId, Read
 {
     /// <inheritdoc />
     public static CommandCodec<SetModularDecorationOptionsCommand> Codec { get; } = Codecs.Command(
-        type: 322,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,

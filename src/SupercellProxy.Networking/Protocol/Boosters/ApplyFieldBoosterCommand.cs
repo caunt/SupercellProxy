@@ -10,7 +10,6 @@ public sealed record ApplyFieldBoosterCommand(int BoosterGlobalId, int FieldGlob
 {
     /// <inheritdoc />
     public static CommandCodec<ApplyFieldBoosterCommand> Codec { get; } = Codecs.Command(
-        type: 7,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterGlobalId,

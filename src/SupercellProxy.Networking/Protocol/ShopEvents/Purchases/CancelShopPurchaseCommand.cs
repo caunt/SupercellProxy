@@ -12,7 +12,6 @@ public sealed record CancelShopPurchaseCommand(int EventId, int VariantId, int P
 {
     /// <inheritdoc />
     public static CommandCodec<CancelShopPurchaseCommand> Codec { get; } = Codecs.Command(
-        type: 351,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.EventId,

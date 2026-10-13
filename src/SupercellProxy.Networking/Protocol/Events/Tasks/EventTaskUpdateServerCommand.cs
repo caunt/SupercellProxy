@@ -14,7 +14,6 @@ public sealed record EventTaskUpdateServerCommand(int EventId, int TaskIndex, in
 {
     /// <inheritdoc />
     public static CommandCodec<EventTaskUpdateServerCommand> Codec { get; } = Codecs.Command(
-        type: 366,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

@@ -12,7 +12,6 @@ public sealed record FarmPassProgressServerCommand(int SeasonId, int Points, int
 {
     /// <inheritdoc />
     public static CommandCodec<FarmPassProgressServerCommand> Codec { get; } = Codecs.Command(
-        type: 392,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SeasonId,

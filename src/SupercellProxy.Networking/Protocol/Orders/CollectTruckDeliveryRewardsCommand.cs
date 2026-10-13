@@ -9,5 +9,5 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 public sealed record CollectTruckDeliveryRewardsCommand() : CodecCommand<CollectTruckDeliveryRewardsCommand>, ICommandCodecProvider<CollectTruckDeliveryRewardsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectTruckDeliveryRewardsCommand> Codec { get; } = Codecs.Command(type: 677, Codecs.Unit(static () => new CollectTruckDeliveryRewardsCommand()), CommandLayout.MetadataFirst);
+    public static CommandCodec<CollectTruckDeliveryRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectTruckDeliveryRewardsCommand()), CommandLayout.MetadataFirst);
 }

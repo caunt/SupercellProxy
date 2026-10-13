@@ -14,5 +14,5 @@ public sealed record CollectAllLettersCommand : CodecCommand<CollectAllLettersCo
     public CollectAllLettersCommand() { }
 
     /// <inheritdoc />
-    public static CommandCodec<CollectAllLettersCommand> Codec { get; } = Codecs.Command(type: 672, Codecs.Unit(static () => new CollectAllLettersCommand()), CommandLayout.MetadataFirst);
+    public static CommandCodec<CollectAllLettersCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectAllLettersCommand()), CommandLayout.MetadataFirst);
 }

@@ -12,7 +12,6 @@ public sealed record BuyGoodsWithDiamondsCommand(ReadOnlyMemory<DiamondGoodsPurc
 {
     /// <inheritdoc />
     public static CommandCodec<BuyGoodsWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        type: 39,
         Codecs.Composite(
             Codecs.Memory(DiamondGoodsPurchase.Codec),
             static command => command.Goods,

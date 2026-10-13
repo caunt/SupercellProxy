@@ -9,11 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Tutorials;
 public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>, ICommandCodecProvider<FinishTutorialCommand>
 {
     /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 34;
-
-    /// <summary>
     /// Initializes a new <see cref="FinishTutorialCommand"/> instance.
     /// </summary>
     public FinishTutorialCommand(int tutorialGlobalId)
@@ -23,7 +18,6 @@ public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>
 
     /// <inheritdoc />
     public static CommandCodec<FinishTutorialCommand> Codec { get; } = Codecs.Command(
-        type: 34,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TutorialGlobalId,

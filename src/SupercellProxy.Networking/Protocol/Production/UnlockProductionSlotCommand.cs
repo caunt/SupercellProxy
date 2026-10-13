@@ -10,7 +10,6 @@ public sealed record UnlockProductionSlotCommand(int SlotIndex, int BuildingObje
 {
     /// <inheritdoc />
     public static CommandCodec<UnlockProductionSlotCommand> Codec { get; } = Codecs.Command(
-        type: 501,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SlotIndex,

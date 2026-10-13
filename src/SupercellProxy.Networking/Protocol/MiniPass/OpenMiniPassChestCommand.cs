@@ -9,7 +9,6 @@ public sealed record OpenMiniPassChestCommand(bool UseDiamonds) : CodecCommand<O
 {
     /// <inheritdoc />
     public static CommandCodec<OpenMiniPassChestCommand> Codec { get; } = Codecs.Command(
-        type: 591,
         Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static (useDiamonds) => new OpenMiniPassChestCommand(useDiamonds)),
         CommandLayout.MetadataFirst
     );

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 public sealed record RevertDecorationEventDesignCommand : CodecCommand<RevertDecorationEventDesignCommand>, ICommandCodecProvider<RevertDecorationEventDesignCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RevertDecorationEventDesignCommand> Codec { get; } = Codecs.Command(type: 613, Codecs.Unit(static () => new RevertDecorationEventDesignCommand()));
+    public static CommandCodec<RevertDecorationEventDesignCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RevertDecorationEventDesignCommand()));
 }

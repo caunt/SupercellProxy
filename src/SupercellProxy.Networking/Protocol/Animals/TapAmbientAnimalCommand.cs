@@ -7,8 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record TapAmbientAnimalCommand(int AmbientAnimalGlobalId) : CodecCommand<TapAmbientAnimalCommand>, ICommandCodecProvider<TapAmbientAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<TapAmbientAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 42,
-        Codecs.Composite(Codecs.VarInt, static command => command.AmbientAnimalGlobalId, static (id) => new TapAmbientAnimalCommand(id))
-    );
+    public static CommandCodec<TapAmbientAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.AmbientAnimalGlobalId, static (id) => new TapAmbientAnimalCommand(id)));
 }

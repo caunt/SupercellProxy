@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Animals;
 public sealed record OffloadMapGameAnimalsCommand : CodecCommand<OffloadMapGameAnimalsCommand>, ICommandCodecProvider<OffloadMapGameAnimalsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OffloadMapGameAnimalsCommand> Codec { get; } = Codecs.Command(type: 598, Codecs.Unit(static () => new OffloadMapGameAnimalsCommand()));
+    public static CommandCodec<OffloadMapGameAnimalsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new OffloadMapGameAnimalsCommand()));
 }

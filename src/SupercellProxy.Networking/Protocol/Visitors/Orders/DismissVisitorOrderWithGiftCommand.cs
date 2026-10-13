@@ -9,7 +9,6 @@ public sealed record DismissVisitorOrderWithGiftCommand(int VisitorObjectGlobalI
 {
     /// <inheritdoc />
     public static CommandCodec<DismissVisitorOrderWithGiftCommand> Codec { get; } = Codecs.Command(
-        type: 629,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorObjectGlobalId,

@@ -9,7 +9,6 @@ public sealed record StoreLayoutCategoryCommand(int Category) : CodecCommand<Sto
 {
     /// <inheritdoc />
     public static CommandCodec<StoreLayoutCategoryCommand> Codec { get; } = Codecs.Command(
-        type: 194,
         Codecs.Composite(Codecs.VarInt, static command => command.Category, static (category) => new StoreLayoutCategoryCommand(category))
     );
 }

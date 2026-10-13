@@ -13,7 +13,6 @@ public sealed record CompleteForestClearingCommand([property: System.Text.Json.S
 {
     /// <inheritdoc />
     public static CommandCodec<CompleteForestClearingCommand> Codec { get; } = Codecs.Command(
-        type: 20,
         Codecs.Composite(Codecs.VarInt, static command => command.ForestGlobalId, static (forest) => new CompleteForestClearingCommand(forest))
     );
 }

@@ -10,7 +10,6 @@ public sealed record ThankTruckOrderHelperCommand(int OrderIndex, int HelpId) : 
 {
     /// <inheritdoc />
     public static CommandCodec<ThankTruckOrderHelperCommand> Codec { get; } = Codecs.Command(
-        type: 264,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.OrderIndex,

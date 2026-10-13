@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 public sealed record MarkDecoStickerBookOpenedCommand : CodecCommand<MarkDecoStickerBookOpenedCommand>, ICommandCodecProvider<MarkDecoStickerBookOpenedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkDecoStickerBookOpenedCommand> Codec { get; } = Codecs.Command(type: 652, Codecs.Unit(static () => new MarkDecoStickerBookOpenedCommand()));
+    public static CommandCodec<MarkDecoStickerBookOpenedCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkDecoStickerBookOpenedCommand()));
 }

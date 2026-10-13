@@ -11,7 +11,6 @@ public sealed record PlaceFishingNetCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceFishingNetCommand> Codec { get; } = Codecs.Command(
-        type: 118,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FishingSpotGlobalId,

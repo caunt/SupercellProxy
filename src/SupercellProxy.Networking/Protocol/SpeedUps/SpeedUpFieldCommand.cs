@@ -10,7 +10,6 @@ public sealed record SpeedUpFieldCommand(int FieldGlobalId, bool IncludeOtherGro
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpFieldCommand> Codec { get; } = Codecs.Command(
-        type: 24,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FieldGlobalId,

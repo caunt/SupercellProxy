@@ -8,7 +8,6 @@ public sealed record SubmitDecorationVoteCommand(LongId? CandidateId, int EventI
 {
     /// <inheritdoc />
     public static CommandCodec<SubmitDecorationVoteCommand> Codec { get; } = Codecs.Command(
-        type: 687,
         Codecs.Composite(
             Codecs.OptionalLongId,
             static command => command.CandidateId,

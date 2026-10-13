@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Emotes;
 public sealed record MarkEmotesSeenCommand : CodecCommand<MarkEmotesSeenCommand>, ICommandCodecProvider<MarkEmotesSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkEmotesSeenCommand> Codec { get; } = Codecs.Command(type: 695, Codecs.Unit(static () => new MarkEmotesSeenCommand()));
+    public static CommandCodec<MarkEmotesSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkEmotesSeenCommand()));
 }

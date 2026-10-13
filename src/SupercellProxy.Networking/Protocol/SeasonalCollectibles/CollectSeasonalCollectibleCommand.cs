@@ -8,7 +8,6 @@ public sealed record CollectSeasonalCollectibleCommand(int CollectibleId) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<CollectSeasonalCollectibleCommand> Codec { get; } = Codecs.Command(
-        type: 128,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CollectibleId,

@@ -9,7 +9,6 @@ public sealed record BuyCatalogueGiftWithDiamondsCommand(int GiftGlobalId) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<BuyCatalogueGiftWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        type: 107,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftGlobalId,

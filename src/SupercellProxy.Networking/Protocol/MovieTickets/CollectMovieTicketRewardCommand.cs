@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.MovieTickets;
 public sealed record CollectMovieTicketRewardCommand : CodecCommand<CollectMovieTicketRewardCommand>, ICommandCodecProvider<CollectMovieTicketRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectMovieTicketRewardCommand> Codec { get; } = Codecs.Command(type: 510, Codecs.Unit(static () => new CollectMovieTicketRewardCommand()));
+    public static CommandCodec<CollectMovieTicketRewardCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new CollectMovieTicketRewardCommand()));
 }

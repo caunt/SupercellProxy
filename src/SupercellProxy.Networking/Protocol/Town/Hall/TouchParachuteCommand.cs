@@ -10,7 +10,6 @@ public sealed record TouchParachuteCommand(int ParachuteGlobalId, int Value) : C
 {
     /// <inheritdoc />
     public static CommandCodec<TouchParachuteCommand> Codec { get; } = Codecs.Command(
-        type: 223,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ParachuteGlobalId,

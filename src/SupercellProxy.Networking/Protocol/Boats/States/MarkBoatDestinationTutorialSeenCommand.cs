@@ -9,7 +9,6 @@ public sealed record MarkBoatDestinationTutorialSeenCommand(int Step) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<MarkBoatDestinationTutorialSeenCommand> Codec { get; } = Codecs.Command(
-        type: 2558,
         Codecs.Composite(Codecs.VarInt, static command => command.Step, static (step) => new MarkBoatDestinationTutorialSeenCommand(step)),
         CommandLayout.MetadataFirst
     );

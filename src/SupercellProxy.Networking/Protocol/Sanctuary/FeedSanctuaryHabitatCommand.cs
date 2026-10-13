@@ -9,7 +9,6 @@ public sealed record FeedSanctuaryHabitatCommand(int HabitatGlobalId) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<FeedSanctuaryHabitatCommand> Codec { get; } = Codecs.Command(
-        type: 218,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,

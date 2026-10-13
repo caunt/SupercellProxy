@@ -23,7 +23,6 @@ public sealed record PassengerPickedFromNeighborhoodServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<PassengerPickedFromNeighborhoodServerCommand> Codec { get; } = Codecs.Command(
-        type: 148,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Action,

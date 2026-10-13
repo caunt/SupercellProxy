@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record AcknowledgePerformanceProfilingCommand : CodecCommand<AcknowledgePerformanceProfilingCommand>, ICommandCodecProvider<AcknowledgePerformanceProfilingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AcknowledgePerformanceProfilingCommand> Codec { get; } = Codecs.Command(type: 530, Codecs.Unit(static () => new AcknowledgePerformanceProfilingCommand()));
+    public static CommandCodec<AcknowledgePerformanceProfilingCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new AcknowledgePerformanceProfilingCommand()));
 }

@@ -10,7 +10,6 @@ public sealed record ClaimSurveyRewardCommand(int SurveyId, int RewardIndex) : C
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimSurveyRewardCommand> Codec { get; } = Codecs.Command(
-        type: 568,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SurveyId,

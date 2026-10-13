@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 public sealed record ClearNeighborhoodDonationNotificationCommand : CodecCommand<ClearNeighborhoodDonationNotificationCommand>, ICommandCodecProvider<ClearNeighborhoodDonationNotificationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClearNeighborhoodDonationNotificationCommand> Codec { get; } = Codecs.Command(type: 524, Codecs.Unit(static () => new ClearNeighborhoodDonationNotificationCommand()));
+    public static CommandCodec<ClearNeighborhoodDonationNotificationCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClearNeighborhoodDonationNotificationCommand()));
 }

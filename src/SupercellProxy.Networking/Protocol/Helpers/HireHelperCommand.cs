@@ -8,7 +8,6 @@ public sealed record HireHelperCommand(int HelperIndex, int HireTierIndex) : Cod
 {
     /// <inheritdoc />
     public static CommandCodec<HireHelperCommand> Codec { get; } = Codecs.Command(
-        type: 204,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HelperIndex,

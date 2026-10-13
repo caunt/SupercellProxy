@@ -20,7 +20,6 @@ public sealed record PurchaseLivestockAnimalCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<PurchaseLivestockAnimalCommand> Codec { get; } = Codecs.Command(
-        type: 641,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

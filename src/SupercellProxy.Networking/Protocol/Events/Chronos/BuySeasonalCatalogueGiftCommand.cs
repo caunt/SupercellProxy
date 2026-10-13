@@ -16,7 +16,6 @@ public sealed record BuySeasonalCatalogueGiftCommand([property: System.Text.Json
 {
     /// <inheritdoc />
     public static CommandCodec<BuySeasonalCatalogueGiftCommand> Codec { get; } = Codecs.Command(
-        type: 381,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.EventId,

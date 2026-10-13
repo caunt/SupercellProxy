@@ -10,7 +10,6 @@ public sealed record InstantCompleteProductionCommand(int SlotIndex, int Buildin
 {
     /// <inheritdoc />
     public static CommandCodec<InstantCompleteProductionCommand> Codec { get; } = Codecs.Command(
-        type: 642,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SlotIndex,

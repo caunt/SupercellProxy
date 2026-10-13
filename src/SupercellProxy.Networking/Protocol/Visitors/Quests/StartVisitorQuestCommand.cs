@@ -11,7 +11,6 @@ public sealed record StartVisitorQuestCommand(int Choice, int VisitorGlobalId, i
 {
     /// <inheritdoc />
     public static CommandCodec<StartVisitorQuestCommand> Codec { get; } = Codecs.Command(
-        type: 608,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Choice,

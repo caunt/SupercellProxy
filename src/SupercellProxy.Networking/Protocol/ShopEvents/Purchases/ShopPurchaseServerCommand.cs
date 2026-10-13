@@ -41,7 +41,6 @@ public sealed record ShopPurchaseServerCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<ShopPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        type: 229,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Diamonds,

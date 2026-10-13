@@ -12,7 +12,6 @@ public sealed record NeighborhoodEmblemChangedServerCommand(LongId NeighborhoodI
 {
     /// <inheritdoc />
     public static CommandCodec<NeighborhoodEmblemChangedServerCommand> Codec { get; } = Codecs.Command(
-        type: 136,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,

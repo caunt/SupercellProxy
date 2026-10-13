@@ -9,7 +9,6 @@ public sealed record UnlockStyleGuideCommand(int StyleGuideGlobalId) : CodecComm
 {
     /// <inheritdoc />
     public static CommandCodec<UnlockStyleGuideCommand> Codec { get; } = Codecs.Command(
-        type: 238,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.StyleGuideGlobalId,

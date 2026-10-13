@@ -19,7 +19,6 @@ public sealed record VisitedBoatHelpRequestServerCommand([property: System.Text.
 {
     /// <inheritdoc />
     public static CommandCodec<VisitedBoatHelpRequestServerCommand> Codec { get; } = Codecs.Command(
-        type: 388,
         Codecs.Composite(
             Codecs.LongId,
             static command => command.HomeOwnerId,

@@ -11,7 +11,6 @@ public sealed record ShopOfferStateServerCommand(string? OfferId, bool Active, i
 {
     /// <inheritdoc />
     public static CommandCodec<ShopOfferStateServerCommand> Codec { get; } = Codecs.Command(
-        type: 349,
         Codecs.Composite(
             Codecs.OptionalString,
             static command => command.OfferId,

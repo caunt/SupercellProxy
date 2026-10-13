@@ -19,7 +19,6 @@ public sealed record RoadsideFriendCountServerCommand : CodecServerCommand<Roads
 
     /// <inheritdoc />
     public static CommandCodec<RoadsideFriendCountServerCommand> Codec { get; } = Codecs.Command(
-        type: 210,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.FriendCount,

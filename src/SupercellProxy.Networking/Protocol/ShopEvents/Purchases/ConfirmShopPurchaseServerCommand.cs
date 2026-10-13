@@ -12,7 +12,6 @@ public sealed record ConfirmShopPurchaseServerCommand(int EventId, int VariantId
 {
     /// <inheritdoc />
     public static CommandCodec<ConfirmShopPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        type: 350,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.EventId,

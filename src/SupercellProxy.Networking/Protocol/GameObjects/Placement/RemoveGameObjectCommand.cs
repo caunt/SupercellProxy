@@ -9,7 +9,6 @@ public sealed record RemoveGameObjectCommand(int ObjectGlobalId) : CodecCommand<
 {
     /// <inheritdoc />
     public static CommandCodec<RemoveGameObjectCommand> Codec { get; } = Codecs.Command(
-        type: 54,
         Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static (objectGlobalId) => new RemoveGameObjectCommand(objectGlobalId))
     );
 }

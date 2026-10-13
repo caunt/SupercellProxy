@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Production.Mastery;
 public sealed record MarkBuildingMasteryExplainerSeenCommand : CodecCommand<MarkBuildingMasteryExplainerSeenCommand>, ICommandCodecProvider<MarkBuildingMasteryExplainerSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkBuildingMasteryExplainerSeenCommand> Codec { get; } = Codecs.Command(type: 2655, Codecs.Unit(static () => new MarkBuildingMasteryExplainerSeenCommand()));
+    public static CommandCodec<MarkBuildingMasteryExplainerSeenCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new MarkBuildingMasteryExplainerSeenCommand()));
 }

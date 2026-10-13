@@ -10,7 +10,6 @@ public sealed record CopyLayoutCommand(int SourceSlotIndex, int TargetSlotIndex)
 {
     /// <inheritdoc />
     public static CommandCodec<CopyLayoutCommand> Codec { get; } = Codecs.Command(
-        type: 191,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SourceSlotIndex,

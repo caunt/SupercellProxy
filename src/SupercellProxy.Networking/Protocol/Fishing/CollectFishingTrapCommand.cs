@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 public sealed record CollectFishingTrapCommand(int SpotId) : CodecCommand<CollectFishingTrapCommand>, ICommandCodecProvider<CollectFishingTrapCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectFishingTrapCommand> Codec { get; } = Codecs.Command(type: 119, Codecs.Composite(Codecs.VarInt, static command => command.SpotId, static (id) => new CollectFishingTrapCommand(id)));
+    public static CommandCodec<CollectFishingTrapCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SpotId, static (id) => new CollectFishingTrapCommand(id)));
 }

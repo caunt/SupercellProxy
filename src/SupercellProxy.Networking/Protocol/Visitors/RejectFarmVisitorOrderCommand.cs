@@ -8,7 +8,6 @@ public sealed record RejectFarmVisitorOrderCommand(int VisitorGlobalId) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<RejectFarmVisitorOrderCommand> Codec { get; } = Codecs.Command(
-        type: 43,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,

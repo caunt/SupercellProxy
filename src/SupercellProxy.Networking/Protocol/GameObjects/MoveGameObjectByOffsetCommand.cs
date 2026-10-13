@@ -9,11 +9,6 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 public sealed record MoveGameObjectByOffsetCommand : CodecCommand<MoveGameObjectByOffsetCommand>, ICommandCodecProvider<MoveGameObjectByOffsetCommand>
 {
     /// <summary>
-    /// Defines the <c language="csharp">CommandType</c> value.
-    /// </summary>
-    public const int CommandType = 3;
-
-    /// <summary>
     /// Initializes a new <see cref="MoveGameObjectByOffsetCommand"/> instance.
     /// </summary>
     public MoveGameObjectByOffsetCommand(
@@ -37,7 +32,6 @@ public sealed record MoveGameObjectByOffsetCommand : CodecCommand<MoveGameObject
 
     /// <inheritdoc />
     public static CommandCodec<MoveGameObjectByOffsetCommand> Codec { get; } = Codecs.Command(
-        type: 3,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GameObjectGlobalId,

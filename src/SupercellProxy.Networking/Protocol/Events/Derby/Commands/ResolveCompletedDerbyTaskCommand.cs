@@ -8,7 +8,6 @@ public sealed record ResolveCompletedDerbyTaskCommand(int TaskBoardIndex, int Ta
 {
     /// <inheritdoc />
     public static CommandCodec<ResolveCompletedDerbyTaskCommand> Codec { get; } = Codecs.Command(
-        type: 169,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TaskBoardIndex,

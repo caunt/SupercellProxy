@@ -9,7 +9,6 @@ public sealed record ClaimMapGameQuestRewardCommand(int QuestGlobalId) : CodecCo
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimMapGameQuestRewardCommand> Codec { get; } = Codecs.Command(
-        type: 303,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.QuestGlobalId,

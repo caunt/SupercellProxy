@@ -10,7 +10,6 @@ public sealed record ThankTownServiceHelperCommand(int ServiceIndex, int Service
 {
     /// <inheritdoc />
     public static CommandCodec<ThankTownServiceHelperCommand> Codec { get; } = Codecs.Command(
-        type: 254,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ServiceIndex,

@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record ClaimBoyBoxCommand : CodecCommand<ClaimBoyBoxCommand>, ICommandCodecProvider<ClaimBoyBoxCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimBoyBoxCommand> Codec { get; } = Codecs.Command(type: 554, Codecs.Unit(static () => new ClaimBoyBoxCommand()));
+    public static CommandCodec<ClaimBoyBoxCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimBoyBoxCommand()));
 }

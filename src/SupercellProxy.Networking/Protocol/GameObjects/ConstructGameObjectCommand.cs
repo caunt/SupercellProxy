@@ -41,7 +41,6 @@ public sealed record ConstructGameObjectCommand(
 {
     /// <inheritdoc />
     public static CommandCodec<ConstructGameObjectCommand> Codec { get; } = Codecs.Command(
-        type: 577,
         Codecs.Versioned(
             Release17381.Version,
             Codecs.Composite(

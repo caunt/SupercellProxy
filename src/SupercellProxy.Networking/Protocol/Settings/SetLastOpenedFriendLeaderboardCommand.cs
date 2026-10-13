@@ -9,7 +9,6 @@ public sealed record SetLastOpenedFriendLeaderboardCommand(int LeaderboardHash) 
 {
     /// <inheritdoc />
     public static CommandCodec<SetLastOpenedFriendLeaderboardCommand> Codec { get; } = Codecs.Command(
-        type: 101,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LeaderboardHash,

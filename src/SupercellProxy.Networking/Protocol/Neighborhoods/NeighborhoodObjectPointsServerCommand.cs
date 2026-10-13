@@ -8,7 +8,6 @@ public sealed record NeighborhoodObjectPointsServerCommand(int NeighborhoodPoint
 {
     /// <inheritdoc />
     public static CommandCodec<NeighborhoodObjectPointsServerCommand> Codec { get; } = Codecs.Command(
-        type: 384,
         Codecs.Composite(
             Codecs.Int32,
             static command => command.NeighborhoodPoints,

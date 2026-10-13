@@ -9,7 +9,6 @@ public sealed record RequestPlantRevivalCommand(int PlantGlobalId) : CodecComman
 {
     /// <inheritdoc />
     public static CommandCodec<RequestPlantRevivalCommand> Codec { get; } = Codecs.Command(
-        type: 65,
         Codecs.Composite(Codecs.VarInt, static command => command.PlantGlobalId, static (plantGlobalId) => new RequestPlantRevivalCommand(plantGlobalId))
     );
 }

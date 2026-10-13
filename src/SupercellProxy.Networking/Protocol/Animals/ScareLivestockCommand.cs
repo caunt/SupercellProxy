@@ -7,8 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record ScareLivestockCommand(int HabitatGlobalId) : CodecCommand<ScareLivestockCommand>, ICommandCodecProvider<ScareLivestockCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ScareLivestockCommand> Codec { get; } = Codecs.Command(
-        type: 6,
-        Codecs.Composite(Codecs.VarInt, static command => command.HabitatGlobalId, static (id) => new ScareLivestockCommand(id))
-    );
+    public static CommandCodec<ScareLivestockCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.HabitatGlobalId, static (id) => new ScareLivestockCommand(id)));
 }

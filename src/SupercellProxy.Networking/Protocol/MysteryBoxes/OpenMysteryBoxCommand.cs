@@ -16,7 +16,6 @@ public sealed record OpenMysteryBoxCommand([property: System.Text.Json.Serializa
 {
     /// <inheritdoc />
     public static CommandCodec<OpenMysteryBoxCommand> Codec { get; } = Codecs.Command(
-        type: 44,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoxGlobalId,

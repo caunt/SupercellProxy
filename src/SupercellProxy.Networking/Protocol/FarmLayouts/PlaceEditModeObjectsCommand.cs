@@ -9,7 +9,6 @@ public sealed record PlaceEditModeObjectsCommand(ReadOnlyMemory<int> ObjectGloba
 {
     /// <inheritdoc />
     public static CommandCodec<PlaceEditModeObjectsCommand> Codec { get; } = Codecs.Command(
-        type: 670,
         Codecs.Composite(
             Codecs.Memory(Codecs.VarInt),
             static command => command.ObjectGlobalIds,

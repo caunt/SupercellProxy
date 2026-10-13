@@ -13,7 +13,6 @@ public sealed record DebugActionCommand(int Action, int AdditionalData, int Targ
 {
     /// <inheritdoc />
     public static CommandCodec<DebugActionCommand> Codec { get; } = Codecs.Command(
-        type: 85,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Action,

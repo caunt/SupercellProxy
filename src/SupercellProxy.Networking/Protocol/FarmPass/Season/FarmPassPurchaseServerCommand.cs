@@ -13,7 +13,6 @@ public sealed record FarmPassPurchaseServerCommand(int PassType, string? Product
 {
     /// <inheritdoc />
     public static CommandCodec<FarmPassPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        type: 396,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PassType,

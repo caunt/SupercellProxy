@@ -8,8 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Offers.PopPromos;
 public sealed record ClaimPopPromoRewardCommand(int PromoId) : CodecCommand<ClaimPopPromoRewardCommand>, ICommandCodecProvider<ClaimPopPromoRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimPopPromoRewardCommand> Codec { get; } = Codecs.Command(
-        type: 330,
-        Codecs.Composite(Codecs.VarInt, static command => command.PromoId, static (promoId) => new ClaimPopPromoRewardCommand(promoId))
-    );
+    public static CommandCodec<ClaimPopPromoRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PromoId, static (promoId) => new ClaimPopPromoRewardCommand(promoId)));
 }

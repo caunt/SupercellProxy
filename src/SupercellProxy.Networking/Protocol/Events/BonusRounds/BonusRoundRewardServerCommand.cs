@@ -14,7 +14,6 @@ public sealed record BonusRoundRewardServerCommand(int RewardAmount, int Round, 
 {
     /// <inheritdoc />
     public static CommandCodec<BonusRoundRewardServerCommand> Codec { get; } = Codecs.Command(
-        type: 313,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RewardAmount,

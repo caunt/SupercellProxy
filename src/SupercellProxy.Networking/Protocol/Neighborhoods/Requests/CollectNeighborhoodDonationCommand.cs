@@ -8,7 +8,6 @@ public sealed record CollectNeighborhoodDonationCommand(int ItemGlobalId) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<CollectNeighborhoodDonationCommand> Codec { get; } = Codecs.Command(
-        type: 623,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ItemGlobalId,

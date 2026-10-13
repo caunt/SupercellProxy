@@ -9,7 +9,6 @@ public sealed record BuyCropSeedsCommand(int CropGlobalId) : CodecCommand<BuyCro
 {
     /// <inheritdoc />
     public static CommandCodec<BuyCropSeedsCommand> Codec { get; } = Codecs.Command(
-        type: 665,
         Codecs.Composite(Codecs.VarInt, static command => command.CropGlobalId, static (cropGlobalId) => new BuyCropSeedsCommand(cropGlobalId)),
         CommandLayout.MetadataFirst
     );

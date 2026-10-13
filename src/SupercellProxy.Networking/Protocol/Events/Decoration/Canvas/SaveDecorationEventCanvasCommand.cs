@@ -15,7 +15,6 @@ public sealed record SaveDecorationEventCanvasCommand(int EventId, int EventVari
     /// <inheritdoc />
     /// <remarks>Native writes the design length before the optional design id and the design bytes after it.</remarks>
     public static CommandCodec<SaveDecorationEventCanvasCommand> Codec { get; } = Codecs.Command(
-        type: 599,
         Codecs.Create(
             static stream =>
             {

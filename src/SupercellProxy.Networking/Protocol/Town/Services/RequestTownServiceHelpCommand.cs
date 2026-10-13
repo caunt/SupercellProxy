@@ -11,7 +11,6 @@ public sealed record RequestTownServiceHelpCommand(int ServiceIndex, int Service
 {
     /// <inheritdoc />
     public static CommandCodec<RequestTownServiceHelpCommand> Codec { get; } = Codecs.Command(
-        type: 250,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ServiceIndex,

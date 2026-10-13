@@ -8,7 +8,6 @@ public sealed record BookTownPassengerServiceCommand(int PassengerGlobalId, int 
 {
     /// <inheritdoc />
     public static CommandCodec<BookTownPassengerServiceCommand> Codec { get; } = Codecs.Command(
-        type: 145,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PassengerGlobalId,

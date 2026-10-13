@@ -8,7 +8,6 @@ public sealed record EndDerbyServerCommand(int Rank, int LeagueIndex, int Partic
 {
     /// <inheritdoc />
     public static CommandCodec<EndDerbyServerCommand> Codec { get; } = Codecs.Command(
-        type: 168,
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.Rank,

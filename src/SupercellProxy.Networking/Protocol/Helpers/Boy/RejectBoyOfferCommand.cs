@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record RejectBoyOfferCommand : CodecCommand<RejectBoyOfferCommand>, ICommandCodecProvider<RejectBoyOfferCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RejectBoyOfferCommand> Codec { get; } = Codecs.Command(type: 583, Codecs.Unit(static () => new RejectBoyOfferCommand()));
+    public static CommandCodec<RejectBoyOfferCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new RejectBoyOfferCommand()));
 }
