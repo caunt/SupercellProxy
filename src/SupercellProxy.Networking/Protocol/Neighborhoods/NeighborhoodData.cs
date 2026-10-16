@@ -1,13 +1,13 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>
-/// Represents <c language="csharp">NeighborhoodData</c>.
-/// </summary>
-/// <param name="NeighborhoodId">The <c language="csharp">NeighborhoodId</c> value.</param>
-/// <param name="NeighborhoodName">The <c language="csharp">NeighborhoodName</c> value.</param>
-/// <param name="NeighborhoodRole">The <c language="csharp">NeighborhoodRole</c> value.</param>
+/// <summary>The neighbourhood a player belongs to, as shown with the player: name, role, emblem and event points.</summary>
+/// <param name="NeighborhoodId">Id of the neighbourhood.</param>
+/// <param name="NeighborhoodName">Name of the neighbourhood.</param>
+/// <param name="NeighborhoodRole">The player's role in the neighbourhood; the role numbers are not identified.</param>
 /// <param name="BadgeBackground">The badge background: neighborhood_badges.csv global id with the color in the high byte.</param>
 /// <param name="BadgePattern">The badge pattern: neighborhood_badges.csv global id with the color in the high byte.</param>
 /// <param name="BadgeSymbol">The badge symbol: neighborhood_badges.csv global id with the color in the high byte.</param>
@@ -15,7 +15,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <param name="ObjectVariantId">The live event variant id of the neighborhood object.</param>
 /// <param name="ObjectPoints">The neighborhood object points; native maps them to a level through the event's point thresholds.</param>
 public sealed record NeighborhoodData(
-    [property: System.Text.Json.Serialization.JsonPropertyName("NeighborhoodId")] LongId NeighborhoodId,
+    [property: JsonPropertyName("NeighborhoodId")] LongId NeighborhoodId,
     string? NeighborhoodName,
     int NeighborhoodRole,
     int BadgeBackground,

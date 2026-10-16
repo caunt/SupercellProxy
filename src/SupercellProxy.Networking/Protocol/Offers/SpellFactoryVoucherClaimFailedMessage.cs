@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Offers;
 
 /// <summary>Reports that claiming a Spell Factory voucher failed.</summary>
-/// <param name="Code">The code.</param>
+/// <param name="Code">Voucher code the player tried to redeem.</param>
 /// <param name="Reason">1 already claimed, 2 expired, 3 invalid code, 4 invalidated, 5 conditions not met; anything else is unknown.</param>
 public sealed record SpellFactoryVoucherClaimFailedMessage(string? Code, int Reason) : CodecMessage<SpellFactoryVoucherClaimFailedMessage>, ICodecProvider<SpellFactoryVoucherClaimFailedMessage>
 {

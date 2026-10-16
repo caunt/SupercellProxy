@@ -12,7 +12,7 @@ public sealed record UpgradeMolluscBedCommand(int BedObjectGlobalId) : CodecComm
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BedObjectGlobalId,
-            static (bedObjectGlobalId) => new UpgradeMolluscBedCommand(bedObjectGlobalId)
+            static bedObjectGlobalId => new UpgradeMolluscBedCommand(bedObjectGlobalId)
         )
     );
 }

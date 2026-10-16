@@ -1,16 +1,25 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Animals;
 
 /// <summary>
-/// Defines the Spawn Ambient Animal Command contract.
+/// Serverbound command that adds one decorative ambient animal (birds, butterflies, fish and the like) to the farm at a given spot.
+/// The server refuses it once the farm already has the configured maximum of ambient animals.
 /// </summary>
 public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimalCommand>, ICommandCodecProvider<SpawnAmbientAnimalCommand>
 {
     /// <summary>
-    /// Provides the Spawn Ambient Animal Command value or operation.
+    /// Describes one ambient animal to spawn.
     /// </summary>
+    /// <param name="behavior">Movement pattern, 0 to 4; see <see cref="Behavior"/>.</param>
+    /// <param name="horizontalCoordinate">Horizontal start position in farm coordinates.</param>
+    /// <param name="verticalCoordinate">Vertical start position in farm coordinates.</param>
+    /// <param name="destinationX">Horizontal position the animal heads for, for patterns that travel to a point.</param>
+    /// <param name="destinationY">Vertical position the animal heads for, for patterns that travel to a point.</param>
+    /// <param name="notifyListener">Whether native also tells its display listener about the new animal; no effect on game state.</param>
     public SpawnAmbientAnimalCommand(int behavior, int horizontalCoordinate, int verticalCoordinate, int destinationX, int destinationY, bool notifyListener)
     {
         Behavior = behavior;
@@ -41,34 +50,35 @@ public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimal
     );
 
     /// <summary>
-    /// Gets the Behavior value.
+    /// Movement pattern the animal follows, 0 to 4; it selects which avoidance, attraction and landing points apply. Pattern 4 is
+    /// the fish that swims near the boat dock. Anything outside 0 to 4 is invalid.
     /// </summary>
     public int Behavior { get; }
 
     /// <summary>
-    /// Gets the Destination X value.
+    /// Horizontal position the animal heads for, used by patterns that travel to a point.
     /// </summary>
     public int DestinationX { get; }
 
     /// <summary>
-    /// Gets the Destination Y value.
+    /// Vertical position the animal heads for, used by patterns that travel to a point.
     /// </summary>
     public int DestinationY { get; }
 
     /// <summary>
-    /// Gets the X value.
+    /// Horizontal start position in farm coordinates.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("X")]
+    [JsonPropertyName("X")]
     public int HorizontalCoordinate { get; }
 
     /// <summary>
-    /// Gets the Notify Listener value.
+    /// Whether native also tells its display listener about the new animal; it has no effect on game state.
     /// </summary>
     public bool NotifyListener { get; }
 
     /// <summary>
-    /// Gets the Y value.
+    /// Vertical start position in farm coordinates.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Y")]
+    [JsonPropertyName("Y")]
     public int VerticalCoordinate { get; }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Avatars.Collections;
 using SupercellProxy.Networking.Protocol.Avatars.Derby;
 using SupercellProxy.Networking.Protocol.Inventory;
@@ -11,7 +13,8 @@ using SupercellProxy.Networking.Protocol.Town;
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>
-/// Represents <c language="csharp">ClientAvatar</c>.
+/// A player's account-level record as home messages carry it: farm name and ids, inventory, roadside shop, mail, neighbourhood,
+/// derby standing, live events and purchase history. Own-home loads carry the player's own avatar; visits also carry the owner's.
 /// </summary>
 public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
 {
@@ -52,7 +55,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
             avatar.PassengerReservations,
             avatar.PickedPassengers,
             avatar.ServiceHelpRequests,
-            avatar.UnknownEntries3
+            avatar.TruckOrderHelpRequests
         ),
         AvatarProgressionSection.Codec,
         static avatar => new AvatarProgressionSection(
@@ -103,7 +106,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
             PassengerReservations = social.PassengerReservations,
             PickedPassengers = social.PickedPassengers,
             ServiceHelpRequests = social.ServiceHelpRequests,
-            UnknownEntries3 = social.UnknownEntries3,
+            TruckOrderHelpRequests = social.TruckOrderHelpRequests,
             UnknownNullableListCount = progression.UnknownNullableListCount,
             CurrentDerbyInstanceId = progression.CurrentDerbyInstanceId,
             PreviousDerbyInstanceId = progression.PreviousDerbyInstanceId,
@@ -135,33 +138,33 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public static int InventoryMapCount => AvatarInventoryLayout.Legacy.MapCount;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AccountId</c> value.
+    /// Account the avatar belongs to, as used for login.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
+    [JsonPropertyName("AccountId")]
     public LongId AccountId { get; init; }
 
-    /// Gets the country code used by age restrictions.
+    /// <summary>Gets the country code used by age restrictions.</summary>
     public string? AgeCountryCode { get; init; }
 
     /// <summary>
-    /// Gets the avatar timestamp.
+    /// Unix seconds at which the server last stored the avatar; in captures it sits a second or so before the load's server time.
     /// </summary>
     public int AvatarTimestamp { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AvatarVersion</c> value.
+    /// Revision number of the avatar record (21 in 1.73.81 captures).
     /// </summary>
     public int AvatarVersion { get; init; }
 
-    /// Gets the retained birth timestamp used by age restrictions.
+    /// <summary>Gets the retained birth timestamp used by age restrictions.</summary>
     public int BirthTimestamp { get; init; }
 
     /// <summary>Gets the native inventory layout used to decode this avatar.</summary>
-    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     public AvatarInventoryLayout InventoryLayout { get; init; } = AvatarInventoryLayout.Legacy;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">CanEditFarm</c> value.
+    /// Farm-editing permission flag from the social section (true in captures).
     /// </summary>
     public bool CanEditFarm { get; init; }
 
@@ -169,22 +172,25 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public LongId? CurrentDerbyInstanceId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">DeprecatedInventoryDataCount</c> value.
+    /// Count native still reads from an inventory section it no longer uses; 0 in captures, kept for re-encoding.
     /// </summary>
     public int DeprecatedInventoryDataCount { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryValues</c> value.
+    /// The inventory's plain number arrays, in the order <see cref="InventoryLayout"/> defines for the game release; which array
+    /// means what depends on that layout.
     /// </summary>
     public int[][] InventoryValues { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryMaps</c> value.
+    /// The inventory's keyed lists, one per map slot of <see cref="InventoryLayout"/>: each entry pairs a game data entry (an item,
+    /// building or similar) with a number, such as how many of that item are stored.
     /// </summary>
     public DataReferenceValue[][] InventoryMaps { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">RoadsideShop</c> value.
+    /// The farm's roadside shop crates in slot order: what each offers, at what price, and whether it was bought. Live updates
+    /// replace it while the shop is open.
     /// </summary>
     public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
 
@@ -194,43 +200,43 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public string? FarmName { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">HomeId</c> value.
+    /// The player's farm, which visits and home messages refer to.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
+    [JsonPropertyName("HomeId")]
     public LongId HomeId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MailEntries</c> value.
+    /// Mailbox letters waiting for the player, such as gifts and rewards to collect.
     /// </summary>
     public MailEntry[] MailEntries { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownValues0</c> value.
+    /// Number list sent after the mail; its meaning is not identified and captures leave it empty.
     /// </summary>
     public int[] UnknownValues0 { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">InventoryUnknown0</c> value.
+    /// Number that closes the inventory section; its meaning is not identified and captures carry 0.
     /// </summary>
     public int InventoryUnknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">BoatCrateHelpEntries</c> value.
+    /// Help requests on the player's boat crates and, for crates already filled, who filled them.
     /// </summary>
     public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">IsMuted</c> value.
+    /// Mute flag from the social section (false in captures).
     /// </summary>
     public bool IsMuted { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LeagueScore</c> value.
+    /// The player's points in the running derby.
     /// </summary>
     public int LeagueScore { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LeagueType</c> value.
+    /// League of the running derby the player competes in, as native numbers leagues.
     /// </summary>
     public int LeagueType { get; init; }
 
@@ -240,23 +246,23 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public PassengerReservation[] PassengerReservations { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">PickedPassengers</c> value.
+    /// Passengers the player picked up in other players' towns and has not yet brought home on the personal train.
     /// </summary>
     public PickedPassenger[] PickedPassengers { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MapGameId</c> value.
+    /// The Valley game the player is in; null when not playing one.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("MapGameId")]
+    [JsonPropertyName("MapGameId")]
     public LongId? MapGameId { get; init; }
 
     /// <summary>
-    /// Gets the Map Game Participants value.
+    /// Players taking part in the same Valley game; null when the avatar carries no Valley game.
     /// </summary>
     public MapGameParticipant[]? MapGameParticipants { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Neighborhood</c> value.
+    /// The player's neighbourhood: its id, name and the player's role in it; null when the player is not in one.
     /// </summary>
     public NeighborhoodData? Neighborhood { get; init; }
 
@@ -268,7 +274,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// <summary>
     /// Gets a second help request list with the service request layout; captures never carry entries.
     /// </summary>
-    public ServiceHelpRequest[] UnknownEntries3 { get; init; } = [];
+    public ServiceHelpRequest[] TruckOrderHelpRequests { get; init; } = [];
 
     /// <summary>Gets the instance id of the previous derby; native drops the previous rank, keys, bunnies and bingo lines without it.</summary>
     public LongId? PreviousDerbyInstanceId { get; init; }
@@ -292,7 +298,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public LiveGlobalConfigurations LiveGlobals { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Settings</c> value.
+    /// The settings block that closes the progression section; null when the avatar was sent without it.
     /// </summary>
     public AvatarSettings? Settings { get; init; }
 
@@ -302,46 +308,47 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     public PurchaseHistory ShopPurchaseHistory { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StorePromotionAllowed</c> value.
+    /// Store-promotion permission flag sent next to the age-restriction fields.
     /// </summary>
     public bool StorePromotionAllowed { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">TrainStationReady</c> value.
+    /// Train-station flag from the social section (true in captures); its exact meaning is not identified.
     /// </summary>
     public bool TrainStationReady { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
-    /// </summary>
-    public int Unknown1 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown4</c> value.
-    /// </summary>
-    public int Unknown4 { get; init; }
-
-    /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownBoolean1</c> value.
-    /// </summary>
-    public bool UnknownBoolean1 { get; init; }
 
     /// <summary>Gets the bingo and bunny counters of the running and previous derby.</summary>
     public AvatarDerbyMinigameCounters DerbyMinigameCounters { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownNullableListCount</c> value.
+    /// Number sent between the avatar time stamp and its revision; captures carry 0 and its meaning is not identified.
+    /// </summary>
+    public int Unknown1 { get; init; }
+
+    /// <summary>
+    /// Number sent after the Valley ids; captures carry 0 and its meaning is not identified.
+    /// </summary>
+    public int Unknown4 { get; init; }
+
+    /// <summary>
+    /// Flag sent after the second country code; captures carry false and its meaning is not identified.
+    /// </summary>
+    public bool UnknownBoolean1 { get; init; }
+
+    /// <summary>
+    /// Count that opens the progression section; captures carry 0 and its meaning is not identified.
     /// </summary>
     public int UnknownNullableListCount { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownOptionalId3</c> value.
+    /// Optional id sent right after <see cref="MapGameId"/>; which object it names is not identified.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownOptionalId3")]
+    [JsonPropertyName("UnknownOptionalId3")]
     public LongId? UnknownOptionalId3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
+    /// Second country code sent after the store-promotion flag; captures repeat <see cref="AgeCountryCode"/>, but its own use is not
+    /// identified.
     /// </summary>
     public string? UnknownString1 { get; init; }
 

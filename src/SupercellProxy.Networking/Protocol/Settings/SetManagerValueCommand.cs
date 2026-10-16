@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetManagerValueCommand(int Value) : CodecCommand<SetManagerValueCommand>, ICommandCodecProvider<SetManagerValueCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetManagerValueCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Value, static (@value) => new SetManagerValueCommand(value)));
+    public static CommandCodec<SetManagerValueCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Value, static @value => new SetManagerValueCommand(value)));
 }

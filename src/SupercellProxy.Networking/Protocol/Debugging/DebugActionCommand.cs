@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Debugging;
 
 /// <summary>Development-only command that runs a numbered debug action.</summary>
-/// <param name="Action">The action.</param>
-/// <param name="AdditionalData">The additional data.</param>
-/// <param name="TargetGlobalId">The target data id.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="Text">The text.</param>
+/// <param name="Action">Number of the debug action to run.</param>
+/// <param name="AdditionalData">Extra number the action takes; its use depends on the action.</param>
+/// <param name="TargetGlobalId">Game data entry the action targets.</param>
+/// <param name="Amount">Quantity argument for actions that take one.</param>
+/// <param name="Text">Text argument for actions that take one.</param>
 public sealed record DebugActionCommand(int Action, int AdditionalData, int TargetGlobalId, int Amount, string? Text) : CodecCommand<DebugActionCommand>, ICommandCodecProvider<DebugActionCommand>
 {
     /// <inheritdoc />

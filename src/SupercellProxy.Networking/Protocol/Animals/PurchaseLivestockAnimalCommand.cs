@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Versions;
@@ -8,13 +10,13 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 /// <param name="Mirrored">Whether the animal faces the mirrored direction.</param>
 /// <param name="PositionY">The vertical position.</param>
 /// <param name="HabitatGlobalId">The habitat game object id.</param>
-/// <param name="AnimalDataGlobalId">The animal data id.</param>
+/// <param name="AnimalDataGlobalId">Global id of the animal type in the animals table, such as the Chicken entry.</param>
 /// <param name="PositionX">The horizontal position.</param>
 public sealed record PurchaseLivestockAnimalCommand(
     bool Mirrored,
     int PositionY,
-    [property: System.Text.Json.Serialization.JsonPropertyName("HabitatGlobalId")] int HabitatGlobalId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("AnimalDataGlobalId")] int AnimalDataGlobalId,
+    [property: JsonPropertyName("HabitatGlobalId")] int HabitatGlobalId,
+    [property: JsonPropertyName("AnimalDataGlobalId")] int AnimalDataGlobalId,
     int PositionX
 ) : CodecCommand<PurchaseLivestockAnimalCommand>, ICommandCodecProvider<PurchaseLivestockAnimalCommand>
 {

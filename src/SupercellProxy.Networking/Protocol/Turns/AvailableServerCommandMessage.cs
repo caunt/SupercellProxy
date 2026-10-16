@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Commands.Registry;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 

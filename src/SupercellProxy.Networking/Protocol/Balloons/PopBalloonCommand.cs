@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Balloons;
 public sealed record PopBalloonCommand(int BalloonDataGlobalId) : CodecCommand<PopBalloonCommand>, ICommandCodecProvider<PopBalloonCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PopBalloonCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.BalloonDataGlobalId, static (id) => new PopBalloonCommand(id)));
+    public static CommandCodec<PopBalloonCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.BalloonDataGlobalId, static id => new PopBalloonCommand(id)));
 }

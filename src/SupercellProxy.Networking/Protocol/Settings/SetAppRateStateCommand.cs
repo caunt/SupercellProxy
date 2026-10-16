@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetAppRateStateCommand(int State) : CodecCommand<SetAppRateStateCommand>, ICommandCodecProvider<SetAppRateStateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetAppRateStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.State, static (state) => new SetAppRateStateCommand(state)));
+    public static CommandCodec<SetAppRateStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.State, static state => new SetAppRateStateCommand(state)));
 }

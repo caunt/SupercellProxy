@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Commands;
 
 /// <summary>
@@ -8,7 +9,7 @@ public abstract record ServerCommand : Command
     private int _serverCommandId = -1;
 
     /// <summary>Gets the server's sequence number for the command.</summary>
-    [System.Text.Json.Serialization.JsonPropertyName("ServerCommandId")]
+    [JsonPropertyName("ServerCommandId")]
     public int ServerCommandId
     {
         get => _serverCommandId;

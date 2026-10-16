@@ -3,12 +3,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
-/// <summary>Sends a tracking event.</summary>
-/// <param name="Category">The category.</param>
-/// <param name="Action">The action.</param>
-/// <param name="Label">The label.</param>
-/// <param name="Data">The data.</param>
-/// <param name="Value">The value.</param>
+/// <summary>Sends a tracking event described by a category, an action and a label, in the usual web-analytics shape.</summary>
+/// <param name="Category">Group the event belongs to.</param>
+/// <param name="Action">What the player did.</param>
+/// <param name="Label">What the action was done on.</param>
+/// <param name="Data">Extra text sent with the event.</param>
+/// <param name="Value">Number sent with the event.</param>
 public sealed record TrackingMessage(string? Category, string? Action, string? Label, string? Data, int Value) : CodecMessage<TrackingMessage>, ICodecProvider<TrackingMessage>
 {
     /// <inheritdoc />

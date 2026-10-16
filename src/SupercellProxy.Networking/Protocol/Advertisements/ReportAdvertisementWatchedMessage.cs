@@ -5,12 +5,12 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.Advertisements;
 
 /// <summary>Reports a watched rewarded advertisement.</summary>
-/// <param name="Placement">The placement.</param>
-/// <param name="RewardType">The reward type.</param>
+/// <param name="Placement">Native placement number of the in-game offer the video was watched for.</param>
+/// <param name="RewardType">Kind of reward the offer grants, as native numbers it.</param>
 /// <param name="Completed">Whether the advertisement completed.</param>
-/// <param name="Duration">The duration.</param>
-/// <param name="RewardAmount">The reward amount.</param>
-/// <param name="Attempt">The attempt.</param>
+/// <param name="Duration">How long the video played.</param>
+/// <param name="RewardAmount">How much of the reward the offer grants.</param>
+/// <param name="Attempt">Which try this was at loading a video for the offer.</param>
 /// <param name="Skipped">Whether the advertisement was skipped.</param>
 public sealed record ReportAdvertisementWatchedMessage(int Placement, int RewardType, bool Completed, int Duration, int RewardAmount, int Attempt, bool Skipped)
     : CodecMessage<ReportAdvertisementWatchedMessage>, ICodecProvider<ReportAdvertisementWatchedMessage>

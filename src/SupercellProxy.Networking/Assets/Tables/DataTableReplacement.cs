@@ -1,12 +1,12 @@
 namespace SupercellProxy.Networking.Assets.Tables;
 
 /// <summary>
-/// Defines the Data Table Replacement contract.
+/// CSV text a table change supplies in place of existing data, either a whole file or the source of replaced columns.
 /// </summary>
 public sealed record DataTableReplacement
 {
     /// <summary>
-    /// Gets the Content value.
+    /// The CSV text, including the column-name and column-type header rows.
     /// </summary>
     public string Content { get; init; } = string.Empty;
 }

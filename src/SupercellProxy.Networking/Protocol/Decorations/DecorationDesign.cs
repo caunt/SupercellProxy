@@ -2,14 +2,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Decorations;
 
-/// <summary>The decoration design.</summary>
-/// <param name="Image">The image.</param>
-/// <param name="Author">The author.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="AuthorId">The author id.</param>
-/// <param name="Value3">The value3.</param>
+/// <summary>A player-made decoration design: its picture and who made it.</summary>
+/// <param name="Image">Encoded picture of the design; null when the design is sent without one.</param>
+/// <param name="Author">Display name of the player who made the design.</param>
+/// <param name="Value0">First number after the author name; its meaning is not identified.</param>
+/// <param name="Value1">Second number after the author name; not identified.</param>
+/// <param name="Value2">Third number after the author name; not identified.</param>
+/// <param name="AuthorId">Account of the player who made the design, if known.</param>
+/// <param name="Value3">Number that closes the design; not identified.</param>
 public sealed record DecorationDesign(ReadOnlyMemory<byte>? Image, string? Author, int Value0, int Value1, int Value2, LongId? AuthorId, int Value3) : ICodecProvider<DecorationDesign>
 {
     /// <inheritdoc />

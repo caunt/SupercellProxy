@@ -4,14 +4,24 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
-/// Native map-game pawn structure encoded by the shared 1.72.84 helper at 0x10065c78c.
-/// Semantic names for the stripped fields are not yet proven.
+/// One player's car on the Valley board as the server sends it: where it stands, which nodes it revealed, and how it looks.
 /// </summary>
 public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGamePawn"/> instance.
-    /// </summary>
+    /// <summary>Creates a pawn from its decoded fields.</summary>
+    /// <param name="avatarId">Account of the player the car belongs to.</param>
+    /// <param name="neighborhoodId">Neighbourhood of that player; null when they are in none.</param>
+    /// <param name="experienceLevel">Farm level of that player.</param>
+    /// <param name="currentNodeId">Board node the car stands on.</param>
+    /// <param name="emptyNodesTravelled">Empty nodes the car crossed since its last empty-node task.</param>
+    /// <param name="emptyNodesTravelledDeliveringAnimalsImmunity">Empty nodes left before a carried sanctuary animal can escape.</param>
+    /// <param name="emptyNodesTravelledDeliveringAnimals">Empty nodes crossed while carrying sanctuary animals.</param>
+    /// <param name="visitedNodeIds">Nodes the car revealed, in order and without repeats.</param>
+    /// <param name="selectedOptions">Valley profile options the player picked.</param>
+    /// <param name="name">Name shown for the player.</param>
+    /// <param name="emblem">The player's emblem; null when none is set.</param>
+    /// <param name="derbyTaskGlobalId">Global id of the derby task the car works on; 0 when none.</param>
+    /// <param name="pendingNotifications">Valley notifications waiting to be shown, each a table entry and a value.</param>
     public MapGamePawn(
         LongId? avatarId,
         LongId? neighborhoodId,
@@ -102,14 +112,10 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
         )
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">AvatarId</c> value.
-    /// </summary>
+    /// <summary>Account of the player the car belongs to.</summary>
     public LongId? AvatarId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">CurrentNodeId</c> value.
-    /// </summary>
+    /// <summary>Board node the car stands on.</summary>
     public int CurrentNodeId { get; }
 
     /// <summary>
@@ -122,9 +128,7 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
     /// </summary>
     public MapGamePawnEmblem? Emblem { get; init; }
 
-    /// <summary>
-    /// Gets the number of empty nodes travelled.
-    /// </summary>
+    /// <summary>Empty nodes the car crossed since its last empty-node task; it starts over when such a task appears.</summary>
     public int EmptyNodesTravelled { get; }
 
     /// <summary>
@@ -137,9 +141,7 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
     /// </summary>
     public int EmptyNodesTravelledDeliveringAnimalsImmunity { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">ExperienceLevel</c> value.
-    /// </summary>
+    /// <summary>Farm level of the player the car belongs to.</summary>
     public int ExperienceLevel { get; init; }
 
     /// <summary>
@@ -152,9 +154,7 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
     /// </summary>
     public LongId? NeighborhoodId { get; init; }
 
-    /// <summary>
-    /// Gets the pending pendingNotifications (native JSON <c>PendingNotifications</c>).
-    /// </summary>
+    /// <summary>Valley notifications waiting to be shown, each a table entry and a value (native JSON <c>PendingNotifications</c>).</summary>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair> PendingNotifications { get; init; }
 
     /// <summary>

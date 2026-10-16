@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 public sealed record MarkMapGameEventSeenCommand(int EventId) : CodecCommand<MarkMapGameEventSeenCommand>, ICommandCodecProvider<MarkMapGameEventSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkMapGameEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkMapGameEventSeenCommand(eventId)));
+    public static CommandCodec<MarkMapGameEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkMapGameEventSeenCommand(eventId)));
 }

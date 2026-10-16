@@ -1,16 +1,21 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
 /// <summary>
-/// <para>Moves an existing game object after validating its object-table category.</para>
+/// Serverbound command placing an existing object at a new map position (512 map units per tile); the object's table must
+/// match.
 /// </summary>
 public sealed record MoveGameObjectCommand : CodecCommand<MoveGameObjectCommand>, ICommandCodecProvider<MoveGameObjectCommand>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MoveGameObjectCommand"/> instance.
-    /// </summary>
+    /// <summary>Creates the command for one object.</summary>
+    /// <param name="gameObjectGlobalId">Global id of the object to move.</param>
+    /// <param name="objectTableId">Table id of the object; it must match the object.</param>
+    /// <param name="logicX">New horizontal position in map units.</param>
+    /// <param name="logicY">New vertical position in map units.</param>
     public MoveGameObjectCommand(int gameObjectGlobalId, int objectTableId, int logicX, int logicY)
     {
         GameObjectGlobalId = gameObjectGlobalId;
@@ -34,25 +39,17 @@ public sealed record MoveGameObjectCommand : CodecCommand<MoveGameObjectCommand>
         )
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("GameObjectGlobalId")]
+    /// <summary>Global id of the object to move.</summary>
+    [JsonPropertyName("GameObjectGlobalId")]
     public int GameObjectGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">ObjectTableId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")]
+    /// <summary>Table id of the object; it must match the object.</summary>
+    [JsonPropertyName("ObjectTableId")]
     public int ObjectTableId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">PositionX</c> value.
-    /// </summary>
+    /// <summary>New horizontal position in map units (512 per tile).</summary>
     public int PositionX { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">PositionY</c> value.
-    /// </summary>
+    /// <summary>New vertical position in map units (512 per tile).</summary>
     public int PositionY { get; }
 }

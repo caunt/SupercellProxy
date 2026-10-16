@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Kicks a member from a neighborhood.</summary>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="AvatarId">The avatar id.</param>
+/// <param name="NeighborhoodId">Neighbourhood the member is removed from.</param>
+/// <param name="AvatarId">Account of the member to remove.</param>
 public sealed record KickNeighborhoodMemberMessage(LongId NeighborhoodId, LongId AvatarId) : CodecMessage<KickNeighborhoodMemberMessage>, ICodecProvider<KickNeighborhoodMemberMessage>
 {
     /// <inheritdoc />

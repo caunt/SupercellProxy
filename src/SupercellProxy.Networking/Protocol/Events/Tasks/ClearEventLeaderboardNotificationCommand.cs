@@ -1,18 +1,16 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
 /// <summary>
-/// Defines the Clear Event Leaderboard Notification Command contract.
+/// Serverbound command clearing the notification badge on an event's leaderboard button after the player looked at it.
 /// </summary>
-/// <summary>
-/// Defines the Event Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Button State contract.
-/// </summary>
-public sealed record ClearEventLeaderboardNotificationCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId, int ButtonState) : CodecCommand<ClearEventLeaderboardNotificationCommand>, ICommandCodecProvider<ClearEventLeaderboardNotificationCommand>
+/// <param name="EventId">Event board event whose leaderboard button is cleared.</param>
+/// <param name="ButtonState">Display state the button changes to, as native numbers it.</param>
+public sealed record ClearEventLeaderboardNotificationCommand([property: JsonPropertyName("EventId")] int EventId, int ButtonState) : CodecCommand<ClearEventLeaderboardNotificationCommand>, ICommandCodecProvider<ClearEventLeaderboardNotificationCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<ClearEventLeaderboardNotificationCommand> Codec { get; } = Codecs.Command(

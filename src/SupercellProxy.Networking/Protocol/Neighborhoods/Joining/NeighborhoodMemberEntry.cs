@@ -2,30 +2,33 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Joining;
 
-/// <summary>One neighborhood member entry entry.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="Name">The name.</param>
-/// <param name="ExpLevel">The exp level.</param>
-/// <param name="Role">The role.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Flag0">The flag0.</param>
-/// <param name="Flag1">The flag1.</param>
-/// <param name="Flag2">The flag2.</param>
-/// <param name="Flag3">The flag3.</param>
-/// <param name="Value3">The value3.</param>
-/// <param name="Value4">The value4.</param>
-/// <param name="Value5">The value5.</param>
-/// <param name="Timestamp0">The timestamp0.</param>
-/// <param name="Timestamp1">The timestamp1.</param>
-/// <param name="HomeId">The home id.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
+/// <summary>One member of a neighbourhood as its member list shows them. Meanings come from captured lists.</summary>
+/// <param name="AvatarId">Account of the member.</param>
+/// <param name="Name">Farm name of the member.</param>
+/// <param name="Role">
+/// The member's neighbourhood role, 1 to 4 in the captures; it matches the role the member's own avatar carries in its
+/// neighbourhood data.
+/// </param>
+/// <param name="ExpLevel">The member's farm level; it rises with the member's level-ups in the captures.</param>
+/// <param name="Value0">Per-member number, 7 to 18 in the captures; its meaning is not identified.</param>
+/// <param name="Value1">Position of the member in the list, starting at 1.</param>
+/// <param name="Value2">Number that is 0 in every capture; its meaning is not identified.</param>
+/// <param name="Flag0">Flag that is clear in every capture; its meaning is not identified.</param>
+/// <param name="Flag1">Flag that is set in every capture; its meaning is not identified.</param>
+/// <param name="Flag2">Per-member flag; its meaning is not identified.</param>
+/// <param name="Flag3">Per-member flag that matches <paramref name="Flag2"/> in the captures; its meaning is not identified.</param>
+/// <param name="Value3">Number that is 0 in every capture; its meaning is not identified.</param>
+/// <param name="Value4">Unix time in seconds, always equal to <paramref name="Timestamp0"/> in the captures.</param>
+/// <param name="Value5">Per-member number that changes between captures; its meaning is not identified.</param>
+/// <param name="Timestamp0">Recent Unix time in seconds, likely the member's last activity; not confirmed.</param>
+/// <param name="Timestamp1">Older Unix time in seconds, likely when the member joined; not confirmed.</param>
+/// <param name="HomeId">Optional id that two members share in the captures; its meaning is not identified.</param>
+/// <param name="NeighborhoodId">Optional id that differs between members in the captures; its meaning is not identified.</param>
 public sealed record NeighborhoodMemberEntry(
     LongId AvatarId,
     string? Name,
-    int ExpLevel,
     int Role,
+    int ExpLevel,
     int Value0,
     int Value1,
     int Value2,
@@ -49,9 +52,9 @@ public sealed record NeighborhoodMemberEntry(
         Codecs.OptionalString,
         static entry => entry.Name,
         Codecs.VarInt,
-        static entry => entry.ExpLevel,
-        Codecs.VarInt,
         static entry => entry.Role,
+        Codecs.VarInt,
+        static entry => entry.ExpLevel,
         Codecs.VarInt,
         static entry => entry.Value0,
         Codecs.VarInt,
@@ -77,8 +80,8 @@ public sealed record NeighborhoodMemberEntry(
         static (
             avatarId,
             name,
-            expLevel,
             role,
+            expLevel,
             value0,
             value1,
             value2,
@@ -93,8 +96,8 @@ public sealed record NeighborhoodMemberEntry(
         ) => new NeighborhoodMemberEntry(
             avatarId,
             name,
-            expLevel,
             role,
+            expLevel,
             value0,
             value1,
             value2,

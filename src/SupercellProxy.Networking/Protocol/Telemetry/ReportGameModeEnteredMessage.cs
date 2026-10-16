@@ -4,11 +4,14 @@ using SupercellProxy.Networking.Protocol.Versions;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
-/// <summary>Reports the counters when a game mode was entered.</summary>
-/// <param name="GameMode">The game mode.</param>
-/// <param name="CounterIds">The counter ids.</param>
-/// <param name="Counters">The counters.</param>
-/// <param name="Timestamps">The timestamps.</param>
+/// <summary>
+/// Reports numbered steps the client went through, such as the start-up steps 0 to 3 and then 8, 11 and 12 in the captures, each
+/// with two times.
+/// </summary>
+/// <param name="GameMode">Text sent with the steps; it holds the device model, such as SM-S908B, in every capture.</param>
+/// <param name="CounterIds">Second Unix time in seconds of each step, never earlier than the matching first time.</param>
+/// <param name="Counters">Number of each reported step.</param>
+/// <param name="Timestamps">First Unix time in seconds of each step.</param>
 public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemory<long> CounterIds, ReadOnlyMemory<int> Counters, ReadOnlyMemory<long> Timestamps)
     : CodecMessage<ReportGameModeEnteredMessage>, ICodecProvider<ReportGameModeEnteredMessage>
 {

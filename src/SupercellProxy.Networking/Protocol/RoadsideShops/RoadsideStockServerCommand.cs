@@ -1,29 +1,21 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
-/// Defines the Roadside Stock Server Command contract.
+/// Pushes a new or cleared stand of the visited farm's roadside shop to its visitors, replacing their copy of that stand.
 /// </summary>
-/// <summary>
-/// Defines the Home Owner Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Item Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Slot Index contract.
-/// </summary>
-/// <summary>
-/// Defines the Price contract.
-/// </summary>
-/// <summary>
-/// Defines the Quantity contract.
-/// </summary>
+/// <param name="HomeOwnerId">Home that owns the shop; updates for other shops are ignored.</param>
+/// <param name="ItemGlobalId">Global id of the goods now on the stand; 0, with price and quantity 0, clears the stand.</param>
+/// <param name="SlotIndex">Position of the stand; a position past the known stands adds the missing stands first.</param>
+/// <param name="Price">Coin price of the whole stand.</param>
+/// <param name="Quantity">How many goods are on the stand.</param>
 public sealed record RoadsideStockServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
+    [property: JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId,
+    [property: JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
     int SlotIndex,
     int Price,
     int Quantity

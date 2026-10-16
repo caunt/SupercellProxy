@@ -9,6 +9,6 @@ public sealed record PurchaseLayoutSlotCommand(int SlotIndex) : CodecCommand<Pur
 {
     /// <inheritdoc />
     public static CommandCodec<PurchaseLayoutSlotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new PurchaseLayoutSlotCommand(slotIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new PurchaseLayoutSlotCommand(slotIndex))
     );
 }

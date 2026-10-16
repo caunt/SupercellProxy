@@ -12,7 +12,7 @@ public sealed record RevokePuzzlePieceServerCommand(int PuzzlePieceGlobalId) : C
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.PuzzlePieceGlobalId,
-            static (puzzlePieceGlobalId) => new RevokePuzzlePieceServerCommand(puzzlePieceGlobalId)
+            static puzzlePieceGlobalId => new RevokePuzzlePieceServerCommand(puzzlePieceGlobalId)
         )
     );
 }

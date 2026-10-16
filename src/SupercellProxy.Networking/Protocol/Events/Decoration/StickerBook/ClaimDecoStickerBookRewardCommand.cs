@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 
 /// <summary>Claims a decoration sticker-book collection reward.</summary>
-/// <param name="RewardIndex">The reward index.</param>
-/// <param name="CollectionIndex">The collection index.</param>
+/// <param name="RewardIndex">Which of the collection's rewards to claim.</param>
+/// <param name="CollectionIndex">Position of the collection in the sticker book.</param>
 public sealed record ClaimDecoStickerBookRewardCommand(int RewardIndex, int CollectionIndex) : CodecCommand<ClaimDecoStickerBookRewardCommand>, ICommandCodecProvider<ClaimDecoStickerBookRewardCommand>
 {
     /// <inheritdoc />

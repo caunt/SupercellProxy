@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 
-/// Explains why the server is closing the current client session.
+/// <summary>Explains why the server is closing the current client session.</summary>
 public sealed record TitanDisconnectedMessage(DisconnectReason Reason) : CodecMessage<TitanDisconnectedMessage>, ICodecProvider<TitanDisconnectedMessage>
 {
     /// <inheritdoc />
@@ -11,7 +11,7 @@ public sealed record TitanDisconnectedMessage(DisconnectReason Reason) : CodecMe
         Codecs.Composite(
             Codecs.Enum<DisconnectReason>(Codecs.Int32),
             static message => message.Reason,
-            static (reason) => new TitanDisconnectedMessage(reason)
+            static reason => new TitanDisconnectedMessage(reason)
         ),
         trailingDataMessage: "The disconnect notification has trailing data."
     );

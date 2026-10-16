@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Protocol.Events.CountyFair;
+
 using SupercellProxy.Networking.Protocol.Events.Tasks;
 
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
@@ -10,83 +12,83 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record ChronosEventSnapshot
 {
     /// <summary>
-    /// Gets the Birthday Tasks value.
+    /// Task progress when this is a birthday event; null for other event kinds.
     /// </summary>
     [JsonPropertyName("birthdayTasks")]
     public TaskEventSnapshot? BirthdayTasks { get; init; }
-    /// Gets whether home-farm completion has already run for the event.
+    /// <summary>Gets whether home-farm completion has already run for the event.</summary>
     [JsonPropertyName("finishedAtHomeFarm")]
     public bool CompletionProcessedAtHome { get; init; }
 
     /// <summary>Gets the County Fair state associated with this event.</summary>
     [JsonPropertyName("countyFair")]
-    public CountyFair.CountyFairSnapshot? CountyFair { get; init; }
+    public CountyFairSnapshot? CountyFair { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">EndTime</c> value.
+    /// Unix seconds when the event leaves the board.
     /// </summary>
     [JsonPropertyName("endTime")]
     public long EndTime { get; init; }
 
-    /// Gets the retained event id.
+    /// <summary>Gets the retained event id.</summary>
     [JsonPropertyName("id")]
     public int EventId { get; init; }
 
-    /// Gets whether the event's main UI has been opened.
+    /// <summary>Gets whether the event's main UI has been opened.</summary>
     [JsonPropertyName("eventUIOpened")]
     public bool EventUserInterfaceOpened { get; init; }
 
-    /// Gets whether home-farm initialization has already completed for the event.
+    /// <summary>Gets whether home-farm initialization has already completed for the event.</summary>
     [JsonPropertyName("initDoneAtHomeFarm")]
     public bool InitializationCompletedAtHome { get; init; }
 
     /// <summary>
-    /// Gets the Leaderboard Button State value.
+    /// Display state of the event's leaderboard button, as native numbers it; 1 in captures.
     /// </summary>
     [JsonPropertyName("leaderboardButtonState")]
     public int LeaderboardButtonState { get; init; } = 1;
 
     /// <summary>
-    /// Gets the Seasonal Catalogue Gifts value.
+    /// Items the event's gift catalogue offers for its seasonal currency; empty for events without a catalogue.
     /// </summary>
     [JsonPropertyName("seasonalCataloguePlayerGifts")]
     public SeasonalCatalogueGiftSnapshot[] SeasonalCatalogueGifts { get; init; } = [];
 
-    /// Gets the event's retained seasonal-currency data id.
+    /// <summary>Gets the event's retained seasonal-currency data id.</summary>
     [JsonPropertyName("seasonalCurrency")]
     public int SeasonalCurrencyGlobalId { get; init; }
 
     /// <summary>
-    /// Gets the Seasonal Gift Purchase Counts value.
+    /// How many times the player bought each catalogue item, indexed like the catalogue; compared with each item's purchase limit.
     /// </summary>
     [JsonPropertyName("seasonalGiftPurchaseCounts")]
     public int[] SeasonalGiftPurchaseCounts { get; init; } = [];
 
-    /// Gets whether this event has been marked seen.
+    /// <summary>Gets whether this event has been marked seen.</summary>
     [JsonPropertyName("seen")]
     public bool Seen { get; init; }
 
-    /// Gets whether the event-board viewing reward has been claimed.
+    /// <summary>Gets whether the event-board viewing reward has been claimed.</summary>
     [JsonPropertyName("seenInEventBoard")]
     public bool SeenInEventBoard { get; init; }
 
-    /// Gets whether the native event-start callback has already run.
+    /// <summary>Gets whether the native event-start callback has already run.</summary>
     [JsonPropertyName("startCalled")]
     public bool StartCalled { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StartTime</c> value.
+    /// Unix seconds when the event begins.
     /// </summary>
     [JsonPropertyName("startTime")]
     public long StartTime { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Type</c> value.
+    /// Native event type number, which decides how the event behaves (for example 29 for a seasonal catalogue event).
     /// </summary>
     [JsonPropertyName("type")]
     public int Type { get; init; }
 
-    /// Gets the retained event variant id.
+    /// <summary>Gets the retained event variant id.</summary>
     [JsonPropertyName("variantId")]
     public int VariantId { get; init; }
 }

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Workbench;
 
 /// <summary>Places the mastery-plus workbench.</summary>
-/// <param name="PositionY">The position y.</param>
-/// <param name="PositionX">The position x.</param>
+/// <param name="PositionY">Vertical farm position the workbench is placed at.</param>
+/// <param name="PositionX">Horizontal farm position the workbench is placed at.</param>
 public sealed record PlaceMasteryPlusWorkbenchCommand(int PositionY, int PositionX) : CodecCommand<PlaceMasteryPlusWorkbenchCommand>, ICommandCodecProvider<PlaceMasteryPlusWorkbenchCommand>
 {
     /// <inheritdoc />

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Accounts.Permissions;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -94,17 +96,17 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AccountCreatedDate</c> value.
+    /// When the account was created, as Unix milliseconds written in text (for example <c>1598999996000</c>).
     /// </summary>
     public required string AccountCreatedDate { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AccountId</c> value.
+    /// The logged-in account. For a new guest account this is the id the client must store for future logins.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
+    [JsonPropertyName("AccountId")]
     public required LongId AccountId { get; init; }
 
-    /// <summary>Gets the Amazon id ("amazon id").</summary>
+    /// <summary>Amazon user id linked to the account; null when none is linked.</summary>
     public required string? AmazonId { get; init; }
 
     /// <summary>Gets the content URLs; native reads a count of zero or less as no list.</summary>
@@ -113,10 +115,10 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     /// <summary>
     /// Gets or sets the <c language="csharp">EventAssetsUrl</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("EventAssetsUrl")]
+    [JsonPropertyName("EventAssetsUrl")]
     public required string EventAssetsAddress { get; init; }
 
-    /// <summary>Gets the Facebook id ("facebook id").</summary>
+    /// <summary>Facebook user id linked to the account; null when none is linked.</summary>
     public required string? FacebookId { get; init; }
     /// <summary>Gets the Game Center id ("gamecenter id").</summary>
     public required string? GamecenterId { get; init; }
@@ -131,19 +133,19 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     public bool HasTrailingText { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">HomeId</c> value.
+    /// Id of the account's farm, which other players visit and which home messages refer to.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HomeId")]
+    [JsonPropertyName("HomeId")]
     public required LongId HomeId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LoginCountry</c> value.
+    /// Two-letter country code the server places this login in, such as <c>UA</c>.
     /// </summary>
     public required string LoginCountry { get; init; }
 
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LoginVersion</c> value.
+    /// Game release the server accepted, packed as major &lt;&lt; 20 | minor &lt;&lt; 10 | patch (1122390 is 1.72.86).
     /// </summary>
     public required int LoginVersion { get; init; }
 
@@ -151,7 +153,7 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     public LoginOkOptionalTexts? OptionalTexts { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">PassToken</c> value.
+    /// Secret the client must store with the account id and send in later logins to prove it owns the account.
     /// </summary>
     public required string PassToken { get; init; }
 
@@ -164,12 +166,12 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     public required int PlayTimeSeconds { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ServerBuild</c> value.
+    /// Number sent after the game release; captured logins carry 1, and its meaning is not identified.
     /// </summary>
     public required int ServerBuild { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ServerTime</c> value.
+    /// The server's clock at login, as Unix milliseconds written in text.
     /// </summary>
     public required string ServerTime { get; init; }
 
@@ -185,7 +187,7 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     public string? TrailingText { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
+    /// Flag sent after the server build number; its meaning is not identified.
     /// </summary>
     public required bool Unknown1 { get; init; }
 

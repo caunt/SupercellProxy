@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.ShopEvents;
 
 /// <summary>Updates the state of a shop offer.</summary>
-/// <param name="OfferId">The offer id.</param>
-/// <param name="Active">The active.</param>
-/// <param name="Timestamp">The timestamp.</param>
+/// <param name="OfferId">Store identifier of the offer whose state changes.</param>
+/// <param name="Active">Whether the offer is now on sale.</param>
+/// <param name="Timestamp">Unix time stamp the server attaches to the change.</param>
 public sealed record ShopOfferStateServerCommand(string? OfferId, bool Active, int Timestamp) : CodecServerCommand<ShopOfferStateServerCommand>, ICommandCodecProvider<ShopOfferStateServerCommand>
 {
     /// <inheritdoc />

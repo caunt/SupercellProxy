@@ -1,18 +1,14 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
-/// <summary>
-/// Defines the Roadside Buyer Message contract.
-/// </summary>
-/// <summary>
-/// Defines the Slot Index contract.
-/// </summary>
-/// <summary>
-/// Defines the Buyer Id contract.
-/// </summary>
-public sealed record RoadsideBuyerMessage(int SlotIndex, [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId BuyerId) : CodecMessage<RoadsideBuyerMessage>, ICodecProvider<RoadsideBuyerMessage>
+/// <summary>Tells a seller on their own farm that someone bought one of their roadside stands; the stand records the buyer.</summary>
+/// <param name="SlotIndex">Position of the bought stand in the seller's shop.</param>
+/// <param name="BuyerId">Home of the player who bought it.</param>
+public sealed record RoadsideBuyerMessage(int SlotIndex, [property: JsonPropertyName("BuyerId")] LongId BuyerId) : CodecMessage<RoadsideBuyerMessage>, ICodecProvider<RoadsideBuyerMessage>
 {
     /// <inheritdoc />
     public static ICodec<RoadsideBuyerMessage> Codec { get; } = Codecs.Complete(
@@ -26,9 +22,7 @@ public sealed record RoadsideBuyerMessage(int SlotIndex, [property: System.Text.
         trailingDataMessage: "The roadside buyer update has trailing data."
     );
 
-    /// <summary>
-    /// Provides the To String value or operation.
-    /// </summary>
+    /// <summary>Returns only the message name, without the stand or buyer.</summary>
     public override string ToString()
     {
         return nameof(RoadsideBuyerMessage);

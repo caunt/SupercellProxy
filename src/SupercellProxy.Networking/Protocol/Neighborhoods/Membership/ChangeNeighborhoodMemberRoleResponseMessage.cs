@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Answers a member role change; the client refreshes the open neighborhood screen.</summary>
-/// <param name="Role">The role.</param>
-/// <param name="AvatarId">The avatar id.</param>
+/// <param name="Role">The member's role after the change; the role numbers are not identified.</param>
+/// <param name="AvatarId">Account of the member whose role changed.</param>
 public sealed record ChangeNeighborhoodMemberRoleResponseMessage(int Role, LongId AvatarId) : CodecMessage<ChangeNeighborhoodMemberRoleResponseMessage>, ICodecProvider<ChangeNeighborhoodMemberRoleResponseMessage>
 {
     /// <inheritdoc />

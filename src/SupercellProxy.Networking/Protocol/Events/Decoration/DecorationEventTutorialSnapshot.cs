@@ -3,18 +3,18 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 
 /// <summary>
-/// Defines the Decoration Event Tutorial Snapshot contract.
+/// Saved progress through the intro screens a decoration event shows the first time the player opens it.
 /// </summary>
 public sealed record DecorationEventTutorialSnapshot
 {
     /// <summary>
-    /// Gets the Last Intro Event Id value.
+    /// Decoration event whose intro the step below belongs to; -1 before any intro was shown.
     /// </summary>
     [JsonPropertyName("lastIntroEventId")]
     public int LastIntroEventId { get; init; } = -1;
 
     /// <summary>
-    /// Gets the Last Intro Step value.
+    /// Last intro screen the player reached; -1 before any intro was shown.
     /// </summary>
     [JsonPropertyName("lastIntroStep")]
     public int LastIntroStep { get; init; } = -1;

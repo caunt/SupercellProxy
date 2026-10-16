@@ -2,19 +2,14 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
-/// <summary>
-/// Defines the Order Track Reward contract.
-/// </summary>
+/// <summary>One reward of an order-track milestone.</summary>
 public sealed record OrderTrackReward
 {
-    /// <summary>
-    /// Gets the Count value.
-    /// </summary>
+    /// <summary>How many of the reward are granted (saved as <c>Value</c>).</summary>
     [JsonPropertyName("Value")]
     public int Count { get; init; }
-    /// <summary>
-    /// Gets the Data Global Id value.
-    /// </summary>
+
+    /// <summary>Global id of the rewarded table entry (saved as <c>ID</c>).</summary>
     [JsonPropertyName("ID")]
     public int DataGlobalId { get; init; }
 }

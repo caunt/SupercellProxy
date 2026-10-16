@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 /// <summary>Stream entry type 8: a neighborhood notification.</summary>
 /// <param name="Header">The fields every stream entry shares.</param>
 /// <param name="Message">The notification message.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="NeighborhoodName">Name of the neighbourhood the notification is about.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 public sealed record NeighborhoodNotificationStreamEntry(StreamEntryHeader Header, string? Message, string? NeighborhoodName, NeighborhoodBadge Badge) : NeighborhoodStreamEntry(Header), ICodecProvider<NeighborhoodNotificationStreamEntry>
 {

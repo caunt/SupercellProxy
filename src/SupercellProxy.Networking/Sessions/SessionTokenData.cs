@@ -38,7 +38,8 @@ public sealed class SessionTokenData
     public long? Iat => Payload?.Iat;
 
     /// <summary>
-    /// Gets the Initial Refresh Token Issued At value.
+    /// Unix seconds when the Supercell ID sign-in that this token descends from first issued its refresh token; it stays the same
+    /// across refreshes. Null for an empty-string marker or when the token does not carry the claim.
     /// </summary>
     public long? InitialRefreshTokenIssuedAt => Payload?.InitialRefreshTokenIssuedAt;
 
@@ -153,7 +154,7 @@ public sealed class SessionTokenData
     }
 
     /// <summary>
-    /// Provides the To String value or operation.
+    /// Returns only the type name, so a token that ends up in a log or exception message never leaks its secret text.
     /// </summary>
     public override string ToString()
     {

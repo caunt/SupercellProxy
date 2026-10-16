@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.ShopEvents;
@@ -81,12 +83,12 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">BinaryData</c> value.
+    /// The event's JSON definition in compressed form, when the server sends it that way.
     /// </summary>
     public ReadOnlyMemory<byte>? BinaryData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">TextData</c> value.
+    /// The event's JSON definition as plain text, when the server sends it that way; empty otherwise.
     /// </summary>
     public string TextData { get; init; } = string.Empty;
 
@@ -101,9 +103,9 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     public int EventGroupId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">EventId</c> value.
+    /// Server number of the shop event, which purchases and seen records refer to.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("EventId")]
+    [JsonPropertyName("EventId")]
     public int EventId { get; init; }
 
     /// <summary>
@@ -112,7 +114,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     public int EventTopGroupId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">EventType</c> value.
+    /// Native live-event type number, which decides how the definition is read and what the event does.
     /// </summary>
     public int EventType { get; init; }
 
@@ -127,7 +129,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     public string Name { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the scheduling type.
+    /// How the server schedules the event; 1 marks a targeted event that is remembered per showing once seen.
     /// </summary>
     public int SchedulingType { get; init; }
 
@@ -137,7 +139,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     public int StartTime { get; init; }
 
     /// <summary>
-    /// Gets the targeting id.
+    /// Audience rule the server matched to give this player the event.
     /// </summary>
     public int TargetingId { get; init; }
 
@@ -147,7 +149,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     public string Category { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the variant id.
+    /// Which version of the event this player got when the event exists in several variants.
     /// </summary>
     public int VariantId { get; init; }
 

@@ -12,6 +12,6 @@ public sealed record NeighborhoodNotificationStreamMessage(ReadOnlyMemory<Neighb
     public static ICodec<NeighborhoodNotificationStreamMessage> Codec { get; } = Codecs.Composite(
         Codecs.NullableMemory(NeighborhoodStreamEntry.Codec),
         static message => message.Entries,
-        static (entries) => new NeighborhoodNotificationStreamMessage(entries)
+        static entries => new NeighborhoodNotificationStreamMessage(entries)
     );
 }

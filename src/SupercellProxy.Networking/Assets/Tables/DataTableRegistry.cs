@@ -3,7 +3,8 @@ using System.Globalization;
 namespace SupercellProxy.Networking.Assets.Tables;
 
 /// <summary>
-/// Represents <c language="csharp">DataTableRegistry</c>.
+/// Knows which CSV file each native table id stands for. Most numbers are fixed in the game client; production goods tables and a
+/// few newer tables are numbered by the bundle itself.
 /// </summary>
 public static class DataTableRegistry
 {
@@ -359,8 +360,13 @@ public static class DataTableRegistry
     };
 
     /// <summary>
-    /// Creates a <c language="csharp">DataTableRegistry</c> from the supplied data.
+    /// Maps every table id to its file for one asset bundle: the client's fixed numbers, the optional tables the bundle includes,
+    /// and each production goods table under the export number the production buildings goods table assigns it.
     /// </summary>
+    /// <param name="resources">Every file of the bundle.</param>
+    /// <returns>Table id to file path.</returns>
+    /// <exception cref="InvalidOperationException">The production buildings goods table is missing or cannot be parsed.</exception>
+    /// <exception cref="InvalidDataException">One export number is claimed by two different files.</exception>
     public static IReadOnlyDictionary<int, string> Create(IEnumerable<GameAsset> resources)
     {
         Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);

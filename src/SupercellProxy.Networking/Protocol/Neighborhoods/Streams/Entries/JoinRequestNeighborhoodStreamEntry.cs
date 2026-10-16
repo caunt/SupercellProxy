@@ -7,7 +7,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 /// <param name="Message">The request message.</param>
 /// <param name="ResponderName">The member who answered the request.</param>
 /// <param name="State">The request state.</param>
-/// <param name="SourceId">The source id.</param>
+/// <param name="SourceId">Further id sent with the request; its meaning is not identified.</param>
 public sealed record JoinRequestNeighborhoodStreamEntry(StreamEntryHeader Header, string? Message, string? ResponderName, int State, string? SourceId) : NeighborhoodStreamEntry(Header), ICodecProvider<JoinRequestNeighborhoodStreamEntry>
 {
     internal const int Type = 3;

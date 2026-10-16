@@ -3,9 +3,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>The first optional analytics context part: two values and a flag.</summary>
-/// <param name="Value0">The first value.</param>
-/// <param name="Value1">The second value.</param>
-/// <param name="Flag">The flag.</param>
+/// <param name="Value0">First number, 92 in the Farm_load capture; its meaning is not identified.</param>
+/// <param name="Value1">Second number, equal to the first in the captures; its meaning is not identified.</param>
+/// <param name="Flag">Flag that is clear in the captures; its meaning is not identified.</param>
 public sealed record AnalyticsContextValues(int Value0, int Value1, bool Flag) : ICodecProvider<AnalyticsContextValues>
 {
     /// <inheritdoc />

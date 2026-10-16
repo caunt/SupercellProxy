@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 
 /// <summary>One reaction on a stream entry, as StreamEntryReactionAddedMessage adds them.</summary>
-/// <param name="Reaction">The reaction.</param>
+/// <param name="Reaction">Which reaction was given; its values are not identified.</param>
 /// <param name="AvatarId">The reacting avatar.</param>
 public sealed record StreamEntryReaction(int Reaction, LongId? AvatarId) : ICodecProvider<StreamEntryReaction>
 {

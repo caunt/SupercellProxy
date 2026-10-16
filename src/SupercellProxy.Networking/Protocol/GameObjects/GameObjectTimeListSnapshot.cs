@@ -3,18 +3,12 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
-/// <summary>
-/// Represents decoded <c language="csharp">GameObjectTimeListSnapshot</c> home data.
-/// </summary>
+/// <summary>A saved list of objects kept for one kind of action; its exact role is not identified.</summary>
 public sealed record GameObjectTimeListSnapshot
 {
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Action</c> value.
-    /// </summary>
+    /// <summary>Kind of action the list belongs to; its values are not identified.</summary>
     public int Action { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">List</c> value.
-    /// </summary>
+    /// <summary>Saved entries of the list, kept as they were received.</summary>
     public EncodedDocumentValue[] List { get; init; } = [];
 }

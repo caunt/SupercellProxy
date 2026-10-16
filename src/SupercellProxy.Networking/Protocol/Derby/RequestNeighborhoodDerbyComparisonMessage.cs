@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Derby;
 
 /// <summary>Requests a comparison between two derby neighborhoods.</summary>
-/// <param name="FirstNeighborhoodId">The first neighborhood id.</param>
-/// <param name="SecondNeighborhoodId">The second neighborhood id.</param>
+/// <param name="FirstNeighborhoodId">One neighbourhood of the pair; null when not given.</param>
+/// <param name="SecondNeighborhoodId">The neighbourhood to compare it with; null when not given.</param>
 public sealed record RequestNeighborhoodDerbyComparisonMessage(LongId? FirstNeighborhoodId, LongId? SecondNeighborhoodId) : CodecMessage<RequestNeighborhoodDerbyComparisonMessage>, ICodecProvider<RequestNeighborhoodDerbyComparisonMessage>
 {
     /// <inheritdoc />

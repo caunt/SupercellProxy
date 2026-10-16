@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Protocol.Timing;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
-/// <summary>Represents decoded HelperHouseStateSnapshot state.</summary>
+/// <summary>Saved state of a hireable helper, such as the caretaker, the miller or Angus: offers, hire time and orders.</summary>
 public sealed record HelperHouseStateSnapshot : ExtensibleDocument
 {
     /// <summary>Gets the pending post-hire state, when retained.</summary>
@@ -23,7 +23,7 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int[]? LureAutoTargets { get; init; }
 
-    /// <summary>Gets the OfferDeclined value.</summary>
+    /// <summary>Whether the player turned down the current offer; a new offer clears it.</summary>
     [JsonPropertyName("OfferDeclined")]
     public bool OfferDeclined { get; init; }
 
@@ -32,7 +32,10 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int[]? Orders { get; init; }
 
-    /// <summary>Gets the State value.</summary>
+    /// <summary>
+    /// Where the helper is: 1 waiting for the free offer, 2 hired and working, 3 showing a paid offer for a while, 4 offering a
+    /// free hire.
+    /// </summary>
     [JsonPropertyName("State")]
     public int State { get; init; }
 

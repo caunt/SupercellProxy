@@ -5,9 +5,9 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 
 /// <summary>Inbox entry type 7: the player was opted out of the derby; 1 by the leader and 2 automatically.</summary>
 /// <param name="Header">The fields every entry shares.</param>
-/// <param name="MessageText">The message text.</param>
-/// <param name="NeighborhoodId">The neighborhood.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="MessageText">Text attached to the entry; null when none.</param>
+/// <param name="NeighborhoodId">Neighborhood whose derby the player was opted out of.</param>
+/// <param name="NeighborhoodName">Display name of that neighborhood when the entry was written.</param>
 /// <param name="Reason">The value the inbox text is chosen by.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 public sealed record NeighborhoodDerbyOptStreamEntry(

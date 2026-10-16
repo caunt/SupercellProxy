@@ -108,13 +108,13 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
     /// <summary>Gets the event name.</summary>
     public string? Name { get; init; }
 
-    /// <summary>Gets the scheduling type.</summary>
+    /// <summary>How the server schedules the event; 1 marks a targeted event that is remembered per showing once seen.</summary>
     public int SchedulingType { get; init; }
 
     /// <summary>Gets the start of the event as a Unix timestamp.</summary>
     public int StartTime { get; init; }
 
-    /// <summary>Gets the targeting id.</summary>
+    /// <summary>Audience rule the server matched to give this player the event.</summary>
     public int TargetingId { get; init; }
 
     /// <summary>Gets the uncompressed JSON definition.</summary>
@@ -126,7 +126,10 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
     /// <summary>Gets a value indicating whether the definition is sent compressed.</summary>
     public bool UsesCompressedData { get; init; }
 
-    /// <summary>Gets the variant id.</summary>
+    /// <summary>
+    /// Which version of the event this player got when the event exists in several variants; with the event id and version it
+    /// identifies the exact definition.
+    /// </summary>
     public int VariantId { get; init; }
 
     /// <summary>Gets the definition version.</summary>

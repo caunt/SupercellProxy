@@ -15,7 +15,7 @@ public readonly record struct TimerValue
         Countdown = countdown;
     }
 
-    /// <summary>Gets the counter value.</summary>
+    /// <summary>The plain number stored when the timer is the counter form; 0 for the countdown form.</summary>
     public int Counter { get; }
 
     /// <summary>Gets the countdown state.</summary>

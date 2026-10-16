@@ -12,7 +12,7 @@ public sealed record CompleteCircusTrainPartCommand(int CircusTrainPartGlobalId)
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CircusTrainPartGlobalId,
-            static (circusTrainPartGlobalId) => new CompleteCircusTrainPartCommand(circusTrainPartGlobalId)
+            static circusTrainPartGlobalId => new CompleteCircusTrainPartCommand(circusTrainPartGlobalId)
         )
     );
 }

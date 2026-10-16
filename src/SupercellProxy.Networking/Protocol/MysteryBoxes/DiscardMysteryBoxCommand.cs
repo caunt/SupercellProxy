@@ -12,7 +12,7 @@ public sealed record DiscardMysteryBoxCommand(int MysteryBoxGlobalId) : CodecCom
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.MysteryBoxGlobalId,
-            static (mysteryBoxGlobalId) => new DiscardMysteryBoxCommand(mysteryBoxGlobalId)
+            static mysteryBoxGlobalId => new DiscardMysteryBoxCommand(mysteryBoxGlobalId)
         )
     );
 }

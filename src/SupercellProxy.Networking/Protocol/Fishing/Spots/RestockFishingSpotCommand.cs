@@ -12,7 +12,7 @@ public sealed record RestockFishingSpotCommand(int SpotObjectGlobalId) : CodecCo
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.SpotObjectGlobalId,
-            static (spotObjectGlobalId) => new RestockFishingSpotCommand(spotObjectGlobalId)
+            static spotObjectGlobalId => new RestockFishingSpotCommand(spotObjectGlobalId)
         )
     );
 }

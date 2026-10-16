@@ -5,9 +5,9 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 
 /// <summary>Inbox entry type 5: the player was kicked out of a neighborhood.</summary>
 /// <param name="Header">The fields every entry shares.</param>
-/// <param name="MessageText">The message text.</param>
-/// <param name="NeighborhoodId">The neighborhood.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="MessageText">Text attached to the entry; null when none.</param>
+/// <param name="NeighborhoodId">Neighborhood the player was removed from.</param>
+/// <param name="NeighborhoodName">Display name of that neighborhood when the entry was written.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 public sealed record NeighborhoodKickOutStreamEntry(AvatarStreamEntryHeader Header, string? MessageText, LongId NeighborhoodId, string? NeighborhoodName, NeighborhoodBadge Badge) : AvatarStreamEntry(Header), ICodecProvider<NeighborhoodKickOutStreamEntry>
 {

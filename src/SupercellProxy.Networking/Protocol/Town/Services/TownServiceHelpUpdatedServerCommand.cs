@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town.Services;
 
 /// <summary>Replaces the passengers of a town service building after neighborhood help.</summary>
-/// <param name="OwnerHomeId">The owner home id.</param>
-/// <param name="ServiceObjectGlobalId">The service object id.</param>
-/// <param name="Passengers">The passengers.</param>
+/// <param name="OwnerHomeId">Home whose town the building is in.</param>
+/// <param name="ServiceObjectGlobalId">Global id of the service building's game object.</param>
+/// <param name="Passengers">The building's passengers after the help, replacing the ones it had.</param>
 public sealed record TownServiceHelpUpdatedServerCommand(LongId OwnerHomeId, int ServiceObjectGlobalId, ReadOnlyMemory<TownServicePassenger> Passengers) : CodecServerCommand<TownServiceHelpUpdatedServerCommand>, ICommandCodecProvider<TownServiceHelpUpdatedServerCommand>
 {
     /// <inheritdoc />

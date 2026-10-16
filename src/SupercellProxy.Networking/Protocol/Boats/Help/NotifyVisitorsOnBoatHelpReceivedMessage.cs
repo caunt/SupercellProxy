@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Boats.Help;
 
 /// <summary>Tells visitors of a farm that a boat crate received help, so the crate shows its helper.</summary>
-/// <param name="CrateIndex">The crate index.</param>
-/// <param name="HelperId">The helper id.</param>
+/// <param name="CrateIndex">Position of the crate that was filled.</param>
+/// <param name="HelperId">Player who filled it, shown on the crate.</param>
 /// <param name="OwnerId">The farm owner; the client ignores the message unless it is visiting that farm.</param>
 public sealed record NotifyVisitorsOnBoatHelpReceivedMessage(int CrateIndex, LongId HelperId, LongId OwnerId) : CodecMessage<NotifyVisitorsOnBoatHelpReceivedMessage>, ICodecProvider<NotifyVisitorsOnBoatHelpReceivedMessage>
 {

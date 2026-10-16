@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 
 /// <summary>Carries a device link value and flag.</summary>
-/// <param name="Value">The value.</param>
-/// <param name="Flag">The flag.</param>
+/// <param name="Value">Number the message opens with; its meaning in the device-link flow is not identified.</param>
+/// <param name="Flag">Switch that follows the number; its meaning is not identified either.</param>
 public sealed record DeviceLinkStateMessage(int Value, bool Flag) : CodecMessage<DeviceLinkStateMessage>, ICodecProvider<DeviceLinkStateMessage>
 {
     /// <inheritdoc />

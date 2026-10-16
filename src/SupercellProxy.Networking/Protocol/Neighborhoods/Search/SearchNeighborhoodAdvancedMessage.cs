@@ -4,15 +4,15 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 
 /// <summary>Searches neighborhoods with advanced options.</summary>
-/// <param name="Tags">The tags.</param>
-/// <param name="Query">The query.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="RequiredLevel">The required level.</param>
-/// <param name="FamilyFriendly">The family friendly.</param>
-/// <param name="DerbyEnabled">The derby enabled.</param>
-/// <param name="Language">The language.</param>
-/// <param name="LeagueId">The league id.</param>
-/// <param name="Type">The type.</param>
+/// <param name="Tags">Play-style tags the listed neighbourhoods must have; null when not filtered.</param>
+/// <param name="Query">Text to look for in neighbourhood names or tags.</param>
+/// <param name="NeighborhoodId">Neighbourhood sent with the search; its role in the search is not identified.</param>
+/// <param name="RequiredLevel">Farm level the listed neighbourhoods may ask for at most.</param>
+/// <param name="FamilyFriendly">Whether to list only neighbourhoods marked as suitable for all ages.</param>
+/// <param name="DerbyEnabled">Whether to list only neighbourhoods that take part in the derby.</param>
+/// <param name="Language">Language index the listed neighbourhoods must use.</param>
+/// <param name="LeagueId">Derby league the listed neighbourhoods must play in; null when not filtered.</param>
+/// <param name="Type">Join type the listed neighbourhoods must have; its values are not identified.</param>
 public sealed record SearchNeighborhoodAdvancedMessage(
     ReadOnlyMemory<NeighborhoodTag>? Tags,
     string? Query,

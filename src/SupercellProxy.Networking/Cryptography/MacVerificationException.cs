@@ -1,35 +1,41 @@
 namespace SupercellProxy.Networking.Cryptography;
 
 /// <summary>
-/// Represents <c language="csharp">MacVerificationException</c>.
+/// Thrown when an encrypted message fails its Poly1305 check while being opened. It means the keys or nonce do not match the
+/// sender's, usually because the two sides fell out of step, or that the bytes were changed in transit.
 /// </summary>
 public sealed class MacVerificationException : NaClV3Exception
 {
     /// <summary>
-    /// Provides the Default Message value or operation.
+    /// Text used when the encryption code reports a failed check.
     /// </summary>
     public const string DefaultMessage = "MAC verification failed";
 
     /// <summary>
-    /// Initializes a new <see cref="MacVerificationException"/> instance.
+    /// Creates a failed-check error with no description.
     /// </summary>
     public MacVerificationException() { }
 
     /// <summary>
-    /// Provides the Mac Verification Exception value or operation.
+    /// Creates a failed-check error described by text.
     /// </summary>
+    /// <param name="message">What went wrong.</param>
     public MacVerificationException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Provides the Mac Verification Exception value or operation.
+    /// Creates a failed-check error caused by another error.
     /// </summary>
+    /// <param name="message">What went wrong.</param>
+    /// <param name="innerException">The error that caused it.</param>
     public MacVerificationException(string? message, Exception? innerException)
         : base(message, innerException) { }
 
     /// <summary>
-    /// Provides the Mac Verification Exception value or operation.
+    /// Creates a failed-check error that records which kind of box failed.
     /// </summary>
+    /// <param name="isPublicKeyBox">True for a handshake message opened with key pairs; false for a session message.</param>
+    /// <param name="message">What went wrong; null leaves the default exception text.</param>
     public MacVerificationException(bool isPublicKeyBox, string? message = null)
         : base(message)
     {
@@ -37,7 +43,8 @@ public sealed class MacVerificationException : NaClV3Exception
     }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">IsPublicKeyBox</c> value.
+    /// True when the failure happened while opening a handshake message sealed with key pairs; false for a message sealed with the
+    /// shared session key.
     /// </summary>
     public bool IsPublicKeyBox { get; set; }
 }

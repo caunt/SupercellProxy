@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Advertisements;
 
 /// <summary>Reports the revenue of a rewarded advertisement.</summary>
-/// <param name="Network">The network.</param>
-/// <param name="Revenue">The revenue.</param>
-/// <param name="Currency">The currency.</param>
-/// <param name="Placement">The placement.</param>
-/// <param name="AdvertisementId">The advertisement id.</param>
-/// <param name="Precision">The precision.</param>
+/// <param name="Network">Name of the ad network that served the video.</param>
+/// <param name="Revenue">Earnings the ad SDK reported for this showing.</param>
+/// <param name="Currency">Currency code of <paramref name="Revenue"/>.</param>
+/// <param name="Placement">Ad SDK placement name of the in-game offer.</param>
+/// <param name="AdvertisementId">Ad identifier the ad SDK reported for this showing.</param>
+/// <param name="Precision">How exact the ad SDK says the revenue figure is, as its own label.</param>
 public sealed record ReportAdvertisementRevenueMessage(string? Network, float Revenue, string? Currency, string? Placement, string? AdvertisementId, string? Precision) : CodecMessage<ReportAdvertisementRevenueMessage>, ICodecProvider<ReportAdvertisementRevenueMessage>
 {
     /// <inheritdoc />

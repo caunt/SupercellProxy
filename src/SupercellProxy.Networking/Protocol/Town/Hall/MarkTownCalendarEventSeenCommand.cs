@@ -12,7 +12,7 @@ public sealed record MarkTownCalendarEventSeenCommand(int CalendarEventGlobalId)
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CalendarEventGlobalId,
-            static (calendarEventGlobalId) => new MarkTownCalendarEventSeenCommand(calendarEventGlobalId)
+            static calendarEventGlobalId => new MarkTownCalendarEventSeenCommand(calendarEventGlobalId)
         )
     );
 }

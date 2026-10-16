@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Requests the next follower page; the server owns the cursor for this connection.
+/// <summary>Requests the next follower page; the server owns the cursor for this connection.</summary>
 public sealed record RequestFollowerListPageMessage : CodecMessage<RequestFollowerListPageMessage>, ICodecProvider<RequestFollowerListPageMessage>
 {
     /// <inheritdoc />
@@ -12,7 +12,7 @@ public sealed record RequestFollowerListPageMessage : CodecMessage<RequestFollow
         trailingDataMessage: "The follower-page request has trailing data."
     );
 
-    /// Identifies the request without exposing client data.
+    /// <summary>Identifies the request without exposing client data.</summary>
     public override string ToString()
     {
         return nameof(RequestFollowerListPageMessage);

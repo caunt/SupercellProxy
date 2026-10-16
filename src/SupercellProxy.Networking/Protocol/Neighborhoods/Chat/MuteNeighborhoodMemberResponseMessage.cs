@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 
 /// <summary>Answers a member mute; the neighborhood manager notifies its listeners.</summary>
-/// <param name="Muted">The muted.</param>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
+/// <param name="Muted">Whether the member is now muted.</param>
+/// <param name="AvatarId">Account of the member.</param>
+/// <param name="NeighborhoodId">Neighbourhood the member belongs to.</param>
 public sealed record MuteNeighborhoodMemberResponseMessage(bool Muted, LongId AvatarId, LongId NeighborhoodId) : CodecMessage<MuteNeighborhoodMemberResponseMessage>, ICodecProvider<MuteNeighborhoodMemberResponseMessage>
 {
     /// <inheritdoc />

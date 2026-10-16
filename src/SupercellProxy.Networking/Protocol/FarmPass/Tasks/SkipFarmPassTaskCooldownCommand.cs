@@ -9,6 +9,6 @@ public sealed record SkipFarmPassTaskCooldownCommand(int TaskIndex) : CodecComma
 {
     /// <inheritdoc />
     public static CommandCodec<SkipFarmPassTaskCooldownCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static (taskIndex) => new SkipFarmPassTaskCooldownCommand(taskIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new SkipFarmPassTaskCooldownCommand(taskIndex))
     );
 }

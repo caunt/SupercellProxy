@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
-/// <summary>One leaderboard entry id entry.</summary>
-/// <param name="High">The high.</param>
-/// <param name="Low">The low.</param>
+/// <summary>An account on a leaderboard request, sent as its two id words.</summary>
+/// <param name="High">First (shard) word of the account id.</param>
+/// <param name="Low">Second (row) word of the account id.</param>
 public sealed record LeaderboardEntryId(int High, int Low) : ICodecProvider<LeaderboardEntryId>
 {
     /// <inheritdoc />

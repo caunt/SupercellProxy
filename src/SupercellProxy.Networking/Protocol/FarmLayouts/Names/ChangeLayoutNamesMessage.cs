@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 
 /// <summary>Renames a farm layout slot.</summary>
-/// <param name="LayoutIndex">The layout index.</param>
-/// <param name="NameIndex">The name index.</param>
+/// <param name="LayoutIndex">Layout slot to rename.</param>
+/// <param name="NameIndex">Index of the name to give the slot, as the client lists names.</param>
 public sealed record ChangeLayoutNamesMessage(int LayoutIndex, int NameIndex) : CodecMessage<ChangeLayoutNamesMessage>, ICodecProvider<ChangeLayoutNamesMessage>
 {
     /// <inheritdoc />

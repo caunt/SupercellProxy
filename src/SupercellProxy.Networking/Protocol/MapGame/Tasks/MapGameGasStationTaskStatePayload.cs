@@ -13,9 +13,11 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
     /// </summary>
     internal const string NativeTaskType = "Gas Station";
 
-    /// <summary>
-    /// Initializes a new <see cref="MapGameGasStationTaskStatePayload"/> instance.
-    /// </summary>
+    /// <summary>Creates the state from its decoded fields.</summary>
+    /// <param name="freeFuel">Whether the station's fuel is free.</param>
+    /// <param name="fuelCollected">Whether the fuel was already taken.</param>
+    /// <param name="diamondPrice">Diamonds the fuel costs when it is not free.</param>
+    /// <param name="fuelData">Fuel the station gives; null when not drawn yet.</param>
     public MapGameGasStationTaskStatePayload(bool freeFuel, bool fuelCollected, int diamondPrice, ReadOnlyMemory<CommandDataReferenceVarIntPair>? fuelData)
     {
         FreeFuel = freeFuel;

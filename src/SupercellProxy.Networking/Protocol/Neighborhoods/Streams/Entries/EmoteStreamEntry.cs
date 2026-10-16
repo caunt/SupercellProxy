@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 
 /// <summary>Stream entry type 18: a chat emote.</summary>
 /// <param name="Header">The fields every stream entry shares.</param>
-/// <param name="Emote">The emote.</param>
+/// <param name="Emote">Which emote the sender showed; its values are not identified.</param>
 public sealed record EmoteStreamEntry(StreamEntryHeader Header, int Emote) : NeighborhoodStreamEntry(Header), ICodecProvider<EmoteStreamEntry>
 {
     internal const int Type = 18;

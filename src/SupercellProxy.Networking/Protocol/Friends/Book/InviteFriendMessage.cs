@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Book;
 
 /// <summary>Invites a player.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="Message">The message.</param>
+/// <param name="AvatarId">Player to invite.</param>
+/// <param name="Message">Text sent with the invitation.</param>
 public sealed record InviteFriendMessage(LongId AvatarId, string? Message) : CodecMessage<InviteFriendMessage>, ICodecProvider<InviteFriendMessage>
 {
     /// <inheritdoc />

@@ -13,7 +13,7 @@ public enum LiteralKind
     Single,
     /// <summary>A double-precision floating-point number.</summary>
     Double,
-    /// <summary>A Boolean value.</summary>
+    /// <summary>A true or false flag, from a column declared <c>Boolean</c> or <c>bool</c>.</summary>
     Boolean,
     /// <summary>A text value.</summary>
     String,

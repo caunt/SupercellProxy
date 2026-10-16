@@ -3,13 +3,17 @@ using System.Buffers.Binary;
 namespace SupercellProxy.Networking.Json;
 
 /// <summary>
-/// Defines the Compressed Json Payload Validator contract.
+/// Cheap shape check for the compressed JSON documents messages embed (a home's layout, for example), used while decoding to tell a
+/// real document from bytes that belong to some other field.
 /// </summary>
 public static class CompressedDocumentValidator
 {
     /// <summary>
-    /// Provides the Is Valid value or operation.
+    /// Checks the header without inflating anything: a non-negative little-endian length followed by a zlib stream header that
+    /// uses deflate and passes zlib's header checksum.
     /// </summary>
+    /// <param name="data">The embedded bytes; null or empty counts as a valid absent document.</param>
+    /// <returns>False when the bytes cannot start a compressed document.</returns>
     public static bool IsValid(ReadOnlyMemory<byte>? data)
     {
         if (data is null || data.Value.IsEmpty)

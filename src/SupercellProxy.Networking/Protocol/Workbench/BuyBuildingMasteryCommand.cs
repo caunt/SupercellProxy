@@ -12,7 +12,7 @@ public sealed record BuyBuildingMasteryCommand(int BuildingGlobalId) : CodecComm
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,
-            static (buildingGlobalId) => new BuyBuildingMasteryCommand(buildingGlobalId)
+            static buildingGlobalId => new BuyBuildingMasteryCommand(buildingGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

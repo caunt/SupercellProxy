@@ -1,7 +1,8 @@
 namespace SupercellProxy.Networking.Assets;
 
 /// <summary>
-/// Defines the Game Asset Files contract.
+/// The one place that names every game file the code reads, as its path inside the asset bundle (for example
+/// <c>data/animals.csv</c>). Code that loads a table refers to these constants instead of spelling the path again.
 /// </summary>
 public static partial class GameAssetFiles
 {

@@ -11,6 +11,6 @@ public sealed record SupercellIdLogoutAllDevicesResultMessage(int ResultCode) : 
     public static ICodec<SupercellIdLogoutAllDevicesResultMessage> Codec { get; } = Codecs.Composite(
         Codecs.VarInt,
         static message => message.ResultCode,
-        static (resultCode) => new SupercellIdLogoutAllDevicesResultMessage(resultCode)
+        static resultCode => new SupercellIdLogoutAllDevicesResultMessage(resultCode)
     );
 }

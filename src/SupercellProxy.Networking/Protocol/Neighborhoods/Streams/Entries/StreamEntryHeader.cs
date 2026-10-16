@@ -7,7 +7,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 /// <param name="AgeSeconds">The entry's age in seconds.</param>
 /// <param name="New">Whether the entry is new.</param>
 /// <param name="Removed">Whether the entry was removed; NeighborhoodStreamEntryRemovedMessage sets it on a received entry.</param>
-/// <param name="EntryId">The entry id.</param>
+/// <param name="EntryId">Identifier of the entry, used to react to it or mark it seen.</param>
 /// <param name="SenderHomeId">The sender's home.</param>
 /// <param name="SenderFarmName">The sender's farm name.</param>
 /// <param name="SenderLevel">The sender's level.</param>

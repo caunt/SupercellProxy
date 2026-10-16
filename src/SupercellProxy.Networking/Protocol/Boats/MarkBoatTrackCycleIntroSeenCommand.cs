@@ -11,7 +11,7 @@ public sealed record MarkBoatTrackCycleIntroSeenCommand(long CycleResetTimestamp
         Codecs.Composite(
             Codecs.VarLong,
             static command => command.CycleResetTimestamp,
-            static (cycleResetTimestamp) => new MarkBoatTrackCycleIntroSeenCommand(cycleResetTimestamp)
+            static cycleResetTimestamp => new MarkBoatTrackCycleIntroSeenCommand(cycleResetTimestamp)
         ),
         CommandLayout.MetadataFirst
     );

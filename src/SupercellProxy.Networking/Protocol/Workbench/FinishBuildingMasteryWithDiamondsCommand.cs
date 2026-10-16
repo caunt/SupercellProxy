@@ -12,7 +12,7 @@ public sealed record FinishBuildingMasteryWithDiamondsCommand(int BuildingGlobal
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,
-            static (buildingGlobalId) => new FinishBuildingMasteryWithDiamondsCommand(buildingGlobalId)
+            static buildingGlobalId => new FinishBuildingMasteryWithDiamondsCommand(buildingGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 
 /// <summary>Claims the reward of a completed decoration sticker-book collection.</summary>
-/// <param name="CollectionIndex">The collection index.</param>
+/// <param name="CollectionIndex">Position of the completed collection in the sticker book.</param>
 public sealed record ClaimDecoStickerBookCollectionRewardCommand(int CollectionIndex) : CodecCommand<ClaimDecoStickerBookCollectionRewardCommand>, ICommandCodecProvider<ClaimDecoStickerBookCollectionRewardCommand>
 {
     /// <inheritdoc />
@@ -12,7 +12,7 @@ public sealed record ClaimDecoStickerBookCollectionRewardCommand(int CollectionI
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CollectionIndex,
-            static (collectionIndex) => new ClaimDecoStickerBookCollectionRewardCommand(collectionIndex)
+            static collectionIndex => new ClaimDecoStickerBookCollectionRewardCommand(collectionIndex)
         ),
         CommandLayout.MetadataFirst
     );

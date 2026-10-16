@@ -2,17 +2,17 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
-/// <summary>One neighborhood request donation entry.</summary>
-/// <param name="DonorHomeId">The donor home id.</param>
-/// <param name="DonorName">The donor name.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="DonatedAt">The donated at.</param>
-/// <param name="DonorLevel">The donor level.</param>
-/// <param name="DonorRole">The donor role.</param>
-/// <param name="ExperienceReward">The experience reward.</param>
-/// <param name="CoinReward">The coin reward.</param>
-/// <param name="ReputationReward">The reputation reward.</param>
-/// <param name="Thanked">The thanked.</param>
+/// <summary>One donation to a neighbourhood goods request, with what the donor got for it.</summary>
+/// <param name="DonorHomeId">Home of the member who donated.</param>
+/// <param name="DonorName">Name of the member who donated.</param>
+/// <param name="Amount">How many goods the member gave.</param>
+/// <param name="DonatedAt">When the donation was made; its unit is not identified.</param>
+/// <param name="DonorLevel">Farm level of the donor.</param>
+/// <param name="DonorRole">Neighbourhood role of the donor; the role numbers are not identified.</param>
+/// <param name="ExperienceReward">Experience the donor got for the donation.</param>
+/// <param name="CoinReward">Coins the donor got for the donation.</param>
+/// <param name="ReputationReward">Reputation the donor got for the donation.</param>
+/// <param name="Thanked">Whether the requester thanked the donor, as a number; its values are not identified.</param>
 public sealed record NeighborhoodRequestDonation(
     LongId DonorHomeId,
     string? DonorName,

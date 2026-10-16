@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Net.Sockets;
+using System.Text.Json.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -50,56 +51,71 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     }
 
     /// <summary>
-    /// Gets the Cancellation Token Source value.
+    /// Ends the whole connection when cancelled: both forwarding loops stop and both sockets are dropped. Linked to the token the
+    /// connection was opened with.
     /// </summary>
     public CancellationTokenSource CancellationTokenSource { get; }
 
     /// <summary>
-    /// Gets the Client Stream value.
+    /// Encrypted message stream to the game client on the local side.
     /// </summary>
     public MessageStream ClientStream { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">CompletionTask</c> value.
+    /// Finishes when both forwarding loops have stopped; already complete before <see cref="RunAsync"/> starts them.
     /// </summary>
     public Task CompletionTask { get; private set; } = Task.CompletedTask;
 
     /// <summary>
-    /// Gets the Event Bus value.
+    /// Raises an event for every message this connection receives (cancellable) and forwards, so callers can watch or filter traffic.
     /// </summary>
     public EventBus EventBus { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">RemoteEndPoint</c> value.
+    /// Address and port of the game client, used to name the connection in logs and its capture folder.
     /// </summary>
     public string RemoteEndPoint { get; }
 
     /// <summary>
-    /// Gets the Server Stream value.
+    /// Encrypted message stream to the real game server.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The upstream socket is not connected yet.</exception>
     public MessageStream ServerStream =>
         _serverStream ?? throw new InvalidOperationException(message: "The upstream stream is unavailable.");
 
     /// <summary>
-    /// Gets the Tcp Client value.
+    /// Socket of the game client that connected to the proxy.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("TcpClient")]
+    [JsonPropertyName("TcpClient")]
     public TcpClient SocketClient { get; }
 
     /// <summary>
-    /// Gets the Tcp Upstream value.
+    /// Socket the proxy opened to the real game server for this client.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("TcpUpstream")]
+    [JsonPropertyName("TcpUpstream")]
     public TcpClient SocketUpstream { get; }
 
     /// <summary>
-    /// Gets the Traffic Capture value.
+    /// Records this connection's frames, both as received and as written after any rewriting.
     /// </summary>
     public ProxyCaptureWriter TrafficCapture { get; }
 
     /// <summary>
-    /// Provides the Connect Async value or operation.
+    /// Opens the upstream socket for an accepted game client and prepares both encrypted streams; traffic flows once
+    /// <see cref="RunAsync"/> is called.
     /// </summary>
+    /// <param name="socketClient">The accepted game client.</param>
+    /// <param name="upstreamHost">Game server host to connect to.</param>
+    /// <param name="upstreamPort">Game server port.</param>
+    /// <param name="trafficCapture">Writer for this connection's capture.</param>
+    /// <param name="sessionTokenProvider">
+    /// When set, the client's login is rewritten to log in with this Supercell ID session token instead of the client's own
+    /// credentials; called again with true to refresh a token the server rejects.
+    /// </param>
+    /// <param name="serverKeys">Source of the real server's public key.</param>
+    /// <param name="commandDataResolver">Game tables used to decode commands in both directions.</param>
+    /// <param name="logger">Receives login and decoding warnings.</param>
+    /// <param name="cancellationToken">Ends the connection, now or later.</param>
     public static Task<ProxyConnection> ConnectAsync(
         TcpClient socketClient,
         string upstreamHost,
@@ -166,8 +182,11 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">RunAsync</c> operation.
+    /// Forwards traffic both ways until either side disconnects, handling the handshake (encryption setup and login rewriting) on
+    /// the way. Can run only once per connection.
     /// </summary>
+    /// <param name="cancellationToken">Stops waiting; cancel <see cref="CancellationTokenSource"/> to stop the forwarding itself.</param>
+    /// <exception cref="InvalidOperationException">The connection was already started.</exception>
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         if (_started)
@@ -199,7 +218,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToString</c> operation.
+    /// Names the connection by the game client's address and port.
     /// </summary>
     public override string ToString()
     {
@@ -207,8 +226,12 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">VisitHomeAsync</c> operation.
+    /// Makes the proxy visit another farm on the client's behalf and returns that farm's data. The client's own end-of-turn
+    /// messages are held back while the visit settles.
     /// </summary>
+    /// <param name="target">Home id of the farm to visit.</param>
+    /// <param name="cancellationToken">Stops waiting for the farm data.</param>
+    /// <exception cref="TimeoutException">The farm data did not arrive within 15 seconds.</exception>
     public ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongId target, CancellationToken cancellationToken = default)
     {
         return _homeVisitor.VisitHomeAsync(target, cancellationToken);

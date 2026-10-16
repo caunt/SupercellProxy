@@ -3,12 +3,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
-/// <summary>Reports that an event was seen.</summary>
-/// <param name="EventName">The event name.</param>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="Source">The source.</param>
-/// <param name="Value">The value.</param>
+/// <summary>Reports that the player saw a live event.</summary>
+/// <param name="EventName">Name of the live event.</param>
+/// <param name="EventId">Id of the live event.</param>
+/// <param name="VariantId">Variant of the live event the player got.</param>
+/// <param name="Source">Where the player saw the event; its values are not identified.</param>
+/// <param name="Value">Number sent with the report; its meaning is not identified.</param>
 public sealed record ReportEventSeenMessage(string? EventName, int EventId, int VariantId, string? Source, int Value) : CodecMessage<ReportEventSeenMessage>, ICodecProvider<ReportEventSeenMessage>
 {
     /// <inheritdoc />

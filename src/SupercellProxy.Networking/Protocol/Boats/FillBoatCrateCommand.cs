@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>Fills a boat crate.</summary>
 /// <param name="UseDirectRewards">Whether the crate rewards are granted directly.</param>
-/// <param name="CrateIndex">The crate index.</param>
+/// <param name="CrateIndex">Position of the crate in the boat order, starting at 0.</param>
 /// <param name="AllowCompletedOrder">Whether a completed order may still be filled.</param>
 public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex, bool AllowCompletedOrder)
     : CodecCommand<FillBoatCrateCommand>, ICommandCodecProvider<FillBoatCrateCommand>

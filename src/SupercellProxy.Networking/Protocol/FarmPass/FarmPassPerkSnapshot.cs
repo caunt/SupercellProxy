@@ -1,33 +1,24 @@
+using System.Text.Json.Serialization;
+
 namespace SupercellProxy.Networking.Protocol.FarmPass;
 
-/// <summary>
-/// Represents decoded <c language="csharp">FarmPassPerkSnapshot</c> home data.
-/// </summary>
+/// <summary>A Farm Pass perk the player claimed, and whether and where it was put to use.</summary>
 public sealed record FarmPassPerkSnapshot
 {
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Active</c> value.
-    /// </summary>
+    /// <summary>Whether the player activated the perk; claimed perks start inactive.</summary>
     public bool Active { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">Param1</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Param1")]
+    /// <summary>What the perk was activated on, such as a building's global id; 0 for perks that apply to the whole farm.</summary>
+    [JsonPropertyName("Param1")]
     public int Parameter1 { get; init; }
-    /// <summary>
-    /// Gets or sets the <c language="csharp">PerkDataId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("PerkDataId")]
+
+    /// <summary>Global id of the perk's table entry.</summary>
+    [JsonPropertyName("PerkDataId")]
     public int PerkDataId { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">PremiumMultiple</c> value.
-    /// </summary>
+    /// <summary>Multiplier saved with the perk; perks claimed from the pass save 0, and its use is not identified.</summary>
     public int PremiumMultiple { get; init; } = 1;
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">SubscriptionPerk</c> value.
-    /// </summary>
+    /// <summary>Whether the perk is marked as coming from a subscription; the client logic does not read it.</summary>
     public bool SubscriptionPerk { get; init; }
 }

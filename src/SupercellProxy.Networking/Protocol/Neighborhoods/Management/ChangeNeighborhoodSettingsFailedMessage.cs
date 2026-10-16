@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Management;
 public sealed record ChangeNeighborhoodSettingsFailedMessage(int Reason) : CodecMessage<ChangeNeighborhoodSettingsFailedMessage>, ICodecProvider<ChangeNeighborhoodSettingsFailedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeNeighborhoodSettingsFailedMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Reason, static (reason) => new ChangeNeighborhoodSettingsFailedMessage(reason));
+    public static ICodec<ChangeNeighborhoodSettingsFailedMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Reason, static reason => new ChangeNeighborhoodSettingsFailedMessage(reason));
 }

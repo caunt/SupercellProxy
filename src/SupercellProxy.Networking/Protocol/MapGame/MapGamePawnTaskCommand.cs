@@ -5,13 +5,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
-/// <para>Logic command 321. The native class and semantic field names are not present in the stripped client.</para>
+/// Command 321, carrying one Valley car together with a task collection; the ported client neither sends nor handles it, and
+/// what it does is not identified.
 /// </summary>
 public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskCommand>, ICommandCodecProvider<MapGamePawnTaskCommand>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGamePawnTaskCommand"/> instance.
-    /// </summary>
+    /// <summary>Creates the command from its decoded fields.</summary>
+    /// <param name="pawn">The car the command is about; null when not sent.</param>
+    /// <param name="taskCollection">Valley tasks sent with the car; null when not sent.</param>
     public MapGamePawnTaskCommand(MapGamePawn? pawn, MapGameTaskCollection? taskCollection)
     {
         Pawn = pawn;
@@ -30,13 +31,9 @@ public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskComman
         CommandLayout.MetadataFirst
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">Pawn</c> value.
-    /// </summary>
+    /// <summary>The Valley car the command is about; null when not sent.</summary>
     public MapGamePawn? Pawn { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">TaskCollection</c> value.
-    /// </summary>
+    /// <summary>Valley tasks sent with the car; null when not sent.</summary>
     public MapGameTaskCollection? TaskCollection { get; }
 }

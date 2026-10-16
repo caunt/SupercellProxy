@@ -11,7 +11,7 @@ public sealed record CollectSeasonalCollectibleCommand(int CollectibleId) : Code
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CollectibleId,
-            static (collectibleId) => new CollectSeasonalCollectibleCommand(collectibleId)
+            static collectibleId => new CollectSeasonalCollectibleCommand(collectibleId)
         )
     );
 }

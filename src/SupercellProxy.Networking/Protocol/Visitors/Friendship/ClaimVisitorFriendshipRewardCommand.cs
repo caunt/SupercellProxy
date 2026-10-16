@@ -12,7 +12,7 @@ public sealed record ClaimVisitorFriendshipRewardCommand(int RewardGlobalId) : C
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RewardGlobalId,
-            static (rewardGlobalId) => new ClaimVisitorFriendshipRewardCommand(rewardGlobalId)
+            static rewardGlobalId => new ClaimVisitorFriendshipRewardCommand(rewardGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

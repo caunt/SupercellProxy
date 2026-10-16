@@ -12,7 +12,7 @@ public sealed record MarkCustomizationOfferCommand(int CustomizationGlobalId) : 
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.CustomizationGlobalId,
-            static (customizationGlobalId) => new MarkCustomizationOfferCommand(customizationGlobalId)
+            static customizationGlobalId => new MarkCustomizationOfferCommand(customizationGlobalId)
         )
     );
 }

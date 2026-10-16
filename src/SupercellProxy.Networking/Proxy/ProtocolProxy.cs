@@ -14,11 +14,18 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Proxy;
 
 /// <summary>
-/// Represents <c language="csharp">ProtocolProxy</c>.
+/// A man-in-the-middle game server: it accepts game clients on a local port, connects each one to the real server, decrypts and
+/// re-encrypts the traffic in both directions, and can capture every frame to disk.
 /// </summary>
-/// <remarks>
-/// Initializes a new <see cref="ProtocolProxy"/> instance.
-/// </remarks>
+/// <param name="options">Listen address and port, upstream server, capture and asset folders.</param>
+/// <param name="serverKeys">Source of the real server's public key, needed to open the upstream connection.</param>
+/// <param name="logger">Receives connection lifecycle and failure logs.</param>
+/// <param name="timeProvider">Clock for capture timestamps.</param>
+/// <param name="commandDataResolver">Game tables for decoding commands; loaded from the asset folder instead when one is configured.</param>
+/// <param name="captureSession">
+/// Optional hook started for each accepted client with its socket and capture writer. When present, the client's capture is only
+/// published when the hook approves it. The returned object is disposed when the connection ends.
+/// </param>
 public sealed partial class ProtocolProxy(
     IOptions<ProxyOptions> options,
     IServerPublicKeySource serverKeys,
@@ -37,8 +44,9 @@ public sealed partial class ProtocolProxy(
     public Task<IPEndPoint> Listening => _listening.Task;
 
     /// <summary>
-    /// Executes the <c language="csharp">RunAsync</c> operation.
+    /// Starts listening and serves clients until cancelled; each accepted client runs on its own connection in the background.
     /// </summary>
+    /// <param name="cancellationToken">Stops accepting clients and ends the open connections.</param>
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();

@@ -9,8 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record DecorationEventTutorialCommand : CodecCommand<DecorationEventTutorialCommand>, ICommandCodecProvider<DecorationEventTutorialCommand>
 {
     /// <summary>
-    /// <para>Initializes a decoration-event tutorial command.</para>
+    /// Records the intro screen the player has reached.
     /// </summary>
+    /// <param name="lastIntroStep">Index of that intro screen.</param>
     public DecorationEventTutorialCommand(int lastIntroStep = 0)
     {
         LastIntroStep = lastIntroStep;
@@ -21,7 +22,7 @@ public sealed record DecorationEventTutorialCommand : CodecCommand<DecorationEve
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LastIntroStep,
-            static (lastIntroStep) => new DecorationEventTutorialCommand(lastIntroStep)
+            static lastIntroStep => new DecorationEventTutorialCommand(lastIntroStep)
         ),
         CommandLayout.MetadataFirst
     );

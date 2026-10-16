@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Screens;
 
 /// <summary>Stores a pending notice of kind 1 to 3 with its text on the current game mode.</summary>
-/// <param name="Text">The text.</param>
-/// <param name="Kind">The kind.</param>
+/// <param name="Text">Notice text to show the player.</param>
+/// <param name="Kind">Notice category, 1 to 3; other values are not stored.</param>
 public sealed record GameModeNoticeMessage(string? Text, int Kind) : CodecMessage<GameModeNoticeMessage>, ICodecProvider<GameModeNoticeMessage>
 {
     /// <inheritdoc />

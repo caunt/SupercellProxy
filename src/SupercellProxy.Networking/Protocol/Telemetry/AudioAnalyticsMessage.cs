@@ -4,26 +4,26 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
 /// <summary>Reports an audio analytics event such as an interrupted music track.</summary>
-/// <param name="Timestamp">The timestamp.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Flag0">The flag0.</param>
-/// <param name="Flag1">The flag1.</param>
-/// <param name="Values0">The values0.</param>
-/// <param name="Value3">The value3.</param>
-/// <param name="Value4">The value4.</param>
-/// <param name="Value5">The value5.</param>
-/// <param name="Value6">The value6.</param>
-/// <param name="DeviceId">The device id.</param>
-/// <param name="Texts">The texts.</param>
-/// <param name="Value7">The value7.</param>
-/// <param name="Values1">The values1.</param>
-/// <param name="Value8">The value8.</param>
-/// <param name="Value9">The value9.</param>
-/// <param name="Flag2">The flag2.</param>
-/// <param name="EventName">The event name.</param>
-/// <param name="Properties">The properties.</param>
+/// <param name="Timestamp">Unix time in milliseconds when the event happened.</param>
+/// <param name="Value0">Number that is 1 in every capture; its meaning is not identified.</param>
+/// <param name="Value1">Number that is 7 or 8 in the captures; its meaning is not identified.</param>
+/// <param name="Value2">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="Flag0">Flag that is clear in every capture; its meaning is not identified.</param>
+/// <param name="Flag1">Flag that is clear in every capture; its meaning is not identified.</param>
+/// <param name="Values0">Number list that is empty in every capture; its meaning is not identified.</param>
+/// <param name="Value3">Number that is 1 in every capture; its meaning is not identified.</param>
+/// <param name="Value4">Number that is 1 in every capture; its meaning is not identified.</param>
+/// <param name="Value5">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="Value6">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="DeviceId">The device's 16-digit hexadecimal identifier.</param>
+/// <param name="Texts">Text list that is empty in every capture; its meaning is not identified.</param>
+/// <param name="Value7">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="Values1">Number list that is empty in every capture; its meaning is not identified.</param>
+/// <param name="Value8">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="Value9">Number that is -1 in every capture; its meaning is not identified.</param>
+/// <param name="Flag2">Flag that is clear in every capture; its meaning is not identified.</param>
+/// <param name="EventName">What happened to the audio, such as active or interrupted; empty for a plain track report.</param>
+/// <param name="Properties">Named details of the event, such as music_track_file.</param>
 public sealed record AudioAnalyticsMessage(
     long Timestamp,
     int Value0,

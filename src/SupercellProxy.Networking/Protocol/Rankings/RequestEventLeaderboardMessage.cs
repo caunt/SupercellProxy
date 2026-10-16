@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>Requests an event leaderboard page.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="Page">The page.</param>
-/// <param name="PageSize">The page size.</param>
+/// <param name="EventId">Event whose leaderboard to send.</param>
+/// <param name="VariantId">Variant of that event the player is in.</param>
+/// <param name="Page">Which page of the board to send.</param>
+/// <param name="PageSize">How many lines one page holds.</param>
 public sealed record RequestEventLeaderboardMessage(int EventId, int VariantId, int Page, int PageSize) : CodecMessage<RequestEventLeaderboardMessage>, ICodecProvider<RequestEventLeaderboardMessage>
 {
     /// <inheritdoc />

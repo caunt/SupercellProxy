@@ -3,20 +3,23 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders.Help;
 
-/// <summary>Reports that a neighbor helped one of the avatar's truck orders.</summary>
-/// <param name="OwnerHomeId">The owner home id.</param>
-/// <param name="HelperHomeId">The helper home id.</param>
-/// <param name="OrderIndex">The order index.</param>
-/// <param name="OwnerRewards">The owner rewards.</param>
-/// <param name="HelperRewards">The helper rewards.</param>
-/// <param name="HelpId">The help id.</param>
+/// <summary>
+/// Reports that another player filled one of the farm's truck orders; the order records that player as its helper, so the owner
+/// can send it off without spending goods.
+/// </summary>
+/// <param name="OwnerHomeId">Home whose order was helped; other homes ignore the command.</param>
+/// <param name="HelperHomeId">Home of the player who helped.</param>
+/// <param name="HelpId">The help id of the helped order.</param>
+/// <param name="OwnerRewards">Rewards listed for the owner; the client does not read them.</param>
+/// <param name="HelperRewards">Rewards listed for the helper; the client does not read them.</param>
+/// <param name="ListenerValue">A value native passes only to its presentation listener.</param>
 public sealed record TruckOrderHelpReceivedServerCommand(
     LongId OwnerHomeId,
     LongId HelperHomeId,
-    int OrderIndex,
+    int HelpId,
     ReadOnlyMemory<TruckHelpReward> OwnerRewards,
     ReadOnlyMemory<TruckHelpReward> HelperRewards,
-    int HelpId
+    int ListenerValue
 ) : CodecServerCommand<TruckOrderHelpReceivedServerCommand>, ICommandCodecProvider<TruckOrderHelpReceivedServerCommand>
 {
     /// <inheritdoc />
@@ -27,14 +30,14 @@ public sealed record TruckOrderHelpReceivedServerCommand(
             Codecs.LongId,
             static command => command.HelperHomeId,
             Codecs.VarInt,
-            static command => command.OrderIndex,
+            static command => command.HelpId,
             Codecs.Memory(TruckHelpReward.Codec),
             static command => command.OwnerRewards,
             Codecs.Memory(TruckHelpReward.Codec),
             static command => command.HelperRewards,
             Codecs.VarInt,
-            static command => command.HelpId,
-            static (ownerHomeId, helperHomeId, orderIndex, ownerRewards, helperRewards, helpId) => new TruckOrderHelpReceivedServerCommand(ownerHomeId, helperHomeId, orderIndex, ownerRewards, helperRewards, helpId)
+            static command => command.ListenerValue,
+            static (ownerHomeId, helperHomeId, helpId, ownerRewards, helperRewards, listenerValue) => new TruckOrderHelpReceivedServerCommand(ownerHomeId, helperHomeId, helpId, ownerRewards, helperRewards, listenerValue)
         )
     );
 }

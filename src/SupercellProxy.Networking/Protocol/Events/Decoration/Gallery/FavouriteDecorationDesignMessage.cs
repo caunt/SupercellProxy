@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
 
 /// <summary>Adds a decoration design to the photo album favourites.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="DesignId">The design id.</param>
-/// <param name="VariantId">The variant id.</param>
+/// <param name="EventId">Decoration event the design was made for.</param>
+/// <param name="DesignId">Designer of the design, which identifies it within the event.</param>
+/// <param name="VariantId">Variant of that event the design belongs to.</param>
 public sealed record FavouriteDecorationDesignMessage(int EventId, DesignAvatarId? DesignId, int VariantId) : CodecMessage<FavouriteDecorationDesignMessage>, ICodecProvider<FavouriteDecorationDesignMessage>
 {
     /// <inheritdoc />

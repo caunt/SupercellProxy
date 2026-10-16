@@ -1,13 +1,14 @@
 namespace SupercellProxy.Networking.Events;
 
 /// <summary>
-/// Defines the Event Type Cache&lt;TEvent&gt; contract.
+/// Gives each event type a fixed slot number the first time it is used, so the event bus finds handlers by array position instead of
+/// a dictionary lookup.
 /// </summary>
 internal static class EventTypeCache<TEvent>
     where TEvent : IEvent
 {
     /// <summary>
-    /// Provides the Index value or operation.
+    /// Slot of <typeparamref name="TEvent"/> in the event bus's handler array; stays the same for the life of the process.
     /// </summary>
     public static readonly int Index = EventTypeIndex.NextIndex;
 }

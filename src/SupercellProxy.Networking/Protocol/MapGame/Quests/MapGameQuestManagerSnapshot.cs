@@ -1,9 +1,7 @@
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
-/// <summary>
-/// Represents decoded <c language="csharp">MapGameQuestManagerSnapshot</c> home data.
-/// </summary>
+/// <summary>Saved Valley quest state: today's daily quests, the season's quest progression and the daily chicken.</summary>
 public sealed record MapGameQuestManagerSnapshot
 {
     /// <summary>Gets whether the daily progression chicken has been collected.</summary>
@@ -21,9 +19,7 @@ public sealed record MapGameQuestManagerSnapshot
     /// <summary>Gets the completed-quest count last acknowledged by the player.</summary>
     public int CompletedQuestsSeen { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">CurrentQuests</c> value.
-    /// </summary>
+    /// <summary>Today's daily quests; null before the first ones are drawn.</summary>
     public MapGameCurrentQuestsSnapshot? CurrentQuests { get; init; }
 
     /// <summary>Gets whether the current Valley daily quests have been seen.</summary>

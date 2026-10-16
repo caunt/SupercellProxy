@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SupercellProxy.Networking.Protocol.Neighborhoods;
+namespace SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
 
 /// <summary>A resource reward at a neighborhood point threshold.</summary>
 public sealed record NeighborhoodRewardTierDefinition

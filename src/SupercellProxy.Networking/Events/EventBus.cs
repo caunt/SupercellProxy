@@ -3,7 +3,8 @@ using Nito.AsyncEx;
 namespace SupercellProxy.Networking.Events;
 
 /// <summary>
-/// Represents <c language="csharp">EventBus</c>.
+/// Lets code react to what a proxy connection does, such as each message received or forwarded, by subscribing asynchronous
+/// handlers per event type.
 /// </summary>
 public sealed class EventBus
 {
@@ -11,8 +12,11 @@ public sealed class EventBus
     private readonly AsyncLock _subscriptionLock = new();
 
     /// <summary>
-    /// Executes the <c language="csharp">PublishAsync</c> operation.
+    /// Runs every handler subscribed to the event's type at the same time and waits for all of them, so a handler can change the
+    /// event (for example cancel a message) before the publisher continues.
     /// </summary>
+    /// <param name="eventItem">The event handed to each handler.</param>
+    /// <param name="cancellationToken">Passed on to every handler.</param>
     public async Task PublishAsync<TEvent>(TEvent eventItem, CancellationToken cancellationToken = default)
         where TEvent : IEvent
     {
@@ -33,8 +37,10 @@ public sealed class EventBus
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">SubscribeAsync</c> operation.
+    /// Adds a handler for one event type; it runs for every later publish of that type until it is unsubscribed.
     /// </summary>
+    /// <param name="asynchronouslyEventHandler">Handler to run; the same delegate is needed to unsubscribe it.</param>
+    /// <param name="cancellationToken">Stops waiting for the subscription lock.</param>
     public async Task SubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asynchronouslyEventHandler, CancellationToken cancellationToken = default)
         where TEvent : IEvent
     {
@@ -66,8 +72,10 @@ public sealed class EventBus
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">UnsubscribeAsync</c> operation.
+    /// Removes a handler added earlier; publishes already running may still call it.
     /// </summary>
+    /// <param name="asynchronouslyEventHandler">The same delegate that was subscribed.</param>
+    /// <param name="cancellationToken">Stops waiting for the subscription lock.</param>
     public async Task UnsubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asynchronouslyEventHandler, CancellationToken cancellationToken = default)
         where TEvent : IEvent
     {

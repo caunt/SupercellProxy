@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
 /// <summary>Updates an event task.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="TaskIndex">The task index.</param>
-/// <param name="Progress">The progress.</param>
-/// <param name="Completed">The completed.</param>
-/// <param name="TaskId">The task id.</param>
-/// <param name="Points">The points.</param>
+/// <param name="EventId">Task event the task belongs to.</param>
+/// <param name="TaskIndex">Slot of the task in the event's task list.</param>
+/// <param name="Progress">Progress count the task has reached.</param>
+/// <param name="Completed">Whether the task is now finished.</param>
+/// <param name="TaskId">Server identifier of the task in that slot.</param>
+/// <param name="Points">Event points the task is worth.</param>
 public sealed record EventTaskUpdateServerCommand(int EventId, int TaskIndex, int Progress, bool Completed, long TaskId, int Points) : CodecServerCommand<EventTaskUpdateServerCommand>, ICommandCodecProvider<EventTaskUpdateServerCommand>
 {
     /// <inheritdoc />

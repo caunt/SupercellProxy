@@ -9,6 +9,6 @@ public sealed record MirrorGameObjectCommand(int ObjectGlobalId) : CodecCommand<
 {
     /// <inheritdoc />
     public static CommandCodec<MirrorGameObjectCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static (objectGlobalId) => new MirrorGameObjectCommand(objectGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static objectGlobalId => new MirrorGameObjectCommand(objectGlobalId))
     );
 }

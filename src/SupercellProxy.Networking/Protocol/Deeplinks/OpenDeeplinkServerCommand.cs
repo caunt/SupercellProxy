@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Deeplinks;
 
 /// <summary>Opens a deeplink for the avatar.</summary>
-/// <param name="HomeId">The home id.</param>
-/// <param name="DeeplinkGlobalId">The deeplink data id.</param>
-/// <param name="Parameters">The parameters.</param>
+/// <param name="HomeId">Farm the deeplink opens for.</param>
+/// <param name="DeeplinkGlobalId">Global id of the deeplink entry that says where to go.</param>
+/// <param name="Parameters">Text arguments for the deeplink, in order.</param>
 public sealed record OpenDeeplinkServerCommand(LongId HomeId, int DeeplinkGlobalId, ReadOnlyMemory<string?> Parameters) : CodecServerCommand<OpenDeeplinkServerCommand>, ICommandCodecProvider<OpenDeeplinkServerCommand>
 {
     /// <inheritdoc />

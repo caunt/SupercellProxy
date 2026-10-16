@@ -11,7 +11,7 @@ public sealed record AddShopBadgesCommand(int[] DataIds) : CodecCommand<AddShopB
         Codecs.Composite(
             Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
             static command => command.DataIds,
-            static (dataIds) => new AddShopBadgesCommand(dataIds)
+            static dataIds => new AddShopBadgesCommand(dataIds)
         ),
         CommandLayout.MetadataFirst
     );

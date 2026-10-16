@@ -3,13 +3,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 
-/// <summary>Searches neighborhoods.</summary>
-/// <param name="Query">The query.</param>
-/// <param name="MinimumMembers">The minimum members.</param>
-/// <param name="MaximumMembers">The maximum members.</param>
-/// <param name="RequiredLevel">The required level.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="JoinableOnly">The joinable only.</param>
+/// <summary>Serverbound search for neighbourhoods by name and size.</summary>
+/// <param name="Query">Text to look for in neighbourhood names or tags.</param>
+/// <param name="MinimumMembers">Fewest members a listed neighbourhood may have.</param>
+/// <param name="MaximumMembers">Most members a listed neighbourhood may have.</param>
+/// <param name="RequiredLevel">Farm level the listed neighbourhoods may ask for at most.</param>
+/// <param name="NeighborhoodId">Neighbourhood sent with the search, such as the player's own; its role in the search is not identified.</param>
+/// <param name="JoinableOnly">Whether to list only neighbourhoods the player can join.</param>
 public sealed record SearchNeighborhoodMessage(string? Query, int MinimumMembers, int MaximumMembers, int RequiredLevel, LongId? NeighborhoodId, bool JoinableOnly) : CodecMessage<SearchNeighborhoodMessage>, ICodecProvider<SearchNeighborhoodMessage>
 {
     /// <inheritdoc />

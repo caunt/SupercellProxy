@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
 /// <summary>Uploads a client log chunk.</summary>
-/// <param name="Index">The index.</param>
-/// <param name="Data">The data.</param>
+/// <param name="Index">Position of this chunk in the uploaded log.</param>
+/// <param name="Data">Raw bytes of the chunk; null when none are sent.</param>
 public sealed record UploadClientLogMessage(int Index, ReadOnlyMemory<byte>? Data) : CodecMessage<UploadClientLogMessage>, ICodecProvider<UploadClientLogMessage>
 {
     /// <inheritdoc />

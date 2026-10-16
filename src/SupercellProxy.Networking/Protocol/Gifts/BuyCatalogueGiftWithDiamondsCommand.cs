@@ -12,7 +12,7 @@ public sealed record BuyCatalogueGiftWithDiamondsCommand(int GiftGlobalId) : Cod
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftGlobalId,
-            static (giftGlobalId) => new BuyCatalogueGiftWithDiamondsCommand(giftGlobalId)
+            static giftGlobalId => new BuyCatalogueGiftWithDiamondsCommand(giftGlobalId)
         )
     );
 }

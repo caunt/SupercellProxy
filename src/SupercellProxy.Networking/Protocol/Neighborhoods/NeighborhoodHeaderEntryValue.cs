@@ -2,15 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>
-/// Defines the Neighborhood Profile Value contract.
-/// </summary>
-/// <summary>
-/// Defines the Profile contract.
-/// </summary>
-/// <summary>
-/// Defines the Value contract.
-/// </summary>
+/// <summary>A neighbourhood profile paired with a number, as ranking lists send them.</summary>
+/// <param name="Profile">Profile of the neighbourhood.</param>
+/// <param name="Value">Score of the neighbourhood in the list; ranking lists are sorted by it in the captures.</param>
 public sealed record NeighborhoodHeaderEntryValue(NeighborhoodHeaderEntry Profile, int Value) : ICodecProvider<NeighborhoodHeaderEntryValue>
 {
     /// <inheritdoc />

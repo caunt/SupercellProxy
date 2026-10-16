@@ -5,17 +5,12 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.Newspapers;
 
 /// <summary>
-/// Defines the Request Newspaper Command contract.
+/// Serverbound command asking for a new newspaper edition; it restarts the newspaper's refresh timer, and the server answers with
+/// the edition's roadside shop advertisements.
 /// </summary>
-/// <summary>
-/// Defines the Spend Diamonds contract.
-/// </summary>
-/// <summary>
-/// Defines the Country Code contract.
-/// </summary>
-/// <summary>
-/// Defines the Alternate contract.
-/// </summary>
+/// <param name="SpendDiamonds">Whether diamonds pay for an early refresh before the timer runs out.</param>
+/// <param name="CountryCode">Two-letter country code the advertisements are picked for, such as <c>US</c>.</param>
+/// <param name="Alternate">Flag the client sends with the request; its effect is not identified.</param>
 public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryCode, bool Alternate)
     : CodecCommand<RequestNewspaperCommand>, ICommandCodecProvider<RequestNewspaperCommand>
 {

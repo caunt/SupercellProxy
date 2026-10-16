@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
 /// <summary>Claims an event milestone reward.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="MilestoneIndex">The milestone index.</param>
+/// <param name="EventId">Event whose points track the milestone is on.</param>
+/// <param name="MilestoneIndex">Position of the reached milestone on that track, starting at 0.</param>
 public sealed record ClaimEventMilestoneRewardCommand(int EventId, int MilestoneIndex) : CodecCommand<ClaimEventMilestoneRewardCommand>, ICommandCodecProvider<ClaimEventMilestoneRewardCommand>
 {
     /// <inheritdoc />

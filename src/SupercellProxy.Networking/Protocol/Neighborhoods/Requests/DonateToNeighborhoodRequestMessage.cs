@@ -4,13 +4,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
 /// <summary>Donates goods to a neighborhood request.</summary>
-/// <param name="ItemGlobalId">The item data id.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="RequesterHomeId">The requester home id.</param>
-/// <param name="RequestId">The request id.</param>
-/// <param name="DonorHomeId">The donor home id.</param>
-/// <param name="RequesterName">The requester name.</param>
-/// <param name="Premium">The premium.</param>
+/// <param name="ItemGlobalId">Global id of the donated goods.</param>
+/// <param name="Amount">How many goods the player gives.</param>
+/// <param name="RequesterHomeId">Home of the member who asked.</param>
+/// <param name="RequestId">Id of the request on the neighbourhood board.</param>
+/// <param name="DonorHomeId">Home of the player who donates.</param>
+/// <param name="RequesterName">Name of the member who asked.</param>
+/// <param name="Premium">Flag sent with the donation; what it changes is not identified.</param>
 public sealed record DonateToNeighborhoodRequestMessage(int ItemGlobalId, int Amount, LongId RequesterHomeId, LongId RequestId, LongId DonorHomeId, string? RequesterName, bool Premium) : CodecMessage<DonateToNeighborhoodRequestMessage>, ICodecProvider<DonateToNeighborhoodRequestMessage>
 {
     /// <inheritdoc />

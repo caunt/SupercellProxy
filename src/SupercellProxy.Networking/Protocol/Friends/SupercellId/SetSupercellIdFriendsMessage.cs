@@ -11,6 +11,6 @@ public sealed record SetSupercellIdFriendsMessage(ReadOnlyMemory<string?> Friend
     public static ICodec<SetSupercellIdFriendsMessage> Codec { get; } = Codecs.Composite(
         Codecs.Memory(Codecs.OptionalString, CollectionCount.Int32),
         static message => message.FriendIds,
-        static (friendIds) => new SetSupercellIdFriendsMessage(friendIds)
+        static friendIds => new SetSupercellIdFriendsMessage(friendIds)
     );
 }

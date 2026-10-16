@@ -2,10 +2,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Help;
 
-/// <summary>One neighborhood help entry entry.</summary>
-/// <param name="Value">The value.</param>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="Amount">The amount.</param>
+/// <summary>One helper in a farm's neighbourhood help entries.</summary>
+/// <param name="Value">Number sent before the helper; its meaning is not identified.</param>
+/// <param name="AvatarId">Account of the helper.</param>
+/// <param name="Amount">How much the helper gave or did; its unit is not identified.</param>
 public sealed record NeighborhoodHelpEntry(int Value, LongId AvatarId, int Amount) : ICodecProvider<NeighborhoodHelpEntry>
 {
     /// <inheritdoc />

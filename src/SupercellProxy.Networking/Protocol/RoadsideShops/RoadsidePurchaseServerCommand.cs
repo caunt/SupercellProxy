@@ -1,45 +1,32 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
-/// Defines the Roadside Purchase Server Command contract.
+/// Completes the buyer's side of a roadside purchase: the buyer pays the coins and gets the goods, unless the barn or silo has no
+/// room, coins are short, or the daily limit on collection tools is reached.
 /// </summary>
-/// <summary>
-/// Defines the Buyer Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Shop Owner Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Context Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Item Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Slot Index contract.
-/// </summary>
-/// <summary>
-/// Defines the Quantity contract.
-/// </summary>
-/// <summary>
-/// Defines the Price contract.
-/// </summary>
+/// <param name="BuyerId">Home of the player who bought the stand; other homes ignore the command.</param>
+/// <param name="ShopOwnerId">Home that owns the shop.</param>
+/// <param name="ContextId">Third home or account id of the command; the client does not read it and its meaning is not identified.</param>
+/// <param name="ItemGlobalId">Global id of the bought goods.</param>
+/// <param name="SlotIndex">Position of the bought stand in the shop.</param>
+/// <param name="Quantity">How many goods the buyer gets.</param>
+/// <param name="Price">Coins the buyer pays.</param>
 public sealed record RoadsidePurchaseServerCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuyerId")] LongId BuyerId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ShopOwnerId")] LongId ShopOwnerId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ContextId")] LongId ContextId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
+    [property: JsonPropertyName("BuyerId")] LongId BuyerId,
+    [property: JsonPropertyName("ShopOwnerId")] LongId ShopOwnerId,
+    [property: JsonPropertyName("ContextId")] LongId ContextId,
+    [property: JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
     int SlotIndex,
     int Quantity,
     int Price
 ) : CodecServerCommand<RoadsidePurchaseServerCommand>, ICommandCodecProvider<RoadsidePurchaseServerCommand>
 {
-    /// <summary>
-    /// Provides the Daily Collection Tool Limit value or operation.
-    /// </summary>
+    /// <summary>How many collection tools a player may buy from roadside shops per day.</summary>
     public const int DailyCollectionToolLimit = 80;
 
     /// <inheritdoc />

@@ -6,7 +6,8 @@ namespace SupercellProxy.Networking.Cryptography;
 public static class ProxyKeyMaterial
 {
     /// <summary>
-    /// Defines the <c language="csharp">StandardPrivateKey</c> value.
+    /// Curve25519 private key the proxy answers game clients with while it stands in for the game server; a client accepts the proxy
+    /// only if it carries the matching public key.
     /// </summary>
     public static readonly byte[] StandardPrivateKey =
     [

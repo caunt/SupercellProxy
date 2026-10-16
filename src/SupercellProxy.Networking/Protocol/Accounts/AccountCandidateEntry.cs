@@ -1,39 +1,24 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Accounts;
 
 /// <summary>
-/// Defines the Account Candidate Entry contract.
+/// One farm in the list <see cref="AccountCandidatesMessage"/> carries. The layout is native's friend entry (see
+/// <see cref="Friends.Entries.FriendEntry"/>), so the fields mean the same as there.
 /// </summary>
-/// <summary>
-/// Defines the Account Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Text0 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text1 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text2 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text3 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value0 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value1 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value2 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value3 contract.
-/// </summary>
+/// <param name="AccountId">Home id of the listed farm.</param>
+/// <param name="Text0">Farm name; null when the farm has none.</param>
+/// <param name="Text1">Facebook id linked to the farm, if any.</param>
+/// <param name="Text2">Game Center id linked to the farm, if any.</param>
+/// <param name="Text3">Address of the farm's profile picture, if any.</param>
+/// <param name="Value0">The farm's experience level.</param>
+/// <param name="Value1">The friend entry's sort value.</param>
+/// <param name="Value2">Relationship status between the player and this farm (friend, incoming or outgoing request).</param>
+/// <param name="Value3">The friend entry's block time stamp.</param>
 public sealed record AccountCandidateEntry(
-    [property: System.Text.Json.Serialization.JsonPropertyName("AccountId")] LongId AccountId,
+    [property: JsonPropertyName("AccountId")] LongId AccountId,
     string? Text0,
     string? Text1,
     string? Text2,
@@ -68,7 +53,7 @@ public sealed record AccountCandidateEntry(
     );
 
     /// <summary>
-    /// Provides the To String value or operation.
+    /// Returns only the type name, keeping farm names and linked social ids out of logs.
     /// </summary>
     public override string ToString()
     {

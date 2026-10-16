@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 
-/// <summary>One shop purchase good entry.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="Amount">The amount.</param>
+/// <summary>One kind of goods a store package grants.</summary>
+/// <param name="GoodGlobalId">Global id of the goods.</param>
+/// <param name="Amount">How many are granted; negative amounts take goods away.</param>
 public sealed record ShopPurchaseGood(int GoodGlobalId, int Amount) : ICodecProvider<ShopPurchaseGood>
 {
     /// <inheritdoc />

@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Voting;
 
 /// <summary>Requests the phase state of a decoration event.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="Phase">The phase.</param>
+/// <param name="EventId">Decoration event to ask about.</param>
+/// <param name="VariantId">Variant of that event the player is in.</param>
+/// <param name="Phase">Event phase the client wants the state of, as native numbers phases.</param>
 public sealed record RequestDecorationEventPhaseMessage(int EventId, int VariantId, int Phase) : CodecMessage<RequestDecorationEventPhaseMessage>, ICodecProvider<RequestDecorationEventPhaseMessage>
 {
     /// <inheritdoc />

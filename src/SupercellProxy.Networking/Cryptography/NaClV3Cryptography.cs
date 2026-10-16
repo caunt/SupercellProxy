@@ -5,7 +5,9 @@ using System.Security.Cryptography;
 namespace SupercellProxy.Networking.Cryptography;
 
 /// <summary>
-/// Represents <c language="csharp">NaClV3Cryptography</c>.
+/// The NaCl-style primitives the game protocol encrypts with: Curve25519 key agreement, a ChaCha stream cipher keyed through
+/// HChaCha, and Poly1305 authentication. Supercell changed the round counts (8 ChaCha double rounds and 17 HChaCha double rounds),
+/// so standard libsodium boxes do not interoperate with these.
 /// </summary>
 public static class NaClV3Cryptography
 {
@@ -55,8 +57,13 @@ public static class NaClV3Cryptography
         ];
 
     /// <summary>
-    /// Executes the <c language="csharp">Box</c> operation.
+    /// Encrypts and authenticates a message for the holder of <paramref name="remotePublicKey"/>, as the login handshake does.
     /// </summary>
+    /// <param name="plaintext">Bytes to protect.</param>
+    /// <param name="nonce24">24-byte nonce; the first 16 bytes derive the per-message key, the last 8 feed the stream.</param>
+    /// <param name="remotePublicKey">Recipient's 32-byte Curve25519 public key.</param>
+    /// <param name="localPrivateKey">Sender's 32-byte Curve25519 private key.</param>
+    /// <returns>A 16-byte Poly1305 tag followed by the encrypted bytes.</returns>
     public static byte[] Box(ReadOnlySpan<byte> plaintext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> remotePublicKey, ReadOnlySpan<byte> localPrivateKey)
     {
         Span<byte> sharedSecret = stackalloc byte[32];
@@ -80,8 +87,14 @@ public static class NaClV3Cryptography
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">BoxOpen</c> operation.
+    /// Checks and decrypts a message produced by <see cref="Box"/> with the matching key pair.
     /// </summary>
+    /// <param name="ciphertext">A 16-byte Poly1305 tag followed by the encrypted bytes.</param>
+    /// <param name="nonce24">The 24-byte nonce the sender used.</param>
+    /// <param name="remotePublicKey">Sender's 32-byte Curve25519 public key.</param>
+    /// <param name="localPrivateKey">Recipient's 32-byte Curve25519 private key.</param>
+    /// <returns>The decrypted bytes.</returns>
+    /// <exception cref="MacVerificationException">The tag does not match: wrong keys or nonce, or the bytes were altered.</exception>
     public static byte[] BoxOpen(
         ReadOnlySpan<byte> ciphertext,
         ReadOnlySpan<byte> nonce24,
@@ -119,8 +132,10 @@ public static class NaClV3Cryptography
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">CryptoScalarMultBase</c> operation.
+    /// Derives the Curve25519 public key that belongs to a private key.
     /// </summary>
+    /// <param name="localPrivateKey">32-byte private key.</param>
+    /// <returns>The 32-byte public key to hand to the other side.</returns>
     public static byte[] CryptoScalarMultBase(ReadOnlySpan<byte> localPrivateKey)
     {
         byte[] result = new byte[32];
@@ -130,8 +145,11 @@ public static class NaClV3Cryptography
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">HChaCha20</c> operation.
+    /// Derives a new 32-byte key from a key and a 16-byte nonce, using the game's 17-double-round variant of HChaCha.
     /// </summary>
+    /// <param name="key">32-byte input key.</param>
+    /// <param name="nonce16">16 bytes mixed into the derivation.</param>
+    /// <returns>The derived 32-byte key.</returns>
     public static byte[] HChaCha20(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce16)
     {
         byte[] result = new byte[32];
@@ -141,8 +159,12 @@ public static class NaClV3Cryptography
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">SecretBox</c> operation.
+    /// Encrypts and authenticates a message under a shared symmetric key, as every message after the handshake is.
     /// </summary>
+    /// <param name="plaintext">Bytes to protect.</param>
+    /// <param name="nonce24">24-byte nonce; must never repeat under the same key.</param>
+    /// <param name="key">32-byte session key both sides hold.</param>
+    /// <returns>A 16-byte Poly1305 tag followed by the encrypted bytes.</returns>
     public static byte[] SecretBox(ReadOnlySpan<byte> plaintext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> key)
     {
         Span<byte> subKey = stackalloc byte[32];
@@ -160,8 +182,13 @@ public static class NaClV3Cryptography
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">SecretBoxOpen</c> operation.
+    /// Checks and decrypts a message produced by <see cref="SecretBox"/>.
     /// </summary>
+    /// <param name="ciphertext">A 16-byte Poly1305 tag followed by the encrypted bytes.</param>
+    /// <param name="nonce24">The 24-byte nonce the sender used.</param>
+    /// <param name="key">32-byte session key both sides hold.</param>
+    /// <returns>The decrypted bytes.</returns>
+    /// <exception cref="MacVerificationException">The tag does not match: wrong key or nonce, or the bytes were altered.</exception>
     public static byte[] SecretBoxOpen(ReadOnlySpan<byte> ciphertext, ReadOnlySpan<byte> nonce24, ReadOnlySpan<byte> key)
     {
         ReadOnlySpan<byte> messageAuthenticationCode = ciphertext[..16];

@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Orders;
 
 /// <summary>
-/// Defines the Order Track Snapshot contract.
+/// Saved progress of an order track: delivered orders earn points, each milestone's points unlock its rewards, and the track
+/// starts over after its reset period.
 /// </summary>
 public sealed record OrderTrackSnapshot
 {
@@ -11,23 +12,21 @@ public sealed record OrderTrackSnapshot
     [JsonPropertyName("calOff")]
     public int CalendarOffsetSeconds { get; init; } = -1;
 
-    /// <summary>
-    /// Gets the Completed value.
-    /// </summary>
+    /// <summary>Points earned toward the current milestone.</summary>
     [JsonPropertyName("completed")]
     public int Completed { get; init; }
+
     /// <summary>Gets whether the player has seen this boat-track cycle's introduction.</summary>
     [JsonPropertyName("cycleIntroSeen")]
     public bool CycleIntroSeen { get; init; }
 
-    /// <summary>
-    /// Gets the Index value.
-    /// </summary>
+    /// <summary>Position of the current milestone in <see cref="Rewards"/>.</summary>
     [JsonPropertyName("idx")]
     public int Index { get; init; }
 
     /// <summary>
-    /// Gets the Pending Completion Points value.
+    /// Points from a finished boat order that are not added to the track yet; the client adds them with a separate settle command,
+    /// or when the track resets.
     /// </summary>
     [JsonPropertyName("pendingCompletionPoints")]
     public int PendingCompletionPoints { get; init; }
@@ -40,9 +39,7 @@ public sealed record OrderTrackSnapshot
     [JsonPropertyName("pendingCompletionPointsBoatId")]
     public int PendingCompletionPointsBoatId { get; init; } = -1;
 
-    /// <summary>
-    /// Gets the Reset Timestamp value.
-    /// </summary>
+    /// <summary>Unix time in seconds when the current track started; the reset period counts from it.</summary>
     [JsonPropertyName("reset")]
     public int ResetTimestamp { get; init; }
 
@@ -52,9 +49,7 @@ public sealed record OrderTrackSnapshot
     [JsonPropertyName("claimed")]
     public bool RewardClaimed { get; init; }
 
-    /// <summary>
-    /// Gets the Rewards value.
-    /// </summary>
+    /// <summary>Rewards of each milestone, drawn when the track starts; one list per milestone.</summary>
     [JsonPropertyName("rewards")]
     public OrderTrackReward[][] Rewards { get; init; } = [];
 
@@ -62,15 +57,11 @@ public sealed record OrderTrackSnapshot
     [JsonPropertyName("savedUnclaimedRewards")]
     public OrderTrackReward[][] SavedUnclaimedRewards { get; init; } = [];
 
-    /// <summary>
-    /// Gets the Target value.
-    /// </summary>
+    /// <summary>Points the current milestone needs; 0 when the track has no further milestone.</summary>
     [JsonPropertyName("target")]
     public int Target { get; init; }
 
-    /// <summary>
-    /// Gets the Track Id value.
-    /// </summary>
+    /// <summary>Global id of the track's table entry; 0 when no track runs.</summary>
     [JsonPropertyName("track")]
     public int TrackId { get; init; }
 }

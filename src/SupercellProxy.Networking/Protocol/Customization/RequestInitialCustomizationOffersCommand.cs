@@ -12,7 +12,7 @@ public sealed record RequestInitialCustomizationOffersCommand(int OfferIndex) : 
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.OfferIndex,
-            static (offerIndex) => new RequestInitialCustomizationOffersCommand(offerIndex)
+            static offerIndex => new RequestInitialCustomizationOffersCommand(offerIndex)
         )
     );
 }

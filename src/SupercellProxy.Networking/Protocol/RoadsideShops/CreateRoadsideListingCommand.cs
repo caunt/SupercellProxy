@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Versions;
@@ -5,14 +7,19 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
-/// Defines the Create Roadside Listing Command contract.
+/// Serverbound command putting goods up for sale on an empty stand of the own roadside shop; the goods leave the barn or silo
+/// right away.
 /// </summary>
 public sealed record CreateRoadsideListingCommand
     : CodecCommand<CreateRoadsideListingCommand>, ICommandCodecProvider<CreateRoadsideListingCommand>
 {
-    /// <summary>
-    /// Provides the Create Roadside Listing Command value or operation.
-    /// </summary>
+    /// <summary>Creates the command for one stand.</summary>
+    /// <param name="advertise">Whether to also advertise the stand in the newspaper.</param>
+    /// <param name="slotIndex">Position of the empty stand in the shop.</param>
+    /// <param name="itemGlobalId">Global id of the goods to sell.</param>
+    /// <param name="usePrimaryInventory">Whether the goods come only from the main inventory instead of all inventories together.</param>
+    /// <param name="price">Coin price of the whole stand.</param>
+    /// <param name="quantity">How many goods go on the stand.</param>
     public CreateRoadsideListingCommand(bool advertise, int slotIndex, int itemGlobalId, bool usePrimaryInventory, int price, int quantity)
     {
         Advertise = advertise;
@@ -62,33 +69,24 @@ public sealed record CreateRoadsideListingCommand
     );
 
     /// <summary>
-    /// Gets the Advertise value.
+    /// Whether the stand is also advertised in the newspaper; that uses a bought advertisement credit when there is one, and
+    /// otherwise starts the free advertisement's cooldown.
     /// </summary>
     public bool Advertise { get; }
 
-    /// <summary>
-    /// Gets the Item Global Id value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("ItemGlobalId")]
+    /// <summary>Global id of the goods put up for sale.</summary>
+    [JsonPropertyName("ItemGlobalId")]
     public int ItemGlobalId { get; }
 
-    /// <summary>
-    /// Gets the Price value.
-    /// </summary>
+    /// <summary>Coin price of the whole stand.</summary>
     public int Price { get; }
 
-    /// <summary>
-    /// Gets the Quantity value.
-    /// </summary>
+    /// <summary>How many goods go on the stand.</summary>
     public int Quantity { get; }
 
-    /// <summary>
-    /// Gets the Slot Index value.
-    /// </summary>
+    /// <summary>Position of the empty stand in the shop.</summary>
     public int SlotIndex { get; }
 
-    /// <summary>
-    /// Gets the Use Primary Inventory value.
-    /// </summary>
+    /// <summary>Whether the goods come only from the main inventory instead of all inventories together.</summary>
     public bool UsePrimaryInventory { get; }
 }

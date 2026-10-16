@@ -3,31 +3,31 @@ using SupercellProxy.Networking.Protocol.Versions;
 
 namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 
-/// <summary>One remote order entry.</summary>
-/// <param name="DataGlobalIds">The data data ids.</param>
-/// <param name="Amounts">The amounts.</param>
-/// <param name="Cash">The cash.</param>
-/// <param name="Experience">The experience.</param>
-/// <param name="Slot">The slot.</param>
-/// <param name="Level">The level.</param>
-/// <param name="New">The new.</param>
-/// <param name="Voucher">The voucher.</param>
-/// <param name="CashExperienceMultiplier">The cash experience multiplier.</param>
-/// <param name="BonusRewardEnabled">The bonus reward enabled.</param>
-/// <param name="BonusEventId">The bonus event id.</param>
-/// <param name="BonusRewardGlobalId">The bonus reward data id.</param>
-/// <param name="BonusCount">The bonus count.</param>
-/// <param name="ReceiverGlobalId">The receiver data id.</param>
-/// <param name="TimerRemaining">The timer remaining.</param>
-/// <param name="TimerDuration">The timer duration.</param>
-/// <param name="ReviverAvatarId">The reviver avatar id.</param>
-/// <param name="HelperId">The helper id.</param>
-/// <param name="HelperRewardData">The helper reward data.</param>
-/// <param name="HelperCompleted">The helper completed.</param>
-/// <param name="HelperGranted">The helper granted.</param>
-/// <param name="PromotionReward">The promotion reward.</param>
-/// <param name="SeasonalCurrencyBonus">The seasonal currency bonus.</param>
-/// <param name="OrderSourceGlobalId">The order source data id.</param>
+/// <summary>One truck order of another farm, as the server sends it; it carries the same fields as a saved order.</summary>
+/// <param name="DataGlobalIds">Global ids of the goods the order asks for, matching <paramref name="Amounts"/> by position.</param>
+/// <param name="Amounts">How many of each good the order asks for.</param>
+/// <param name="Cash">Coins the order pays when delivered.</param>
+/// <param name="Experience">Experience the order gives when delivered.</param>
+/// <param name="Slot">Position of the order on the order board.</param>
+/// <param name="Level">Player level the order was made for.</param>
+/// <param name="New">Whether the order still shows its "new" badge.</param>
+/// <param name="Voucher">Global id of the voucher the order gives; 0 when it gives none.</param>
+/// <param name="CashExperienceMultiplier">Percentage that shifts the bonus reward from experience to coins.</param>
+/// <param name="BonusRewardEnabled">Whether the order gives its event bonus reward.</param>
+/// <param name="BonusEventId">Event that adds the bonus reward.</param>
+/// <param name="BonusRewardGlobalId">Global id of the bonus reward; 0 when there is none.</param>
+/// <param name="BonusCount">How many of the bonus reward the order gives.</param>
+/// <param name="ReceiverGlobalId">Global id of the customer who placed the order.</param>
+/// <param name="TimerRemaining">Time left on an empty slot's countdown until its next order arrives.</param>
+/// <param name="TimerDuration">Full length of that countdown.</param>
+/// <param name="ReviverAvatarId">Home of the player who filled the order for its owner; null when nobody did.</param>
+/// <param name="HelperId">Id of the order's help request; 0 when the owner has not asked for help.</param>
+/// <param name="HelperRewardData">Help value saved as <c>HRD</c> on the order; its meaning for orders is not identified.</param>
+/// <param name="HelperCompleted">Help flag saved as <c>HC</c> on the order; its meaning for orders is not identified.</param>
+/// <param name="HelperGranted">Help flag saved as <c>HG</c> on the order; its meaning for orders is not identified.</param>
+/// <param name="PromotionReward">Promotion box reward attached to the order; null when there is none.</param>
+/// <param name="SeasonalCurrencyBonus">Whether the bonus reward pays out in the event's seasonal currency.</param>
+/// <param name="OrderSourceGlobalId">Global id of the table entry the order was generated from; null when not sent.</param>
 public sealed record RemoteOrder(
     ReadOnlyMemory<int> DataGlobalIds,
     ReadOnlyMemory<int> Amounts,

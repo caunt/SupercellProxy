@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using Nito.AsyncEx;
 
 using SupercellProxy.Networking.Cryptography;
+using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Transport;
@@ -73,8 +74,10 @@ internal sealed class MessageTransport(MessageStream stream)
     }
 
     /// <summary>
-    /// Reads <c language="csharp">MessageAsync</c> from the stream.
+    /// Reads the next message and fails unless it has the expected type.
     /// </summary>
+    /// <param name="cancellationToken">Stops waiting for the message.</param>
+    /// <exception cref="InvalidOperationException">The next message is of another type.</exception>
     internal async Task<TValue> ReadMessageAsync<TValue>(CancellationToken cancellationToken = default)
         where TValue : IMessage
     {
@@ -86,8 +89,9 @@ internal sealed class MessageTransport(MessageStream stream)
     }
 
     /// <summary>
-    /// Reads <c language="csharp">MessageAsync</c> from the stream.
+    /// Reads the next frame, decodes it into a message of any type and reports both to the stream's observer.
     /// </summary>
+    /// <param name="cancellationToken">Stops waiting for the frame.</param>
     internal async Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         MessageContainer container = await ReadContainerAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -118,8 +122,10 @@ internal sealed class MessageTransport(MessageStream stream)
     }
 
     /// <summary>
-    /// Provides the Resolve Message value or operation.
+    /// Decodes a frame through the message registry and notes the game version a handshake message reveals; warns on the console
+    /// when the decoder leaves payload bytes unread, which points at a decoding gap.
     /// </summary>
+    /// <param name="container">A decrypted frame.</param>
     internal IMessage ResolveMessage(MessageContainer container)
     {
         ArgumentNullException.ThrowIfNull(container);
@@ -193,9 +199,9 @@ internal sealed class MessageTransport(MessageStream stream)
 
     private void ObserveGameVersion(IMessage message)
     {
-        if (message is SupercellProxy.Networking.Protocol.Authentication.ClientHelloMessage hello)
+        if (message is ClientHelloMessage hello)
             stream.GameVersion = new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion);
-        else if (message is SupercellProxy.Networking.Protocol.Authentication.LoginMessage login)
+        else if (message is LoginMessage login)
             stream.GameVersion = new Version(login.LoginVersion >> 20, (login.LoginVersion >> 10) & 1023, login.LoginVersion & 1023);
     }
 

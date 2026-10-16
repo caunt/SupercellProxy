@@ -5,13 +5,20 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Client;
 
 /// <summary>
-/// Defines the <c language="csharp">ClientConfiguration</c> settings.
+/// Everything a <see cref="ProtocolClient"/> needs to reach the game server and log in as the player.
 /// </summary>
-/// <param name="UpstreamHost">The <c language="csharp">UpstreamHost</c> value.</param>
-/// <param name="UpstreamPort">The <c language="csharp">UpstreamPort</c> value.</param>
+/// <param name="UpstreamHost">Game server host name or address the client connects to.</param>
+/// <param name="UpstreamPort">TCP port of the game server, normally 9339.</param>
 /// <param name="Protocol">An explicit version override; null resolves the latest version from KEYS.md.</param>
-/// <param name="SessionTokenProvider"></param>
-/// <param name="BootstrapFingerprintSha">The <c language="csharp">BootstrapFingerprintSha</c> value.</param>
+/// <param name="SessionTokenProvider">
+/// Supplies the Supercell ID session token for a logged-in player. It is called with false for the token it holds; when the server
+/// rejects that token as invalid, it is called once more with true and must return a freshly issued one. Leave null for guest
+/// accounts.
+/// </param>
+/// <param name="BootstrapFingerprintSha">
+/// Asset bundle hash sent on the first login so the server answers with an out-of-date-content failure that carries the current asset
+/// manifest. Null sends an empty hash, which the server always treats as out of date.
+/// </param>
 /// <param name="AssetDirectory">The optional root directory containing versioned game assets.</param>
 public sealed record ClientConfiguration(
     string UpstreamHost,

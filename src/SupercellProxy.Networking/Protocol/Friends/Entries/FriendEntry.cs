@@ -5,7 +5,7 @@ using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
-/// Describes one farm entry carried by friend, follower, and following messages.
+/// <summary>Describes one farm entry carried by friend, follower, and following messages.</summary>
 public sealed record FriendEntry(
     LongId HomeId,
     string? Name,
@@ -44,7 +44,7 @@ public sealed record FriendEntry(
         static (homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp) => new FriendEntry(homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp)
     );
 
-    /// Omits private farm and social-provider data from diagnostics.
+    /// <summary>Omits private farm and social-provider data from diagnostics.</summary>
     public override string ToString()
     {
         return nameof(FriendEntry);

@@ -2,16 +2,16 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Directory;
 
-/// <summary>One neighborhood comparison entry entry.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="HomeId">The home id.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="Name">The name.</param>
-/// <param name="Badge">The badge.</param>
-/// <param name="Id">The id.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
+/// <summary>One player in a neighbourhood comparison, with their neighbourhood and three compared numbers.</summary>
+/// <param name="AvatarId">Account of the player.</param>
+/// <param name="HomeId">Home of the player.</param>
+/// <param name="NeighborhoodId">Neighbourhood the player belongs to.</param>
+/// <param name="Name">Name shown for the entry.</param>
+/// <param name="Badge">Emblem of the player's neighbourhood.</param>
+/// <param name="Id">Further id of the entry; its meaning is not identified.</param>
+/// <param name="Value0">First compared number; its meaning is not identified.</param>
+/// <param name="Value1">Second compared number; its meaning is not identified.</param>
+/// <param name="Value2">Third compared number; its meaning is not identified.</param>
 public sealed record NeighborhoodComparisonEntry(
     LongId? AvatarId,
     LongId? HomeId,

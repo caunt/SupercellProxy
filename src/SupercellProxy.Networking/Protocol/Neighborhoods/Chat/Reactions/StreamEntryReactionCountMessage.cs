@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 
 /// <summary>Carries a reaction value for a stream entry; the client ignores it.</summary>
-/// <param name="Count">The count.</param>
-/// <param name="EntryId">The entry id.</param>
-/// <param name="Reaction">The reaction.</param>
-public sealed record StreamEntryReactionCountMessage(int Count, SupercellProxy.Networking.Protocol.Neighborhoods.Chat.StreamEntryId? EntryId, int Reaction) : CodecMessage<StreamEntryReactionCountMessage>, ICodecProvider<StreamEntryReactionCountMessage>
+/// <param name="Count">Number sent with the reaction, likely how many players gave it; not confirmed.</param>
+/// <param name="EntryId">Stream entry the reaction belongs to.</param>
+/// <param name="Reaction">Which reaction it is; its values are not identified.</param>
+public sealed record StreamEntryReactionCountMessage(int Count, StreamEntryId? EntryId, int Reaction) : CodecMessage<StreamEntryReactionCountMessage>, ICodecProvider<StreamEntryReactionCountMessage>
 {
     /// <inheritdoc />
     public static ICodec<StreamEntryReactionCountMessage> Codec { get; } = Codecs.Composite(

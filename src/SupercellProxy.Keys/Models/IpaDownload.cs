@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace SupercellProxy.Keys.Models;
 
-internal sealed record IpaDownload(string Version, [property: System.Text.Json.Serialization.JsonPropertyName("Url")] Uri Address);
+internal sealed record IpaDownload(string Version, [property: JsonPropertyName("Url")] Uri Address);

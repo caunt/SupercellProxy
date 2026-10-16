@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Shares fishing statistics with a player.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="Enabled">The enabled.</param>
+/// <param name="AvatarId">Player to share the statistics with.</param>
+/// <param name="Enabled">True to share; false to stop sharing.</param>
 public sealed record ShareFishingSpotStatsMessage(LongId AvatarId, bool Enabled) : CodecMessage<ShareFishingSpotStatsMessage>, ICodecProvider<ShareFishingSpotStatsMessage>
 {
     /// <inheritdoc />

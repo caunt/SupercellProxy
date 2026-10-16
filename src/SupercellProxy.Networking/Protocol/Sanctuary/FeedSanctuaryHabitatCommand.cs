@@ -12,7 +12,7 @@ public sealed record FeedSanctuaryHabitatCommand(int HabitatGlobalId) : CodecCom
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,
-            static (habitatGlobalId) => new FeedSanctuaryHabitatCommand(habitatGlobalId)
+            static habitatGlobalId => new FeedSanctuaryHabitatCommand(habitatGlobalId)
         )
     );
 }

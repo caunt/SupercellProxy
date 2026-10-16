@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 
 /// <summary>Lists neighborhoods for the neighborhood popup, such as search results.</summary>
-/// <param name="Neighborhoods">The neighborhoods.</param>
+/// <param name="Neighborhoods">Profiles of the listed neighbourhoods.</param>
 /// <param name="SearchText">The text the popup shows with the list.</param>
-public sealed record NeighborhoodListMessage(ReadOnlyMemory<SupercellProxy.Networking.Protocol.Neighborhoods.NeighborhoodHeaderEntry> Neighborhoods, string? SearchText) : CodecMessage<NeighborhoodListMessage>, ICodecProvider<NeighborhoodListMessage>
+public sealed record NeighborhoodListMessage(ReadOnlyMemory<NeighborhoodHeaderEntry> Neighborhoods, string? SearchText) : CodecMessage<NeighborhoodListMessage>, ICodecProvider<NeighborhoodListMessage>
 {
     /// <inheritdoc />
     public static ICodec<NeighborhoodListMessage> Codec { get; } = Codecs.Composite(

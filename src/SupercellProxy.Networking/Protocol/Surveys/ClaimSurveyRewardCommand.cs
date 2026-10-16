@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Surveys;
 
 /// <summary>Claims the reward for a finished survey.</summary>
-/// <param name="SurveyId">The survey id.</param>
+/// <param name="SurveyId">Survey the player finished.</param>
 /// <param name="RewardIndex">The reward slot.</param>
 public sealed record ClaimSurveyRewardCommand(int SurveyId, int RewardIndex) : CodecCommand<ClaimSurveyRewardCommand>, ICommandCodecProvider<ClaimSurveyRewardCommand>
 {

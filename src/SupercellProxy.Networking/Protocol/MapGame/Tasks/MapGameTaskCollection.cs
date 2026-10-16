@@ -2,14 +2,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
-/// <summary>
-/// <para>Native value and task collection embedded in logic command 321.</para>
-/// </summary>
+/// <summary>A number followed by Valley tasks, as carried by command 321.</summary>
 public sealed record MapGameTaskCollection : ICodecProvider<MapGameTaskCollection>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameTaskCollection"/> instance.
-    /// </summary>
+    /// <summary>Creates a collection from its decoded fields.</summary>
+    /// <param name="unknown0">Leading number; its meaning is not identified.</param>
+    /// <param name="tasks">Tasks in the collection.</param>
     public MapGameTaskCollection(int unknown0, ReadOnlyMemory<MapGameTask> tasks)
     {
         Unknown0 = unknown0;
@@ -25,13 +23,9 @@ public sealed record MapGameTaskCollection : ICodecProvider<MapGameTaskCollectio
         static (unknown0, tasks) => new MapGameTaskCollection(unknown0, tasks)
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">Tasks</c> value.
-    /// </summary>
+    /// <summary>Tasks in the collection.</summary>
     public ReadOnlyMemory<MapGameTask> Tasks { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
-    /// </summary>
+    /// <summary>Leading number of the collection; its meaning is not identified.</summary>
     public int Unknown0 { get; }
 }

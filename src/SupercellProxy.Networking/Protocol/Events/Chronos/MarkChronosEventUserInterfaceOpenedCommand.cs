@@ -1,19 +1,19 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 
 /// <summary>
-/// Defines the Mark Chronos Event Ui Opened Command contract.
+/// Serverbound command recording that the player opened an event board event's screen, which clears its first-open marker.
 /// </summary>
-/// <summary>
-/// Defines the Event Id contract.
-/// </summary>
-public sealed record MarkChronosEventUserInterfaceOpenedCommand([property: System.Text.Json.Serialization.JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkChronosEventUserInterfaceOpenedCommand>, ICommandCodecProvider<MarkChronosEventUserInterfaceOpenedCommand>
+/// <param name="EventId">Event board event whose screen was opened.</param>
+public sealed record MarkChronosEventUserInterfaceOpenedCommand([property: JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkChronosEventUserInterfaceOpenedCommand>, ICommandCodecProvider<MarkChronosEventUserInterfaceOpenedCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<MarkChronosEventUserInterfaceOpenedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkChronosEventUserInterfaceOpenedCommand(eventId)),
+        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkChronosEventUserInterfaceOpenedCommand(eventId)),
         CommandLayout.MetadataFirst
     );
 }

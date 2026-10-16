@@ -1,19 +1,22 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol;
 
 /// <summary>
-/// Represents <c language="csharp">LongId</c>.
+/// The game's 64-bit id, sent as two 32-bit words: accounts, homes, neighbourhoods and many objects are identified this way. Account
+/// and home ids with a small high word also have a player-facing tag form such as <c>#L8RRJJLGV</c>.
 /// </summary>
 /// <remarks>
-/// Initializes a new <see cref="LongId"/> instance.
+/// The high word is the shard (database) the id lives on and the low word the row within it. A tag is the number
+/// <c>low * 256 + high</c> written in base 14 with the letters <c>0289PYLQGRJCUV</c>.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly record struct LongId : IEquatable<LongId>
 {
     /// <summary>
-    /// Defines the <c language="csharp">Empty</c> value.
+    /// The all-zero id, which the protocol uses for "no id".
     /// </summary>
     public static readonly LongId Empty;
     /// <summary>Creates an id from its two 32-bit words.</summary>
@@ -26,51 +29,55 @@ public readonly record struct LongId : IEquatable<LongId>
     private static ReadOnlySpan<char> ValidAlphabet => "0289PYLQGRJCUV";
 
     /// <summary>
-    /// Gets the <c language="csharp">HighInt32</c> value.
+    /// First word on the wire: the shard the id belongs to.
     /// </summary>
     public int HighInt32 { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">LowInt32</c> value.
+    /// Second word on the wire: the id's number within its shard.
     /// </summary>
     public int LowInt32 { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">HighUInt32</c> value.
+    /// The first (shard) word read as an unsigned number.
     /// </summary>
     public uint HighUInt32 => uint.CreateTruncating(HighInt32);
 
     /// <summary>
-    /// Gets the <c language="csharp">LowUInt32</c> value.
+    /// The second (row) word read as an unsigned number.
     /// </summary>
     public uint LowUInt32 => uint.CreateTruncating(LowInt32);
 
     /// <summary>
-    /// Gets the <c language="csharp">AsInt64</c> value.
+    /// Both words as one signed number, high word first; the form the code stores account and home ids in.
     /// </summary>
     public long AsInt64 => (long.CreateTruncating(HighInt32) << 32) | LowUInt32;
 
     /// <summary>
-    /// Gets the <c language="csharp">AsUInt64</c> value.
+    /// Both words as one unsigned number, high word first; used for arithmetic on ids.
     /// </summary>
     public ulong AsUInt64 => (ulong.CreateTruncating(HighUInt32) << 32) | LowUInt32;
 
     /// <summary>
-    /// Gets the <c language="csharp">CanRepresentAsTag</c> value.
+    /// Whether the id has a player tag form, which needs a shard number of at most 255.
     /// </summary>
     public bool CanRepresentAsTag => HighUInt32 <= 255;
 
     /// <summary>
-    /// Gets the <c language="csharp">TagInternalId</c> value.
+    /// The number a player tag encodes: row times 256 plus shard.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("TagInternalId")]
+    /// <exception cref="InvalidOperationException">The shard number is above 255, so the id has no tag.</exception>
+    [JsonPropertyName("TagInternalId")]
     public ulong TagInternalId => !CanRepresentAsTag
                 ? throw new InvalidOperationException(message: "HighUInt32 must be less than or equal to 255 to be representable as an public tag ID.")
                 : (LowUInt32 * 256UL) + HighUInt32;
 
     /// <summary>
-    /// Applies the <c language="csharp">+</c> operator.
+    /// Moves an id forward by an amount, treating both words as one 64-bit number, so the row number carries into the shard word.
+    /// Wraps around instead of overflowing.
     /// </summary>
+    /// <param name="leftLongId">Starting id.</param>
+    /// <param name="rightValue">How far to move.</param>
     public static LongId operator +(LongId leftLongId, ulong rightValue)
     {
         unchecked
@@ -84,16 +91,19 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Applies the <c language="csharp">++</c> operator.
+    /// The next id after this one, as a 64-bit number.
     /// </summary>
+    /// <param name="logicLong">Starting id.</param>
     public static LongId operator ++(LongId logicLong)
     {
         return logicLong + 1UL;
     }
 
     /// <summary>
-    /// Applies the <c language="csharp">-</c> operator.
+    /// Moves an id back by an amount, treating both words as one 64-bit number; wraps around instead of overflowing.
     /// </summary>
+    /// <param name="leftLongId">Starting id.</param>
+    /// <param name="rightValue">How far to move back.</param>
     public static LongId operator -(LongId leftLongId, ulong rightValue)
     {
         unchecked
@@ -107,16 +117,20 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Applies the <c language="csharp">--</c> operator.
+    /// The id just before this one, as a 64-bit number.
     /// </summary>
+    /// <param name="logicLong">Starting id.</param>
     public static LongId operator --(LongId logicLong)
     {
         return logicLong - 1UL;
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">Parse</c> operation.
+    /// Reads a player tag such as <c>#L8RRJJLGV</c> into an id. The hash is optional, lower case is accepted, and the letter O is
+    /// read as zero.
     /// </summary>
+    /// <param name="tagStringSpan">Tag text as a player would type or share it.</param>
+    /// <exception cref="FormatException">The text has no tag letters, contains other characters, or encodes a number too large.</exception>
     public static LongId Parse(ReadOnlySpan<char> tagStringSpan)
     {
         return !TryParse(tagStringSpan, out LongId logicLong)
@@ -125,8 +139,10 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ParseLazily</c> operation.
+    /// Reads a list of player tags one at a time as the result is enumerated, quietly skipping null entries and text that is not a
+    /// valid tag.
     /// </summary>
+    /// <param name="inputTagStrings">Tags in any of the forms <see cref="Parse"/> accepts.</param>
     public static IEnumerable<LongId> ParseLazily(IEnumerable<string> inputTagStrings)
     {
         ArgumentNullException.ThrowIfNull(inputTagStrings);
@@ -139,8 +155,10 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Attempts the <c language="csharp">Parse</c> operation.
+    /// Reads a player tag into an id without throwing; accepts the same forms as <see cref="Parse"/>.
     /// </summary>
+    /// <param name="tagStringSpan">Tag text as a player would type or share it.</param>
+    /// <param name="result">The id; <see cref="Empty"/> when the text is not a valid tag.</param>
     public static bool TryParse(ReadOnlySpan<char> tagStringSpan, out LongId result)
     {
         ulong totalCalculatedValue = 0UL;
@@ -209,15 +227,16 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">Equals</c> operation.
+    /// Two ids are the same when both their shard and row words match.
     /// </summary>
+    /// <param name="logicLong">Id to compare with.</param>
     public bool Equals(LongId logicLong)
     {
         return HighInt32 == logicLong.HighInt32 && LowInt32 == logicLong.LowInt32;
     }
 
     /// <summary>
-    /// Gets <c language="csharp">HashCode</c>.
+    /// Hash built from both words, consistent with <see cref="Equals(LongId)"/>, for use as a dictionary key.
     /// </summary>
     public override int GetHashCode()
     {
@@ -237,8 +256,10 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToFormattedString</c> operation.
+    /// Writes the id as a player tag, such as <c>#L8RRJJLGV</c>.
     /// </summary>
+    /// <param name="includeHashPrefix">Whether to start the tag with <c>#</c>, as the game displays it.</param>
+    /// <exception cref="InvalidOperationException">The shard number is above 255, so the id has no tag.</exception>
     public string ToFormattedString(bool includeHashPrefix = true)
     {
         if (!CanRepresentAsTag)
@@ -289,7 +310,7 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToString</c> operation.
+    /// The player tag with its hash when the id has one; otherwise both words as <c>high-low</c>.
     /// </summary>
     public override string ToString()
     {
@@ -297,8 +318,12 @@ public readonly record struct LongId : IEquatable<LongId>
     }
 
     /// <summary>
-    /// Attempts the <c language="csharp">Format</c> operation.
+    /// Writes the player tag into a caller-supplied buffer without allocating.
     /// </summary>
+    /// <param name="destinationSpan">Buffer for the tag; 16 characters always suffice.</param>
+    /// <param name="totalCharactersWritten">Characters written; 0 on failure.</param>
+    /// <param name="includeHashPrefix">Whether to start the tag with <c>#</c>.</param>
+    /// <returns>False when the id has no tag form or the buffer is too short.</returns>
     public bool TryFormat(Span<char> destinationSpan, out int totalCharactersWritten, bool includeHashPrefix = true)
     {
         if (!CanRepresentAsTag)

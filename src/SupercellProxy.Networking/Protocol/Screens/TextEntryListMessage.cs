@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Screens;
 
 /// <summary>Delivers a list of text entries the message manager keeps for the HUD.</summary>
-/// <param name="Entries">The entries.</param>
+/// <param name="Entries">The HUD messages to keep; null when the list is absent.</param>
 public sealed record TextEntryListMessage(ReadOnlyMemory<TextEntry>? Entries) : CodecMessage<TextEntryListMessage>, ICodecProvider<TextEntryListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<TextEntryListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(TextEntry.Codec), static message => message.Entries, static (entries) => new TextEntryListMessage(entries));
+    public static ICodec<TextEntryListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(TextEntry.Codec), static message => message.Entries, static entries => new TextEntryListMessage(entries));
 }

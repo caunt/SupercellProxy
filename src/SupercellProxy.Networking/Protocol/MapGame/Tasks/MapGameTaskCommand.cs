@@ -12,9 +12,13 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 public sealed record MapGameTaskCommand : Command
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameTaskCommand"/> instance.
-    /// </summary>
+    /// <summary>Creates one of the Valley task commands.</summary>
+    /// <param name="kind">Which Valley command this is.</param>
+    /// <param name="task">The task the command acts on, as the client has it; null when not sent.</param>
+    /// <param name="optionalValues">
+    /// Extra numbers that only obstacle completion, chicken collection and sanctuary animal collection carry; for a sanctuary
+    /// animal they are the route the car continues on.
+    /// </param>
     public MapGameTaskCommand(MapGameTaskKind kind, MapGameTask? task, ReadOnlyMemory<int>? optionalValues = null)
     {
         if (!Enum.IsDefined(kind))
@@ -46,9 +50,7 @@ public sealed record MapGameTaskCommand : Command
     /// </summary>
     public ReadOnlyMemory<int>? OptionalValues { get; }
 
-    /// <summary>
-    /// Gets the task.
-    /// </summary>
+    /// <summary>The task the command acts on, as the client has it; null when not sent.</summary>
     public MapGameTask? Task { get; }
 
     private static CommandCodec<MapGameTaskCommand> Create(MapGameTaskKind kind)

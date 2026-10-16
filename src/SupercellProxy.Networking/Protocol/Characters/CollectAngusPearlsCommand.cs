@@ -8,11 +8,7 @@ public sealed record CollectAngusPearlsCommand(int BucketGlobalId) : CodecComman
 {
     /// <inheritdoc />
     public static CommandCodec<CollectAngusPearlsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.BucketGlobalId,
-            static (bucketGlobalId) => new CollectAngusPearlsCommand(bucketGlobalId)
-        ),
+        Codecs.Composite(Codecs.VarInt, static command => command.BucketGlobalId, static bucketGlobalId => new CollectAngusPearlsCommand(bucketGlobalId)),
         CommandLayout.MetadataFirst
     );
 }

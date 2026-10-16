@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 
 /// <summary>Event types 14, 15 and 35: a pawn, a task and a value, such as a diamond cost.</summary>
-/// <param name="Type">The native event type.</param>
+/// <param name="Type">Native event number: 14, 15 or 35.</param>
 /// <param name="Pawn">The acting pawn.</param>
-/// <param name="Task">The task.</param>
+/// <param name="Task">Valley task the event concerns.</param>
 /// <param name="Value">The value native reads after the task.</param>
 public sealed record MapGamePawnTaskValueEvent(int Type, MapGamePawn? Pawn, MapGameTask? Task, int Value) : MapGamePawnTaskEvent(Type, Pawn, Task)
 {

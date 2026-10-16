@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Production;
 
 /// <summary>Pays diamonds to unlock a production slot of a building.</summary>
-/// <param name="SlotIndex">The slot index.</param>
-/// <param name="BuildingObjectGlobalId">The building object id.</param>
+/// <param name="SlotIndex">Locked production queue slot to open.</param>
+/// <param name="BuildingObjectGlobalId">Game object id of the production building.</param>
 public sealed record UnlockProductionSlotCommand(int SlotIndex, int BuildingObjectGlobalId) : CodecCommand<UnlockProductionSlotCommand>, ICommandCodecProvider<UnlockProductionSlotCommand>
 {
     /// <inheritdoc />

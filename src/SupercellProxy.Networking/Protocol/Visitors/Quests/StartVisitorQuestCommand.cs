@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Visitors.Quests;
 
 /// <summary>Starts a farm visitor quest.</summary>
-/// <param name="Choice">The choice.</param>
-/// <param name="VisitorGlobalId">The visitor data id.</param>
-/// <param name="QuestIndex">The quest index.</param>
+/// <param name="Choice">Option the player picked in the quest dialog.</param>
+/// <param name="VisitorGlobalId">Global id of the visitor in the people table.</param>
+/// <param name="QuestIndex">Which of that visitor's quests is started.</param>
 public sealed record StartVisitorQuestCommand(int Choice, int VisitorGlobalId, int QuestIndex) : CodecCommand<StartVisitorQuestCommand>, ICommandCodecProvider<StartVisitorQuestCommand>
 {
     /// <inheritdoc />

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>
-/// Defines the neighborhood object leaderboard list message contract.
+/// Clientbound leaderboard page for a neighbourhood object event.
 /// </summary>
 public sealed record NeighborhoodObjectLeaderboardListMessage : CodecMessage<NeighborhoodObjectLeaderboardListMessage>, ICodecProvider<NeighborhoodObjectLeaderboardListMessage>
 {
@@ -31,26 +31,26 @@ public sealed record NeighborhoodObjectLeaderboardListMessage : CodecMessage<Nei
     );
 
     /// <summary>
-    /// Gets the Entries value.
+    /// The board's lines in rank order; null when the list is absent.
     /// </summary>
     public RankingEntry[]? Entries { get; init; }
     /// <summary>
-    /// Gets the Value0 value.
+    /// First of three numbers sent before the lines; its meaning is not identified.
     /// </summary>
     public int Value0 { get; init; }
 
     /// <summary>
-    /// Gets the Value1 value.
+    /// Second of the three numbers; not identified.
     /// </summary>
     public int Value1 { get; init; }
 
     /// <summary>
-    /// Gets the Value2 value.
+    /// Third of the three numbers; not identified.
     /// </summary>
     public int Value2 { get; init; }
 
     /// <summary>
-    /// Provides the To String value or operation.
+    /// Returns only the type name, keeping player names out of logs.
     /// </summary>
     public override string ToString()
     {

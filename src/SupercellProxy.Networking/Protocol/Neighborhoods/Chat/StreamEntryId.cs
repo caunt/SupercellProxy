@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 
-/// <summary>One stream entry id entry.</summary>
-/// <param name="High">The high.</param>
-/// <param name="Low">The low.</param>
+/// <summary>Identifier of a neighbourhood stream entry, sent as its two 32-bit halves.</summary>
+/// <param name="High">Upper 32 bits of the identifier.</param>
+/// <param name="Low">Lower 32 bits of the identifier.</param>
 public sealed record StreamEntryId(int High, int Low) : ICodecProvider<StreamEntryId>
 {
     /// <inheritdoc />

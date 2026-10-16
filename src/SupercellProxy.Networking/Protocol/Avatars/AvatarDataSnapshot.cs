@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 public sealed record AvatarDataSnapshot
 {
     /// <summary>
-    /// Gets or sets the <c language="csharp">AvatarDataObjects</c> value.
+    /// The avatar's per-area object metadata (farm, town, decoration canvas, fishing) and its account-wide system state.
     /// </summary>
     public AvatarDataObjectsSnapshot AvatarDataObjects { get; init; } = new();
 }

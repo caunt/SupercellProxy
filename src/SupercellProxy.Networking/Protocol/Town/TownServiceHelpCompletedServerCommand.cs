@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -51,19 +53,19 @@ public sealed record TownServiceHelpCompletedServerCommand : CodecServerCommand<
     /// <summary>
     /// <para>Gets the unique service-help request id.</para>
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HelpId")]
+    [JsonPropertyName("HelpId")]
     public int HelpId { get; }
 
     /// <summary>
     /// <para>Gets the helper's home id.</para>
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HelperHomeId")]
+    [JsonPropertyName("HelperHomeId")]
     public LongId HelperHomeId { get; }
 
     /// <summary>
     /// <para>Gets the home owning the service-help request.</para>
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("OwnerHomeId")]
+    [JsonPropertyName("OwnerHomeId")]
     public LongId OwnerHomeId { get; }
 
     /// <summary>

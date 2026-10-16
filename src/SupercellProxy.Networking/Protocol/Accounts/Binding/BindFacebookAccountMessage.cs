@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 
 /// <summary>Binds a Facebook account.</summary>
-/// <param name="FacebookId">The facebook id.</param>
-/// <param name="AuthenticationToken">The authentication token.</param>
-/// <param name="Force">The force.</param>
+/// <param name="FacebookId">Facebook user id to link to this farm.</param>
+/// <param name="AuthenticationToken">Facebook access token the server checks with Facebook to prove ownership.</param>
+/// <param name="Force">Whether to bind even when the Facebook account already belongs to another farm.</param>
 public sealed record BindFacebookAccountMessage(string? FacebookId, string? AuthenticationToken, bool Force) : CodecMessage<BindFacebookAccountMessage>, ICodecProvider<BindFacebookAccountMessage>
 {
     /// <inheritdoc />

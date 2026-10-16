@@ -4,13 +4,18 @@ using System.Text;
 namespace SupercellProxy.Networking.Assets.Tables;
 
 /// <summary>
-/// Defines the Data Table Changes contract.
+/// Applies the CSV edits of live table-change events to copies of the game tables, the way the client applies them while those
+/// events run.
 /// </summary>
 public static class DataTablePatcher
 {
     /// <summary>
-    /// Provides the Apply value or operation.
+    /// Returns the bundle with every edit applied in order. Edited tables come back as new asset copies; the originals are not changed.
     /// </summary>
+    /// <param name="assets">Every file of the bundle.</param>
+    /// <param name="changes">Edits to apply; later edits see the result of earlier ones.</param>
+    /// <returns>All files of the bundle, edited ones replaced.</returns>
+    /// <exception cref="InvalidDataException">An edit names a missing table, entry or column, or a column replacement has a different row count.</exception>
     public static GameAsset[] Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
     {
         ArgumentNullException.ThrowIfNull(changes);
@@ -69,15 +74,30 @@ public static class DataTablePatcher
             .Row.Split(separator: ',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .ToHashSet(StringComparer.Ordinal);
 
-        List<string>[] matches = [.. rows.Skip(count: 2).Where(row => row.Count > 0 && names.Contains(row[index: 0]))];
+        int[] starts = [.. Enumerable.Range(start: 2, rows.Count - 2).Where(index => rows[index].Count > 0 && names.Contains(rows[index][index: 0]))];
 
-        if (column < 0 || matches.Length != names.Count)
+        if (column < 0 || starts.Length != names.Count)
             throw new InvalidDataException($"The changed cell {change.File}/{change.Row}/{change.Column} is unavailable.");
 
         string value = change.NewValue.ToCellText();
 
-        foreach (List<string>? target in matches)
+        // An array element lives on the entry's ArrayIndex-th line: the named line, then its unnamed continuation lines; a missing or
+        // negative index means the named line. Later entries are edited first, so lines added to an entry that is too short do not move
+        // the entries still to edit.
+        foreach (int start in starts.Reverse())
         {
+            int end = start + 1;
+
+            while (end < rows.Count && rows[end].Count > 0 && string.IsNullOrEmpty(rows[end][index: 0]))
+                end++;
+
+            int line = start + Math.Max(change.ArrayIndex ?? 0, val2: 0);
+
+            while (line >= end)
+                rows.Insert(end++, [string.Empty]);
+
+            List<string> target = rows[line];
+
             while (target.Count <= column)
                 target.Add(string.Empty);
 

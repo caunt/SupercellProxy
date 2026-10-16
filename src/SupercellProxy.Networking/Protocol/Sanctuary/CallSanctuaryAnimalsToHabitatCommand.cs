@@ -11,7 +11,7 @@ public sealed record CallSanctuaryAnimalsToHabitatCommand(int HabitatGlobalId) :
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,
-            static (habitatGlobalId) => new CallSanctuaryAnimalsToHabitatCommand(habitatGlobalId)
+            static habitatGlobalId => new CallSanctuaryAnimalsToHabitatCommand(habitatGlobalId)
         )
     );
 }

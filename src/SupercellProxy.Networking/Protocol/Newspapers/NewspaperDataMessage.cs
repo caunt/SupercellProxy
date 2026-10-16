@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Newspapers;
 
 /// <summary>
-/// Defines the Newspaper Data Message contract.
+/// Clientbound newspaper edition: the roadside shop advertisements and the stories shown on its pages.
 /// </summary>
 public sealed record NewspaperDataMessage : CodecMessage<NewspaperDataMessage>, ICodecProvider<NewspaperDataMessage>
 {
@@ -25,11 +25,11 @@ public sealed record NewspaperDataMessage : CodecMessage<NewspaperDataMessage>, 
     );
 
     /// <summary>
-    /// Gets the Placements value.
+    /// Farms advertising their roadside shops in this edition, each with up to four advertised items; null when absent.
     /// </summary>
     public NewspaperPlacement[]? Placements { get; init; }
     /// <summary>
-    /// Gets the Stories value.
+    /// Stories printed in this edition; null when absent.
     /// </summary>
     public NewspaperStoryEntry[]? Stories { get; init; }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Versions;
@@ -5,21 +7,16 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
 /// <summary>
-/// Defines the Record Storage Signpost Rank Command contract.
+/// Serverbound command recording the barn or silo rank the player has seen on one of its signposts, so the signpost stops
+/// announcing that rank.
 /// </summary>
-/// <summary>
-/// Defines the Object Table Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Materials Signpost contract.
-/// </summary>
-/// <summary>
-/// Defines the Storage Global Id contract.
-/// </summary>
+/// <param name="ObjectTableId">Table id of the storage building; it must match the building.</param>
+/// <param name="MaterialsSignpost">Whether this is the upgrade-materials signpost; otherwise it is the upgrade signpost.</param>
+/// <param name="StorageGlobalId">Global id of the barn's or silo's game object.</param>
 public sealed record RecordStorageSignpostRankCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("ObjectTableId")] int ObjectTableId,
+    [property: JsonPropertyName("ObjectTableId")] int ObjectTableId,
     bool MaterialsSignpost,
-    [property: System.Text.Json.Serialization.JsonPropertyName("StorageGlobalId")] int StorageGlobalId
+    [property: JsonPropertyName("StorageGlobalId")] int StorageGlobalId
 )
     : CodecCommand<RecordStorageSignpostRankCommand>, ICommandCodecProvider<RecordStorageSignpostRankCommand>
 {

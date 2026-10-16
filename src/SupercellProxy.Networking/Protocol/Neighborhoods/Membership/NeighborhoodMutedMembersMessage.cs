@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Replaces the neighborhood manager's muted member ids and names; the chat refreshes.</summary>
-/// <param name="MemberIds">The member ids.</param>
-/// <param name="MemberNames">The member names.</param>
-/// <param name="Value">The value.</param>
+/// <param name="MemberIds">Accounts of the muted members, matching <paramref name="MemberNames"/> by position.</param>
+/// <param name="MemberNames">Names of the muted members.</param>
+/// <param name="Value">Number sent with the lists; its meaning is not identified.</param>
 public sealed record NeighborhoodMutedMembersMessage(ReadOnlyMemory<LongId> MemberIds, ReadOnlyMemory<string?> MemberNames, int Value) : CodecMessage<NeighborhoodMutedMembersMessage>, ICodecProvider<NeighborhoodMutedMembersMessage>
 {
     /// <inheritdoc />

@@ -13,19 +13,19 @@ public sealed record ChronosEventsSnapshot
     public ChronosEventPlayerData[] PlayerData { get; init; } = [];
 
     /// <summary>
-    /// Gets the Seen Active Event Ids value.
+    /// Scheduled (non-targeted) events the player has already looked at, so they are not announced again.
     /// </summary>
     [JsonPropertyName("seen_active_event_ids")]
     public int[] SeenActiveEventIds { get; init; } = [];
 
     /// <summary>
-    /// Gets the Seen Events value.
+    /// Targeted events the player has looked at, one entry per event and impression.
     /// </summary>
     [JsonPropertyName("seen_events")]
     public SeenEventSnapshot[] SeenEvents { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">EventBoardState</c> value.
+    /// The player's event board and the events on it.
     /// </summary>
     [JsonPropertyName("event_board_state")]
     public ChronosEventBoardSnapshot EventBoardState { get; init; } = new();

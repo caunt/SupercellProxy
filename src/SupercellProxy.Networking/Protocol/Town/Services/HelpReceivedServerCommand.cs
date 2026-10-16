@@ -3,18 +3,21 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town.Services;
 
-/// <summary>Reports help a neighbor gave to the avatar's visitor or truck order.</summary>
-/// <param name="OwnerHomeId">The owner home id.</param>
-/// <param name="HelperHomeId">The helper home id.</param>
-/// <param name="HelpKind">The help kind.</param>
-/// <param name="HelpId">The help id.</param>
-/// <param name="OwnerRewards">The owner rewards.</param>
-/// <param name="HelperRewards">The helper rewards.</param>
+/// <summary>
+/// Reports that another player helped one of a town's service requests; the owner's request and waiting service record that
+/// player as their helper.
+/// </summary>
+/// <param name="OwnerHomeId">Home that asked for the help; other homes ignore the command.</param>
+/// <param name="HelperHomeId">Home of the player who helped.</param>
+/// <param name="HelpId">Id of the helped request, matching the help id kept on the service.</param>
+/// <param name="HelpKind">Who the request asked; the client does not read it. Requests use 1 town visitors, 2 the neighbourhood, 3 Farm Pass helpers.</param>
+/// <param name="OwnerRewards">Rewards listed for the owner; the client does not read them.</param>
+/// <param name="HelperRewards">Rewards listed for the helper; the client does not read them.</param>
 public sealed record HelpReceivedServerCommand(
     LongId OwnerHomeId,
     LongId HelperHomeId,
-    int HelpKind,
     int HelpId,
+    int HelpKind,
     ReadOnlyMemory<HelpReward> OwnerRewards,
     ReadOnlyMemory<HelpReward> HelperRewards
 ) : CodecServerCommand<HelpReceivedServerCommand>, ICommandCodecProvider<HelpReceivedServerCommand>
@@ -27,14 +30,14 @@ public sealed record HelpReceivedServerCommand(
             Codecs.LongId,
             static command => command.HelperHomeId,
             Codecs.VarInt,
-            static command => command.HelpKind,
-            Codecs.VarInt,
             static command => command.HelpId,
+            Codecs.VarInt,
+            static command => command.HelpKind,
             Codecs.Memory(HelpReward.Codec),
             static command => command.OwnerRewards,
             Codecs.Memory(HelpReward.Codec),
             static command => command.HelperRewards,
-            static (ownerHomeId, helperHomeId, helpKind, helpId, ownerRewards, helperRewards) => new HelpReceivedServerCommand(ownerHomeId, helperHomeId, helpKind, helpId, ownerRewards, helperRewards)
+            static (ownerHomeId, helperHomeId, helpId, helpKind, ownerRewards, helperRewards) => new HelpReceivedServerCommand(ownerHomeId, helperHomeId, helpId, helpKind, ownerRewards, helperRewards)
         )
     );
 }

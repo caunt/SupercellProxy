@@ -1,21 +1,16 @@
+using SupercellProxy.Networking.Protocol.Avatars;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 
 /// <summary>Reports that the Supercell ID already belongs to another farm, with that farm's credentials and avatar.</summary>
-/// <param name="SupercellId">The supercell id.</param>
+/// <param name="SupercellId">The Supercell ID account the player tried to bind, as the server identifies it.</param>
 /// <param name="AccountId">The account id of the farm bound to the Supercell ID.</param>
 /// <param name="PassToken">The pass token of the farm bound to the Supercell ID.</param>
 /// <param name="Avatar">The avatar of the farm bound to the Supercell ID.</param>
 /// <param name="Text">A trailing text the Supercell ID login manager receives with the message.</param>
-public sealed record SupercellIdAccountAlreadyBoundMessage(
-    string? SupercellId,
-    LongId? AccountId,
-    string? PassToken,
-    SupercellProxy.Networking.Protocol.Avatars.ClientAvatar Avatar,
-    string? Text
-) : CodecMessage<SupercellIdAccountAlreadyBoundMessage>, ICodecProvider<SupercellIdAccountAlreadyBoundMessage>
+public sealed record SupercellIdAccountAlreadyBoundMessage(string? SupercellId, LongId? AccountId, string? PassToken, ClientAvatar Avatar, string? Text) : CodecMessage<SupercellIdAccountAlreadyBoundMessage>, ICodecProvider<SupercellIdAccountAlreadyBoundMessage>
 {
     /// <inheritdoc />
     public static ICodec<SupercellIdAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(

@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Book;
 
 /// <summary>Hides a Facebook friend.</summary>
-/// <param name="AvatarId">The avatar id.</param>
+/// <param name="AvatarId">Facebook friend to hide from the friend book.</param>
 public sealed record HideFacebookFriendMessage(LongId AvatarId) : CodecMessage<HideFacebookFriendMessage>, ICodecProvider<HideFacebookFriendMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HideFacebookFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static (avatarId) => new HideFacebookFriendMessage(avatarId));
+    public static ICodec<HideFacebookFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new HideFacebookFriendMessage(avatarId));
 }

@@ -8,6 +8,6 @@ public sealed record MarkTradingSeasonCheckedCommand(int TradingSeasonId) : Code
 {
     /// <inheritdoc />
     public static CommandCodec<MarkTradingSeasonCheckedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TradingSeasonId, static (seasonId) => new MarkTradingSeasonCheckedCommand(seasonId))
+        Codecs.Composite(Codecs.VarInt, static command => command.TradingSeasonId, static seasonId => new MarkTradingSeasonCheckedCommand(seasonId))
     );
 }

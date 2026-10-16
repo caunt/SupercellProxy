@@ -2,18 +2,18 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MovieTickets;
 
-/// <summary>Represents the decoded MovieTicketRewardValue JSON contract.</summary>
+/// <summary>What one movie ticket reward gives and how likely it is to be drawn.</summary>
 public sealed record MovieTicketRewardValue
 {
-    /// <summary>Gets the Amount value.</summary>
+    /// <summary>How many of the reward are given.</summary>
     [JsonPropertyName("Amount")]
     public int Amount { get; init; }
 
-    /// <summary>Gets the Data value.</summary>
+    /// <summary>Name of the rewarded table entry, such as a goods or decoration entry (saved as <c>data</c>).</summary>
     [JsonPropertyName("data")]
     public string? Data { get; init; }
 
-    /// <summary>Gets the Probability value.</summary>
+    /// <summary>Weight of this reward when rewards are drawn at random from a pool.</summary>
     [JsonPropertyName("Probability")]
     public int Probability { get; init; }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace SupercellProxy.Networking.Assets;
@@ -7,7 +8,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     private const int MaximumConcurrentDownloads = 4;
 
     // Asset files are immutable per fingerprint, so every connection in the process shares one loaded copy instead of reading them again at each login.
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Task<GameAsset[]>> Loaded = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, Task<GameAsset[]>> Loaded = new(StringComparer.Ordinal);
 
     internal async Task<GameAsset[]> GetAssetsAsync(GameAssetFingerprint fingerprint, IEnumerable<string> downloadUrls, CancellationToken cancellationToken = default)
     {

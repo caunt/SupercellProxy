@@ -9,6 +9,6 @@ public sealed record KickNeighborhoodMemberCommand(LongId MemberHomeId) : CodecC
 {
     /// <inheritdoc />
     public static CommandCodec<KickNeighborhoodMemberCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.LongId, static command => command.MemberHomeId, static (memberHomeId) => new KickNeighborhoodMemberCommand(memberHomeId))
+        Codecs.Composite(Codecs.LongId, static command => command.MemberHomeId, static memberHomeId => new KickNeighborhoodMemberCommand(memberHomeId))
     );
 }

@@ -12,7 +12,7 @@ public sealed record UnlockStyleGuideCommand(int StyleGuideGlobalId) : CodecComm
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.StyleGuideGlobalId,
-            static (styleGuideGlobalId) => new UnlockStyleGuideCommand(styleGuideGlobalId)
+            static styleGuideGlobalId => new UnlockStyleGuideCommand(styleGuideGlobalId)
         )
     );
 }

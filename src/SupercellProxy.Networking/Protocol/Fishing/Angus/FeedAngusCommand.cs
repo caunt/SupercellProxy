@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Fishing.Angus;
 
 /// <summary>Gives goods to Angus.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="AngusObjectGlobalId">The angus object id.</param>
-/// <param name="Amount">The amount.</param>
+/// <param name="GoodGlobalId">Global id of the goods given.</param>
+/// <param name="AngusObjectGlobalId">Game object id of Angus at the fishing dock.</param>
+/// <param name="Amount">How many of the goods are given.</param>
 public sealed record FeedAngusCommand(int GoodGlobalId, int AngusObjectGlobalId, int Amount) : CodecCommand<FeedAngusCommand>, ICommandCodecProvider<FeedAngusCommand>
 {
     /// <inheritdoc />

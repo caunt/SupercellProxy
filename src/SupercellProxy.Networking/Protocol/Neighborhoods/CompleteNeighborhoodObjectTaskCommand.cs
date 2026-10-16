@@ -11,7 +11,7 @@ public sealed record CompleteNeighborhoodObjectTaskCommand(int TaskSlotIndex) : 
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TaskSlotIndex,
-            static (taskSlotIndex) => new CompleteNeighborhoodObjectTaskCommand(taskSlotIndex)
+            static taskSlotIndex => new CompleteNeighborhoodObjectTaskCommand(taskSlotIndex)
         ),
         CommandLayout.MetadataFirst
     );

@@ -4,22 +4,22 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 
 /// <summary>Delivers a purchased package and its currencies and goods.</summary>
-/// <param name="Diamonds">The diamonds.</param>
-/// <param name="Cash">The cash.</param>
-/// <param name="Gift">The gift.</param>
-/// <param name="ProductId">The product id.</param>
-/// <param name="PackageGlobalId">The package data id.</param>
-/// <param name="Goods">The goods.</param>
-/// <param name="ExtraRewards">The extra rewards.</param>
-/// <param name="RewardMode">The reward mode.</param>
-/// <param name="FarmPassPurchase">The farm pass purchase.</param>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="TrackPurchaseTotals">The track purchase totals.</param>
-/// <param name="Origin">The origin.</param>
-/// <param name="GachaCurrency">The gacha currency.</param>
-/// <param name="UseStepIndex">The use step index.</param>
-/// <param name="StepIndex">The step index.</param>
+/// <param name="Diamonds">Diamonds added to the player's balance.</param>
+/// <param name="Cash">Coins added to the player's balance.</param>
+/// <param name="Gift">Whether the package was a gift rather than a purchase, which changes the reward reason recorded.</param>
+/// <param name="ProductId">Store product that was bought.</param>
+/// <param name="PackageGlobalId">Diamond or coin package table entry that was bought; it is also added to the inventory as owned.</param>
+/// <param name="Goods">Goods the package grants; negative amounts take goods away (vouchers are spent).</param>
+/// <param name="ExtraRewards">Additional rewards on top of the goods, used by special offers.</param>
+/// <param name="RewardMode">0 for an ordinary event package; other values deliver storage packages (barn and silo upgrades).</param>
+/// <param name="FarmPassPurchase">Farm Pass purchase slot the package fills; negative when it is not a Farm Pass purchase.</param>
+/// <param name="EventId">Shop event that offered the package; 0 when it came from the plain store.</param>
+/// <param name="VariantId">Variant of that shop event.</param>
+/// <param name="TrackPurchaseTotals">Whether the diamonds and coins also count towards the player's lifetime purchase totals.</param>
+/// <param name="Origin">Where in the game the purchase started, as native numbers purchase origins.</param>
+/// <param name="GachaCurrency">Gacha currency added to the player's balance.</param>
+/// <param name="UseStepIndex">Whether <paramref name="StepIndex"/> applies to this purchase; such special purchases are not ported yet.</param>
+/// <param name="StepIndex">Offer step the purchase belongs to, when <paramref name="UseStepIndex"/> is set.</param>
 public sealed record ShopPurchaseServerCommand(
     int Diamonds,
     int Cash,

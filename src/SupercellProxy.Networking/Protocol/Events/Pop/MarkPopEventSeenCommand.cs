@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Pop;
 public sealed record MarkPopEventSeenCommand(int EventId) : CodecCommand<MarkPopEventSeenCommand>, ICommandCodecProvider<MarkPopEventSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkPopEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new MarkPopEventSeenCommand(eventId)));
+    public static CommandCodec<MarkPopEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkPopEventSeenCommand(eventId)));
 }

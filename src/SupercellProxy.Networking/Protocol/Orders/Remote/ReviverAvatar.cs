@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 
-/// <summary>The reviver avatar.</summary>
-/// <param name="High">The high.</param>
-/// <param name="Low">The low.</param>
+/// <summary>Home id of the player who filled an order for its owner, sent as its two 32-bit halves.</summary>
+/// <param name="High">Upper 32 bits of the home id.</param>
+/// <param name="Low">Lower 32 bits of the home id.</param>
 public sealed record ReviverAvatar(int High, int Low) : ICodecProvider<ReviverAvatar>
 {
     /// <inheritdoc />

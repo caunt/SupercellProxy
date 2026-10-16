@@ -8,7 +8,7 @@ public sealed record ToggleEventTypeLikeCommand(int EventId) : CodecCommand<Togg
 {
     /// <inheritdoc />
     public static CommandCodec<ToggleEventTypeLikeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static (eventId) => new ToggleEventTypeLikeCommand(eventId)),
+        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new ToggleEventTypeLikeCommand(eventId)),
         CommandLayout.MetadataFirst
     );
 }

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>Requests a leaderboard.</summary>
-/// <param name="Entries">The entries.</param>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
+/// <param name="Entries">Accounts whose standings the client wants.</param>
+/// <param name="NeighborhoodId">Neighbourhood the standings are for; null when not about one.</param>
 public sealed record RequestLeaderboardMessage(ReadOnlyMemory<LeaderboardEntryId> Entries, LongId? NeighborhoodId) : CodecMessage<RequestLeaderboardMessage>, ICodecProvider<RequestLeaderboardMessage>
 {
     /// <inheritdoc />

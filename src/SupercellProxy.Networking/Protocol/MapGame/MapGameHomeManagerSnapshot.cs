@@ -4,15 +4,15 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>Represents decoded MapGameHomeManagerSnapshot state.</summary>
+/// <summary>Valley state saved with a home: the cars on the board and the themed task progress.</summary>
 public sealed record MapGameHomeManagerSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the Pawns value.</summary>
+    /// <summary>Saved cars of the board's players; null when the home has none.</summary>
     [JsonPropertyName("Pawns")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MapGameHomePawnSnapshot[]? Pawns { get; init; }
 
-    /// <summary>Gets the ThemedTasks value.</summary>
+    /// <summary>Themed task progress (saved as <c>ThemedTasksManager</c>); null when not saved.</summary>
     [JsonPropertyName("ThemedTasksManager")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MapGameThemedTasksSnapshot? ThemedTasks { get; init; }

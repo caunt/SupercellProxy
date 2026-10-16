@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 
 /// <summary>Delivers the Supercell ID notification token to the Supercell ID login manager.</summary>
-/// <param name="Token">The token.</param>
+/// <param name="Token">Opaque bytes the Supercell ID login manager keeps for Supercell ID notifications.</param>
 public sealed record SupercellIdNotificationTokenMessage(ReadOnlyMemory<byte>? Token) : CodecMessage<SupercellIdNotificationTokenMessage>, ICodecProvider<SupercellIdNotificationTokenMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdNotificationTokenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray, static message => message.Token, static (token) => new SupercellIdNotificationTokenMessage(token));
+    public static ICodec<SupercellIdNotificationTokenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray, static message => message.Token, static token => new SupercellIdNotificationTokenMessage(token));
 }

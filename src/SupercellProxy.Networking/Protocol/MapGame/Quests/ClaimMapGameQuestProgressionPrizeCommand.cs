@@ -8,10 +8,6 @@ public sealed record ClaimMapGameQuestProgressionPrizeCommand(int ProgressionPri
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimMapGameQuestProgressionPrizeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ProgressionPrizeGlobalId,
-            static (id) => new ClaimMapGameQuestProgressionPrizeCommand(id)
-        )
+        Codecs.Composite(Codecs.VarInt, static command => command.ProgressionPrizeGlobalId, static id => new ClaimMapGameQuestProgressionPrizeCommand(id))
     );
 }

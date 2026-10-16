@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.Unlock;
 
 /// <summary>Confirms the account unlock.</summary>
-/// <param name="PassToken">The pass token.</param>
-/// <param name="AccountId">The account id.</param>
+/// <param name="PassToken">Login secret the client stores and uses for the unlocked account from now on.</param>
+/// <param name="AccountId">The unlocked account.</param>
 public sealed record UnlockAccountOkMessage(string? PassToken, LongId AccountId) : CodecMessage<UnlockAccountOkMessage>, ICodecProvider<UnlockAccountOkMessage>
 {
     /// <inheritdoc />

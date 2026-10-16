@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 
 /// <summary>The fields native <c>AvatarStreamEntry::decode</c> reads before every inbox entry's own fields.</summary>
-/// <param name="EntryId">The entry id.</param>
+/// <param name="EntryId">Identifies the entry, so later messages can mark it removed.</param>
 /// <param name="SenderAvatarId">The avatar that caused the entry.</param>
 /// <param name="SenderName">The sender's name.</param>
 /// <param name="SenderExpLevel">The sender's experience level.</param>

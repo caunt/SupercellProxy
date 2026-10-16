@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Workbench;
 
 /// <summary>Starts a workbench building-mastery job.</summary>
-/// <param name="JobKind">The job kind.</param>
-/// <param name="BuildingGlobalId">The building data id.</param>
-/// <param name="WorkbenchObjectGlobalId">The workbench object id.</param>
+/// <param name="JobKind">Kind of mastery job, as native numbers them.</param>
+/// <param name="BuildingGlobalId">Global id of the building type being mastered.</param>
+/// <param name="WorkbenchObjectGlobalId">Game object id of the workbench doing the job.</param>
 public sealed record StartBuildingMasteryJobCommand(int JobKind, int BuildingGlobalId, int WorkbenchObjectGlobalId) : CodecCommand<StartBuildingMasteryJobCommand>, ICommandCodecProvider<StartBuildingMasteryJobCommand>
 {
     /// <inheritdoc />

@@ -4,13 +4,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Offers.Promotions;
 
 /// <summary>Records the state of a shown promotion popup.</summary>
-/// <param name="PromotionId">The promotion id.</param>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="State">The state.</param>
-/// <param name="Timestamp">The timestamp.</param>
-/// <param name="Accepted">The accepted.</param>
-/// <param name="Placement">The placement.</param>
+/// <param name="PromotionId">Name of the promotion the popup advertised.</param>
+/// <param name="EventId">Live event that carries the promotion.</param>
+/// <param name="VariantId">Variant of that event.</param>
+/// <param name="State">Popup state being recorded, as native numbers it.</param>
+/// <param name="Timestamp">Unix time stamp of the change.</param>
+/// <param name="Accepted">Whether the player accepted the popup's offer.</param>
+/// <param name="Placement">Where in the game the popup was shown.</param>
 public sealed record RecordPromotionPopupStateCommand(string? PromotionId, int EventId, int VariantId, int State, int Timestamp, bool Accepted, int Placement) : CodecCommand<RecordPromotionPopupStateCommand>, ICommandCodecProvider<RecordPromotionPopupStateCommand>
 {
     /// <inheritdoc />

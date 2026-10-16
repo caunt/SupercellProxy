@@ -12,6 +12,6 @@ public sealed record MapGamePawnEvent(int Type, MapGamePawn? Pawn) : MapGameEven
     /// </summary>
     internal static ICodec<MapGamePawnEvent> CodecFor(int type)
     {
-        return Codecs.Composite(Codecs.Optional(MapGamePawn.Codec), static mapGameEvent => mapGameEvent.Pawn, (pawn) => new MapGamePawnEvent(type, pawn));
+        return Codecs.Composite(Codecs.Optional(MapGamePawn.Codec), static mapGameEvent => mapGameEvent.Pawn, pawn => new MapGamePawnEvent(type, pawn));
     }
 }

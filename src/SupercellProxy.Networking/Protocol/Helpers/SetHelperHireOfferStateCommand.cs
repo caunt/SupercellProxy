@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers;
 public sealed record SetHelperHireOfferStateCommand(int State) : CodecCommand<SetHelperHireOfferStateCommand>, ICommandCodecProvider<SetHelperHireOfferStateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetHelperHireOfferStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.State, static (state) => new SetHelperHireOfferStateCommand(state)));
+    public static CommandCodec<SetHelperHireOfferStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.State, static state => new SetHelperHireOfferStateCommand(state)));
 }

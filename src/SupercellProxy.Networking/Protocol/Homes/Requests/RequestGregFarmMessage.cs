@@ -8,7 +8,7 @@ public sealed record RequestGregFarmMessage(int LanguageIndex = 0) : CodecMessag
 {
     /// <inheritdoc />
     public static ICodec<RequestGregFarmMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(Codecs.VarInt, static message => message.LanguageIndex, static (languageIndex) => new RequestGregFarmMessage(languageIndex)),
+        Codecs.Composite(Codecs.VarInt, static message => message.LanguageIndex, static languageIndex => new RequestGregFarmMessage(languageIndex)),
         trailingDataMessage: "The Greg farm request has trailing data."
     );
 }

@@ -46,7 +46,7 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     public PurchaseTotalsEntry[] MoneyTotals { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Version</c> value.
+    /// Layout revision written first; 0 or less means the history is sent empty, with no receipts or totals following.
     /// </summary>
     public int Version { get; init; }
     private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(

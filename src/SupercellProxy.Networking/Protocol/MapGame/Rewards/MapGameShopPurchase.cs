@@ -2,13 +2,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Rewards;
 
-/// <summary>The map game shop purchase.</summary>
-/// <param name="RewardGlobalId">The reward data id.</param>
-/// <param name="Price">The price.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="Costs">The costs.</param>
-/// <param name="Rewards">The rewards.</param>
-/// <param name="RewardSetName">The reward set name.</param>
+/// <summary>A reward bought in the Valley shop, with what it cost and what it gives.</summary>
+/// <param name="RewardGlobalId">Global id of the shop reward's table entry.</param>
+/// <param name="Price">Price of the reward in the shop.</param>
+/// <param name="Amount">How many of the reward were bought.</param>
+/// <param name="Costs">Resources the purchase spends.</param>
+/// <param name="Rewards">Resources the purchase gives.</param>
+/// <param name="RewardSetName">Name of the reward set the contents were drawn from; null when none.</param>
 public sealed record MapGameShopPurchase(
     int RewardGlobalId,
     int Price,

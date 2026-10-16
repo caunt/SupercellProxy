@@ -2,14 +2,16 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>
-/// <para>Node emoji, including its expiry timer and collector identities.</para>
-/// </summary>
+/// <summary>An emoji a player left on a Valley board node, with its expiry countdown and the players who collected it.</summary>
 public sealed record MapGameNodeEmoji : ICodecProvider<MapGameNodeEmoji>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameNodeEmoji"/> instance.
-    /// </summary>
+    /// <summary>Creates an emoji from its decoded fields.</summary>
+    /// <param name="emojiGlobalId">Global id of the emoji's table entry.</param>
+    /// <param name="nodeId">Board node the emoji sits on.</param>
+    /// <param name="avatarId">Account of the player who left it; null when not sent.</param>
+    /// <param name="expirationTime">Expiry setting; -1 for an emoji that never expires.</param>
+    /// <param name="ticksRemaining">Updates left until the emoji disappears.</param>
+    /// <param name="collectorAvatarIds">Accounts of the players who already collected it.</param>
     public MapGameNodeEmoji(
         int emojiGlobalId,
         int nodeId,
@@ -44,33 +46,21 @@ public sealed record MapGameNodeEmoji : ICodecProvider<MapGameNodeEmoji>
         static (emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds) => new MapGameNodeEmoji(emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds)
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">AvatarId</c> value.
-    /// </summary>
+    /// <summary>Account of the player who left the emoji; null when not sent.</summary>
     public LongId? AvatarId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">CollectorAvatarIds</c> value.
-    /// </summary>
+    /// <summary>Accounts of the players who already collected the emoji; each player collects it once.</summary>
     public ReadOnlyMemory<LongId> CollectorAvatarIds { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">EmojiGlobalId</c> value.
-    /// </summary>
+    /// <summary>Global id of the emoji's table entry.</summary>
     public int EmojiGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">ExpirationTime</c> value.
-    /// </summary>
+    /// <summary>Expiry setting of the emoji; -1 for an emoji that never expires.</summary>
     public int ExpirationTime { get; init; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">NodeId</c> value.
-    /// </summary>
+    /// <summary>Board node the emoji sits on.</summary>
     public int NodeId { get; init; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">TicksRemaining</c> value.
-    /// </summary>
+    /// <summary>Updates left until the emoji disappears; it counts down only when the emoji expires.</summary>
     public int TicksRemaining { get; init; }
 }

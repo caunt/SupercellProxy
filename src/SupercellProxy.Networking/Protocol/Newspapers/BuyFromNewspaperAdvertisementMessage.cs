@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Newspapers;
 
 /// <summary>Buys an item from a roadside shop advertised in the newspaper.</summary>
-/// <param name="AdvertisementIndex">The advertisement index.</param>
-/// <param name="Price">The price.</param>
+/// <param name="AdvertisementIndex">Position of the advertisement in the current newspaper edition.</param>
+/// <param name="Price">Price the advertisement showed the player.</param>
 public sealed record BuyFromNewspaperAdvertisementMessage(int AdvertisementIndex, int Price) : CodecMessage<BuyFromNewspaperAdvertisementMessage>, ICodecProvider<BuyFromNewspaperAdvertisementMessage>
 {
     /// <inheritdoc />

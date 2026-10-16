@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Gatherers;
 
 /// <summary>Buys a gatherer for a nest, placing it at the given position.</summary>
-/// <param name="GathererGlobalId">The gatherer data id.</param>
+/// <param name="GathererGlobalId">Global id of the gatherer type to buy.</param>
 /// <param name="PositionX">The placement x coordinate.</param>
 /// <param name="PositionY">The placement y coordinate.</param>
-/// <param name="NestObjectGlobalId">The nest object id.</param>
+/// <param name="NestObjectGlobalId">Game object id of the nest the gatherer will live in.</param>
 /// <param name="UseDiamonds">Whether the purchase is paid with diamonds.</param>
 public sealed record BuyGathererCommand(int GathererGlobalId, int PositionX, int PositionY, int NestObjectGlobalId, bool UseDiamonds) : CodecCommand<BuyGathererCommand>, ICommandCodecProvider<BuyGathererCommand>
 {

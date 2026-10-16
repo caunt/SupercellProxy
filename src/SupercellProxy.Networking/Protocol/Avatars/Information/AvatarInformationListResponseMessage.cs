@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Avatars.Information;
 
 /// <summary>Answers AvatarInformationListRequestMessage with each avatar's social ids and farm name (native AvatarInfoListResponseMessage).</summary>
-/// <param name="Avatars">The avatars.</param>
+/// <param name="Avatars">One entry per requested account; null when the server sent the list as absent.</param>
 public sealed record AvatarInformationListResponseMessage(ReadOnlyMemory<AvatarInformation>? Avatars) : CodecMessage<AvatarInformationListResponseMessage>, ICodecProvider<AvatarInformationListResponseMessage>
 {
     /// <inheritdoc />

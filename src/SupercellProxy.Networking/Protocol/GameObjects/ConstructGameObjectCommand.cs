@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Versions;
@@ -5,36 +7,23 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
 /// <summary>
-/// Defines the Construct Game Object Command contract.
+/// Serverbound command buying and placing a new object on the farm, such as a building, a field, a tree or a pet house, or
+/// replacing an existing one with its next version.
 /// </summary>
-/// <summary>
-/// Defines the Position X contract.
-/// </summary>
-/// <summary>
-/// Defines the Variant contract.
-/// </summary>
-/// <summary>
-/// Defines the Position Y contract.
-/// </summary>
-/// <summary>
-/// Defines the Layout Mode contract.
-/// </summary>
-/// <summary>
-/// Defines the Replaced Object Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Target Data Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Mirrored contract.
-/// </summary>
+/// <param name="PositionX">Horizontal map position, aligned to the tile grid.</param>
+/// <param name="Variant">Variant of the placed object; -1 for the default, which is the only value the ported paths accept.</param>
+/// <param name="PositionY">Vertical map position, aligned to the tile grid.</param>
+/// <param name="LayoutMode">Whether the object is placed from the farm layout editor; the ported paths accept only false.</param>
+/// <param name="ReplacedObjectGlobalId">Global id of the object the new one replaces; -1 when placing a new object.</param>
+/// <param name="TargetDataGlobalId">Global id of the table entry of the object to build.</param>
+/// <param name="Mirrored">Whether the object is placed mirrored.</param>
 public sealed record ConstructGameObjectCommand(
     int PositionX,
     int Variant,
     int PositionY,
     bool LayoutMode,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalId,
+    [property: JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalId,
+    [property: JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalId,
     bool Mirrored
 )
     : CodecCommand<ConstructGameObjectCommand>, ICommandCodecProvider<ConstructGameObjectCommand>

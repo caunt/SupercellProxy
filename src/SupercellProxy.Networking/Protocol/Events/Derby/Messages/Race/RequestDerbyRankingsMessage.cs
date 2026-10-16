@@ -11,7 +11,7 @@ public sealed record RequestDerbyRankingsMessage(LongId? NeighborhoodId) : Codec
         Codecs.Composite(
             Codecs.OptionalLongId,
             static message => message.NeighborhoodId,
-            static (neighborhoodId) => new RequestDerbyRankingsMessage(neighborhoodId)
+            static neighborhoodId => new RequestDerbyRankingsMessage(neighborhoodId)
         ),
         trailingDataMessage: "The derby message has trailing data."
     );

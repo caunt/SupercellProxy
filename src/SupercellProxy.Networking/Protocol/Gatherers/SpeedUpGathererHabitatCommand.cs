@@ -12,7 +12,7 @@ public sealed record SpeedUpGathererHabitatCommand(int HabitatGlobalId) : CodecC
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,
-            static (habitatGlobalId) => new SpeedUpGathererHabitatCommand(habitatGlobalId)
+            static habitatGlobalId => new SpeedUpGathererHabitatCommand(habitatGlobalId)
         )
     );
 }

@@ -1,17 +1,13 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>
-/// Defines the Neighborhood Id Value contract.
-/// </summary>
-/// <summary>
-/// Defines the Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Value contract.
-/// </summary>
-public sealed record NeighborhoodIdValue([property: System.Text.Json.Serialization.JsonPropertyName("Id")] LongId Id, int Value) : ICodecProvider<NeighborhoodIdValue>
+/// <summary>An id paired with a number, as ranking lists send them.</summary>
+/// <param name="Id">Account or neighbourhood id of the entry.</param>
+/// <param name="Value">Number of the entry, such as its score.</param>
+public sealed record NeighborhoodIdValue([property: JsonPropertyName("Id")] LongId Id, int Value) : ICodecProvider<NeighborhoodIdValue>
 {
     /// <inheritdoc />
     public static ICodec<NeighborhoodIdValue> Codec { get; } = Codecs.Composite(

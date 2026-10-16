@@ -6,8 +6,8 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Events;
 /// <summary>Reports the final standings of the previous neighborhood event.</summary>
 /// <param name="MemberScores">The members' scores, which the social manager stores.</param>
 /// <param name="Neighborhoods">The neighborhoods' standings, which the neighborhood manager stores.</param>
-/// <param name="Status">The status.</param>
-/// <param name="EventName">The event name.</param>
+/// <param name="Status">Result code of the request, as the server numbers it.</param>
+/// <param name="EventName">Name of the event the standings belong to.</param>
 public sealed record PreviousEventStatusResponseMessage(
     ReadOnlyMemory<PreviousEventMemberScore>? MemberScores,
     ReadOnlyMemory<PreviousEventNeighborhoodScore>? Neighborhoods,

@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace SupercellProxy.Networking.Protocol.Boats;
+using SupercellProxy.Networking.Protocol.Events;
+
+namespace SupercellProxy.Networking.Protocol.Boats.Events;
 
 /// <summary>Defines the cargo preferences and rewards of a boat event.</summary>
 public sealed record BoatRewardEventDefinition
@@ -63,7 +65,7 @@ public sealed record BoatRewardEventDefinition
     public int MinimumForcedTypes { get; init; }
     /// <summary>Gets the event's participation requirements.</summary>
     [JsonPropertyName("requirements")]
-    public Events.EventLevelRequirements Requirements { get; init; } = new();
+    public EventLevelRequirements Requirements { get; init; } = new();
     /// <summary>Gets the seasonal production building whose XP is replaced.</summary>
     [JsonPropertyName("SeasonalObject")]
     public string? SeasonalBuilding { get; init; }

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Replaces the emblem of the avatar's neighborhood.</summary>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
+/// <param name="NeighborhoodId">Neighbourhood whose emblem changed.</param>
 /// <param name="EmblemBackground">The first emblem part.</param>
 /// <param name="EmblemPattern">The second emblem part.</param>
 /// <param name="EmblemSymbol">The third emblem part.</param>

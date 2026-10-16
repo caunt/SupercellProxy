@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 
 /// <summary>Event type 33: sanctuary animals were offloaded.</summary>
-/// <param name="DiamondCost">The diamond cost.</param>
+/// <param name="DiamondCost">Diamonds the player paid to offload the animals.</param>
 /// <param name="Pawn">The acting pawn.</param>
 public sealed record MapGameSanctuaryAnimalsOffloadedEvent(int DiamondCost, MapGamePawn? Pawn) : MapGameEvent(MapGameEvent.SanctuaryAnimalsOffloadedType), ICodecProvider<MapGameSanctuaryAnimalsOffloadedEvent>
 {

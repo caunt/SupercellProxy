@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 public sealed record MarkFlyingDerbyBunniesSeenCommand(int Count) : CodecCommand<MarkFlyingDerbyBunniesSeenCommand>, ICommandCodecProvider<MarkFlyingDerbyBunniesSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkFlyingDerbyBunniesSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Count, static (count) => new MarkFlyingDerbyBunniesSeenCommand(count)));
+    public static CommandCodec<MarkFlyingDerbyBunniesSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Count, static count => new MarkFlyingDerbyBunniesSeenCommand(count)));
 }

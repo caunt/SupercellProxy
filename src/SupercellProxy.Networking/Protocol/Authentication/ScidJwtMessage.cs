@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
-/// Delivers a Supercell ID JSON Web Token and its expiration time.
+/// <summary>Delivers a Supercell ID JSON Web Token and its expiration time.</summary>
 public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds) : CodecMessage<ScidJwtMessage>, ICodecProvider<ScidJwtMessage>
 {
     /// <inheritdoc />
@@ -18,7 +18,7 @@ public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds)
         trailingDataMessage: "The Supercell ID JWT message has trailing data."
     );
 
-    /// Omits the credential from logs.
+    /// <summary>Omits the credential from logs.</summary>
     public override string ToString()
     {
         return $"{nameof(ScidJwtMessage)} {{ ExpiresAtUnixTimeSeconds = {ExpiresAtUnixTimeSeconds} }}";

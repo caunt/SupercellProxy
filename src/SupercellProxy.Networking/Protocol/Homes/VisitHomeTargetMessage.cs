@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>
-/// Represents the <c language="csharp">VisitHomeTargetMessage</c> protocol message.
+/// Serverbound request to visit another player's farm; the server answers with the farm's data or a home-load failure.
 /// </summary>
 public sealed record VisitHomeTargetMessage : CodecMessage<VisitHomeTargetMessage>, ICodecProvider<VisitHomeTargetMessage>
 {
@@ -18,12 +18,12 @@ public sealed record VisitHomeTargetMessage : CodecMessage<VisitHomeTargetMessag
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Target</c> value.
+    /// Home id of the farm to visit.
     /// </summary>
     public required LongId Target { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// Number sent before the target; its meaning is not identified. The managed client sends 0.
     /// </summary>
     public required int Unknown0 { get; init; }
 }

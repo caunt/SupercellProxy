@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Decorations;
 
 /// <summary>Delivers a decoration design entry to the design manager.</summary>
-/// <param name="Name">The name.</param>
-/// <param name="Design">The design.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Text">The text.</param>
-/// <param name="Value2">The value2.</param>
+/// <param name="Name">Name the design entry is stored under in the design manager.</param>
+/// <param name="Design">The design's picture and author; null when the entry carries none.</param>
+/// <param name="Value0">First number after the design; its meaning is not identified.</param>
+/// <param name="Value1">Second number after the design; not identified.</param>
+/// <param name="Text">Text sent with the entry; its role is not identified.</param>
+/// <param name="Value2">Number that closes the message; not identified.</param>
 public sealed record DecorationDesignMessage(string? Name, DecorationDesign? Design, int Value0, int Value1, string? Text, int Value2) : CodecMessage<DecorationDesignMessage>, ICodecProvider<DecorationDesignMessage>
 {
     /// <inheritdoc />

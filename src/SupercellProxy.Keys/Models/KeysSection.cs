@@ -1,8 +1,9 @@
+using System.Text.Json.Serialization;
 namespace SupercellProxy.Keys.Models;
 
 internal sealed record KeysSection(
     string Name,
-    [property: System.Text.Json.Serialization.JsonPropertyName("AppStoreId")] string AppStoreId,
+    [property: JsonPropertyName("AppStoreId")] string AppStoreId,
     int HeaderIndex,
     int SeparatorIndex,
     int DataStartIndex,

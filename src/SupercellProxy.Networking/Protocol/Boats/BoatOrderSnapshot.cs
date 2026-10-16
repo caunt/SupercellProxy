@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>
-/// Defines the Boat Order Snapshot contract.
+/// A saved boat order: the crates the docked boat asks to be filled and the rewards it pays.
 /// </summary>
 public sealed record BoatOrderSnapshot
 {
     /// <summary>
-    /// Gets the Cargo Entries value.
+    /// The boat's crates in slot order; crate indexes in boat commands refer to positions in this list.
     /// </summary>
     [JsonPropertyName("crate_array")]
     public BoatCargoSnapshot[] CargoEntries { get; init; } = [];
@@ -22,7 +22,7 @@ public sealed record BoatOrderSnapshot
     public int DailyRewardQuantity { get; init; }
 
     /// <summary>
-    /// Gets the Experience Level value.
+    /// The player's level when the order was generated; crate rewards are looked up for this level, not the current one.
     /// </summary>
     [JsonPropertyName("expLevel")]
     public int ExperienceLevel { get; init; }

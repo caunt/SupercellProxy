@@ -8,6 +8,6 @@ public sealed record CancelTruckOrderCommand(int OrderIndex) : CodecCommand<Canc
 {
     /// <inheritdoc />
     public static CommandCodec<CancelTruckOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Byte, static command => (byte)command.OrderIndex, static (orderIndex) => new CancelTruckOrderCommand(orderIndex))
+        Codecs.Composite(Codecs.Byte, static command => (byte)command.OrderIndex, static orderIndex => new CancelTruckOrderCommand(orderIndex))
     );
 }

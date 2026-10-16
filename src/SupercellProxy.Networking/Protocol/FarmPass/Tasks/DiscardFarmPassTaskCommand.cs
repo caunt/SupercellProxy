@@ -9,6 +9,6 @@ public sealed record DiscardFarmPassTaskCommand(int TaskIndex) : CodecCommand<Di
 {
     /// <inheritdoc />
     public static CommandCodec<DiscardFarmPassTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static (taskIndex) => new DiscardFarmPassTaskCommand(taskIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new DiscardFarmPassTaskCommand(taskIndex))
     );
 }

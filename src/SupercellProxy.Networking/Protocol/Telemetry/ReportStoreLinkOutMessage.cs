@@ -3,12 +3,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
-/// <summary>Reports a store link-out.</summary>
-/// <param name="Placement">The placement.</param>
-/// <param name="ProductId">The product id.</param>
-/// <param name="Price">The price.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="Source">The source.</param>
+/// <summary>Reports that the player followed a link out to the app store for a product.</summary>
+/// <param name="Placement">Where in the game the offer was shown; its values are not identified.</param>
+/// <param name="ProductId">Offered product; its id space is not identified.</param>
+/// <param name="Price">Price shown for the product.</param>
+/// <param name="Amount">How much of the product the offer gives.</param>
+/// <param name="Source">What led to the offer; its values are not identified.</param>
 public sealed record ReportStoreLinkOutMessage(int Placement, int ProductId, int Price, int Amount, int Source) : CodecMessage<ReportStoreLinkOutMessage>, ICodecProvider<ReportStoreLinkOutMessage>
 {
     /// <inheritdoc />

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Visitors.Orders;
 
 /// <summary>Dismisses a farm visitor whose order carries a gift.</summary>
-/// <param name="VisitorObjectGlobalId">The visitor object id.</param>
+/// <param name="VisitorObjectGlobalId">Game object id of the visitor sent away.</param>
 public sealed record DismissVisitorOrderWithGiftCommand(int VisitorObjectGlobalId) : CodecCommand<DismissVisitorOrderWithGiftCommand>, ICommandCodecProvider<DismissVisitorOrderWithGiftCommand>
 {
     /// <inheritdoc />
@@ -12,7 +12,7 @@ public sealed record DismissVisitorOrderWithGiftCommand(int VisitorObjectGlobalI
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorObjectGlobalId,
-            static (visitorObjectGlobalId) => new DismissVisitorOrderWithGiftCommand(visitorObjectGlobalId)
+            static visitorObjectGlobalId => new DismissVisitorOrderWithGiftCommand(visitorObjectGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 
 /// <summary>Sets whether the avatar is muted in chat.</summary>
-/// <param name="Permanent">The permanent.</param>
-/// <param name="Muted">The muted.</param>
+/// <param name="Permanent">Whether the mute has no end.</param>
+/// <param name="Muted">Whether the avatar may no longer write in chat.</param>
 public sealed record SetChatMutedServerCommand(bool Permanent, bool Muted) : CodecServerCommand<SetChatMutedServerCommand>, ICommandCodecProvider<SetChatMutedServerCommand>
 {
     /// <inheritdoc />

@@ -1,4 +1,5 @@
 using SupercellProxy.Networking.Protocol.Commands;
+using SupercellProxy.Networking.Protocol.Commands.Registry;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
@@ -11,12 +12,12 @@ namespace SupercellProxy.Networking.Protocol.Turns;
 public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, ICodecProvider<EndClientTurnMessage>
 {
     /// <summary>
-    /// Defines the <c language="csharp">MaxCommandCount</c> value.
+    /// Most commands one turn may carry; the decoder rejects more as corrupt data.
     /// </summary>
     public const int MaximumCommandCount = 1024;
 
     /// <summary>
-    /// Defines the <c language="csharp">SubChecksumCount</c> value.
+    /// How many values <see cref="SubChecksums"/> holds in every turn.
     /// </summary>
     public const int SubChecksumCount = 8;
 
@@ -25,37 +26,37 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write), $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Checksum</c> value.
+    /// The turn checksum, the first field of the turn header.
     /// </summary>
     public int Checksum { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Commands</c> value.
+    /// The player's actions in this turn, each stamped with the sub-tick it happened at, in order.
     /// </summary>
     public Memory<Command> Commands { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">DebugCommandData</c> value.
+    /// Diagnostic blocks, one per command, that only non-production builds send; empty in production.
     /// </summary>
     public Memory<CommandData> DebugCommandData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">DevelopmentByteArrays</c> value.
+    /// Extra byte arrays that only development builds send; empty in production.
     /// </summary>
     public Memory<ReadOnlyMemory<byte>> DevelopmentByteArrays { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">SubChecksums</c> value.
+    /// The <see cref="SubChecksumCount"/> sub-checksums the turn header sends after the sub-tick.
     /// </summary>
     public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Environment</c> value.
+    /// Build environment whose layout the turn is written in; it decides whether the debug and development blocks are present.
     /// </summary>
     public CommandEnvironment Environment { get; init; } = CommandEnvironment.Production;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">SubTick</c> value.
+    /// Game sub-tick the turn ends at, sent in the turn header after the checksum.
     /// </summary>
     public int SubTick { get; init; }
 

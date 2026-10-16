@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Offers;
 
-/// <summary>One offer good entry.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="Amount">The amount.</param>
+/// <summary>One kind of goods an offer grants.</summary>
+/// <param name="GoodGlobalId">Global id of the goods.</param>
+/// <param name="Amount">How many are granted.</param>
 public sealed record OfferGood(int GoodGlobalId, int Amount) : ICodecProvider<OfferGood>
 {
     /// <inheritdoc />

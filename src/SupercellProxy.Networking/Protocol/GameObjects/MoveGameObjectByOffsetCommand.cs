@@ -1,16 +1,24 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
 /// <summary>
-/// <para>Moves an existing game object by a logic-coordinate offset after validating its prior tile and data.</para>
+/// Serverbound command shifting a placed object by an offset in map units (512 per tile) and setting its mirroring; the object
+/// must still be the expected one on the expected tile.
 /// </summary>
 public sealed record MoveGameObjectByOffsetCommand : CodecCommand<MoveGameObjectByOffsetCommand>, ICommandCodecProvider<MoveGameObjectByOffsetCommand>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MoveGameObjectByOffsetCommand"/> instance.
-    /// </summary>
+    /// <summary>Creates the command for one object.</summary>
+    /// <param name="gameObjectGlobalId">Global id of the object to move.</param>
+    /// <param name="logicOffsetX">Horizontal shift in map units.</param>
+    /// <param name="logicOffsetY">Vertical shift in map units.</param>
+    /// <param name="expectedTileX">Horizontal tile the object must stand on before the move.</param>
+    /// <param name="expectedTileY">Vertical tile the object must stand on before the move.</param>
+    /// <param name="expectedDataGlobalId">Global id of the table entry the object must have.</param>
+    /// <param name="mirrored">Whether the object is mirrored after the move.</param>
     public MoveGameObjectByOffsetCommand(
         int gameObjectGlobalId,
         int logicOffsetX,
@@ -51,40 +59,26 @@ public sealed record MoveGameObjectByOffsetCommand : CodecCommand<MoveGameObject
         )
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">ExpectedDataGlobalId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("ExpectedDataGlobalId")]
+    /// <summary>Global id of the table entry the object must have.</summary>
+    [JsonPropertyName("ExpectedDataGlobalId")]
     public int ExpectedDataGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">ExpectedTileX</c> value.
-    /// </summary>
+    /// <summary>Horizontal tile the object must stand on before the move.</summary>
     public int ExpectedTileX { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">ExpectedTileY</c> value.
-    /// </summary>
+    /// <summary>Vertical tile the object must stand on before the move.</summary>
     public int ExpectedTileY { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">GameObjectGlobalId</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("GameObjectGlobalId")]
+    /// <summary>Global id of the object to move.</summary>
+    [JsonPropertyName("GameObjectGlobalId")]
     public int GameObjectGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">Mirrored</c> value.
-    /// </summary>
+    /// <summary>Whether the object is mirrored after the move.</summary>
     public bool Mirrored { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">OffsetX</c> value.
-    /// </summary>
+    /// <summary>Horizontal shift in map units (512 per tile).</summary>
     public int OffsetX { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">OffsetY</c> value.
-    /// </summary>
+    /// <summary>Vertical shift in map units (512 per tile).</summary>
     public int OffsetY { get; }
 }

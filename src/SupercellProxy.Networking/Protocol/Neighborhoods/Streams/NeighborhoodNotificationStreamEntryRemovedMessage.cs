@@ -4,13 +4,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 
 /// <summary>Marks a neighborhood notification stream entry as removed in the game log manager.</summary>
-/// <param name="EntryId">The entry id.</param>
+/// <param name="EntryId">Identifier of the removed notification entry.</param>
 public sealed record NeighborhoodNotificationStreamEntryRemovedMessage(LongId EntryId) : CodecMessage<NeighborhoodNotificationStreamEntryRemovedMessage>, ICodecProvider<NeighborhoodNotificationStreamEntryRemovedMessage>
 {
     /// <inheritdoc />
     public static ICodec<NeighborhoodNotificationStreamEntryRemovedMessage> Codec { get; } = Codecs.Composite(
         Codecs.LongId,
         static message => message.EntryId,
-        static (entryId) => new NeighborhoodNotificationStreamEntryRemovedMessage(entryId)
+        static entryId => new NeighborhoodNotificationStreamEntryRemovedMessage(entryId)
     );
 }

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 
 /// <summary>Reports a purchase made outside the game.</summary>
-/// <param name="ProductId">The product id.</param>
-/// <param name="Amount">The amount.</param>
+/// <param name="ProductId">Store product that was bought outside the game.</param>
+/// <param name="Amount">How many of the product were bought.</param>
 public sealed record ExternalPurchaseServerCommand(string? ProductId, int Amount) : CodecServerCommand<ExternalPurchaseServerCommand>, ICommandCodecProvider<ExternalPurchaseServerCommand>
 {
     /// <inheritdoc />

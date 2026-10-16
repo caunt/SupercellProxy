@@ -1,39 +1,27 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>
-/// Defines the Avatar Ranking Entry contract.
+/// One player's line on a leaderboard.
 /// </summary>
-/// <summary>
-/// Defines the Rank contract.
-/// </summary>
-/// <summary>
-/// Defines the Score contract.
-/// </summary>
-/// <summary>
-/// Defines the Rank Value contract.
-/// </summary>
-/// <summary>
-/// Defines the Avatar Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Name contract.
-/// </summary>
-/// <summary>
-/// Defines the Level contract.
-/// </summary>
-/// <summary>
-/// Defines the Home Id contract.
-/// </summary>
+/// <param name="Rank">The player's place on the board, starting at 1.</param>
+/// <param name="Score">The score the board ranks by.</param>
+/// <param name="RankValue">Second number sent with the rank; its meaning is not identified.</param>
+/// <param name="AvatarId">The player's account.</param>
+/// <param name="Name">The player's farm name.</param>
+/// <param name="Level">The player's experience level.</param>
+/// <param name="HomeId">The player's farm, for visiting from the board.</param>
 public sealed record RankingEntry(
     int Rank,
     int Score,
     int RankValue,
-    [property: System.Text.Json.Serialization.JsonPropertyName("AvatarId")] LongId AvatarId,
+    [property: JsonPropertyName("AvatarId")] LongId AvatarId,
     string? Name,
     int Level,
-    [property: System.Text.Json.Serialization.JsonPropertyName("HomeId")] LongId HomeId
+    [property: JsonPropertyName("HomeId")] LongId HomeId
 ) : ICodecProvider<RankingEntry>
 {
     /// <inheritdoc />

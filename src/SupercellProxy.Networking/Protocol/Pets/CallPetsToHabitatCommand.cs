@@ -11,7 +11,7 @@ public sealed record CallPetsToHabitatCommand(int HabitatGlobalId) : CodecComman
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.HabitatGlobalId,
-            static (habitatGlobalId) => new CallPetsToHabitatCommand(habitatGlobalId)
+            static habitatGlobalId => new CallPetsToHabitatCommand(habitatGlobalId)
         )
     );
 }

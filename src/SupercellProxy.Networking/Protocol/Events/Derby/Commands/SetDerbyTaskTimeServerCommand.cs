@@ -11,7 +11,7 @@ public sealed record SetDerbyTaskTimeServerCommand(int RemainingSeconds) : Codec
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.RemainingSeconds,
-            static (remainingSeconds) => new SetDerbyTaskTimeServerCommand(remainingSeconds)
+            static remainingSeconds => new SetDerbyTaskTimeServerCommand(remainingSeconds)
         )
     );
 }

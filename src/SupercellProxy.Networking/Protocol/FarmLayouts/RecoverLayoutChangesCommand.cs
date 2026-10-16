@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record RecoverLayoutChangesCommand(bool Recover) : CodecCommand<RecoverLayoutChangesCommand>, ICommandCodecProvider<RecoverLayoutChangesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RecoverLayoutChangesCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.Recover, static (recover) => new RecoverLayoutChangesCommand(recover))
-    );
+    public static CommandCodec<RecoverLayoutChangesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Recover, static recover => new RecoverLayoutChangesCommand(recover)));
 }

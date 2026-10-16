@@ -12,7 +12,7 @@ public sealed record ClaimMapGameDailyQuestRewardCommand(int QuestGlobalId) : Co
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.QuestGlobalId,
-            static (questGlobalId) => new ClaimMapGameDailyQuestRewardCommand(questGlobalId)
+            static questGlobalId => new ClaimMapGameDailyQuestRewardCommand(questGlobalId)
         )
     );
 }

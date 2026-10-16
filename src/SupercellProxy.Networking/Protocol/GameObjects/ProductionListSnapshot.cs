@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.GameObjects;
 
-/// <summary>Represents decoded ProductionListSnapshot state.</summary>
+/// <summary>Saved production queue of a building: finished products waiting to be collected and products still being made.</summary>
 public sealed record ProductionListSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the FinishedProductions value.</summary>
+    /// <summary>Finished products waiting to be collected, oldest first.</summary>
     [JsonPropertyName("FinishedProductions")]
     public FinishedProductionSnapshot[] FinishedProductions { get; init; } = [];
 

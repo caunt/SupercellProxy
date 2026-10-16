@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 
 /// <summary>Removes an object from the edited layout.</summary>
-/// <param name="ObjectGlobalId">The object id.</param>
-/// <param name="PositionX">The object x coordinate.</param>
-/// <param name="PositionY">The object y coordinate.</param>
-/// <param name="LayoutIndex">The layout slot.</param>
+/// <param name="ObjectGlobalId">Game object id of the object taken off the layout.</param>
+/// <param name="PositionX">Horizontal position the object stood at.</param>
+/// <param name="PositionY">Vertical position the object stood at.</param>
+/// <param name="LayoutIndex">Layout slot being edited.</param>
 public sealed record RemoveLayoutObjectCommand(int ObjectGlobalId, int PositionX, int PositionY, int LayoutIndex) : CodecCommand<RemoveLayoutObjectCommand>, ICommandCodecProvider<RemoveLayoutObjectCommand>
 {
     /// <inheritdoc />

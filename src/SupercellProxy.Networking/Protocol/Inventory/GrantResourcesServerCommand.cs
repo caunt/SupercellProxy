@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Inventory;
 
 /// <summary>Grants resources to the avatar.</summary>
-/// <param name="Resources">The resources.</param>
+/// <param name="Resources">Each resource granted, with its amount.</param>
 public sealed record GrantResourcesServerCommand(ReadOnlyMemory<GrantedResource> Resources) : CodecServerCommand<GrantResourcesServerCommand>, ICommandCodecProvider<GrantResourcesServerCommand>
 {
     /// <inheritdoc />
@@ -12,7 +12,7 @@ public sealed record GrantResourcesServerCommand(ReadOnlyMemory<GrantedResource>
         Codecs.Composite(
             Codecs.Memory(GrantedResource.Codec),
             static command => command.Resources,
-            static (resources) => new GrantResourcesServerCommand(resources)
+            static resources => new GrantResourcesServerCommand(resources)
         )
     );
 }

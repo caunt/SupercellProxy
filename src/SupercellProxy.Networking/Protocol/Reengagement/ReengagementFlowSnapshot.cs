@@ -3,18 +3,18 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Reengagement;
 
 /// <summary>
-/// Defines the Reengagement Flow Snapshot contract.
+/// Saved state of the welcome-back flow shown to players who return after a long break.
 /// </summary>
 public sealed record ReengagementFlowSnapshot
 {
     /// <summary>
-    /// Gets the Coin Reward value.
+    /// Coins the welcome-back flow gives the returning player.
     /// </summary>
     [JsonPropertyName("coinReward")]
     public int CoinReward { get; init; }
 
     /// <summary>
-    /// Gets the Diamond Reward value.
+    /// Diamonds the welcome-back flow gives the returning player.
     /// </summary>
     [JsonPropertyName("diamondReward")]
     public int DiamondReward { get; init; }

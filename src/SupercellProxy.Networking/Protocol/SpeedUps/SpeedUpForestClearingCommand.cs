@@ -12,7 +12,7 @@ public sealed record SpeedUpForestClearingCommand(int ForestGlobalId) : CodecCom
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ForestGlobalId,
-            static (forestGlobalId) => new SpeedUpForestClearingCommand(forestGlobalId)
+            static forestGlobalId => new SpeedUpForestClearingCommand(forestGlobalId)
         )
     );
 }

@@ -3,14 +3,15 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>
-/// Represents <c language="csharp">PickedPassenger</c>.
+/// A passenger the player's personal train picked up in a neighbour's town; it gets off the train when the train reaches the
+/// player's own town.
 /// </summary>
-/// <param name="Unknown0">The <c language="csharp">Unknown0</c> value.</param>
-/// <param name="Unknown1">The <c language="csharp">Unknown1</c> value.</param>
-/// <param name="PassengerGlobalId">The <c language="csharp">PassengerGlobalId</c> value.</param>
-/// <param name="PickupHomeId">The <c language="csharp">PickupHomeId</c> value.</param>
-/// <param name="UnknownId1">The <c language="csharp">UnknownId1</c> value.</param>
-/// <param name="PassengerDocument">The <c language="csharp">PassengerDocument</c> value.</param>
+/// <param name="Unknown0">First number of the entry; its meaning is not identified.</param>
+/// <param name="Unknown1">Second number of the entry; its meaning is not identified.</param>
+/// <param name="PassengerGlobalId">Global id of the passenger's table entry; entries outside the passenger table are skipped on arrival.</param>
+/// <param name="PickupHomeId">Home whose personal train picked the passenger up; the passenger keeps it once it arrives.</param>
+/// <param name="UnknownId1">Second home or account id of the entry; its meaning is not identified.</param>
+/// <param name="PassengerDocument">The passenger's saved game object state as JSON, restored when it arrives; null or empty for a fresh passenger.</param>
 public sealed record PickedPassenger(int Unknown0, int Unknown1, int PassengerGlobalId, LongId PickupHomeId, LongId UnknownId1, string? PassengerDocument) : ICodecProvider<PickedPassenger>
 {
     /// <inheritdoc />

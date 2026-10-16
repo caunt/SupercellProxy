@@ -9,6 +9,6 @@ public sealed record ClaimFarmPassTaskGoalRewardCommand(int GoalIndex) : CodecCo
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimFarmPassTaskGoalRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.GoalIndex, static (goalIndex) => new ClaimFarmPassTaskGoalRewardCommand(goalIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.GoalIndex, static goalIndex => new ClaimFarmPassTaskGoalRewardCommand(goalIndex))
     );
 }

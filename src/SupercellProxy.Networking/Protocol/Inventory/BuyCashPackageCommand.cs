@@ -9,6 +9,6 @@ public sealed record BuyCashPackageCommand(int PackageGlobalId) : CodecCommand<B
 {
     /// <inheritdoc />
     public static CommandCodec<BuyCashPackageCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.PackageGlobalId, static (packageGlobalId) => new BuyCashPackageCommand(packageGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.PackageGlobalId, static packageGlobalId => new BuyCashPackageCommand(packageGlobalId))
     );
 }

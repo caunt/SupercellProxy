@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 
 /// <summary>
@@ -6,11 +7,11 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record ChronosEventBoardSnapshot
 {
     /// <summary>
-    /// Gets or sets the <c language="csharp">Events</c> value.
+    /// The events currently on the player's event board, each with its schedule and the player's progress in it.
     /// </summary>
     public ChronosEventSnapshot[] Events { get; init; } = [];
 
     /// <summary>Gets the native integer flags indexed by event type; nonzero means liked.</summary>
-    [System.Text.Json.Serialization.JsonPropertyName("likedEventTypes")]
+    [JsonPropertyName("likedEventTypes")]
     public int[] LikedEventTypes { get; init; } = [];
 }

@@ -1,16 +1,19 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.MapGame.Tasks;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>
-/// <para>Native map-game state structure encoded by the shared 1.72.84 helper at 0x10064b114.</para>
-/// </summary>
+/// <summary>The whole Valley board as the server sends it: the players' cars, the tasks on the nodes, counters and emojis.</summary>
 public sealed record MapGameState : ICodecProvider<MapGameState>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameState"/> instance.
-    /// </summary>
+    /// <summary>Creates the board state from its decoded parts.</summary>
+    /// <param name="pawns">Cars of the board's players.</param>
+    /// <param name="taskGroups">Tasks on the board, grouped by the player they belong to.</param>
+    /// <param name="configuration">The board's daily counters and chicken log.</param>
+    /// <param name="emojis">Emojis players left on the nodes.</param>
+    /// <param name="mapGlobalId">Global id of the board's map table entry.</param>
     public MapGameState(
         ReadOnlyMemory<MapGamePawn> pawns,
         ReadOnlyMemory<MapGameTaskGroup> taskGroups,
@@ -41,29 +44,19 @@ public sealed record MapGameState : ICodecProvider<MapGameState>
         static (pawns, taskGroups, configuration, emojis, mapGlobalId) => new MapGameState(pawns, taskGroups, configuration, emojis, mapGlobalId)
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">Configuration</c> value.
-    /// </summary>
+    /// <summary>The board's daily spawn and delivery counters and its chicken log.</summary>
     public MapGameConfiguration Configuration { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">Emojis</c> value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Entries")]
+    /// <summary>Emojis players left on the board's nodes (saved as <c>Entries</c>).</summary>
+    [JsonPropertyName("Entries")]
     public ReadOnlyMemory<MapGameNodeEmoji> Emojis { get; init; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">MapGlobalId</c> value.
-    /// </summary>
+    /// <summary>Global id of the board's map table entry.</summary>
     public int MapGlobalId { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">Pawns</c> value.
-    /// </summary>
+    /// <summary>Cars of the board's players.</summary>
     public ReadOnlyMemory<MapGamePawn> Pawns { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">TaskGroups</c> value.
-    /// </summary>
+    /// <summary>Tasks on the board, grouped by the player they belong to.</summary>
     public ReadOnlyMemory<MapGameTaskGroup> TaskGroups { get; }
 }

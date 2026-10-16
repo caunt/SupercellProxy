@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town.Passengers;
 
-/// <summary>One passenger service good entry.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="Amount">The amount.</param>
+/// <summary>One kind of goods a passenger's service uses up.</summary>
+/// <param name="GoodGlobalId">Global id of the goods.</param>
+/// <param name="Amount">How many of the goods the service uses up.</param>
 public sealed record PassengerServiceGood(int GoodGlobalId, int Amount) : ICodecProvider<PassengerServiceGood>
 {
     /// <inheritdoc />

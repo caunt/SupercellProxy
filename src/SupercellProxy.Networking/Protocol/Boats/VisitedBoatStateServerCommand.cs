@@ -5,29 +5,17 @@ using SupercellProxy.Networking.Protocol.Versions;
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>
-/// Defines the Visited Boat State Server Command contract.
+/// Clientbound update that moves the boat of the farm being visited to a new state (arriving, loading, departing and so on), so the
+/// visitor sees the owner's boat change while visiting. Ignored unless the visitor is on that owner's farm and the boat is still in
+/// the expected state.
 /// </summary>
-/// <summary>
-/// Defines the New State contract.
-/// </summary>
-/// <summary>
-/// Defines the Expected State contract.
-/// </summary>
-/// <summary>
-/// Defines the Order Index contract.
-/// </summary>
-/// <summary>
-/// Defines the Owner High contract.
-/// </summary>
-/// <summary>
-/// Defines the Owner Low contract.
-/// </summary>
-/// <summary>
-/// Defines the State Duration contract.
-/// </summary>
-/// <summary>
-/// Defines the State Ticks contract.
-/// </summary>
+/// <param name="NewState">Boat state to switch to, as native numbers them (1 away, 3 arriving, 4 loading, 8 choosing a destination…).</param>
+/// <param name="ExpectedState">State the boat must be in for the update to apply; a mismatch means the visitor's copy is stale.</param>
+/// <param name="OrderIndex">Destination order the owner chose, which becomes the crates being loaded.</param>
+/// <param name="OwnerHigh">First word of the owner's home id.</param>
+/// <param name="OwnerLow">Second word of the owner's home id.</param>
+/// <param name="StateDuration">How long the new state lasts, in game updates.</param>
+/// <param name="StateTicks">How many of those updates have already passed.</param>
 public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedState, int OrderIndex, int OwnerHigh, int OwnerLow, int StateDuration, int StateTicks)
     : CodecServerCommand<VisitedBoatStateServerCommand>, ICommandCodecProvider<VisitedBoatStateServerCommand>
 {

@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 
 /// <summary>Carries a reaction for a stream entry; the client ignores it.</summary>
-/// <param name="Reaction">The reaction.</param>
-/// <param name="EntryId">The entry id.</param>
-public sealed record StreamEntryReactionMessage(int Reaction, SupercellProxy.Networking.Protocol.Neighborhoods.Chat.StreamEntryId? EntryId) : CodecMessage<StreamEntryReactionMessage>, ICodecProvider<StreamEntryReactionMessage>
+/// <param name="Reaction">Which reaction it is; its values are not identified.</param>
+/// <param name="EntryId">Stream entry the reaction belongs to.</param>
+public sealed record StreamEntryReactionMessage(int Reaction, StreamEntryId? EntryId) : CodecMessage<StreamEntryReactionMessage>, ICodecProvider<StreamEntryReactionMessage>
 {
     /// <inheritdoc />
     public static ICodec<StreamEntryReactionMessage> Codec { get; } = Codecs.Composite(

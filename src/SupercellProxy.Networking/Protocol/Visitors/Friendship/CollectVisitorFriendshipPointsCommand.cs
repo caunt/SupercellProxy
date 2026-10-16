@@ -12,7 +12,7 @@ public sealed record CollectVisitorFriendshipPointsCommand(int VisitorGlobalId) 
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,
-            static (visitorGlobalId) => new CollectVisitorFriendshipPointsCommand(visitorGlobalId)
+            static visitorGlobalId => new CollectVisitorFriendshipPointsCommand(visitorGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

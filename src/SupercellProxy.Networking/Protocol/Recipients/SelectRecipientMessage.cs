@@ -8,7 +8,7 @@ public sealed record SelectRecipientMessage(LongId RecipientId) : CodecMessage<S
 {
     /// <inheritdoc />
     public static ICodec<SelectRecipientMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(Codecs.LongId, static message => message.RecipientId, static (recipientId) => new SelectRecipientMessage(recipientId)),
+        Codecs.Composite(Codecs.LongId, static message => message.RecipientId, static recipientId => new SelectRecipientMessage(recipientId)),
         trailingDataMessage: "The recipient request has trailing data."
     );
 

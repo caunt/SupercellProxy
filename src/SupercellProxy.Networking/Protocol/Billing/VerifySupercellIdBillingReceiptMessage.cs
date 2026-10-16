@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Billing;
 
 /// <summary>Sends a Supercell ID store receipt for verification.</summary>
-/// <param name="ProductId">The product id.</param>
-/// <param name="ReceiptToken">The receipt token.</param>
+/// <param name="ProductId">Store product that was bought.</param>
+/// <param name="ReceiptToken">Token the Supercell store issued for the purchase, which the server redeems.</param>
 public sealed record VerifySupercellIdBillingReceiptMessage(string? ProductId, string? ReceiptToken) : CodecMessage<VerifySupercellIdBillingReceiptMessage>, ICodecProvider<VerifySupercellIdBillingReceiptMessage>
 {
     /// <inheritdoc />

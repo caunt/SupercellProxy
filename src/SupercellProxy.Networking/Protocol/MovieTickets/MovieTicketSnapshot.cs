@@ -4,66 +4,43 @@ using SupercellProxy.Networking.Protocol.Timing;
 
 namespace SupercellProxy.Networking.Protocol.MovieTickets;
 
-/// <summary>
-/// Defines the Movie Ticket Snapshot contract.
-/// </summary>
+/// <summary>Saved state of one movie ticket placement: play limits, timers and the drawn reward.</summary>
 public sealed record MovieTicketSnapshot
 {
-    /// <summary>
-    /// Gets the Last Reward Amount value.
-    /// </summary>
+    /// <summary>Amount of the reward given before the current one.</summary>
     public int LastRewardAmount { get; init; }
 
-    /// <summary>
-    /// Gets the Last Reward Id value.
-    /// </summary>
+    /// <summary>Global id of the table entry given as the reward before the current one.</summary>
     [JsonPropertyName("LastRewardId")]
     public int LastRewardId { get; init; }
 
-    /// <summary>
-    /// Gets the Next Expire Hour Index value.
-    /// </summary>
+    /// <summary>Unix hour at which the placement's daily limits reset.</summary>
     public int NextExpireHourIndex { get; init; }
 
-    /// <summary>
-    /// Gets the Random Seed value.
-    /// </summary>
+    /// <summary>Seed the next reward is drawn with; it advances on every draw.</summary>
     public int RandomSeed { get; init; }
 
-    /// <summary>
-    /// Gets the Reward Amount value.
-    /// </summary>
+    /// <summary>Amount of the reward the next video gives.</summary>
     public int RewardAmount { get; init; }
 
-    /// <summary>
-    /// Gets the Reward Id value.
-    /// </summary>
+    /// <summary>Global id of the table entry the next video gives as its reward.</summary>
     [JsonPropertyName("RewardId")]
     public int RewardId { get; init; }
 
-    /// <summary>
-    /// Gets the Reward Randomized Timestamp value.
-    /// </summary>
+    /// <summary>Unix time in seconds when the current reward was drawn.</summary>
     [JsonPropertyName("rewardRandomizedTimestamp")]
     public int RewardRandomizedTimestamp { get; init; }
 
-    /// <summary>
-    /// Gets the Shop Notification Visible value.
-    /// </summary>
+    /// <summary>Whether the shop shows the placement's notification badge; null when the save does not carry it.</summary>
     [JsonPropertyName("shopNotificationVisible")]
     public bool? ShopNotificationVisible { get; init; }
-    /// <summary>
-    /// Gets the State value.
-    /// </summary>
+
+    /// <summary>Where the placement is: 0 or 1 a video can be watched, 2 a video is being watched, 3 waiting for a play limit to reset.</summary>
     public int State { get; init; }
 
-    /// <summary>
-    /// Gets the Videos Played value.
-    /// </summary>
+    /// <summary>Videos watched so far in each play-limit window, one count per window.</summary>
     public int[] VideosPlayed { get; init; } = [];
 
-    /// <summary>
-    /// Gets the Timers value.
-    /// </summary>
+    /// <summary>Countdown of each play-limit window, one timer per window.</summary>
     public TimerSnapshot[] Timers { get; init; } = [];
 }

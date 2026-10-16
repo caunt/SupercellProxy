@@ -12,7 +12,7 @@ public sealed record FinishBuildingUpgradeWithDiamondsCommand(int ObjectGlobalId
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ObjectGlobalId,
-            static (objectGlobalId) => new FinishBuildingUpgradeWithDiamondsCommand(objectGlobalId)
+            static objectGlobalId => new FinishBuildingUpgradeWithDiamondsCommand(objectGlobalId)
         )
     );
 }

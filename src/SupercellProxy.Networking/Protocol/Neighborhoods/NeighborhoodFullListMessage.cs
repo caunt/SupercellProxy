@@ -11,7 +11,7 @@ public sealed record NeighborhoodFullListMessage : CodecMessage<NeighborhoodFull
         Codecs.Composite(
             Codecs.NullableArray(NeighborhoodHeaderEntry.Codec, CollectionCount.AtMost(maximum: 1024).WithStrictAbsence()),
             static message => message.Profiles,
-            static (profiles) => new NeighborhoodFullListMessage
+            static profiles => new NeighborhoodFullListMessage
             {
                 Profiles = profiles,
             }

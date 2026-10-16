@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 
 /// <summary>Pays to skip a decoration event challenge.</summary>
-/// <param name="Price">The price.</param>
-/// <param name="EventId">The event id.</param>
-/// <param name="ChallengeIndex">The challenge index.</param>
+/// <param name="Price">Skip price the client showed the player.</param>
+/// <param name="EventId">Decoration event the challenge belongs to.</param>
+/// <param name="ChallengeIndex">Position of the challenge in the event's list.</param>
 public sealed record SkipDecorationEventChallengeCommand(int Price, int EventId, int ChallengeIndex) : CodecCommand<SkipDecorationEventChallengeCommand>, ICommandCodecProvider<SkipDecorationEventChallengeCommand>
 {
     /// <inheritdoc />

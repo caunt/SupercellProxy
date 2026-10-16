@@ -14,6 +14,12 @@ public sealed class EncodedDocumentValue
         _encodedValue = encodedValue;
     }
 
+    /// <summary>Encodes a value with its concrete contract, as native writes it.</summary>
+    public static EncodedDocumentValue Create<TValue>(TValue value)
+    {
+        return new EncodedDocumentValue(JsonSerializer.SerializeToUtf8Bytes(value));
+    }
+
     /// <summary>Deserializes the preserved value through a concrete contract.</summary>
     public TValue Decode<TValue>()
     {

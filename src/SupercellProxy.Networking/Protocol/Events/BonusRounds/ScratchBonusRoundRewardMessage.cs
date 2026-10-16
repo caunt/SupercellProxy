@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.BonusRounds;
 
 /// <summary>Reports a scratched bonus round slot.</summary>
-/// <param name="RoundId">The round id.</param>
-/// <param name="Round">The round.</param>
-/// <param name="SlotIndex">The slot index.</param>
-/// <param name="RewardGlobalId">The reward data id.</param>
-/// <param name="RewardAmount">The reward amount.</param>
+/// <param name="RoundId">The bonus game the slot belongs to.</param>
+/// <param name="Round">Which round of the bonus game the slot is in.</param>
+/// <param name="SlotIndex">Position of the scratched slot.</param>
+/// <param name="RewardGlobalId">Global id of what the slot showed.</param>
+/// <param name="RewardAmount">How many of that reward the slot showed.</param>
 public sealed record ScratchBonusRoundRewardMessage(int RoundId, int Round, int SlotIndex, int RewardGlobalId, int RewardAmount) : CodecMessage<ScratchBonusRoundRewardMessage>, ICodecProvider<ScratchBonusRoundRewardMessage>
 {
     /// <inheritdoc />

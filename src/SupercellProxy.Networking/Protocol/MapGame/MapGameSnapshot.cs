@@ -8,14 +8,10 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>
-/// Represents decoded <c language="csharp">MapGameSnapshot</c> home data.
-/// </summary>
+/// <summary>Valley state saved with a home: the season it belongs to, the board, quests, shop, wallet and notifications.</summary>
 public sealed record MapGameSnapshot
 {
-    /// <summary>
-    /// Gets the Event value.
-    /// </summary>
+    /// <summary>Id of the live event of the Valley season the state belongs to; 0 when none.</summary>
     public int Event { get; init; }
 
     /// <summary>Gets the retained Valley fuel-generator state.</summary>
@@ -27,15 +23,11 @@ public sealed record MapGameSnapshot
     [JsonPropertyName("MapGameManager")]
     public MapGameHomeManagerSnapshot? Manager { get; init; }
 
-    /// <summary>
-    /// Gets or sets the <c language="csharp">MapGlobalId</c> value.
-    /// </summary>
+    /// <summary>Global id of the season's map table entry.</summary>
     [JsonPropertyName("MapGlobalId")]
     public int MapGlobalId { get; init; }
 
-    /// <summary>
-    /// Gets the Next Expire Hour Index value.
-    /// </summary>
+    /// <summary>Unix hour at which the Valley daily quests reset next.</summary>
     public int NextExpireHourIndex { get; init; }
 
     /// <summary>Gets the retained pending Valley notifications.</summary>

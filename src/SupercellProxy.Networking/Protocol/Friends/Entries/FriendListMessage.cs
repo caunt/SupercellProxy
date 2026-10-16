@@ -3,13 +3,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
-/// Carries a nullable, mode-specific list of friend entries.
+/// <summary>Carries a nullable, mode-specific list of friend entries.</summary>
 public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : CodecMessage<FriendListMessage>, ICodecProvider<FriendListMessage>
 {
-    /// Selects the separate recipient-list consumer.
+    /// <summary>Selects the separate recipient-list consumer.</summary>
     public const int RecipientMode = 4;
 
-    /// Selects the native in-game friend and pending-request list.
+    /// <summary>Selects the native in-game friend and pending-request list.</summary>
     public const int RelationshipMode = 3;
     private const int MaximumEntryCount = 100_000;
 
@@ -25,7 +25,7 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : Codec
         trailingDataMessage: "The friend list has trailing data."
     );
 
-    /// Omits private entries from diagnostics.
+    /// <summary>Omits private entries from diagnostics.</summary>
     public override string ToString()
     {
         return nameof(FriendListMessage);

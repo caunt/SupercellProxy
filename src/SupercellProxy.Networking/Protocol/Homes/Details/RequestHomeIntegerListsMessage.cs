@@ -8,7 +8,7 @@ public sealed record RequestHomeIntegerListsMessage(LongId? HomeId) : CodecMessa
 {
     /// <inheritdoc />
     public static ICodec<RequestHomeIntegerListsMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(Codecs.OptionalLongId, static message => message.HomeId, static (homeId) => new RequestHomeIntegerListsMessage(homeId)),
+        Codecs.Composite(Codecs.OptionalLongId, static message => message.HomeId, static homeId => new RequestHomeIntegerListsMessage(homeId)),
         trailingDataMessage: "The home integer-list request has trailing data."
     );
 

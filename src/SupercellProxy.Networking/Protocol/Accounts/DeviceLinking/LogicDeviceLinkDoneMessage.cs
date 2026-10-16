@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 
 /// <summary>Completes a device link with the credentials of the linked farm.</summary>
-/// <param name="AccountId">The account id.</param>
-/// <param name="PassToken">The pass token.</param>
+/// <param name="AccountId">Account of the linked farm, which this device logs in to from now on.</param>
+/// <param name="PassToken">Secret this device stores and sends at login to prove it may use that account.</param>
 public sealed record LogicDeviceLinkDoneMessage(LongId AccountId, string? PassToken) : CodecMessage<LogicDeviceLinkDoneMessage>, ICodecProvider<LogicDeviceLinkDoneMessage>
 {
     /// <inheritdoc />

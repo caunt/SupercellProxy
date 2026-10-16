@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -9,8 +11,9 @@ namespace SupercellProxy.Networking.Protocol.Tutorials;
 public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>, ICommandCodecProvider<FinishTutorialCommand>
 {
     /// <summary>
-    /// Initializes a new <see cref="FinishTutorialCommand"/> instance.
+    /// Marks one tutorial step finished.
     /// </summary>
+    /// <param name="tutorialGlobalId">Global id of the step in the tutorials table.</param>
     public FinishTutorialCommand(int tutorialGlobalId)
     {
         TutorialGlobalId = tutorialGlobalId;
@@ -21,13 +24,13 @@ public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.TutorialGlobalId,
-            static (tutorialGlobalId) => new FinishTutorialCommand(tutorialGlobalId)
+            static tutorialGlobalId => new FinishTutorialCommand(tutorialGlobalId)
         )
     );
 
     /// <summary>
-    /// Gets the <c language="csharp">TutorialGlobalId</c> value.
+    /// Global id of the finished step in the tutorials table; the server refuses steps that are already complete.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("TutorialGlobalId")]
+    [JsonPropertyName("TutorialGlobalId")]
     public int TutorialGlobalId { get; }
 }

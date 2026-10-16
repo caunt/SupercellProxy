@@ -8,7 +8,7 @@ public sealed record NeighborhoodStreamEntryFlagMessage(LongId EntryId) : CodecM
 {
     /// <inheritdoc />
     public static ICodec<NeighborhoodStreamEntryFlagMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(Codecs.LongId, static message => message.EntryId, static (entryId) => new NeighborhoodStreamEntryFlagMessage(entryId)),
+        Codecs.Composite(Codecs.LongId, static message => message.EntryId, static entryId => new NeighborhoodStreamEntryFlagMessage(entryId)),
         trailingDataMessage: "The Neighborhood stream-entry flag message has trailing data."
     );
 

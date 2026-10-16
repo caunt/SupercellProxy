@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events;
 
-/// <summary>One event reference entry.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
+/// <summary>Names one run of an event: the event and the variant the player was in.</summary>
+/// <param name="EventId">Server number of the event that ran.</param>
+/// <param name="VariantId">Which variant of that event the player was in.</param>
 public sealed record EventReference(int EventId, int VariantId) : ICodecProvider<EventReference>
 {
     /// <inheritdoc />

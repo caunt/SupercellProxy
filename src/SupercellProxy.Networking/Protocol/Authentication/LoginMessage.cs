@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Sessions;
@@ -6,7 +8,8 @@ using SupercellProxy.Networking.Sessions;
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
 /// <summary>
-/// Represents the <c language="csharp">LoginMessage</c> protocol message.
+/// Serverbound login, sent right after the server's hello: which account to open (by id and pass token, or by Supercell ID session
+/// token), the game release and asset hash, and the device's identity.
 /// </summary>
 public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<LoginMessage>
 {
@@ -99,81 +102,81 @@ public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<L
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AccountId</c> value.
+    /// Account to log in to; empty for a brand-new guest account or a Supercell ID login, where the server finds the account itself.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AccountId")]
+    [JsonPropertyName("AccountId")]
     public LongId AccountId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AdvertisingId</c> value.
+    /// The device's advertising identifier (Google advertising id or IDFA), if the client shares one.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AdvertisingId")]
+    [JsonPropertyName("AdvertisingId")]
     public string? AdvertisingId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AdvertisingTrackingEnabled</c> value.
+    /// Whether the player allows ad tracking on the device.
     /// </summary>
     public required bool AdvertisingTrackingEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AndroidId</c> value.
+    /// Android device identifier; empty on other platforms.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AndroidId")]
+    [JsonPropertyName("AndroidId")]
     public required string AndroidId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AppStore</c> value.
+    /// Store the game was installed from.
     /// </summary>
     public required AppStore AppStore { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">DeviceModel</c> value.
+    /// Hardware model name the device reports.
     /// </summary>
     public string? DeviceModel { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">IdForVendor</c> value.
+    /// Apple's identifier-for-vendor of the device; empty on other platforms.
     /// </summary>
     public required string IdForVendor { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">IsAndroid</c> value.
+    /// Whether the client runs on Android.
     /// </summary>
     public bool IsAndroid { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LoginVersion</c> value.
+    /// Game release packed into one number as major &lt;&lt; 20 | minor &lt;&lt; 10 | patch, so 1.73.81 is 1123409.
     /// </summary>
     public required int LoginVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MacAddress</c> value.
+    /// Network hardware address the device reports, if any.
     /// </summary>
     public string? MacAddress { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">OpenUdId</c> value.
+    /// Legacy OpenUDID device identifier, if the client still sends one.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("OpenUdId")]
+    [JsonPropertyName("OpenUdId")]
     public string? OpenUniqueDeviceId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">OsVersion</c> value.
+    /// Operating system version the device reports.
     /// </summary>
     public string? OsVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">PassToken</c> value.
+    /// Secret the server issued to this device for <see cref="AccountId"/>; null for a new guest account or a Supercell ID login.
     /// </summary>
     public string? PassToken { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">PreferredLanguage</c> value.
+    /// Language code the game should use for the player, such as <c>en</c>.
     /// </summary>
     public required string PreferredLanguage { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ResourceSha</c> value.
+    /// Hash of the asset bundle the client has; when it is not current, the server refuses the login with the current manifest.
     /// </summary>
     public string? ResourceSha { get; set; }
 
@@ -183,28 +186,28 @@ public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<L
     public SessionTokenData? SessionToken { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StorefrontCountryCode</c> value.
+    /// Country of the app store account the game is bought through, which sets the shop's prices.
     /// </summary>
     public required string StorefrontCountryCode { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StorefrontId</c> value.
+    /// Identifier of the app store storefront the game is bought through.
     /// </summary>
     public required string StorefrontId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UdId</c> value.
+    /// Legacy unique device identifier, if the client still sends one.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UdId")]
+    [JsonPropertyName("UdId")]
     public string? UniqueDeviceId { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
+    /// Text sent right after the device identity block, before the Android id; its meaning is not identified.
     /// </summary>
     public required string UnknownString0 { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
+    /// Text sent after the preferred language; its meaning is not identified.
     /// </summary>
     public required string UnknownString1 { get; set; }
 

@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Tasks;
 public sealed record BuyFarmPassLevelCommand(int Level) : CodecCommand<BuyFarmPassLevelCommand>, ICommandCodecProvider<BuyFarmPassLevelCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyFarmPassLevelCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Level, static (level) => new BuyFarmPassLevelCommand(level)));
+    public static CommandCodec<BuyFarmPassLevelCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Level, static level => new BuyFarmPassLevelCommand(level)));
 }

@@ -19,7 +19,7 @@ internal readonly record struct AvatarSocialSection(
     PassengerReservation[] PassengerReservations,
     PickedPassenger[] PickedPassengers,
     ServiceHelpRequest[] ServiceHelpRequests,
-    ServiceHelpRequest[] UnknownEntries3
+    ServiceHelpRequest[] TruckOrderHelpRequests
 ) : ICodecProvider<AvatarSocialSection>
 {
     /// <inheritdoc />
@@ -47,7 +47,7 @@ internal readonly record struct AvatarSocialSection(
         Codecs.Array(ServiceHelpRequest.Codec, CollectionCount.Bounded),
         static section => section.ServiceHelpRequests,
         Codecs.Array(ServiceHelpRequest.Codec, CollectionCount.Bounded),
-        static section => section.UnknownEntries3,
+        static section => section.TruckOrderHelpRequests,
         static (
             roadsideShop,
             neighborhood,
@@ -60,7 +60,7 @@ internal readonly record struct AvatarSocialSection(
             passengerReservations,
             pickedPassengers,
             serviceHelpRequests,
-            unknownEntries3
+            truckOrderHelpRequests
         ) => new AvatarSocialSection(
             roadsideShop,
             neighborhood,
@@ -73,7 +73,7 @@ internal readonly record struct AvatarSocialSection(
             passengerReservations,
             pickedPassengers,
             serviceHelpRequests,
-            unknownEntries3
+            truckOrderHelpRequests
         )
     );
 }

@@ -31,7 +31,7 @@ public sealed record FeaturingDesignListMessage : CodecMessage<FeaturingDesignLi
         trailingDataMessage: "The featured-design list has trailing data."
     );
 
-    /// <summary>Gets the batch timestamp in milliseconds.</summary>
+    /// <summary>Unix milliseconds when the server picked this set of featured designs; a newer set replaces an older one for the group.</summary>
     public long BatchTimestampMilliseconds { get; init; }
 
     /// <summary>Gets the optional featured-design list.</summary>

@@ -1,20 +1,19 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Production;
 
 /// <summary>
-/// Defines the Start Building Production Command contract.
+/// Serverbound command that queues one product in a production building, taking its ingredients from storage. Native first
+/// collects one finished product from the building when there is one.
 /// </summary>
-/// <summary>
-/// Defines the Building Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Product Global Id contract.
-/// </summary>
+/// <param name="BuildingGlobalId">Game object id of the production building.</param>
+/// <param name="ProductGlobalId">Global id of the product to make, such as an entry of the bakery goods table.</param>
 public sealed record StartBuildingProductionCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("ProductGlobalId")] int ProductGlobalId
+    [property: JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId,
+    [property: JsonPropertyName("ProductGlobalId")] int ProductGlobalId
 ) : CodecCommand<StartBuildingProductionCommand>, ICommandCodecProvider<StartBuildingProductionCommand>
 {
     /// <inheritdoc />

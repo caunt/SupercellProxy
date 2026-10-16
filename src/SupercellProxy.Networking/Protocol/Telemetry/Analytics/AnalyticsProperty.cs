@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>One analytics property; native writes at most 32 key characters and 64 value characters.</summary>
 /// <param name="Key">The property key, such as <c>session_name</c>.</param>
-/// <param name="Value">The property value.</param>
+/// <param name="Value">Text of the property, such as launch for <c>session_name</c>.</param>
 public sealed record AnalyticsProperty(string? Key, string? Value) : ICodecProvider<AnalyticsProperty>
 {
     /// <inheritdoc />
@@ -16,8 +16,6 @@ public sealed record AnalyticsProperty(string? Key, string? Value) : ICodecProvi
         static (key, @value) => new AnalyticsProperty(key, value)
     );
 
-    /// <summary>
-    /// Gets the property list codec.
-    /// </summary>
+    /// <summary>Reads and writes a counted list of properties.</summary>
     internal static ICodec<ReadOnlyMemory<AnalyticsProperty>> ListCodec => field ??= Codecs.Memory(Codec);
 }

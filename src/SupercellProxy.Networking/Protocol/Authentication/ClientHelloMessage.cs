@@ -32,47 +32,48 @@ public sealed record ClientHelloMessage : CodecMessage<ClientHelloMessage>, ICod
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AppStore</c> value.
+    /// Store the game was installed from; it decides which billing and store features the server enables.
     /// </summary>
     public required AppStore AppStore { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">DeviceType</c> value.
+    /// Platform number of the device; the managed client sends 2 together with the Google Play store.
     /// </summary>
     public required int DeviceType { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">FingerprintSha1</c> value.
+    /// Hash of the asset bundle the client has. A stale or empty hash makes the server answer the login with an out-of-date-content
+    /// failure that carries the current manifest.
     /// </summary>
     public required string FingerprintSha1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">KeyVersion</c> value.
+    /// Which server key pair the client was built with; the server answers with the matching key, and an unknown version fails.
     /// </summary>
     public required int KeyVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MajorVersion</c> value.
+    /// First part of the game release, such as 1 in 1.73.81; with the minor and patch parts it selects the message ids and layouts.
     /// </summary>
     public required int MajorVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">MinorVersion</c> value.
+    /// Second part of the game release, such as 73 in 1.73.81.
     /// </summary>
     public required int MinorVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">PatchVersion</c> value.
+    /// Third part of the game release, such as 81 in 1.73.81.
     /// </summary>
     public required int PatchVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ProtocolVersion</c> value.
+    /// Version of the connection protocol itself, separate from the game release.
     /// </summary>
     public required int ProtocolVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
+    /// Last field of the hello; its meaning is not identified. The managed client sends -1.
     /// </summary>
     public int Unknown1 { get; set; }
 }

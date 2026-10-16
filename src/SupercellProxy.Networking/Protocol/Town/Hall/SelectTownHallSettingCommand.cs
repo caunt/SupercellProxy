@@ -12,7 +12,7 @@ public sealed record SelectTownHallSettingCommand(int SettingGlobalId) : CodecCo
         Codecs.Composite(
             Codecs.Int32,
             static command => command.SettingGlobalId,
-            static (settingGlobalId) => new SelectTownHallSettingCommand(settingGlobalId)
+            static settingGlobalId => new SelectTownHallSettingCommand(settingGlobalId)
         )
     );
 }

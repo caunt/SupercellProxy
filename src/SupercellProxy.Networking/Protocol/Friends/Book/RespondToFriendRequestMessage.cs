@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Book;
 
 /// <summary>Accepts or declines a friend item request.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="Accepted">The accepted.</param>
+/// <param name="AvatarId">Player who made the request.</param>
+/// <param name="Accepted">True to agree to the request; false to turn it down.</param>
 public sealed record RespondToFriendRequestMessage(LongId AvatarId, bool Accepted) : CodecMessage<RespondToFriendRequestMessage>, ICodecProvider<RespondToFriendRequestMessage>
 {
     /// <inheritdoc />

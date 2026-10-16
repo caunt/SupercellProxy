@@ -2,28 +2,28 @@ using System.Globalization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Identifies the native result of a follow relationship operation.
+/// <summary>Identifies the native result of a follow relationship operation.</summary>
 public readonly record struct FollowResultCode
 {
-    /// Creates a result code from its native wire value.
+    /// <summary>Creates a result code from its native wire value.</summary>
     public FollowResultCode(int value)
     {
         Value = value;
     }
 
-    /// Gets the successful result.
+    /// <summary>Gets the successful result.</summary>
     public static FollowResultCode Success { get; } = new(value: 1);
 
-    /// Gets the result reported when the farm cannot be followed.
+    /// <summary>Gets the result reported when the farm cannot be followed.</summary>
     public static FollowResultCode CannotFollowFarm { get; } = new(value: 3);
 
-    /// Gets the result reported when the target cannot accept another follower.
+    /// <summary>Gets the result reported when the target cannot accept another follower.</summary>
     public static FollowResultCode TargetHasTooManyFollowers { get; } = new(value: 4);
 
-    /// Gets the native wire value.
+    /// <summary>Gets the native wire value.</summary>
     public int Value { get; }
 
-    /// Formats the known result name or its numeric wire value.
+    /// <summary>Formats the known result name or its numeric wire value.</summary>
     public override string ToString()
     {
         return this == Success

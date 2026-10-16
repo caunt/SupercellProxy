@@ -8,7 +8,7 @@ public sealed record CancelRoadsideListingCommand(int SlotIndex) : CodecCommand<
 {
     /// <inheritdoc />
     public static CommandCodec<CancelRoadsideListingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new CancelRoadsideListingCommand(slotIndex)),
+        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new CancelRoadsideListingCommand(slotIndex)),
         CommandLayout.MetadataFirst
     );
 }

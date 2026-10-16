@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
 /// <summary>Confirms an item the avatar donated to a neighborhood request.</summary>
-/// <param name="RequesterHomeId">The requester home id.</param>
-/// <param name="DonorHomeId">The donor home id.</param>
-/// <param name="RequestId">The request id.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="Request">The request.</param>
+/// <param name="RequesterHomeId">Home of the member who asked.</param>
+/// <param name="DonorHomeId">Home of the player who donated.</param>
+/// <param name="RequestId">Id of the request on the neighbourhood board.</param>
+/// <param name="Amount">How many goods the player gave.</param>
+/// <param name="Request">The request after the donation.</param>
 public sealed record NeighborhoodItemDonatedServerCommand(LongId RequesterHomeId, LongId DonorHomeId, LongId RequestId, int Amount, NeighborhoodRequest? Request) : CodecServerCommand<NeighborhoodItemDonatedServerCommand>, ICommandCodecProvider<NeighborhoodItemDonatedServerCommand>
 {
     /// <inheritdoc />

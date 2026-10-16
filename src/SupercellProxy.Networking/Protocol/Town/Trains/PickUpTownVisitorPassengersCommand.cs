@@ -12,7 +12,7 @@ public sealed record PickUpTownVisitorPassengersCommand(ReadOnlyMemory<int> Pass
         Codecs.Composite(
             Codecs.Memory(Codecs.VarInt),
             static command => command.PassengerGlobalIds,
-            static (passengerGlobalIds) => new PickUpTownVisitorPassengersCommand(passengerGlobalIds)
+            static passengerGlobalIds => new PickUpTownVisitorPassengersCommand(passengerGlobalIds)
         )
     );
 }

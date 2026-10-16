@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>Represents decoded MapGameThemedTasksSnapshot state.</summary>
+/// <summary>Saved progress of the Valley's themed tasks.</summary>
 public sealed record MapGameThemedTasksSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the CurrentDayIndex value.</summary>
+    /// <summary>Day index the themed task state belongs to.</summary>
     [JsonPropertyName("CurrentDayIndex")]
     public int CurrentDayIndex { get; init; }
 }

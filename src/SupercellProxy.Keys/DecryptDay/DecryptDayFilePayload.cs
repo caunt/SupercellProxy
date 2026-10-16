@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Keys.DecryptDay;
 
-/// <summary>Represents the typed DecryptDayFilePayload response contract.</summary>
+/// <summary>Decoded page data of a decrypt.day file lookup.</summary>
 internal sealed record DecryptDayFilePayload
 {
-    /// <summary>Gets the Data value.</summary>
+    /// <summary>The offered files; null when the page data carries none.</summary>
     [JsonPropertyName("data")]
     public DecryptDayFileList? Data { get; init; }
 }

@@ -1,32 +1,35 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Transport;
 
 
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 
 /// <summary>
-/// Represents the <c language="csharp">PassthroughMessage</c> protocol message.
+/// A message the code does not decode: its raw payload is kept so it can be forwarded or recorded byte for byte.
 /// </summary>
 public sealed record PassthroughMessage : IMessage
 {
     /// <summary>
-    /// Gets or sets the <c language="csharp">Data</c> value.
+    /// The undecoded payload bytes, written back unchanged when the message is encoded.
     /// </summary>
     public required Memory<byte> Data { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Id</c> value.
+    /// Wire id from the frame header, kept so the frame goes out under the same id.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Id")]
+    [JsonPropertyName("Id")]
     public required ushort Id { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Version</c> value.
+    /// Version field from the frame header, kept so the frame goes out with the same version.
     /// </summary>
     public required ushort Version { get; init; }
 
     /// <summary>
-    /// Creates a <c language="csharp">PassthroughMessage</c> from the supplied data.
+    /// Takes the rest of a frame's payload as raw bytes, together with the frame's id and version.
     /// </summary>
+    /// <param name="container">A decrypted frame.</param>
     public static PassthroughMessage Decode(MessageContainer container)
     {
         ArgumentNullException.ThrowIfNull(container);
@@ -40,8 +43,9 @@ public sealed record PassthroughMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">Encode</c> operation.
+    /// Writes the kept payload bytes exactly as they were received.
     /// </summary>
+    /// <param name="stream">Payload stream of the outgoing frame.</param>
     public void Encode(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -50,7 +54,7 @@ public sealed record PassthroughMessage : IMessage
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToString</c> operation.
+    /// Shows the id, version, payload size and the first 20 payload bytes in hex, enough to recognise a frame in a log.
     /// </summary>
     public override string ToString()
     {

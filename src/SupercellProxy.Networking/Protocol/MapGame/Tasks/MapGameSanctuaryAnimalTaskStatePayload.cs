@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
 /// <summary>
-/// Represents <c language="csharp">MapGameSanctuaryAnimalTaskStatePayload</c>.
+/// State of a Valley sanctuary animal task: an animal a car picks up and carries to a delivery node, which can escape on the way.
 /// </summary>
 /// <param name="Pickup">The pickup node (native JSON <c>Pickup</c>).</param>
 /// <param name="DeliveryNodeType">The delivery node type (native JSON <c>DeliveryNodeType</c>).</param>

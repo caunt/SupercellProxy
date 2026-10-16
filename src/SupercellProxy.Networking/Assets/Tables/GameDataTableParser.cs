@@ -4,13 +4,18 @@ using System.Runtime.InteropServices;
 namespace SupercellProxy.Networking.Assets.Tables;
 
 /// <summary>
-/// Represents <c language="csharp">GameDataTableParser</c>.
+/// Reads the game's CSV tables: quoted cells, a column-name row, a column-type row, and entries whose array columns continue on
+/// unnamed lines.
 /// </summary>
 public static class GameDataTableParser
 {
     /// <summary>
-    /// Executes the <c language="csharp">Parse</c> operation.
+    /// Parses a whole table, converting each cell to the type its column declares and grouping continuation lines under their entry.
     /// </summary>
+    /// <param name="csvText">Full text of the CSV file.</param>
+    /// <exception cref="FormatException">
+    /// The text lacks the two header rows, a cell does not fit its column type, or a continuation line comes before any named line.
+    /// </exception>
     public static GameDataTable Parse(string csvText)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(csvText);
@@ -61,8 +66,10 @@ public static class GameDataTableParser
     }
 
     /// <summary>
-    /// Provides the Parse Physical Rows value or operation.
+    /// Splits CSV text into its lines and raw cell strings, header rows included, without typing or grouping anything; useful for
+    /// CSV files that are not game tables.
     /// </summary>
+    /// <param name="csvText">Full text of the CSV file.</param>
     public static IReadOnlyList<IReadOnlyList<string>> ParsePhysicalRows(string csvText)
     {
         return ParseMutableRows(csvText).AsReadOnly();

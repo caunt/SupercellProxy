@@ -12,7 +12,7 @@ public sealed record OpenCalendarGiftBoxCommand(int GiftBoxGlobalId) : CodecComm
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.GiftBoxGlobalId,
-            static (giftBoxGlobalId) => new OpenCalendarGiftBoxCommand(giftBoxGlobalId)
+            static giftBoxGlobalId => new OpenCalendarGiftBoxCommand(giftBoxGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

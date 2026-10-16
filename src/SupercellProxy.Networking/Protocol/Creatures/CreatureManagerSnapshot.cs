@@ -78,7 +78,7 @@ public sealed record CreatureManagerSnapshot
     public int[] EventCatchCounts { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">LastKnownEventId</c> value.
+    /// Creature event the per-event spawn counters were counted for.
     /// </summary>
     [JsonPropertyName("lastKnownEventId")]
     public int LastKnownEventId { get; init; }

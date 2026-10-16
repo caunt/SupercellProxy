@@ -8,7 +8,7 @@ public sealed record UnfollowMessage(LongId HomeId) : CodecMessage<UnfollowMessa
 {
     /// <inheritdoc />
     public static ICodec<UnfollowMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(Codecs.LongId, static message => message.HomeId, static (homeId) => new UnfollowMessage(homeId)),
+        Codecs.Composite(Codecs.LongId, static message => message.HomeId, static homeId => new UnfollowMessage(homeId)),
         trailingDataMessage: "The unfollow request has trailing data."
     );
 

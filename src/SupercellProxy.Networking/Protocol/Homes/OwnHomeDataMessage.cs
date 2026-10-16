@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Json;
 using SupercellProxy.Networking.Protocol.Avatars;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -45,25 +47,25 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ClientAvatar</c> value.
+    /// The player's own avatar: name, ids, inventory, mail, roadside shop and so on.
     /// </summary>
     public ClientAvatar ClientAvatar { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AvatarData</c> value.
+    /// The decoded avatar data document: per-area object metadata and the saved state of account-wide game systems.
     /// </summary>
     public AvatarDataSnapshot AvatarData { get; init; } = new();
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedAvatarDataJson</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("CompressedAvatarDataJson")]
+    [JsonPropertyName("CompressedAvatarDataJson")]
     public ReadOnlyMemory<byte>? CompressedAvatarDataDocument { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedHomeDataJson</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("CompressedHomeDataJson")]
+    [JsonPropertyName("CompressedHomeDataJson")]
     public ReadOnlyMemory<byte>? CompressedHomeDataDocument { get; init; }
 
     /// <summary>
@@ -71,12 +73,12 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
     /// </summary>
     public ReadOnlyMemory<byte>? CompressedHomeOwnerAvatarDataDocument { get; init; }
     /// <summary>
-    /// Gets or sets the <c language="csharp">Home</c> value.
+    /// The decoded home data document: the farm's objects, tile size and running product counts.
     /// </summary>
     public HomeSnapshot Home { get; init; } = new();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ServerTimestamp</c> value.
+    /// Server time of the snapshot in Unix seconds; the farm's simulation starts from this moment.
     /// </summary>
     public int ServerTimestamp { get; init; }
 

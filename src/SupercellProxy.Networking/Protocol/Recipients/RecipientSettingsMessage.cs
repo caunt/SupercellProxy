@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Recipients;
 
 /// <summary>Delivers the recipient settings to the social manager.</summary>
-/// <param name="Flag">The flag.</param>
-/// <param name="Value">The value.</param>
+/// <param name="Flag">Switch the settings open with; its meaning is not identified.</param>
+/// <param name="Value">Number that follows the switch; not identified.</param>
 public sealed record RecipientSettingsMessage(bool Flag, int Value) : CodecMessage<RecipientSettingsMessage>, ICodecProvider<RecipientSettingsMessage>
 {
     /// <inheritdoc />

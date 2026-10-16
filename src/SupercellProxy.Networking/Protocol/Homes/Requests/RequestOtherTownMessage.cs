@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestOtherTownMessage(LongId HomeId) : CodecMessage<RequestOtherTownMessage>, ICodecProvider<RequestOtherTownMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestOtherTownMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.HomeId, static (homeId) => new RequestOtherTownMessage(homeId));
+    public static ICodec<RequestOtherTownMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.HomeId, static homeId => new RequestOtherTownMessage(homeId));
 }

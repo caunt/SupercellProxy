@@ -11,7 +11,7 @@ public sealed record ClaimAccountLinkRewardCommand(AccountLinkRewardKind Kind) :
         Codecs.Composite(
             Codecs.Enum<AccountLinkRewardKind>(Codecs.Int32),
             static command => command.Kind,
-            static (kind) => new ClaimAccountLinkRewardCommand(kind)
+            static kind => new ClaimAccountLinkRewardCommand(kind)
         )
     );
 }

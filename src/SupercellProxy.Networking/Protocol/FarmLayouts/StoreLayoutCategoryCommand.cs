@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record StoreLayoutCategoryCommand(int Category) : CodecCommand<StoreLayoutCategoryCommand>, ICommandCodecProvider<StoreLayoutCategoryCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StoreLayoutCategoryCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.Category, static (category) => new StoreLayoutCategoryCommand(category))
-    );
+    public static CommandCodec<StoreLayoutCategoryCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Category, static category => new StoreLayoutCategoryCommand(category)));
 }

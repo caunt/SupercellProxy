@@ -6,7 +6,7 @@ using SupercellProxy.Networking.Protocol.Versions;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Transport;
 
-namespace SupercellProxy.Networking.Protocol.Commands;
+namespace SupercellProxy.Networking.Protocol.Commands.Registry;
 
 /// <summary>Maps native command wire ids to command contracts and reads and writes commands with their codecs.</summary>
 public static class CommandRegistry

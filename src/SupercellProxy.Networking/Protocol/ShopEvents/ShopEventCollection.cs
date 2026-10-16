@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents;
 public sealed record ShopEventCollection : ICodecProvider<ShopEventCollection>
 {
     /// <summary>
-    /// Defines the <c language="csharp">MaxEventCount</c> value.
+    /// Largest number of events a collection may carry; the decoder rejects more as corrupt data.
     /// </summary>
     public const int MaximumEventCount = 1024;
 
@@ -26,12 +26,12 @@ public sealed record ShopEventCollection : ICodecProvider<ShopEventCollection>
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Events</c> value.
+    /// Live event definitions the server delivers: shop offers, seasonal events and similar, at most <see cref="MaximumEventCount"/>.
     /// </summary>
     public ReadOnlyMemory<ShopEvent> Events { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// Number sent before the events; its meaning is not identified (-1 when the collection is built locally).
     /// </summary>
     public int Unknown0 { get; init; } = -1;
 }

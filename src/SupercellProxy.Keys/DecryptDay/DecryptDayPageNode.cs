@@ -4,10 +4,10 @@ using SupercellProxy.Keys.Svelte;
 
 namespace SupercellProxy.Keys.DecryptDay;
 
-/// <summary>Represents the typed DecryptDayPageNode response contract.</summary>
+/// <summary>One part of a decrypt.day page's data, as its web framework sends it.</summary>
 internal sealed record DecryptDayPageNode
 {
-    /// <summary>Gets the Data value.</summary>
+    /// <summary>Encoded data of this page part; it is decoded only when it describes an app.</summary>
     [JsonPropertyName("data")]
     public SvelteData? Data { get; init; }
 }

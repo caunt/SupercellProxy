@@ -1,7 +1,7 @@
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
-namespace SupercellProxy.Networking.Protocol.Neighborhoods;
+namespace SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
 
 /// <summary>Claims the decoration for a one-based Neighborhood Nurture visual milestone.</summary>
 public sealed record ClaimNeighborhoodObjectVisualRewardCommand(int VisualLevel) : CodecCommand<ClaimNeighborhoodObjectVisualRewardCommand>, ICommandCodecProvider<ClaimNeighborhoodObjectVisualRewardCommand>
@@ -11,7 +11,7 @@ public sealed record ClaimNeighborhoodObjectVisualRewardCommand(int VisualLevel)
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisualLevel,
-            static (visualLevel) => new ClaimNeighborhoodObjectVisualRewardCommand(visualLevel)
+            static visualLevel => new ClaimNeighborhoodObjectVisualRewardCommand(visualLevel)
         ),
         CommandLayout.MetadataFirst
     );

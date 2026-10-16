@@ -11,7 +11,7 @@ public sealed record FulfillFarmVisitorOrderCommand(int VisitorGlobalId) : Codec
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,
-            static (visitorGlobalId) => new FulfillFarmVisitorOrderCommand(visitorGlobalId)
+            static visitorGlobalId => new FulfillFarmVisitorOrderCommand(visitorGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

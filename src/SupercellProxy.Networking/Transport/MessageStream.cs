@@ -36,22 +36,24 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         _transport = new MessageTransport(this);
     }
     /// <summary>
-    /// Gets the <c language="csharp">CanRead</c> value.
+    /// Whether the wrapped stream can still be read, for a socket stream that is whether the connection is open for reading.
     /// </summary>
     public bool CanRead => BaseStream.CanRead;
     /// <summary>
-    /// Gets the <c language="csharp">CanWrite</c> value.
+    /// Whether the wrapped stream accepts writes.
     /// </summary>
     public bool CanWrite => BaseStream.CanWrite;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">CommandDataResolver</c> value.
+    /// Game tables used while decoding commands whose payload layout depends on the data entry they refer to; without them such
+    /// commands cannot be decoded.
     /// </summary>
     public ICommandDataResolver? CommandDataResolver { get; set; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Length</c> value.
+    /// Size in bytes of an in-memory payload being decoded or built.
     /// </summary>
+    /// <exception cref="NotSupportedException">The stream wraps a network connection, which has no fixed length.</exception>
     public long Length => GetMemoryStream().Length;
 
     /// <summary>Optionally observes received messages and successfully written plaintext frames; payloads are borrowed for the callback only.</summary>
@@ -61,8 +63,10 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public ushort? OutboundMessageVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Position</c> value.
+    /// Read or write offset within an in-memory payload. Setting it first writes out a partly filled byte of packed booleans and
+    /// forgets a partly read one, so packed booleans never straddle a jump.
     /// </summary>
+    /// <exception cref="NotSupportedException">The stream wraps a network connection.</exception>
     public long Position
     {
         get => GetMemoryStream().Position;
@@ -221,8 +225,11 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     }
 
     /// <summary>
-    /// Reads <c language="csharp">MessageAsync</c> from the stream.
+    /// Reads the next message and requires it to be of the given type, for exchanges where the protocol allows only one reply.
     /// </summary>
+    /// <param name="cancellationToken">Stops waiting for the message.</param>
+    /// <exception cref="InvalidOperationException">The next message is of another type; it is consumed anyway.</exception>
+    /// <exception cref="StreamClosedException">The connection ended.</exception>
     public Task<TValue> ReadMessageAsync<TValue>(CancellationToken cancellationToken = default)
         where TValue : IMessage
     {
@@ -230,8 +237,10 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     }
 
     /// <summary>
-    /// Reads <c language="csharp">MessageAsync</c> from the stream.
+    /// Reads, decrypts and decodes the next message, whatever its type, and reports it to <see cref="ObserveMessage"/>.
     /// </summary>
+    /// <param name="cancellationToken">Stops waiting for the message.</param>
+    /// <exception cref="StreamClosedException">The connection ended.</exception>
     public Task<IMessage> ReadMessageAsync(CancellationToken cancellationToken = default)
     {
         return _transport.ReadMessageAsync(cancellationToken);
@@ -420,8 +429,10 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     }
 
     /// <summary>
-    /// Provides the Resolve Message value or operation.
+    /// Decodes an already received frame into its typed message, using this connection's game version and command tables; useful
+    /// when frames are read with <see cref="ReadContainerAsync"/> and decoded separately.
     /// </summary>
+    /// <param name="container">A decrypted frame with its message id, version and payload.</param>
     public IMessage ResolveMessage(MessageContainer container)
     {
         return _transport.ResolveMessage(container);

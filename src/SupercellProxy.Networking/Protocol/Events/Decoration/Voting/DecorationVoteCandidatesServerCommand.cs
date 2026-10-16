@@ -12,7 +12,7 @@ public sealed record DecorationVoteCandidatesServerCommand(DecorationVotePair? P
         Codecs.Composite(
             Codecs.Optional(DecorationVotePair.Codec),
             static command => command.Pair,
-            static (pair) => new DecorationVoteCandidatesServerCommand(pair)
+            static pair => new DecorationVoteCandidatesServerCommand(pair)
         ),
         CommandLayout.MetadataFirst
     );

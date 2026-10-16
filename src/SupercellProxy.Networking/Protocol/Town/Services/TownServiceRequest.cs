@@ -2,11 +2,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Town.Services;
 
-/// <summary>One town service request entry.</summary>
-/// <param name="ServiceBuildingGlobalId">The service building data id.</param>
-/// <param name="Completed">The completed.</param>
-/// <param name="Canceled">The canceled.</param>
-/// <param name="RequiredGoods">The required goods.</param>
+/// <summary>One service a passenger at a town service building wants.</summary>
+/// <param name="ServiceBuildingGlobalId">Global id of the service building's table entry that provides the service.</param>
+/// <param name="Completed">Whether the passenger already got this service.</param>
+/// <param name="Canceled">Whether the service request was dropped without being done.</param>
+/// <param name="RequiredGoods">Goods the building uses up to provide the service.</param>
 public sealed record TownServiceRequest(int ServiceBuildingGlobalId, bool Completed, bool Canceled, ReadOnlyMemory<TownServiceGood> RequiredGoods) : ICodecProvider<TownServiceRequest>
 {
     /// <inheritdoc />

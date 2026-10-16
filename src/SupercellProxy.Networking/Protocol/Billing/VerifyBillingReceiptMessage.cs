@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Billing;
 
 /// <summary>Sends an App Store receipt for verification.</summary>
-/// <param name="PriceLocale">The price locale.</param>
-/// <param name="LocalPrice">The local price.</param>
-/// <param name="TransactionId">The transaction id.</param>
-/// <param name="ProductId">The product id.</param>
-/// <param name="Receipt">The receipt.</param>
+/// <param name="PriceLocale">Locale the App Store priced the product in, which gives its currency.</param>
+/// <param name="LocalPrice">Price the App Store showed the player, as text.</param>
+/// <param name="TransactionId">App Store identifier of the purchase, which keeps the same purchase from being credited twice.</param>
+/// <param name="ProductId">Store product that was bought.</param>
+/// <param name="Receipt">App Store receipt bytes the server checks with Apple.</param>
 public sealed record VerifyBillingReceiptMessage(string? PriceLocale, string? LocalPrice, string? TransactionId, string? ProductId, ReadOnlyMemory<byte>? Receipt) : CodecMessage<VerifyBillingReceiptMessage>, ICodecProvider<VerifyBillingReceiptMessage>
 {
     /// <inheritdoc />

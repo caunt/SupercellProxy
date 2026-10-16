@@ -10,7 +10,11 @@ public sealed record CommandData : ICodecProvider<CommandData>
     /// <summary>The number of diagnostic values native sends.</summary>
     public const int ValueCount = 128;
 
-    /// <summary>Initializes a new <see cref="CommandData"/> instance.</summary>
+    /// <summary>Builds the diagnostic block from its parts, checking it has the fixed number of values native always writes.</summary>
+    /// <param name="values">Exactly <see cref="ValueCount"/> diagnostic numbers.</param>
+    /// <param name="text">Diagnostic text written after the numbers.</param>
+    /// <param name="unknown0">The trailing integer, passed through unchanged.</param>
+    /// <exception cref="ArgumentException"><paramref name="values"/> does not hold exactly <see cref="ValueCount"/> numbers.</exception>
     public CommandData(ReadOnlyMemory<int> values, string text, int unknown0)
     {
         if (values.Length != ValueCount)
@@ -35,7 +39,7 @@ public sealed record CommandData : ICodecProvider<CommandData>
     /// <summary>Gets the diagnostic text.</summary>
     public string Text { get; }
 
-    /// <summary>Gets the <c language="csharp">Unknown0</c> value.</summary>
+    /// <summary>Integer native writes after the diagnostic text; its meaning is not identified, so it is only carried through.</summary>
     public int Unknown0 { get; }
 
     /// <summary>Gets the diagnostic values.</summary>

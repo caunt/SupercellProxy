@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.MapGame.Rewards;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>Represents the decoded MapGameEventDefinition JSON contract.</summary>
+/// <summary>Live event describing one Valley season: its map, its exclusive shop rewards and the goal that unlocks them.</summary>
 public sealed record MapGameEventDefinition
 {
     /// <summary>Gets the collection goal that unlocks the exclusive rewards.</summary>
@@ -27,7 +27,7 @@ public sealed record MapGameEventDefinition
     [JsonPropertyName("mapGameMap")]
     public string? MapName { get; init; }
 
-    /// <summary>Gets the Pause value.</summary>
+    /// <summary>Whether the season is on hold; the client logic does not read it.</summary>
     [JsonPropertyName("pause")]
     public bool Pause { get; init; }
 }

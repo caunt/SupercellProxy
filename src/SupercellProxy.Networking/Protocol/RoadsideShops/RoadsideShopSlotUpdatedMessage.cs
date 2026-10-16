@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>Updates one roadside shop slot of the visited farm.</summary>
-/// <param name="Quantity">The quantity.</param>
-/// <param name="Slot">The slot.</param>
-/// <param name="Price">The price.</param>
-/// <param name="ItemId">The item's data id.</param>
+/// <param name="Quantity">How many goods are on the stand.</param>
+/// <param name="Slot">Position of the stand in the shop.</param>
+/// <param name="Price">Coin price of the whole stand.</param>
+/// <param name="ItemId">Global id of the goods on the stand.</param>
 /// <param name="OwnerId">The farm owner; the client ignores the message unless it is visiting that farm.</param>
 public sealed record RoadsideShopSlotUpdatedMessage(int Quantity, int Slot, int Price, int ItemId, LongId OwnerId) : CodecMessage<RoadsideShopSlotUpdatedMessage>, ICodecProvider<RoadsideShopSlotUpdatedMessage>
 {

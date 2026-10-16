@@ -47,11 +47,11 @@ public sealed record DecorationVotingSnapshot : ExtensibleDocument
     [JsonPropertyName("shownBannerLikesTimes")]
     public int ShownBannerLikesTimes { get; init; }
 
-    /// <summary>Gets the timestamp of the shown likes banner.</summary>
+    /// <summary>Unix seconds when the client last showed the player the banner announcing their design's likes.</summary>
     [JsonPropertyName("shownBannerLikesEpochS")]
     public int ShownBannerLikesTimestamp { get; init; }
 
-    /// <summary>Gets the shown banner phase.</summary>
+    /// <summary>Event phase whose announcement banner the client has already shown, so it is not shown again.</summary>
     [JsonPropertyName("shownBannerPhase")]
     public int ShownBannerPhase { get; init; }
 

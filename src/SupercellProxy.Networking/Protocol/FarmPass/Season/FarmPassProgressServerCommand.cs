@@ -3,11 +3,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass.Season;
 
-/// <summary>Updates the Farm Pass progress.</summary>
-/// <param name="SeasonId">The season id.</param>
-/// <param name="Points">The points.</param>
-/// <param name="Level">The level.</param>
-/// <param name="Tier">The tier.</param>
+/// <summary>Reports the player's Farm Pass progress as the server has it; the client logic does not act on it.</summary>
+/// <param name="SeasonId">Live event id of the season.</param>
+/// <param name="Points">Season points the player earned.</param>
+/// <param name="Level">Pass level the player reached.</param>
+/// <param name="Tier">Pass the player bought; its values are not identified.</param>
 public sealed record FarmPassProgressServerCommand(int SeasonId, int Points, int Level, int Tier) : CodecServerCommand<FarmPassProgressServerCommand>, ICommandCodecProvider<FarmPassProgressServerCommand>
 {
     /// <inheritdoc />

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Reports the result of a follow relationship operation and its optional friend entry.
+/// <summary>Reports the result of a follow relationship operation and its optional friend entry.</summary>
 public sealed record FollowResponseMessage(FollowResultCode Result, FollowOperation Operation, FriendEntry? Entry) : CodecMessage<FollowResponseMessage>, ICodecProvider<FollowResponseMessage>
 {
     /// <inheritdoc />
@@ -21,7 +21,7 @@ public sealed record FollowResponseMessage(FollowResultCode Result, FollowOperat
         trailingDataMessage: "The follow response has trailing data."
     );
 
-    /// Omits the private friend entry from diagnostic text.
+    /// <summary>Omits the private friend entry from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(FollowResponseMessage);

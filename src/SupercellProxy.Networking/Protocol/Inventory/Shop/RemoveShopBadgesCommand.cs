@@ -11,7 +11,7 @@ public sealed record RemoveShopBadgesCommand(int[] DataIds) : CodecCommand<Remov
         Codecs.Composite(
             Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
             static command => command.DataIds,
-            static (dataIds) => new RemoveShopBadgesCommand(dataIds)
+            static dataIds => new RemoveShopBadgesCommand(dataIds)
         ),
         CommandLayout.MetadataFirst
     );

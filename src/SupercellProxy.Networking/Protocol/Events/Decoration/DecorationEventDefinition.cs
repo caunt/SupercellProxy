@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 /// <summary>Represents the decoded DecorationEventDefinition JSON contract.</summary>
 public sealed record DecorationEventDefinition
 {
-    /// <summary>Gets the DecorationPhaseDuration value.</summary>
+    /// <summary>Length of the phase in which players build and submit their designs; null when the event defines none.</summary>
     [JsonPropertyName("decorationPhaseDuration")]
     public int? DecorationPhaseDuration { get; init; }
 

@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ReloadGameRequestMessage(int Reason) : CodecMessage<ReloadGameRequestMessage>, ICodecProvider<ReloadGameRequestMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReloadGameRequestMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Reason, static (reason) => new ReloadGameRequestMessage(reason));
+    public static ICodec<ReloadGameRequestMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Reason, static reason => new ReloadGameRequestMessage(reason));
 }

@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Reports a farm's friend count to the client's friend manager.
+/// <summary>Reports a farm's friend count to the client's friend manager.</summary>
 public sealed record FriendCountMessage(LongId HomeId, int FriendCount) : CodecMessage<FriendCountMessage>, ICodecProvider<FriendCountMessage>
 {
     /// <inheritdoc />
@@ -18,7 +18,7 @@ public sealed record FriendCountMessage(LongId HomeId, int FriendCount) : CodecM
         trailingDataMessage: "The friend count has trailing data."
     );
 
-    /// Omits the private farm id from diagnostic text.
+    /// <summary>Omits the private farm id from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(FriendCountMessage);

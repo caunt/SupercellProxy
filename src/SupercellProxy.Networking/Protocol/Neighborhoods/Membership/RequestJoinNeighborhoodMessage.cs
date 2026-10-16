@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Asks to join a neighborhood.</summary>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
-/// <param name="Message">The message.</param>
+/// <param name="NeighborhoodId">Neighbourhood the player wants to join.</param>
+/// <param name="NeighborhoodName">Name of that neighbourhood.</param>
+/// <param name="Message">Note the player sends with the request to the neighbourhood's members.</param>
 public sealed record RequestJoinNeighborhoodMessage(LongId NeighborhoodId, string? NeighborhoodName, string? Message) : CodecMessage<RequestJoinNeighborhoodMessage>, ICodecProvider<RequestJoinNeighborhoodMessage>
 {
     /// <inheritdoc />

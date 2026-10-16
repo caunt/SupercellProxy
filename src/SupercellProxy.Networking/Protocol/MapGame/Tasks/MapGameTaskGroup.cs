@@ -2,14 +2,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
-/// <summary>
-/// <para>Native fixed-width 64-bit key and task collection inside a map-game state.</para>
-/// </summary>
+/// <summary>The Valley tasks that belong to one player, or the tasks every player on the board shares.</summary>
 public sealed record MapGameTaskGroup : ICodecProvider<MapGameTaskGroup>
 {
-    /// <summary>
-    /// Initializes a new <see cref="MapGameTaskGroup"/> instance.
-    /// </summary>
+    /// <summary>Creates a group from its decoded fields.</summary>
+    /// <param name="ownerKey">Account id of the player the tasks belong to, or 4294967295 for the board's shared tasks.</param>
+    /// <param name="tasks">Tasks in the group.</param>
     public MapGameTaskGroup(long ownerKey, ReadOnlyMemory<MapGameTask> tasks)
     {
         OwnerKey = ownerKey;
@@ -25,13 +23,9 @@ public sealed record MapGameTaskGroup : ICodecProvider<MapGameTaskGroup>
         static (ownerKey, tasks) => new MapGameTaskGroup(ownerKey, tasks)
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">OwnerKey</c> value.
-    /// </summary>
+    /// <summary>Account id of the player the tasks belong to, or 4294967295 for the board's shared tasks.</summary>
     public long OwnerKey { get; init; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">Tasks</c> value.
-    /// </summary>
+    /// <summary>Tasks in the group.</summary>
     public ReadOnlyMemory<MapGameTask> Tasks { get; }
 }

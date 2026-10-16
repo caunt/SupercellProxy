@@ -11,7 +11,7 @@ public sealed record CollectNeighborhoodDonationCommand(int ItemGlobalId) : Code
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.ItemGlobalId,
-            static (itemGlobalId) => new CollectNeighborhoodDonationCommand(itemGlobalId)
+            static itemGlobalId => new CollectNeighborhoodDonationCommand(itemGlobalId)
         ),
         CommandLayout.MetadataFirst
     );

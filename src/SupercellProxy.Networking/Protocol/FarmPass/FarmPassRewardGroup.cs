@@ -2,19 +2,14 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
 
-/// <summary>
-/// Defines the Farm Pass Reward Group contract.
-/// </summary>
+/// <summary>A set of Farm Pass level rewards collected together, with its collected flag.</summary>
 public sealed record FarmPassRewardGroup
 {
-    /// <summary>
-    /// Gets the Collected value.
-    /// </summary>
+    /// <summary>Whether the player already collected the set.</summary>
     [JsonPropertyName("rewardCollected")]
     public bool Collected { get; set; }
-    /// <summary>
-    /// Gets the Rewards value.
-    /// </summary>
+
+    /// <summary>What the set gives, each resolved to its table entry and amount.</summary>
     [JsonPropertyName("rewards")]
     public FarmPassRewardItem[] Rewards { get; init; } = [];
 }

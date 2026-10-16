@@ -1,6 +1,6 @@
 namespace SupercellProxy.Networking.Events;
 
 /// <summary>
-/// Defines the <c language="csharp">IEvent</c> contract.
+/// Marks a type as something an <see cref="EventBus"/> can publish and subscribers can handle.
 /// </summary>
 public interface IEvent;

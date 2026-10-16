@@ -6,33 +6,35 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Client;
 
 /// <summary>
-/// Represents <c language="csharp">LoginException</c>.
+/// Thrown when the server refuses a login. When the refusal came as a server reply, the reply is attached, so callers can react to
+/// its error code: download new assets on out-of-date content, refresh the token on an invalid token, or wait out maintenance.
 /// </summary>
-/// <remarks>
-/// Initializes a new <see cref="LoginException"/> instance.
-/// </remarks>
 public sealed class LoginException : Exception
 {
     /// <summary>
-    /// Provides the Login Exception value or operation.
+    /// Creates a login failure with no description and no server reply attached.
     /// </summary>
     public LoginException() { }
 
     /// <summary>
-    /// Provides the Login Exception value or operation.
+    /// Creates a login failure described by text alone, for refusals detected locally rather than reported by the server.
     /// </summary>
+    /// <param name="message">What went wrong.</param>
     public LoginException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Provides the Login Exception value or operation.
+    /// Creates a login failure caused by another error, such as a broken connection during the handshake.
     /// </summary>
+    /// <param name="message">What went wrong.</param>
+    /// <param name="innerException">The error that stopped the login.</param>
     public LoginException(string? message, Exception? innerException)
         : base(message, innerException) { }
 
     /// <summary>
-    /// Provides the Login Exception value or operation.
+    /// Creates a login failure from the server's refusal; the text names the error code and the server's reason.
     /// </summary>
+    /// <param name="loginFailedMessage">The server's reply, kept in <see cref="LoginFailedMessage"/>.</param>
     public LoginException(LoginFailedMessage loginFailedMessage)
         : base(GetMessage(loginFailedMessage))
     {
@@ -40,13 +42,16 @@ public sealed class LoginException : Exception
     }
 
     /// <summary>
-    /// Gets the <c language="csharp">LoginFailedMessage</c> value.
+    /// The server's refusal, with its error code, reason, maintenance countdown or new asset manifest; null when the failure was
+    /// not reported by the server.
     /// </summary>
     public LoginFailedMessage? LoginFailedMessage { get; }
 
     /// <summary>
-    /// Executes the <c language="csharp">ThrowIfFailed</c> operation.
+    /// Turns a login refusal into an exception while a handshake reads its replies; any other message passes through.
     /// </summary>
+    /// <param name="message">A message received during login.</param>
+    /// <exception cref="LoginException">The message is a login refusal.</exception>
     public static void ThrowIfFailed(IMessage message)
     {
         if (message is not LoginFailedMessage loginFailedMessage)

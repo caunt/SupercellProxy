@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -9,8 +11,9 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 public sealed record HarvestFieldCommand : CodecCommand<HarvestFieldCommand>, ICommandCodecProvider<HarvestFieldCommand>
 {
     /// <summary>
-    /// Initializes a new <see cref="HarvestFieldCommand"/> instance.
+    /// Ends a field's harvest, 10 sub-ticks after its gain, leaving the field empty and ready to plant.
     /// </summary>
+    /// <param name="fieldGlobalId">Game object id of the harvested field.</param>
     public HarvestFieldCommand(int fieldGlobalId)
     {
         FieldGlobalId = fieldGlobalId;
@@ -18,13 +21,13 @@ public sealed record HarvestFieldCommand : CodecCommand<HarvestFieldCommand>, IC
 
     /// <inheritdoc />
     public static CommandCodec<HarvestFieldCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static (fieldGlobalId) => new HarvestFieldCommand(fieldGlobalId)),
+        Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static fieldGlobalId => new HarvestFieldCommand(fieldGlobalId)),
         CommandLayout.MetadataFirst
     );
 
     /// <summary>
-    /// Gets the <c language="csharp">FieldGlobalId</c> value.
+    /// Game object id of the field that returns to empty.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("FieldGlobalId")]
+    [JsonPropertyName("FieldGlobalId")]
     public int FieldGlobalId { get; }
 }

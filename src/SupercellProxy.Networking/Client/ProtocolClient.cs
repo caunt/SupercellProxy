@@ -104,8 +104,11 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     }
 
     /// <summary>
-    /// Provides the Load Catalog Async value or operation.
+    /// Gets the game data tables. After a login this reuses the session's bundle; before one, it runs a throwaway login that only
+    /// provokes the asset manifest, then downloads the files without logging in.
     /// </summary>
+    /// <param name="cancellationToken">Stops the download or handshake; disposing the client stops it too.</param>
+    /// <exception cref="ObjectDisposedException">The client was disposed.</exception>
     public async Task<DataTableResolver> LoadCatalogAsync(CancellationToken cancellationToken)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);

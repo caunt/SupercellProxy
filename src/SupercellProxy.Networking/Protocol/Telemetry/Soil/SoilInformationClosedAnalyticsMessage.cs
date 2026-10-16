@@ -4,17 +4,17 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry.Soil;
 
 /// <summary>Reports that a Soil SDK information screen was closed.</summary>
-/// <param name="Timezone">The timezone.</param>
-/// <param name="DeviceId">The device id.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
+/// <param name="Timezone">Time zone name of the device, such as Europe/Kiev.</param>
+/// <param name="DeviceId">The device's 16-digit hexadecimal identifier.</param>
+/// <param name="Value0">First number of the event; not seen in the captures, and its meaning is not identified.</param>
+/// <param name="Value1">Second number of the event; not seen in the captures, and its meaning is not identified.</param>
 /// <param name="ContentId">The Soil content the event is about.</param>
-/// <param name="TimestampMilliseconds">The timestamp milliseconds.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Text">The text.</param>
-/// <param name="Value3">The value3.</param>
-/// <param name="Properties">The properties.</param>
-/// <param name="Value4">The value4.</param>
+/// <param name="TimestampMilliseconds">Unix time in milliseconds when the event happened.</param>
+/// <param name="Value2">Third number of the event; not seen in the captures, and its meaning is not identified.</param>
+/// <param name="Text">Text sent with the event; its meaning is not identified.</param>
+/// <param name="Value3">Fourth number of the event; not seen in the captures, and its meaning is not identified.</param>
+/// <param name="Properties">Named details of the event.</param>
+/// <param name="Value4">Fifth number of the event; not seen in the captures, and its meaning is not identified.</param>
 public sealed record SoilInformationClosedAnalyticsMessage(
     string? Timezone,
     string? DeviceId,

@@ -1,22 +1,22 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Achievements;
 
 /// <summary>
-/// Defines the Claim Achievement Reward Command contract.
+/// Serverbound command claiming the reward of an achievement level the player has reached.
 /// </summary>
-/// <summary>
-/// Defines the Achievement Global Id contract.
-/// </summary>
-public sealed record ClaimAchievementRewardCommand([property: System.Text.Json.Serialization.JsonPropertyName("AchievementGlobalId")] int AchievementGlobalId) : CodecCommand<ClaimAchievementRewardCommand>, ICommandCodecProvider<ClaimAchievementRewardCommand>
+/// <param name="AchievementGlobalId">Global id of the achievement in the achievements table.</param>
+public sealed record ClaimAchievementRewardCommand([property: JsonPropertyName("AchievementGlobalId")] int AchievementGlobalId) : CodecCommand<ClaimAchievementRewardCommand>, ICommandCodecProvider<ClaimAchievementRewardCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<ClaimAchievementRewardCommand> Codec { get; } = Codecs.Command(
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.AchievementGlobalId,
-            static (achievement) => new ClaimAchievementRewardCommand(achievement)
+            static achievement => new ClaimAchievementRewardCommand(achievement)
         )
     );
 }

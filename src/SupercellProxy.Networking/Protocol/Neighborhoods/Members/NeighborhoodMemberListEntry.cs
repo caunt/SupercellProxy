@@ -2,16 +2,16 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Members;
 
-/// <summary>One neighborhood member list entry entry.</summary>
-/// <param name="Id">The id.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Value3">The value3.</param>
-/// <param name="Flag">The flag.</param>
-/// <param name="Name">The name.</param>
+/// <summary>One member list kept for the player, with its owner and members; what kind of list it is is not identified.</summary>
+/// <param name="Id">Id of the list; it equals the owner's account id in the captures.</param>
+/// <param name="Value0">Global id of a table entry, 2200002 in the captures; what it names is not identified.</param>
+/// <param name="Value1">Number that is 3 in the captures; its meaning is not identified.</param>
+/// <param name="Value2">Number that is 3 in the captures; its meaning is not identified.</param>
+/// <param name="Value3">Unix time in seconds, likely when the list was made; not confirmed.</param>
+/// <param name="Flag">Flag that is clear in the captures; its meaning is not identified.</param>
+/// <param name="Name">Text identifier of the list, a GUID in the captures.</param>
 /// <param name="Members">The members, or null when native writes a negative count.</param>
-/// <param name="OwnerId">The owner id.</param>
+/// <param name="OwnerId">Account that owns the list.</param>
 public sealed record NeighborhoodMemberListEntry(
     LongId Id,
     int Value0,
@@ -20,7 +20,7 @@ public sealed record NeighborhoodMemberListEntry(
     int Value3,
     bool Flag,
     string? Name,
-    ReadOnlyMemory<SupercellProxy.Networking.Protocol.Neighborhoods.Members.NeighborhoodMemberSummary>? Members,
+    ReadOnlyMemory<NeighborhoodMemberSummary>? Members,
     LongId? OwnerId
 ) : ICodecProvider<NeighborhoodMemberListEntry>
 {

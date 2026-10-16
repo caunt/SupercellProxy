@@ -8,13 +8,13 @@ namespace SupercellProxy.Networking.Protocol.Expansion;
 public sealed record ExpansionReadyDataSnapshot
 {
     /// <summary>
-    /// Gets or sets the <c language="csharp">ExpansionDataGlobalId</c> value.
+    /// Global id of the land expansion in the expansions table.
     /// </summary>
     [JsonPropertyName("LogicExpansionDataGlobalID")]
     public int ExpansionDataGlobalId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ReadyBits</c> value.
+    /// One bit per tool the expansion needs; bit i is set once the i-th listed tool has been handed in.
     /// </summary>
     public int ReadyBits { get; init; }
 }

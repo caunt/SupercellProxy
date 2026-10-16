@@ -11,7 +11,7 @@ public sealed record LeaveNeighborhoodServerCommand(LongId NeighborhoodId) : Cod
         Codecs.Composite(
             Codecs.LongId,
             static command => command.NeighborhoodId,
-            static (neighborhoodId) => new LeaveNeighborhoodServerCommand(neighborhoodId)
+            static neighborhoodId => new LeaveNeighborhoodServerCommand(neighborhoodId)
         )
     );
 }

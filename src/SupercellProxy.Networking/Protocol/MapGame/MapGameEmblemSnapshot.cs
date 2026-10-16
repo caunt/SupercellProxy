@@ -4,18 +4,18 @@ using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
-/// <summary>Represents decoded MapGameEmblemSnapshot state.</summary>
+/// <summary>A player's saved Valley emblem, built from a background, a pattern and a symbol.</summary>
 public sealed record MapGameEmblemSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the Background value.</summary>
+    /// <summary>Emblem background the player picked (saved as <c>bg</c>).</summary>
     [JsonPropertyName("bg")]
     public int Background { get; init; }
 
-    /// <summary>Gets the Pattern value.</summary>
+    /// <summary>Emblem pattern the player picked (saved as <c>pat</c>).</summary>
     [JsonPropertyName("pat")]
     public int Pattern { get; init; }
 
-    /// <summary>Gets the Symbol value.</summary>
+    /// <summary>Emblem symbol the player picked (saved as <c>sym</c>).</summary>
     [JsonPropertyName("sym")]
     public int Symbol { get; init; }
 }

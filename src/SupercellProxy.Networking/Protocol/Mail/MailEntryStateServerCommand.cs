@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Mail;
 
 /// <summary>Notifies a home that a helper acted on one of its game objects; native adds a letter from that helper.</summary>
-/// <param name="GameObjectId">The game object id.</param>
-/// <param name="HomeOwnerId">The home owner id.</param>
-/// <param name="HelperId">The helper id.</param>
+/// <param name="GameObjectId">The farm object the helper acted on.</param>
+/// <param name="HomeOwnerId">Owner of the farm that was helped.</param>
+/// <param name="HelperId">Player who helped; the letter comes from them.</param>
 public sealed record MailEntryStateServerCommand(int GameObjectId, LongId HomeOwnerId, LongId HelperId) : CodecServerCommand<MailEntryStateServerCommand>, ICommandCodecProvider<MailEntryStateServerCommand>
 {
     /// <inheritdoc />

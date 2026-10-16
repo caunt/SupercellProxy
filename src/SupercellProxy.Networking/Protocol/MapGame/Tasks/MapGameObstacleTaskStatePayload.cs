@@ -1,11 +1,11 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
-/// <summary>
-/// Represents <c language="csharp">MapGameObstacleTaskStatePayload</c>.
-/// </summary>
+/// <summary>State of a Valley obstacle task: something blocking a node that a player clears for a reward.</summary>
 public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameObstacleTaskStatePayload>
 {
     /// <summary>
@@ -13,9 +13,11 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, 
     /// </summary>
     internal const string NativeTaskType = "Obstacle";
 
-    /// <summary>
-    /// Initializes a new <see cref="MapGameObstacleTaskStatePayload"/> instance.
-    /// </summary>
+    /// <summary>Creates the state from its decoded fields.</summary>
+    /// <param name="positive">The native <c>Positive</c> flag; its meaning is not identified.</param>
+    /// <param name="helpRequestSent">Whether help was asked for the task.</param>
+    /// <param name="helperAvatarId">Account of the player who helped; null when nobody did.</param>
+    /// <param name="rewardData">Reward of the task; null when not drawn yet.</param>
     public MapGameObstacleTaskStatePayload(bool positive, bool helpRequestSent, LongId? helperAvatarId, ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData)
     {
         Positive = positive;
@@ -47,7 +49,7 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, 
     /// <summary>
     /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HelperAvatarId")]
+    [JsonPropertyName("HelperAvatarId")]
     public LongId? HelperAvatarId { get; init; }
 
     /// <summary>

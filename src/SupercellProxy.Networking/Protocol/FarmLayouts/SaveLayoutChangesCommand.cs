@@ -9,6 +9,6 @@ public sealed record SaveLayoutChangesCommand(int SlotIndex) : CodecCommand<Save
 {
     /// <inheritdoc />
     public static CommandCodec<SaveLayoutChangesCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static (slotIndex) => new SaveLayoutChangesCommand(slotIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new SaveLayoutChangesCommand(slotIndex))
     );
 }

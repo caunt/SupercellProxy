@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Json;
 using SupercellProxy.Networking.Protocol.Avatars;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -18,20 +20,20 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     /// </summary>
     public static ICodec<OtherHomeDataMessage> Codec { get; } = Codecs.Create(static stream => FromPayload(stream.ReadToEnd(), stream.GameVersion), static (stream, message) => message.WritePayload(stream));
     /// <summary>
-    /// Gets or sets the <c language="csharp">ClientAvatar</c> value.
+    /// The visiting player's own avatar, sent along with the visited farm.
     /// </summary>
     public ClientAvatar? ClientAvatar { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedAvatarDataJson</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("CompressedAvatarDataJson")]
+    [JsonPropertyName("CompressedAvatarDataJson")]
     public ReadOnlyMemory<byte>? CompressedAvatarDataDocument { get; init; }
 
     /// <summary>
     /// Gets or sets the <c language="csharp">CompressedHomeDataJson</c> value.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("CompressedHomeDataJson")]
+    [JsonPropertyName("CompressedHomeDataJson")]
     public ReadOnlyMemory<byte>? CompressedHomeDataDocument { get; init; }
     /// <summary>
     /// Gets the visited home owner's compressed avatar data document; own homes send none.
@@ -39,17 +41,17 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     public ReadOnlyMemory<byte>? CompressedHomeOwnerAvatarDataDocument { get; init; }
 
     /// <summary>
-    /// Gets the Decode Error value.
+    /// Why decoding failed, when it did; the payload is then kept whole in <see cref="Fallback"/>. Null after a successful decode.
     /// </summary>
     public Exception? DecodeError { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Fallback</c> value.
+    /// The whole payload when it could not be decoded, so it can still be forwarded unchanged; empty after a successful decode.
     /// </summary>
     public ReadOnlyMemory<byte> Fallback { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">HomeOwnerAvatar</c> value.
+    /// Avatar of the farm's owner: name, ids, roadside shop, inventory and so on.
     /// </summary>
     public ClientAvatar? HomeOwnerAvatar { get; init; }
 
@@ -59,7 +61,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     public int ServerTimestamp { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownData</c> value.
+    /// The full payload as this message would be written back, re-encoded from its decoded parts (or the fallback bytes).
     /// </summary>
     public ReadOnlyMemory<byte> UnknownData
     {

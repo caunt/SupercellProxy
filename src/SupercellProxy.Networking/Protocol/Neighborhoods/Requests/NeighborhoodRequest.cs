@@ -2,16 +2,16 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 
-/// <summary>The neighborhood request.</summary>
-/// <param name="RequesterHomeId">The requester home id.</param>
-/// <param name="ItemGlobalId">The item data id.</param>
-/// <param name="RequestedAmount">The requested amount.</param>
-/// <param name="ReceivedAmount">The received amount.</param>
-/// <param name="CreatedAt">The created at.</param>
-/// <param name="Closed">The closed.</param>
-/// <param name="RequesterName">The requester name.</param>
-/// <param name="Donations">The donations.</param>
-/// <param name="LastDonorHomeId">The last donor home id.</param>
+/// <summary>A member's request for goods on the neighbourhood board, with the donations it got so far.</summary>
+/// <param name="RequesterHomeId">Home of the member who asked.</param>
+/// <param name="ItemGlobalId">Global id of the requested goods.</param>
+/// <param name="RequestedAmount">How many goods the member asked for.</param>
+/// <param name="ReceivedAmount">How many goods were donated so far.</param>
+/// <param name="CreatedAt">When the request was made; its unit is not identified.</param>
+/// <param name="Closed">Whether the request takes no more donations.</param>
+/// <param name="RequesterName">Name of the member who asked.</param>
+/// <param name="Donations">Each donation the request got.</param>
+/// <param name="LastDonorHomeId">Home of the latest donor; null when nobody donated yet.</param>
 public sealed record NeighborhoodRequest(
     LongId RequesterHomeId,
     int ItemGlobalId,

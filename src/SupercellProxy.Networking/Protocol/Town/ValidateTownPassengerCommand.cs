@@ -8,6 +8,6 @@ public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : Codec
 {
     /// <inheritdoc />
     public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static (passenger) => new ValidateTownPassengerCommand(passenger))
+        Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static passenger => new ValidateTownPassengerCommand(passenger))
     );
 }

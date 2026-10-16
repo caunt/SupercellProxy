@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>Requests a scoreboard page.</summary>
-/// <param name="ScoreboardId">The scoreboard id.</param>
-/// <param name="Page">The page.</param>
-/// <param name="PageSize">The page size.</param>
-/// <param name="Region">The region.</param>
+/// <param name="ScoreboardId">Which scoreboard to send.</param>
+/// <param name="Page">Which page of it to send.</param>
+/// <param name="PageSize">How many lines one page holds.</param>
+/// <param name="Region">Region filter for the board, as native numbers regions.</param>
 public sealed record RequestScoreboardMessage(int ScoreboardId, int Page, int PageSize, int Region) : CodecMessage<RequestScoreboardMessage>, ICodecProvider<RequestScoreboardMessage>
 {
     /// <inheritdoc />

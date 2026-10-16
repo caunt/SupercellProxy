@@ -3,9 +3,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
-/// <summary>Refreshes a truck order.</summary>
-/// <param name="Mode">The mode.</param>
-/// <param name="OrderIndex">The order index.</param>
+/// <summary>Serverbound command, new in 1.73.81, asking for a fresh truck order in place of one on the order board.</summary>
+/// <param name="Mode">Kind of refresh; its values are not identified.</param>
+/// <param name="OrderIndex">Position of the replaced order on the board.</param>
 public sealed record RefreshTruckOrderCommand(int Mode, int OrderIndex) : CodecCommand<RefreshTruckOrderCommand>, ICommandCodecProvider<RefreshTruckOrderCommand>
 {
     /// <inheritdoc />

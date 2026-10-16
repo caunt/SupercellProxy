@@ -4,13 +4,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>
-/// <para>Updates the owner's friend count and unlocks eligible roadside stands.</para>
+/// Reports how many friends the farm has; each friend-count gate of the roadside shop the count reaches unlocks one more stand.
 /// </summary>
 public sealed record RoadsideFriendCountServerCommand : CodecServerCommand<RoadsideFriendCountServerCommand>, ICommandCodecProvider<RoadsideFriendCountServerCommand>
 {
-    /// <summary>
-    /// Initializes a new <see cref="RoadsideFriendCountServerCommand"/> instance.
-    /// </summary>
+    /// <summary>Creates the command for one farm.</summary>
+    /// <param name="friendCount">How many friends the farm has.</param>
+    /// <param name="homeOwnerId">Home the count belongs to.</param>
     public RoadsideFriendCountServerCommand(int friendCount, LongId homeOwnerId)
     {
         FriendCount = friendCount;
@@ -28,13 +28,9 @@ public sealed record RoadsideFriendCountServerCommand : CodecServerCommand<Roads
         )
     );
 
-    /// <summary>
-    /// Gets the <c language="csharp">FriendCount</c> value.
-    /// </summary>
+    /// <summary>How many friends the farm has; a negative count changes nothing.</summary>
     public int FriendCount { get; }
 
-    /// <summary>
-    /// Gets the <c language="csharp">HomeOwnerId</c> value.
-    /// </summary>
+    /// <summary>Home the count belongs to; other homes ignore the command.</summary>
     public LongId HomeOwnerId { get; }
 }

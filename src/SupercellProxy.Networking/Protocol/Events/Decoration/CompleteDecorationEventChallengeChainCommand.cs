@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 
 /// <summary>Completes a decoration event challenge chain and grants its rewards.</summary>
-/// <param name="ChallengeId">The challenge id.</param>
+/// <param name="ChallengeId">Decoration event challenge the chain belongs to.</param>
 /// <param name="ChainIndex">The completed chain.</param>
 public sealed record CompleteDecorationEventChallengeChainCommand(int ChallengeId, int ChainIndex) : CodecCommand<CompleteDecorationEventChallengeChainCommand>, ICommandCodecProvider<CompleteDecorationEventChallengeChainCommand>
 {

@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
 /// <summary>Claims a reward of an event task list.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="RewardIndex">The reward index.</param>
-/// <param name="Premium">The premium.</param>
+/// <param name="EventId">Task event the reward belongs to.</param>
+/// <param name="RewardIndex">Position of the reward on the event's reward track.</param>
+/// <param name="Premium">Selects the premium reward at that position instead of the regular one.</param>
 public sealed record ClaimEventTaskRewardCommand(int EventId, int RewardIndex, bool Premium) : CodecCommand<ClaimEventTaskRewardCommand>, ICommandCodecProvider<ClaimEventTaskRewardCommand>
 {
     /// <inheritdoc />

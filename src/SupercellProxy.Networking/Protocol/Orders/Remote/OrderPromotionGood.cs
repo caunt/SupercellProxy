@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 
-/// <summary>The order promotion good.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="Amount">The amount.</param>
+/// <summary>What an order's promotion box gives.</summary>
+/// <param name="GoodGlobalId">Global id of the rewarded resource.</param>
+/// <param name="Amount">How much of the resource the box gives.</param>
 public sealed record OrderPromotionGood(int GoodGlobalId, int Amount) : ICodecProvider<OrderPromotionGood>
 {
     /// <inheritdoc />

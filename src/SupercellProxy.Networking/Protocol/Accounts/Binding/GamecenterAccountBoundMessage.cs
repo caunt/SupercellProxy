@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record GamecenterAccountBoundMessage(int ResultCode) : CodecMessage<GamecenterAccountBoundMessage>, ICodecProvider<GamecenterAccountBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<GamecenterAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static (resultCode) => new GamecenterAccountBoundMessage(resultCode));
+    public static ICodec<GamecenterAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static resultCode => new GamecenterAccountBoundMessage(resultCode));
 }

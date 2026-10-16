@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 
-/// <summary>One neighborhood tag entry.</summary>
-/// <param name="High">The high.</param>
-/// <param name="Low">The low.</param>
+/// <summary>One play-style tag a neighbourhood search filters on, sent as two numbers.</summary>
+/// <param name="High">First number of the tag; its meaning is not identified.</param>
+/// <param name="Low">Second number of the tag; its meaning is not identified.</param>
 public sealed record NeighborhoodTag(int High, int Low) : ICodecProvider<NeighborhoodTag>
 {
     /// <inheritdoc />

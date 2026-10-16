@@ -5,12 +5,12 @@ namespace SupercellProxy.Networking.Protocol.Town.Passengers;
 
 /// <summary>Moves town passengers picked by a neighbor, or the services they still need, between homes.</summary>
 /// <param name="Action">The transfer kind: 1 receive the passengers' services, 2 reserve a personal train pickup.</param>
-/// <param name="PickingHomeId">The picking home id.</param>
-/// <param name="PassengerIds">The passenger ids.</param>
-/// <param name="HelpIds">The help ids.</param>
-/// <param name="Services">The services.</param>
-/// <param name="BonusGlobalId">The bonus data id.</param>
-/// <param name="BonusAmount">The bonus amount.</param>
+/// <param name="PickingHomeId">Home whose personal train picks the passengers up; null when no home is named.</param>
+/// <param name="PassengerIds">Ids of the moved passengers.</param>
+/// <param name="HelpIds">Help ids the passengers are matched by in the town that receives them.</param>
+/// <param name="Services">Service requests the passengers bring along, listed in reverse of the order they are kept in.</param>
+/// <param name="BonusGlobalId">Global id of the resource the passengers give as a bonus once all their services are done.</param>
+/// <param name="BonusAmount">How much of that bonus resource they give.</param>
 public sealed record PassengerPickedFromNeighborhoodServerCommand(
     int Action,
     LongId? PickingHomeId,

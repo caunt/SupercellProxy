@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Advertisements;
 
 /// <summary>Claims the reward of a watched advertisement.</summary>
-/// <param name="Completed">The completed.</param>
-/// <param name="Placement">The placement.</param>
+/// <param name="Completed">Whether the video was watched to the end, which the reward requires.</param>
+/// <param name="Placement">Native placement number of the in-game offer the video was watched for.</param>
 public sealed record ClaimAdvertisementRewardMessage(bool Completed, int Placement) : CodecMessage<ClaimAdvertisementRewardMessage>, ICodecProvider<ClaimAdvertisementRewardMessage>
 {
     /// <inheritdoc />

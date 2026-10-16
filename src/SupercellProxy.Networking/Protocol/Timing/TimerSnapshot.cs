@@ -12,7 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Timing;
 public readonly record struct TimerSnapshot(int StartSeconds, int TicksLeft)
 {
     /// <summary>
-    /// Gets the <c language="csharp">IsComplete</c> value.
+    /// Whether the countdown has run out (no ticks left).
     /// </summary>
     [JsonIgnore]
     public bool IsComplete => TicksLeft < 1;

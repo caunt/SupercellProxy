@@ -12,7 +12,9 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Proxy;
 
 /// <summary>
-/// Represents <c language="csharp">ProxyCaptureWriter</c>.
+/// Records the frames of one connection into its own capture folder, one file per frame named by sequence, stage, direction and
+/// message id. Frames are held in memory (up to 64 MiB) until publication is approved, so a connection that is never published leaves
+/// nothing on disk.
 /// </summary>
 public sealed class ProxyCaptureWriter
 {
@@ -33,8 +35,12 @@ public sealed class ProxyCaptureWriter
     private long _sequence;
 
     /// <summary>
-    /// Initializes a new <see cref="ProxyCaptureWriter"/> instance.
+    /// Picks the connection's capture folder, named by the current UTC time, the peer address and a random suffix; nothing is
+    /// created on disk yet.
     /// </summary>
+    /// <param name="rootDirectoryPath">Folder that holds all captures; null turns capturing off for this connection.</param>
+    /// <param name="remoteEndPoint">Address of the peer, made safe for use in the folder name.</param>
+    /// <param name="timeProvider">Clock for folder names and frame timestamps; the system clock when null.</param>
     public ProxyCaptureWriter(string? rootDirectoryPath, string remoteEndPoint, TimeProvider? timeProvider = null)
     {
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -62,7 +68,8 @@ public sealed class ProxyCaptureWriter
     public bool DeferPublication { get; set; }
 
     /// <summary>
-    /// Gets the <c language="csharp">DirectoryPath</c> value.
+    /// Full path of this connection's capture folder; empty when capturing is off. The folder may not exist until the capture is
+    /// published.
     /// </summary>
     public string DirectoryPath => _directoryPath ?? string.Empty;
 
@@ -77,8 +84,10 @@ public sealed class ProxyCaptureWriter
     }
 
     /// <summary>
-    /// Provides the Get Direction Name value or operation.
+    /// Gives the word capture file names use for a direction: <c>clientbound</c> or <c>serverbound</c>.
     /// </summary>
+    /// <param name="direction">Direction the frame travelled.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is neither of the two.</exception>
     public static string GetDirectionName(MessageDirection direction)
     {
         return direction switch
@@ -145,8 +154,15 @@ public sealed class ProxyCaptureWriter
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">SaveAsync</c> operation.
+    /// Records one frame under the next sequence number: written straight away once the capture is published, otherwise held in
+    /// memory until it is. Does nothing when capturing is off.
     /// </summary>
+    /// <param name="stage">Point in the pipeline the frame was taken at, such as <c>incoming</c>; becomes part of the file name.</param>
+    /// <param name="direction">Direction the frame travelled.</param>
+    /// <param name="container">The frame with its message id, version and plaintext payload.</param>
+    /// <param name="messageName">Decoded message type name, added to the file name for readability.</param>
+    /// <param name="cancellationToken">Stops waiting for the writer's lock or the disk write.</param>
+    /// <exception cref="IOException">More than 64 MiB piled up before the capture was published.</exception>
     public async ValueTask SaveAsync(
         string stage,
         MessageDirection direction,

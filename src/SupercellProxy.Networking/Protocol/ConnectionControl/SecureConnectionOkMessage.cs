@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 
 /// <summary>Confirms the secure connection.</summary>
-/// <param name="ServerVersion">The server version.</param>
-/// <param name="Nonce">The nonce.</param>
+/// <param name="ServerVersion">Version text of the server that accepted the connection.</param>
+/// <param name="Nonce">Nonce text the server sends with its confirmation.</param>
 public sealed record SecureConnectionOkMessage(string? ServerVersion, string? Nonce) : CodecMessage<SecureConnectionOkMessage>, ICodecProvider<SecureConnectionOkMessage>
 {
     /// <inheritdoc />

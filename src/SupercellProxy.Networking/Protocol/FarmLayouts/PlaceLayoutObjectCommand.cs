@@ -4,15 +4,15 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 
 /// <summary>Places an object into the edited layout.</summary>
-/// <param name="DataGlobalId">The object data id.</param>
-/// <param name="VariantGlobalId">The variant data id.</param>
-/// <param name="PositionX">The x coordinate.</param>
-/// <param name="PositionY">The y coordinate.</param>
+/// <param name="DataGlobalId">Global id of the object's type, such as a decoration entry.</param>
+/// <param name="VariantGlobalId">Global id of the look variant the object uses.</param>
+/// <param name="PositionX">Horizontal position on the farm.</param>
+/// <param name="PositionY">Vertical position on the farm.</param>
 /// <param name="FromStorage">Whether the object comes from storage.</param>
 /// <param name="Mirrored">Whether the object is mirrored.</param>
-/// <param name="ObjectGlobalId">The object id.</param>
-/// <param name="Rotation">The rotation value.</param>
-/// <param name="LayoutIndex">The layout slot.</param>
+/// <param name="ObjectGlobalId">Game object id of the object being placed.</param>
+/// <param name="Rotation">Turned orientation of the object, as native numbers it.</param>
+/// <param name="LayoutIndex">Layout slot being edited.</param>
 public sealed record PlaceLayoutObjectCommand(
     int DataGlobalId,
     int VariantGlobalId,

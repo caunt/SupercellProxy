@@ -18,12 +18,12 @@ public sealed record VisitHomeMessage : CodecMessage<VisitHomeMessage>, ICodecPr
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// First of the two bytes the message carries; its meaning is not identified.
     /// </summary>
     public required byte Unknown0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown1</c> value.
+    /// Second of the two bytes; not identified.
     /// </summary>
     public required byte Unknown1 { get; init; }
 }

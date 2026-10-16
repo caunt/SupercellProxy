@@ -7,7 +7,11 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 /// </summary>
 public sealed record MapGameEventProfileData : ICodecProvider<MapGameEventProfileData>
 {
-    /// <summary>Initializes a new <see cref="MapGameEventProfileData"/> instance.</summary>
+    /// <summary>Holds the event definition in exactly one of its two forms: compressed bytes or plain text.</summary>
+    /// <param name="usesBinaryData">True when the definition is carried as compressed bytes.</param>
+    /// <param name="binaryData">The compressed definition; must be null for the text form.</param>
+    /// <param name="optionalTextData">The plain-text definition; must be null for the compressed form.</param>
+    /// <exception cref="InvalidDataException">Data of the other form was also given.</exception>
     public MapGameEventProfileData(bool usesBinaryData, ReadOnlyMemory<byte>? binaryData, string? optionalTextData)
     {
         if (usesBinaryData && optionalTextData is not null)
@@ -119,13 +123,13 @@ public sealed record MapGameEventProfileData : ICodecProvider<MapGameEventProfil
     /// <summary>Gets the uncompressed JSON definition.</summary>
     public string? OptionalTextData { get; }
 
-    /// <summary>Gets the scheduling type.</summary>
+    /// <summary>How the server schedules the event; 1 marks a targeted event that is remembered per showing once seen.</summary>
     public int SchedulingType { get; init; }
 
     /// <summary>Gets the start of the event as a Unix timestamp.</summary>
     public int StartTime { get; init; }
 
-    /// <summary>Gets the targeting id.</summary>
+    /// <summary>Audience rule the server matched to give this player the event.</summary>
     public int TargetingId { get; init; }
 
     /// <summary>Gets the native live event type.</summary>
@@ -134,7 +138,7 @@ public sealed record MapGameEventProfileData : ICodecProvider<MapGameEventProfil
     /// <summary>Gets a value indicating whether the definition is sent compressed.</summary>
     public bool UsesBinaryData { get; }
 
-    /// <summary>Gets the variant id.</summary>
+    /// <summary>Which version of the event this player got when the event exists in several variants.</summary>
     public int VariantId { get; init; }
 
     /// <summary>Gets the definition version.</summary>

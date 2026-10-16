@@ -20,7 +20,7 @@ public sealed record CollectFishingAnimalCommand(int AnimalId, bool Duck)
     {
         return Codecs.Command(
             name,
-            Codecs.Composite(Codecs.VarInt, static command => command.AnimalId, (animalId) => new CollectFishingAnimalCommand(animalId, duck))
+            Codecs.Composite(Codecs.VarInt, static command => command.AnimalId, animalId => new CollectFishingAnimalCommand(animalId, duck))
         );
     }
 }

@@ -22,7 +22,7 @@ internal sealed class SvelteData
         return SvelteDataDecoder.Decode(_values, contract);
     }
 
-    internal void Encode(System.Text.Json.Utf8JsonWriter writer, JsonSerializerOptions options)
+    internal void Encode(Utf8JsonWriter writer, JsonSerializerOptions options)
     {
         _values.WriteTo(writer, options);
     }

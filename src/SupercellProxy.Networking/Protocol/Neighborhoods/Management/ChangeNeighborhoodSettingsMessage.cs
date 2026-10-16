@@ -4,18 +4,18 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Management;
 
 /// <summary>Changes the settings of the avatar's neighborhood.</summary>
-/// <param name="EmblemBackground">The emblem background.</param>
-/// <param name="EmblemPattern">The emblem pattern.</param>
-/// <param name="EmblemSymbol">The emblem symbol.</param>
-/// <param name="Type">The type.</param>
-/// <param name="RequiredLevel">The required level.</param>
-/// <param name="FamilyFriendly">The family friendly.</param>
-/// <param name="DerbyEnabled">The derby enabled.</param>
-/// <param name="Motto">The motto.</param>
-/// <param name="Description">The description.</param>
-/// <param name="Language">The language.</param>
-/// <param name="DerbyLeague">The derby league.</param>
-/// <param name="Tags">The tags.</param>
+/// <param name="EmblemBackground">Emblem background: a neighbourhood badge global id with the colour in the high byte.</param>
+/// <param name="EmblemPattern">Emblem pattern: a neighbourhood badge global id with the colour in the high byte.</param>
+/// <param name="EmblemSymbol">Emblem symbol: a neighbourhood badge global id with the colour in the high byte.</param>
+/// <param name="Type">Who may join, such as anyone or by request; its values are not identified.</param>
+/// <param name="RequiredLevel">Lowest farm level a player needs to join.</param>
+/// <param name="FamilyFriendly">Whether the neighbourhood is marked as suitable for all ages.</param>
+/// <param name="DerbyEnabled">Whether the neighbourhood takes part in the derby.</param>
+/// <param name="Motto">Short motto shown with the neighbourhood.</param>
+/// <param name="Description">Longer text describing the neighbourhood.</param>
+/// <param name="Language">Language the neighbourhood uses.</param>
+/// <param name="DerbyLeague">Derby league the neighbourhood plays in; its values are not identified.</param>
+/// <param name="Tags">Tags describing the neighbourhood's play style, packed into one number; the packing is not identified.</param>
 public sealed record ChangeNeighborhoodSettingsMessage(
     int EmblemBackground,
     int EmblemPattern,

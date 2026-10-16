@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 
 /// <summary>Stream entry type 2: a chat message.</summary>
 /// <param name="Header">The fields every stream entry shares.</param>
-/// <param name="Message">The message.</param>
+/// <param name="Message">What the sender wrote.</param>
 public sealed record ChatStreamEntry(StreamEntryHeader Header, string? Message) : NeighborhoodStreamEntry(Header), ICodecProvider<ChatStreamEntry>
 {
     internal const int Type = 2;

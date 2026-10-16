@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 /// <summary>Inbox entry type 3: a neighborhood accepted or denied the player's join request.</summary>
 /// <param name="Header">The fields every entry shares.</param>
 /// <param name="NeighborhoodId">The neighborhood that answered.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="NeighborhoodName">Display name of that neighborhood at the time of the answer.</param>
 /// <param name="MessageText">The answer's message text.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 public sealed record JoinNeighborhoodResponseAvatarStreamEntry(AvatarStreamEntryHeader Header, LongId NeighborhoodId, string? NeighborhoodName, string? MessageText, NeighborhoodBadge Badge) : AvatarStreamEntry(Header), ICodecProvider<JoinNeighborhoodResponseAvatarStreamEntry>

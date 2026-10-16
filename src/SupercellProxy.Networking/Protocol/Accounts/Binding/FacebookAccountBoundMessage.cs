@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record FacebookAccountBoundMessage(int ResultCode) : CodecMessage<FacebookAccountBoundMessage>, ICodecProvider<FacebookAccountBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FacebookAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static (resultCode) => new FacebookAccountBoundMessage(resultCode));
+    public static ICodec<FacebookAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static resultCode => new FacebookAccountBoundMessage(resultCode));
 }

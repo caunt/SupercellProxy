@@ -1,11 +1,11 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
-/// <summary>
-/// Represents <c language="csharp">MapGameChickenTaskStatePayload</c>.
-/// </summary>
+/// <summary>State of a Valley chicken task: a chicken on a node that several players collect together for a reward.</summary>
 public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameChickenTaskStatePayload>
 {
     /// <summary>
@@ -13,9 +13,12 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
     /// </summary>
     internal const string NativeTaskType = "Chicken";
 
-    /// <summary>
-    /// Initializes a new <see cref="MapGameChickenTaskStatePayload"/> instance.
-    /// </summary>
+    /// <summary>Creates the state from its decoded fields.</summary>
+    /// <param name="requiredCollectorCount">How many players must collect the chicken.</param>
+    /// <param name="helpRequestSent">Whether help was asked for the task.</param>
+    /// <param name="helperAvatarId">Account of the player who helped; null when nobody did.</param>
+    /// <param name="rewardData">Reward of the task; null when not drawn yet.</param>
+    /// <param name="collectorAvatarIds">Accounts of the players who collected the chicken.</param>
     public MapGameChickenTaskStatePayload(
         int requiredCollectorCount,
         bool helpRequestSent,
@@ -51,7 +54,7 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
     /// <summary>
     /// Gets the avatars that collected (native JSON <c>CollectorAvatarIDs</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("CollectorAvatarIds")]
+    [JsonPropertyName("CollectorAvatarIds")]
     public ReadOnlyMemory<LongId> CollectorAvatarIds { get; init; }
 
     /// <summary>

@@ -3,7 +3,8 @@ using System.Collections.ObjectModel;
 namespace SupercellProxy.Networking.Assets.Tables;
 
 /// <summary>
-/// Defines the Game Data Table Entry Builder contract.
+/// Collects the lines of one table entry while the parser walks the CSV, keeping each line's own cells and a running set of values
+/// that later lines inherit.
 /// </summary>
 internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, string name)
 {
@@ -13,8 +14,10 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
     private ReadOnlyDictionary<string, LiteralValue>? _baseRow;
 
     /// <summary>
-    /// Provides the Apply Base Row value or operation.
+    /// Records the entry's named line; must come first and only once.
     /// </summary>
+    /// <param name="values">Cells filled on the line, keyed by column header.</param>
+    /// <exception cref="InvalidOperationException">The named line was already recorded.</exception>
     public void ApplyBaseRow(Dictionary<string, LiteralValue> values)
     {
         ArgumentNullException.ThrowIfNull(values);
@@ -28,8 +31,10 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
     }
 
     /// <summary>
-    /// Provides the Apply Continuation Row value or operation.
+    /// Records an unnamed line that follows the entry's named line and holds further array elements.
     /// </summary>
+    /// <param name="values">Cells filled on the line, keyed by column header.</param>
+    /// <exception cref="InvalidOperationException">No named line was recorded yet.</exception>
     public void ApplyContinuationRow(Dictionary<string, LiteralValue> values)
     {
         ArgumentNullException.ThrowIfNull(values);
@@ -43,8 +48,9 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
     }
 
     /// <summary>
-    /// Provides the Build value or operation.
+    /// Freezes the recorded lines into an immutable entry.
     /// </summary>
+    /// <exception cref="InvalidOperationException">No named line was recorded.</exception>
     public GameDataTableEntry Build()
     {
         return _baseRow is null

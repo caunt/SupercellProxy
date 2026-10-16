@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using Nito.Disposables.Internals;
 
@@ -9,7 +10,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
 /// <summary>
-/// Represents the <c language="csharp">LoginFailedMessage</c> protocol message.
+/// Clientbound refusal of a login: outdated assets or app, invalid credentials or token, maintenance, a ban, a redirect to another
+/// server, and similar. The error code says which; the fields that matter for it are filled in.
 /// </summary>
 public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICodecProvider<LoginFailedMessage>
 {
@@ -89,18 +91,18 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     };
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">AssetsUrls</c> value.
+    /// Asset server addresses to download a new bundle from, in order of preference, as sent; entries may be null or blank.
     /// </summary>
     public string?[] AssetsUrls { get; init; } = [];
 
     /// <summary>
-    /// Gets the <c language="csharp">AssetsUrlsFiltered</c> value.
+    /// The asset server addresses with null and blank entries removed, ready to try one after another.
     /// </summary>
     public IEnumerable<string> AssetsUrlsFiltered =>
         AssetsUrls.Where(static address => !string.IsNullOrWhiteSpace(address)).WhereNotNull();
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">ErrorCode</c> value.
+    /// Why the login was refused; it decides which other fields carry information (manifest, maintenance time, redirect host).
     /// </summary>
     public required LoginFailureType ErrorCode { get; init; }
 
@@ -111,8 +113,10 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     public int EstimatedMaintenanceSeconds { get; init; }
 
     /// <summary>
-    /// Gets the <c language="csharp">GameAssetFingerprint</c> value.
+    /// The current asset manifest, parsed from <see cref="GameAssetFingerprintData"/>; present when the error code is out-of-date
+    /// content.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The message carries no manifest, or the manifest is not valid JSON.</exception>
     public GameAssetFingerprint GameAssetFingerprint
     {
         get
@@ -130,64 +134,64 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">GameAssetFingerprintData</c> value.
+    /// The current asset manifest as raw JSON text; null when the refusal is not about outdated content.
     /// </summary>
     public string? GameAssetFingerprintData { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Reason</c> value.
+    /// Human-readable explanation from the server, such as a ban reason; null or empty when none is given.
     /// </summary>
     public string? Reason { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">RedirectHost</c> value.
+    /// Game server host the client should connect to instead, sent with a redirection refusal.
     /// </summary>
     public string? RedirectHost { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown2</c> value.
+    /// Flag sent after the maintenance time; its meaning is not identified.
     /// </summary>
     public bool Unknown2 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown3</c> value.
+    /// First number after the update address; its meaning is not identified.
     /// </summary>
     public int Unknown3 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown4</c> value.
+    /// Second number after the update address; its meaning is not identified.
     /// </summary>
     public int Unknown4 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown5</c> value.
+    /// Optional id sent after those numbers (written only when it is not empty); its meaning is not identified.
     /// </summary>
     public LongId Unknown5 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown6</c> value.
+    /// First of four optional texts sent after that id; their meanings are not identified.
     /// </summary>
     public string? Unknown6 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown7</c> value.
+    /// Second of the four optional texts; not identified.
     /// </summary>
     public string? Unknown7 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown8</c> value.
+    /// Third of the four optional texts; not identified.
     /// </summary>
     public string? Unknown8 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown9</c> value.
+    /// Fourth of the four optional texts; not identified.
     /// </summary>
     public string? Unknown9 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UpdateUrl</c> value.
+    /// Store page the player is sent to when the refusal says the app itself is outdated.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UpdateUrl")]
+    [JsonPropertyName("UpdateUrl")]
     public string? UpdateAddress { get; init; }
 
     private static ICodec<string?> FlaggedString()

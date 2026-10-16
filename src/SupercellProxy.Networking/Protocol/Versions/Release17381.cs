@@ -1,3 +1,22 @@
+using SupercellProxy.Networking.Protocol.Advertisements;
+using SupercellProxy.Networking.Protocol.ConnectionControl;
+using SupercellProxy.Networking.Protocol.Decorations;
+using SupercellProxy.Networking.Protocol.Events.Decoration;
+using SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
+using SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
+using SupercellProxy.Networking.Protocol.Events.Decoration.Voting;
+using SupercellProxy.Networking.Protocol.FarmLayouts.Names;
+using SupercellProxy.Networking.Protocol.Homes;
+using SupercellProxy.Networking.Protocol.Homes.Details;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
+using SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
+using SupercellProxy.Networking.Protocol.Newspapers;
+using SupercellProxy.Networking.Protocol.Rankings;
+using SupercellProxy.Networking.Protocol.Screens;
+using SupercellProxy.Networking.Protocol.Settings.Preferences;
+using SupercellProxy.Networking.Protocol.Telemetry;
+using SupercellProxy.Networking.Protocol.Turns;
+
 using static SupercellProxy.Networking.Protocol.Versions.GameRelease;
 
 namespace SupercellProxy.Networking.Protocol.Versions;
@@ -184,9 +203,9 @@ internal static class Release17381
             Command(Boats.MarkBoatTrackCycleIntroSeenCommand.Codec, id: 627),
             Command(Fishing.Molluscs.OpenMolluscCommand.Codec, id: 677),
             Command(Events.ChainOffers.AcknowledgeChainOfferChapterIntroCommand.Codec, id: 656),
-            Command(Neighborhoods.ClaimNeighborhoodObjectRewardCommand.Codec, id: 504),
+            Command(ClaimNeighborhoodObjectRewardCommand.Codec, id: 504),
             Command(Boats.States.SettleBoatTrackPointsCommand.Codec, id: 576),
-            Command(Neighborhoods.ClaimNeighborhoodObjectVisualRewardCommand.Codec, id: 665),
+            Command(ClaimNeighborhoodObjectVisualRewardCommand.Codec, id: 665),
             Command(Events.Chronos.AcknowledgeEventSequenceCommand.Codec, id: 599),
             Command(FarmPass.Seen.MarkFarmPassPointsSeenCommand.Codec, id: 506),
             Command(Inventory.Shop.RemoveShopBadgesCommand.Codec, id: 658),
@@ -213,39 +232,39 @@ internal static class Release17381
             Command(Orders.RefreshTruckOrderCommand.Codec, id: 694),
         ],
         [
-            Message<Newspapers.BuyFromNewspaperAdvertisementMessage>(id: 13492),
-            Message<Advertisements.ClaimAdvertisementRewardMessage>(id: 18607),
-            Message<Screens.ClientScreenEventMessage>(id: 14322),
-            Message<Settings.Preferences.ConfirmPopupActionMessage>(id: 19948),
-            Message<Decorations.DecorationDesignMessage>(id: 21062),
-            Message<Turns.EndClientTurnMessage>(id: 11657),
-            Message<Events.Decoration.Gallery.FavouriteDecorationDesignMessage>(id: 13257),
-            Message<Events.Decoration.FeaturingDesignListMessage>(id: 25108),
-            Message<Screens.GameModeNoticeMessage>(id: 22924),
-            Message<Homes.Details.HomeIntegerListsMessage>(id: 27850),
-            Message<Events.Decoration.StickerBook.MarkStickerBookSeenMessage>(id: 18518),
-            Message<Settings.Preferences.OpenHamburgerMenuMessage>(id: 14059),
-            Message<ConnectionControl.PerformanceProfilingSettingsMessage>(id: 22324),
-            Message<Neighborhoods.Chat.Reactions.ReactToStreamEntryMessage>(id: 11201),
-            Message<Neighborhoods.Chat.Reactions.RemoveStreamEntryReactionMessage>(id: 11079),
-            Message<Advertisements.ReportAdvertisementRevenueMessage>(id: 14037),
-            Message<Advertisements.ReportAdvertisementStartedMessage>(id: 12475),
-            Message<Advertisements.ReportAdvertisementWatchedMessage>(id: 10860),
-            Message<Telemetry.ReportEventSeenMessage>(id: 17151),
-            Message<Telemetry.ReportGameModeEnteredMessage>(id: 14688),
-            Message<Events.Decoration.Voting.RequestDecorationEventPhaseMessage>(id: 18521),
-            Message<Rankings.RequestEventLeaderboardMessage>(id: 11165),
-            Message<Homes.Details.RequestHomeIntegerListsMessage>(id: 14598),
-            Message<FarmLayouts.Names.SaveEditModeLayoutMessage>(id: 19805),
-            Message<Neighborhoods.Chat.Reactions.SendNeighborhoodEmoteMessage>(id: 10370),
-            Message<Settings.Preferences.SetNotificationSettingsMessage>(id: 18452),
-            Message<Neighborhoods.Chat.Reactions.StreamEntryReactionAddedMessage>(id: 23442),
-            Message<Neighborhoods.Chat.Reactions.StreamEntryReactionCountMessage>(id: 26507),
-            Message<Neighborhoods.Chat.Reactions.StreamEntryReactionMessage>(id: 29506),
-            Message<Neighborhoods.Chat.Reactions.StreamEntryReactionRemovedMessage>(id: 24727),
-            Message<Events.Decoration.Gallery.UploadDecorationDesignMessage>(id: 15244),
-            RemovedMessage<Homes.VisitHomeMessage>(),
-            Message<Events.Decoration.Voting.VoteForDecorationDesignMessage>(id: 13900),
+            Message<BuyFromNewspaperAdvertisementMessage>(id: 13492),
+            Message<ClaimAdvertisementRewardMessage>(id: 18607),
+            Message<ClientScreenEventMessage>(id: 14322),
+            Message<ConfirmPopupActionMessage>(id: 19948),
+            Message<DecorationDesignMessage>(id: 21062),
+            Message<EndClientTurnMessage>(id: 11657),
+            Message<FavouriteDecorationDesignMessage>(id: 13257),
+            Message<FeaturingDesignListMessage>(id: 25108),
+            Message<GameModeNoticeMessage>(id: 22924),
+            Message<HomeIntegerListsMessage>(id: 27850),
+            Message<MarkStickerBookSeenMessage>(id: 18518),
+            Message<OpenHamburgerMenuMessage>(id: 14059),
+            Message<PerformanceProfilingSettingsMessage>(id: 22324),
+            Message<ReactToStreamEntryMessage>(id: 11201),
+            Message<RemoveStreamEntryReactionMessage>(id: 11079),
+            Message<ReportAdvertisementRevenueMessage>(id: 14037),
+            Message<ReportAdvertisementStartedMessage>(id: 12475),
+            Message<ReportAdvertisementWatchedMessage>(id: 10860),
+            Message<ReportEventSeenMessage>(id: 17151),
+            Message<ReportGameModeEnteredMessage>(id: 14688),
+            Message<RequestDecorationEventPhaseMessage>(id: 18521),
+            Message<RequestEventLeaderboardMessage>(id: 11165),
+            Message<RequestHomeIntegerListsMessage>(id: 14598),
+            Message<SaveEditModeLayoutMessage>(id: 19805),
+            Message<SendNeighborhoodEmoteMessage>(id: 10370),
+            Message<SetNotificationSettingsMessage>(id: 18452),
+            Message<StreamEntryReactionAddedMessage>(id: 23442),
+            Message<StreamEntryReactionCountMessage>(id: 26507),
+            Message<StreamEntryReactionMessage>(id: 29506),
+            Message<StreamEntryReactionRemovedMessage>(id: 24727),
+            Message<UploadDecorationDesignMessage>(id: 15244),
+            RemovedMessage<VisitHomeMessage>(),
+            Message<VoteForDecorationDesignMessage>(id: 13900),
         ]
     );
 }

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Carries an ordered follower page and whether the server has more pages available.
+/// <summary>Carries an ordered follower page and whether the server has more pages available.</summary>
 public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? Entries) : CodecMessage<FollowerListPageMessage>, ICodecProvider<FollowerListPageMessage>
 {
     /// <inheritdoc />
@@ -19,7 +19,7 @@ public sealed record FollowerListPageMessage(bool HasMorePages, FriendEntry[]? E
         trailingDataMessage: "The follower page has trailing data."
     );
 
-    /// Omits the private follower records from diagnostics.
+    /// <summary>Omits the private follower records from diagnostics.</summary>
     public override string ToString()
     {
         return nameof(FollowerListPageMessage);

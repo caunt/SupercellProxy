@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts;
 
 /// <summary>Logs in with a Supercell ID token.</summary>
-/// <param name="Token">The token.</param>
-/// <param name="Signature">The signature.</param>
+/// <param name="Token">Supercell ID token issued to this device when the player signed in.</param>
+/// <param name="Signature">Signature bytes the client sends alongside the token.</param>
 public sealed record SupercellIdLoginMessage(ReadOnlyMemory<byte>? Token, ReadOnlyMemory<byte>? Signature) : CodecMessage<SupercellIdLoginMessage>, ICodecProvider<SupercellIdLoginMessage>
 {
     /// <inheritdoc />

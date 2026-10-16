@@ -5,37 +5,40 @@ using SupercellProxy.Networking.Protocol.Boats;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
 
-/// <summary>Contains the rewards retained by a truck delivery.</summary>
+/// <summary>
+/// Rewards of one delivered truck order, kept on the delivery truck until the player collects them; an order another player filled
+/// brings no rewards here.
+/// </summary>
 public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
 {
-    /// <summary>Gets the AdBonusCash value.</summary>
+    /// <summary>Extra coins from watching a video for the delivery: the order's coins and bonus coins once more.</summary>
     public int AdBonusCash { get; init; }
 
-    /// <summary>Gets the AdBonusExperience value.</summary>
+    /// <summary>Extra experience from watching a video for the delivery: the order's experience and bonus experience once more.</summary>
     [JsonPropertyName("AdBonusExp")]
     public int AdBonusExperience { get; init; }
 
-    /// <summary>Gets the BonusCash value.</summary>
+    /// <summary>Extra coins from active delivery bonuses.</summary>
     public int BonusCash { get; init; }
 
-    /// <summary>Gets the BonusCount value.</summary>
+    /// <summary>How many of the event bonus reward the delivery gives.</summary>
     public int BonusCount { get; init; }
 
-    /// <summary>Gets the BonusExperience value.</summary>
+    /// <summary>Extra experience from active delivery bonuses.</summary>
     [JsonPropertyName("BonusExp")]
     public int BonusExperience { get; init; }
 
-    /// <summary>Gets the BonusGlobalId value.</summary>
+    /// <summary>Global id of the event bonus reward; 0 when there is none.</summary>
     [JsonPropertyName("BonusGlobalID")]
     public int BonusGlobalId { get; init; }
 
-    /// <summary>Gets the Cash value.</summary>
+    /// <summary>Coins the order pays; 0 when another player filled it.</summary>
     public int Cash { get; init; }
-    /// <summary>Gets the Experience value.</summary>
+    /// <summary>Experience the order gives; 0 when another player filled it.</summary>
     [JsonPropertyName("Exp")]
     public int Experience { get; init; }
 
-    /// <summary>Gets the HelperAvatarId value.</summary>
+    /// <summary>Home id of the player who filled the order, as text; null when the owner filled it.</summary>
     [JsonPropertyName("HelperAvatarID")]
     public string? HelperAvatarId { get; init; }
 
@@ -49,11 +52,11 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? HelperAvatarIdLow { get; init; }
 
-    /// <summary>Gets the ItemCount value.</summary>
+    /// <summary>How many vouchers the delivery gives (saved as <c>VoucherCount</c>); 0 when another player filled the order.</summary>
     [JsonPropertyName("VoucherCount")]
     public int ItemCount { get; init; }
 
-    /// <summary>Gets the ItemGlobalId value.</summary>
+    /// <summary>Global id of the voucher the delivery gives; 0 when there is none.</summary>
     [JsonPropertyName("ItemGlobalID")]
     public int ItemGlobalId { get; init; }
 

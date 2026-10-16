@@ -9,6 +9,6 @@ public sealed record SpeedUpFruitTreeCommand(int TreeGlobalId) : CodecCommand<Sp
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpFruitTreeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TreeGlobalId, static (treeGlobalId) => new SpeedUpFruitTreeCommand(treeGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.TreeGlobalId, static treeGlobalId => new SpeedUpFruitTreeCommand(treeGlobalId))
     );
 }

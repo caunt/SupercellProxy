@@ -43,7 +43,7 @@ public sealed record CustomizationManagerSnapshot
     public int[]? SelectedOptions { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">StockSeconds</c> value.
+    /// Saved time value of the renovator's regular stock, in seconds, next to the separate tutorial stock countdown.
     /// </summary>
     public int StockSeconds { get; init; }
 

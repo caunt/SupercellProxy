@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 using SupercellProxy.Networking.Protocol.Versions;
@@ -9,9 +11,9 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 /// <param name="BuySeeds">Whether missing seeds are bought.</param>
 /// <param name="FieldGlobalId">The field game object id.</param>
 public sealed record PlantFieldCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("CropGlobalId")] int CropGlobalId,
+    [property: JsonPropertyName("CropGlobalId")] int CropGlobalId,
     bool BuySeeds,
-    [property: System.Text.Json.Serialization.JsonPropertyName("FieldGlobalId")] int FieldGlobalId
+    [property: JsonPropertyName("FieldGlobalId")] int FieldGlobalId
 ) : CodecCommand<PlantFieldCommand>, ICommandCodecProvider<PlantFieldCommand>
 {
     /// <inheritdoc />

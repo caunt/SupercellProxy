@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
 
 /// <summary>Uploads a decoration design.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="Design">The design.</param>
+/// <param name="EventId">Decoration event the design is submitted to.</param>
+/// <param name="Design">The design's data as the client serialised it for upload.</param>
 public sealed record UploadDecorationDesignMessage(int EventId, ReadOnlyMemory<byte>? Design) : CodecMessage<UploadDecorationDesignMessage>, ICodecProvider<UploadDecorationDesignMessage>
 {
     /// <inheritdoc />

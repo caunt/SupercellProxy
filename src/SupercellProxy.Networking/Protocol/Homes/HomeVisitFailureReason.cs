@@ -1,17 +1,17 @@
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>
-/// Defines the Home Visit Failure Reason contract.
+/// Why the server refused to load a farm, as a home-load failure reports it.
 /// </summary>
 public enum HomeVisitFailureReason
 {
     /// <summary>
-    /// Identifies the Cannot Return Home wire value.
+    /// The player's own farm could not be loaded to return to.
     /// </summary>
     CannotReturnHome = 1,
 
     /// <summary>
-    /// Identifies the Visit Unavailable wire value.
+    /// The farm to visit is not available, for example because no farm has that id.
     /// </summary>
     VisitUnavailable = 2,
 }

@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 
 /// <summary>Event type 29: the result of committing goods to a shared task.</summary>
-/// <param name="Status">The commit status.</param>
+/// <param name="Status">Outcome code of the commit, as native numbers it.</param>
 /// <param name="Pawn">The acting pawn.</param>
-/// <param name="Task">The task.</param>
+/// <param name="Task">Shared Valley task the goods went to.</param>
 /// <param name="Submission">The submitted dump-task state.</param>
 public sealed record MapGameSharedTaskCommitResultEvent(int Status, MapGamePawn? Pawn, MapGameTask? Task, MapGameDumpTaskStatePayload? Submission) : MapGamePawnTaskEvent(MapGameEvent.SharedTaskCommitResultType, Pawn, Task), ICodecProvider<MapGameSharedTaskCommitResultEvent>
 {

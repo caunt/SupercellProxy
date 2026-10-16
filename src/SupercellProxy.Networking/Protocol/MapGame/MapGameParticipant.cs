@@ -1,51 +1,37 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Inventory;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame;
 
 /// <summary>
-/// Defines the Map Game Participant contract.
+/// A Valley board player as kept in the client avatar; its fields follow the same order as <see cref="MapGamePawn"/>, with the
+/// numbers grouped into arrays.
 /// </summary>
-/// <summary>
-/// Defines the Id0 contract.
-/// </summary>
-/// <summary>
-/// Defines the Id1 contract.
-/// </summary>
-/// <summary>
-/// Defines the Values contract.
-/// </summary>
-/// <summary>
-/// Defines the Route Values contract.
-/// </summary>
-/// <summary>
-/// Defines the Task Data Ids contract.
-/// </summary>
-/// <summary>
-/// Defines the Name Present contract.
-/// </summary>
-/// <summary>
-/// Defines the Name contract.
-/// </summary>
-/// <summary>
-/// Defines the Optional Values contract.
-/// </summary>
-/// <summary>
-/// Defines the Data Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Entries contract.
-/// </summary>
+/// <param name="Id0">Account of the player, at the position of <see cref="MapGamePawn.AvatarId"/>.</param>
+/// <param name="Id1">Neighbourhood of the player, at the position of <see cref="MapGamePawn.NeighborhoodId"/>.</param>
+/// <param name="Values">
+/// Five numbers at the positions of the pawn's farm level, current node, empty nodes travelled, carried-animal immunity and
+/// empty nodes travelled while carrying animals.
+/// </param>
+/// <param name="RouteValues">Nodes the player revealed, at the position of <see cref="MapGamePawn.VisitedNodeIds"/>.</param>
+/// <param name="TaskDataIds">Id list at the position of <see cref="MapGamePawn.SelectedOptions"/>.</param>
+/// <param name="NamePresent">Whether the name was sent.</param>
+/// <param name="Name">Name shown for the player.</param>
+/// <param name="OptionalValues">Emblem background, pattern and symbol; null when no emblem is set.</param>
+/// <param name="DataId">Global id at the position of <see cref="MapGamePawn.DerbyTaskGlobalId"/>.</param>
+/// <param name="Entries">Table entries with values, at the position of <see cref="MapGamePawn.PendingNotifications"/>.</param>
 public sealed record MapGameParticipant(
-    [property: System.Text.Json.Serialization.JsonPropertyName("Id0")] LongId? Id0,
-    [property: System.Text.Json.Serialization.JsonPropertyName("Id1")] LongId? Id1,
+    [property: JsonPropertyName("Id0")] LongId? Id0,
+    [property: JsonPropertyName("Id1")] LongId? Id1,
     int[] Values,
     int[] RouteValues,
-    [property: System.Text.Json.Serialization.JsonPropertyName("TaskDataIds")] int[] TaskDataIds,
+    [property: JsonPropertyName("TaskDataIds")] int[] TaskDataIds,
     bool NamePresent,
     string? Name,
     int[]? OptionalValues,
-    [property: System.Text.Json.Serialization.JsonPropertyName("DataId")] int DataId,
+    [property: JsonPropertyName("DataId")] int DataId,
     DataReferenceValue[] Entries
 ) : ICodecProvider<MapGameParticipant>
 {

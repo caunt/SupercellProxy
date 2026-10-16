@@ -8,36 +8,42 @@ using DnsClient;
 namespace SupercellProxy.Networking.Transport;
 
 /// <summary>
-/// Defines the Connection Address contract.
+/// Default game server address and port, and command-line address parsing that resolves host names to an IPv4 address without
+/// relying on the machine's own DNS settings.
 /// </summary>
 public static class ConnectionAddressResolver
 {
     /// <summary>
-    /// Provides the Default Listen Host value or operation.
+    /// Address the proxy listens on unless configured otherwise: every IPv4 interface.
     /// </summary>
     public const string DefaultListenHost = "0.0.0.0";
 
     /// <summary>
-    /// Provides the Default Port value or operation.
+    /// TCP port the game uses, for both the real server and the proxy's listener.
     /// </summary>
     public const int DefaultPort = 9339;
 
     /// <summary>
-    /// Provides the Default Upstream Host value or operation.
+    /// Host name of the live Hay Day game server.
     /// </summary>
     public const string DefaultUpstreamHost = "game.haydaygame.com";
 
     /// <summary>
-    /// Provides the Parse Port value or operation.
+    /// Reads a port number from text, falling back to <see cref="DefaultPort"/> when the text is missing or not a number.
     /// </summary>
+    /// <param name="value">Port as typed by the user, or null.</param>
     public static int ParsePort(string? value)
     {
         return int.TryParse(value, CultureInfo.InvariantCulture, out int port) ? port : DefaultPort;
     }
 
     /// <summary>
-    /// Provides the Resolve Async value or operation.
+    /// Turns command-line arguments (host, then port) into an IPv4 address and port. Host names are looked up at 1.1.1.1 directly,
+    /// then through Cloudflare's DNS-over-HTTPS when plain DNS fails.
     /// </summary>
+    /// <param name="arguments">Optional host as the first argument and optional port as the second; missing ones use the defaults.</param>
+    /// <param name="cancellationToken">Stops the lookups.</param>
+    /// <exception cref="InvalidDataException">No lookup produced an IPv4 address.</exception>
     public static async Task<ConnectionAddress> ResolveAsync(string[] arguments, CancellationToken cancellationToken)
     {
         string host = arguments.ElementAtOrDefault(index: 0) ?? DefaultUpstreamHost;

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Carries two town passenger values; the client ignores it.</summary>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
+/// <param name="Value0">First number; its meaning is not identified.</param>
+/// <param name="Value1">Second number; its meaning is not identified.</param>
 public sealed record TownPassengerStateMessage(int Value0, int Value1) : CodecMessage<TownPassengerStateMessage>, ICodecProvider<TownPassengerStateMessage>
 {
     /// <inheritdoc />

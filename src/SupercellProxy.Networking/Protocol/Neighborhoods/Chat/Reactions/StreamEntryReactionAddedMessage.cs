@@ -4,10 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 
 /// <summary>Adds a reaction to a stream entry in the neighborhood chat and the game log; the client plays the reaction sound when the reactor is the player.</summary>
-/// <param name="EntryId">The entry id.</param>
-/// <param name="Reaction">The reaction.</param>
+/// <param name="EntryId">Stream entry that got the reaction.</param>
+/// <param name="Reaction">Which reaction was added; its values are not identified.</param>
 /// <param name="AvatarId">The reacting avatar.</param>
-public sealed record StreamEntryReactionAddedMessage(SupercellProxy.Networking.Protocol.Neighborhoods.Chat.StreamEntryId? EntryId, int Reaction, LongId? AvatarId) : CodecMessage<StreamEntryReactionAddedMessage>, ICodecProvider<StreamEntryReactionAddedMessage>
+public sealed record StreamEntryReactionAddedMessage(StreamEntryId? EntryId, int Reaction, LongId? AvatarId) : CodecMessage<StreamEntryReactionAddedMessage>, ICodecProvider<StreamEntryReactionAddedMessage>
 {
     /// <inheritdoc />
     public static ICodec<StreamEntryReactionAddedMessage> Codec { get; } = Codecs.Composite(

@@ -3,13 +3,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.RoadsideShops.Advertisements;
 
-/// <summary>Updates a roadside shop advertisement.</summary>
-/// <param name="HomeId">The home id.</param>
-/// <param name="StandIndex">The stand index.</param>
-/// <param name="ItemGlobalId">The item data id.</param>
-/// <param name="Sold">The sold.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="Price">The price.</param>
+/// <summary>Updates one advertised roadside stand; the client does not act on it.</summary>
+/// <param name="HomeId">Home whose shop advertises the stand.</param>
+/// <param name="StandIndex">Stand position in that shop.</param>
+/// <param name="ItemGlobalId">Global id of the advertised goods.</param>
+/// <param name="Sold">Whether the advertised goods were bought.</param>
+/// <param name="Amount">How many goods the stand holds.</param>
+/// <param name="Price">Coin price of the whole stand.</param>
 public sealed record RoadsideAdvertisementServerCommand(LongId HomeId, int StandIndex, int ItemGlobalId, bool Sold, int Amount, int Price) : CodecServerCommand<RoadsideAdvertisementServerCommand>, ICommandCodecProvider<RoadsideAdvertisementServerCommand>
 {
     /// <inheritdoc />

@@ -3,17 +3,17 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 
 /// <summary>
-/// Defines the Task Event Snapshot contract.
+/// Saved per-player state of a task event: whether the player has opened it and how each visible task is displayed.
 /// </summary>
 public sealed record TaskEventSnapshot
 {
     /// <summary>
-    /// Gets the Opened By Player value.
+    /// Whether the player has opened the event at least once.
     /// </summary>
     [JsonPropertyName("openedByPlayer")]
     public bool OpenedByPlayer { get; init; }
     /// <summary>
-    /// Gets the Visible Tasks value.
+    /// Display state of each task slot in the event's list, in slot order; empty slots are null.
     /// </summary>
     [JsonPropertyName("visibleTasks")]
     public TaskEventEntrySnapshot?[] VisibleTasks { get; init; } = [];

@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Helpers;
 
-/// Hires one farm helper at a configured duration tier.
+/// <summary>Hires one farm helper at a configured duration tier.</summary>
 public sealed record HireHelperCommand(int HelperIndex, int HireTierIndex) : CodecCommand<HireHelperCommand>, ICommandCodecProvider<HireHelperCommand>
 {
     /// <inheritdoc />

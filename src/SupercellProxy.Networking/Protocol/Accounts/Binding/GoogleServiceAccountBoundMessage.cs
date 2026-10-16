@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record GoogleServiceAccountBoundMessage(int ResultCode) : CodecMessage<GoogleServiceAccountBoundMessage>, ICodecProvider<GoogleServiceAccountBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<GoogleServiceAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static (resultCode) => new GoogleServiceAccountBoundMessage(resultCode));
+    public static ICodec<GoogleServiceAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static resultCode => new GoogleServiceAccountBoundMessage(resultCode));
 }

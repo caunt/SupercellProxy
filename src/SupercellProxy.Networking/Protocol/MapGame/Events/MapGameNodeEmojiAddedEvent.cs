@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 
 /// <summary>Event type 22: an emoji was placed on a node.</summary>
 /// <param name="AvatarId">The avatar that placed the emoji.</param>
-/// <param name="NodeId">The node.</param>
+/// <param name="NodeId">Valley board location the emoji was placed on.</param>
 /// <param name="EmojiGlobalId">The emoji data global id.</param>
 /// <param name="Duration">The emoji lifetime native reads as a full 32-bit value.</param>
 public sealed record MapGameNodeEmojiAddedEvent(LongId? AvatarId, int NodeId, int EmojiGlobalId, int Duration) : MapGameEvent(MapGameEvent.NodeEmojiAddedType), ICodecProvider<MapGameNodeEmojiAddedEvent>

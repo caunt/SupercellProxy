@@ -8,6 +8,6 @@ public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType) : CodecComm
 {
     /// <inheritdoc />
     public static CommandCodec<MarkMapGameDailyQuestSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.QuestType, static (questType) => new MarkMapGameDailyQuestSeenCommand(questType))
+        Codecs.Composite(Codecs.VarInt, static command => command.QuestType, static questType => new MarkMapGameDailyQuestSeenCommand(questType))
     );
 }

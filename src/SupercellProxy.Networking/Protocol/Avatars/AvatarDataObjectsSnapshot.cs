@@ -5,9 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// </summary>
 public sealed record AvatarDataObjectsSnapshot
 {
-    /// <summary>
-    /// Gets the Farm value.
-    /// </summary>
+    /// <summary>Gets the avatar-owned farm object metadata.</summary>
     public FarmObjectSnapshot[] Farm { get; init; } = [];
 
     /// <summary>Gets the avatar-owned town object metadata.</summary>
@@ -20,7 +18,8 @@ public sealed record AvatarDataObjectsSnapshot
     public FarmObjectSnapshot[] Fishing { get; init; } = [];
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Common</c> value.
+    /// Saved state of the account-wide game systems that are not tied to one area: boat and truck tracks, live events, Farm Pass,
+    /// tutorials, the newspaper and the like.
     /// </summary>
     public CommonAvatarDataSnapshot Common { get; init; } = new();
 }

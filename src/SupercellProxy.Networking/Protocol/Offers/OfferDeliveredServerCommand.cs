@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Offers;
 
 /// <summary>Delivers the goods of a purchased offer.</summary>
-/// <param name="Goods">The goods.</param>
-/// <param name="OfferId">The offer id.</param>
-/// <param name="RewardMode">The reward mode.</param>
-/// <param name="Count">The count.</param>
-/// <param name="ProductId">The product id.</param>
+/// <param name="Goods">Goods the offer grants.</param>
+/// <param name="OfferId">Offer that was bought.</param>
+/// <param name="RewardMode">Delivery mode number native uses to decide where the goods go.</param>
+/// <param name="Count">Purchase count sent with the delivery.</param>
+/// <param name="ProductId">Store product the payment went through.</param>
 public sealed record OfferDeliveredServerCommand(ReadOnlyMemory<OfferGood> Goods, int OfferId, int RewardMode, int Count, string? ProductId) : CodecServerCommand<OfferDeliveredServerCommand>, ICommandCodecProvider<OfferDeliveredServerCommand>
 {
     /// <inheritdoc />

@@ -87,13 +87,13 @@ public static class Codecs
     }
 
     /// <summary>Gets the contract of a command record: its fields wrapped with the shared command metadata.</summary>
-    public static CommandCodec<TCommand> Command<TCommand>(ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Commands.Command
+    public static CommandCodec<TCommand> Command<TCommand>(ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Command
     {
         return Command(typeof(TCommand).Name, fields, layout, productionAllowed);
     }
 
     /// <summary>Gets the contract named <paramref name="name"/> of a record that carries several native commands.</summary>
-    public static CommandCodec<TCommand> Command<TCommand>(string name, ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Commands.Command
+    public static CommandCodec<TCommand> Command<TCommand>(string name, ICodec<TCommand> fields, CommandLayout layout = CommandLayout.FieldsFirst, bool productionAllowed = true) where TCommand : Command
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(fields);
@@ -776,7 +776,7 @@ public static class Codecs
     }
 
     /// <summary>Gets an int-backed enum carried by an integer codec.</summary>
-    public static ICodec<TEnum> Enum<TEnum>(ICodec<int> underlying) where TEnum : struct, System.Enum
+    public static ICodec<TEnum> Enum<TEnum>(ICodec<int> underlying) where TEnum : struct, Enum
     {
         return Map(underlying, static value => Unsafe.BitCast<int, TEnum>(value), static value => Unsafe.BitCast<TEnum, int>(value));
     }

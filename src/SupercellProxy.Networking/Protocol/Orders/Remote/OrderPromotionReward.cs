@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 
-/// <summary>The order promotion reward.</summary>
-/// <param name="Reward">The reward.</param>
-/// <param name="Claimed">The claimed.</param>
+/// <summary>Promotion box attached to a truck order, as the server sends it for another farm.</summary>
+/// <param name="Reward">What the box gives; null when it holds nothing.</param>
+/// <param name="Claimed">Whether the box's reward was already collected.</param>
 public sealed record OrderPromotionReward(OrderPromotionGood? Reward, bool Claimed) : ICodecProvider<OrderPromotionReward>
 {
     /// <inheritdoc />

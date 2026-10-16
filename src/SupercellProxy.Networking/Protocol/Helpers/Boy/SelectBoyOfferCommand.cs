@@ -9,6 +9,6 @@ public sealed record SelectBoyOfferCommand(int OfferIndex) : CodecCommand<Select
 {
     /// <inheritdoc />
     public static CommandCodec<SelectBoyOfferCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static (offerIndex) => new SelectBoyOfferCommand(offerIndex))
+        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new SelectBoyOfferCommand(offerIndex))
     );
 }

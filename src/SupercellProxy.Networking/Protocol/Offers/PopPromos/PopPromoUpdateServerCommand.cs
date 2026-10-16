@@ -4,14 +4,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Offers.PopPromos;
 
 /// <summary>Updates a pop promo stand offer.</summary>
-/// <param name="HomeId">The home id.</param>
-/// <param name="PromoId">The promo id.</param>
-/// <param name="State">The state.</param>
-/// <param name="RewardGlobalId">The reward data id.</param>
-/// <param name="Amount">The amount.</param>
-/// <param name="StartTime">The start time.</param>
-/// <param name="Duration">The duration.</param>
-/// <param name="Probability">The probability.</param>
+/// <param name="HomeId">Farm whose pop promo stand changes.</param>
+/// <param name="PromoId">Offer on the stand.</param>
+/// <param name="State">New state of the offer, as native numbers it.</param>
+/// <param name="RewardGlobalId">Global id of what the offer gives.</param>
+/// <param name="Amount">How many of that reward.</param>
+/// <param name="StartTime">Unix time stamp when the offer appears.</param>
+/// <param name="Duration">How long the offer stays after it appears.</param>
+/// <param name="Probability">Chance value the server sends with the offer.</param>
 public sealed record PopPromoUpdateServerCommand(LongId HomeId, int PromoId, int State, int RewardGlobalId, int Amount, int StartTime, int Duration, int Probability) : CodecServerCommand<PopPromoUpdateServerCommand>, ICommandCodecProvider<PopPromoUpdateServerCommand>
 {
     /// <inheritdoc />

@@ -12,7 +12,7 @@ public sealed record DerbyRankingsMessage(DerbyRankingEntry[]? Entries) : CodecM
         Codecs.Composite(
             Codecs.NullableArray(DerbyRankingEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.Entries,
-            static (entries) => new DerbyRankingsMessage(entries)
+            static entries => new DerbyRankingsMessage(entries)
         ),
         trailingDataMessage: "The derby message has trailing data."
     );

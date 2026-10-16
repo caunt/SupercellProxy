@@ -12,7 +12,7 @@ public sealed record SetLastOpenedFriendLeaderboardCommand(int LeaderboardHash) 
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.LeaderboardHash,
-            static (leaderboardHash) => new SetLastOpenedFriendLeaderboardCommand(leaderboardHash)
+            static leaderboardHash => new SetLastOpenedFriendLeaderboardCommand(leaderboardHash)
         )
     );
 }

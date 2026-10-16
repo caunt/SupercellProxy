@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 
 /// <summary>Answers a device link request; error codes 1, 2, 5, 6 and 7 show a dialog and zero opens the link result.</summary>
-/// <param name="ErrorCode">The error code.</param>
-/// <param name="Text">The text.</param>
-/// <param name="SecondText">The second text.</param>
-/// <param name="Value">The value.</param>
-/// <param name="ThirdText">The third text.</param>
-/// <param name="AccountId">The account id.</param>
+/// <param name="ErrorCode">0 when the link went through; 1, 2, 5, 6 and 7 make the client show an error dialog.</param>
+/// <param name="Text">First text the response carries; its role in the link result is not identified.</param>
+/// <param name="SecondText">Second text the response carries; not identified.</param>
+/// <param name="Value">Number sent between the texts; not identified.</param>
+/// <param name="ThirdText">Third text the response carries; not identified.</param>
+/// <param name="AccountId">Account the link concerns.</param>
 public sealed record LogicDeviceLinkResponseMessage(int ErrorCode, string? Text, string? SecondText, int Value, string? ThirdText, LongId AccountId) : CodecMessage<LogicDeviceLinkResponseMessage>, ICodecProvider<LogicDeviceLinkResponseMessage>
 {
     /// <inheritdoc />

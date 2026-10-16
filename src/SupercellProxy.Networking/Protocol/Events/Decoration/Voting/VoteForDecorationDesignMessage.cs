@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Voting;
 
 /// <summary>Submits a vote for a decoration design.</summary>
-/// <param name="EventId">The event id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="Selection">The selection.</param>
+/// <param name="EventId">Decoration event being voted in.</param>
+/// <param name="VariantId">Variant of that event the player is in.</param>
+/// <param name="Selection">Index of the design the player voted for among those offered.</param>
 public sealed record VoteForDecorationDesignMessage(int EventId, int VariantId, int Selection) : CodecMessage<VoteForDecorationDesignMessage>, ICodecProvider<VoteForDecorationDesignMessage>
 {
     /// <inheritdoc />

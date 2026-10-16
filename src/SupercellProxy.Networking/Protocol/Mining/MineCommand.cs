@@ -7,5 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Mining;
 public sealed record MineCommand(int ToolGlobalId) : CodecCommand<MineCommand>, ICommandCodecProvider<MineCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MineCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ToolGlobalId, static (tool) => new MineCommand(tool)));
+    public static CommandCodec<MineCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ToolGlobalId, static tool => new MineCommand(tool)));
 }

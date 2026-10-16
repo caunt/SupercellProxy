@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -14,8 +16,12 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     public const int MaximumEventCount = 1024;
 
     /// <summary>
-    /// Initializes a new <see cref="MapGameEventsServerCommand"/> instance.
+    /// Bundles a batch of Valley events for one Valley game.
     /// </summary>
+    /// <param name="unknownLongId0">Optional id sent first; which object it names is not identified.</param>
+    /// <param name="mapGameId">Valley game the events belong to.</param>
+    /// <param name="events">The events in the order they happened; at most <see cref="MaximumEventCount"/>.</param>
+    /// <exception cref="InvalidDataException">More than <see cref="MaximumEventCount"/> events were given.</exception>
     public MapGameEventsServerCommand(LongId? unknownLongId0, LongId? mapGameId, ReadOnlyMemory<MapGameEvent> events)
     {
         if (events.Length > MaximumEventCount)
@@ -41,7 +47,7 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     );
 
     /// <summary>
-    /// Gets the <c language="csharp">Events</c> value.
+    /// What happened in the Valley since the last batch, in order: pawn moves, tasks taken and finished, emojis placed and so on.
     /// </summary>
     public ReadOnlyMemory<MapGameEvent> Events { get; }
 
@@ -51,8 +57,8 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     public LongId? MapGameId { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">UnknownLongId0</c> value.
+    /// Optional id sent before the Valley game id; which object it names is not identified.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("UnknownLongId0")]
+    [JsonPropertyName("UnknownLongId0")]
     public LongId? UnknownLongId0 { get; }
 }

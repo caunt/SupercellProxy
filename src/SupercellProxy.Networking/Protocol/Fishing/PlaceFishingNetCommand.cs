@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -5,8 +7,8 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Places the selected net on one fishing-area spot.</summary>
 public sealed record PlaceFishingNetCommand(
-    [property: System.Text.Json.Serialization.JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId,
-    [property: System.Text.Json.Serialization.JsonPropertyName("NetGlobalId")] int NetGlobalId
+    [property: JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId,
+    [property: JsonPropertyName("NetGlobalId")] int NetGlobalId
 ) : CodecCommand<PlaceFishingNetCommand>, ICommandCodecProvider<PlaceFishingNetCommand>
 {
     /// <inheritdoc />

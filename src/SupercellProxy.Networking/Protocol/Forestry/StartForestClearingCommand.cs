@@ -1,18 +1,16 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Forestry;
 
 /// <summary>
-/// Defines the Start Forest Clearing Command contract.
+/// Serverbound command that starts clearing a tree or stump, spending the clearing tool (axe or saw) it needs.
 /// </summary>
-/// <summary>
-/// Defines the Forest Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Buy Missing Tool contract.
-/// </summary>
-public sealed record StartForestClearingCommand([property: System.Text.Json.Serialization.JsonPropertyName("ForestGlobalId")] int ForestGlobalId, bool BuyMissingTool) : CodecCommand<StartForestClearingCommand>, ICommandCodecProvider<StartForestClearingCommand>
+/// <param name="ForestGlobalId">Game object id of the tree or stump to clear.</param>
+/// <param name="BuyMissingTool">Whether to buy the tool with coins when the player has none.</param>
+public sealed record StartForestClearingCommand([property: JsonPropertyName("ForestGlobalId")] int ForestGlobalId, bool BuyMissingTool) : CodecCommand<StartForestClearingCommand>, ICommandCodecProvider<StartForestClearingCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<StartForestClearingCommand> Codec { get; } = Codecs.Command(

@@ -2,16 +2,16 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends.Social;
 
-/// <summary>The social profile.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="FacebookId">The facebook id.</param>
-/// <param name="GamecenterId">The gamecenter id.</param>
-/// <param name="SupercellId">The supercell id.</param>
-/// <param name="FarmName">The farm name.</param>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Value3">The value3.</param>
+/// <summary>A player's public card as social screens show it: linked accounts and farm name.</summary>
+/// <param name="AvatarId">The player's account.</param>
+/// <param name="FacebookId">Facebook user id linked to the account, if any.</param>
+/// <param name="GamecenterId">Game Center player id linked to the account, if any.</param>
+/// <param name="SupercellId">Supercell ID linked to the account, if any.</param>
+/// <param name="FarmName">Name of the player's farm; null for a farm that was never named.</param>
+/// <param name="Value0">First number after the farm name; its meaning is not identified.</param>
+/// <param name="Value1">Second number after the farm name; not identified.</param>
+/// <param name="Value2">Third number after the farm name; not identified.</param>
+/// <param name="Value3">Fourth number after the farm name; not identified.</param>
 public sealed record SocialProfile(
     LongId AvatarId,
     string? FacebookId,

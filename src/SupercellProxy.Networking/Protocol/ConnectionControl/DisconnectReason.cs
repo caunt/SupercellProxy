@@ -1,17 +1,17 @@
 namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 
 /// <summary>
-/// Defines the Disconnect Reason contract.
+/// Why the server ended a session, as its disconnect message reports it. Values not listed here can arrive and are kept as numbers.
 /// </summary>
 public enum DisconnectReason
 {
     /// <summary>
-    /// Identifies the Unknown wire value.
+    /// No specific reason given.
     /// </summary>
     Unknown = 0,
 
     /// <summary>
-    /// Identifies the Session Replaced wire value.
+    /// The same account logged in on another connection, which took over the session; reconnecting would kick that one out in turn.
     /// </summary>
     SessionReplaced = 1,
 }

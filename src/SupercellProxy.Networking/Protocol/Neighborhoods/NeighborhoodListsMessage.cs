@@ -4,7 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
 /// <summary>
-/// Defines the Neighborhood Lists Message contract.
+/// Clientbound neighbourhood ranking lists: scored neighbourhood profiles and two lists of scored ids; all three are empty in most
+/// captures.
 /// </summary>
 public sealed record NeighborhoodListsMessage : CodecMessage<NeighborhoodListsMessage>, ICodecProvider<NeighborhoodListsMessage>
 {
@@ -31,28 +32,20 @@ public sealed record NeighborhoodListsMessage : CodecMessage<NeighborhoodListsMe
     );
 
     /// <summary>
-    /// Gets the First Entries value.
+    /// Ids with a score each, sent second and sorted from the highest score in the captures; likely a player ranking, not confirmed.
     /// </summary>
     public NeighborhoodIdValue[]? FirstEntries { get; init; }
 
-    /// <summary>
-    /// Gets the Profiles value.
-    /// </summary>
+    /// <summary>Neighbourhood profiles with a score each, sorted from the highest score in the captures.</summary>
     public NeighborhoodHeaderEntryValue[]? Profiles { get; init; }
 
-    /// <summary>
-    /// Gets the Second Entries value.
-    /// </summary>
+    /// <summary>Ids with a number each, sent first and not sorted in the captures; their meaning is not identified.</summary>
     public NeighborhoodIdValue[]? SecondEntries { get; init; }
 
-    /// <summary>
-    /// Gets the Value value.
-    /// </summary>
+    /// <summary>Number sent last, 0 when the lists are empty; its meaning is not identified.</summary>
     public int Value { get; init; }
 
-    /// <summary>
-    /// Provides the To String value or operation.
-    /// </summary>
+    /// <summary>Returns only the message name, without the lists.</summary>
     public override string ToString()
     {
         return nameof(NeighborhoodListsMessage);

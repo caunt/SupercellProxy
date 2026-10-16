@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Help;
 
 /// <summary>Delivers the help entries of a farm; the client passes them to the neighborhood chat when it is visiting that farm.</summary>
-/// <param name="Value">The value.</param>
-/// <param name="OwnerId">The owner id.</param>
-/// <param name="Entries">The entries.</param>
+/// <param name="Value">Number sent before the owner; its meaning is not identified.</param>
+/// <param name="OwnerId">Account of the farm the help entries belong to.</param>
+/// <param name="Entries">Who helped and how much; null when none are listed.</param>
 public sealed record NeighborhoodHelpEntriesMessage(int Value, LongId OwnerId, ReadOnlyMemory<NeighborhoodHelpEntry>? Entries) : CodecMessage<NeighborhoodHelpEntriesMessage>, ICodecProvider<NeighborhoodHelpEntriesMessage>
 {
     /// <inheritdoc />

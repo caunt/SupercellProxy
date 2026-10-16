@@ -3,7 +3,8 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 
 /// <summary>
-/// Defines the <c language="csharp">IMessage</c> contract.
+/// A protocol message that can be sent: every serverbound and clientbound message type implements it, and the message registry maps
+/// each type to its wire id.
 /// </summary>
 public interface IMessage
 {

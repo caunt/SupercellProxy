@@ -3,35 +3,17 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Newspapers;
 
 /// <summary>
-/// Defines the Newspaper Story Entry contract.
+/// One story printed in a newspaper edition. The managed code does not read stories; the field roles are not identified.
 /// </summary>
-/// <summary>
-/// Defines the Value0 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value1 contract.
-/// </summary>
-/// <summary>
-/// Defines the Value2 contract.
-/// </summary>
-/// <summary>
-/// Defines the Flag contract.
-/// </summary>
-/// <summary>
-/// Defines the Text0 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text1 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text2 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text3 contract.
-/// </summary>
-/// <summary>
-/// Defines the Text4 contract.
-/// </summary>
+/// <param name="Value0">First number of the story.</param>
+/// <param name="Value1">Second number of the story.</param>
+/// <param name="Value2">Third number of the story.</param>
+/// <param name="Flag">Switch sent after the numbers.</param>
+/// <param name="Text0">First text of the story.</param>
+/// <param name="Text1">Second text of the story.</param>
+/// <param name="Text2">Third text of the story.</param>
+/// <param name="Text3">Fourth text of the story.</param>
+/// <param name="Text4">Fifth text of the story.</param>
 public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, bool Flag, string? Text0, string? Text1, string? Text2, string? Text3, string? Text4) : ICodecProvider<NewspaperStoryEntry>
 {
     /// <inheritdoc />

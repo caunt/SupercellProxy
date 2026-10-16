@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 
 /// <summary>Delivers a device link code; the client only records the message.</summary>
-/// <param name="Value0">The value0.</param>
-/// <param name="Code">The code.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="Value2">The value2.</param>
-/// <param name="Value3">The value3.</param>
+/// <param name="Value0">Number sent before the code; not identified, since the client never reads the message's fields.</param>
+/// <param name="Code">Link code to enter on the other device.</param>
+/// <param name="Value1">First number after the code; not identified.</param>
+/// <param name="Value2">Second number after the code; not identified.</param>
+/// <param name="Value3">Third number after the code; not identified.</param>
 public sealed record LogicDeviceLinkCodeResponseMessage(int Value0, string? Code, int Value1, int Value2, int Value3) : CodecMessage<LogicDeviceLinkCodeResponseMessage>, ICodecProvider<LogicDeviceLinkCodeResponseMessage>
 {
     /// <inheritdoc />

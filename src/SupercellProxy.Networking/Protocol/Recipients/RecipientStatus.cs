@@ -2,10 +2,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Recipients;
 
-/// <summary>One recipient status entry.</summary>
-/// <param name="Value0">The value0.</param>
-/// <param name="Value1">The value1.</param>
-/// <param name="AvatarId">The avatar id.</param>
+/// <summary>Status of one player the social manager tracks as a recipient; the two numbers are not identified.</summary>
+/// <param name="Value0">First number of the entry.</param>
+/// <param name="Value1">Second number of the entry.</param>
+/// <param name="AvatarId">The player the status belongs to.</param>
 public sealed record RecipientStatus(int Value0, int Value1, LongId AvatarId) : ICodecProvider<RecipientStatus>
 {
     /// <inheritdoc />

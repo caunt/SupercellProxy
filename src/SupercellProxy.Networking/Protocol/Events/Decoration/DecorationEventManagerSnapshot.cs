@@ -3,65 +3,66 @@ using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 
 /// <summary>
-/// Defines the Decoration Event Manager Snapshot contract.
+/// The saved state of the player's part in the decoration (design) event: the design they submitted, its likes, and the intro
+/// tutorial. Everything except the tutorial resets when a different decoration event starts.
 /// </summary>
 public sealed record DecorationEventManagerSnapshot
 {
     /// <summary>
-    /// Gets the Challenges On Submission value.
+    /// How many event challenges the player had completed when they submitted their design (saved as <c>challengesOnSub</c>).
     /// </summary>
     [JsonPropertyName("challengesOnSub")]
     public int ChallengesOnSubmission { get; init; }
 
     /// <summary>
-    /// Gets the Event Id value.
+    /// Variant of the running decoration event on the player's event board (saved as <c>eventVariantId</c>).
     /// </summary>
     [JsonPropertyName("eventVariantId")]
     public int EventId { get; init; }
 
     /// <summary>
-    /// Gets the Event Owner Id value.
+    /// Id of the decoration event this state belongs to (saved as <c>eventId</c>); when another event starts, the state resets.
     /// </summary>
     [JsonPropertyName("eventId")]
     public int EventOwnerId { get; init; }
 
     /// <summary>
-    /// Gets the Featuring Group value.
+    /// Group the player's design was placed in for featuring; 0 when it is not featured.
     /// </summary>
     [JsonPropertyName("featuringGroup")]
     public int FeaturingGroup { get; init; }
 
     /// <summary>
-    /// Gets the Last Event Id value.
+    /// The previous decoration event the player took part in.
     /// </summary>
     [JsonPropertyName("lastEventId")]
     public int LastEventId { get; init; }
 
     /// <summary>
-    /// Gets the Last Event State value.
+    /// How far the player got in that previous event, as native numbers event states.
     /// </summary>
     [JsonPropertyName("lastEventState")]
     public int LastEventState { get; init; }
 
     /// <summary>
-    /// Gets the Likes value.
+    /// Likes the player's submitted design has received.
     /// </summary>
     [JsonPropertyName("likes")]
     public int Likes { get; init; }
 
     /// <summary>
-    /// Gets the Pending Reclaim Event Id value.
+    /// Event whose rewards the player can still reclaim; 0 when nothing is pending.
     /// </summary>
     [JsonPropertyName("pendingReclaimEventId")]
     public int PendingReclaimEventId { get; init; }
 
     /// <summary>
-    /// Gets the Submission Time value.
+    /// When the player submitted their design, as a Unix time stamp; 0 when not yet submitted.
     /// </summary>
     [JsonPropertyName("submissionTime")]
     public int SubmissionTime { get; init; }
     /// <summary>
-    /// Gets the Tutorial value.
+    /// Progress through the decoration event's intro tutorial.
     /// </summary>
     [JsonPropertyName("tutorial")]
     public DecorationEventTutorialSnapshot? Tutorial { get; init; }

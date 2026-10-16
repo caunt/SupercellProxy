@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 
 /// <summary>Saves an edit mode layout.</summary>
-/// <param name="Name">The name.</param>
-/// <param name="Layout">The layout.</param>
-/// <param name="SlotIndex">The slot index.</param>
+/// <param name="Name">Name to store the layout under.</param>
+/// <param name="Layout">The layout as the client serialised it (object positions and the like).</param>
+/// <param name="SlotIndex">Layout slot to save into.</param>
 public sealed record SaveEditModeLayoutMessage(string? Name, string? Layout, int SlotIndex) : CodecMessage<SaveEditModeLayoutMessage>, ICodecProvider<SaveEditModeLayoutMessage>
 {
     /// <inheritdoc />

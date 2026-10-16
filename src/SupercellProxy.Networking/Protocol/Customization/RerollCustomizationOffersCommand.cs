@@ -9,7 +9,7 @@ public sealed record RerollCustomizationOffersCommand(int OfferIndex) : CodecCom
 {
     /// <inheritdoc />
     public static CommandCodec<RerollCustomizationOffersCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static (offerIndex) => new RerollCustomizationOffersCommand(offerIndex)),
+        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new RerollCustomizationOffersCommand(offerIndex)),
         CommandLayout.MetadataFirst
     );
 }

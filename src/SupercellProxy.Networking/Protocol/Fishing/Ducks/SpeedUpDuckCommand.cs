@@ -9,6 +9,6 @@ public sealed record SpeedUpDuckCommand(int DuckGlobalId) : CodecCommand<SpeedUp
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpDuckCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.DuckGlobalId, static (duckGlobalId) => new SpeedUpDuckCommand(duckGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.DuckGlobalId, static duckGlobalId => new SpeedUpDuckCommand(duckGlobalId))
     );
 }

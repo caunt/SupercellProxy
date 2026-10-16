@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Mail;
 
 /// <summary>Lists mail entries; the client ignores it.</summary>
-/// <param name="Entries">The entries.</param>
-/// <param name="Flag">The flag.</param>
-public sealed record MailEntryListMessage(ReadOnlyMemory<SupercellProxy.Networking.Protocol.Mail.MailEntry>? Entries, bool Flag) : CodecMessage<MailEntryListMessage>, ICodecProvider<MailEntryListMessage>
+/// <param name="Entries">The letters listed; null when the list is absent.</param>
+/// <param name="Flag">Switch sent after the list; its meaning is not identified.</param>
+public sealed record MailEntryListMessage(ReadOnlyMemory<MailEntry>? Entries, bool Flag) : CodecMessage<MailEntryListMessage>, ICodecProvider<MailEntryListMessage>
 {
     /// <inheritdoc />
     public static ICodec<MailEntryListMessage> Codec { get; } = Codecs.Composite(

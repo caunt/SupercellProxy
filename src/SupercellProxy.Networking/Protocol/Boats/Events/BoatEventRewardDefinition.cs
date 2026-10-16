@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SupercellProxy.Networking.Protocol.Boats;
+namespace SupercellProxy.Networking.Protocol.Boats.Events;
 
 /// <summary>Defines a resource and its weight in a boat event reward pool.</summary>
 public sealed record BoatEventRewardDefinition

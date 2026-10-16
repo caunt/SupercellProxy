@@ -9,6 +9,6 @@ public sealed record SpeedUpLobsterCommand(int LobsterGlobalId) : CodecCommand<S
 {
     /// <inheritdoc />
     public static CommandCodec<SpeedUpLobsterCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.LobsterGlobalId, static (lobsterGlobalId) => new SpeedUpLobsterCommand(lobsterGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.LobsterGlobalId, static lobsterGlobalId => new SpeedUpLobsterCommand(lobsterGlobalId))
     );
 }

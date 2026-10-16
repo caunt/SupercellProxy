@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>Reports a batch of client analytics: session properties such as <c>session_name</c>, an optional context and up to 32 events.</summary>
-/// <param name="Time0">The first time.</param>
-/// <param name="Time1">The second time.</param>
-/// <param name="Time2">The third time.</param>
-/// <param name="Properties">The batch properties.</param>
-/// <param name="Context">The batch context, when present.</param>
-/// <param name="Events">The events.</param>
+/// <param name="Time0">Unix time in seconds when the measured session began.</param>
+/// <param name="Time1">Length of the measured session, which looks like milliseconds in the captures (about 14 s for launch).</param>
+/// <param name="Time2">Second length, equal to <paramref name="Time1"/> in every capture; its meaning is not identified.</param>
+/// <param name="Properties">Named details of the batch, such as <c>session_name</c> with launch or Farm_load.</param>
+/// <param name="Context">Performance figures measured during the session; null when not sent.</param>
+/// <param name="Events">Analytics events recorded during the session, at most 32.</param>
 public sealed record AnalyticsBatchMessage(
     long Time0,
     long Time1,

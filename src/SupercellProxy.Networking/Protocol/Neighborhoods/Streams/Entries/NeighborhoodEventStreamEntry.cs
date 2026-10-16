@@ -4,7 +4,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 
 /// <summary>Stream entry type 4: a membership event; event types 1 to 9 are kicked, accepted, joined, left, promoted, demoted, reported, a ninth kind and public message reported.</summary>
 /// <param name="Header">The fields every stream entry shares.</param>
-/// <param name="EventType">The event type.</param>
+/// <param name="EventType">What happened, numbered 1 to 9 as listed in the summary.</param>
 /// <param name="TargetAvatarId">The avatar the event is about.</param>
 /// <param name="TargetName">The name of the avatar the event is about.</param>
 /// <param name="Value">The value native reads after the name.</param>

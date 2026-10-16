@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Avatars.Information;
 
 /// <summary>Requests the public info of several avatars.</summary>
-/// <param name="AvatarIds">The avatar ids.</param>
+/// <param name="AvatarIds">Accounts to describe; null sends the list as absent.</param>
 public sealed record AvatarInformationListRequestMessage(ReadOnlyMemory<LongId>? AvatarIds) : CodecMessage<AvatarInformationListRequestMessage>, ICodecProvider<AvatarInformationListRequestMessage>
 {
     /// <inheritdoc />

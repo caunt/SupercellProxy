@@ -2,14 +2,14 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Assets.Maps;
 
-/// <summary>Represents the decoded MapEdgeDefinition JSON contract.</summary>
+/// <summary>A road between two Valley board locations. The game treats it as two-way; the file stores each road once.</summary>
 public sealed record MapEdgeDefinition
 {
-    /// <summary>Gets the End value.</summary>
+    /// <summary>Node id at the far end of the road.</summary>
     [JsonPropertyName("end")]
     public int End { get; init; }
 
-    /// <summary>Gets the Start value.</summary>
+    /// <summary>Node id the road leaves from.</summary>
     [JsonPropertyName("start")]
     public int Start { get; init; }
 }

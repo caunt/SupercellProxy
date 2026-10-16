@@ -12,7 +12,7 @@ public sealed record SpeedUpProductionCommand(int BuildingGlobalId) : CodecComma
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BuildingGlobalId,
-            static (buildingGlobalId) => new SpeedUpProductionCommand(buildingGlobalId)
+            static buildingGlobalId => new SpeedUpProductionCommand(buildingGlobalId)
         )
     );
 }

@@ -33,7 +33,7 @@ public sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage, ICodecP
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">RawPayload</c> value.
+    /// The message's payload exactly as received, kept for forwarding and captures.
     /// </summary>
     [JsonIgnore]
     public ReadOnlyMemory<byte> RawPayload { get; init; }

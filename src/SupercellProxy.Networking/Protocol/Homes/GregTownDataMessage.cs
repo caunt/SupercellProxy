@@ -10,5 +10,5 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record GregTownDataMessage(OwnHomeDataMessage Data) : CodecMessage<GregTownDataMessage>, ICodecProvider<GregTownDataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<GregTownDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec, static message => message.Data, static (data) => new GregTownDataMessage(data));
+    public static ICodec<GregTownDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec, static message => message.Data, static data => new GregTownDataMessage(data));
 }

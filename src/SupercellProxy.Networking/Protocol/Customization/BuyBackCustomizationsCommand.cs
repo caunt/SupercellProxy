@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -9,8 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomizationsCommand>, ICommandCodecProvider<BuyBackCustomizationsCommand>
 {
     /// <summary>
-    /// Initializes a new <see cref="BuyBackCustomizationsCommand"/> instance.
+    /// Describes one buy-back at the renovator stand.
     /// </summary>
+    /// <param name="globalId">Id written first, before the list; see <see cref="GlobalId"/>.</param>
+    /// <param name="globalIds">Global ids of the customization parts bought back.</param>
+    /// <param name="unknown0">Number written after the list; see <see cref="Unknown0"/>.</param>
+    /// <param name="diagnosticValues">Empty in production; otherwise one diagnostic number per part.</param>
+    /// <exception cref="InvalidDataException">Diagnostic values were given but not one per part.</exception>
     public BuyBackCustomizationsCommand(int globalId, ReadOnlyMemory<int> globalIds, int unknown0, ReadOnlyMemory<int> diagnosticValues)
     {
         if (diagnosticValues.Length is not 0 && diagnosticValues.Length != globalIds.Length)
@@ -60,24 +67,24 @@ public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomiz
     );
 
     /// <summary>
-    /// Gets the <c language="csharp">DiagnosticValues</c> value.
+    /// One number per bought-back part that only non-production builds append; empty in production.
     /// </summary>
     public ReadOnlyMemory<int> DiagnosticValues { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">GlobalId</c> value.
+    /// Id written before the part list; which object it names (stand or category) is not identified.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("GlobalId")]
+    [JsonPropertyName("GlobalId")]
     public int GlobalId { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">GlobalIds</c> value.
+    /// Global ids of the customization parts the player buys back.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("GlobalIds")]
+    [JsonPropertyName("GlobalIds")]
     public ReadOnlyMemory<int> GlobalIds { get; }
 
     /// <summary>
-    /// Gets the <c language="csharp">Unknown0</c> value.
+    /// Number written after the part list; its meaning is not identified.
     /// </summary>
     public int Unknown0 { get; }
 

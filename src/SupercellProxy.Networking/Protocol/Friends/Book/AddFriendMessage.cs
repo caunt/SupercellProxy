@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Book;
 
 /// <summary>Adds a player found in the friend search.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="FromSearch">The from search.</param>
+/// <param name="AvatarId">Player to send a friend request to.</param>
+/// <param name="FromSearch">Whether the player was found through the friend search.</param>
 public sealed record AddFriendMessage(LongId AvatarId, bool FromSearch) : CodecMessage<AddFriendMessage>, ICodecProvider<AddFriendMessage>
 {
     /// <inheritdoc />

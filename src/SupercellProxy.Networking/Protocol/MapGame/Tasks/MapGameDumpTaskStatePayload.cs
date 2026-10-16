@@ -1,11 +1,11 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 
-/// <summary>
-/// Represents <c language="csharp">MapGameDumpTaskStatePayload</c>.
-/// </summary>
+/// <summary>State of a Valley dump task: goods to drop off at a node for a reward.</summary>
 public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICodecProvider<MapGameDumpTaskStatePayload>
 {
     /// <summary>
@@ -13,9 +13,13 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     /// </summary>
     internal const string NativeTaskType = "Dump";
 
-    /// <summary>
-    /// Initializes a new <see cref="MapGameDumpTaskStatePayload"/> instance.
-    /// </summary>
+    /// <summary>Creates the state from its decoded fields.</summary>
+    /// <param name="requiredGoods">Goods and amounts the task asks for.</param>
+    /// <param name="rewardData">Reward of the task; null when not drawn yet.</param>
+    /// <param name="helpRequestSent">Whether help was asked for the task.</param>
+    /// <param name="helperAvatarId">Account of the player who helped; null when nobody did.</param>
+    /// <param name="emojiGlobalId">Global id of the emoji shown on the task.</param>
+    /// <param name="sanctuaryAnimalGlobalId">Global id of the task's sanctuary animal; 0 when it has none.</param>
     public MapGameDumpTaskStatePayload(
         ReadOnlyMemory<CommandDataReferenceVarIntPair> requiredGoods,
         ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData,
@@ -55,7 +59,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     /// <summary>
     /// Gets the emoji shown on the task (native JSON <c>EmojiData</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("EmojiGlobalId")]
+    [JsonPropertyName("EmojiGlobalId")]
     public int EmojiGlobalId { get; }
 
     /// <summary>
@@ -66,13 +70,13 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     /// <summary>
     /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("HelperAvatarId")]
+    [JsonPropertyName("HelperAvatarId")]
     public LongId? HelperAvatarId { get; init; }
 
     /// <summary>
     /// Gets the goods and quantities required to complete this dump task.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Values")]
+    [JsonPropertyName("Values")]
     public ReadOnlyMemory<CommandDataReferenceVarIntPair> RequiredGoods { get; }
 
     /// <summary>
@@ -83,7 +87,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     /// <summary>
     /// Gets the sanctuary animal of the task (native JSON <c>SanctuaryAnimalData</c>).
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("SanctuaryAnimalGlobalId")]
+    [JsonPropertyName("SanctuaryAnimalGlobalId")]
     public int SanctuaryAnimalGlobalId { get; }
 
     /// <inheritdoc />

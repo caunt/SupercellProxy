@@ -101,7 +101,7 @@ public sealed record DerbyLeagueDefinition
     [JsonPropertyName("maxBunnyDerbyTasks")]
     public int MaximumBunnyTasks { get; init; }
 
-    /// <summary>Gets the maximum mystery tasks.</summary>
+    /// <summary>How many mystery tasks a derby in this league can offer at most.</summary>
     [JsonPropertyName("maxMysteryTasks")]
     public int MaximumMysteryTasks { get; init; }
 
@@ -137,7 +137,7 @@ public sealed record DerbyLeagueDefinition
     [JsonPropertyName("mysteryTaskExtraSpawnPercentage")]
     public int MysteryTaskSpawnPercentage { get; init; }
 
-    /// <summary>Gets the themed task names.</summary>
+    /// <summary>Names of the themed tasks a derby in this league offers; null when the league has none.</summary>
     [JsonPropertyName("themedTaskNames")]
     public string[]? ThemedTaskNames { get; init; }
 

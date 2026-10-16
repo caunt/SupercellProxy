@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Billing;
 
 /// <summary>Sends an Amazon receipt for verification.</summary>
-/// <param name="TransactionId">The transaction id.</param>
-/// <param name="ProductId">The product id.</param>
-/// <param name="CurrencyCode">The currency code.</param>
-/// <param name="Price">The price.</param>
-/// <param name="PurchaseData">The purchase data.</param>
-/// <param name="Signature">The signature.</param>
+/// <param name="TransactionId">Amazon's identifier of the purchase, which keeps the same purchase from being credited twice.</param>
+/// <param name="ProductId">Store product that was bought.</param>
+/// <param name="CurrencyCode">Currency the player paid in.</param>
+/// <param name="Price">Price the store showed the player, as text.</param>
+/// <param name="PurchaseData">Receipt data from Amazon that the server checks with Amazon.</param>
+/// <param name="Signature">Signature that comes with the receipt data, if Amazon supplied one.</param>
 /// <param name="Value0">A value native reads only when bytes remain.</param>
 /// <param name="Value1">A value native reads only when bytes remain.</param>
 /// <param name="Value2">A value native reads only when bytes remain.</param>

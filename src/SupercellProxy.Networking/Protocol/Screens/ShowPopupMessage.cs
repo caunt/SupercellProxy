@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Screens;
 
 /// <summary>Asks the client to open one of five fixed popups.</summary>
-/// <param name="Value">The value.</param>
+/// <param name="Value">Number passed to the popup along with the request; its use depends on the popup.</param>
 /// <param name="Popup">The popup to open, from 1 to 5.</param>
 public sealed record ShowPopupMessage(int Value, int Popup) : CodecMessage<ShowPopupMessage>, ICodecProvider<ShowPopupMessage>
 {

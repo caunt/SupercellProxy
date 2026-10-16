@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Records progress of a valley quest.</summary>
-/// <param name="QuestGlobalId">The quest data id.</param>
-/// <param name="Progress">The progress.</param>
+/// <param name="QuestGlobalId">Global id of the quest's table entry.</param>
+/// <param name="Progress">How much of the quest's goal is done.</param>
 public sealed record UpdateMapGameQuestProgressCommand(int QuestGlobalId, int Progress) : CodecCommand<UpdateMapGameQuestProgressCommand>, ICommandCodecProvider<UpdateMapGameQuestProgressCommand>
 {
     /// <inheritdoc />

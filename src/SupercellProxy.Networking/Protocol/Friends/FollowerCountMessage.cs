@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Friends;
 
-/// Carries the number of followers of the identified farm.
+/// <summary>Carries the number of followers of the identified farm.</summary>
 public sealed record FollowerCountMessage(LongId HomeId, int FollowerCount) : CodecMessage<FollowerCountMessage>, ICodecProvider<FollowerCountMessage>
 {
     /// <inheritdoc />
@@ -18,7 +18,7 @@ public sealed record FollowerCountMessage(LongId HomeId, int FollowerCount) : Co
         trailingDataMessage: "The follower count has trailing data."
     );
 
-    /// Omits the private farm id from diagnostic text.
+    /// <summary>Omits the private farm id from diagnostic text.</summary>
     public override string ToString()
     {
         return nameof(FollowerCountMessage);

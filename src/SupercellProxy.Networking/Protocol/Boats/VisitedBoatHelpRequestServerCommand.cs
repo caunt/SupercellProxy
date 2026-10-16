@@ -1,21 +1,18 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
 
 /// <summary>
-/// Defines the Visited Boat Help Request Server Command contract.
+/// Clientbound notice that the owner of the farm being visited asked for help with a boat crate, so the visitor can fill it. The
+/// visitor's copy gains an open help request for that crate unless one is already there.
 /// </summary>
-/// <summary>
-/// Defines the Home Owner Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Crate Index contract.
-/// </summary>
-/// <summary>
-/// Defines the Request Value contract.
-/// </summary>
-public sealed record VisitedBoatHelpRequestServerCommand([property: System.Text.Json.Serialization.JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId, int CrateIndex, int RequestKind) : CodecServerCommand<VisitedBoatHelpRequestServerCommand>, ICommandCodecProvider<VisitedBoatHelpRequestServerCommand>
+/// <param name="HomeOwnerId">Home id of the farm that asked for help.</param>
+/// <param name="CrateIndex">Position of the crate in the boat order.</param>
+/// <param name="RequestKind">Who the request is addressed to: 1 friends, 2 the neighbourhood, 3 through the Farm Pass perk.</param>
+public sealed record VisitedBoatHelpRequestServerCommand([property: JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId, int CrateIndex, int RequestKind) : CodecServerCommand<VisitedBoatHelpRequestServerCommand>, ICommandCodecProvider<VisitedBoatHelpRequestServerCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<VisitedBoatHelpRequestServerCommand> Codec { get; } = Codecs.Command(

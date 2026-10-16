@@ -9,6 +9,6 @@ public sealed record SearchWithBoyCommand(int ItemGlobalId) : CodecCommand<Searc
 {
     /// <inheritdoc />
     public static CommandCodec<SearchWithBoyCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ItemGlobalId, static (itemGlobalId) => new SearchWithBoyCommand(itemGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.ItemGlobalId, static itemGlobalId => new SearchWithBoyCommand(itemGlobalId))
     );
 }

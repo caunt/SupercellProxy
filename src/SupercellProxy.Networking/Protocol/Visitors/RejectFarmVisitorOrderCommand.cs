@@ -11,7 +11,7 @@ public sealed record RejectFarmVisitorOrderCommand(int VisitorGlobalId) : CodecC
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.VisitorGlobalId,
-            static (visitorGlobalId) => new RejectFarmVisitorOrderCommand(visitorGlobalId)
+            static visitorGlobalId => new RejectFarmVisitorOrderCommand(visitorGlobalId)
         )
     );
 }

@@ -11,7 +11,7 @@ public sealed record DiscardPendingBoosterCommand(int BoosterDataGlobalId) : Cod
         Codecs.Composite(
             Codecs.VarInt,
             static command => command.BoosterDataGlobalId,
-            static (boosterDataGlobalId) => new DiscardPendingBoosterCommand(boosterDataGlobalId)
+            static boosterDataGlobalId => new DiscardPendingBoosterCommand(boosterDataGlobalId)
         )
     );
 }

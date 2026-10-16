@@ -5,9 +5,9 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 
 /// <summary>Inbox entry type 6: the neighborhood changed a setting; 1 shares and 2 unshares the derby task log.</summary>
 /// <param name="Header">The fields every entry shares.</param>
-/// <param name="MessageText">The message text.</param>
-/// <param name="NeighborhoodId">The neighborhood.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="MessageText">Text attached to the entry; null when none.</param>
+/// <param name="NeighborhoodId">Neighborhood whose setting changed.</param>
+/// <param name="NeighborhoodName">Display name of that neighborhood when the entry was written.</param>
 /// <param name="Setting">The value the inbox text is chosen by.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 public sealed record NeighborhoodSettingsChangedStreamEntry(

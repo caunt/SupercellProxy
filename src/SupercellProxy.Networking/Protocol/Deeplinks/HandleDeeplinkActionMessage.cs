@@ -4,9 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Deeplinks;
 
 /// <summary>Sends a deeplink action the client could not handle locally.</summary>
-/// <param name="Action">The action.</param>
+/// <param name="Action">The deeplink's action text, passed on for the server to carry out.</param>
 public sealed record HandleDeeplinkActionMessage(string? Action) : CodecMessage<HandleDeeplinkActionMessage>, ICodecProvider<HandleDeeplinkActionMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HandleDeeplinkActionMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString, static message => message.Action, static (action) => new HandleDeeplinkActionMessage(action));
+    public static ICodec<HandleDeeplinkActionMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString, static message => message.Action, static action => new HandleDeeplinkActionMessage(action));
 }

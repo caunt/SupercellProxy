@@ -1,13 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Assets.Tables;
 
 namespace SupercellProxy.Networking.Assets;
 
 /// <summary>
-/// Represents <c language="csharp">GameAsset</c>.
+/// One downloaded game file (a CSV table, JSON document, map or other resource) together with the fingerprint entry that names it and
+/// the hash the server published for it.
 /// </summary>
 public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byte> Content)
 {
@@ -17,30 +19,33 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
         [];
 
     /// <summary>
-    /// Gets the <c language="csharp">AsAscii</c> value.
+    /// The file's bytes decoded as 7-bit text; bytes outside the ASCII range become question marks.
     /// </summary>
     public string AsAscii => AsString(Encoding.ASCII);
 
     /// <summary>
-    /// Gets the <c language="csharp">AsUtf8</c> value.
+    /// The file's bytes decoded as UTF-8 text, which is how the game's CSV tables and JSON files are stored.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("AsUtf8")]
+    [JsonPropertyName("AsUtf8")]
     public string AsUnicodeTransformationFormat8 => AsString(Encoding.UTF8);
 
     /// <summary>
-    /// Gets the <c language="csharp">IsCsv</c> value.
+    /// Whether the file name ends in <c>.csv</c>, judged from the fingerprint path alone without reading the content.
     /// </summary>
     public bool IsCsv =>
         Path.GetExtension(Fingerprint.File).Equals(value: ".csv", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Gets the <c language="csharp">IsStandardCsv</c> value.
+    /// Whether the file is a CSV game data table: a column-name row and a column-type row followed by entries.
     /// </summary>
+    /// <exception cref="FormatException">The file is a CSV in some other layout.</exception>
     public bool IsStandardCsv => IsCsv && TryGetTable(out _);
 
     /// <summary>
-    /// Executes the <c language="csharp">AsString</c> operation.
+    /// Decodes the file's bytes as text in the given encoding.
     /// </summary>
+    /// <param name="encoding">Character encoding the file was written in.</param>
+    /// <returns>The whole file as one string.</returns>
     public string AsString(Encoding encoding)
     {
         ArgumentNullException.ThrowIfNull(encoding);
@@ -49,7 +54,7 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
     }
 
     /// <summary>
-    /// Executes the <c language="csharp">ToString</c> operation.
+    /// Describes the asset by its fingerprint, content size and CSV kind, leaving out the content itself so logs stay short.
     /// </summary>
     public override string ToString()
     {
@@ -57,8 +62,11 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
     }
 
     /// <summary>
-    /// Attempts the <c language="csharp">GetTable</c> operation.
+    /// Parses a CSV file into a game data table. The parse happens once per asset instance and is shared by later calls.
     /// </summary>
+    /// <param name="supercellCsvTable">The parsed table when the file is a CSV; otherwise null.</param>
+    /// <returns>False when the file is not a CSV.</returns>
+    /// <exception cref="FormatException">The file is a CSV without the column-name and column-type header rows of a game table.</exception>
     public bool TryGetTable([MaybeNullWhen(false)] out GameDataTable supercellCsvTable)
     {
         supercellCsvTable = null;

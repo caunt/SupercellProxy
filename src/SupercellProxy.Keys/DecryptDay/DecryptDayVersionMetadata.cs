@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Keys.DecryptDay;
 
-/// <summary>Represents the typed DecryptDayVersionMetadata response contract.</summary>
+/// <summary>One app release decrypt.day knows about.</summary>
 internal sealed record DecryptDayVersionMetadata
 {
-    /// <summary>Gets the Name value.</summary>
+    /// <summary>Release number as text, such as 1.73.81.</summary>
     [JsonPropertyName("name")]
     public string? Name { get; init; }
 }

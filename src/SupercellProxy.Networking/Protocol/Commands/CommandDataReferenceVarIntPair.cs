@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -8,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Commands;
 /// <param name="GlobalId">The referenced data id.</param>
 /// <param name="Value">The amount.</param>
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct CommandDataReferenceVarIntPair([property: System.Text.Json.Serialization.JsonPropertyName("GlobalId")] int GlobalId, int Value)
+public readonly record struct CommandDataReferenceVarIntPair([property: JsonPropertyName("GlobalId")] int GlobalId, int Value)
     : ICodecProvider<CommandDataReferenceVarIntPair>
 {
     /// <inheritdoc />

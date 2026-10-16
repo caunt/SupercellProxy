@@ -1,9 +1,11 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Mail;
 
 /// <summary>
-/// Represents <c language="csharp">MailEntry</c>.
+/// One letter in the player's mailbox: who sent it, its text, and the reward it holds, if any.
 /// </summary>
 public sealed record MailEntry : ICodecProvider<MailEntry>
 {
@@ -86,7 +88,7 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Body</c> value.
+    /// The letter's main text as the server wrote it; null when the letter uses only its custom text.
     /// </summary>
     public string? Body { get; init; }
 
@@ -96,25 +98,25 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     public int Category { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">CustomBody</c> value.
+    /// Alternative body text, sent after the six unidentified numbers; null when absent.
     /// </summary>
     public string? CustomBody { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">CustomSubject</c> value.
+    /// Title that goes with <see cref="CustomBody"/>; null when absent.
     /// </summary>
     public string? CustomSubject { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">FacebookId</c> value.
+    /// Facebook id linked to the letter's sender; null when none.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("FacebookId")]
+    [JsonPropertyName("FacebookId")]
     public string? FacebookId { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">GameCenterId</c> value.
+    /// Game Center id of the sender; null when none.
     /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("GameCenterId")]
+    [JsonPropertyName("GameCenterId")]
     public string? GameCenterId { get; init; }
 
     /// <summary>
@@ -158,62 +160,62 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     public int SenderAvatarIdLow { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">SenderAvatarName</c> value.
+    /// Display name of the sender, shown on the letter.
     /// </summary>
     public string? SenderAvatarName { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Subject</c> value.
+    /// The letter's title as the server wrote it.
     /// </summary>
     public string? Subject { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown10</c> value.
+    /// Second of six numbers sent after the sender's linked accounts; its meaning is not identified.
     /// </summary>
     public int Unknown10 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown11</c> value.
+    /// Third of those six numbers; not identified.
     /// </summary>
     public int Unknown11 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown12</c> value.
+    /// Fourth of those six numbers; not identified.
     /// </summary>
     public int Unknown12 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown13</c> value.
+    /// Fifth of those six numbers; not identified.
     /// </summary>
     public int Unknown13 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown14</c> value.
+    /// Sixth of those six numbers; not identified.
     /// </summary>
     public int Unknown14 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown7</c> value.
+    /// Number sent between the recipient and the letter's text; its meaning is not identified.
     /// </summary>
     public int Unknown7 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown8</c> value.
+    /// Number sent between the letter's text and the sender's linked accounts; not identified.
     /// </summary>
     public int Unknown8 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown9</c> value.
+    /// First of six numbers sent after the sender's linked accounts; not identified.
     /// </summary>
     public int Unknown9 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
+    /// First of two texts that close the letter, after the reward; not identified.
     /// </summary>
     public string? UnknownString0 { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString1</c> value.
+    /// Second of the two closing texts; not identified.
     /// </summary>
     public string? UnknownString1 { get; init; }
 

@@ -2,9 +2,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
 
-/// <summary>The design avatar id.</summary>
-/// <param name="High">The high.</param>
-/// <param name="Low">The low.</param>
+/// <summary>Account that made a decoration design, sent as its two id words; used to name the design in gallery messages.</summary>
+/// <param name="High">First (shard) word of the designer's account id.</param>
+/// <param name="Low">Second (row) word of the designer's account id.</param>
 public sealed record DesignAvatarId(int High, int Low) : ICodecProvider<DesignAvatarId>
 {
     /// <inheritdoc />

@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Consumables;
 
 /// <summary>Uses a consumable on a game object.</summary>
-/// <param name="TargetObjectGlobalId">The target object id.</param>
-/// <param name="ConsumableGlobalId">The consumable data id.</param>
+/// <param name="TargetObjectGlobalId">Game object id the consumable acts on.</param>
+/// <param name="ConsumableGlobalId">Global id of the consumable spent.</param>
 public sealed record UseConsumableCommand(int TargetObjectGlobalId, int ConsumableGlobalId) : CodecCommand<UseConsumableCommand>, ICommandCodecProvider<UseConsumableCommand>
 {
     /// <inheritdoc />

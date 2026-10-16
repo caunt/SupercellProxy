@@ -1,7 +1,7 @@
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
-namespace SupercellProxy.Networking.Protocol.Boats;
+namespace SupercellProxy.Networking.Protocol.Boats.Help;
 
 /// <summary>Requests public, neighbourhood, or Farm Pass help for a boat crate.</summary>
 public sealed record RequestBoatCrateHelpCommand(int CrateIndex, int RequestKind) : CodecCommand<RequestBoatCrateHelpCommand>, ICommandCodecProvider<RequestBoatCrateHelpCommand>

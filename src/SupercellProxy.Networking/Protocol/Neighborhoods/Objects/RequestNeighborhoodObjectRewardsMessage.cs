@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Objects;
 
 /// <summary>Requests the rewards of a neighborhood object.</summary>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
-/// <param name="ObjectId">The object id.</param>
+/// <param name="NeighborhoodId">Neighbourhood that owns the object.</param>
+/// <param name="ObjectId">Id of the neighbourhood event object whose rewards to show.</param>
 public sealed record RequestNeighborhoodObjectRewardsMessage(LongId? NeighborhoodId, int ObjectId) : CodecMessage<RequestNeighborhoodObjectRewardsMessage>, ICodecProvider<RequestNeighborhoodObjectRewardsMessage>
 {
     /// <inheritdoc />

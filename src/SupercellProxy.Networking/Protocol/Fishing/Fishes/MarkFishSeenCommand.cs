@@ -9,6 +9,6 @@ public sealed record MarkFishSeenCommand(int FishGlobalId) : CodecCommand<MarkFi
 {
     /// <inheritdoc />
     public static CommandCodec<MarkFishSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.FishGlobalId, static (fishGlobalId) => new MarkFishSeenCommand(fishGlobalId))
+        Codecs.Composite(Codecs.VarInt, static command => command.FishGlobalId, static fishGlobalId => new MarkFishSeenCommand(fishGlobalId))
     );
 }

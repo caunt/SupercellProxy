@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
 
-/// <summary>Represents the decoded FarmPassRewardGroupDefinition JSON contract.</summary>
+/// <summary>A set of rewards a Farm Pass level gives together.</summary>
 public sealed record FarmPassRewardGroupDefinition
 {
-    /// <summary>Gets the Rewards value.</summary>
+    /// <summary>What the set gives, each named by its table entry with an amount.</summary>
     [JsonPropertyName("rewards")]
     public FarmPassRewardDefinition[] Rewards { get; init; } = [];
 }

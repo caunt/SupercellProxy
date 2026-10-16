@@ -1,9 +1,12 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
 /// <summary>
-/// Defines the Neighborhood Profile contract.
+/// Profile of one neighbourhood as neighbourhood lists show it: name, tag, emblem, description, settings and statistics.
+/// Meanings marked as likely come from comparing captured profiles.
 /// </summary>
 public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeaderEntry>
 {
@@ -83,103 +86,70 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
         }
     );
 
-    /// <summary>
-    /// Gets the Additional Text value.
-    /// </summary>
+    /// <summary>The neighbourhood's tag, such as #GJQ0JP9J.</summary>
     public string? AdditionalText { get; init; }
 
     /// <summary>
-    /// Gets the Header Values value.
+    /// Three settings: the first is 0 or 1 and likely the join type, the second looks like the language index, and the third
+    /// like the required level (10 to 70 in the captures).
     /// </summary>
     public int[] HeaderValues { get; init; } = new int[HeaderCount];
 
-    /// <summary>
-    /// Gets the Badge Values value.
-    /// </summary>
+    /// <summary>Global ids of the three parts of the neighbourhood's emblem.</summary>
     public int[] BadgeValues { get; init; } = new int[BadgeCount];
 
-    /// <summary>
-    /// Gets the Description value.
-    /// </summary>
+    /// <summary>Description the neighbourhood wrote about itself.</summary>
     public string? Description { get; init; }
 
-    /// <summary>
-    /// Gets the Flag0 value.
-    /// </summary>
+    /// <summary>First setting flag, set for almost every captured neighbourhood; its meaning is not identified.</summary>
     public bool Flag0 { get; init; }
 
-    /// <summary>
-    /// Gets the Flag1 value.
-    /// </summary>
+    /// <summary>Second setting flag, set for about a third of the captured neighbourhoods; its meaning is not identified.</summary>
     public bool Flag1 { get; init; }
 
-    /// <summary>
-    /// Gets the Statistics value.
-    /// </summary>
+    /// <summary>24 small counters, the second-to-last always -1 in the captures; their meanings are not identified.</summary>
     public int[] Statistics { get; init; } = new int[StatisticCount];
 
-    /// <summary>
-    /// Gets the History value.
-    /// </summary>
+    /// <summary>Weekly history records of the neighbourhood; null when the profile carries none.</summary>
     public NeighborhoodHistory? History { get; init; }
 
-    /// <summary>
-    /// Gets the Id value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("Id")]
+    /// <summary>Id of the neighbourhood.</summary>
+    [JsonPropertyName("Id")]
     public LongId Id { get; init; }
 
-    /// <summary>
-    /// Gets the Metadata value.
-    /// </summary>
+    /// <summary>Small number from -1 to 4 in the captures; its meaning is not identified.</summary>
     public int Metadata { get; init; }
 
-    /// <summary>
-    /// Gets the Name value.
-    /// </summary>
+    /// <summary>Name of the neighbourhood.</summary>
     public string? Name { get; init; }
 
-    /// <summary>
-    /// Gets the Optional Id0 value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("OptionalId0")]
+    /// <summary>Optional id that is absent in every capture; its meaning is not identified.</summary>
+    [JsonPropertyName("OptionalId0")]
     public LongId? OptionalId0 { get; init; }
 
-    /// <summary>
-    /// Gets the Optional Id1 value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("OptionalId1")]
+    /// <summary>Account id sent with most profiles, likely the leader's; not confirmed.</summary>
+    [JsonPropertyName("OptionalId1")]
     public LongId? OptionalId1 { get; init; }
 
-    /// <summary>
-    /// Gets the Related Id value.
-    /// </summary>
-    [System.Text.Json.Serialization.JsonPropertyName("RelatedId")]
+    /// <summary>Small id from 0 to a few thousand in the captures; its meaning is not identified.</summary>
+    [JsonPropertyName("RelatedId")]
     public LongId RelatedId { get; init; }
 
     /// <summary>
-    /// Gets the Additional Values value.
+    /// Four numbers: the third looks like points and the fourth is 0 or a Unix time in seconds; the first two are not identified.
     /// </summary>
     public int[] AdditionalValues { get; init; } = new int[AdditionalValueCount];
 
-    /// <summary>
-    /// Gets the Trailing Value0 value.
-    /// </summary>
+    /// <summary>Number that is 3 or 4 in the captures; its meaning is not identified.</summary>
     public int TrailingValue0 { get; init; }
 
-    /// <summary>
-    /// Gets the Trailing Value1 value.
-    /// </summary>
+    /// <summary>Number that is -1 in every capture; its meaning is not identified.</summary>
     public int TrailingValue1 { get; init; }
 
-    /// <summary>
-    /// Gets the Value value.
-    /// </summary>
+    /// <summary>Number that is 12 in every capture; its meaning is not identified.</summary>
     public int Value { get; init; }
 
-    /// <summary>
-    /// Provides the To String value or operation.
-    /// </summary>
+    /// <summary>Returns only the type name, without the profile's fields.</summary>
     public override string ToString()
     {
         return nameof(NeighborhoodHeaderEntry);

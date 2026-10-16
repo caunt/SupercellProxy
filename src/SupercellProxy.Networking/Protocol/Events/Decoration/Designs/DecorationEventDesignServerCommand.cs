@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 
 /// <summary>Updates a decoration event design.</summary>
-/// <param name="Points">The points.</param>
-/// <param name="EventId">The event id.</param>
-/// <param name="DesignId">The design id.</param>
-/// <param name="VariantId">The variant id.</param>
-/// <param name="DesignName">The design name.</param>
-/// <param name="Votes">The votes.</param>
+/// <param name="Points">Score the design has earned in the event so far.</param>
+/// <param name="EventId">Decoration event the design was submitted to.</param>
+/// <param name="DesignId">Server identifier of the submitted design.</param>
+/// <param name="VariantId">Variant of that event the player is in.</param>
+/// <param name="DesignName">Name the player gave the design.</param>
+/// <param name="Votes">Votes other players have cast for the design.</param>
 public sealed record DecorationEventDesignServerCommand(int Points, int EventId, long DesignId, int VariantId, string? DesignName, int Votes) : CodecServerCommand<DecorationEventDesignServerCommand>, ICommandCodecProvider<DecorationEventDesignServerCommand>
 {
     /// <inheritdoc />

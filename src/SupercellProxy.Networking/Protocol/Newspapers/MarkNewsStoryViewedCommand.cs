@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 public sealed record MarkNewsStoryViewedCommand(int StoryId) : CodecCommand<MarkNewsStoryViewedCommand>, ICommandCodecProvider<MarkNewsStoryViewedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkNewsStoryViewedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.StoryId, static (storyId) => new MarkNewsStoryViewedCommand(storyId)));
+    public static CommandCodec<MarkNewsStoryViewedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.StoryId, static storyId => new MarkNewsStoryViewedCommand(storyId)));
 }

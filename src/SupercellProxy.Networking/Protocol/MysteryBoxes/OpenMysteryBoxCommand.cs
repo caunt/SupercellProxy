@@ -1,18 +1,16 @@
+using System.Text.Json.Serialization;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 
 /// <summary>
-/// Defines the Open Mystery Box Command contract.
+/// Serverbound command that opens a mystery box found on the farm, revealing its reward.
 /// </summary>
-/// <summary>
-/// Defines the Box Global Id contract.
-/// </summary>
-/// <summary>
-/// Defines the Legacy Flag contract.
-/// </summary>
-public sealed record OpenMysteryBoxCommand([property: System.Text.Json.Serialization.JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : CodecCommand<OpenMysteryBoxCommand>, ICommandCodecProvider<OpenMysteryBoxCommand>
+/// <param name="BoxGlobalId">Game object id of the mystery box.</param>
+/// <param name="LegacyFlag">Flag sent after the box id; its meaning is not identified.</param>
+public sealed record OpenMysteryBoxCommand([property: JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : CodecCommand<OpenMysteryBoxCommand>, ICommandCodecProvider<OpenMysteryBoxCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<OpenMysteryBoxCommand> Codec { get; } = Codecs.Command(

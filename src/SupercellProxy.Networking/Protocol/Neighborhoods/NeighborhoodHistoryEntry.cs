@@ -2,9 +2,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>
-/// Defines the Neighborhood History Entry contract.
-/// </summary>
+/// <summary>One week in a neighbourhood's history: eight numbers and a flag.</summary>
 public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHistoryEntry>
 {
     private const int ValueCount = 8;
@@ -22,13 +20,12 @@ public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHisto
         }
     );
 
-    /// <summary>
-    /// Gets the Flag value.
-    /// </summary>
+    /// <summary>Flag of the week, set in the captures exactly for weeks whose fifth number is 0; its meaning is not identified.</summary>
     public bool Flag { get; init; }
 
     /// <summary>
-    /// Gets the Values value.
+    /// The week's numbers: the first is the week's start as Unix time in seconds; the others look like weekly event results such as
+    /// points, and their exact meanings are not identified.
     /// </summary>
     public int[] Values { get; init; } = new int[ValueCount];
 }

@@ -10,7 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 public sealed record BoosterSnapshot
 {
     /// <summary>
-    /// Gets or sets the <c language="csharp">BoosterDataGlobalId</c> value.
+    /// Global id of the booster type in the boosters table.
     /// </summary>
     [JsonPropertyName("LogicBoosterDataGlobalID")]
     public int BoosterDataGlobalId { get; init; }
@@ -25,7 +25,7 @@ public sealed record BoosterSnapshot
     public int ReducedProductionTime { get; init; }
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Timer</c> value.
+    /// Countdown until the booster wears off.
     /// </summary>
     public TimerSnapshot Timer { get; init; }
 }

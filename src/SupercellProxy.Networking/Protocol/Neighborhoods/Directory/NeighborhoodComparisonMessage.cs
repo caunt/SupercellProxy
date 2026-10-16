@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Directory;
 
 /// <summary>Lists neighborhood comparison entries.</summary>
-/// <param name="Value">The value.</param>
-/// <param name="Entries">The entries.</param>
+/// <param name="Value">Number sent before the entries; its meaning is not identified.</param>
+/// <param name="Entries">The compared players with their numbers.</param>
 public sealed record NeighborhoodComparisonMessage(int Value, ReadOnlyMemory<NeighborhoodComparisonEntry> Entries) : CodecMessage<NeighborhoodComparisonMessage>, ICodecProvider<NeighborhoodComparisonMessage>
 {
     /// <inheritdoc />

@@ -25,12 +25,12 @@ public sealed record RequestOwnHomeMessage : CodecMessage<RequestOwnHomeMessage>
     );
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">Unknown0</c> value.
+    /// Number sent first; its meaning is not identified. The client sends -1.
     /// </summary>
     public int Unknown0 { get; init; } = -1;
 
     /// <summary>
-    /// Gets or sets the <c language="csharp">UnknownString0</c> value.
+    /// Text sent after it; its meaning is not identified. The client sends an empty string.
     /// </summary>
     public string UnknownString0 { get; init; } = string.Empty;
 }

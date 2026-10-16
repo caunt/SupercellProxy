@@ -9,17 +9,18 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record PostmanStateCommand : CodecCommand<PostmanStateCommand>, ICommandCodecProvider<PostmanStateCommand>
 {
     /// <summary>
-    /// Defines the <c language="csharp">RequiredState</c> value.
+    /// Postman state the command applies to: the state an idle postman enters when a new day starts. In any other state the
+    /// command is refused.
     /// </summary>
     public const int RequiredState = 11;
 
     /// <summary>
-    /// Defines the <c language="csharp">ResultState</c> value.
+    /// Postman state the command moves the postman to.
     /// </summary>
     public const int ResultState = 2;
 
     /// <summary>
-    /// Initializes a new <see cref="PostmanStateCommand"/> instance.
+    /// Creates the command; it carries no fields of its own.
     /// </summary>
     public PostmanStateCommand() { }
 

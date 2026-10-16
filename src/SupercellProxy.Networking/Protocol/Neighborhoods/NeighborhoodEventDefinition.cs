@@ -1,11 +1,13 @@
 using System.Text.Json.Serialization;
 
+using SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
+
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 
-/// <summary>Represents the decoded NeighborhoodEventDefinition JSON contract.</summary>
+/// <summary>Live event describing a neighbourhood event: its object, task sets, task refresh costs and reward tiers.</summary>
 public sealed record NeighborhoodEventDefinition
 {
-    /// <summary>Gets the diamond cost of an extra task.</summary>
+    /// <summary>Diamonds the player pays to add one more task beyond the event's slots.</summary>
     [JsonPropertyName("addExtraTaskDiamondCost")]
     public int ExtraTaskDiamondCost { get; init; }
 
@@ -33,15 +35,15 @@ public sealed record NeighborhoodEventDefinition
     [JsonPropertyName("taskRefreshForAdWatch")]
     public bool TaskRefreshForAdWatch { get; init; }
 
-    /// <summary>Gets the TaskSet value.</summary>
+    /// <summary>Task group names one task set queues, one task per group.</summary>
     [JsonPropertyName("taskSet")]
     public string[] TaskSet { get; init; } = [];
 
-    /// <summary>Gets the TaskSetsPerWeek value.</summary>
+    /// <summary>How many task sets each event week grants.</summary>
     [JsonPropertyName("taskSetsPerWeek")]
     public int TaskSetsPerWeek { get; init; }
 
-    /// <summary>Gets the TaskSlotCount value.</summary>
+    /// <summary>How many tasks the player can have open at once.</summary>
     [JsonPropertyName("taskSlotCount")]
     public int TaskSlotCount { get; init; }
 

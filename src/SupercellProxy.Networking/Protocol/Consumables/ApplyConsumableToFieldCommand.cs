@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Consumables;
 
 /// <summary>Applies a growth consumable to a field.</summary>
-/// <param name="FieldObjectGlobalId">The field object id.</param>
-/// <param name="ConsumableGlobalId">The consumable data id.</param>
+/// <param name="FieldObjectGlobalId">Game object id of the field it is applied to.</param>
+/// <param name="ConsumableGlobalId">Global id of the consumable spent.</param>
 public sealed record ApplyConsumableToFieldCommand(int FieldObjectGlobalId, int ConsumableGlobalId) : CodecCommand<ApplyConsumableToFieldCommand>, ICommandCodecProvider<ApplyConsumableToFieldCommand>
 {
     /// <inheritdoc />

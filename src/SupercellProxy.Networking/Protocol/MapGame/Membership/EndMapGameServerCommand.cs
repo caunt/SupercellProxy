@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Membership;
 
 /// <summary>Ends the valley map game and resets the last position.</summary>
-/// <param name="MapGameId">The map game id.</param>
-/// <param name="LastPosition">The last position.</param>
+/// <param name="MapGameId">Id of the Valley board that ended.</param>
+/// <param name="LastPosition">Where the player finished on the board; its exact meaning is not identified.</param>
 public sealed record EndMapGameServerCommand(LongId? MapGameId, int LastPosition) : CodecServerCommand<EndMapGameServerCommand>, ICommandCodecProvider<EndMapGameServerCommand>
 {
     /// <inheritdoc />

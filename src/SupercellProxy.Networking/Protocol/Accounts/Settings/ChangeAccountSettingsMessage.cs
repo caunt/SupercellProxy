@@ -4,8 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Accounts.Settings;
 
 /// <summary>Changes an account setting.</summary>
-/// <param name="Setting">The setting.</param>
-/// <param name="Value">The value.</param>
+/// <param name="Setting">Name of the account setting to change.</param>
+/// <param name="Value">New value for that setting.</param>
 /// <param name="Flag">A flag native reads only when bytes remain.</param>
 /// <param name="Data">Data native reads only when bytes remain.</param>
 public sealed record ChangeAccountSettingsMessage(string? Setting, int Value, bool? Flag, ReadOnlyMemory<byte>? Data)

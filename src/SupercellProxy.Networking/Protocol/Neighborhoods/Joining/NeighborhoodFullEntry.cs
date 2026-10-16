@@ -2,15 +2,15 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Joining;
 
-/// <summary>The neighborhood full entry.</summary>
-/// <param name="Text">The text.</param>
-/// <param name="Header">The header.</param>
-/// <param name="Members">The members.</param>
-/// <param name="Values">The values.</param>
-/// <param name="Flag">The flag.</param>
+/// <summary>A neighbourhood with its profile and member list, as sent when the player opens or joins it.</summary>
+/// <param name="Text">Free text of the neighbourhood, such as its motto.</param>
+/// <param name="Header">Profile of the neighbourhood.</param>
+/// <param name="Members">The neighbourhood's members; null when not sent.</param>
+/// <param name="Values">Number list that is absent in the captures; its meaning is not identified.</param>
+/// <param name="Flag">Flag that is clear in the captures; its meaning is not identified.</param>
 public sealed record NeighborhoodFullEntry(
     string? Text,
-    SupercellProxy.Networking.Protocol.Neighborhoods.NeighborhoodHeaderEntry Header,
+    NeighborhoodHeaderEntry Header,
     ReadOnlyMemory<NeighborhoodMemberEntry>? Members,
     ReadOnlyMemory<int>? Values,
     bool Flag

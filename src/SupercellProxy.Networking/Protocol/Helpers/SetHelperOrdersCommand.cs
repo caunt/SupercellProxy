@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Helpers;
 
-/// Replaces the selected helper's production order quantities.
+/// <summary>Replaces the selected helper's production order quantities.</summary>
 public sealed record SetHelperOrdersCommand : CodecCommand<SetHelperOrdersCommand>, ICommandCodecProvider<SetHelperOrdersCommand>
 {
     /// <inheritdoc/>

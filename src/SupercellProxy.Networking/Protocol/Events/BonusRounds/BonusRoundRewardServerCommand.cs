@@ -4,12 +4,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.BonusRounds;
 
 /// <summary>Reveals a bonus round reward slot.</summary>
-/// <param name="RewardAmount">The reward amount.</param>
-/// <param name="Round">The round.</param>
-/// <param name="MaximumRewards">The maximum rewards.</param>
-/// <param name="SlotIndex">The slot index.</param>
-/// <param name="BonusRoundId">The bonus round id.</param>
-/// <param name="RewardGlobalId">The reward data id.</param>
+/// <param name="RewardAmount">How many of the reward the slot holds.</param>
+/// <param name="Round">Which round of the bonus game the slot is in.</param>
+/// <param name="MaximumRewards">Upper limit on rewards in this round, as the server sets it.</param>
+/// <param name="SlotIndex">Position of the revealed slot.</param>
+/// <param name="BonusRoundId">The bonus game the slot belongs to.</param>
+/// <param name="RewardGlobalId">Global id of what the slot gives.</param>
 public sealed record BonusRoundRewardServerCommand(int RewardAmount, int Round, int MaximumRewards, int SlotIndex, int BonusRoundId, int RewardGlobalId) : CodecServerCommand<BonusRoundRewardServerCommand>, ICommandCodecProvider<BonusRoundRewardServerCommand>
 {
     /// <inheritdoc />

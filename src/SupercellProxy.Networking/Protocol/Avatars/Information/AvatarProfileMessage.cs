@@ -4,11 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Avatars.Information;
 
 /// <summary>Answers an avatar profile request with the avatar's social ids and farm name.</summary>
-/// <param name="AvatarId">The avatar id.</param>
-/// <param name="FacebookId">The facebook id.</param>
-/// <param name="GamecenterId">The gamecenter id.</param>
-/// <param name="SupercellId">The supercell id.</param>
-/// <param name="FarmName">The farm name.</param>
+/// <param name="AvatarId">Account the profile describes.</param>
+/// <param name="FacebookId">Facebook user id linked to that account, if any.</param>
+/// <param name="GamecenterId">Game Center player id linked to that account, if any.</param>
+/// <param name="SupercellId">Supercell ID linked to that account, if any.</param>
+/// <param name="FarmName">Name of that player's farm; null for a farm that was never named.</param>
 public sealed record AvatarProfileMessage(LongId AvatarId, string? FacebookId, string? GamecenterId, string? SupercellId, string? FarmName) : CodecMessage<AvatarProfileMessage>, ICodecProvider<AvatarProfileMessage>
 {
     /// <inheritdoc />

@@ -4,14 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 
 /// <summary>
-/// Defines the Load Farm Layouts Server Command contract.
+/// Clientbound delivery of the player's saved farm layouts, so the client can show them in edit mode.
 /// </summary>
-/// <summary>
-/// Defines the Game Mode contract.
-/// </summary>
-/// <summary>
-/// Defines the Compressed Layouts contract.
-/// </summary>
+/// <param name="GameMode">Game mode the layouts are for, as native numbers home modes.</param>
+/// <param name="CompressedLayouts">The layouts as one compressed JSON document; null when there are none.</param>
 public sealed record LoadFarmLayoutsServerCommand(int GameMode, ReadOnlyMemory<byte>? CompressedLayouts) : CodecServerCommand<LoadFarmLayoutsServerCommand>, ICommandCodecProvider<LoadFarmLayoutsServerCommand>
 {
     /// <inheritdoc />

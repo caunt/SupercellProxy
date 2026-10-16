@@ -3,8 +3,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 
 /// <summary>One birthday hug reward entry.</summary>
-/// <param name="GoodGlobalId">The good data id.</param>
-/// <param name="Amount">The amount.</param>
+/// <param name="GoodGlobalId">Global id of the goods this reward gives.</param>
+/// <param name="Amount">How many of those goods.</param>
 public sealed record BirthdayHugReward(int GoodGlobalId, int Amount) : ICodecProvider<BirthdayHugReward>
 {
     /// <inheritdoc />

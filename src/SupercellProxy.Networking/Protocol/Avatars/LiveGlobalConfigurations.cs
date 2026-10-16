@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 public sealed record LiveGlobalConfigurations(string? General, string? SpinWheel, string? Renovator) : ICodecProvider<LiveGlobalConfigurations>
 {
     /// <summary>
-    /// Initializes a new <see cref="LiveGlobalConfigurations"/> instance.
+    /// Creates the empty set an avatar has when the server sent no live globals: all three configurations absent.
     /// </summary>
     public LiveGlobalConfigurations()
         : this(General: null, SpinWheel: null, Renovator: null) { }

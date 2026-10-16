@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 /// <summary>Inbox entry type 4: an invitation to join a neighborhood.</summary>
 /// <param name="Header">The fields every entry shares.</param>
 /// <param name="NeighborhoodId">The inviting neighborhood.</param>
-/// <param name="NeighborhoodName">The neighborhood name.</param>
+/// <param name="NeighborhoodName">Display name of the inviting neighborhood.</param>
 /// <param name="Badge">The neighborhood badge.</param>
 /// <param name="InviterId">The optional id native reads after the badge.</param>
 public sealed record NeighborhoodInvitationAvatarStreamEntry(AvatarStreamEntryHeader Header, LongId NeighborhoodId, string? NeighborhoodName, NeighborhoodBadge Badge, LongId? InviterId) : AvatarStreamEntry(Header), ICodecProvider<NeighborhoodInvitationAvatarStreamEntry>

@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 
 /// <summary>Sets the avatar's role inside its neighborhood.</summary>
-/// <param name="NeighborhoodId">The neighborhood id.</param>
+/// <param name="NeighborhoodId">Neighbourhood the role belongs to.</param>
 /// <param name="Role">The new member role.</param>
 public sealed record NeighborhoodRoleChangedServerCommand(LongId NeighborhoodId, int Role) : CodecServerCommand<NeighborhoodRoleChangedServerCommand>, ICommandCodecProvider<NeighborhoodRoleChangedServerCommand>
 {

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -11,7 +12,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// <para>Native saves it with the keys <c>TaskDataGlobalId</c>, <c>PawnAvatarId</c>, <c>Complete</c>, the payload's key and <c>SocialRewardCollected</c>.</para>
 /// </summary>
 public sealed record MapGameTaskState(
-    [property: System.Text.Json.Serialization.JsonPropertyName("TaskGlobalId")] int TaskGlobalId,
+    [property: JsonPropertyName("TaskGlobalId")] int TaskGlobalId,
     LongId? AvatarId,
     bool Completed,
     MapGameTaskStatePayload Payload,
