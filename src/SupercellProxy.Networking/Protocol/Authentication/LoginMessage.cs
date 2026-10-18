@@ -102,7 +102,7 @@ public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<L
     );
 
     /// <summary>
-    /// Account to log in to; empty for a brand-new guest account or a Supercell ID login, where the server finds the account itself.
+    /// Account to log in to; empty for a brand-new anonymous account or a Supercell ID login, where the server finds the account itself.
     /// </summary>
     [JsonPropertyName("AccountId")]
     public LongId AccountId { get; set; }
@@ -166,7 +166,7 @@ public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<L
     public string? OsVersion { get; set; }
 
     /// <summary>
-    /// Secret the server issued to this device for <see cref="AccountId"/>; null for a new guest account or a Supercell ID login.
+    /// Secret the server issued to this device for <see cref="AccountId"/>; null for a new anonymous account or a Supercell ID login.
     /// </summary>
     public string? PassToken { get; set; }
 

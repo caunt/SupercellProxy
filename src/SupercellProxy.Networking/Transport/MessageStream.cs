@@ -56,7 +56,9 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     /// <exception cref="NotSupportedException">The stream wraps a network connection, which has no fixed length.</exception>
     public long Length => GetMemoryStream().Length;
 
-    /// <summary>Optionally observes received messages and successfully written plaintext frames; payloads are borrowed for the callback only.</summary>
+    /// <summary>
+    /// Optionally observes received messages and plaintext frames right before they are written; payloads are borrowed for the callback only.
+    /// </summary>
     public Func<MessageDirection, MessageContainer, IMessage?, ValueTask>? ObserveMessage { get; set; }
 
     /// <summary>Optionally supplies the application version for encrypted typed messages; explicit containers retain their version.</summary>

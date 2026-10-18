@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Commands;
@@ -25,6 +27,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     public const int GlobalIdTableSize = 100000;
 
     private static readonly ConcurrentDictionary<string, DataTableResolver> SharedResolvers = new(StringComparer.Ordinal);
+
+    // Patched resolvers reuse the parsed tables of unchanged files, so lookup caches hang off the parsed table and are shared with them.
+    private static readonly ConditionalWeakTable<GameDataTable, IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>>> TablePhysicalRows = [];
+    private static readonly ConditionalWeakTable<GameDataTable, DataTableReference?[]> TableReferences = [];
+    private static readonly ConditionalWeakTable<GameDataTable, FrozenDictionary<string, int>> TableRowNames = [];
     private readonly Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> _dataTables;
     private readonly Dictionary<string, GameAsset> _resourcesByFile;
     private readonly Dictionary<string, int> _tableIdsByFile;
@@ -60,6 +67,11 @@ public sealed class DataTableResolver : ICommandDataResolver
     [JsonPropertyName("HighestTableId")]
     public int HighestTableId { get; }
 
+    /// <summary>
+    /// Gets the paths of every table the game numbers in this bundle; listing them parses none.
+    /// </summary>
+    public IEnumerable<string> TableFiles => _tableIdsByFile.Keys;
+
     /// <summary>Returns one resolver per asset fingerprint, so connections on the same assets share parsed tables.</summary>
     public static DataTableResolver Shared(GameAssetFingerprint? fingerprint, GameAsset[] resources)
     {
@@ -87,18 +99,14 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <exception cref="InvalidDataException">The file is not a numbered table, or one of its entries has no name.</exception>
     public DataTableReference[] ResolveAll(string file)
     {
-        if (!TryGetTableId(file, out int tableId) || !TryGetTableEntryCount(file, out int count))
+        if (!TryGetTableId(file, out int tableId) || References(tableId) is not { } references)
             throw new InvalidDataException($"The data table {file} is unavailable.");
 
-        DataTableReference[] entries = new DataTableReference[count];
+        // Callers own the returned array, so the shared row records are copied into a new one.
+        DataTableReference[] entries = new DataTableReference[references.Length];
 
-        for (int index = 0; index < count; index++)
-        {
-            if (!TryResolve((tableId * GlobalIdTableSize) + index, out DataTableReference? entry))
-                throw new InvalidDataException(message: "The data table entry is unavailable.");
-
-            entries[index] = entry;
-        }
+        for (int index = 0; index < references.Length; index++)
+            entries[index] = references[index] ?? throw new InvalidDataException(message: "The data table entry is unavailable.");
 
         return entries;
     }
@@ -152,36 +160,20 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="reference">The entry's table, row and name; null when the id is out of range or points at an unnamed row.</param>
     public bool TryResolve(int globalId, [NotNullWhen(true)] out DataTableReference? reference)
     {
-        if (globalId < GlobalIdTableSize)
-        {
-            reference = null;
+        reference = null;
 
+        if (globalId < GlobalIdTableSize)
             return false;
-        }
 
         int tableId = globalId / GlobalIdTableSize;
         int rowIndex = globalId % GlobalIdTableSize;
 
-        if (ResolveTable(tableId) is not { } table || rowIndex >= table.Entries.Count)
-        {
-            reference = null;
-
+        if (References(tableId) is not { } references || rowIndex >= references.Length)
             return false;
-        }
 
-        string name = table.Entries[rowIndex].Name;
+        reference = references[rowIndex];
 
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            reference = null;
-
-            return false;
-        }
-
-        GameAssetFingerprintEntry fingerprint = _dataTables[tableId].GameAsset.Fingerprint;
-        reference = new DataTableReference(globalId, tableId, rowIndex, name, fingerprint.File, fingerprint.Sha);
-
-        return true;
+        return reference is not null;
     }
 
     /// <summary>
@@ -195,26 +187,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         reference = null;
 
-        if (!_tableIdsByFile.TryGetValue(file, out int tableId))
-            return false;
-
-        if (ResolveTable(tableId) is not { } table)
-            return false;
-
-        int rowIndex = -1;
-
-        for (int index = 0; index < table.Entries.Count; index++)
-        {
-            if (!table.Entries[index].Name.Equals(name, StringComparison.Ordinal))
-                continue;
-
-            if (rowIndex is not -1)
-                throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.");
-
-            rowIndex = index;
-        }
-
-        return rowIndex is not -1
+        return _tableIdsByFile.TryGetValue(file, out int tableId) && ResolveTable(tableId) is { } table && TryFindRow(file, table, name, out int rowIndex)
             && TryResolve((tableId * GlobalIdTableSize) + rowIndex, out reference);
     }
 
@@ -371,19 +344,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         value = default;
 
-        if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
+        if (ResolveEntry(file, name) is not { } entry || !entry.BaseRow.TryGetValue(fieldName, out LiteralValue cell))
             return false;
 
-        GameDataTableEntry[] entries = [.. table
-            .Entries.Where(entry => entry.Name.Equals(name, StringComparison.Ordinal))];
-
-        if (entries.Length > 1)
-            throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.");
-
-        if (entries.Length is not 1 || !entries[0].BaseRow.TryGetValue(fieldName, out LiteralValue cell) || cell.Kind == LiteralKind.Null)
-            return false;
-
-        if (!cell.TryGetInt32(out int intValue))
+        if (cell.Kind == LiteralKind.Null || !cell.TryGetInt32(out int intValue))
             return false;
 
         value = intValue;
@@ -575,12 +539,12 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         count = default;
 
-        if (ResolveEntry(file, name) is not { } entry || !entry.Snapshots.Any(row => row.ContainsKey(fieldName)))
+        if (ResolveEntry(file, name) is not { } entry)
             return false;
 
-        count = entry.Snapshots.Count(row => row.ContainsKey(fieldName));
+        count = CountRowsWith(entry.Snapshots, fieldName);
 
-        return true;
+        return count > 0;
     }
 
     /// <summary>
@@ -598,13 +562,9 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (ResolveEntry(globalId) is not { } entry)
             return false;
 
-        if (!entry.BaseRow.ContainsKey(fieldName) && !entry.ContinuationRows.Any(row => row.ContainsKey(fieldName)))
-            return false;
+        count = (entry.BaseRow.ContainsKey(fieldName) ? 1 : 0) + CountRowsWith(entry.ContinuationRows, fieldName);
 
-        count = entry.BaseRow.ContainsKey(fieldName) ? 1 : 0;
-        count += entry.ContinuationRows.Count(row => row.ContainsKey(fieldName));
-
-        return true;
+        return count > 0;
     }
 
     /// <summary>
@@ -615,6 +575,48 @@ public sealed class DataTableResolver : ICommandDataResolver
     public DataTableResolver WithChanges(IReadOnlyList<DataTableChange> changes)
     {
         return new(DataTablePatcher.Apply(_resourcesByFile.Values, changes));
+    }
+
+    // Kept apart from the lookup so the callback's captured state is allocated only when a table's records are first built.
+    private static DataTableReference?[] AddReferences(int tableId, GameDataTable table, GameAssetFingerprintEntry fingerprint)
+    {
+        return TableReferences.GetValue(table, entries => CreateReferences(tableId, entries, fingerprint));
+    }
+
+    // A plain loop: lookups run for every good of every snapshot, and a capturing lambda would allocate on each call.
+    private static int CountRowsWith(IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>> rows, string fieldName)
+    {
+        int count = 0;
+
+        for (int index = 0; index < rows.Count; index++)
+            if (rows[index].ContainsKey(fieldName)) count++;
+
+        return count;
+    }
+
+    private static DataTableReference?[] CreateReferences(int tableId, GameDataTable table, GameAssetFingerprintEntry fingerprint)
+    {
+        DataTableReference?[] references = new DataTableReference?[table.Entries.Count];
+
+        for (int rowIndex = 0; rowIndex < references.Length; rowIndex++)
+        {
+            string name = table.Entries[rowIndex].Name;
+
+            if (!string.IsNullOrWhiteSpace(name))
+                references[rowIndex] = new DataTableReference((tableId * GlobalIdTableSize) + rowIndex, tableId, rowIndex, name, fingerprint.File, fingerprint.Sha);
+        }
+
+        return references;
+    }
+
+    private static FrozenDictionary<string, int> IndexNames(IReadOnlyList<GameDataTableEntry> entries)
+    {
+        Dictionary<string, int> rows = new(entries.Count, StringComparer.Ordinal);
+
+        for (int index = 0; index < entries.Count; index++)
+            rows[entries[index].Name] = rows.ContainsKey(entries[index].Name) ? -1 : index;
+
+        return rows.ToFrozenDictionary(StringComparer.Ordinal);
     }
 
     private static GameDataTable ParseTable(GameAsset resource)
@@ -632,6 +634,15 @@ public sealed class DataTableResolver : ICommandDataResolver
         throw new InvalidOperationException($"Failed to parse {resource.Fingerprint.File}.");
     }
 
+    // Each entry name maps to its row once per table. A name two entries share maps to -1 and fails only when it is looked up, as the
+    // scan it replaces did.
+    private static bool TryFindRow(string file, GameDataTable table, string name, out int rowIndex)
+    {
+        FrozenDictionary<string, int> rows = TableRowNames.GetValue(table, static parsed => IndexNames(parsed.Entries));
+
+        return rows.TryGetValue(name, out rowIndex) && (rowIndex is -1 ? throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.") : true);
+    }
+
     private static bool TryResolveIndexedValue(GameDataTableEntry entry, string fieldName, int valueIndex, out LiteralValue value)
     {
         value = default;
@@ -643,6 +654,23 @@ public sealed class DataTableResolver : ICommandDataResolver
         value = row.GetValueOrDefault(fieldName);
 
         return true;
+    }
+
+    // Row records never change for a parsed table, so each table's are built once and shared; unnamed rows stay null. A bundle that
+    // numbers the same file differently gets records of its own.
+    private DataTableReference?[]? References(int tableId)
+    {
+        if (!_dataTables.TryGetValue(tableId, out (GameAsset GameAsset, Lazy<GameDataTable> Table) source))
+            return null;
+
+        GameDataTable table = source.Table.Value;
+
+        if (!TableReferences.TryGetValue(table, out DataTableReference?[]? references))
+            references = AddReferences(tableId, table, source.GameAsset.Fingerprint);
+
+        bool numbered = references.Length is 0 || references[0] is not { } first || first.TableId == tableId;
+
+        return numbered ? references : CreateReferences(tableId, table, source.GameAsset.Fingerprint);
     }
 
     private GameDataTableEntry? ResolveEntry(int id)
@@ -676,7 +704,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
             return false;
 
-        rows = [.. table.Entries.SelectMany(static entry => entry.Snapshots)];
+        rows = TablePhysicalRows.GetValue(table, static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
 
         return true;
     }
@@ -712,16 +740,10 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
             return false;
 
-        GameDataTableEntry[] matches = [.. table
-            .Entries.Where(candidate => candidate.Name.Equals(name, StringComparison.Ordinal))];
-
-        if (matches.Length > 1)
-            throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.");
-
-        if (matches.Length is not 1)
+        if (!TryFindRow(file, table, name, out int rowIndex))
             return false;
 
-        entry = matches[0];
+        entry = table.Entries[rowIndex];
 
         return true;
     }

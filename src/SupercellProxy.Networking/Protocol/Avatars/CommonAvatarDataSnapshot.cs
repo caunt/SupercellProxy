@@ -11,6 +11,7 @@ using SupercellProxy.Networking.Protocol.Events.Calendar;
 using SupercellProxy.Networking.Protocol.Events.ChainOffers;
 using SupercellProxy.Networking.Protocol.Events.Chronos;
 using SupercellProxy.Networking.Protocol.Events.Decoration;
+using SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 using SupercellProxy.Networking.Protocol.Events.Derby;
 using SupercellProxy.Networking.Protocol.FarmPass;
 using SupercellProxy.Networking.Protocol.Gifts;
@@ -65,6 +66,10 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets the reward choices still waiting for the player and the seed their contents are drawn with.</summary>
     [JsonPropertyName("LogicDecisionBoxManager")]
     public DecisionBoxManagerSnapshot? DecisionBoxManager { get; init; }
+
+    /// <summary>Gets the saved decoration sticker book.</summary>
+    [JsonPropertyName("DecoStickerbookManager")]
+    public DecoStickerBookManagerSnapshot? DecoStickerBookManager { get; init; }
 
     /// <summary>
     /// <para>Gets the retained decoration-event manager state.</para>

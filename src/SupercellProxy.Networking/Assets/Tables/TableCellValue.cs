@@ -25,14 +25,17 @@ public readonly record struct TableCellValue
 
     internal EncodedDocumentValue? Structured { get; }
 
-    /// <summary>Converts a supported scalar literal to CSV cell text.</summary>
+    /// <summary>
+    /// Converts the literal to CSV cell text the way the game reads it: only text is kept, while a missing, null, numeric or boolean
+    /// value empties the cell.
+    /// </summary>
     public string ToCellText()
     {
         return Kind switch
         {
-            TableCellValueKind.Null => string.Empty,
-            TableCellValueKind.Text or TableCellValueKind.Number or TableCellValueKind.Boolean => Text ?? string.Empty,
-            TableCellValueKind.Missing or TableCellValueKind.Structured => throw new NotSupportedException(message: "Structured table-cell changes are not implemented."),
+            TableCellValueKind.Text => Text ?? string.Empty,
+            TableCellValueKind.Missing or TableCellValueKind.Null or TableCellValueKind.Number or TableCellValueKind.Boolean => string.Empty,
+            TableCellValueKind.Structured => throw new NotSupportedException(message: "Localized table-cell changes are not implemented."),
             _ => throw new InvalidOperationException(message: "Unknown table-cell literal kind."),
         };
     }

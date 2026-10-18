@@ -13,7 +13,7 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             static message => new BoardCounters(
                 message.TaskLimit,
                 message.RemainingTasks,
-                message.ActiveTaskBoardIndex,
+                message.DailyTasksRefillTime,
                 message.Unknown0,
                 message.Unknown1,
                 message.ExtraTaskOfferValue
@@ -69,7 +69,7 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             {
                 TaskLimit = boardCounters.TaskLimit,
                 RemainingTasks = boardCounters.RemainingTasks,
-                ActiveTaskBoardIndex = boardCounters.ActiveTaskBoardIndex,
+                DailyTasksRefillTime = boardCounters.DailyTasksRefillTime,
                 Unknown0 = boardCounters.Unknown0,
                 Unknown1 = boardCounters.Unknown1,
                 ExtraTaskOfferValue = boardCounters.ExtraTaskOfferValue,
@@ -93,12 +93,12 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
         trailingDataMessage: "The derby message has trailing data."
     );
 
-    /// <summary>Gets the player's active task-board index, or minus one.</summary>
-    public int ActiveTaskBoardIndex { get; init; }
     /// <summary>Gets the optional auxiliary board entries.</summary>
     public DerbyBoardAuxiliaryEntry[]? AuxiliaryEntries { get; init; }
     /// <summary>Gets the cached current derby race instance.</summary>
     public LongId? CurrentInstanceId { get; init; }
+    /// <summary>Gets the Unix time in seconds at which the daily task allowance refills, or minus one when none is scheduled.</summary>
+    public int DailyTasksRefillTime { get; init; }
     /// <summary>Gets the offer value echoed when purchasing an additional task.</summary>
     public int ExtraTaskOfferValue { get; init; }
     /// <summary>Gets the first retained board flag.</summary>
@@ -143,7 +143,7 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
     }
 
     // The leading board counters, read as one group to keep the field list within a composite.
-    private readonly record struct BoardCounters(int TaskLimit, int RemainingTasks, int ActiveTaskBoardIndex, int Unknown0, int Unknown1, int ExtraTaskOfferValue)
+    private readonly record struct BoardCounters(int TaskLimit, int RemainingTasks, int DailyTasksRefillTime, int Unknown0, int Unknown1, int ExtraTaskOfferValue)
     {
         public static ICodec<BoardCounters> Codec { get; } = Codecs.Composite(
             Codecs.VarInt,
@@ -151,14 +151,14 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             Codecs.VarInt,
             static segment => segment.RemainingTasks,
             Codecs.VarInt,
-            static segment => segment.ActiveTaskBoardIndex,
+            static segment => segment.DailyTasksRefillTime,
             Codecs.VarInt,
             static segment => segment.Unknown0,
             Codecs.VarInt,
             static segment => segment.Unknown1,
             Codecs.VarInt,
             static segment => segment.ExtraTaskOfferValue,
-            static (taskLimit, remainingTasks, activeTaskBoardIndex, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, activeTaskBoardIndex, unknown0, unknown1, extraTaskOfferValue)
+            static (taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue)
         );
     }
 }

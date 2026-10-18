@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SupercellProxy.Networking.Assets.Tables;
@@ -9,13 +11,19 @@ namespace SupercellProxy.Networking.Assets.Tables;
 /// </summary>
 public static class DataTablePatcher
 {
+    // Farms on different event variants often end up with byte-identical edited files. Handing them one asset per content lets them
+    // share its parsed table instead of each farm parsing its own copy.
+    private static readonly ConcurrentDictionary<string, WeakReference<GameAsset>> SharedEdits = new(StringComparer.Ordinal);
+
     /// <summary>
     /// Returns the bundle with every edit applied in order. Edited tables come back as new asset copies; the originals are not changed.
     /// </summary>
     /// <param name="assets">Every file of the bundle.</param>
     /// <param name="changes">Edits to apply; later edits see the result of earlier ones.</param>
     /// <returns>All files of the bundle, edited ones replaced.</returns>
-    /// <exception cref="InvalidDataException">An edit names a missing table, entry or column, or a column replacement has a different row count.</exception>
+    /// <exception cref="InvalidDataException">
+    /// An edit names a missing table or replacement column, or a column replacement has a different row count.
+    /// </exception>
     public static GameAsset[] Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
     {
         ArgumentNullException.ThrowIfNull(changes);
@@ -60,24 +68,29 @@ public static class DataTablePatcher
             };
         }
 
+        foreach (string file in changes.Select(static change => change.File).Distinct(StringComparer.Ordinal))
+            resources[file] = Share(resources[file]);
+
         return [.. resources.Values];
     }
 
+    // Native LogicCSVChangeMap (0x100541400): Row and Column each list comma-separated names, a "*" row selects every entry, and a
+    // row or column the table lacks is skipped with a warning.
     private static void ApplyCell(List<List<string>> rows, DataTableChange change)
     {
         if (rows.Count < 2 || string.IsNullOrEmpty(change.Row) || string.IsNullOrEmpty(change.Column))
             throw new InvalidDataException($"The table cell change {change.File} has {rows.Count} rows; row '{change.Row}', column '{change.Column}'.");
 
-        int column = rows[index: 0].IndexOf(change.Column);
+        HashSet<string> names = SplitNames(change.Row).ToHashSet(StringComparer.Ordinal);
+        bool everyEntry = names.Contains(item: "*");
+        int[] columns = [.. SplitNames(change.Column).Select(name => rows[index: 0].IndexOf(name)).Where(static column => column >= 0)];
 
-        HashSet<string> names = change
-            .Row.Split(separator: ',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .ToHashSet(StringComparer.Ordinal);
-
-        int[] starts = [.. Enumerable.Range(start: 2, rows.Count - 2).Where(index => rows[index].Count > 0 && names.Contains(rows[index][index: 0]))];
-
-        if (column < 0 || starts.Length != names.Count)
-            throw new InvalidDataException($"The changed cell {change.File}/{change.Row}/{change.Column} is unavailable.");
+        int[] starts =
+        [
+            .. Enumerable
+                .Range(start: 2, rows.Count - 2)
+                .Where(index => rows[index].Count > 0 && rows[index][index: 0] is { Length: > 0 } name && (everyEntry || names.Contains(name))),
+        ];
 
         string value = change.NewValue.ToCellText();
 
@@ -98,10 +111,13 @@ public static class DataTablePatcher
 
             List<string> target = rows[line];
 
-            while (target.Count <= column)
-                target.Add(string.Empty);
+            foreach (int column in columns)
+            {
+                while (target.Count <= column)
+                    target.Add(string.Empty);
 
-            target[column] = value;
+                target[column] = value;
+            }
         }
     }
 
@@ -112,9 +128,7 @@ public static class DataTablePatcher
         if (rows.Count < 2 || replacement.Count != rows.Count)
             throw new InvalidDataException(message: "Replacement table columns have a different row count.");
 
-        foreach (
-            string name in selector.Split(separator: ',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        )
+        foreach (string name in SplitNames(selector))
         {
             int targetColumn = rows[index: 0].IndexOf(name);
             int sourceColumn = replacement[index: 0].IndexOf(name);
@@ -142,6 +156,22 @@ public static class DataTablePatcher
         return value.IndexOfAny([',', '"', '\r', '\n']) >= 0
             ? "\"" + value.Replace(oldValue: "\"", newValue: "\"\"", StringComparison.Ordinal) + "\""
             : value;
+    }
+
+    private static GameAsset Share(GameAsset edited)
+    {
+        string key = $"{edited.Fingerprint.File}:{Convert.ToHexString(SHA256.HashData(edited.Content.Span))}";
+        WeakReference<GameAsset> added = new(edited);
+
+        // A live copy of the same content is kept and reused; a collected one is replaced by this asset.
+        WeakReference<GameAsset> stored = SharedEdits.AddOrUpdate(key, added, (unusedKey, known) => known.TryGetTarget(out _) ? known : added);
+
+        return stored.TryGetTarget(out GameAsset? shared) ? shared : edited;
+    }
+
+    private static string[] SplitNames(string names)
+    {
+        return names.Split(separator: ',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     }
 
     private static string WriteRows(List<List<string>> rows)

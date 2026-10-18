@@ -5,9 +5,15 @@ namespace SupercellProxy.Networking.Protocol.MiniPass;
 /// <summary>Saved identity and progress for the current Mini Pass.</summary>
 public sealed record MiniPassInstanceSnapshot
 {
+    /// <summary>Gets whether the player has seen the pass's completion celebration.</summary>
+    public bool CelebrationSeen { get; init; }
+
     /// <summary>Gets the Mini Pass data row.</summary>
     [JsonPropertyName("DataId")]
     public int DataGlobalId { get; init; }
+
+    /// <summary>Gets whether the player has finished the pass's end screen.</summary>
+    public bool EndScreenFinished { get; init; }
 
     /// <summary>Gets the event configuration the pass was started from.</summary>
     [JsonPropertyName("EventConfig")]
@@ -40,4 +46,7 @@ public sealed record MiniPassInstanceSnapshot
 
     /// <summary>Gets the pass start time in Unix seconds.</summary>
     public int StartTime { get; init; }
+
+    /// <summary>Gets whether the player has seen the pass's introduction.</summary>
+    public bool TutorialSeen { get; init; }
 }

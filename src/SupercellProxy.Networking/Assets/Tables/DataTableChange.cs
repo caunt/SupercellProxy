@@ -14,8 +14,9 @@ public sealed record DataTableChange
     public int? ArrayIndex { get; init; }
 
     /// <summary>
-    /// Header name of the edited column. With <see cref="NewFullCommaSeparatedValues"/> it may list several comma-separated columns,
-    /// all copied from the replacement CSV. Empty together with a replacement CSV means the whole file is swapped.
+    /// Header name of the edited column, or several comma-separated names: a single-cell edit writes its value to each of them, and with
+    /// <see cref="NewFullCommaSeparatedValues"/> each is copied from the replacement CSV. Empty together with a replacement CSV means the
+    /// whole file is swapped.
     /// </summary>
     public string? Column { get; init; }
     /// <summary>
@@ -37,7 +38,7 @@ public sealed record DataTableChange
 
     /// <summary>
     /// Entry name the single-cell edit applies to, as it appears in the table's first column. Several comma-separated names get the
-    /// same value.
+    /// same value, and <c>*</c> selects every entry; names the table lacks are skipped.
     /// </summary>
     public string? Row { get; init; }
 }

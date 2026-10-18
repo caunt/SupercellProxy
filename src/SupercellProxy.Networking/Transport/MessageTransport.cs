@@ -235,13 +235,15 @@ internal sealed class MessageTransport(MessageStream stream)
 
             BinaryPrimitives.WriteUInt16BigEndian(headerSpan[5..HeaderLength], messageContainer.Version);
 
+            // Observed before the write: the server can answer before a slow continuation after the send runs, and evidence saved on that
+            // answer must already hold the frame it answers.
+            if (stream.ObserveMessage is { } observe)
+                await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);
+
             await stream.WriteAsync(headerMemory, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             stream.Traffic?.Send(length);
-
-            if (stream.ObserveMessage is { } observe)
-                await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (Exception exception)
             when (exception is EndOfStreamException or IOException { InnerException: SocketException })

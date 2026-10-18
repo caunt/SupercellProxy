@@ -101,7 +101,7 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     public required string AccountCreatedDate { get; init; }
 
     /// <summary>
-    /// The logged-in account. For a new guest account this is the id the client must store for future logins.
+    /// The logged-in account. For a new anonymous account this is the id the client must store for future logins.
     /// </summary>
     [JsonPropertyName("AccountId")]
     public required LongId AccountId { get; init; }

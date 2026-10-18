@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using SupercellProxy.Networking.Json;
@@ -10,6 +11,9 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Collections;
 /// </summary>
 public sealed record LiveEvent : ICodecProvider<LiveEvent>
 {
+    // A received event's definition never changes, while the game reads it every tick, so its inflated JSON is kept with the instance.
+    private static readonly ConditionalWeakTable<LiveEvent, byte[]> InflatedDocuments = [];
+
     /// <inheritdoc />
     public static ICodec<LiveEvent> Codec { get; } = Codecs.Composite(
         EventDocument.Codec,
@@ -141,13 +145,19 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
     /// <summary>Gets the start of the event's visibility as a Unix timestamp.</summary>
     public int VisibleTime { get; init; }
 
-    /// <summary>Deserializes the event's JSON definition.</summary>
+    /// <summary>Deserializes the event's JSON definition; a compressed definition is inflated once per received event.</summary>
     public TValue Decode<TValue>() where TValue : class
     {
-        return CompressedData is { } bytes
-            ? CompressedDocument.Deserialize<TValue>(bytes)
-            : JsonSerializer.Deserialize<TValue>(Text ?? "{}")
+        if (CompressedData is null)
+        {
+            return JsonSerializer.Deserialize<TValue>(Text ?? "{}")
                 ?? throw new InvalidDataException(message: "The event document is null.");
+        }
+
+        byte[] document = InflatedDocuments.GetValue(this, static liveEvent => liveEvent.CompressedData is { } bytes ? CompressedDocument.Decompress(bytes) : []);
+
+        return JsonSerializer.Deserialize<TValue>(document)
+            ?? throw new InvalidDataException($"Compressed JSON did not contain a {typeof(TValue).Name} value.");
     }
 
     // Native sends the event definition either as compressed JSON or as plain text, chosen by the leading flag.

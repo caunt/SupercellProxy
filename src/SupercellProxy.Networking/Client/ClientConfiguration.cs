@@ -12,7 +12,7 @@ namespace SupercellProxy.Networking.Client;
 /// <param name="Protocol">An explicit version override; null resolves the latest version from KEYS.md.</param>
 /// <param name="SessionTokenProvider">
 /// Supplies the Supercell ID session token for a logged-in player. It is called with false for the token it holds; when the server
-/// rejects that token as invalid, it is called once more with true and must return a freshly issued one. Leave null for guest
+/// rejects that token as invalid, it is called once more with true and must return a freshly issued one. Leave null for anonymous
 /// accounts.
 /// </param>
 /// <param name="BootstrapFingerprintSha">
