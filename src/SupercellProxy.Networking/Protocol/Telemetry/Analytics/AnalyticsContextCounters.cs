@@ -2,11 +2,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
-/// <summary>The fourth optional analytics context part: four values.</summary>
-/// <param name="Value0">The first value.</param>
-/// <param name="Value1">The second value.</param>
-/// <param name="Value2">The third value.</param>
-/// <param name="Value3">The fourth value.</param>
+/// <summary>The fourth optional analytics context part: four thermal status values.</summary>
+/// <param name="Value0">Device thermal status at session start.</param>
+/// <param name="Value1">Device thermal status at session end.</param>
+/// <param name="Value2">Minimum thermal status observed during the session.</param>
+/// <param name="Value3">Maximum thermal status observed during the session.</param>
+/// <remarks>
+/// Status values are 0 for not set, 1 nominal, 2 warning, 3 serious and 4 critical.
+/// </remarks>
 public sealed record AnalyticsContextCounters(int Value0, int Value1, int Value2, int Value3) : ICodecProvider<AnalyticsContextCounters>
 {
     /// <inheritdoc />
