@@ -52,7 +52,7 @@ The core block is:
 
 ```text
 LongId                 account ID part 1                  object +0x90
-LongId                 account ID part 2                  object +0x98
+LongId                 Home ID candidate                  object +0x98
 String?                unknown A0                         object +0xA0
 String?                unknown A8                         object +0xA8
 String?                unknown B0                         object +0xB0
@@ -61,7 +61,7 @@ VarInt                 unknown C4                         object +0xC4
 VarInt                 unknown C8                         object +0xC8
 VarInt                 unknown CC                         object +0xCC
 String?                unknown D0                         object +0xD0
-VarInt                 unknown D8                         object +0xD8
+VarInt                 session count                      object +0xD8
 VarInt                 unknown DC                         object +0xDC
 VarInt                 unknown E0                         object +0xE0
 String?                unknown B8                         object +0xB8
@@ -72,14 +72,15 @@ VarInt                 unknown 128                        object +0x128
 
 The server-time consumer parses `+0xF0` with `atoll(...) / 1000`, so captured
 values are Unix milliseconds in text. The account-ID consumer formats
-`+0x90` and `+0x98` as `%d-%d`.
+`+0x90` as `%d-%d`. The current dispatch path does not consume `+0x98`; the
+older reference codec suggests it is the Home ID, so that remains a hypothesis.
 
 When payload bytes remain after the core, the client reads the optional
 resource block:
 
 ```text
 String?                +0x100
-String?                +0x108
+String?                cached location                    +0x108
 String?                +0x110
 String?                +0x118
 VarInt                 +0x12C
@@ -101,7 +102,7 @@ Boolean                +0x148, decoded as the inverse of the wire bit
 Boolean                +0x149
 Boolean                +0x14A
 VarInt                 +0x14C
-String                 required, maximum 900000 bytes, object +0x150
+String                 session ID, max 900000 bytes      object +0x150
 String?                +0xE8
 ```
 
@@ -114,10 +115,10 @@ String? +0x170
 String? +0x178
 String? +0x180
 PlayerPermissionSet? +0x1A8
-String? +0x188
-String? +0x190
-String? +0x198
-String? +0x1A0
+String? Zendesk support URL                object +0x188
+String? Zendesk application id             object +0x190
+String? Zendesk settings JWT               object +0x198
+String? Zendesk client id                  object +0x1A0
 ```
 
 Every nullable-field presence is a packed primary Boolean bit. The permission
@@ -162,8 +163,20 @@ and token composition remain separate semantic work.
 - Current Clash Royale LoginOk is `20963`, not `25220`.
 - The current core begins with two `LongId` values; the `Release17286` codec
   begins with VarInts.
-- The current account ID and server-time consumers establish those meanings,
-  but most current fields still have explicit offset-based unknown names.
+- The first `LongId` is consumed as the account ID. The current dispatch path
+  does not consume the second `LongId`; retain `Home ID` as a reference-derived
+  hypothesis.
+- `+0xD8` is consumed as `sessionCount`. Dispatch supplies it to the native
+  login-state handler, whose diagnostics and analytics properties both use
+  that name.
+- `+0x108` is `CachedLocation`; the current consumer stores it at client-state
+  `+0x928` and registers it under that literal.
+- `+0x150` becomes the session object's `sessionId`; the client's session
+  analytics builder emits the stored field under that property name.
+- The `+0x188/+0x190/+0x198/+0x1A0` group configures Zendesk support. It maps
+  to the native support configuration fields for the URL, application id,
+  Base64 settings JWT, and `mobile_sdk_client_...` client id. This is separate
+  from the preceding `+0x160..+0x178` group, whose semantics remain unresolved.
 - Current content resources have separate normal and Chronos URL lists.
 - Current trailing data has five strings, an optional permission object, then
   four more strings. It is not the reference three-field session block followed
