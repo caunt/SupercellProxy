@@ -89,26 +89,65 @@ the compact current payload is not wire-compatible with the reference's full
 
 ## Current bootstrap candidate: message `23245`
 
-The current binary contains a large stateful clientbound message `23245` that
-is absent from the Hay Day reference. It is now a strong candidate for the
-initial player/game-state bootstrap:
+The current Null client contains a large stateful clientbound message `23245`.
+The Android package and the analyzed native library must be kept as separate
+identities:
 
-- `0x105EA74` decodes two object fields first:
-  - object A at message `+0x98` has size `0x570`; its decoder is
-    `0xFA2878` (`LibgMessage_23245::NestedCodec_126::decode`);
-  - object B at message `+0xA0` has size `0x208` and uses a polymorphic
-    decoder through its vtable.
-- Five scalar fields follow at `+0xA8`, `+0xAC`, `+0xB0`, `+0xB4`, and
-  `+0xB8`.
-- The dispatcher `0xADBC1C` moves both objects out of the message. It changes
-  the high-level `GameRoot` returned by `0xC965C0`, installs both objects and
-  the scalar values through `0xC9805C`, copies object B's `+0x78` string into
-  the object reached through `GameRoot+0x510`, and records launch-timing
-  metrics through `0xBE2E18` and `0xBE2E40`.
-- `0xC9805C` stores object A at `GameRoot+0x40`, object B at `+0x48`, constants
-  `0` and `1` at `+0x50/+0x54`, message field `+0xA8` at `+0x58`, a current
-  timestamp at `+0x60`, `+0xAC` at `+0x68`, `+0xB4` at `+0x6C`, and `+0xB8`
-  at `+0x70`.
+| Artifact | SHA-256 |
+| --- | --- |
+| Null source `libg.so` | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` |
+| Modified APK | `84C7FF879034A579133ABA1BB12AC2C5320C9AFB035C10CDBCEA2F8CEF5E0EB6` |
+| `libg.so` inside that APK | `B1CAF6D94F7EFFAFEC4900A78F5D96DEFD98364B082A3CF5E560622A6858993C` |
+
+The APK library differs from the Null source library only in the URL/TLS data
+ranges `0x300418..0x30042F` and `0x340440..0x3404C0`. Code offsets are therefore
+shared for this pair of Null builds.
+
+The following is the recovered Null path. It must not be mixed with addresses
+from the earlier official-library snapshot:
+
+- `0x1026898` forwards the decoded frame's message ID to the mode-0 factory
+  `0x1026E64`.
+- The `0x5ACD` (`23245`) case allocates a `0xC0`-byte message object and calls
+  constructor `0x10529C4`.
+- Its vtable is `0x18A96B0`; decoder `0x1052A98`, encoder `0x1052A18`, message-ID
+  getter `0x1052BFC`, and message-version getter `0x1052C04` are also confirmed
+  by both vtable slots and runtime calls.
+- The decoder allocates object A at message `+0x98` with size `0x570`, runs
+  `0xF948A4` and `0xF96F48`, allocates object B at `+0xA0` with size `0x208`,
+  runs `0xCDF238` and vtable slot `+0x20` decoder `0xCE0394`, then reads five VarInt32
+  values into `+0xA8`, `+0xAC`, `+0xB0`, `+0xB4`, and `+0xB8`.
+- Clientbound dispatch `0xAD3DA8` routes the real `0x5ACD` value to the
+  `23245` branch at `0xAD5FCC`. The branch moves A and B out of the message,
+  passes B's `+0x78` string to the object reached from `GameRoot+0x510`,
+  passes the message's `+0xB0` value to `0xBDB09C`, sets `GameRoot+0x8 = 3`,
+  and calls state installer `0xC8E054`.
+- `0xC8E054` stores A at `GameRoot+0x40` and B at `+0x48`, stores constants
+  `0` and `1` at `+0x50/+0x54`, stores message `+0xAC` at `+0x58`, a computed
+  timestamp at `+0x60`, message `+0xA8` at `+0x70`, message `+0xB4` at
+  `+0x68`, and message `+0xB8` at `+0x6C`.
+
+A controlled established-encryption frame with message ID `23245`, version
+`10`, and a 4096-byte all-zero body reached all of those runtime functions:
+factory, constructor, decoder, clientbound dispatch, the `23245` branch,
+object-A/object-B extraction, and `0xC8E054`. This separates "the message is
+recognized and routed" from "the nested profile body is semantically valid."
+
+A cursor trace of the all-zero representation consumed exactly 605 bytes:
+object A consumed bytes `0..508`, object B consumed `508..600`, and the five
+outer VarInt32 values consumed `600..605`. A second run with an exact 605-byte
+body reached the same dispatcher and state installer. A later repeat of the same
+exact representation did not crash: the client sent established messages
+`14300` and `38000`, the local server ignored both as unsupported, and the
+connection then ended. The original null-callback crash remains observed but
+not reproducible, so the evidence does not show that the zero values alone
+caused rejection. Extra trailing bytes are ruled out as the decoder length
+error; semantic validity remains open.
+
+The earlier addresses `0x105EA74`, `0xADBC1C`, and `0xC9805C`, and the reported
+Frida observation at `0xADD134`, belong to a different library snapshot and
+must not be used to explain the Null client. They remain useful only as
+unverified historical evidence for that other artifact.
 
 The IPA/current-SO correlation supplies 79 exact field bindings across 39
 decode codecs in this message, representing 74 unique member names. They cover
@@ -313,11 +352,16 @@ age, consent, SCID, marketing SDK, ATT, backfill, or server login states.
 
 ## Next work
 
-1. Identify the first authenticated client request after `10108`, then bind it
-   to the current `InitFlowImpl` server-login state and loading-screen waiter.
-2. Prove or reject the hypothesis that `23245` carries the initial
-   own-profile/home state through a controlled response or runtime breakpoint
-   at `0xADBC1C`/`0xC9805C`.
+1. Identify the producer and required consumer of serverbound `14300`. Its
+   captured plaintext is `7f0112a8807f`, which decodes as signed VarInt32 `-1`,
+   big-endian u32 `0x112A880`, and signed VarInt32 `-1`; the business meaning is
+   still unknown.
+2. Accept `38000` as analytics telemetry without a response and run the
+   exact-605 profile again. Stop at the next distinct authenticated message or a
+   specific handler requirement.
+3. Recover the minimum required field shape of object A (`0xF96F48`) and object
+   B (`0xCE0394`), then test bounded substitutions after the `14300`/`38000`
+   boundary.
 3. Use the reference codecs to generate hypotheses about common concepts such
    as account/home identity and compressed subdocuments, then verify every
    current field against SO evidence.
@@ -326,6 +370,15 @@ age, consent, SCID, marketing SDK, ATT, backfill, or server login states.
    enough to promote any one of them to a current-build fact.
 5. Only after the initial home/profile payload is accepted should the server
    attempt a minimum nonempty profile fixture for the loading screen.
+
+The controlled evidence for this correction is stored locally at
+`D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis\profile23245-dispatch-20261028`.
+The main logs are `frida.jsonl` (SHA-256
+`929F5CE5CB0EF0D9FF1473062992EC0F64312F97A7F8EAB67DE48803D6672927`)
+and `server.stdout.log` (SHA-256
+`1931A08615DC7895F6458F5D9C03D25780284F4A7BB02B4F1D4C02BCEF39BCD0`).
+These are local controlled-test artifacts and are not part of the public
+reference implementation.
 
 ## Material correction to the prior comparison
 
