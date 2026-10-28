@@ -53,7 +53,7 @@ The core block is:
 ```text
 LongId                 account ID part 1                  object +0x90
 LongId                 Home ID candidate                  object +0x98
-String?                unknown A0                         object +0xA0
+String?                pass token                         object +0xA0
 String?                unknown A8                         object +0xA8
 String?                unknown B0                         object +0xB0
 VarInt                 unknown C0                         object +0xC0
@@ -102,8 +102,8 @@ Boolean                +0x148, decoded as the inverse of the wire bit
 Boolean                +0x149
 Boolean                +0x14A
 VarInt                 +0x14C
-String                 session ID, max 900000 bytes      object +0x150
-String?                +0xE8
+String                 unknown required text             object +0x150
+String?                session ID                         object +0xE8
 ```
 
 The final compatibility area has two parts around the permission object:
@@ -166,17 +166,32 @@ and token composition remain separate semantic work.
 - The first `LongId` is consumed as the account ID. The current dispatch path
   does not consume the second `LongId`; retain `Home ID` as a reference-derived
   hypothesis.
+- `+0xA0` is the pass token. Dispatch pairs it with the account LongId and the
+  native persistence paths store it under `Pass` for a normal account or
+  `SCIDGuestPass` for the guest path.
+- `+0xA8` has no proven current-build consumer. In particular, the
+  `EnabledCountries` check uses `+0x108`, so `loginCountry` must not be assigned
+  to `+0xA8`.
 - `+0xD8` is consumed as `sessionCount`. Dispatch supplies it to the native
   login-state handler, whose diagnostics and analytics properties both use
   that name.
 - `+0x108` is `CachedLocation`; the current consumer stores it at client-state
-  `+0x928` and registers it under that literal.
-- `+0x150` becomes the session object's `sessionId`; the client's session
-  analytics builder emits the stored field under that property name.
+  `+0x928` and registers it under that literal. The same value is also tested
+  against `EnabledCountries`, but that secondary check does not rename it.
+- `+0xE8` becomes the session object's `sessionId`; the client's session
+  analytics builder `0xAC918C` reads that stored field and emits it under that
+  property name.
+- `+0x150` is a required string copied into client state `+0x464`. The outbound
+  Login builder's analogous slot is supplied from `StoreCountryCode`, which is
+  only a candidate name for the LoginOk field.
 - The `+0x188/+0x190/+0x198/+0x1A0` group configures Zendesk support. It maps
   to the native support configuration fields for the URL, application id,
   Base64 settings JWT, and `mobile_sdk_client_...` client id. This is separate
   from the preceding `+0x160..+0x178` group, whose semantics remain unresolved.
+- The `+0x160/+0x168/+0x170/+0x178` strings target one object allocated as
+  exactly `0x70` bytes. No current-binary reader proves their meanings. Earlier
+  observations at `+0x70/+0x80` crossed the allocation boundary and are
+  rejected; Facebook, Game Center, Google, and Amazon labels remain unproven.
 - Current content resources have separate normal and Chronos URL lists.
 - Current trailing data has five strings, an optional permission object, then
   four more strings. It is not the reference three-field session block followed
