@@ -5,8 +5,8 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>Reports a batch of client analytics: session properties such as <c>session_name</c>, an optional context and up to 32 events.</summary>
 /// <param name="Time0">Unix time in seconds when the measured session began.</param>
-/// <param name="Time1">Length of the measured session, which looks like milliseconds in the captures (about 14 s for launch).</param>
-/// <param name="Time2">Second length, equal to <paramref name="Time1"/> in every capture; its meaning is not identified.</param>
+/// <param name="Time1">Total session duration in milliseconds, including intervals when the active session was paused.</param>
+/// <param name="Time2">Active session duration in milliseconds, excluding paused intervals. It equals <paramref name="Time1"/> when the session never paused.</param>
 /// <param name="Properties">Named details of the batch, such as <c>session_name</c> with launch or Farm_load.</param>
 /// <param name="Context">Performance figures measured during the session; null when not sent.</param>
 /// <param name="Events">Analytics events recorded during the session, at most 32.</param>
