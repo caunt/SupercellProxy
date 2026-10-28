@@ -33,6 +33,15 @@ The identification is based on these independent observations:
   client sends `17537` before any other message. This is a scheduling
   observation only; it does not make `17537` a home request.
 
+A longer controlled capture kept the connection open after `17537` and then
+received repeated 16-byte `10108` frames on the same connection. `10108` is the
+reference repository's `KeepAliveMessage` ID, and a 16-byte encrypted body is
+consistent with the authentication tag over an empty plaintext. The current
+binary's `10108` class was not separately reverified in this pass, so the frame
+is recorded here by ID. The sequence shows that `17537` is a nonblocking
+analytics event sent interleaved with connection traffic; it is not the sole
+post-login request that a server must answer before the session can advance.
+
 ## Wire layout
 
 The recovered logical schema is:
