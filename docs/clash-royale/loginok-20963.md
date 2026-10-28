@@ -192,6 +192,9 @@ and token composition remain separate semantic work.
   exactly `0x70` bytes. No current-binary reader proves their meanings. Earlier
   observations at `+0x70/+0x80` crossed the allocation boundary and are
   rejected; Facebook, Game Center, Google, and Amazon labels remain unproven.
+  A corrected bounded probe observed the populated markers at `+0x30..+0x60`
+  and the subsequent `17537` event, but Frida did not expose
+  `MemoryAccessMonitor`, so later read behavior remains unverified.
 - Current content resources have separate normal and Chronos URL lists.
 - Current trailing data has five strings, an optional permission object, then
   four more strings. It is not the reference three-field session block followed
