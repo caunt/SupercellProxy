@@ -19,12 +19,16 @@ The useful answer is split:
 | Current Clash message IDs | No exact match for the reference profile/home entries checked |
 | Current profile wire schema | Not established by the reference |
 | Current business field names | Only current-SO/IPA evidence can establish them |
-| Loading-screen completion | Not proven by the current LoginOk/keep-alive trace |
+| Likely current bootstrap message | `23245`; high-confidence profile/game-state candidate |
+| Loading-screen completion | Not proven; `23245` is not yet tied to loading completion at runtime |
 
 This note uses the current `libg` target whose SHA-256 is
 `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783`.
 The reference snapshot is commit `388a6e5` on the fork's Clash Royale research
 branch.
+The corresponding local research job is `job 32`
+(`Clash Royale profile/home bootstrap boundary`) in
+`ida-ai/agent_reports/libg-protocol-20261023/libg.sqlite`.
 
 ## What the reference implements
 
@@ -77,19 +81,181 @@ consumers are safe to name: account part 1, pass token, session count, session
 ID, cached location, and the Zendesk group. The second LongId remains a Home ID
 candidate.
 
-The current schema does contain message `24222`, but its assigned name is
-`fishing_data`, copied from the reference table. One nested call is
-structurally named `own_home_data_encoded_object`. That nested name records
-reuse of a similar codec shape; it does not prove that the current message is
-an own-home response. The contradictory labels are a good example of why exact
-ID and structural similarity must remain separate confidence dimensions.
+The current schema does contain message `24222`, whose exact reference mapping
+is `FishingDataMessage`. The current top-level wrapper and nested
+own-home-like codec support that relationship at the architectural level, but
+the compact current payload is not wire-compatible with the reference's full
+`OwnHomeDataMessage`. The detailed comparison follows below.
+
+## Current bootstrap candidate: message `23245`
+
+The current binary contains a large stateful clientbound message `23245` that
+is absent from the Hay Day reference. It is now a strong candidate for the
+initial player/game-state bootstrap:
+
+- `0x105EA74` decodes two object fields first:
+  - object A at message `+0x98` has size `0x570`; its decoder is
+    `0xFA2878` (`LibgMessage_23245::NestedCodec_126::decode`);
+  - object B at message `+0xA0` has size `0x208` and uses a polymorphic
+    decoder through its vtable.
+- Five scalar fields follow at `+0xA8`, `+0xAC`, `+0xB0`, `+0xB4`, and
+  `+0xB8`.
+- The dispatcher `0xADBC1C` moves both objects out of the message. It changes
+  the high-level `GameRoot` returned by `0xC965C0`, installs both objects and
+  the scalar values through `0xC9805C`, copies object B's `+0x78` string into
+  the object reached through `GameRoot+0x510`, and records launch-timing
+  metrics through `0xBE2E18` and `0xBE2E40`.
+- `0xC9805C` stores object A at `GameRoot+0x40`, object B at `+0x48`, constants
+  `0` and `1` at `+0x50/+0x54`, message field `+0xA8` at `+0x58`, a current
+  timestamp at `+0x60`, `+0xAC` at `+0x68`, `+0xB4` at `+0x6C`, and `+0xB8`
+  at `+0x70`.
+
+The IPA/current-SO correlation supplies 79 exact field bindings across 39
+decode codecs in this message, representing 74 unique member names. They cover
+cards, decks, card drafts, inventory items and spells, rewards, offer state,
+masteries, tasks, season progress, badges, banners, trails, skins, consumables,
+and event/deep-link state. The presence of this entire account-level state
+inside object A is the main reason to classify `23245` as a startup/player
+state package.
+
+This is stronger than a field-name coincidence, but it is still not enough to
+assign the business class name `OwnHomeDataMessage`:
+
+- the message ID differs from the reference's `24180`;
+- the top-level wire shape is two immediately structured objects followed by
+  five varints, rather than timestamp, `ClientAvatar`, and three optional
+  document blobs;
+- no current consumer proves that object A or B has the reference's account,
+  home, avatar-document, or home-document roles;
+- several early object fields have stable widths and positions, but neither
+  their semantic names nor an exact correspondence to the reference avatar
+  fields has been proven.
+
+The defensible description is: **a high-confidence initial profile/game-state
+or start-configuration candidate whose architecture is analogous to a home
+bootstrap**. The exact business name and mapping to `OwnHomeDataMessage`
+remain hypotheses.
+
+### Loading-chain correction
+
+`23245` sets `GameRoot+0x8 = 3`. This is the high-level game-root object
+returned by `0xC965C0`; it is not the resource-state word
+`LoadingScreen+0xC` used by `LoadingScreen::updateLoadState`.
+
+The message does affect objects read by the loading screen:
+
+- `C9805C` installs object A and object B into `GameRoot+0x40/+0x48`;
+- `LoadingScreen::updateLoadState` consults those objects while processing
+  startup state;
+- `LoadingScreen::updateProgressUi` obtains the active progress provider from
+  `GameRoot+0x20`.
+
+However, no current evidence shows that receiving `23245` alone completes the
+LoadingScreen state machine. The existing live trace still proves only
+`LoginOk 20963 -> 17537 -> 10108`; it does not prove that the client entered
+the game or completed `InitFlow` state 12.
+
+### Current candidate: message `27663`
+
+Message `27663` is profile-shaped but not an initial own-home response.
+`0xCA57E8` forwards its `+0xB0` payload through the tournament/profile UI
+pipeline. Downstream `0xA94DC8` updates databind properties named
+`tournament_info`, `tournament_host`, `host_name`, `host_clan`, and
+`clan_badge`.
+
+Its current field hints are:
+
+```text
+m_trailKeys
+m_visibleBadges
+m_seasonResults
+m_trailProgress
+m_trailGlobalIds
+m_badgesShownInProfile
+```
+
+That combination fits a tournament/profile-results view. It should not be
+promoted as the initial home payload without contrary evidence.
+
+## Current `24222` versus reference `FishingDataMessage`
+
+The reference release maps exact ID `24222` to `FishingDataMessage`, whose
+payload is an `OwnHomeDataMessage`. This is the one exact profile/home-related
+ID shared by both builds.
+
+The current message also has a two-stage shape: a presence boolean followed by
+an own-home-like nested payload. Its current payload codec is only `0x78`
+bytes and exposes an optional u32 pair, a clan array, two owner-backed
+collections, and an optional result container. The current handler
+`0x8AC47C` stores that payload on a game object rather than running the
+`23245` bootstrap path.
+
+The exact ID and wrapper-like shape support the inherited name
+`FishingDataMessage`. They do not establish that the current payload has the
+reference's `OwnHomeDataMessage` wire layout: the current payload is much
+smaller, has different component sizes, and has only one directly named field,
+`m_clans`. Treat `24222` as a useful fishing/home-related anchor, not as the
+normal initial-account bootstrap.
+
+## IPA field grouping for message `23245`
+
+The following groups are the 79 field-to-codec bindings. A repeated member can
+appear in more than one nested decoder.
+
+| Nested decoder | Fields |
+| --- | --- |
+| `0xEB07D4` | `m_cardDrafts`, `m_chainOfferProgresses`, `m_shards`, `m_badges`, `m_cards`, `m_skinSets`, `m_consumables`, `m_decks`, `m_chests`, `m_randomCards`, `m_tradeTokens`, `m_liveRewards`, `m_banners`, `m_mysteryBoxes`, `m_chestsWithCardTheme` |
+| `0xD2C43C` | `m_usedGiveSpellIds`, `m_usedGetSpellIdsRare`, `m_usedGetSpellIdsCommon`, `m_itemsGive`, `m_usedGetSpellIdsLegendary`, `m_itemsGet`, `m_usedGetSpellIdsEpic` |
+| `0xFB88B4` | `m_consumableCounts`, `m_seenConsumables`, `m_newUnseenConsumables`, `m_consumableIds`, `m_maxedConsumables` |
+| `0xFFA314` | `m_rewardsPurchasedAmounts`, `m_eventDecks`, `m_eventDecksHaveBeenEdited`, `m_rewardsPurchasedIndexes`, `m_deckEventIds` |
+| `0xF8CAA8` | `m_newBanners`, `m_chronosBannerOverrides`, `m_ownedBanners`, `m_favoriteBanners` |
+| `0xFEFB04` | `m_newRulerSkins`, `m_ownedRulerSkins`, `m_newRulerVFXs`, `m_ownedRulerVFXs` |
+| `0xF8775C` | `m_pendingNotSeenUpgradedBadges`, `m_badgesShownInProfile`, `m_badges` |
+| `0x1014524` | `m_collectedSeasonalRewardsLeagueDataIndices`, `m_collectedOneTimeRewardsLeagueDataIndices` |
+| `0x1031388` | `m_unclaimedRewards`, `m_activeStates` |
+| `0x116D60C` | `m_values`, `m_keys` |
+| `0xFFCD44` | `m_openedDeepLinkEventEndTimestamps`, `m_openedDeepLinkEventIds` |
+| `0x1002164` | `m_cachedBadges` |
+| `0x1007ABC` | `m_trails` |
+| `0x100A524` | `m_claimedRewards` |
+| `0x1010F1C` | `m_masteriesProgress` |
+| `0x10116C4` | `m_tasksProgress` |
+| `0x1018548` | `m_purchasedOffers` |
+| `0x101AB1C` | `m_chainOfferStates` |
+| `0x101C4B8` | `m_dependencyAccumulators` |
+| `0x102F0BC` | `m_rewards` |
+| `0x1031EF4` | `m_unseenLosses` |
+| `0x1113A6C` | `m_augments` |
+| `0xD2D434` | `m_items` |
+| `0xD2E09C` | `m_spells` |
+| `0xD2E9CC` | `m_deckUsage` |
+| `0xEB4650` | `m_emoteIds` |
+| `0xEE214C` | `m_resolvedOverrideRewards` |
+| `0xEE2488` | `m_rewards` |
+| `0xF8213C` | `m_progress` |
+| `0xF8375C` | `m_collectedSnippets` |
+| `0xF92CB4` | `m_rewards` |
+| `0xF93D6C` | `m_rewardList` |
+| `0xF9B390` | `m_progress` |
+| `0xF9B928` | `m_rewardClaimed` |
+| `0xF9FB54` | `m_claimedStepIndices` |
+| `0xFCB6EC` | `m_popupOpenedEventIds` |
+| `0xFD6B74` | `m_progress` |
+| `0xFE2A24` | `m_previousSeasonPassUncollectedNodes` |
+| `0xFF2A00` | `m_loadedOverrideNodes` |
+
+Many of these are league or event systems, but all are reached from the same
+`23245` decode closure. That makes the bundle account-wide, rather than a
+single match or tournament result.
+
+## Remaining candidate summary
 
 The current binary also contains strong field-name hints for two large profile
 related message classes that are absent from the Hay Day reference:
 
 ```text
-23245  own-state-like message
-27663  profile/results-like message
+23245  initial profile/game-state candidate
+27663  tournament/profile-results candidate
 ```
 
 The IPA-derived hints on `23245` include inventory, cards, decks, badges,
@@ -100,11 +266,11 @@ state. The SO supplies wire boundaries and object offsets for these messages,
 but neither class has a proven business name or complete type layout. The hints
 are useful search seeds, not schema truth.
 
-A normalized name check over the reference's avatar, home, and social models
-found no exact public-property match for these profile-specific hints. Terms
-such as `Badge`, `Profile`, and `Result` overlap only as generic concepts.
-Consequently the reference contributes no safe field-name backfill for
-`23245` or `27663`.
+A normalized name check found no exact public-property match among the 74
+unique `23245` member names and the reference `OwnHomeDataMessage` /
+`ClientAvatar` properties. Terms such as `Badge`, `Profile`, and `Result`
+overlap only as generic concepts. Consequently the reference contributes no
+safe field-name backfill for `23245` or `27663`.
 
 ## Comparison with the current LoginOk
 
@@ -149,9 +315,9 @@ age, consent, SCID, marketing SDK, ATT, backfill, or server login states.
 
 1. Identify the first authenticated client request after `10108`, then bind it
    to the current `InitFlowImpl` server-login state and loading-screen waiter.
-2. Determine which current message class carries the initial own-profile/home
-   state. Treat `23245` as a candidate and prove it through dispatch, native
-   consumers, and a controlled response.
+2. Prove or reject the hypothesis that `23245` carries the initial
+   own-profile/home state through a controlled response or runtime breakpoint
+   at `0xADBC1C`/`0xC9805C`.
 3. Use the reference codecs to generate hypotheses about common concepts such
    as account/home identity and compressed subdocuments, then verify every
    current field against SO evidence.
@@ -163,9 +329,16 @@ age, consent, SCID, marketing SDK, ATT, backfill, or server login states.
 
 ## Material correction to the prior comparison
 
-The Hay Day reference is more useful for invariants and implementation patterns
-than for Clash Royale field recovery. In particular, exact-message-ID overlap
-must not override the current binary's dispatch and consumer evidence. The
-existing `24222` assignment demonstrates the risk: a reference name
-`fishing_data` and a shape-derived nested name `own_home_data_encoded_object`
-currently coexist without a current-build semantic resolution.
+The Hay Day reference is useful at three separate confidence levels:
+
+- exact ID overlap is demonstrated for `24222`;
+- architectural overlap is plausible for a `FishingData` wrapper containing an
+  own-home-like payload;
+- wire and business-field equivalence are not demonstrated for the compact
+  current `24222` payload.
+
+Neither reference `OwnHomeDataMessage` nor the smaller current `24222` payload
+explains the much larger current message `23245`. Conversely, `23245` now has
+stronger current-SO bootstrap evidence than either `24222` or `27663`, but must
+remain a current-build hypothesis until a runtime consumer or controlled
+response proves its business role.
