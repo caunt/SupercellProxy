@@ -29,18 +29,21 @@ The identification is based on these independent observations:
   required event-type string followed by a nullable JSON string.
 - A controlled login capture produced a 110-byte application payload with
   event type `billing` and a parsed JSON object.
-- After clientbound `LoginOk` is accepted in the same controlled session, the
-  client sends `17537` before any other message. This is a scheduling
-  observation only; it does not make `17537` a home request.
+- After clientbound LoginOk `20963` is accepted in the same controlled session,
+  the client sends `17537` before any other application message. This is a
+  scheduling observation only; it does not make `17537` a home request. The
+  full current-build LoginOk layout is recorded in
+  [`loginok-20963.md`](loginok-20963.md).
 
 A longer controlled capture kept the connection open after `17537` and then
-received repeated 16-byte `10108` frames on the same connection. `10108` is the
-reference repository's `KeepAliveMessage` ID, and a 16-byte encrypted body is
-consistent with the authentication tag over an empty plaintext. The current
-binary's `10108` class was not separately reverified in this pass, so the frame
-is recorded here by ID. The sequence shows that `17537` is a nonblocking
-analytics event sent interleaved with connection traffic; it is not the sole
-post-login request that a server must answer before the session can advance.
+received repeated 16-byte `10108` frames on the same connection. A later
+current-client run with a complete anonymous LoginOk `20963` again sent
+`10108`, and a strict empty-plaintext decoder accepted it. This verifies the
+current transport behavior and payload shape; the current binary's class-level
+`10108` identity has not yet been separately reconstructed. The sequence shows
+that `17537` is a nonblocking analytics event interleaved with connection
+traffic; it is not the sole post-login request that a server must answer before
+the session can advance.
 
 ## Wire layout
 

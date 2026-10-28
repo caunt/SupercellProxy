@@ -2,7 +2,12 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
-/// <summary>The third LoginOkMessage block native reads only when bytes remain: four texts, each behind its own presence flag.</summary>
+/// <summary>
+/// The Release17286-family third LoginOkMessage block: four texts, each behind
+/// its own presence flag. The analyzed current Clash Royale 20963 layout has
+/// five texts before an optional permission set and four after it; see
+/// docs/clash-royale/loginok-20963.md.
+/// </summary>
 /// <param name="First">The first text.</param>
 /// <param name="Second">The second text.</param>
 /// <param name="Third">The third text.</param>

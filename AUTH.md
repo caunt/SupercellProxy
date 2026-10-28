@@ -1,5 +1,17 @@
 # Supercell Protocol — Authentication & Encryption
 
+## Version boundary
+
+The generic flow and 17/8-double-round values in this document describe the
+`Release17286` supporting contracts and historical captures. They are not
+universal current-Clash-Royale facts.
+
+The analyzed current `libg.so` build uses LoginOk `20963`, HChaCha10 (five
+double rounds), ChaCha8 (four double rounds), and no 508-byte Login pad. Its
+message body is wire-incompatible with the `Release17286` LoginOk `25220`
+contract. See [`docs/clash-royale/loginok-20963.md`](docs/clash-royale/loginok-20963.md)
+for the current-build evidence.
+
 ## Message Frame
 
 ```
