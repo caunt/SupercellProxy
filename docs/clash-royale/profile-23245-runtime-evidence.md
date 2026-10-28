@@ -139,6 +139,13 @@ a VarInt. The producer, consumer, and business meaning of `14300` are still
 unresolved. In particular, the evidence does not yet justify naming it as an
 asset, download, cache, or synchronization request.
 
+An inverse controlled probe sent the identical six-byte payload as a
+clientbound `14300` frame after login. The client did not call constructor
+`0x1053A04`, decoder `0x1053AF0`, or clientbound dispatcher `0xAD3DA8` for that
+frame, and the connection ended after the following keep-alive. This confirms
+that the observed direction is effectively one-way in the current client; it
+does not yet prove a business purpose.
+
 `38000` is analytics telemetry in the recovered protocol structure. The
 current local server logs it as unsupported and produces no response. A bounded
 run is still needed to establish whether silence is sufficient after `14300`
@@ -203,4 +210,12 @@ The `14300` encode trace is:
 D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis\profile14300-encode-20261028
 frida.jsonl       C07C78C74CD79BAD54EB06CDB9CD80741D2C16B25900CE6D4F23EDD75B446833
 server.stdout.log B0C6FDE42FAA0E0619619ED1DAEB593EB9A108A2CDEE8F07C2470CCCF6A28DFD
+```
+
+The inverse clientbound probe is:
+
+```text
+D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis\profile14300-clientbound-20261028
+frida.jsonl       0EB64D7C56BD7B1730E2C9406D83938C6510C6684742A239982756881898CF85
+server.stdout.log 44840B4C16710ED05331B4C393E7193C5A480478441EE15E8038575157AE0AF8
 ```
