@@ -31,6 +31,12 @@ Boolean final flag
 
 The business meaning of each current permission entry is not established.
 
+For the wider comparison between the reference's Hay Day home/profile model
+and the current Clash Royale profile-related messages, see
+[`profile-reference-audit.md`](profile-reference-audit.md). The reference
+provides useful structural patterns, but none of its current profile message
+IDs are present in the analyzed Clash Royale message catalogue.
+
 ## Binary identity
 
 ```text
