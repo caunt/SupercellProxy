@@ -328,3 +328,8 @@ SupercellProxy 没有 `23245` 的直接实现。Hay Day
 观察 Object B 前三组 LogicLong、名字和这些固定宽度记录各自如何变化；同时
 对 Object A 开头 100 余字节做同样的卡牌 ID 对照。不要扩展到后续 gameplay
 消息，也不要为了这次对照导出无关函数。
+
+服务器侧持久化约束和数据建模要求已整理到
+[玩家系统数据库契约](player-system-database-contract.md)。该文档把原始快照、
+未知字段、LogicLong、卡牌 content SCID、动态实例 ID、Home 状态和时间字段分
+成独立职责，避免当前尚未证明的 `B+30` 以后布局被提前固化成数据库表。
