@@ -2,6 +2,13 @@
 
 Date: 2026-10-28
 
+> 2026-10-29 update: the main-interface boundary is now verified. A local-only
+> server using the current runtime build delivered a captured 133,867-byte
+> `23245` payload after login and the client rendered the lobby. See
+> [startup-to-main-interface.md](startup-to-main-interface.md). The remaining
+> problem is generating or minimizing `23245`, not getting through the verified
+> transport/login/startup chain.
+
 ## Question
 
 Does the SupercellProxy reference contain the profile and home model needed by
@@ -20,7 +27,7 @@ The useful answer is split:
 | Current profile wire schema | Not established by the reference |
 | Current business field names | Only current-SO/IPA evidence can establish them |
 | Likely current bootstrap message | `23245`; high-confidence profile/game-state candidate |
-| Loading-screen completion | Not proven; `23245` is not yet tied to loading completion at runtime |
+| Loading-screen completion | Verified for the captured `23245` fixture; dynamic profile generation remains unresolved |
 
 This note uses the current `libg` target whose SHA-256 is
 `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783`.
@@ -95,16 +102,17 @@ identities:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Null source `libg.so` | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` |
-| Modified APK | `84C7FF879034A579133ABA1BB12AC2C5320C9AFB035C10CDBCEA2F8CEF5E0EB6` |
-| `libg.so` inside that APK | `B1CAF6D94F7EFFAFEC4900A78F5D96DEFD98364B082A3CF5E560622A6858993C` |
+| Current Null runtime `libg.so` | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` |
+| Older official-server analysis `libg` | `B1CAF6D94F7EFFAFEC4900A78F5D96DEFD98364B082A3CF5E560622A6858993C` |
 
-The APK library differs from the Null source library only in the URL/TLS data
-ranges `0x300418..0x30042F` and `0x340440..0x3404C0`. Code offsets are therefore
-shared for this pair of Null builds.
+These are two different game versions derived from the same official lineage.
+The older build contains the accumulated historical analysis; the current Null
+runtime adds the distributor's public-key and server-URL changes and must be
+analyzed in its own database. Absolute addresses and type-dependent views must
+not be copied between them.
 
-The following is the recovered Null path. It must not be mixed with addresses
-from the earlier official-library snapshot:
+The following is the recovered current-runtime path. It must not be mixed with
+addresses from the earlier official-library snapshot:
 
 - `0x1026898` forwards the decoded frame's message ID to the mode-0 factory
   `0x1026E64`.
@@ -189,10 +197,11 @@ The message does affect objects read by the loading screen:
 - `LoadingScreen::updateProgressUi` obtains the active progress provider from
   `GameRoot+0x20`.
 
-However, no current evidence shows that receiving `23245` alone completes the
-LoadingScreen state machine. The existing live trace still proves only
-`LoginOk 20963 -> 17537 -> 10108`; it does not prove that the client entered
-the game or completed `InitFlow` state 12.
+The isolated 2026-10-29 test supersedes this open boundary. With a captured
+133,867-byte `23245` body sent after established login and keepalive setup, the
+client rendered the lobby. This proves that `23245` is sufficient when carrying
+a valid captured profile; it does not prove that an arbitrary minimal body or a
+fully generated profile will pass.
 
 ### Current candidate: message `27663`
 
@@ -327,7 +336,9 @@ limited ways:
 
 The reference profile observer cannot populate a current Clash Royale profile
 until the client's post-login home/profile response is identified and decoded.
-It also cannot decide which values move the loading state machine forward.
+It also cannot decide which values move the loading state machine forward. The
+2026-10-29 local-server result proves the boundary can be crossed with a captured
+valid profile, not that the reference model supplies every required value.
 
 ## Loading-state boundary
 
@@ -338,12 +349,13 @@ The verified current live path is:
 -> clientbound 20963
 -> established 17537 analytic event
 -> established 10108 keep-alive
+-> clientbound 23245 captured profile fixture
+-> main lobby
 ```
 
 `17537` is an analytics event and `10108` is an empty keep-alive. Neither is a
-home/profile payload. Therefore this trace proves protocol and crypto
-continuity after LoginOk, but it does not prove that the client loaded a
-profile or passed the loading screen.
+home/profile payload. The later captured `23245` fixture is the payload that
+has now been verified to cross the loading-screen boundary.
 
 The current loading analysis separately establishes that the UI progress bar
 and login initialization are independent. A complete resource bar can coexist
