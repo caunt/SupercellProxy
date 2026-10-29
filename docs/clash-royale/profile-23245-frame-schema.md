@@ -12,7 +12,10 @@
 
 1. 外层帧由 7 字节头、16 字节认证标签和 133844 字节密文组成。
 2. 解密后的 133844 字节正文由 Object A、Object B 和 5 个外层 VarInt32 组成。
-3. Object B 中的 `CodexAITest` 是玩家/账户显示名的高置信度候选。
+3. Object B 的前 30 字节与 AstralRoyale 的 `ClientAvatar` 逐字节一致：
+   三组 `(0, 0x04426004)` LogicLong 后紧接长度前缀字符串 `CodexAITest`。因此
+   `CodexAITest` 是当前玩家显示名、三组值共享同一个玩家/账户式 ID 的判断已
+   有强外部格式证据；三组记录的独立角色仍未证明。
 4. 当前 SO 的精确 decode diagnostic 字符串与本次执行到的 23 个 helper 对应，
    直接覆盖 48 个成员名。
 5. Object A 是账户级大型游戏状态容器，包含卡牌、卡组、库存、奖励、赛事、
@@ -20,8 +23,9 @@
    13 万个父字段组成，大量内容来自共享 helper 中的数组和子对象。
 6. 外层 `+0xAC` 和 `+0xB8` 有计时器语义，`+0xB0=-1` 是 quickmatch 冷却关闭的
    强候选；`+0xA8` 和 `+0xB4` 仍未知。
-7. 证据支持“启动/玩家状态包”，尚不足以把 `23245` 直接命名为
-   `OwnHomeDataMessage`，也不足以把 Object B 直接命名为 `ClientAvatar`。
+7. 证据支持“OwnHomeData 家族的启动/玩家状态包”，Object A 是
+   Home/game-state 家族对象，Object B 是强 `ClientAvatar` 家族前缀匹配。
+   当前 `23245/v10` 的精确类名以及 `B+30` 之后的布局仍不能从旧实现移植。
 
 机器可读结果位于：
 
@@ -31,7 +35,11 @@ D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis
 ```
 
 该文件的 SHA-256 是
-`AED02D5A97DE277A10E82C84630C12BB259B0D57756EAE40E35354A85F1DB7E6`。
+`38E28C93F0CC02B3222585027D33989DE24E1A0E24645801E9E12E51138E6D25`。
+
+外部项目对照的独立机器证据位于同目录的
+`external-reference-comparison.json`，SHA-256 为
+`07985BF562A64741C8D7F0285F321C95DDE520FFAAC1165A9DCF987C1FF9562F`。
 
 ## 传输帧
 
@@ -103,18 +111,18 @@ B+49..52  B+55..58  B+64..67  B+96..99
 
 | 相对偏移 | 原始值 | 类型/结构 | 当前对照 |
 | --- | --- | --- | --- |
-| `0..14` | 三组 `(0, 0x04426004)` | VarInt32 对 | 三组 identity-like 记录；角色尚未证明 |
-| `15..29` | `0000000B 436F646578414954657374` | 4 字节长度前缀 + UTF-8 | `CodexAITest`，玩家/账户显示名候选，置信度 0.90 |
-| `30` | `02` | VarInt32 | count/state 候选，单一语义未知 |
+| `0..14` | 三组 `(0, 0x04426004)` | 三个 LogicLong，每个由两个 VarInt32 组成 | 与 AstralRoyale `ClientAvatar` 的前三行完全同形；同一个玩家/账户式 ID 重复三次，独立角色未证明，置信度 0.93 |
+| `15..29` | `0000000B 436F646578414954657374` | 4 字节长度前缀 + UTF-8 | `CodexAITest`，玩家显示名；当前 decoder 与 Astral 前缀共同支持，置信度 0.94 |
+| `30` | `02` | VarInt32 | 从这里开始与 Astral `ClientAvatar` 分叉；不能套用旧版 name-change boolean、arena、trophies，语义未知 |
 | `31..46` | 16 个零 VarInt32 | 原始整数块 | 具体字段未知 |
 | `47` | `09` | VarInt32 | 数值状态，语义未知 |
 | `48` | `02` | VarInt32 | 数值状态，语义未知 |
-| `49..52` | `004C4B41` | 固定 `u32be` 5,000,001 | content/card ID 候选，置信度 0.48 |
+| `49..52` | `004C4B41` | 固定 `u32be` 5,000,001 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
 | `53..54` | `B4 07` | VarInt32 500 | 数值字段 |
-| `55..58` | `004C4B42` | 固定 `u32be` 5,000,002 | content/card ID 候选，置信度 0.48 |
+| `55..58` | `004C4B42` | 固定 `u32be` 5,000,002 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
 | `59` | `0A` | VarInt32 10 | 数值字段 |
 | `60..63` | `00 00 00 01` | VarInt32 + bit read | 混合整数/标志区 |
-| `64..67` | `004C4B48` | 固定 `u32be` 5,000,008 | content/card ID 候选，置信度 0.48 |
+| `64..67` | `004C4B48` | 固定 `u32be` 5,000,008 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
 | `68` | `08` | VarInt32 8 | 数值字段 |
 | `69..72` | 四个零 VarInt32 | 原始整数块 | 具体字段未知 |
 | `73..75` | `80 89 7A` | VarInt32 1,000,000 | 阈值/数量候选 |
@@ -129,9 +137,17 @@ B+49..52  B+55..58  B+64..67  B+96..99
 | `116..136` | 21 个零 VarInt32 | 零初始化 primitive tail | 单个字段含义未知 |
 
 这里最容易产生的误判是把 `m_decks`、`m_cards` 等 Object A 成员名硬套到
-Object B。当前证据不支持这样做。Object B 只能较稳妥地描述为
-“小型玩家/账户状态对象”，它与 Hay Day `ClientAvatar` 的架构相似，但没有
-当前构建的线格式等价证明。
+Object B。当前证据不支持这样做。Object B 的前缀已足以升格为
+“`ClientAvatar` 家族强匹配”：
+
+```text
+0084809344 0084809344 0084809344 0000000B 436F646578414954657374
+```
+
+这是三组相同 LogicLong 加 `CodexAITest` 的 30 字节；AstralRoyale 的
+`ClientAvatar.encode()` 恰好依次写三组 `player.highID/lowID` 和玩家名。
+不过 `23245/v10` 与参考消息 `28502/v1` 不同，当前 `B+30=02` 后也不再与旧版
+连续，因此只能继承前缀的线格式语义，不能把整个类或后续偏移直接复制。
 
 ## Object A 的粗粒度结构
 
@@ -153,6 +169,12 @@ helper 内部的循环区间，所以不能根据“没有 trace”推断字段�
 可能处于 `m_newBanners`、`m_chronosBannerOverrides`、`m_ownedBanners` 或
 `m_favoriteBanners` 的子对象中。把每次 helper 执行都当成父对象新字段，会产生
 数量级错误。
+
+Object A 的相对偏移 15、30、45、60、75、90 处还出现固定 `u32be`：
+`26000000`、`26000001`、`26000005`、`28000001`、`28000000`、
+`26000003`。这组值与 `clash-royale-research` 的
+`starting_home.json` 示例卡组 SCID 完全同域，支持这里是卡牌 content/deck
+相关数据。它同时说明 Object B 的 `5,000,00x` 不应继续当作同类 content ID。
 
 ## 当前 SO 名称对照
 
@@ -223,7 +245,50 @@ sub_C8E054(..., a2[0xA8], a2[0xAC], a2[0xB4], a2[0xB8]);
 `TID_QUICKMATCH_COOLDOWN`。这条证据支持“负值代表关闭/无冷却”，但仍不是
 对业务状态机的完整证明。
 
-## 与 IPA 和 SupercellProxy 对照
+## 与 AstralRoyale、clash-royale-research、IPA 和 SupercellProxy 对照
+
+### AstralRoyale
+
+AstralRoyale 的 `OwnHomeDataMessage` 使用消息 `28502`、版本 `1`，编码顺序
+严格为 `ClientHome` 后接 `ClientAvatar`。这与当前明文按“大 Object A → 小
+Object B”排列一致，支持 `23245/v10` 属于同一 OwnHomeData 家族。
+
+最强的证据是 Object B 的 30 字节精确前缀：
+
+- `ClientAvatar.encode()` 前三行重复写当前玩家的
+  `writeLogicLong(highID, lowID)`；
+- `writeLogicLong` 的实现正是连续写两个 VarInt；
+- 第四行写玩家名，当前 wire 是 `u32be` 长度后接 UTF-8；
+- 当前值 `(0, 0x04426004)` 重复三次，随后是 `CodexAITest`，与这套顺序逐字节吻合。
+
+这给出两个确定性层级：
+
+1. 结构事实：前三对是两个 VarInt 组成的 LogicLong，且三对值完全相同；字符串
+   是玩家显示名。
+2. 来源推断：在 AstralRoyale 中这些位置分别是 player highID、lowID 和名字。
+   当前构建是否把三个逻辑 ID 分别解释为 account、avatar、home identity 仍未
+   证明，不能仅凭重复关系拆出三个角色。
+
+Object A 只有家族级匹配。Astral `ClientHome` 也是 LogicLong 开头，随后写
+`14, 0, LogicTimer`；当前 Object A 的第一个 LogicLong 是
+`(0, 73548292)`，后面是 `0, -1, 0, 8`。前缀已经不同，所以当前 Object A 的
+字段必须继续由当前 SO/trace 证明，不能照搬 Astral 的绝对偏移。
+
+### clash-royale-research
+
+该项目没有线上协议实现，`GOAL.md` 明确把 accounts 和 Supercell 服务器交互
+排除在范围外。它对本启动包的作用是资产和 ID 语义，而不是 wire schema：
+
+- `starting_home.json` 使用 `26000000`、`28000000` 系列作为卡牌 SCID，和
+  Object A 观察到的六个卡牌 ID 同域；
+- 模拟器从 `5,000,000` 开始分配动态 unit ID，示例为 `5,000,001`，与
+  Object B 的 `5,000,001/2/8` 范围相近。
+
+因此现在的分层是：Object A 的 `26,000,000/28,000,000` 是卡牌 content
+SCID 候选；Object B 的 `5,000,00x` 是 card-instance 或其他动态记录 ID
+候选。模拟器约定不是当前客户端 wire 证明，故后者只给 0.45 置信度。
+
+### IPA 和 SupercellProxy
 
 旧 Clash Royale IPA 的 `23245` 分析给出：
 
@@ -236,26 +301,30 @@ sub_C8E054(..., a2[0xA8], a2[0xAC], a2[0xB4], a2[0xB8]);
 和实际 helper 执行重新验证。当前 schema 已记录命中的 48 个名称及未命中的
 26 个名称。
 
-SupercellProxy 没有 `23245` 的直接实现。最近的结构类比是 Hay Day
+SupercellProxy 没有 `23245` 的直接实现。Hay Day
 `OwnHomeDataMessage(24180)`：同样包含账户/主场景状态、时间值和多个复杂
 子对象。但两边消息 ID、顶层对象数量和线格式不同，因此只能采用“启动状态包”
 这一层架构类比：
 
-- 不把 `23245` 重命名为 `OwnHomeDataMessage`；
-- 不把 Object B 直接重命名为 `ClientAvatar`；
+- 可以把 `23245` 标注为 OwnHomeData 家族候选，但不能证明精确类名；
+- 可以把 Object B 标注为 `ClientAvatar` 家族强匹配，并继承前 30 字节语义；
 - 不从 Hay Day 类字段回填当前构建偏移；
 - 可以把 `m_badgesShownInProfile` 等当前 SO 已证明的字段作为理解 profile
   内容的本地证据。
 
 ## 仍未决
 
-1. Object A 和 Object B 的正式业务类名。
+1. Object A 和 Object B 的精确当前业务类名；现有证据只到 Home 家族和
+   `ClientAvatar` 强前缀匹配。
 2. 外层字段 0、3 的具体消费者和语义。
 3. Object B `+0/+5/+10` 三组 identity-like 记录的关系。
-4. `5,000,001`、`5,000,002`、`5,000,008` 是否均为 content/card ID。
+4. `5,000,001`、`5,000,002`、`5,000,008` 的 consumer，以及它们具体对应
+   card-instance 还是其他动态记录。
 5. Object A 中共享 helper 对应的 sibling array 的确切父偏移和元素类型。
 6. 946,674,000 是时间、金额、经验值还是其他整数状态。
 
-下一最小实验应直接观察 Object B 的显示名消费者，同时选取一个带明确 count
-和元素边界的 banner/reward helper，将至少一个 helper-scope 名称转换为精确
-父偏移。这样既能验证 `CodexAITest`，也能验证重复数组模型。
+下一最小实验应收取或构造同一构建的第二份有效 `23245` 启动包，至少改变一个
+显示名或一个 `5,000,00x` 记录，然后在保持本启动包范围不变的前提下做差异：
+观察 Object B 前三组 LogicLong、名字和这些固定宽度记录各自如何变化；同时
+对 Object A 开头 100 余字节做同样的卡牌 ID 对照。不要扩展到后续 gameplay
+消息，也不要为了这次对照导出无关函数。
