@@ -151,6 +151,35 @@ current local server logs it as unsupported and produces no response. A bounded
 run is still needed to establish whether silence is sufficient after `14300`
 has also been handled.
 
+## Real-server profile frame
+
+The 2026-10-29 real-server capture provides a non-fixture `23245` frame:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Captured sealed frame, 133867 bytes | `49B65C687DA0AAFF73FBD5776BE996F35AD04599D4252C9B25A2185D1335CFCF` |
+| Decrypted body, 133844 bytes | `16D983559A639552ABDBEB43814EA64FD29976086A2AAC6D55255107362BBD2E` |
+
+The header is `5A CD / 02 0A E4 / 00 0A`: message ID 23245, a 133860-byte
+payload length, and version 10. That payload length covers the 16-byte
+authentication tag and the 133844-byte ciphertext. The plaintext then splits
+into object A at `0..133694`, object B at `133694..133831`, and five outer
+VarInt32 values at `133831..133844`.
+
+The field trace executed 23 current-SO decode helpers carrying exact member
+diagnostics and directly covered 48 member names. It also recovered
+`CodexAITest` from object B and tied outer fields `+0xAC` and `+0xB8` to a
+countdown and `+0xB0=-1` to the quickmatch-cooldown path. Field-by-field
+evidence, confidence, and unresolved interpretations are in
+[the frame schema](profile-23245-frame-schema.md).
+
+The sealed-frame hash is not a stable identifier for the plaintext. A previous
+valid delivery of the same 133844-byte plaintext had sealed-frame hash
+`43DB0A4FC8AEE02A1B8480F2DE3B2AD9E2170DA16711C11F7CC33F0F934AD01B`.
+The current capture has a different sealed-frame hash while the plaintext hash
+is unchanged, consistent with per-frame authenticated-encryption material and
+nonce variation.
+
 ## Corrections
 
 The following prior statement is withdrawn:
