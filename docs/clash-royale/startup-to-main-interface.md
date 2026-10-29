@@ -1,18 +1,20 @@
-# Current Clash Royale startup: verified main-interface boundary
+# Current Clash Royale startup: transient main-interface boundary
 
 Date: 2026-10-29
 
 ## Result
 
-The analyzed protocol is sufficient for a local server to take the current Null's
-Royale client through transport, encrypted login, startup profile delivery,
-keepalive, and into the main lobby. The same client then enters the matchmaking
-UI when the Battle button is pressed.
+The analyzed protocol can take the current Null's Royale client through
+transport, encrypted login, startup profile delivery, keepalive, and briefly
+into the main lobby. The same client can enter the matchmaking UI when the
+Battle button is pressed.
 
-This is a verified milestone with one important limitation: the current local
-server sends a captured 133,867-byte `23245` payload. The server can enter the
-main interface by replaying a valid profile fixture, but it cannot yet synthesize
-a minimal or fully semantic profile from field values alone.
+This is not yet a stable or deliverable main-interface server. Three native
+`SIGSEGV` crashes were observed: once in nested profile string processing after
+the `23245` decode path, and twice while attempting to decompress a null input
+buffer during a later load. The lobby therefore renders from the current
+fixture, but the captured profile does not supply all state required for
+sustained execution.
 
 ## Build identity
 
@@ -58,6 +60,12 @@ After this sequence the client rendered the lobby. Pressing the Battle button
 entered the matchmaking UI and produced `16513` list-bearing updates. No
 match-found response or playable battle has been implemented.
 
+Later runs crashed in the current runtime at `libg.so+0x138AD14` in the nested
+profile string path and at `libg.so+0x136AFD4` while calling
+`decompressInMySQLFormat` with a null input. The latter fault was a read from
+`X0+3`, confirming a missing or null compressed subdocument rather than a UI
+navigation problem.
+
 ## Evidence
 
 The current local server is `nulls-royale-server`, listening on `0.0.0.0:9342`.
@@ -97,16 +105,22 @@ The server currently implements:
 
 The following are not yet complete:
 
+- stable operation after the lobby renders;
+- non-null defaults for every optional profile string and compressed blob;
+- a root-cause fix for the null-input `decompressInMySQLFormat` crash;
 - a minimal independently generated `23245` payload;
 - complete semantic names for object A, object B, and the outer `23245` values;
 - dynamic home/account state rather than replaying one fixture;
 - matchmaking, match-found, battle loading, and gameplay state;
 - authoritative server rules and persistence for the entered menu state.
 
-The next useful milestone is to preserve this known-good startup fixture while
-incrementally reducing and mutating `23245`. A valid end state is a local
-Clash Royale server process that starts from a generated in-memory profile and
-renders the main interface without reading the captured packet.
+The next useful milestone is to make the current startup fixture survive a
+bounded soak interval without native crashes. Preserve the fixture while
+identifying which profile subdocuments are absent or malformed, then test
+non-null defaults before reducing and mutating `23245`. A valid end state is a
+local Clash Royale server process that starts from a generated in-memory profile,
+renders the main interface, and remains responsive without reading the captured
+packet.
 
 ## Related notes
 

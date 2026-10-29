@@ -2,12 +2,12 @@
 
 Date: 2026-10-28
 
-> 2026-10-29 update: the main-interface boundary is now verified. A local-only
-> server using the current runtime build delivered a captured 133,867-byte
-> `23245` payload after login and the client rendered the lobby. See
-> [startup-to-main-interface.md](startup-to-main-interface.md). The remaining
-> problem is generating or minimizing `23245`, not getting through the verified
-> transport/login/startup chain.
+> 2026-10-29 update: a local-only server using the current runtime build
+> delivered a captured 133,867-byte `23245` payload after login and the client
+> rendered the lobby briefly. Follow-up runs produced native `SIGSEGV` crashes
+> in nested profile and decompression paths, so this is a transient rendering
+> milestone rather than a stable server boundary. See
+> [startup-to-main-interface.md](startup-to-main-interface.md).
 
 ## Question
 
@@ -27,7 +27,7 @@ The useful answer is split:
 | Current profile wire schema | Not established by the reference |
 | Current business field names | Only current-SO/IPA evidence can establish them |
 | Likely current bootstrap message | `23245`; high-confidence profile/game-state candidate |
-| Loading-screen completion | Verified for the captured `23245` fixture; dynamic profile generation remains unresolved |
+| Loading-screen completion | Lobby reached transiently with the captured `23245` fixture; stable completion and dynamic profile generation remain unresolved |
 
 This note uses the current `libg` target whose SHA-256 is
 `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783`.
@@ -197,11 +197,11 @@ The message does affect objects read by the loading screen:
 - `LoadingScreen::updateProgressUi` obtains the active progress provider from
   `GameRoot+0x20`.
 
-The isolated 2026-10-29 test supersedes this open boundary. With a captured
-133,867-byte `23245` body sent after established login and keepalive setup, the
-client rendered the lobby. This proves that `23245` is sufficient when carrying
-a valid captured profile; it does not prove that an arbitrary minimal body or a
-fully generated profile will pass.
+The isolated 2026-10-29 test partially supersedes this open boundary. With a
+captured 133,867-byte `23245` body sent after established login and keepalive
+setup, the client rendered the lobby. Subsequent native crashes in profile
+string handling and null-input decompression show that the fixture is not
+semantically complete enough for a stable post-main state.
 
 ### Current candidate: message `27663`
 
@@ -354,8 +354,8 @@ The verified current live path is:
 ```
 
 `17537` is an analytics event and `10108` is an empty keep-alive. Neither is a
-home/profile payload. The later captured `23245` fixture is the payload that
-has now been verified to cross the loading-screen boundary.
+home/profile payload. The later captured `23245` fixture has rendered the lobby,
+but follow-up native crashes prevent treating it as a stable boundary.
 
 The current loading analysis separately establishes that the UI progress bar
 and login initialization are independent. A complete resource bar can coexist
