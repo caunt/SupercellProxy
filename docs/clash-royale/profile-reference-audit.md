@@ -3,10 +3,10 @@
 Date: 2026-10-28
 
 > 2026-10-29 update: a local-only server using the current runtime build
-> delivered a captured 133,867-byte `23245` payload after login and the client
-> rendered the lobby briefly. Follow-up runs produced native `SIGSEGV` crashes
-> in nested profile and decompression paths, so this is a transient rendering
-> milestone rather than a stable server boundary. See
+> delivered the 133,844-byte decrypted `23245` object body after the `30000`
+> post-consent transition. The client entered the lobby and remained stable for
+> more than six minutes. Earlier failures passed the 133,867-byte sealed frame
+> as though it were plaintext, causing a second transport wrapping. See
 > [startup-to-main-interface.md](startup-to-main-interface.md).
 
 ## Question
@@ -27,7 +27,7 @@ The useful answer is split:
 | Current profile wire schema | Not established by the reference |
 | Current business field names | Only current-SO/IPA evidence can establish them |
 | Likely current bootstrap message | `23245`; high-confidence profile/game-state candidate |
-| Loading-screen completion | Lobby reached transiently with the captured `23245` fixture; stable completion and dynamic profile generation remain unresolved |
+| Loading-screen completion | Lobby reached and held with the supplied decrypted `23245` fixture; dynamic profile generation remains unresolved |
 
 This note uses the current `libg` target whose SHA-256 is
 `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783`.
@@ -197,11 +197,11 @@ The message does affect objects read by the loading screen:
 - `LoadingScreen::updateProgressUi` obtains the active progress provider from
   `GameRoot+0x20`.
 
-The isolated 2026-10-29 test partially supersedes this open boundary. With a
-captured 133,867-byte `23245` body sent after established login and keepalive
-setup, the client rendered the lobby. Subsequent native crashes in profile
-string handling and null-input decompression show that the fixture is not
-semantically complete enough for a stable post-main state.
+The isolated 2026-10-29 test partially supersedes this open boundary. With the
+133,844-byte decrypted `23245` object body sent after the `30000`
+post-consent transition, the client rendered the lobby and remained stable in
+the tested session. The byte count must not be confused with the 133,867-byte
+sealed frame captured on the wire; the transport seals the object body itself.
 
 ### Current candidate: message `27663`
 
@@ -354,8 +354,9 @@ The verified current live path is:
 ```
 
 `17537` is an analytics event and `10108` is an empty keep-alive. Neither is a
-home/profile payload. The later captured `23245` fixture has rendered the lobby,
-but follow-up native crashes prevent treating it as a stable boundary.
+home/profile payload. The later decrypted `23245` fixture has rendered the
+lobby, and the corrected replay session remained stable through the tested
+interval. Dynamic synthesis of the same profile is still unresolved.
 
 The current loading analysis separately establishes that the UI progress bar
 and login initialization are independent. A complete resource bar can coexist

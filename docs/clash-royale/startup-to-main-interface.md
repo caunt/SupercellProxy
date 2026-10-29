@@ -1,20 +1,32 @@
-# Current Clash Royale startup: transient main-interface boundary
+# Current Clash Royale startup: verified main-interface boundary
 
 Date: 2026-10-29
 
 ## Result
 
 The analyzed protocol can take the current Null's Royale client through
-transport, encrypted login, startup profile delivery, keepalive, and briefly
-into the main lobby. The same client can enter the matchmaking UI when the
-Battle button is pressed.
+transport, encrypted login, startup profile delivery, keepalive, and into the
+main lobby. The successful session remained in the lobby with the process and
+connection alive for more than six minutes and produced no native crash.
 
-This is not yet a stable or deliverable main-interface server. Three native
-`SIGSEGV` crashes were observed: once in nested profile string processing after
-the `23245` decode path, and twice while attempting to decompress a null input
-buffer during a later load. The lobby therefore renders from the current
-fixture, but the captured profile does not supply all state required for
-sustained execution.
+The earlier native `SIGSEGV` runs were not evidence that the profile lacked
+mandatory fields. They fed the 133,867-byte captured **sealed frame** to the
+server as if it were the 133,844-byte decrypted `23245` **object body**. The
+server then encrypted that frame a second time. Its leading bytes were the
+inner transport wrapper `5ACD020AE400`, rather than the object payload
+`0000000004426004`. The client consequently interpreted wrapper bytes as the
+profile representation and eventually reached a null-input decompressor.
+
+The successful run used both corrections:
+
+- `NR_POST_MESSAGE_TRIGGER_ID=30000`, so `23245` is sent at the post-consent
+  device-information transition;
+- `NR_POST_LOGIN_PAYLOAD_FILE` points to the 133,844-byte decrypted profile,
+  not the 133,867-byte captured frame.
+
+The main-lobby state is therefore a verified replay boundary for the supplied
+decrypted profile. It is not yet proof that the local server can synthesize or
+redact that profile field by field.
 
 ## Build identity
 
@@ -51,20 +63,23 @@ client -> encrypted 10101 Login
 server -> 20963 LoginOk
 client -> 17537 AnalyticEvent
 client -> 10108 KeepAlive
-server -> 23245, version 10, 133867-byte profile fixture
+client -> 10108 KeepAlive
+client -> 30000 PostConsentDeviceInfo
+server -> 23245, version 10, 133844-byte plaintext profile
 client -> repeating 10108 KeepAlive
 client -> 14760 and 16513 status/update messages
 ```
 
-After this sequence the client rendered the lobby. Pressing the Battle button
-entered the matchmaking UI and produced `16513` list-bearing updates. No
-match-found response or playable battle has been implemented.
+After this sequence the client rendered the lobby. The server log records
+traffic in the same event loop as `23245` followed by the `30000` dispatch;
+the push is emitted before the incoming frame reaches its handler log line.
+The wire order visible in the capture is therefore still `30000` then `23245`.
 
-Later runs crashed in the current runtime at `libg.so+0x138AD14` in the nested
-profile string path and at `libg.so+0x136AFD4` while calling
-`decompressInMySQLFormat` with a null input. The latter fault was a read from
-`X0+3`, confirming a missing or null compressed subdocument rather than a UI
-navigation problem.
+The earlier failures occurred at `libg.so+0x138AD14` in nested profile string
+processing and at `libg.so+0x136AFD4` while calling
+`decompressInMySQLFormat` with a null input. Those observations remain useful
+crash-path evidence, but they must not be attributed to an incomplete valid
+profile until a control run with the correct plaintext body reproduces them.
 
 ## Evidence
 
@@ -76,14 +91,16 @@ Relevant artifacts:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Captured clientbound `23245` body | `43DB0A4FC8AEE02A1B8480F2DE3B2AD9E2170DA16711C11F7CC33F0F934AD01B` |
-| Lobby screenshot | `7F320DD46E50ACDD97B8FAD71FE32BFF5532C9990FCB0A66F4B33E56C5108A51` |
+| Decrypted `23245` profile body, 133,844 bytes | `16D983559A639552ABDBEB43814EA64FD29976086A2AAC6D55255107362BBD2E` |
+| Captured sealed clientbound `23245` frame, 133,867 bytes | `43DB0A4FC8AEE02A1B8480F2DE3B2AD9E2170DA16711C11F7CC33F0F934AD01B` |
+| Successful lobby screenshot | `371DD85C9B8E0CBA0B243091819D3E8295F34F39B0A47C203F543BEAB72F7C66` |
 | Matchmaking screenshot | `E6349B02EAD3E8D2839E78B45B2B696BE63807D4D900FCA6605DD7E854957681` |
 
 Local artifact roots:
 
 ```text
 D:\IDA Scripts\nulls-royale-server\tmp\live-reconnect-20261029
+D:\IDA Scripts\nulls-royale-server\tmp\live-trigger30000-20261029
 D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis\live-monitor-20261029
 ```
 
@@ -105,22 +122,18 @@ The server currently implements:
 
 The following are not yet complete:
 
-- stable operation after the lobby renders;
-- non-null defaults for every optional profile string and compressed blob;
-- a root-cause fix for the null-input `decompressInMySQLFormat` crash;
 - a minimal independently generated `23245` payload;
 - complete semantic names for object A, object B, and the outer `23245` values;
 - dynamic home/account state rather than replaying one fixture;
 - matchmaking, match-found, battle loading, and gameplay state;
 - authoritative server rules and persistence for the entered menu state.
 
-The next useful milestone is to make the current startup fixture survive a
-bounded soak interval without native crashes. Preserve the fixture while
-identifying which profile subdocuments are absent or malformed, then test
-non-null defaults before reducing and mutating `23245`. A valid end state is a
-local Clash Royale server process that starts from a generated in-memory profile,
-renders the main interface, and remains responsive without reading the captured
-packet.
+The next useful milestone is to reduce and regenerate the decrypted profile
+without changing the verified wire order. Keep the trigger and payload layers
+separate in tooling: trigger on `30000`; read the 133,844-byte plaintext body;
+let the transport seal it exactly once. A valid end state is a local Clash
+Royale server process that starts from a generated in-memory profile, renders
+the main interface, and remains responsive without reading the captured packet.
 
 ## Related notes
 
