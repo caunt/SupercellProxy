@@ -1,12 +1,14 @@
 # `23245` 帧结构与字段含义对照
 
-日期：2026-10-29
+日期：2026-10-30
 
 ## 范围与结论
 
-本次分析使用当前 Null 客户端运行的真实 server-to-client `23245` 抓包、解密后的
-明文、Frida 字段读取 trace，以及当前 `libg.so` 的 IDA 反汇编和伪代码。没有把
-旧 IPA 或 SupercellProxy 的地址当成当前构建的真值。
+本次分析联合使用当前 Null 客户端运行的真实 server-to-client `23245` 抓包、
+解密后的明文、Frida 字段读取 trace、当前 Null `libg.so`、较早官服
+`libg.so` 和 iOS IPA 主程序的 IDA 反汇编、伪代码及 diagnostic strings。
+不同构建的绝对地址和对象布局保持分离；没有把旧 IPA 或 SupercellProxy 的地址
+当成当前构建的真值。
 
 已经闭合的结论是：
 
@@ -16,16 +18,23 @@
    三组 `(0, 0x04426004)` LogicLong 后紧接长度前缀字符串 `CodexAITest`。因此
    `CodexAITest` 是当前玩家显示名、三组值共享同一个玩家/账户式 ID 的判断已
    有强外部格式证据；三组记录的独立角色仍未证明。
-4. 当前 SO 的精确 decode diagnostic 字符串与本次执行到的 23 个 helper 对应，
-   直接覆盖 48 个成员名。
-5. Object A 是账户级大型游戏状态容器，包含卡牌、卡组、库存、奖励、赛事、
+4. Object B 的 `B+0x1E=0x02` 是嵌套对象 registry selector，解析为对象类型
+   `0x36`；它不是普通计数，也不是旧版 `ClientAvatar` 的布尔字段。
+5. Object B 随后包含 9 个集合句柄。实测 9 个集合的 count 依次为
+   `2,0,0,0,1,0,0,0,0`；元素线格式为固定 `u32be` 记录/句柄加 VarInt 值。
+6. IPA 的 79 条绑定归一为 74 个不同成员名和 39 个 decode helper；当前 SO 对
+   74 个名称都有精确 diagnostic，且都能从当前 HomeState decode 闭包到达。
+   本次运行真实 trace 直接命中其中 48 个。名称与调用闭包可达不等于每个名称
+   已有唯一 wire 位置，因此不能把 helper 内共存的数组强行拆成父字段。
+7. Object A 是账户级大型游戏状态容器，包含卡牌、卡组、库存、奖励、赛事、
    赛季、徽章、banner、trail 和 deep-link 状态。它不是由 13 万字节各自对应的
    13 万个父字段组成，大量内容来自共享 helper 中的数组和子对象。
-6. 外层 `+0xAC` 和 `+0xB8` 有计时器语义，`+0xB0=-1` 是 quickmatch 冷却关闭的
+8. 外层 `+0xAC` 和 `+0xB8` 有计时器语义，`+0xB0=-1` 是 quickmatch 冷却关闭的
    强候选；`+0xA8` 和 `+0xB4` 仍未知。
-7. 证据支持“OwnHomeData 家族的启动/玩家状态包”，Object A 是
+9. 证据支持“OwnHomeData 家族的启动/玩家状态包”，Object A 是
    Home/game-state 家族对象，Object B 是强 `ClientAvatar` 家族前缀匹配。
-   当前 `23245/v10` 的精确类名以及 `B+30` 之后的布局仍不能从旧实现移植。
+   IPA 还独立给出 `0x560` Home-state-family 对象和 `0x208`
+   ClientAvatar-family 对象，但当前 `23245/v10` 的精确类名仍未证明。
 
 机器可读结果位于：
 
@@ -36,6 +45,29 @@ D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis
 
 该文件的 SHA-256 是
 `38E28C93F0CC02B3222585027D33989DE24E1A0E24645801E9E12E51138E6D25`。
+
+三二进制联合分析、Object B 的 137 字节修正存储映射和 HomeState 成员映射位于：
+
+- [三二进制联合分析](profile-three-binary-joint-analysis.md)
+
+```text
+D:\IDA Scripts\ida-ai\agent_reports\libg-profile-23245-joint-20261030
+```
+
+其中：
+
+```text
+object-b-storage-map.json
+SHA-256 DBEBEA6C408065E34A807F5739F604479EF8FED4D53A49AC99155E88994AFDD8
+
+homestate-member-map.json
+SHA-256 BB33BF3DDBEF4D63AD44CDAE40DD5DA57A882FAAA016EF4066ABF23AA7AAEA79
+```
+
+旧 `object-b-ordinal.json` 的
+`1FCF8483B1FF585D6944A1F8F04BF266F6EC51BDDA825AFBDC76B033D1606E5B`
+只用于保留历史，其中 `+47=collection count` 和 `+96 -> +0x9C` 的解释已被
+后续 decoder 证据推翻。
 
 外部项目对照的独立机器证据位于同目录的
 `external-reference-comparison.json`，SHA-256 为
@@ -100,44 +132,46 @@ Object A 与 Object B 开头的 ID 不同，不能合并：
 
 ## Object B 逐字段
 
-Object B 的覆盖不是完全连续。trace 捕获了 137 字节中的 121 字节，占 88.32%；
-未捕获的是四个固定 4 字节位置：
+当前 ordinal 已用 92 条有序记录覆盖全部 137 字节，包括 VarInt、bit-packed
+字段和固定宽度位置。它不是为每个字节制造一个业务字段：集合元素、位域和
+未闭合的尾段分别保留各自边界。
+
+| 相对偏移 | 原始值 | 类型/结构 | 当前解释 |
+| --- | --- | --- | --- |
+| `0..14` | 三组 `(0, 0x04426004)` | 三个 LogicLong，每个由两个 VarInt32 组成 | 与 AstralRoyale `ClientAvatar` 前三行同形；同一个玩家/账户式 ID 重复三次，独立角色未证明，置信度 0.93 |
+| `15..29` | `0000000B 436F646578414954657374` | 4 字节长度前缀 + UTF-8 | `CodexAITest`，玩家显示名；当前 decoder 与 Astral 前缀共同支持，置信度 0.94 |
+| `30` | `02` | arena-family registry selector | Android 当前 decoder 用对象类型 `0x36` 查询 class 54；当前表注册为 `csv_logic/arenas.csv`，选择 `Arena2`，结果存储在 `+0x160`，相邻行派生到 `+0x168`，置信度 0.97 |
+| `31..46` | 16 个 VarInt 观测 | 多个标量和嵌套 selector | 可确认线宽和顺序的进入 ordinal；业务含义仍未证明 |
+| `47` | `09` | VarInt32 | decoder 正常读取后直接丢弃；后面的九个 collection handle 是固定 `for(i=0; i!=9; ++i)`，因此它不是 collection count |
+| `48..72` | 9 个集合 count 和 3 个元素 | 集合句柄 + `0x20` 字节运行时 item | count 为 `2,0,0,0,1,0,0,0,0`；元素是固定 `u32be` record/handle 加 VarInt value |
+| `73..136` | 64 字节 | VarInt、bit-packed flags、固定宽度和尾部零值 | 顺序已保留；除少数类型事实外，字段语义仍未证明 |
+
+3 个集合元素在本次抓包中的值是：
 
 ```text
-B+49..52  B+55..58  B+64..67  B+96..99
+collection 0, item 0: handle 5000001 -> value 500
+collection 0, item 1: handle 5000002 -> value 10
+collection 4, item 0: handle 5000008 -> value 8
 ```
 
-其中前三个可以直接从原始明文读取，第四个全零。
+Android 当前 decoder 与较早官服 decoder 在地址归一化后结构等价：元素对象为
+`0x20` 字节，包含固定 record/handle 和 VarInt value。当前版本资源表已经闭合
+GlobalID 命名空间：
 
-| 相对偏移 | 原始值 | 类型/结构 | 当前对照 |
-| --- | --- | --- | --- |
-| `0..14` | 三组 `(0, 0x04426004)` | 三个 LogicLong，每个由两个 VarInt32 组成 | 与 AstralRoyale `ClientAvatar` 的前三行完全同形；同一个玩家/账户式 ID 重复三次，独立角色未证明，置信度 0.93 |
-| `15..29` | `0000000B 436F646578414954657374` | 4 字节长度前缀 + UTF-8 | `CodexAITest`，玩家显示名；当前 decoder 与 Astral 前缀共同支持，置信度 0.94 |
-| `30` | `02` | VarInt32 | 从这里开始与 Astral `ClientAvatar` 分叉；不能套用旧版 name-change boolean、arena、trophies，语义未知 |
-| `31..46` | 16 个零 VarInt32 | 原始整数块 | 具体字段未知 |
-| `47` | `09` | VarInt32 | 数值状态，语义未知 |
-| `48` | `02` | VarInt32 | 数值状态，语义未知 |
-| `49..52` | `004C4B41` | 固定 `u32be` 5,000,001 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
-| `53..54` | `B4 07` | VarInt32 500 | 数值字段 |
-| `55..58` | `004C4B42` | 固定 `u32be` 5,000,002 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
-| `59` | `0A` | VarInt32 10 | 数值字段 |
-| `60..63` | `00 00 00 01` | VarInt32 + bit read | 混合整数/标志区 |
-| `64..67` | `004C4B48` | 固定 `u32be` 5,000,008 | card-instance 或其他动态记录 ID 候选，不是 content/card SCID，置信度 0.45 |
-| `68` | `08` | VarInt32 8 | 数值字段 |
-| `69..72` | 四个零 VarInt32 | 原始整数块 | 具体字段未知 |
-| `73..75` | `80 89 7A` | VarInt32 1,000,000 | 阈值/数量候选 |
-| `76..78` | `80 89 7A` | VarInt32 1,000,000 | 与前一值成对，语义未知 |
-| `79..81` | 三个零 VarInt32 | 数值块 | 具体字段未知 |
-| `82..85` | bit-packed flags 与单独 VarInt32 | bit stream | 不能按字节边界当成 4 个独立字段 |
-| `91` | `05` | VarInt32 5 | 数值字段 |
-| `94` | `01` | VarInt32 1 | 数值字段 |
-| `100..101` | `9F 5E` | VarInt32 6047 | 数值字段 |
-| `103..107` | `90 E5 E8 86 07` | VarInt32 946,674,000 | 数值/时间候选，尚未证明 |
-| `109..112` | `FF FF FF FF` | optional string sentinel | 明确空值/缺失 |
-| `116..136` | 21 个零 VarInt32 | 零初始化 primitive tail | 单个字段含义未知 |
+```text
+5000001 -> class 5, Resources[1], Gold,            value 500
+5000002 -> class 5, Resources[2], ChestOrderIndex, value 10
+5000008 -> class 5, Resources[8], CardCount,       value 8
+```
+
+当前注册表把 class 5 映射为 `csv_logic/resources.csv`。`F74718` 用
+`global_id / 1,000,000` 取 class，`F74734` 用 `global_id % 1,000,000`
+取 item index。因此上述值应建模为对应 resource 的协议值；不能把所有 value
+都泛化成 count，尤其 `ChestOrderIndex=10` 更像档位/索引。
 
 这里最容易产生的误判是把 `m_decks`、`m_cards` 等 Object A 成员名硬套到
-Object B。当前证据不支持这样做。Object B 的前缀已足以升格为
+Object B，或者把集合元素的 `500000x` 句柄拆成普通 Object B 标量。当前证据
+不支持这样做。Object B 的前缀已足以升格为
 “`ClientAvatar` 家族强匹配”：
 
 ```text
@@ -146,8 +180,9 @@ Object B。当前证据不支持这样做。Object B 的前缀已足以升格为
 
 这是三组相同 LogicLong 加 `CodexAITest` 的 30 字节；AstralRoyale 的
 `ClientAvatar.encode()` 恰好依次写三组 `player.highID/lowID` 和玩家名。
-不过 `23245/v10` 与参考消息 `28502/v1` 不同，当前 `B+30=02` 后也不再与旧版
-连续，因此只能继承前缀的线格式语义，不能把整个类或后续偏移直接复制。
+不过 `23245/v10` 与参考消息 `28502/v1` 不同，当前 `B+0x1E=02` 已证明为
+registry selector，而不是旧版后续字段。因此只能继承前缀的线格式语义，不能把
+整个类或后续偏移直接复制。
 
 ## Object A 的粗粒度结构
 
@@ -180,9 +215,10 @@ Object A 的相对偏移 15、30、45、60、75、90 处还出现固定 `u32be`�
 
 当前 SO 中有 246 条
 `Too many items in array decode, var:<member>` diagnostic，分布在 122 个
-decode helper。本次 trace 执行到其中 23 个 helper，这些 helper 的精确名称与
-实际读取区间如下。区间是 helper 观测范围的最小值到最大值，不代表区间内每一
-字节都属于某个同名数组。
+decode helper。IPA 的 79 条绑定归一为 74 个不同成员名；当前 SO 对这 74 个
+名称均有精确 diagnostic，且 74 个都能从当前 HomeState decode 闭包到达。
+本次 trace 执行到其中 23 个 helper，并直接命中 48 个名称。下表区间是 helper
+观测范围的最小值到最大值，不代表区间内每一字节都属于某个同名数组。
 
 | Helper | Object A 范围 | trace 读取 | 本次命中的成员名 |
 | --- | ---: | ---: | --- |
@@ -281,12 +317,14 @@ Object A 只有家族级匹配。Astral `ClientHome` 也是 LogicLong 开头，�
 
 - `starting_home.json` 使用 `26000000`、`28000000` 系列作为卡牌 SCID，和
   Object A 观察到的六个卡牌 ID 同域；
-- 模拟器从 `5,000,000` 开始分配动态 unit ID，示例为 `5,000,001`，与
-  Object B 的 `5,000,001/2/8` 范围相近。
+- 模拟器曾把 `5,000,000` 用作动态 unit ID 起始值；这个范围相似性只是早期
+  线索，当前版本 `resources.csv` 的 GlobalID 映射优先，已证明 Object B
+  这三个值属于资源表，而不是模拟器的动态实例命名约定。
 
 因此现在的分层是：Object A 的 `26,000,000/28,000,000` 是卡牌 content
-SCID 候选；Object B 的 `5,000,00x` 是 card-instance 或其他动态记录 ID
-候选。模拟器约定不是当前客户端 wire 证明，故后者只给 0.45 置信度。
+SCID 候选；Object B 的 `5,000,001/2/8` 是 class 5 resources GlobalID，
+分别对应 Gold、ChestOrderIndex 和 CardCount。参考模拟器的 5,000,000
+动态实例约定不再用于命名当前 wire 值。
 
 ### IPA 和 SupercellProxy
 
@@ -296,10 +334,32 @@ SCID 候选；Object B 的 `5,000,00x` 是 card-instance 或其他动态记录 I
 - 39 个 decode helper；
 - 74 个不同成员名。
 
-本次当前构建 trace 命中其中 48 个名称，即 64.86%。IPA 的绝对地址来自另一
-版本，只能保留为 reference-only；成员名必须通过当前 SO 的 exact diagnostic
-和实际 helper 执行重新验证。当前 schema 已记录命中的 48 个名称及未命中的
-26 个名称。
+本次当前构建 trace 直接命中其中 48 个名称。进一步做当前 SO diagnostic 与
+decode 调用闭包匹配后，74/74 个名称都有精确 diagnostic，且都能从当前
+HomeState decoder 到达；另外 26 个名称属于新增可达项。该结果只证明名称及
+调用闭包，`homestate-member-map.json` 中
+`unique_wire_positions_proven` 仍为 `0`。IPA 的绝对地址来自另一版本，只能
+保留为 reference-only。
+
+IPA 主程序还给出独立结构桥：
+
+```text
+0x100374BC8 profile-response handler
+  -> 0x100461F9C / 0x1004620B4
+     -> 0x100749244
+```
+
+`0x100749244` 读取 version `11`、分配 `0x560` 字节 Home-state-family 对象，
+通过 `0x1006A6AFC` 构造并调用 `0x1006A8B00` 解码。IPA 的
+ClientAvatar-family 对象为 `0x208` 字节，constructor/encode/decode 分别是
+`0x10046FC30` / `0x100470058` / `0x10047094C`；其 vtable `0x1014532E0`
+的 `+00/+08/+10/+18/+20/+28/+30/+38` 槽分别对应 destructor、deleting
+destructor、release、encode、decode、set context、`+0x19C` byte getter 和
+round-trip probe。
+
+IPA LoginOK 的 `24742` 不等于 Android 启动消息 `23245`，Android LoginOK 是
+`20963`。因此当前 IPA 证据证明的是 ClientAvatar/Home-state 家族和序列化
+实现，不足以把 IPA 的另一条 profile message 直接命名为 `23245`。
 
 SupercellProxy 没有 `23245` 的直接实现。Hay Day
 `OwnHomeDataMessage(24180)`：同样包含账户/主场景状态、时间值和多个复杂
@@ -318,13 +378,13 @@ SupercellProxy 没有 `23245` 的直接实现。Hay Day
    `ClientAvatar` 强前缀匹配。
 2. 外层字段 0、3 的具体消费者和语义。
 3. Object B `+0/+5/+10` 三组 identity-like 记录的关系。
-4. `5,000,001`、`5,000,002`、`5,000,008` 的 consumer，以及它们具体对应
-   card-instance 还是其他动态记录。
+4. 已证明 `5,000,001/2/8` 分别对应 Gold、ChestOrderIndex、CardCount；仍需
+   继续追踪这些资源值如何进入 player/home 状态和 UI。
 5. Object A 中共享 helper 对应的 sibling array 的确切父偏移和元素类型。
 6. 946,674,000 是时间、金额、经验值还是其他整数状态。
 
 下一最小实验应收取或构造同一构建的第二份有效 `23245` 启动包，至少改变一个
-显示名或一个 `5,000,00x` 记录，然后在保持本启动包范围不变的前提下做差异：
+显示名或一个资源记录值，然后在保持本启动包范围不变的前提下做差异：
 观察 Object B 前三组 LogicLong、名字和这些固定宽度记录各自如何变化；同时
 对 Object A 开头 100 余字节做同样的卡牌 ID 对照。不要扩展到后续 gameplay
 消息，也不要为了这次对照导出无关函数。
@@ -332,4 +392,5 @@ SupercellProxy 没有 `23245` 的直接实现。Hay Day
 服务器侧持久化约束和数据建模要求已整理到
 [玩家系统数据库契约](player-system-database-contract.md)。该文档把原始快照、
 未知字段、LogicLong、卡牌 content SCID、动态实例 ID、Home 状态和时间字段分
-成独立职责，避免当前尚未证明的 `B+30` 以后布局被提前固化成数据库表。
+成独立职责，避免当前尚未证明的 `B+0x1E` registry selector 之后布局被提前
+固化成数据库表。

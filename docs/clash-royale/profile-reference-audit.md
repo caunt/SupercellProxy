@@ -1,6 +1,25 @@
 # Clash Royale profile support in the SupercellProxy reference
 
-Date: 2026-10-28
+Date: 2026-10-30
+
+> 2026-10-30 update: the comparison now includes the iOS IPA main executable
+> alongside the Null and older official Android `libg.so` builds. The IPA
+> provides an independent `0x560` Home-state-family constructor/decode bridge
+> and a `0x208` ClientAvatar-family type with verified vtable slots. These are
+> family and implementation evidence only; IPA addresses and layout must not be
+> transplanted into Android `23245`. IPA LoginOK ID `24742` is also distinct
+> from Android LoginOK `20963`, so it does not identify Android `23245`.
+>
+> The current Null decoder corrects two earlier wire mistakes: Object B `+47`
+> is decoded and discarded before a fixed nine-handle loop, and the fixed u32
+> near the tail is stored at `+0x194`, not `+0x9C`. The observed
+> `5000001/5000002/5000008` values resolve through the current
+> `resources.csv` table to Gold, ChestOrderIndex, and CardCount. All 74 unique
+> IPA member names are now reachable in the current HomeState decoder closure;
+> this establishes names and call paths, not 74 unique wire positions.
+>
+> See [the three-binary joint analysis](profile-three-binary-joint-analysis.md)
+> for the normalized evidence and unresolved-field boundaries.
 
 > 2026-10-29 update: a local-only server using the current runtime build
 > delivered the 133,844-byte decrypted `23245` object body after the `30000`
@@ -24,8 +43,8 @@ The useful answer is split:
 | --- | --- |
 | Profile/home architecture | Present and useful as a reference |
 | Current Clash message IDs | No exact match for the reference profile/home entries checked |
-| Current profile wire schema | Not established by the reference |
-| Current business field names | Only current-SO/IPA evidence can establish them |
+| Current profile wire schema | Partially established by current Android decoders and one live capture; most Object B post-prefix semantics remain unresolved |
+| Current business field names | 74 IPA names have current-SO diagnostics and decode-closure reachability; unique offsets remain unresolved |
 | Likely current bootstrap message | `23245`; high-confidence profile/game-state candidate |
 | Loading-screen completion | Lobby reached and held with the supplied decrypted `23245` fixture; dynamic profile generation remains unresolved |
 
@@ -158,12 +177,19 @@ must not be used to explain the Null client. They remain useful only as
 unverified historical evidence for that other artifact.
 
 The IPA/current-SO correlation supplies 79 exact field bindings across 39
-decode codecs in this message, representing 74 unique member names. They cover
-cards, decks, card drafts, inventory items and spells, rewards, offer state,
-masteries, tasks, season progress, badges, banners, trails, skins, consumables,
-and event/deep-link state. The presence of this entire account-level state
-inside object A is the main reason to classify `23245` as a startup/player
-state package.
+decode codecs in this message, representing 74 unique member names. All 74
+have exact diagnostics in the current Null SO and are reachable from its
+current HomeState decode closure; the runtime field trace directly hit 48.
+They cover cards, decks, card drafts, inventory items and spells, rewards,
+offer state, masteries, tasks, season progress, badges, banners, trails, skins,
+consumables, and event/deep-link state. The presence of this entire
+account-level state inside object A is the main reason to classify `23245` as
+a startup/player state package.
+
+Reachability is deliberately weaker than a wire map. `m_badges`, `m_progress`,
+and `m_rewards` each appear in multiple helpers, while many helpers encode
+several sibling arrays. The normalized member map therefore reports zero
+uniquely proven wire positions.
 
 This is stronger than a field-name coincidence, but it is still not enough to
 assign the business class name `OwnHomeDataMessage`:
