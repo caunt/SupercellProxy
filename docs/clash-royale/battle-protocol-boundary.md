@@ -469,10 +469,28 @@ array at `queue+8` and increments the count at `queue+20`.
 adjusts commands that are at least 21 ticks away, executes a command at the
 20-tick boundary through virtual slot `+24`, and invokes the queue callback
 through `queue+24 -> vtable+24`. Its diagnostics distinguish an overdue command
-from a command rejected by the current state. This is strong evidence for the
-`D2EEF0 -> D2F37C` queue-consumption relationship, but the current pass has not
-yet located the concrete scheduler or virtual callback that supplies the queue
-to `D2F37C`.
+from a command rejected by the current state. The outer logical-tick path is
+also current-build fact:
+
+```text
+C890BC(controller, dt)
+  -> 10620A4(controller+144)
+  -> 1062274(battle_context)
+  -> D2F37C(...)
+```
+
+`C86930` constructs the controller-side listener object with
+`7F5098`, stores it at `controller+136`, and attaches it to the battle command
+queue with:
+
+```text
+D2F330(controller+144 + 56, controller+136)
+```
+
+Within `D2F330`, the queue's callback object at `+24` is replaced by this
+listener. This closes the former "producer unresolved" boundary at the object
+level: the listener is both held by the controller and installed on the
+`battle_context+56` queue.
 
 The same routing function adds 20 ticks for command types `2`, `64`, `86`, and
 `95` when `battle_context+168` is nonzero:
@@ -492,21 +510,38 @@ for each pending command, and clears the pending count. With a live battle
 object, it also constructs an optional periodic `18193` state update. There is
 therefore a second `18193` path with no command payload.
 
-`C89890` provides the current `16513` threshold condition. It constructs the
+`C890BC` also schedules the `16513` drain: when `controller+460` is set, it calls
+`C89890` after the battle tick and clears the flag. `C89890` constructs the
 message only when controller state is one of `1..4`, loading flag `+116` is
-false, and the current tick exceeds `controller+192`; it copies the command
-list at `controller+136`, writes the current tick and state, optionally attaches
-the tail from `controller+232`, sends through the ordinary queue, and advances
-`controller+192`. The producer of `controller+136` and its exact relationship
-to the `battle_context+56` queue remain unresolved.
+false, and the current tick exceeds `controller+192`. It writes the current
+tick and state, detaches the listener's accumulated list with
+`7F52D4(&snapshot, controller+136)`, passes that snapshot to `16513`, optionally
+attaches the tail from `controller+232`, sends through the ordinary queue, and
+advances `controller+192`.
+
+The listener method `7F5250` appends an item to the listener's dynamic list.
+The listener vtable contains `7F5250` at its fourth pointer, matching the
+callback slot observed as `queue+24 -> vtable+24`. The instruction-level virtual
+call site in `D2F37C` still needs to be tied to this concrete vtable before the
+following hypothesis can be promoted to fact:
+
+```text
+D2F37C queue event
+  -> installed controller+136 listener
+  -> accumulated command snapshot
+  -> C89890
+  -> 16513/v9
+```
 
 For the live type-2 gameplay question, two statements are now separated:
 
 - `18193/v27` is definitively the immediate battle-command carrier on the
   `1062F6C == false` branch.
 - `16513/v9` is definitively a periodic command-list carrier for controller
-  states `1..4`, but the current evidence does not yet prove that its
-  `controller+136` list is populated from the `battle_context+56` queue.
+  states `1..4`. The controller listener is installed as the
+  `battle_context+56` queue callback and holds the list drained by `C89890`.
+  Their event flow is a strong hypothesis pending the concrete `D2F37C`
+  virtual-call-site check.
 
 ### Matchmaking state 16 boundary
 
