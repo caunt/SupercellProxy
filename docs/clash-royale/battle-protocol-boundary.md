@@ -119,6 +119,48 @@ the first datagram has an empty body. The exact byte order and bit layout of
 the transport header still need to be closed against a packet builder or live
 datagram.
 
+### UI state machine versus command queue boundary
+
+The local matchmaking presentation and the network request are separate
+boundaries. At `0xA97AE8`, the `match_making_start`,
+`matchmaking_start`, `appear_start`, and related strings are passed to local
+timeline/UI helpers. This function changes presentation state, but it does not
+construct a Piranha message and does not call
+`LogicCommandScheduler::enqueue`. A visible "Searching for opponent" screen
+therefore cannot be used as evidence that a matchmaking command left the
+client.
+
+The first inspected enqueue path after the UI code is `0x93D2C8`. It reads a
+controller/global byte at `+0x251`, resolves the string `Friendly`, constructs
+a 0x78-byte logic command through `0xD4FAAC`, and finally calls
+`LogicCommandScheduler::enqueue`. The constructed command uses dynamic vtable
+`off_1885720`. Its relevant slots are:
+
+```text
++0x18  0xD4FB2C   validation/execution-style method
++0x28  0xD502A8   method still to inspect
++0x30  0xD503B4   method still to inspect
++0x38  0xD368D4
++0x40  0xD364CC
++0x48  0xD36818
++0x50  0xD36898
++0x58  0xD36528
+```
+
+`0xD4FB2C` is a large validation/execution-style method that reads selected
+players/decks, battle data, arena/event/tournament context, and challenge/party
+state, and can return a broad set of status codes. The `Friendly` string, size
+and vtable establish that this is a real logic-command wrapper. It does not
+establish that this is the ordinary home-screen PvP matchmaking request.
+
+The Battle page has at least two construction candidates, `0x96D450` and
+`0x9803AC`. `0x9803AC` binds `button_battle`, `button_edit_deck`, and
+`button_close`, then registers several listener/vtable regions. The actual
+ordinary Battle button callback and its destination command object remain
+unresolved. Until that callback is followed to a command constructor and a
+same-build serialized frame, the `0x93D2C8` Friendly path must not be promoted
+to ranked PvP matchmaking.
+
 ### UI and unrelated battle-like code
 
 The following were checked and removed from the network-battle candidate set:
