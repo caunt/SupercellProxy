@@ -1207,6 +1207,80 @@ inside LogicCommand `1548`; it would be incorrect to call it command type
 release frame is still required before promoting action `194` from a candidate
 to a runtime-confirmed action.
 
+### Battle action dispatch and input checkpoint
+
+The type-`1548` executor at `D33018` has a complete static action dispatcher.
+It rejects `actionIdx > 427`, then indexes 428 signed 16-bit relative entries
+based at `D3311C`. The full current-build table resolves to 322 distinct target
+addresses. The following actions encountered in the producer pass map as
+follows:
+
+| `actionIdx` | Dispatch target |
+| --- | --- |
+| `62` | `D378CC` |
+| `69` | `D39160` |
+| `81` | `D38C88` |
+| `194` | `D384B8` |
+| `212` | `D36CF4` |
+| `336` | `D36B60` |
+
+Presence in this table proves static dispatch. It does not prove that an action
+is enabled in the current game mode or that a natural client event reaches it.
+
+The `194` target resolves both an acting and a target battle member:
+
+```text
+D384B8
+  D2BCD8(command)                   -> base command logic-long
+  CF46E4(member_table, owner, slot) -> acting member
+  F2D944(member)                    -> acting battle object
+  F254A8(member_table, +0x2C)       -> target object
+  F3A518(acting_object, target)
+```
+
+`F3A518` adjusts counters at object `+0x340/+0x2F8`, optionally calls
+`F11F0C`, resolves the battle context, and tail-dispatches virtual slot
+`+0x728` with the target. The type-`2` actor/card execute path also reaches
+`F3A518`. These observations make it a shared target-application phase, not
+proof that action `194` is specifically an attack, heal, spell, or named
+ability.
+
+The action-`62` path is also bounded by arguments rather than a guessed name:
+
+```text
+D378CC
+  +0x48 vector
+  +0x30/+0x34 coordinate-like integers
+  F380A4(acting_object, vector, x, y, 0)
+    -> F3816C grid/target checks
+    -> F38A68 battle-state application
+```
+
+The producer `BB2668` creates action `62` only after `a2`, `a4`, and `a5` pass
+the branch guards and `F3B480(context)` is true. Its caller `8DA5F0` receives
+`a2` through `W1`. The periodic `8DA030` call supplies `0`, so it cannot be the
+action-`62` emission branch. The vtable region at `0x1802370` binds an input
+controller family whose `8DB1BC` and `8DB254` paths supply `W1=1`;
+`8DB044` stores the incoming float pair at controller `+0x2D4/+0x2D8` and
+tail-calls `8DA5F0` with the same flag. This establishes pointer-state/release
+plumbing, while the exact UI gesture and gameplay meaning of action `62`
+remain a hypothesis.
+
+When the action-`62` branch is not taken, the same producer constructs a
+different command through `D309A8`. That object's getter returns command type
+`0x56` (`86`), not `2`. Its executor reaches
+`TID_INVALID_SPELL_POSITION` on a rejected placement, so this alternative is a
+spell-placement command. It should not be collapsed into LogicCommand type `2`
+or into the type-`1548` action family.
+
+The checked client command-list readers also impose a direction boundary.
+`D2C0F4` rejects types above `999`, `D2C138` is the concrete constructor switch,
+and `D2F214` delegates to them. Both the current `16513/v9` and `18193/v27`
+decoders call `D2F214` for listed commands. Those paths therefore do not
+instantiate type `1548`. Type `1548` is proved as a client-issued action
+command class; whether another protocol path consumes it on the client remains
+open.
+
 The current evidence therefore supports this bounded model:
 
 - `16513/v9` is the command-list drain used around battle-controller
