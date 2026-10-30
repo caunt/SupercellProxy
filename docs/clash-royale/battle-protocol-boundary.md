@@ -1160,6 +1160,65 @@ Selected same-build constructor entries are:
 | `824` | `D5C6D0` | `0x38` |
 | `1548` | `D32FD4` | `0x58` |
 
+### Type `798` client-state or selection command
+
+Type `798` is not a direct matchmaking message. The same-build constructor
+`D50D6C` installs vtable `0x187A218`; the type getter `D510A8` returns `798`.
+Encoder `D510B4` and decoder `D51124` agree on this order after the common
+LogicCommand fields:
+
+```text
+VInt object+0x34
+VInt object+0x28
+VInt object+0x2C
+VInt object+0x30
+```
+
+The executor `D50DA0` provides bounded meaning for those offsets:
+
+| Offset | Recovered role |
+| --- | --- |
+| `+0x28` | numeric value used by action `5` |
+| `+0x2C` | selected entity or list-entry id |
+| `+0x30` | action discriminator |
+| `+0x34` | boolean-like auxiliary value used by actions `15`, `61`, and `65` |
+
+The recovered action branches modify current-player or list state:
+
+```text
+5   set player+0xB0 from command+0x28
+15  add selected id to the unique-int vector at player+0xE0, then update a controller
+18  set player+0xBC from selected id
+20  set player+0xB8 from selected id
+27  update the bounded player collection at +0xC0
+41  set player+0xB4 from selected id
+61  set a boolean field on one listed object selected by id
+62  insert selected id into the bounded collection at +0xC0
+65  set another listed object's boolean field selected by id
+```
+
+On the home battle path, `BD9528` compares a selected object's id with
+current-player `+0xB4`. When they differ, it creates type `798` with action
+`41`, enqueues it immediately, and then constructs type `824`. A clean current
+build v2 trace reproduced this observed sequence:
+
+```text
+type 798: +0x28=-1, +0x2C=-1, +0x30=41, +0x34=-1
+type 824: next one-item 16513 command
+```
+
+The trace remained on the local search presentation and sent empty `16513`
+frames afterward. No `18193`, `20941`, `13584`, `21631`, or high-rate UDP hook
+ran. The screen also stated that the training camp must be completed to unlock
+online multiplayer arena. This proves the outbound click sequence and the
+profile-gate boundary, not a server match or battle start.
+
+The current business identity of player `+0xB4` is unresolved. Type `798`
+therefore remains numbered: AstralRoyale's older `LogicStartMatchmakeCommand`
+has a different subclass shape and cannot supply a class name. The current
+best-supported label is a generic client-state or selection submission
+command.
+
 The normal enqueue function `D2EEF0` appends to the pointer vector at object
 `+8`, whose count is at `+20`, and grows through `7F5328`. It destroys the
 command instead of appending it when `1062BC8(command_context)` returns `2`.
