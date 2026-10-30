@@ -298,6 +298,38 @@ comes from both encoder and decoder pseudocode, while the byte-level encoding
 of the base logic-long and the two boolean fields still needs a dedicated codec
 walk before it should be used to build a general serializer.
 
+A second narrow current-build trace exercised a different Arena state and
+closed the direct-command branch:
+
+```text
+clicked object == ArenaPresenter+0x130 mode-manager+0x28 (slot 5)
+ArenaPresenter pending byte +0x428: 0 -> 1
+deferred action presented to BD9528: action=1, value=0, flag=-1
+BD5A80 arguments: state=0, selected_id=-1, flag=0
+824 execute: flags=1
+824 execute: flags=3
+empty 16513 heartbeat
+one-command 16513 containing the same 824 pointer
+local "searching for opponent" UI
+later 16513 frames: command count 0
+```
+
+The `BD5A80` call initialized the observed 824 instance with `+0x2C=0`,
+`+0x30=-1`, and `+0x34=0`. Both execute passes retained those values while the
+base `+0x0C` counter advanced from `-1` to `19910`; `+0x10` was `19910` in both
+passes. This directly demonstrates that 798 is not a mandatory predecessor:
+the earlier v2 run emitted 798 action `41` before 824 when its selection state
+differed, while this v3 run constructed 824 directly.
+
+The stable normalized v3 artifact is
+`battle-798-direct-824-runtime-v3-20261031.json`, SHA-256
+`2033BDAB13E5226D990C6A033FEA248B3E27A14F9599C6F9230800DF10012DF5`.
+The run instrumented only command 824 and message 16513, so it does not prove
+the absence of other traffic. It also captured no natural clientbound response
+that reached match-found, loading, or high-rate UDP. Command 824 is therefore
+the PlayArena battle-entry request candidate, while the selected queue and
+the server acknowledgement remain unresolved.
+
 The server capture
 `conn-000006-seq-221-serverbound-16513.bin` is a 46-byte frame whose header
 identifies message `16513`. It proves the controlled server received a
@@ -1200,7 +1232,7 @@ The recovered action branches modify current-player or list state:
 On the home battle path, `BD9528` compares a selected object's id with
 current-player `+0xB4`. When they differ, it creates type `798` with action
 `41`, enqueues it immediately, and then constructs type `824`. A clean current
-build v2 trace reproduced this observed sequence:
+build v2 trace reproduced this state-dependent observed sequence:
 
 ```text
 type 798: +0x28=-1, +0x2C=-1, +0x30=41, +0x34=-1
@@ -1212,6 +1244,11 @@ frames afterward. No `18193`, `20941`, `13584`, `21631`, or high-rate UDP hook
 ran. The screen also stated that the training camp must be completed to unlock
 online multiplayer arena. This proves the outbound click sequence and the
 profile-gate boundary, not a server match or battle start.
+
+A later v3 trace from a synchronized selection state reached 824 directly:
+`BD5A80(0,-1,0)` constructed the command without type 798. Therefore
+"798 action 41 then 824" describes the mismatch branch, while "824 without
+798" describes the branch observed after selection state had converged.
 
 The current business identity of player `+0xB4` is unresolved. Type `798`
 therefore remains numbered: AstralRoyale's older `LogicStartMatchmakeCommand`
