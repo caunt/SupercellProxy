@@ -330,6 +330,39 @@ that reached match-found, loading, or high-rate UDP. Command 824 is therefore
 the PlayArena battle-entry request candidate, while the selected queue and
 the server acknowledgement remain unresolved.
 
+A later v4 pass instrumented the current-build Dispatcher, the `23592/v10`
+decoder, the controller setters, registry selection, active-match float setter,
+the Arena and match controller transitions, match-found presentation, and the
+`16513` encoder. One natural transition again produced:
+
+```text
+BD9528 return address libg+0xBD975C
+BD5A80(state=0, selected_id=-1, flag=0)
+controller state: -1 -> 0, started=1, float_0x2BC=-1
+16513 tick=29735, state=524288, command count=0
+16513 tick=29736, state=524288, command count=1
+  command 824
+    +0x0C=29735, +0x10=29735
+    +0x14=0, +0x28=0, +0x2C=0, +0x30=-1, +0x34=0
+```
+
+The request was followed by periodic empty `16513` frames through tick 30400.
+Within the bounded v4 capture there was no hooked `23592/v10`, `21631/v27`,
+`20941/v16`, `13584/v9`, `16226/v1`, UDP bootstrap, or natural match-found
+presentation. These messages are therefore absent from this observed session
+window, not proved absent from the client or server.
+
+The tap was delivered within the visible red "cancel" control bounds, yet the
+instrumented native path executed another `824` request. That control mapping
+must remain unresolved: screen coordinates alone do not prove which native
+action the app associated with the press.
+
+The frozen normalized v4 artifact is
+`battle-clientbound-v4-observation-20261031.json`, SHA-256
+`B34493A21F8B5B408988A29A9AF7CA4AC05F85C13D8CE7F22A91B4C88693F071`.
+Its raw JSONL, Frida script, runner, and screenshot hashes are pinned inside the
+artifact.
+
 The server capture
 `conn-000006-seq-221-serverbound-16513.bin` is a 46-byte frame whose header
 identifies message `16513`. It proves the controlled server received a
