@@ -188,17 +188,17 @@ Object B.
 | `+6..+10` | `accountID.lo` | `+0x24` | VarInt32 | `71458820` | Key label and storage are proven |
 | `+15..+30` | `name` | `+0x78` | length-prefixed string | `CodexAITest` | Current display-name field |
 | `+30` | `arena` | `+0x160` | registry VarInt | `2` | Resolves `Arena2`; derived neighbor at `+0x168` |
-| `+31` | `scr` | `+0x88` | u32 | `0` | Keyed name proven; gameplay expansion unresolved |
+| `+31` | `scr` | `+0x88` | u32 | `0` | Same-build profile UI uses it as a score/rating display value |
 | `+79` | `expPoints` | `+0xEC` | u32 | `0` | Keyed name proven |
 | `+80` | `totalExpPoints` | `+0xF0` | u32 | `0` | Keyed name proven |
 | `+83` | `expLevel` | `+0xE8` | u32 | `1` | Keyed name proven |
-| `+96..+100` | `spi` | `+0x194` | u32be | `0` | Keyed name proven; expansion unresolved |
-| `+100..+102` | `lti` | `+0x58` | VarInt32 | `6047` | Keyed name proven; expansion unresolved |
+| `+96..+100` | `spi` | `+0x194` | u32be | `0` | Latest progression snapshot; paired with `spt` |
+| `+100..+102` | `lti` | `+0x58` | VarInt32 | `6047` | Monotonic progression index/value |
 | `+102` | `npc` | `+0x19C` | bool | `false` | Keyed name and boolean read proven |
 | `+103..+108` | `birth_date` | `+0x1A0` | VarInt32 Unix seconds | `946674000` | UTC `1999-12-31T21:00:00Z` |
 | `+123` | `rnk_sc` | `+0x1D0` | VarInt32 | `0` | Current ranked-ladder score; UI consumes the field as `ranked_score` |
 | `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | `0` | Keyed name and storage proven; rank-prefixed suffix remains unresolved |
-| `+136` | `spt` | `+0x198` | VarInt32 | `0` | Read last although it precedes several ABI fields; wire order is authoritative |
+| `+136` | `spt` | `+0x198` | VarInt32 | `0` | Enum-like `1..3` tag paired with `spi` |
 
 Wire `+31` is therefore `scr` at `+0x88`; wire `+32` is a separate conditional
 scalar stored at `+0x158`. The previous reverse mapping was wrong.
@@ -217,6 +217,14 @@ consumer proves that interpretation.
 formats the u32 at Object B `+0x1D0`. The seasonal view also uses `+0x1D0` for
 current league-road data. No equivalent consumer binds `rnk_ps` to the
 seasonal view's previous-season or best-season offsets.
+
+Same-receiver accessors and independent command/UI consumers further show that
+`lti` advances monotonically, `spi/spt` record and restore a progression
+snapshot plus small tag, and `scr` acts as a score/rating value. `welo` is exact
+inside the optional clan block but has no decoded semantic consumer yet.
+`rnk_ps` remains unresolved. These labels describe evidence-backed roles, not
+expansions of the original abbreviations. Full address-level evidence is in
+[`profile-abbreviated-scalar-evidence.md`](profile-abbreviated-scalar-evidence.md).
 
 Nine collection groups follow. The current capture observes:
 

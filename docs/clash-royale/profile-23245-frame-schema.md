@@ -191,6 +191,16 @@ suffix, the adjacent layout, nor that UI path proves
 wire order 不能互相推导。`spi > 0 && spi == lti` 是代码已证明的条件，
 本次两个值为 `0` 和 `6047`，所以条件为 false；其 UI 行为仍未证明。
 
+同一对象数据流进一步证明：`lti/+0x58` 是单调前进的 progression index/value；
+购买命令把当前 `lti` 写入 `spi/+0x194`，随后把命令结果映射成 `1..3` 并写入
+`spt/+0x198`；delivery 路径只有在记录中的 progression 值等于 `lti` 时才恢复
+`spi/spt`，另一分支把两者清零。因此 `spi/spt` 应作为一对 progression
+snapshot/tag 建模，而不是根据字母猜成 shop index 或 season point。
+
+`scr/+0x88` 被 profile UI 复制并由 `rating` 或 `trophies_autochess` 节点展示；
+另一个 profile-list consumer 还将它与计算得到的分数比较并取最大值。可以
+把它描述为 score/rating value，但 `scr` 的原始展开和单一玩法含义仍未证明。
+
 `birth_date=946674000` 对应 UTC `1999-12-31T21:00:00Z`，换算上海时间为
 `2000-01-01T05:00:00+08:00`。它符合“新账号哨兵值”的形状，但当前没有 UI
 consumer 把这个解释闭合。
@@ -205,10 +215,14 @@ wire value：
 | `clan_name` | `+0x120` |
 | `welo` | `+0x130` |
 
-`scr`、`spi`、`spt`、`lti`、`welo`、`rnk_ps` 目前只证明 key、宽度、位置和
-值，尚未证明缩写展开后的完整玩法语义。`accepted_tos_version`、`new_user`、
-`tutorial_state` 等来自持久化 key 字符串命名空间，不能据此直接断言它们存在
-于本包或决定某个启动 UI。
+`welo/+0x130` 的确位于可选 clan block，并会被 profile UI 复制到对象内字段；
+三个 command execute 路径和一条重置路径会写它，但本轮没有找到已解码的 UI
+consumer，因此只能称为 clan-adjacent profile state。`rnk_ps/+0x1D8` 仍没有
+直接 consumer。完整的同对象证据和允许采用的临时字段名见
+[profile abbreviated scalar evidence](profile-abbreviated-scalar-evidence.md)。
+
+`accepted_tos_version`、`new_user`、`tutorial_state` 等来自持久化 key 字符串
+命名空间，不能据此直接断言它们存在于本包或决定某个启动 UI。
 
 后段仍未闭合的标量不能只凭数值相同就去其他函数搜索。当前扫描已经证明
 “相同 ABI 偏移”会大量命中不同 receiver、不同对象和不同的逻辑地址表达式；

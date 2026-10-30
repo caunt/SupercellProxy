@@ -233,11 +233,20 @@ This correction strengthens Object B's ClientAvatar-family profile role but
 does not prove the exact `ClientAvatar` C++ type. The official profile UI
 independently binds `rnk_sc/+0x1D0` to the `ranked_score` node, so it is a
 proven current ranked-ladder score. It does not expand `rnk_ps`: the seasonal UI
-reads previous-season and best-season values from other offsets. The remaining
-ambiguous abbreviations `scr`, `spi`, `spt`, `lti`, `welo`, and `rnk_ps` still
-lack gameplay semantics. The observed `birth_date=946674000` is a plausible new-player
-sentinel, while the persistence literals `accepted_tos_version`, `new_user`,
-and `tutorial_state` remain configuration keys rather than mapped 23245 wire
+reads previous-season and best-season values from other offsets.
+
+A bounded same-build consumer pass now separates the remaining abbreviated
+fields. `lti/+0x58` is a monotonic progression index/value, `spi/+0x194` stores
+its current snapshot, and `spt/+0x198` is a small enum tag paired with that
+snapshot. `scr/+0x88` is a score/rating value displayed by the profile UI.
+`welo/+0x130` is proven inside the optional clan block and copied to profile UI,
+but its exact domain is unresolved. `rnk_ps/+0x1D8` still has no direct
+consumer. See
+[abbreviated scalar evidence](profile-abbreviated-scalar-evidence.md).
+
+The observed `birth_date=946674000` is a plausible new-player sentinel, while
+the persistence literals `accepted_tos_version`, `new_user`, and
+`tutorial_state` remain configuration keys rather than mapped 23245 wire
 fields.
 
 A separate `spi > 0 && spi == lti` predicate is code-proven. The current values

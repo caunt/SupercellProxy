@@ -124,7 +124,13 @@ The initial player/profile model should support:
 - a typed current-ladder-score value backed by `rnk_sc/+0x1D0`, while preserving
   `rnk_ps/+0x1D8` as an unresolved u32 instead of assigning a guessed season or
   peak meaning;
-- conditional clan slots, nullable when the `+84` branch is absent;
+- neutral structural rows for `lti/+0x58`, `spi/+0x194`, and `spt/+0x198`
+  as monotonic progression index, snapshot, and enum-like tag; preserve the
+  wire keys even when using these readable aliases;
+- `scr/+0x88` as a score/rating scalar with its exact expansion still open;
+- conditional clan slots, nullable when the `+84` branch is absent; keep
+  `welo/+0x130` neutral because its clan-adjacent storage is proven but its
+  value domain is not;
 - current profile schema/revision;
 - timestamps required by the session;
 - source snapshot reference.
