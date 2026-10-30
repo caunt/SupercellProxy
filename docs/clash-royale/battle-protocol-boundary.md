@@ -15,7 +15,7 @@ There are two `libg` identities in this investigation:
 | Role | SHA-256 | Analysis / runtime source |
 | --- | --- | --- |
 | Legacy official-server knowledge base | `B1CAF6D94F7EFFAFEC4900A78F5D96DEFD98364B082A3CF5E560622A6858993C` | `agent_reports/libg-protocol-20261023/libg.i64` and `libg.sqlite` |
-| Null client runtime, derived from a newer official client | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` | `clash-royale-supply-chain/work/NullsRoyale/.../arm64-v8a/libg.so`; isolated runtime analysis uses `libg-null-runtime-110aa2b5` |
+| Null client runtime, derived from a newer official client | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` | `clash-royale-supply-chain/artifacts/extracted/15.535.13-android-a6693e925c082a46/aarch64/libg.so`; isolated runtime analysis uses `libg-null-runtime-110aa2b5` and `runtime-match-110aa2b5-20261030` |
 
 Addresses, message IDs, command IDs, vtables, and object offsets in this note
 belong to the legacy `B1CAF6D9` build unless explicitly labeled as a runtime
@@ -160,6 +160,68 @@ ordinary Battle button callback and its destination command object remain
 unresolved. Until that callback is followed to a command constructor and a
 same-build serialized frame, the `0x93D2C8` Friendly path must not be promoted
 to ranked PvP matchmaking.
+
+### Current-build ordinary matchmaking candidate
+
+The newer `110AA2B5` build was analyzed from an isolated copy of its IDB and
+SQLite database. Its addresses are independent of the legacy build:
+
+```text
+UI_menu_arena constructor             0xBD2E68
+PlayArena presenter constructor       0xBD1278
+Arena presenter click handler         0xBD5F34
+deferred battle action                 0xBD9528
+matchmaking transition                 0xBD5A80
+local matchmaking screen setup         0xBD5C38
+candidate matchmaking command ctor     0xD5C6D0
+candidate command execute              0xD5C70C
+candidate command codec                0xD5CAAC
+```
+
+`0xBD2E68` constructs `UI_menu_arena`, obtains `play_arena`, binds the
+`button_battle_mode_switch` elements, and builds a `0xBD1278` presenter.
+`0xBD1278` creates an input handler for `play_arena` and links it to the arena
+screen callback interface. The click reaches `0xBD5F34`; the normal delayed
+action is forwarded through `0xBD9528(..., 20, ...)` to `0xBD5A80`.
+
+The same-build command object created by `0xBD5A80` uses vtable
+`off_187C980`. Its `+0x20` getter returns command type `824`, and its `+0x28`
+method is the codec at `0xD5CAAC`. The wire schema is:
+
+```text
+base LogicCommand fields
+  VInt at object +44
+  VInt at object +52
+  VInt at object +48
+  bool at object +41
+  bool at object +40
+```
+
+The base codec writes object offsets `+16`, `+12`, then the logic-long at
+`+20`. The current symbols do not establish semantic names for the three
+subclass integers or two booleans. `0xBD5A80` initializes the second boolean
+and the first integer from the selected action, passes a value into the third
+integer, and copies the current counter into the second integer. This proves
+the shape and producer path, not names such as arena, deck, or `Is2v2`.
+
+`0xD5C70C` is the execute-like command method. Once its preconditions pass, it
+uses the boolean at `+41` to select a call at virtual offset `0x190` (`400`) or
+`0x5C0` (`1472`) on the object returned by `*(command_context + 256)`, then
+stores object `+52` into the game-data object at `+1356`. That call is the
+remaining bridge to the outbound Piranha envelope; its dynamic target has not
+yet been identified.
+
+This is a strong ordinary-matchmaking candidate because it is reached from the
+real home Arena `play_arena` button, constructs a `LogicCommand` before the
+local searching screen, and returns the same UI transition used for normal
+matchmaking. It is not yet a complete protocol fact: neither the command type
+`824` nor its three integer fields should be copied to another build, and the
+current client-to-server Piranha message ID and payload have not been captured.
+
+The separately named Friendly path was also rechecked in this build.
+`0x937B60` resolves `Friendly`, branches to the `0x9F6538` friend-list popup,
+and eventually constructs a different command. It must remain separate from
+the `play_arena` command type `824`.
 
 ### UI and unrelated battle-like code
 
