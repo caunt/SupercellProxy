@@ -913,6 +913,81 @@ AutoChess battle variant and that stage `4` is the non-AutoChess live-battle
 candidate. Stage `3` remains a preload/UI candidate until its gameplay entry is
 observed; it must not be folded into the ordinary PvP path.
 
+The stage-4 construction path is now resolved at the object level:
+
+```text
+C8DD84(global_controller)
+  stage     = controller+0x34
+  context   = controller+0x28
+  parameter = controller+0x38
+  child     = C8C900(stage, context, parameter)
+  call child->vtable+0x40
+  controller+0x20 = child
+  controller+0x34 = 0
+  controller+0x38 = 0
+  controller+0x30 = previous stage
+```
+
+The stage object created by `C85C88` stores its mode at `+0x58` (`88`), external
+context at `+0xD8` (`216`), and constructor parameter at `+0x1E0` (`480`).
+For stage `4`, those values are mode `1`, the supplied context, and parameter
+`0`.
+
+`C86930` then constructs the live simulation in all three modes, but the
+resulting ownership differs:
+
+```text
+mode 0:
+  1060BA8(mode=0, ...)
+  controller+144 = simulation
+  no SectorManager
+
+mode 1:
+  1060BA8(mode=1, ..., parameter=0)
+  controller+144 = simulation
+  CCE5A8(simulation)
+  controller+128 = SectorManager
+
+mode 2:
+  1060BA8(mode=1, ..., parameter)
+  controller+144 = simulation
+  CCE5A8(simulation)
+  controller+128 = SectorManager
+  parameter == 1 additionally loads AutoChess merge/effect resources
+```
+
+`CCE5A8` is the small SectorManager constructor. It stores the simulation at
+`+8`, initializes count/state fields at `+0x28`, and installs vtable
+`off_1873398`. `C86930` also constructs the command-list listener `7F5098`,
+stores it at controller `+136`, and attaches it to `simulation+0x38`
+(`+56`) through `D2F330`.
+
+After loading reaches phase `7`, the stage-4 mode-1 branch constructs
+`BAEBE8`, whose scene object later becomes controller `+80`. `BAEBE8` reads
+the simulation directly from controller `+144`; its initializer takes
+`simulation+168`, reaches a nested object at `simulation+168 -> +432`, and
+creates the scene-local `855F28` object stored at scene `+752`. The exact
+network callback and first battle message still have to be resolved below
+these objects.
+
+The same-build tick also exposes the normal loading fork in `sub_C90A4C`.
+When `sub_C8C5C4(global_controller)` is non-null, `CE65CC(context)` says
+context `+0x14C` (`332`) is zero, and both `CD6E0C` and `CD6E24` return false,
+the function:
+
+```text
+C8DFD0(controller, 4, 0)
+C8E2C4(controller)
+C8E1D0(controller, 1)
+construct and enqueue 10500/v9 or 14300/v9
+```
+
+Otherwise it selects pending stage `3`. This proves that this build has a
+static path into stage `4`; it does not yet prove that the selected instance is
+ordinary ranked/1v1 PvP. Friendly matches, challenges, events, replays, and
+other non-AutoChess battle modes can still share the same stage and simulation
+objects until their context values and runtime responses are separated.
+
 ### `23592/v10` is the current match controller parameter-notification candidate
 
 The strongest current-build clientbound matchmaking candidate is `23592/v10`.
