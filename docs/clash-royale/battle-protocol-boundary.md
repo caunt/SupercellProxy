@@ -484,6 +484,26 @@ card/actor placement command. AstralRoyale's old `Place card` type `51` is a
 useful semantic prior, but its numeric type and serialized fields are not
 imported into this build.
 
+The command factory path is also closed in the current build:
+
+```text
+sub_D2C0F4(type, out)
+  type > 999 -> out = 0
+  type <= 999 -> sub_D2C138(type, context, out)
+
+sub_D2C138
+  type == 2 -> allocate 0x38 bytes
+            -> sub_D32974(object, context)
+```
+
+`sub_10CD0F4` is a same-build creation path that reaches this factory for type
+`2` and then passes the object into the battle/game object at `107E098`.
+`sub_D2FE78` reaches the same factory while decoding the JSON key `ct`, then
+invokes the object's JSON codec through virtual slot `+0x60` on key `c`.
+Those paths prove factory registration and the JSON integration. They still do
+not prove whether the resulting gameplay command is carried by `16513` or
+`18193` at issue time.
+
 ### Current `21631` is the UDP bootstrap
 
 The current clientbound factory `0x1026E64` allocates a `0xC0`-byte object for
@@ -649,11 +669,49 @@ then invokes the general presentation transition
 match/team-found presentation in `BDB444`, but that shared state does not prove
 that `23592` itself is the server's final MatchFound message.
 
+The state-20 transition itself is now bounded further:
+
+```text
+BD5C38(controller, 20, matched_id, ...)
+  controller +0x290 <- 20
+  controller +0x28C <- started
+  controller +0x294 <- matched_id
+  controller +0x2B8 <- 0
+```
+
+The controller tick then decides whether the matched object is ready:
+
+```text
+BDB444 / BD9A00
+  state 20 + matching object available
+  -> BD5C38(controller, 16, matched_id, ...)
+  -> team_found_start
+
+BDB5F4
+  no matching object
+  -> idle / player_waiting
+  -> possible BD978C cancellation/reset
+```
+
+`BD978C` clears the started bit, resets state to `-1`, and resets the associated
+identifiers and timers. Therefore state `20` means that a match controller has
+been started and is waiting for or presenting a matched result. It is not, by
+itself, proof that the client has entered the battle loading screen or the
+active sector.
+
 The defensible label is therefore "matchmaking/battle controller parameter
 notification candidate." It is currently stronger than the old `27552`, the
 conditional `26349`, and the Clan-War-only `10711`/`15458` pair. The three
-payload integers must not yet be named as wait time, latency, player count, or
-match ticket without an additional setter/consumer or a live frame.
+payload integers now have the following evidence-ranked interpretations:
+
+| Wire field | Controller effect | Current interpretation | Confidence |
+| --- | --- | --- | --- |
+| `+0x98` | `controller+0x29C`; compares to zero and is reduced by delta time in `sub_8D9AE8` | countdown/deadline candidate | 0.72 |
+| `+0x90` | `controller+0x2B0` and `+0x2B4` as floats; another counter increases by delta time and is compared with configured limits | elapsed/wait-time candidate | 0.60 |
+| `+0x94` | `controller+0x2A0`; later compared with small integer modes | mode/selector candidate | 0.45 |
+
+These are semantic hypotheses, not field names. In particular, the same
+numeric offset in another controller object must not be used to name `+0x94`.
 
 Two adjacent same-build messages are match-control objects rather than ordinary
 PvP MatchFound messages:
@@ -1080,17 +1138,55 @@ builder:
 
 Current helper `0x1334E44` concatenates two key strings and implements the
 standard RC4 key-scheduling algorithm over a 256-byte permutation. Its KSA
-shape is confirmed. The separate `0x1335154` initializer copies two 32-byte
-state regions, stores two integer parameters, fills a 256-byte buffer using
-`0x121B188`, and calls `0x1335244`. Neither the exact place where this state is
-applied to a datagram nor the existence and coverage of a MAC is established
-yet. It is therefore accurate to say "RC4-shaped KSA in the transport module",
-not "the complete UDP payload is RC4 encrypted".
+shape is confirmed. The virtual method at slot `+0x18` is `0x13350E4`, the
+standard RC4 PRGA: each input byte performs the state swap and XOR, so the same
+method serves encryption and decryption.
 
-The next byte-level checkpoint is to reproduce the output of `0x1336A5C` and
-compare it with a captured datagram before and after the `0x1335244` transform.
-That comparison will assign clear/encrypted/authenticated regions and close the
-meaning of the four special markers.
+The high-rate handler constructor `0x1332C6C` creates two independent RC4
+states from the same key material and stores them at object `+0x280` and
+`+0x288`. When the transform blob is at least 80 bytes, it also creates two
+state objects from `0x1335154` and stores them at `+0x296` and `+0x304`, then
+sets the mode byte at `+0x324`.
+
+The queued-message transform is `0x1333B30`. That function:
+
+```text
+selects the RC4 state at handler+0x288
+or the advanced transform state at handler+0x304 according to handler mode
+obtains the transform's extra output size through vtable +0x20
+allocates input_length + extra_length
+invokes the transform through vtable +0x18
+replaces the stream payload with the transformed bytes
+queues the stream through 0x133594C
+```
+
+This upgrades the defensible statement to: the transport applies a
+RC4-shaped transform to a queued high-rate application-message buffer in the
+RC4 branch. It remains unproved that every byte of the final UDP datagram is
+framed or encrypted under RC4, because sequence metadata, message lists, and
+fragmentation are added later by `0x13334F0` and `0x1332818`.
+
+`0x1335154` is the constructor for the alternate transform state, not a
+standalone MAC. It copies two 32-byte inputs, records chunk parameters, fills a
+256-byte working table from `0x121B188`, and invokes `0x1335244` to regenerate
+duplicate-free chunks. Its vtable `0x18C42A8` dispatches through wrappers into
+the `0x7F5...` cryptographic implementation. The constructor and random table
+alone prove neither authentication coverage nor a MAC tag format.
+
+The later wrapper `0x1A1A94C` allocates `input_length + 32`, clears a 32-byte
+prefix, copies the input after that prefix, and calls the `0x7F5B20` /
+`0x7FF918` / `0x7F5BCC` family. `0x7FF918` contains a 16-by-16 multiply and
+38-modulus reduction, multiple mixing rounds, a 253-iteration loop, and a
+32-byte state. The same target family is covered by the local NaCl-style
+reconstruction as ChaCha/Poly1305-shaped code. That is a strong algorithm
+family hypothesis, but the mapping of this 32-byte overhead and the surrounding
+high-rate UDP composition still needs a same-session vector check.
+
+The next byte-level checkpoint is to capture a datagram from both transform
+modes and compare the pre-transform queued stream with the final datagram.
+That comparison must identify the clear framing, ciphertext range, nonce or
+counter inputs, and the 16- or 32-byte authentication material before any
+complete UDP codec is implemented.
 
 ## Startup/profile checkpoint
 
