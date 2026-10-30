@@ -230,9 +230,12 @@ though its ABI destination is `+0x198`, so wire order and storage order must be
 tracked independently.
 
 This correction strengthens Object B's ClientAvatar-family profile role but
-does not prove the exact `ClientAvatar` C++ type. It also does not expand the
-ambiguous abbreviations `scr`, `spi`, `spt`, `lti`, `welo`, or `rnk_*` into
-gameplay semantics. The observed `birth_date=946674000` is a plausible new-player
+does not prove the exact `ClientAvatar` C++ type. The official profile UI
+independently binds `rnk_sc/+0x1D0` to the `ranked_score` node, so it is a
+proven current ranked-ladder score. It does not expand `rnk_ps`: the seasonal UI
+reads previous-season and best-season values from other offsets. The remaining
+ambiguous abbreviations `scr`, `spi`, `spt`, `lti`, `welo`, and `rnk_ps` still
+lack gameplay semantics. The observed `birth_date=946674000` is a plausible new-player
 sentinel, while the persistence literals `accepted_tos_version`, `new_user`,
 and `tutorial_state` remain configuration keys rather than mapped 23245 wire
 fields.

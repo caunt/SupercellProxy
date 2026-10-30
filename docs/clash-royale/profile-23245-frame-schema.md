@@ -175,6 +175,18 @@ Object A 与 Object B 开头的 ID 不同，不能合并：
 | `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | 0 |
 | `+136` | `spt` | `+0x198` | VarInt32 | 0 |
 
+`rnk_sc` is now a proven gameplay scalar: the official profile UI reads
+`+0x1D0`, selects the `ranked_score` node, and formats that value as the score.
+The encoder and decoder independently expose the same u32 binding. A
+non-probabilistic name for it is therefore `currentLadderScore`; the wire key
+remains `rnk_sc`.
+
+`rnk_ps` remains unresolved even though it is also rank-prefixed. The official
+seasonal-profile UI reads previous-season values from `+0x1EC/+0x1F0` and
+best-season values from `+0x1FC/+0x200`, not from `+0x1D8`. Neither the `ps`
+suffix, the adjacent layout, nor that UI path proves
+`previousSeasonScore`, `bestSeasonScore`, or `peakLadderScore`.
+
 `spt` 虽然对应较靠前的 ABI 偏移，但实际在 wire 最后读取；storage offset 与
 wire order 不能互相推导。`spi > 0 && spi == lti` 是代码已证明的条件，
 本次两个值为 `0` 和 `6047`，所以条件为 false；其 UI 行为仍未证明。
@@ -193,10 +205,10 @@ wire value：
 | `clan_name` | `+0x120` |
 | `welo` | `+0x130` |
 
-`scr`、`spi`、`spt`、`lti`、`welo`、`rnk_sc`、`rnk_ps` 目前只证明 key、
-宽度、位置和值，尚未证明缩写展开后的完整玩法语义。`accepted_tos_version`、
-`new_user`、`tutorial_state` 等来自持久化 key 字符串命名空间，不能据此直接
-断言它们存在于本包或决定某个启动 UI。
+`scr`、`spi`、`spt`、`lti`、`welo`、`rnk_ps` 目前只证明 key、宽度、位置和
+值，尚未证明缩写展开后的完整玩法语义。`accepted_tos_version`、`new_user`、
+`tutorial_state` 等来自持久化 key 字符串命名空间，不能据此直接断言它们存在
+于本包或决定某个启动 UI。
 
 后段仍未闭合的标量不能只凭数值相同就去其他函数搜索。当前扫描已经证明
 “相同 ABI 偏移”会大量命中不同 receiver、不同对象和不同的逻辑地址表达式；

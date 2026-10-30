@@ -196,8 +196,8 @@ Object B.
 | `+100..+102` | `lti` | `+0x58` | VarInt32 | `6047` | Keyed name proven; expansion unresolved |
 | `+102` | `npc` | `+0x19C` | bool | `false` | Keyed name and boolean read proven |
 | `+103..+108` | `birth_date` | `+0x1A0` | VarInt32 Unix seconds | `946674000` | UTC `1999-12-31T21:00:00Z` |
-| `+123` | `rnk_sc` | `+0x1D0` | VarInt32 | `0` | Keyed name proven; expansion unresolved |
-| `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | `0` | Keyed name proven; expansion unresolved |
+| `+123` | `rnk_sc` | `+0x1D0` | VarInt32 | `0` | Current ranked-ladder score; UI consumes the field as `ranked_score` |
+| `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | `0` | Keyed name and storage proven; rank-prefixed suffix remains unresolved |
 | `+136` | `spt` | `+0x198` | VarInt32 | `0` | Read last although it precedes several ABI fields; wire order is authoritative |
 
 Wire `+31` is therefore `scr` at `+0x88`; wire `+32` is a separate conditional
@@ -212,6 +212,11 @@ known but no wire values are present to verify.
 predicate is false (`0 != 6047`); its UI consequence remains unproven.
 The `birth_date` value is consistent with a new-account sentinel, but no current
 consumer proves that interpretation.
+
+`rnk_sc` has a direct UI consumer: the profile view selects `ranked_score` and
+formats the u32 at Object B `+0x1D0`. The seasonal view also uses `+0x1D0` for
+current league-road data. No equivalent consumer binds `rnk_ps` to the
+seasonal view's previous-season or best-season offsets.
 
 Nine collection groups follow. The current capture observes:
 
@@ -359,9 +364,10 @@ to a parent offset.
    dynamic-instance namespace.
 7. Most post-prefix fields need controlled variant captures or consumer proofs
    before they receive business names or database constraints.
-8. The keyed codec closes 15 current fields and four conditional keys, but it
-   does not expand ambiguous abbreviations such as `scr`, `spi`, `spt`, `lti`,
-   `welo`, `rnk_sc`, or `rnk_ps` into safer gameplay labels.
+8. The keyed codec closes 15 current fields and four conditional keys.
+   `rnk_sc` is proven to be the current ranked-ladder score, while ambiguous
+   abbreviations such as `scr`, `spi`, `spt`, `lti`, `welo`, and `rnk_ps`
+   remain unresolved.
 9. Persistence strings such as `accepted_tos_version`, `new_user`, and
    `tutorial_state` are real cross-binary key literals. They are not yet mapped
    to Object B offsets or proven to trigger a specific startup UI.

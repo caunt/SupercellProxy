@@ -33,7 +33,7 @@ message class is still unproven.
 | Object B `+0..+14` | Three repeated LogicLongs `(0, 71458820)` | Current logic-ID component roles are unproven |
 | Object B `+15..+29` | `u32be` length 11 followed by UTF-8 `CodexAITest` | Current player display name |
 | Object B `+0x1E..` | Current-build-specific profile fields | Selector at `+0x1E` uses object type `0x36`, resolves table class 54 (`arenas.csv`), and selects `Arena2`; storage is `+0x160`, with a derived neighbor at `+0x168`. Astral `ClientAvatar` continuity ends before this selector |
-| Object B keyed fields | 15 exact wire-to-ABI profile bindings | Includes `accountID`, `name`, `arena`, `scr`, experience fields, `spi`, `spt`, `lti`, `npc`, `birth_date`, and two `rnk_*` fields; the storage map is authoritative |
+| Object B keyed fields | 15 exact wire-to-ABI profile bindings | Includes `accountID`, `name`, `arena`, `scr`, experience fields, `spi`, `spt`, `lti`, `npc`, `birth_date`, `rnk_sc`, and `rnk_ps`; the storage map is authoritative. `rnk_sc/+0x1D0` is the current ranked-ladder score. The `rnk_ps` suffix remains unresolved |
 | Object B `+84` conditional block | Four exact keys, absent in the current capture | `clan_id -> +0x108`, `badge -> +0x110`, `clan_name -> +0x120`, `welo -> +0x130` |
 | Outer `+0xAC` and `+0xB8` | Timer base and end timestamp | Store both source values; treat the interval as derived |
 | Outer `+0xB0` | Quickmatch cooldown disabled/expired sentinel candidate | Signed `-1`; UI consumer supports this meaning |
@@ -121,6 +121,9 @@ The initial player/profile model should support:
 - display name;
 - the proven keyed fields and the three repeated startup identity references,
   preserving both wire order and ABI offset;
+- a typed current-ladder-score value backed by `rnk_sc/+0x1D0`, while preserving
+  `rnk_ps/+0x1D8` as an unresolved u32 instead of assigning a guessed season or
+  peak meaning;
 - conditional clan slots, nullable when the `+84` branch is absent;
 - current profile schema/revision;
 - timestamps required by the session;
