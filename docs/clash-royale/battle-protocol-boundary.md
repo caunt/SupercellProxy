@@ -161,7 +161,7 @@ unresolved. Until that callback is followed to a command constructor and a
 same-build serialized frame, the `0x93D2C8` Friendly path must not be promoted
 to ranked PvP matchmaking.
 
-### Current-build ordinary matchmaking candidate
+### Current-build home-battle request
 
 The newer `110AA2B5` build was analyzed from an isolated copy of its IDB and
 SQLite database. Its addresses are independent of the legacy build:
@@ -186,10 +186,15 @@ action is forwarded through `0xBD9528(..., 20, ...)` to `0xBD5A80`.
 
 The same-build command object created by `0xBD5A80` uses vtable
 `off_187C980`. Its `+0x20` getter returns command type `824`, and its `+0x28`
-method is the codec at `0xD5CAAC`. The wire schema is:
+method is the codec at `0xD5CAAC`. After the command-type VInt, the codec order
+is:
 
 ```text
 base LogicCommand fields
+  VInt at object +16
+  VInt at object +12
+  logic-long at object +20
+subclass 824 fields
   VInt at object +44
   VInt at object +52
   VInt at object +48
@@ -211,12 +216,88 @@ stores object `+52` into the game-data object at `+1356`. That call is the
 remaining bridge to the outbound Piranha envelope; its dynamic target has not
 yet been identified.
 
-This is a strong ordinary-matchmaking candidate because it is reached from the
-real home Arena `play_arena` button, constructs a `LogicCommand` before the
-local searching screen, and returns the same UI transition used for normal
-matchmaking. It is not yet a complete protocol fact: neither the command type
-`824` nor its three integer fields should be copied to another build, and the
-current client-to-server Piranha message ID and payload have not been captured.
+The runtime trace closes the transport boundary for this build. A real home
+Arena battle click constructed command `824`, executed it with flags `1` and
+then `3`, and caused the same command object to be serialized by message
+`16513` on the existing TCP connection:
+
+```text
+LogicCommand 824 constructor             0xD5C6D0
+LogicCommand 824 execute                 0xD5C70C
+generic command writer                   0xD2F06C
+message 16513 encoder                    0x1051120
+message 16513 decoder                    0x10511F0
+message 16513 ID getter                  0x10513F0 -> 16513
+```
+
+`0xD2F06C(encoder, command)` first calls `command->vtable+0x20` for the command
+type, writes that VInt through `encoder->vtable+0x88`, and then calls
+`command->vtable+0x28` to encode the command body. This establishes the
+command-type tag and body boundary directly.
+
+Message `16513` has the following current-build wire order:
+
+```text
+VInt object+0xA0
+VInt object+0xA4
+VInt command-list count from list+0x0C
+repeat command-list count:
+  VInt command type
+  command base codec
+  command subclass codec
+blob tail selected by object+0xA8 and object+0xB0
+```
+
+The pointer-shaped value at object `+0x90` is not part of this wire schema; it
+is the command registry/context used by the decoder.
+
+For the active `play_arena` click, one trace observed these values in order:
+
+```text
+message 16513
+  +0xA0 = 18665
+  +0xA4 = 524288
+  command count = 1
+  command type = 824
+  blob state with empty source and length -1
+
+command 824
+  base +0x10 = 18664
+  base +0x0C = 18664
+  base logic-long at +0x14 = 0
+  subclass +0x2C = 0
+  subclass +0x30 = -1
+  subclass +0x34 = 0
+  subclass +0x29 = false
+  subclass +0x28 = false
+```
+
+The logical bytes after the 32-byte transform prefix were:
+
+```text
+a9a302 808040 01 b80c a8a302 a8a302
+00000000 7f 00 ffffffff
+```
+
+This exact byte stream is an observation for one instance. The field order
+comes from both encoder and decoder pseudocode, while the byte-level encoding
+of the base logic-long and the two boolean fields still needs a dedicated codec
+walk before it should be used to build a general serializer.
+
+The server capture
+`conn-000006-seq-221-serverbound-16513.bin` is a 46-byte frame whose header
+identifies message `16513`. It proves the controlled server received a
+serverbound `16513` during the battle-click experiment. The separate Frida
+plaintext trace proves that `16513` instances can carry command `824`; the two
+artifacts should not be described as a cryptographic replay of the same frame.
+
+This establishes the home-battle-click request path: 824 is a real command in
+the outbound command list, and 16513 is its current transport envelope. Calling
+824 specifically "ordinary ranked/1v1 matchmaking" remains a semantic
+hypothesis until the server response or a controlled payload mutation shows
+which queue or mode that command selects. The command ID, message ID, object
+offsets, and field order must not be copied into another build without the same
+same-build checks.
 
 The separately named Friendly path was also rechecked in this build.
 `0x937B60` resolves `Friendly`, branches to the `0x9F6538` friend-list popup,
@@ -227,8 +308,6 @@ the `play_arena` command type `824`.
 
 The following were checked and removed from the network-battle candidate set:
 
-- `16513` is a status/UI update and is not a gameplay command. It also appears
-  repeatedly in the current runtime while no battle is occurring.
 - `0x10BBE60` contains `BattleInit`, `Preparing`, and `Battling` names, but it is
   an AutoChess state machine. Those names do not describe Clash Royale PvP.
 - `0x95729C`, `0xA97AE8`, and `0xBDDE80` are matchmaking UI, animation, or
@@ -239,36 +318,52 @@ The following were checked and removed from the network-battle candidate set:
   configuration. No evidence yet shows that any of them writes a matchmaking
   request to the network.
 
+`29938` is a separate current-build message class with ID getter
+`0x1051004`, constructor `0x1050EAC`, and codec `0x1050EE4`. It is present in
+the binary, but neither its constructor nor its codec ran during the traced
+`play_arena` click. Its purpose remains unresolved; it is an open candidate,
+not the observed matchmaking envelope.
+
 ## Runtime observation
 
 On the Null client build `110AA2B5`, tapping the yellow home-screen battle
-button opened the animated `Searching for opponent` screen. This proves that the
-home UI and local matchmaking presentation transition executed.
+button opened the animated `Searching for opponent` screen. A later instrumented
+run recorded the exact command lifecycle below:
 
-The controlled server received no new request after the transition. Its log
-continued to show only keepalive and `16513` messages. A device socket snapshot
-showed:
+```text
+LogicCommand 824 constructor                 13:07:01.234
+LogicCommand 824 execute flags=1             13:07:02.250
+message 16513 with command count 0            13:07:02.252
+LogicCommand 824 execute flags=3             13:07:02.258
+message 16513 with command 824                13:07:02.260
+write command type 824                        13:07:02.261
+write command 824 body                        13:07:02.262
+outbound frame                                13:07:02.264
+```
 
-- the existing Piranha TCP connection from the app to `127.0.0.1:9339`;
-- no new TCP endpoint associated with the game;
-- no UDP endpoint associated with the game.
+The near-simultaneous zero-count frame is a separate `16513` encode from the
+same scheduler pass. It must not be treated as the command-carrying frame.
+The command-carrying `16513` encode contains exactly one item whose type getter
+is `0xD5CAA0` and whose body encoder is `0xD5CAAC`.
 
-Current interpretation: this profile is likely entering a tutorial or local
-training gate that displays matchmaking UI before issuing a real PvP request.
-That is a hypothesis, not a confirmed state-machine fact. The observation does
-establish that opening the matchmaking screen is not sufficient evidence for a
-network matchmaking message.
+This corrects two earlier negative observations:
 
-The experiment was repeated after a clean client start and with Frida attached
-to the already-running process. The frame logger observed the same boundary for
-35 seconds after the second click: the only message IDs leaving the client were
-`10108` (KeepAlive) and `16513` (the status/UI update). No `10100` login,
-`10101`, matchmaking, sector, or result-shaped frame occurred after the click,
-and the app created no additional TCP or UDP endpoint. The search screen
-remained active and the tutorial hint overlay continued to be shown.
+- the local searching-screen transition does not prove that no request was
+  sent;
+- `16513` is not merely a status/UI notification. It is a command-list envelope
+  that can carry the home-battle command.
+
+No `29938` constructor or encode event occurred on this path. Whether the
+tutorial state gates the server response or local progression is still
+unresolved.
 
 Runtime artifacts:
 
+- `ida-ai/.ida-ai-cache/battle-message-v7.js`
+- `ida-ai/.ida-ai-cache/battle-message-v7.jsonl`
+- `ida-ai/.ida-ai-cache/battle-message-v7-frame.jsonl`
+- `ida-ai/.ida-ai-cache/battle-v7-after-battle-tap.png`
+- `ida-ai/.ida-ai-cache/battle-v7-third-click.png`
 - `ida-ai/.ida-ai-cache/battle-runtime-20261030-current2.png`
 - `ida-ai/.ida-ai-cache/battle-after-cancel3.png`
 - `ida-ai/.ida-ai-cache/battle-reclick2.png`
@@ -279,6 +374,7 @@ Runtime artifacts:
 - `ida-ai/.ida-ai-cache/battle-runtime-live-20261030.jsonl`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/server.out.log`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/capture/`
+- `nulls-royale-server/tmp/profile-sentinel-20261030/player-info-scr2/capture/conn-000006-seq-221-serverbound-16513.bin`
 
 ## Cross-version prior, not fact
 
@@ -337,8 +433,9 @@ The evidence supports a layered model:
 
 1. Piranha clientbound messages are decoded and dispatched through the
    `0xADBC1C` router.
-2. Several nearby messages manipulate matchmaking UI or report matchmaking
-   failure, but none yet proves the beginning of a network battle.
+2. Current-build message `16513` is an outbound command-list envelope. The
+   traced home-battle click sends command `824` inside it; its queue semantics
+   and required server response remain to be established.
 3. Legacy message `21631` can create and configure a separate UDP endpoint,
    and the successful path immediately sends empty message `16226` over it.
    This is the strongest same-build evidence for the sector/high-rate
@@ -355,30 +452,39 @@ The evidence supports a layered model:
 
 The next pass should proceed in this order:
 
-1. Find the client-to-server matchmaking request, then capture the `110AA2B5`
-   clientbound response whose handler creates the UDP socket. Re-run the
-   `21631` codec comparison on that exact build before transferring the field
-   names.
-2. Decode the high-rate UDP transport header from its packet builder and
+1. Follow the execute-with-flags-3 observer at `0xD2FE00` from command 824 into
+   `16513`, then identify every command scheduler and queue mutation that
+   decides why some `16513` encodes have an empty list and the battle click
+   produces exactly one command.
+2. Identify the controlled server's expected response to a valid command-824
+   `16513`. Trace current-build clientbound decode/dispatch until the first
+   consumer that starts match-found, loading, arena setup, or high-rate UDP.
+   Re-run the `21631` codec comparison on that exact build before transferring
+   field names or IDs.
+3. Decode the high-rate UDP transport header from its packet builder and
    reconcile it with a captured datagram, including sequence, acknowledgement,
    fragmentation, message count, and encryption state.
-3. Search command codecs for the EndClientTurn header shape: tick/checksum,
+4. Search command codecs for the EndClientTurn header shape: tick/checksum,
    bounded command count, then command-type plus payload.
-4. Search sector codecs by structure: connection endpoint/port pair, battle
+5. Search sector codecs by structure: connection endpoint/port pair, battle
    identity, participant descriptors, tick/checksum, and bounded command arrays.
-5. Inspect the visible tutorial overlay and the runtime checks around
+6. Inspect the visible tutorial overlay and the runtime checks around
    `tutorial_battles_completed`, `tutorial_state`, `matchmaking_start`,
    `BATTLE_TRAINING`, and `TUTORIAL_BATTLE_PREFER_OLD_TUTORIALS` before
    changing profile state. The exact force-gate or local-training decision has
    not been established.
-6. Capture the first new serverbound frame and map every parsed field back to
-   its same-build decoder and consumer.
-7. Stop before assigning card-command semantics until a command codec and a
+7. Decode the captured `16513` command-824 frame and map every parsed field
+   back to its same-build decoder and consumer before processing later socket
+   or gameplay messages.
+8. Stop before assigning card-command semantics until a command codec and a
    live command agree on the field order and widths.
 
 ## Rejected interpretations
 
-- `16513` is not a battle command.
+- `16513` is not merely a status/UI-only message; the current build uses it as
+  the outbound command-list envelope on the traced battle-click path.
+- `29938` was the message that carried this click's command. The class exists,
+  but it did not run in the decisive trace.
 - The `BattleInit`/`Battling` state names at `0x10BBE60` do not identify the
   Clash Royale PvP protocol; that code is AutoChess.
 - A displayed matchmaking screen is not evidence that a request reached the
