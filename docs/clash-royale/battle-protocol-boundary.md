@@ -1094,9 +1094,118 @@ command +0x30 <- actor +0x98
 
 The wire body emits base fields, then subclass `+0x30`, `+0x28`, `+0x34`, and
 `+0x2C`. The JSON key `cgid` is proved for `+0x28`; the other subclass offsets
-remain structural. Several current producers call the same constructor and
-`C893D0`, including `8A92B0` and `115A67C`, but the available code does not yet
-separate player input, AI/bot activity, and replay/test paths.
+remain structural. `8A92B0` can construct this type on one branch, but it also
+has a separate type-`1548` action-command branch described below. The available
+code does not yet separate every player input, AI/bot, and replay/test producer.
+
+### HUD ability controls and the `1548` action-command family
+
+The battle HUD contains two different control families that were previously
+conflated:
+
+```text
+sub_8D2694
+  four 0x3A8 card views
+  HUD +0x138, +0x140, +0x148, +0x150
+  each constructed through sub_8D8EF0
+
+sub_8D39D8
+  two 0x1F8 ability controls
+  HUD +0x180 and +0x188
+  each constructed through sub_8A8F54
+```
+
+`8D2694` loops exactly four times, allocates a `0x3A8` object, calls
+`8D8EF0`, and stores it at `HUD + 0x138 + index * 8`. It is therefore the card
+view chain. `8D39D8` destroys any previous objects in HUD `+0x180/+0x188`,
+allocates two `0x1F8` objects through `8A8F54`, stores them, and calls
+`8D2254`.
+
+`8D2254` supplies the decisive identities. When the child object at
+`HUD+0x180` has no name at child `+0x38`, it assigns `"ability_right"`.
+The same operation on `HUD+0x188` assigns `"ability_left"`:
+
+```text
+HUD +0x180 -> 0x1F8 child -> name "ability_right"
+HUD +0x188 -> 0x1F8 child -> name "ability_left"
+```
+
+These are ability controls, not card slots. `8A8F54` initializes them with
+vtable `off_17FFD88`; the exact primary-vtable slot map remains open, so the
+constructor address alone is not used to assign method names.
+
+The release path enters `8A92B0` after the pointer-up ownership and target
+rectangle checks in `8A91E8`. The delayed path enters the same function from
+`8A9684` when control byte `+0x154` is set. `8A92B0` then has two command
+constructors:
+
+```text
+normal ownership path
+  allocate 0x38
+  D329A8(type-2 actor/card command)
+  C893D0(context, command, 1)
+
+ability/action path
+  allocate 0x58
+  D32F88(command, context, 194)
+  command+0x2C = selected_list[0]+0x08
+  C893D0(context, command, 1)
+```
+
+The second value passed to `D32F88` is not a command type. That constructor
+creates LogicCommand type `1548`, reads the current vtable at `0x1877BB0`, and
+stores its third argument at object `+0x28`. The vtable slot at `+0x20`
+returns `0x60C` (`1548`); the encoder is at slot `+0x28` (`D3E910`) and the
+decoder at slot `+0x30` (`D3EA84`).
+
+The `1548` object has a bounded `0x58`-byte layout:
+
+| Offset | Structural field |
+| --- | --- |
+| `+0x28` | `actionIdx` |
+| `+0x2C` | `intParameter1` |
+| `+0x30` | `intParameter2` |
+| `+0x34` | `intParameter3` |
+| `+0x38` | string parameter |
+| `+0x48` | optional integer-array parameter 1 |
+| `+0x50` | optional integer-array parameter 2 |
+
+The earlier IDA display `s__9` was an unresolved string placeholder. The raw
+instruction at `0xD3DF30` is `ADRL X1, loc_3163CC`, and the original bytes at
+`0x3163CC` spell `"intParameter1"`. This closes the field name without relying
+on decompiler text.
+
+The reciprocal codec order is:
+
+```text
+base LogicCommand codec
+optional vector at +0x48
+string at +0x38
+int at +0x2C
+int at +0x30
+optional vector at +0x50
+int at +0x34
+actionIdx at +0x28
+```
+
+Type `1548` is a shared action-command family, not a single ability command.
+Same-build `D32F88` call sites already show at least these producers:
+
+| Producer | `actionIdx` source |
+| --- | --- |
+| `8A92B0` | `194`, ability-control path |
+| `BB2668` | `62` |
+| `800C44` | caller-supplied argument |
+| `81E7F8` | `69` |
+| `81E8C8` | `336` |
+| `81F5F0` | `81`, first-NPC battle unit-placement hint |
+| `A1E278` | `212`, piggy-bank/IAP path |
+
+Action `194` is therefore best described as an ability-activation candidate
+inside LogicCommand `1548`; it would be incorrect to call it command type
+`194`. The static producer path is strong, but a natural same-build ability
+release frame is still required before promoting action `194` from a candidate
+to a runtime-confirmed action.
 
 The current evidence therefore supports this bounded model:
 
