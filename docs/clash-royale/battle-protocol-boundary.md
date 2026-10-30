@@ -1,6 +1,6 @@
 # Clash Royale battle protocol boundary
 
-Research snapshot: 2026-10-30
+Research snapshot: 2026-10-31
 
 This note records the first evidence-bounded pass over matchmaking and battle
 protocol code. It deliberately separates confirmed same-build protocol facts,
@@ -391,6 +391,22 @@ Runtime artifacts:
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/capture/`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/player-info-scr2/capture/conn-000006-seq-221-serverbound-16513.bin`
 
+The final passive run before this note was frozen at:
+
+```text
+path      ida-ai/.ida-ai-cache/battle-runtime-passive-20261030.jsonl
+size      131151
+lines     411
+sha256    3DA40910AAC9085B908C98842E83D2921E79DE3F23CC00E972111C0961203E00
+```
+
+Its final tick was `19600`. The client remained in matchmaking and emitted 101
+`16513` encode events, including 308 TCP frame events, 101 `10108/v1`
+keepalives, and two high-level dispatch pairs. No `26349`, `11865`, `21631`,
+`20941`, `13584`, `16226`, or UDP bootstrap appeared. The absence of those
+messages is a property of this observed server/session state, not proof that
+the code paths do not exist.
+
 ## Current-build static follow-up
 
 This section records a same-build recheck of the current Null client
@@ -502,6 +518,11 @@ names. Their battle/session semantics remain unproven. In particular, do not
 call the blob a nonce or the transform string a key until the transform
 constructor and UDP packet capture agree.
 
+The ordinary TCP keepalive is a separate current-build message. `10108/v1`
+has an empty codec and was observed on the established connection approximately
+every five seconds while the client remained on the matchmaking screen. It is
+not a battle-state or matchmaking notification.
+
 ### `29938` is a deck-explorer response candidate
 
 The current Dispatcher branch for `29938` consumes up to three packed integers:
@@ -525,12 +546,12 @@ above. The next matchmaking response must therefore be located by dispatcher
 consumer/state transition or a controlled server response, not by guessing
 that an old ID survived.
 
-### Current match-control and event-control candidates
+### Current matchmaking, loading-control, and event-control candidates
 
-Three current-build message classes were inspected. `26349` and `11865` remain
-match-control candidates. `29613` is not one: its nested object is now
-identified as event configuration and must be kept out of the match-found
-candidate set.
+Three current-build message classes were inspected. `26349` and `11865` are
+loading/application-control messages, not confirmed match-found messages.
+`29613` is not one: its nested object is now identified as event configuration
+and must be kept out of the match-found candidate set.
 
 ```text
 26349 / v16
@@ -555,11 +576,15 @@ candidate set.
 The current Dispatcher at `0xAD3DA8` has a `26349` branch. One accepted path
 reaches `0xAD6EA4`, where it calls `sub_AD9070`. That function reads a virtual
 boolean at incoming-object `+0x150`, sets the application state at `+8` to
-either `9` or `4`, performs presentation cleanup, allocates a `0x90`-byte
-object, constructs outbound message `11865`, and inserts it with
-`sub_AD3AC0`. This proves a conditional `26349 -> 11865` queue relation. It
-does not prove that every `26349` produces an acknowledgement or that either
-message is named `MatchFound`.
+either `9` or `4`, performs presentation cleanup, forwards the loading
+controller at `+0x80` to `SectorManager`, allocates a `0x90`-byte object,
+constructs outbound message `11865`, and inserts it with `sub_AD3AC0`.
+
+The controller field read on the `26349` path at `+0x298` is sourced from the
+configuration key `CACHE_MAX_EXTRA_SC_FILES`; it is not a battle-state field.
+Together with the loading/SectorManager calls, this places `26349` on the
+loading/application-controller branch. Calling either current `26349` or
+`11865` `MatchFound` would therefore be unsupported.
 
 The `29613` Dispatcher case at `0xAD4958` loads one of its optional values and
 reaches `sub_BDB444` at `0xAD497C`. Its top-level encoder/decoder order is:
@@ -686,6 +711,71 @@ This also corrects a proximity assumption: `26349` does not directly call
 `sub_BDB444`, and `match_found_start` is not a direct consequence of the
 `26349 -> 11865` branch.
 
+### Current stage-3 preloading controller
+
+The current loading controller `sub_C90A4C` is a stage-3 ordinary-PvP
+preloading path. It waits for login/application readiness, advances to stage 4,
+initializes arena/battle data, and then selects one of two outbound setup
+messages by a branch:
+
+```text
+controller has the optional match/common context
+  -> construct 10500/v9 from arena, battle, and a "FirstMatch" data lookup
+otherwise
+  -> construct 14300/v9 with fields initialized to -1 / -1
+```
+
+`FirstMatch` is only a data lookup key in this code. Its presence does not prove
+that the tutorial or a particular battle mode was selected.
+
+Current `14300/v9` is constructed at `0x1053A44`; its encoder, decoder, and ID
+getters are `0x1053AA0`, `0x1053AF0`, `0x1053B4C`, and `0x1053B54`.
+Its top-level wire order is:
+
+```text
+nullable/int-like field from +0xA4
+nested tagged object from +0x98
+nullable/int-like field from +0xA0
+```
+
+A captured body `7f 01 12 a8 80 7f` decodes to the observed logical sequence
+`-1, 18000000, -1`. The current `14300` therefore cannot be treated as the
+older reference's one-field `StopHomeLogic` message.
+
+Current `10500/v9` is constructed at `0x1053D84`; its encoder, decoder, and ID
+getters are `0x1053E60`, `0x1053ECC`, `0x1053F64`, and `0x1053F6C`.
+Its top-level wire order is:
+
+```text
+i32 +0xB8
+tagged nested object +0xA8
+tagged nested object +0x98
+tagged nested object +0x90
+tagged nested object +0xA0
+tagged nested object +0xB0
+```
+
+The nested objects contain arrays and containers. This is a complex setup
+message, not the older reference's single packed-integer `10500`.
+
+The battle-sector setup candidate is current `19314/v9`. Constructor
+`0x1051534`, encoder `0x1051574`, decoder `0x10515E0`, ID getter `0x1051654`,
+and version getter `0x105165C` establish:
+
+```text
+VInt +0x94
+VInt +0x8C
+VInt +0x98
+bool +0x90
+```
+
+`sub_BB2468` fills the three integers from `loc_118296C`, `sub_775748`, and
+`sub_77890C`, then sends `19314` through the ordinary Piranha queue.
+`sub_B19A80` is a smaller path that fills only `+0x94` from `loc_118296C`.
+This establishes a same-build sector/setup envelope shape and send path. The
+three integer semantics and the old class name `RequestSectorState` remain
+unproved.
+
 ### Battle-entry string and structure candidates
 
 Current-build strings and their local xrefs provide the next battle-search
@@ -734,6 +824,9 @@ versions below belong only to the current `110AA2B5` build.
 | `20941/v16` | server to client; Dispatcher branch `0x51CD` reaches `sub_C89B20` | server tick, checksum, command count, command list, optional raw payload | authoritative battle state/turn batch |
 | `13584/v9` | client to server; `sub_C89F28` sends it from the loading-state controller | current tick, secondary battle counter, command count, command list | loading-state synchronization or sector-state request candidate |
 | `27679/v9` | server to client; Dispatcher branch `0x6C1F` extracts its command and calls `sub_AD9658` | optional single LogicCommand | generic server-command delivery; not yet proven battle specific |
+| `14300/v9` | client to server; fallback branch in `sub_C90A4C` | nullable/int-like, tagged object, nullable/int-like | stage-3 preloading setup message; exact class unresolved |
+| `10500/v9` | client to server; common-context branch in `sub_C90A4C` | i32 plus five tagged nested objects/containers | complex stage-3 preloading setup message; exact class unresolved |
+| `19314/v9` | client to server; `sub_B19A80` and `sub_BB2468` | three VInts and one bool | high-confidence battle-sector setup candidate |
 
 For `16513`, `0x1051110` writes object `+0xA0` from the current logical tick and
 `0x1051118` writes `+0xA4` from `sub_1062BD0`, the battle state value. The
@@ -924,9 +1017,10 @@ The evidence supports a layered model:
    inside it. Current `18193/v27` carries one real-time battle command and
    prefers the configured UDP socket; current `20941/v16` is the corresponding
    server-side state/turn batch with checksum-based rollback support.
-3. Legacy message `21631` can create and configure a separate UDP endpoint,
+3. Current-build message `21631/v27` creates and configures a separate UDP
+   endpoint,
    and the successful path immediately sends empty message `16226` over it.
-   This is the strongest same-build evidence for the sector/high-rate
+   This is the strongest current-build evidence for the sector/high-rate
    transport bootstrap.
 4. The older reference suggests that matchmaking may issue a logical
    `EndClientTurn` command before a separate battle/sector session is created.
@@ -946,8 +1040,7 @@ The next pass should proceed in this order:
 2. Identify the controlled server's expected response to a valid command-824
    `16513`. Trace current-build clientbound decode/dispatch until the first
    consumer that starts match-found, loading, arena setup, or high-rate UDP.
-   Re-run the `21631` codec comparison on that exact build before transferring
-   field names or IDs.
+   The `21631/v27` codec has already been rechecked on this build.
 3. Decode the integrity-bit registration map and prove what policy or feature
    state the `1022`/`1023` delimiters and 10-bit chunks attest.
 4. Decode the high-rate UDP transport header from its packet builder and
