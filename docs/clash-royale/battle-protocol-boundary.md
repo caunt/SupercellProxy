@@ -417,7 +417,8 @@ This section records a same-build recheck of the current Null client
 The current-build LogicCommand queue scheduler is `0xD2F37C`. It owns a command
 list at `+8` and a count at `+0x20`, asks `0x1062BC0` for the current logical
 tick, invokes a command through its vtable slot at `+0x18`, and can invoke a
-queue callback at `(*(queue + 0x18)) + 0x20` after a successful command. Its
+queue callback at offset `+0x20` of the installed callback object after a
+successful command. Its
 outer logical-tick driver is `0x1062274`.
 
 The runtime timestamps agree with that call structure:
@@ -468,7 +469,8 @@ array at `queue+8` and increments the count at `queue+20`.
 `D2F37C` consumes that queue by tick. It compares the current and command ticks,
 adjusts commands that are at least 21 ticks away, executes a command at the
 20-tick boundary through virtual slot `+24`, and invokes the queue callback
-through `queue+24 -> vtable+24`. Its diagnostics distinguish an overdue command
+through `queue+24 -> [callback_object] -> +0x20`. Its diagnostics distinguish
+an overdue command
 from a command rejected by the current state. The outer logical-tick path is
 also current-build fact:
 
@@ -519,19 +521,43 @@ tick and state, detaches the listener's accumulated list with
 attaches the tail from `controller+232`, sends through the ordinary queue, and
 advances `controller+192`.
 
-The listener method `7F5250` appends an item to the listener's dynamic list.
-The listener vtable contains `7F5250` at its fourth pointer, matching the
-callback slot observed as `queue+24 -> vtable+24`. The instruction-level virtual
-call site in `D2F37C` still needs to be tied to this concrete vtable before the
-following hypothesis can be promoted to fact:
+The listener method `7F5250` appends an item to the listener's dynamic list,
+but it is not the callback used by `D2F37C`. The current-build vtable read at
+`0x17F3008` maps as follows:
 
 ```text
-D2F37C queue event
-  -> installed controller+136 listener
-  -> accumulated command snapshot
-  -> C89890
-  -> 16513/v9
+vtable +0x00  7F50D4
+vtable +0x08  7F50E4
+vtable +0x10  7F50E8
+vtable +0x18  7F5250   append(listener, item)
+vtable +0x20  7F5324   nullsub_336 (single RET)
 ```
+
+The relevant `D2F37C` instruction sequence is:
+
+```text
+D2F8A0  LDR X0, [X19,#0x18]   ; installed queue callback object
+D2F8A8  LDR X8, [X0]          ; callback vtable
+D2F8AC  MOV X1, X28
+D2F8B0  LDR X8, [X8,#0x20]    ; callback slot
+D2F8B4  BLR X8
+```
+
+Therefore this build does not support the earlier hypothesis that the
+successful-command callback appends through `7F5250`. It calls the empty
+`+0x20` slot instead. The following edge is rejected:
+
+```text
+D2F37C successful command
+  -> installed controller+136 listener
+  -> vtable+0x20
+  -> 7F5250
+  -> 16513 command list
+```
+
+`C89890` still proves that it detaches and encodes the list held by
+`controller+136`. What remains open is which other event or explicit virtual
+call invokes the listener's `+0x18` append method.
 
 For the live type-2 gameplay question, two statements are now separated:
 
@@ -539,9 +565,66 @@ For the live type-2 gameplay question, two statements are now separated:
   `1062F6C == false` branch.
 - `16513/v9` is definitively a periodic command-list carrier for controller
   states `1..4`. The controller listener is installed as the
-  `battle_context+56` queue callback and holds the list drained by `C89890`.
-  Their event flow is a strong hypothesis pending the concrete `D2F37C`
-  virtual-call-site check.
+  `battle_context+56` callback and holds the list drained by `C89890`.
+- The installed listener's `D2F37C` callback slot is empty. The successful
+  command callback is therefore not the producer of the periodically drained
+  16513 command list.
+
+### Loading gate handshake around `29303` and `20129`
+
+Two same-build empty clientbound messages now connect the stage-3 loading
+controller to the pending `13584` send.
+
+`29303/v9` is allocated as a `0x90`-byte object by factory case `0x7277`.
+Its ID and version getters are `0x1053FE4` and `0x1053FEC`; its codec slots are
+empty. The current Dispatcher branch is:
+
+```text
+message ID == 29303
+  -> C8C5B8()                       ; loading-controller singleton
+  -> C8E1BC(controller, 1)
+       controller+0x74 = 1
+       controller+0x75 = 1
+```
+
+The stage-3 preloading function `C90A4C` follows a different setup path:
+
+```text
+C8E1D0(loading_controller, 1)
+  loading_controller+0x74 = 1
+  loading_controller+0x75 = 0
+  -> construct and enqueue 10500/v9 or 14300/v9
+```
+
+`C8DA38` later requires both bytes. When both are nonzero, it clears `+0x75`,
+obtains the active battle controller, and calls `C89F28` to construct
+`13584/v9`. This yields a strongly supported normal-flow hypothesis:
+
+```text
+stage-3 preloading
+  -> initialize +0x74 and clear +0x75
+  -> send 10500/v9 or 14300/v9
+  -> receive 29303/v9
+  -> set +0x74 and +0x75
+  -> next loading tick sends 13584/v9
+```
+
+`29303/v9` is therefore a loading-stage acknowledgement/readiness candidate.
+The current evidence does not prove its historical class name, and it must not
+be named `MatchFound` or `StartBattle`.
+
+`20129/v7` is another empty `0x90`-byte message, allocated by factory case
+`0x4EA1`. Its ID and version getters are `0x1050B40` and `0x1050B48`.
+Its Dispatcher branch handles matchmaking cancellation and invokes
+`C8E1BC(loading_controller, 0)`. That clears `+0x74` while leaving `+0x75`
+unchanged; the conjunction in `C8DA38` then cannot send `13584`. The branch
+also resets the matchmaking controller through `BD978C`. `20129/v7` is thus a
+matchmaking-cancel/reset notification candidate, while the same-build codec
+does not expose a historical class name.
+
+These two IDs are current-build facts and must not be copied into another libg
+version. The exact relationship between `29303` and the server's processing of
+`10500`/`14300` still requires a matching runtime frame.
 
 ### Matchmaking state 16 boundary
 
