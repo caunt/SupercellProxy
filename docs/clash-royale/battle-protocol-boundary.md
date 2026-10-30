@@ -461,6 +461,143 @@ above. The next matchmaking response must therefore be located by dispatcher
 consumer/state transition or a controlled server response, not by guessing
 that an old ID survived.
 
+### Current match-control candidates
+
+Three additional current-build messages form the leading match-control
+candidates. Their wire structures and consumers are confirmed; the semantic
+names below remain explicitly provisional until a controlled live sequence
+orders them.
+
+```text
+26349 / v16
+  constructor       0x105E870
+  vtable            0x18AAED0
+  encode / decode   0x105E8A4 / 0x105E8A8 (both empty)
+  ID / version      0x105E8AC / 0x105E8B4
+
+11865 / v27
+  constructor       0x105E8F0
+  vtable            0x18AAF20
+  encode / decode   0x105E924 / 0x105E928 (both empty)
+  ID / version      0x105E92C / 0x105E934
+
+29613 / v9
+  constructor       0x1041220
+  vtable            0x18A7110
+  encode / decode   0x10412D8 / 0x1041388
+  ID / version      0x10414AC / 0x10414B4
+```
+
+The current Dispatcher at `0xAD3DA8` has a `26349` branch. One accepted path
+reaches `0xAD6EA4`, where it calls `sub_AD9070`. That function reads a virtual
+boolean at incoming-object `+0x150`, sets the application state at `+8` to
+either `9` or `4`, performs presentation cleanup, allocates a `0x90`-byte
+object, constructs outbound message `11865`, and inserts it with
+`sub_AD3AC0`. This proves a conditional `26349 -> 11865` queue relation. It
+does not prove that every `26349` produces an acknowledgement or that either
+message is named `MatchFound`.
+
+The `29613` Dispatcher case at `0xAD4958` loads message `+0x98` and calls
+`sub_BDB444` at `0xAD497C`. Its top-level encoder/decoder order is:
+
+```text
+nullable packed-VInt object at +0x98
+nullable 0xA8-byte nested object at +0xA0
+nullable packed-VInt object at +0x90
+```
+
+The nested helper is initialized by `0xEBFD50` and encoded/decoded by
+`0xEC00C8` / `0xEC0440`. Both codec directions establish this structural
+order:
+
+```text
+i32 x3
+string
+i32 x5
+string x3
+conditional packed array
+i32
+bool
+i32 x4
+bool x2
+i32
+i32
+bool
+optional byte length + byte payload
+```
+
+`sub_BDB444` compares a two-word identity through `0x121A9F0`, reads a nested
+status through `0xEC0C24`, and tests that status against `20`. The matching
+branch calls `sub_BD5C38(controller, 16, value, 1, ...)`; the alternate branch
+emits `match_found_start` and `team_found_start` presentation events. The
+current evidence therefore supports "match/team-found consumer candidate" for
+`29613`, while a general lobby role remains possible.
+
+These findings also correct an earlier proximity assumption: `26349` does not
+directly call `sub_BDB444`, and `match_found_start` is not a direct consequence
+of the `26349 -> 11865` branch. The direct `29613` case is the current
+same-build bridge to that consumer.
+
+### Current UDP envelope and transform work
+
+The current high-rate packet builder provides a second same-build view of the
+transport envelope. `0x122128C` writes:
+
+```text
+u8    object+0x98      type/flag
+VInt  object+0x90      message/type ID
+u8    object+0x99      fragment index
+u8    object+0x9A      fragment count
+VInt  object+0x94      payload length
+bytes object+0xA0      payload
+```
+
+`0x13334F0` copies the pending 32-bit sequence list, appends queued application
+messages, selects an optional 16-bit leading sequence, and invokes the datagram
+writer `0x1332818`. Sequence values are clamped to `65000`; `0xFFFF` is a
+sentinel. The builder uses `1456` bytes normally and `1448` bytes when its
+configuration byte at `+324` is set.
+
+`0x1336A5C` writes four special VInt markers in distinct nonzero-counter
+branches:
+
+```text
+0xFFFFFFFE
+0xFFFFFFFD
+0xFFFFFFFC
+0xFFFFFFFB
+```
+
+The counters at `+8`, `+12`, `+20`, and `+24` select which marker is written.
+The object also carries a 32-bit sequence list and a vector of queued messages.
+These values are structurally associated with continuation, retransmission,
+acknowledgement, or slot selection, but their protocol names are not yet
+proved.
+
+The stream vtable `0x18BE1B8` resolves the ambiguous write widths used by that
+builder:
+
+```text
++0x50  0x1212BB8  u32 big-endian helper
++0x80  0x1212C84  u16 big-endian helper
++0x88  0x12134FC  VInt
++0x90  0x12139D0  additional VInt/stream helper
+```
+
+Current helper `0x1334E44` concatenates two key strings and implements the
+standard RC4 key-scheduling algorithm over a 256-byte permutation. Its KSA
+shape is confirmed. The separate `0x1335154` initializer copies two 32-byte
+state regions, stores two integer parameters, fills a 256-byte buffer using
+`0x121B188`, and calls `0x1335244`. Neither the exact place where this state is
+applied to a datagram nor the existence and coverage of a MAC is established
+yet. It is therefore accurate to say "RC4-shaped KSA in the transport module",
+not "the complete UDP payload is RC4 encrypted".
+
+The next byte-level checkpoint is to reproduce the output of `0x1336A5C` and
+compare it with a captured datagram before and after the `0x1335244` transform.
+That comparison will assign clear/encrypted/authenticated regions and close the
+meaning of the four special markers.
+
 ## Cross-version prior, not fact
 
 AstralRoyale is a 2.1.8 reference. Its flow is useful as a list of questions:
