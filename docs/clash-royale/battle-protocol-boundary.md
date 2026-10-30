@@ -321,8 +321,9 @@ The following were checked and removed from the network-battle candidate set:
 `29938` is a separate current-build message class with ID getter
 `0x1051004`, constructor `0x1050EAC`, and codec `0x1050EE4`. It is present in
 the binary, but neither its constructor nor its codec ran during the traced
-`play_arena` click. Its purpose remains unresolved; it is an open candidate,
-not the observed matchmaking envelope.
+`play_arena` click. The later same-build Dispatcher review below finds
+`TID_DECK_EXPLORER_*` handling in its branch, so it is no longer a leading
+battle-response candidate. It is not the observed matchmaking envelope.
 
 ## Runtime observation
 
@@ -375,6 +376,90 @@ Runtime artifacts:
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/server.out.log`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/capture/`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/player-info-scr2/capture/conn-000006-seq-221-serverbound-16513.bin`
+
+## Current-build static follow-up
+
+This section records a same-build recheck of the current Null client
+`110AA2B5`, separate from the legacy `B1CAF6D9` knowledge base.
+
+### `16513` scheduling and send boundary
+
+The current-build LogicCommand queue scheduler is `0xD2F37C`. It owns a command
+list at `+8` and a count at `+0x20`, asks `0x1062BC0` for the current logical
+tick, invokes a command through its vtable slot at `+0x18`, and can invoke a
+queue callback at `(*(queue + 0x18)) + 0x20` after a successful command. Its
+outer logical-tick driver is `0x1062274`.
+
+The runtime timestamps agree with that call structure:
+
+```text
+LogicCommand 824 constructor       13:07:01.234Z
+message 16513 encode               13:07:02.260Z
+outbound command-824 frame         13:07:02.264Z
+```
+
+The one-item `16513` is therefore formed during a later logical tick after the
+scheduler accepted command 824. This establishes the queue/scheduler boundary
+and that the click handler does not directly serialize the frame on its own
+call stack. It does not yet establish what `flags=3` means beyond the scheduler
+execution mode.
+
+### Current `21631` is the UDP bootstrap
+
+The current clientbound factory `0x1026E64` allocates a `0xC0`-byte object for
+message `0x547F` (`21631`) and calls constructor `0x106062C`. Its vtable is
+`0x18AB1A0`; ID getter `0x1060800` returns `21631`, while version getter
+`0x1060808` returns `27`.
+
+Encoder `0x10606CC` and decoder `0x1060734` establish this structural order:
+
+| Object offset | Current structural role |
+| --- | --- |
+| `+0xB0` | transform/configuration string written first |
+| `+0x90` | signed 32-bit endpoint value consumed as the UDP port |
+| `+0x98` | endpoint string/address detached and passed to the socket setup |
+| `+0xA0` / `+0xA8` | opaque byte buffer and its count |
+
+The Dispatcher branch in `0xAD3DA8` destroys any previous socket, allocates a
+`0x6B0` object with `0x1331C24` (the constructor labels it
+`"HighRateUdpSocket"`), and calls `0x1331F2C(socket, endpoint_string,
+endpoint_i32, byte_blob, ..., transform_object)`. On success it constructs
+message `16226` through `0x10605AC` and registers it with the high-rate socket
+through `0x13329DC`.
+
+Current `16226` has ID getter `0x10605E8`, version getter `0x10605F0` returning
+`1`, and empty encode/decode thunks. This promotes the previous cross-version
+prior to a current-build fact: after installing the endpoint and transform,
+the client queues empty message `16226` as the first message on the high-rate
+UDP path.
+
+The byte blob, transform string, and endpoint string are still structural
+names. Their battle/session semantics remain unproven. In particular, do not
+call the blob a nonce or the transform string a key until the transform
+constructor and UDP packet capture agree.
+
+### `29938` is a deck-explorer response candidate
+
+The current Dispatcher branch for `29938` consumes up to three packed integers:
+`+0x90`, `+0xA4`, and an array pointer/count at `+0x98`/`+0xA0`. The first
+value selects success versus error handling. The non-success branch writes
+`TID_DECK_EXPLORER_ERROR_GETTING_AVAILABLE_CARDS` or
+`TID_DECK_EXPLORER_ERROR_GETTING_RESULTS`; the success branch feeds the integer
+array into objects rooted around `0xD3F6B4` and `0xD3F6EC`.
+
+This is strong evidence that `29938` belongs to the deck-explorer feature and
+must be excluded from the high-confidence matchmaking/battle-response set.
+The remaining question is only its exact deck-explorer message semantics, not
+whether it starts a battle.
+
+### Existing IDs that do not transfer
+
+ARM64 immediate scans of `110AA2B5` find no current occurrences of the older
+cross-version candidates `24696`, `25513`, or `21873`. Current `16226` and
+`21631` still exist, but every transferred field must use the current codecs
+above. The next matchmaking response must therefore be located by dispatcher
+consumer/state transition or a controlled server response, not by guessing
+that an old ID survived.
 
 ## Cross-version prior, not fact
 
