@@ -1108,12 +1108,54 @@ This also corrects a proximity assumption: `26349` does not directly call
 `sub_BDB444`, and `match_found_start` is not a direct consequence of the
 `26349 -> 11865` branch.
 
-### Current stage-3 preloading controller
+### Child-stage loading controller and preloading envelopes
 
-The current loading controller `sub_C90A4C` is a stage-3 ordinary-PvP
-preloading path. It waits for login/application readiness, advances to stage 4,
-initializes arena/battle data, and then selects one of two outbound setup
-messages by a branch:
+The loading UI is driven through an object hierarchy, so "stage 3" must not be
+used as a synonym for the function `sub_C90A4C`. The main loop reaches the
+global controller through `sub_C8C5B8`, then calls `sub_C8DA38(controller, dt)`
+on its child-stage tick. The decoded range at `0x759CE8..0x75A214` is valid
+code in the current image but is not owned by an IDA function; these facts come
+from range disassembly and must not be promoted into a fabricated function
+boundary.
+
+When `controller+0x34` is nonzero, `sub_C8DD84` moves that pending stage into
+action:
+
+```text
+old_stage = controller+0x30
+pending_stage = controller+0x34
+controller+0x34 = 0
+destroy previous child at controller+0x20
+child = C8C900(old_stage, source+0x28, source+0x38)
+child+0x08 = old_stage
+controller+0x20 = child
+call child->vtable+0x40
+
+while child exists:
+  call child->vtable+0x50
+  call child->vtable+0x58
+  call child->vtable+0x68(controller, dt)
+```
+
+Constructor `sub_C8E920` installs vtable `0x186F2A0` for the case-1 child used
+by `sub_C8C900`; vtable slot `+0x68` resolves through `0x186F308` to
+`sub_C90A4C`. Once application/login readiness succeeds, `sub_C90A4C` schedules
+a stage-4 child through `sub_C8DFD0(controller, 4, 0)`, performs its application
+transition helpers, and selects one of the two outbound setup messages below.
+
+Known pending-stage setters in this snapshot are:
+
+| Function | Stage value(s) |
+| --- | --- |
+| `sub_BA7DFC` | `1` |
+| range code at `0x75A214` | `1` or `6` |
+| `sub_8B8334` | `4` |
+| `sub_AD9070` | `4` or `9` |
+| `sub_BB2468`, `sub_B19A80` | `3` |
+| `sub_C96D50` | `8` |
+| `sub_C90A4C` | `4` |
+
+The preload message branch in `sub_C90A4C` is:
 
 ```text
 controller has the optional match/common context
@@ -1190,6 +1232,89 @@ integrity/feature-report message emitted around battle activity. The historical
 class name remains unresolved; `RequestSectorState` is no longer supported by
 the field semantics.
 
+### `21573/v1` is chat status, not loading
+
+Current `21573/v1` is a useful rejection of one earlier startup assumption.
+Its factory case is `0x5445`, allocation size is `0xA8`, constructor is
+`0x102C794`, vtable is `0x18A4970`, and its codec/getter addresses are:
+
+```text
+encoder       0x102C7D0
+decoder       0x102C828
+ID getter     0x102C8A4
+version getter 0x102C8AC
+```
+
+The codec shows the top-level structural order:
+
+```text
+i32 from +0x90
+string from +0x94
+i32 from +0x98
+```
+
+The same-build Dispatcher consumer supplies the semantics. Case `21573`
+passes message fields `+0x90`, `+0x94`, and `+0x98` to `sub_C8E3D4`, which
+converts the first field to a duration/time float at `controller+0x8C`, stores
+the second as a status/code at `controller+0x90`, and stores the third string
+through `controller+0x98`. `sub_C8E404` maps status `3` with duration at least
+one to `TID_CHAT_FAIL_BANNED`, and status `4` with the same duration condition
+to `TID_CHAT_UNAVAILABLE`; `sub_C8E594` and `sub_C8E5B0` test those statuses
+independently.
+
+This establishes a chat status/error notification for the current build. It
+does not justify any loading-controller or battle-transition interpretation.
+
+### Match timeout is not a battle transition
+
+`sub_BD5C38` has a started guard at matchmaking-controller `+652`. On a new
+transition it records:
+
+```text
+controller+656 = state
+controller+652 = started
+controller+660 = matched id
+controller+957 = 0
+controller+0x2B0 = 0.0
+controller+0x2B4 = 0.0
+controller+0x2BC = -1
+```
+
+The state-20 path is `sub_BDA93C -> sub_BD5C38(controller, 20, matched_id,
+...)`; `sub_BDB444` and `sub_BD9A00` can also apply state `16` after the
+matching object reaches its status. Separate from that path, `sub_BDB444`'s
+timeout branch reaches `sub_AD9BD4 -> sub_13CFCC4 -> sub_13FC5C4`, whose body
+initializes the string `"vibrateDevice"` and invokes the device vibration
+service. The timeout is therefore a UI/device response and must not be used as
+evidence for a battle or loading transition.
+
+### UDP sequencing and packet budgets
+
+The current high-rate UDP builder now has several joined structural facts:
+
+```text
+sub_13334F0  assembles one or more queued application messages
+sub_1336D30  clamps sequence values:
+               0xFFFF is a sentinel
+               values >= 65000 become 65000
+sub_1336D70  stores pending message objects
+sub_1332818  serializes them through the packet writer
+```
+
+When handler `+0x13C` is nonzero, sequence counters use `+0x148`, transmit at
+most `64998`, then wrap. When handler `+0x145` is false, the builder uses
+`0xFFFF` as the sentinel. The serializer `sub_1332818` passes a writer with
+reserved message ID `-2` into `sub_1336A5C`, retries up to ten chunks, applies
+the handler transform, and writes the socket.
+
+Normal packet-size budgets are `1448` bytes when handler `+0x324` is set and
+`1456` bytes otherwise. The builder also contains fallback budgets `1398`,
+`1348`, `1248`, `1148`, `1048`, and `948`. These are allocation or payload
+budgets, not yet proved datagram boundaries.
+
+The exact clear, encrypted, and authenticated byte ranges still require a
+captured current-build datagram that can be matched to this writer.
+
 ### Battle-entry string and structure candidates
 
 Current-build strings and their local xrefs provide the next battle-search
@@ -1238,8 +1363,8 @@ versions below belong only to the current `110AA2B5` build.
 | `20941/v16` | server to client; Dispatcher branch `0x51CD` reaches `sub_C89B20` | server tick, checksum, command count, command list, optional raw payload | authoritative battle state/turn batch |
 | `13584/v9` | client to server; `sub_C89F28` sends it from the loading-state controller | current tick, secondary battle counter, command count, command list | loading-state synchronization or sector-state request candidate |
 | `27679/v9` | server to client; Dispatcher branch `0x6C1F` extracts its command and calls `sub_AD9658` | optional single LogicCommand | generic server-command delivery; not yet proven battle specific |
-| `14300/v9` | client to server; fallback branch in `sub_C90A4C` | nullable/int-like, tagged object, nullable/int-like | stage-3 preloading setup message; exact class unresolved |
-| `10500/v9` | client to server; common-context branch in `sub_C90A4C` | i32 plus five tagged nested objects/containers | complex stage-3 preloading setup message; exact class unresolved |
+| `14300/v9` | client to server; fallback branch in the `sub_C90A4C` child tick | nullable/int-like, tagged object, nullable/int-like | preloading setup message; exact class and stage semantics unresolved |
+| `10500/v9` | client to server; common-context branch in the `sub_C90A4C` child tick | i32 plus five tagged nested objects/containers | complex preloading setup message; exact class and stage semantics unresolved |
 | `19314/v9` | client to server; `sub_B19A80` and `sub_BB2468` | three VInts and one bool | integrity/feature report candidate emitted around battle activity |
 
 For `16513`, `0x1051110` writes object `+0xA0` from the current logical tick and
@@ -1526,7 +1651,10 @@ The next pass should proceed in this order:
 2. Identify the controlled server's expected response to a valid command-824
    `16513`. Trace current-build clientbound decode/dispatch until the first
    consumer that starts match-found, loading, arena setup, or high-rate UDP.
-   The `21631/v27` codec has already been rechecked on this build.
+   The next static target is the exact state-16 event subscriber that reaches
+   `sub_BA7DFC`, range code at `0x75A214`, or another
+   `sub_C8DFD0(...,1/4,...)` pending-stage setter. The `21631/v27` codec has
+   already been rechecked on this build.
 3. Decode the integrity-bit registration map and prove what policy or feature
    state the `1022`/`1023` delimiters and 10-bit chunks attest.
 4. Decode the high-rate UDP transport header from its packet builder and
@@ -1586,4 +1714,14 @@ The next pass should proceed in this order:
 - `sub_D1B804` is a field-map initializer for data involving `allianceId`,
   `players`, `mapItemId`, `battleId`, and `spectatorCount`; it is not yet a
   network message.
+- `21573/v1` is not an unresolved loading branch. Its same-build Dispatcher
+  consumer sets chat duration/status/text and maps status `3`/`4` to banned or
+  unavailable chat errors.
+- The `sub_BDB444` timeout is not a battle/loading transition. Its helper path
+  reaches `sub_13FC5C4`, which initializes and invokes the device vibration
+  service.
+- `sub_C90A4C` is not itself a "stage-3 controller." It is the `vtable+0x68`
+  tick of the child created by `sub_C8C900` case 1; this tick schedules pending
+  stage `4` and sends the preloading envelope. Direct state-16-to-controller
+  linkage remains unresolved.
 
