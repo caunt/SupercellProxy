@@ -932,19 +932,132 @@ payload integers now have the following evidence-ranked interpretations:
 These are semantic hypotheses, not field names. In particular, the same
 numeric offset in another controller object must not be used to name `+0x94`.
 
-Two adjacent same-build messages are match-control objects rather than ordinary
-PvP MatchFound messages:
+Two adjacent same-build messages are empty match-control objects rather than
+ordinary PvP MatchFound payloads:
 
 ```text
 10711 / v7   constructor 0x1050B84
 15458 / v11  constructor 0xD25C24
 ```
 
-Both are selected by the Clan-War controller method `0x94D5C8`: controller
-`+0x150` gates readiness, `+0x178` supplies the mode source, and
-`*(source + 0x68) + 0x78` selects `10711` for mode 0 or `15458` for mode 1
-before enqueueing through `AD3AC0`. They must remain outside the ordinary PvP
-matchmaking conclusion until a normal PvP dispatcher path selects them.
+The Clan-War controller method `0x94D5C8` selects `10711` for mode 0 or `15458`
+for mode 1 before enqueueing through `AD3AC0`. That is not a complete ownership
+statement. `BD55B8` independently selects `10711` when controller flags
+`+676`, `+677`, and `+678` are all clear. Therefore `10711` is a shared
+control object with at least two producers, while `15458` remains established
+only on the Clan path. Neither message's empty codec proves a MatchFound role.
+
+### Current matchmaking UI is still a presentation boundary
+
+The ordinary-looking match controller presentation path is now closed through
+its object and vtable layers:
+
+```text
+C32468
+  -> allocate 0x190-byte object
+  -> 94D384
+  -> 951B34(..., 1, 0)
+  -> primary vtable 0x180E548
+  -> secondary vtable 0x180E720
+```
+
+`94D384` records the profile/matched identifiers at `+0x168..+0x188`.
+`951B34` contains the ladder, 2v2, Clan-War shield, `play_arena`, and
+matchmaking-failure UI strings. The secondary table slot `0x180E708` resolves
+to `94D678`, which calls the local presentation transition `952A68`. That
+transition plays `players_found_start`, `bangs_test`, and
+`match_found_start` and writes presentation state `2` at object `+0xE4`.
+`BDBB2C` is a neighboring presentation-only path that plays
+`players_found_start` or `team_found_start` and clears controller flags.
+
+This is stronger evidence for what the screen does, but still does not show
+which profile mode created the overlay or which Piranha message invoked its
+network action. The direct native reference to `94F870` is only the
+eight-byte thunk `94F914`; the vtable data reference alone does not identify a
+runtime event. `C95970` has a `without_scid` branch that can reach
+`BA7DFC` and then `C8DFD0(..., 1, ...)`, but the state-16 or ordinary-ladder
+caller that selects that branch remains unproved.
+
+The same controller method `BD55B8` emits one of three empty messages after
+setting controller `+676`:
+
+```text
+controller +677 nonzero -> 11278/v9
+else +678 nonzero        -> 10363/v11
+else                     -> 10711/v7
+```
+
+The constructors install vtables `0x18A6FD0`, `0x18A6C10`, and `0x18A9110`
+respectively. All three objects have the `0x90`-byte Piranha-message base
+shape, and all are enqueued through `AD3AC0`. Static callers of `BD55B8` are
+`BD3C08`, `BD5F34`, and `BDB144`. No getter, encoder, decoder, or consumer in
+these three classes contains a field codec, so their wire bodies are empty in
+this build. Their business names remain unknown; they are useful control-flow
+observations, not MatchFound facts.
+
+### `26915/v9` battle-result carrier
+
+The current Dispatcher case `26915` now has a complete same-build factory,
+message, codec, and consumer chain:
+
+```text
+26915 / v9
+  factory case 0x6923 in 1026E64
+  -> allocate 0x110 bytes
+  -> constructor 103FB24
+  -> vtable 18A6B70
+  -> +0x20 version getter 103FF70 returns 9
+  -> +0x28 ID getter 103FF68 returns 26915
+  -> encoder 103FBBC
+  -> decoder 103FD64
+  -> Dispatcher AD3DA8 case
+  -> BB145C(controller, message)
+  -> 8B443C result UI
+```
+
+The reciprocal codec establishes the field order below. Offsets are the
+decoded message-object offsets, and the length-bearing slots are intentionally
+not named as strings or arrays without their concrete element types.
+
+```text
+u32/vint +188
+u32/vint +172
+length-bearing object +224
+u32/vint +256
+length-bearing object +248
+u32/vint +204
+u32/vint +260
+u32/vint +176
+u32/vint +168
+u32/vint +196
+u32/vint +152
+bool     +216
+u32/vint +264
+u32/vint +192
+u32/vint +180
+u32/vint +184
+length-bearing object +240
+length-bearing object +208
+u32/vint +268
+length-bearing object +232
+u32/vint +200
+length-prefixed raw blob {ptr +160, len +156}, max 900000 bytes
+```
+
+The final blob is the decisive consumer field. `103FB7C` detaches the pointer
+at `+160`, while `BB145C` reads its length from `+156`. It wraps the bytes in a
+stream, consumes a first byte, and chooses `CCEAAC` when that byte is `1` or
+`CCEBC8` otherwise. It then constructs the `0x468`-byte UI object `8B443C`,
+which selects resources including `pvp_battle_end_bo3`,
+`pve_battle_end_victory`, `pve_battle_end_defeat`, `pvp_battle_end_2v2`,
+`pvp_battle_end_new`, `pvp_battle_end_tournament_new`, and
+`pvp_battle_end_2v2_ladder`. `8B4884` additionally consults decoded `+168`
+for the PvE victory/defeat choice.
+
+This proves that `26915/v9` is the current battle-result carrier and that its
+tail contains result/replay data. It does not prove the historical class name
+or the meaning of the other 21 fields. `BattleResultMessage` is therefore a
+high-confidence naming hypothesis, not yet a copied class identity.
 
 ### Clan-War controllers are not ordinary PvP matchmaking evidence
 
@@ -1434,6 +1547,13 @@ Battle-state names also need control-flow support. `sub_CC3EB0` contains
 logic-battle strings. Those strings are search seeds because the binary uses
 the same words in unrelated state machines and debug code.
 
+The result search is no longer only string-driven. `26915/v9` has the
+factory/codec/consumer chain above, and `8B443C` selects the battle-end UI
+assets. By contrast, `BB1CC0` is a battle-start touch animation,
+`CC3EB0` only logs `"Battle start"`, and `EF0C7C` parses a replay/JSON
+`BattleResult` key and returns enum `7`. Those three must not be promoted to
+the online `26915` wire consumer merely because their strings overlap.
+
 ### Current UDP envelope and transform work
 
 The current high-rate packet builder provides a second same-build view of the
@@ -1677,7 +1797,11 @@ The next pass should proceed in this order:
 9. Correlate current LogicCommand type `2` with a live in-battle frame. The
    static actor/card placement evidence is strong, but no current wire frame
    has yet proved which of the two envelopes carries it during gameplay.
-10. Stop before assigning card-command semantics to other command types until
+10. Capture one natural `26915/v9` frame and decode the first byte of its raw
+    tail into the `CCEAAC`/`CCEBC8` branches. Correlate its 21 preceding fields
+    with `8B443C` and the replay/result controllers before assigning historical
+    field names.
+11. Stop before assigning card-command semantics to other command types until
     each command codec and live frame agree on the field order and widths.
 
 ## Rejected interpretations
@@ -1724,4 +1848,11 @@ The next pass should proceed in this order:
   tick of the child created by `sub_C8C900` case 1; this tick schedules pending
   stage `4` and sends the preloading envelope. Direct state-16-to-controller
   linkage remains unresolved.
+- `10711` is not Clan-War-only. `94D5C8` selects it for Clan mode 0, but
+  `BD55B8` also selects it on its default branch. The empty message remains an
+  unidentified control object; `15458` is the Clan-specific sibling proved so
+  far.
+- `BB1CC0`, `CC3EB0`, and `EF0C7C` are not the online `26915` result consumer.
+  They own a touch animation, a log-only start path, and replay/JSON parsing,
+  respectively.
 
