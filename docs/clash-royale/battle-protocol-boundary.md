@@ -597,20 +597,104 @@ frontier. These are navigation clues until their codecs and callers agree:
 | `ServerTick` | `0x31A87B` | `sub_D2F37C` |
 | `CurrentTick` | `0x32C009` | `sub_D2F37C` |
 | `ExecuteCommand` | `0x33CF64` | `sub_D2F37C` |
-| `SectorCommandMessage` | `0x31F25F` | source in `sub_DAA1D4`; sector message candidate |
+| `SectorCommandMessage` | `0x31F25F` | read as one entry by the large global configuration loader `sub_DAA1D4`; not a message codec |
 | `Sectormanager` | `0x32BDB3` | references `0xC88238`, `0xC89B58`, `0xC8AB3C` |
-| `Checksums` | `0x2F1A35` | `sub_11549D8`; turn/checksum candidate |
+| `Checksums` | `0x2F1A35` | one key in the replay/JSON schema initializer `sub_11549D8`; not the network checksum codec |
 | `Checksum` | `0x324746` | `sub_EC4CD0`, `sub_EC51EC`; local file-report path |
 | `ChecksumReport` | `0x338B2C` | `sub_C9942C`; creates `checksum_report.csv`, not wire proof |
 | `battleId` | embedded in `sub_D1B804` | field-map constructor with `allianceId`, `players`, `mapItemId`, `battleId`, `spectatorCount` |
 
-`sub_11549D8` is the stronger network-turn checksum lead. The
-`Checksum`/`ChecksumReport` file-map functions at `0xEC4CD0`, `0xEC51EC`, and
-`0xC9942C` are local diagnostics and are excluded from the wire schema.
-`sub_D1B804` is a strong battle/replay object candidate, but its constructor
-and xrefs still need to connect it to a current message codec. `sub_C8845C`
-prints battle, spectate, replay, and `battle_id` diagnostic data; it is useful
-for confirming object relationships, not for naming wire fields by itself.
+The first two rows were string-proximity false leads. `sub_11549D8` initializes
+the replay/JSON keys `battle`, `endTick`, `checksums`, `cmd`, `rndSeed`, `evt`,
+`time`, `deck`, `avatar`, `location`, `NPC`, `arena`, `tournament`, and related
+fields. Its caller chain runs through `sub_1153780` to `sub_12173D0`, and the
+reached code contains the explicit diagnostics
+`cannot find battle object from replay json` and
+`cannot find cmd array from replay json`. `sub_D1B804` has the same kind of
+field-map shape. Neither function is a current network turn or sector codec.
+
+`sub_DAA1D4` is a large global configuration loader. The embedded
+`SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS` string is read into one configuration
+field and supports an interval decision; it does not identify the enclosing
+function as a message codec. The `Checksum`/`ChecksumReport` file-map functions
+at `0xEC4CD0`, `0xEC51EC`, and `0xC9942C` are local diagnostics and are also
+excluded from the wire schema. `sub_C8845C` prints battle, spectate, replay, and
+`battle_id` diagnostic data; it is useful for confirming object relationships,
+not for naming wire fields by itself.
+
+### Current command and sector envelopes
+
+The same-build codecs and consumers now separate five message roles. IDs and
+versions below belong only to the current `110AA2B5` build.
+
+| Message | Direction and evidence | Current wire structure | Current role |
+| --- | --- | --- | --- |
+| `16513/v9` | client to server; `sub_C89890` constructs it and `sub_AD3AC0` queues it | tick, checksum, command count, command list, optional tail blob | general command-list envelope; structurally the current `EndClientTurn`-like form and the proven carrier for home command `824` |
+| `18193/v27` | client to server; `sub_C89778` constructs it and `sub_AD3A14` prefers the battle UDP socket | checksum, tick, optional single command, integrity bits | real-time battle command envelope |
+| `20941/v16` | server to client; Dispatcher branch `0x51CD` reaches `sub_C89B20` | server tick, checksum, command count, command list, optional raw payload | authoritative battle state/turn batch |
+| `13584/v9` | client to server; `sub_C89F28` sends it from the loading-state controller | current tick, secondary battle counter, command count, command list | loading-state synchronization or sector-state request candidate |
+| `27679/v9` | server to client; Dispatcher branch `0x6C1F` extracts its command and calls `sub_AD9658` | optional single LogicCommand | generic server-command delivery; not yet proven battle specific |
+
+For `16513`, `0x1051110` writes object `+0xA0` from the current logical tick and
+`0x1051118` writes `+0xA4` from `sub_1062BD0`, the battle state value. The
+encoder then emits the tick/state pair, list count, commands, and optional blob.
+This confirms a renamed EndClientTurn structure, although the old reference's
+fixed eight-checksum tail has been replaced by a variable optional blob.
+
+For `18193`, `sub_105E268` allocates a base object and `sub_105E2A8` encodes:
+
+```text
+VInt +0xA0  battle state/checksum
+VInt +0xA4  logical tick
+optional command at +0x98
+VInt +0xA8  integrity bits
+```
+
+`sub_C89778` fills `+0xA0` with `sub_1062C3C`, `+0xA4` with the current tick,
+and `+0x98` with the command. `sub_778164` supplies `+0xA8` and logs
+`IntegrityBits` as `tick=%d bits=0x%03x`. `sub_AD3A14` first checks the current
+battle's HighRateUdpSocket at `+0x98`; when available it passes the packet to
+`0x13329DC`, otherwise it falls back to the ordinary Piranha send queue.
+
+The integrity value is not a conventional CRC:
+
+- `sub_77805C` walks a registration map and builds a packed bit vector from
+  entries whose byte at `+0x18` is false.
+- `sub_778164` is a stateful 10-bit chunk reader. It emits `1023` when a run
+  starts, emits packed 10-bit values while the vector remains, uses `1022` as
+  the end marker, and restarts on the following call.
+- `sub_C89778` places the current reader value in the packet. The exact meaning
+  of the registered entries and the anti-tamper policy remain unresolved.
+
+For `20941`, encoder `0x105E58C` and decoder `0x105E640` prove the field order.
+The consumer is unusually specific. `sub_C89B20` accepts it only when battle
+controller stage `+0x88` is one of the final two stages. `sub_CCE804` then:
+
+```text
+server_tick = 10 * message.+0x9C
+state_value = message.+0x98
+command list = message list at +0xA0
+raw payload = message.+0xB0 / length +0xB8
+```
+
+It calls `sub_1064A08(battle, server_tick, state_value, message)`. That function
+compares the state value at the same tick, queues commands, stores both value
+streams, and can rewind battle execution when a later value for an existing
+tick differs. It keeps bounded histories of 141 ticks and limits the blob to
+900,000 bytes. This makes `20941` a high-confidence authoritative state/turn
+batch with rollback support, not a UI notification.
+
+For `13584`, `sub_C8DA38` invokes `sub_C89F28` when loading-state flags `+0x116`
+and `+0x117` transition together. `sub_C89F28` sets the current tick and the
+value returned by `sub_1062BD0`, then sends through the ordinary queue. Its
+exact historical class name (`RequestSectorState`, `SectorHeartbeat`, or a
+newer sector-state request) is still a hypothesis.
+
+For `27679`, Dispatcher branch `0x6C1F` detaches the decoded command and calls
+`sub_AD9658`, which either forwards it to the active battle controller or puts
+it in the pending-command queue. Its shape supports a generic
+`AvailableServerCommand` role, but no current field-key or battle-only caller
+has closed that name.
 
 Battle-state names also need control-flow support. `sub_CC3EB0` contains
 `BattleStart`, `sub_BB1CC0` contains `PvpBattleStart`, `sub_BB2D08` contains
@@ -735,9 +819,11 @@ The evidence supports a layered model:
 
 1. Piranha clientbound messages are decoded and dispatched through the
    `0xADBC1C` router.
-2. Current-build message `16513` is an outbound command-list envelope. The
-   traced home-battle click sends command `824` inside it; its queue semantics
-   and required server response remain to be established.
+2. Current-build message `16513` is an outbound EndClientTurn-like
+   command-list envelope. The traced home-battle click sends command `824`
+   inside it. Current `18193/v27` carries one real-time battle command and
+   prefers the configured UDP socket; current `20941/v16` is the corresponding
+   server-side state/turn batch with checksum-based rollback support.
 3. Legacy message `21631` can create and configure a separate UDP endpoint,
    and the successful path immediately sends empty message `16226` over it.
    This is the strongest same-build evidence for the sector/high-rate
@@ -754,22 +840,21 @@ The evidence supports a layered model:
 
 The next pass should proceed in this order:
 
-1. Follow the execute-with-flags-3 observer at `0xD2FE00` from command 824 into
-   `16513`, then identify every command scheduler and queue mutation that
-   decides why some `16513` encodes have an empty list and the battle click
-   produces exactly one command.
+1. Correlate `16513`, `18193`, `20941`, and `13584` with real captured
+   datagrams. Prove which command classes use the general turn envelope and
+   which use the UDP-preferred single-command envelope.
 2. Identify the controlled server's expected response to a valid command-824
    `16513`. Trace current-build clientbound decode/dispatch until the first
    consumer that starts match-found, loading, arena setup, or high-rate UDP.
    Re-run the `21631` codec comparison on that exact build before transferring
    field names or IDs.
-3. Decode the high-rate UDP transport header from its packet builder and
+3. Decode the integrity-bit registration map and prove what policy or feature
+   state the `1022`/`1023` delimiters and 10-bit chunks attest.
+4. Decode the high-rate UDP transport header from its packet builder and
    reconcile it with a captured datagram, including sequence, acknowledgement,
    fragmentation, message count, and encryption state.
-4. Search command codecs for the EndClientTurn header shape: tick/checksum,
-   bounded command count, then command-type plus payload.
-5. Search sector codecs by structure: connection endpoint/port pair, battle
-   identity, participant descriptors, tick/checksum, and bounded command arrays.
+5. Prove the semantic names of the `1062BD0`, `1062C3C`, and `F9E1A0` state
+   values and identify the two loading-stage flags that trigger `13584`.
 6. Inspect the visible tutorial overlay and the runtime checks around
    `tutorial_battles_completed`, `tutorial_state`, `matchmaking_start`,
    `BATTLE_TRAINING`, and `TUTORIAL_BATTLE_PREFER_OLD_TUTORIALS` before
@@ -800,6 +885,12 @@ The next pass should proceed in this order:
   presentation metadata; the match/team strings belong to a generic UI
   transition reached from that path.
 - The local `Checksum` and `ChecksumReport` file-dump functions do not establish
-  a network checksum format. `sub_11549D8` is the current wire-side lead that
-  still needs encoder/decoder correlation.
+  a network checksum format. `sub_11549D8` is a replay/JSON schema initializer,
+  not the turn-checksum codec.
+- `sub_DAA1D4` is a global configuration loader. Its
+  `SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS` entry does not make the containing
+  function a SectorCommandMessage codec.
+- `sub_D1B804` is a field-map initializer for data involving `allianceId`,
+  `players`, `mapItemId`, `battleId`, and `spectatorCount`; it is not yet a
+  network message.
 
