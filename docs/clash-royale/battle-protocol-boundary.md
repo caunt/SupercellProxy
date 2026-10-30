@@ -418,6 +418,56 @@ and that the click handler does not directly serialize the frame on its own
 call stack. It does not yet establish what `flags=3` means beyond the scheduler
 execution mode.
 
+### Current LogicCommand type 2
+
+The current build contains a complete LogicCommand subclass whose type getter
+returns `2`. Its main vtable is a bounded 16-slot table:
+
+```text
+main vtable       0x1877B20..0x1877BAD
+next vtable       0x1877BB0
+```
+
+The next vtable must not be included. The following methods agree on the class
+boundary and codec:
+
+```text
+constructor                         0xD32974
+copy from actor                     0xD329A8
+execute                             0xD32A08
+type getter                         0xD32E94 -> 2
+wire encode / decode                0xD32EA0 / 0xD32F10
+JSON encode / decode                0xD32D98 / 0xD32E1C
+```
+
+The wire codec emits:
+
+```text
+base +0x10
+base +0x0C
+base logic-long +0x14
+subclass +0x30
+subclass +0x28
+subclass +0x34
+subclass +0x2C
+```
+
+Offsets `+0x28`, `+0x2C`, and `+0x30` are fields of this subclass. The
+copy-from-actor method populates them from the input actor:
+
+```text
++0x28 <- actor+0x08
++0x2C <- sub_DC2570(sub_F171B4(actor))
++0x30 <- sub_F2F298(actor)
+```
+
+The JSON key for `+0x28` is `cgid`. The execute method resolves actor/card
+state, checks ownership, slot/position state, and schedules an actor operation
+with an execution tick. This is enough to describe type `2` as a high-confidence
+card/actor placement command. AstralRoyale's old `Place card` type `51` is a
+useful semantic prior, but its numeric type and serialized fields are not
+imported into this build.
+
 ### Current `21631` is the UDP bootstrap
 
 The current clientbound factory `0x1026E64` allocates a `0xC0`-byte object for
@@ -581,6 +631,56 @@ general UI transition `sub_BD5C38(controller, 16, event_id, 1, ...)`.
 an alternate transition path; they do not prove that `29613` itself is a
 MatchFound or TeamFound message. The earlier "MatchFound/TeamFound consumer"
 interpretation is therefore rejected.
+
+### Controlled `26349` experiment and crash boundary
+
+A runtime probe repeated the real home battle click and recorded the following
+current-build sequence:
+
+```text
+natural 16513 command list       command type 798
+home battle 16513 command list   command type 824
+                                 base ticks 188 / 188
+inject 26349/v16
+dispatch(26349)                  result 1
+construct 11865/v27              vtable 0x18AAF20
+send 11865                       Piranha frame ID 0x2E59
+Mainloop SIGTRAP                 libg+0x11C2F24
+```
+
+This turns the static `26349 -> 11865` relation into an observed runtime edge
+for this test instance. Both message codecs are empty, so the experiment did
+not fabricate or parse a payload. It also demonstrates that the response is not
+only queued: the client sends it immediately.
+
+The process then crashes with build ID
+`90e6f351f0dec4a28b494c3812d2629fd45d5a83`; therefore an empty `26349` is not
+sufficient to enter a battle. The libg backtrace includes:
+
+```text
+0x11C2F24
+0x995510
+0x99559C
+0xBBD8A0
+0xC85EC4
+0xC868F4
+0xC8DDDC
+0xC8DA70
+0x759F28
+```
+
+The static overlay places `0x11C2F24` at the return edge of the destructor
+`sub_11C2EFC`, reached from a virtual destructor call at `0x995510`. The same
+object-cleanup path calls the loading controller tick `sub_C8DA38`; that tick
+can send `13584` when flags `+0x116` and `+0x117` transition. This supports a
+cleanup/loading contract violation in the synthetic branch, but does not yet
+identify the missing member. It is not evidence that the empty payload failed
+to parse.
+
+The next runtime pass must stay passive on a fresh client session and capture
+the normal messages and object setup after the real command-824 request. Until
+that sequence exists, do not name `26349` or `11865` `MatchFound`, and do not
+treat the synthetic exchange as a complete handshake.
 
 This also corrects a proximity assumption: `26349` does not directly call
 `sub_BDB444`, and `match_found_start` is not a direct consequence of the
@@ -860,11 +960,18 @@ The next pass should proceed in this order:
    `BATTLE_TRAINING`, and `TUTORIAL_BATTLE_PREFER_OLD_TUTORIALS` before
    changing profile state. The exact force-gate or local-training decision has
    not been established.
-7. Decode the captured `16513` command-824 frame and map every parsed field
+7. On a fresh session, keep the probe passive and capture the normal
+   clientbound sequence after the real `16513`/command-824 request. Resolve the
+   `0x9954B4`/`0x11C2EFC` object-cleanup contract before any further synthetic
+   battle-control injection.
+8. Decode the captured `16513` command-824 frame and map every parsed field
    back to its same-build decoder and consumer before processing later socket
    or gameplay messages.
-8. Stop before assigning card-command semantics until a command codec and a
-   live command agree on the field order and widths.
+9. Correlate current LogicCommand type `2` with a live in-battle frame. The
+   static actor/card placement evidence is strong, but no current wire frame
+   has yet proved which of the two envelopes carries it during gameplay.
+10. Stop before assigning card-command semantics to other command types until
+    each command codec and live frame agree on the field order and widths.
 
 ## Rejected interpretations
 
@@ -884,6 +991,9 @@ The next pass should proceed in this order:
   is an event configuration with field keys, event times, targeting, and
   presentation metadata; the match/team strings belong to a generic UI
   transition reached from that path.
+- An empty `26349/v16` is not a valid battle bootstrap. It produces the
+  `11865/v27` reply in the tested instance, then reaches a reproducible
+  loading/cleanup SIGTRAP.
 - The local `Checksum` and `ChecksumReport` file-dump functions do not establish
   a network checksum format. `sub_11549D8` is a replay/JSON schema initializer,
   not the turn-checksum codec.
