@@ -2776,6 +2776,79 @@ The following remain hypotheses or are rejected:
   `ChallengeResponse`; its codec is known, while most business field meanings
   remain unproved.
 
+### Home command 824
+
+Command `824` is a fully bounded LogicCommand class in the current build:
+
+| Item | Same-build value |
+| --- | --- |
+| Factory | `0xD2C138`, call at `0xD2D878` |
+| Allocation | `0x38` |
+| Constructor | `0xD5C6D0` |
+| ID getter | `0xD5CAA0` -> `824` |
+| Primary vtable | `0x187C980` |
+| Executor | `0xD5C70C` |
+| Encoder | `0xD5CAAC` |
+| Decoder | `0xD5CB30` |
+| Base encoder/decoder | `0xD2BBBC` / `0xD2BC0C` |
+
+The base codec writes or reads the two integer fields at `+0x10` and `+0x0C`,
+then the LogicLong at `+0x14`. The command-specific codec then uses this exact
+reciprocal order:
+
+```text
+int32  +0x2C
+int32  +0x34
+int32  +0x30
+bool   +0x29
+bool   +0x28
+```
+
+`BD5A80` is the only direct constructor xref outside the factory. It constructs
+command `824` during matchmaking-controller transition handling:
+
+```text
+controller state 16
+  +0x2C <- 1
+  +0x30 <- supplied matched argument
+
+controller state 0 or 20
+  +0x2C <- 0
+  +0x30 remains constructor default -1
+
+any other state
+  +0x2C and +0x30 remain constructor defaults -1
+
+always
+  +0x28 <- false
+  +0x29 <- argument flag & 1
+  +0x34 <- current dword_19BC00C
+```
+
+`BD5A80` is reached from `BD9528`; the executor resolves `+0x30` through the
+active player/model context and writes `+0x34` into UI context `+1356`. Those
+uses support structure and control-flow descriptions, but do not supply stable
+business enum names.
+
+The real v4 home-battle observation emitted command `824` with base ticks
+`29735/29735` and this field tuple:
+
+```text
++0x14 = 0
++0x28 = false
++0x29 = false
++0x2C = 0
++0x30 = -1
++0x34 = 0
+```
+
+That is the producer's state-0/default branch. The reciprocal wire schema is a
+fact. `+0x2C` as a coarse matchmaking transition discriminator, `+0x30` as a
+matched/selected identifier, and `+0x34` as a generation-like scalar remain
+hypotheses. Command `824` must not be named `MatchFound`, `StartBattle`, or a
+battle-simulation command without an accepting-server response and the first
+real battle sequence.
+
 ### Next battle boundary
 
 The current direct runtime request remains a serverbound `16513/v9` command-list
