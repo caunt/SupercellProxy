@@ -94,10 +94,24 @@ That is a hypothesis, not a confirmed state-machine fact. The observation does
 establish that opening the matchmaking screen is not sufficient evidence for a
 network matchmaking message.
 
+The experiment was repeated after a clean client start and with Frida attached
+to the already-running process. The frame logger observed the same boundary for
+35 seconds after the second click: the only message IDs leaving the client were
+`10108` (KeepAlive) and `16513` (the status/UI update). No `10100` login,
+`10101`, matchmaking, sector, or result-shaped frame occurred after the click,
+and the app created no additional TCP or UDP endpoint. The search screen
+remained active and the tutorial hint overlay continued to be shown.
+
 Runtime artifacts:
 
-- `ida-ai/.ida-ai-cache/battle-runtime-20261030-200505/battle-click.png`
-- `ida-ai/.ida-ai-cache/battle-runtime-20261030-200505/battle-current.png`
+- `ida-ai/.ida-ai-cache/battle-runtime-20261030-current2.png`
+- `ida-ai/.ida-ai-cache/battle-after-cancel3.png`
+- `ida-ai/.ida-ai-cache/battle-reclick2.png`
+- `ida-ai/.ida-ai-cache/battle-search-wait35.png`
+- `ida-ai/.ida-ai-cache/battle-after-frida-click.png`
+- `ida-ai/.ida-ai-cache/battle-live-click2.png`
+- `ida-ai/.ida-ai-cache/battle-runtime-click-20261030.jsonl`
+- `ida-ai/.ida-ai-cache/battle-runtime-live-20261030.jsonl`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/server.out.log`
 - `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/capture/`
 
@@ -178,8 +192,11 @@ The next pass should proceed in this order:
    bounded command count, then command-type plus payload.
 3. Search sector codecs by structure: connection endpoint/port pair, battle
    identity, participant descriptors, tick/checksum, and bounded command arrays.
-4. Advance or replace the current tutorial-gated profile only by changing
-   profile state in the controlled server, then repeat the same button action.
+4. Inspect the visible tutorial overlay and the runtime checks around
+   `tutorial_battles_completed`, `tutorial_state`, `matchmaking_start`,
+   `BATTLE_TRAINING`, and `TUTORIAL_BATTLE_PREFER_OLD_TUTORIALS` before
+   changing profile state. The exact force-gate or local-training decision has
+   not been established.
 5. Capture the first new serverbound frame and map every parsed field back to
    its same-build decoder and consumer.
 6. Stop before assigning card-command semantics until a command codec and a
