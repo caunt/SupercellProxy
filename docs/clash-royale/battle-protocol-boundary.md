@@ -758,23 +758,40 @@ tagged nested object +0xB0
 The nested objects contain arrays and containers. This is a complex setup
 message, not the older reference's single packed-integer `10500`.
 
-The battle-sector setup candidate is current `19314/v9`. Constructor
-`0x1051534`, encoder `0x1051574`, decoder `0x10515E0`, ID getter `0x1051654`,
-and version getter `0x105165C` establish:
+Current `19314/v9` is a compact integrity/feature report candidate, not the
+previously suggested sector setup message. Constructor `0x1051534`, encoder
+`0x1051574`, decoder `0x10515E0`, ID getter `0x1051654`, and version getter
+`0x105165C` establish this wire order:
 
 ```text
-VInt +0x94
-VInt +0x8C
 VInt +0x98
+VInt +0x9C
+VInt +0x94
 bool +0x90
 ```
 
-`sub_BB2468` fills the three integers from `loc_118296C`, `sub_775748`, and
-`sub_77890C`, then sends `19314` through the ordinary Piranha queue.
-`sub_B19A80` is a smaller path that fills only `+0x94` from `loc_118296C`.
-This establishes a same-build sector/setup envelope shape and send path. The
-three integer semantics and the old class name `RequestSectorState` remain
-unproved.
+`sub_BB2468` fills `+0x94` from the packed-feature builder
+`loc_118296C`, `+0x98` from the accessor of `dword_1998934`, and `+0x9C`
+from the accessor of `dword_1999680`. The encoder then writes them in the
+order `+0x98, +0x9C, +0x94`, followed by bool `+0x90`.
+
+The two backing globals expose integrity state rather than battle state:
+
+- `sub_7754A4` computes `dword_1998934` as a 32-bit FNV-1a-style hash over
+  selected in-memory ranges and a byte-classification result.
+- `sub_778F30` maps a file as a ZIP archive, hashes selected entries, compares
+  them with embedded signatures, and stores `dword_1999680` as `0`, `1`, or
+  `2`.
+- `loc_118296C` packs several global configuration/feature values into a
+  bit vector and folds in flags that equal `1`.
+
+`sub_B19A80` is an alternate chunk entry that sends the same message class
+with only `+0x94` populated and tracks its own controller byte at `+0x250`.
+`sub_BB2468` populates all three fields and tracks a separate byte at `+0x369`.
+The strongest current interpretation is therefore a client
+integrity/feature-report message emitted around battle activity. The historical
+class name remains unresolved; `RequestSectorState` is no longer supported by
+the field semantics.
 
 ### Battle-entry string and structure candidates
 
@@ -826,7 +843,7 @@ versions below belong only to the current `110AA2B5` build.
 | `27679/v9` | server to client; Dispatcher branch `0x6C1F` extracts its command and calls `sub_AD9658` | optional single LogicCommand | generic server-command delivery; not yet proven battle specific |
 | `14300/v9` | client to server; fallback branch in `sub_C90A4C` | nullable/int-like, tagged object, nullable/int-like | stage-3 preloading setup message; exact class unresolved |
 | `10500/v9` | client to server; common-context branch in `sub_C90A4C` | i32 plus five tagged nested objects/containers | complex stage-3 preloading setup message; exact class unresolved |
-| `19314/v9` | client to server; `sub_B19A80` and `sub_BB2468` | three VInts and one bool | high-confidence battle-sector setup candidate |
+| `19314/v9` | client to server; `sub_B19A80` and `sub_BB2468` | three VInts and one bool | integrity/feature report candidate emitted around battle activity |
 
 For `16513`, `0x1051110` writes object `+0xA0` from the current logical tick and
 `0x1051118` writes `+0xA4` from `sub_1062BD0`, the battle state value. The
