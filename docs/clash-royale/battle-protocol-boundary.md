@@ -787,10 +787,14 @@ that an old ID survived.
 
 ### Current matchmaking, loading-control, and event-control candidates
 
-Three current-build message classes were inspected. `26349` and `11865` are
-loading/application-control messages, not confirmed match-found messages.
-`29613` is not one: its nested object is now identified as event configuration
-and must be kept out of the match-found candidate set.
+Three current-build message classes were inspected. The message objects for
+`26349` and `11865` both have empty encode/decode methods, but that describes
+only their ordinary Piranha codec surface. The `26349` dispatcher handler reads
+two bytes manually from the embedded ByteStream, so an empty codec must not be
+misread as an empty dispatcher payload. `11865` remains an empty reply object.
+Neither class is yet proved to be `MatchFound`. `29613` is not one: its nested
+object is now identified as event configuration and must be kept out of the
+match-found candidate set.
 
 ```text
 26349 / v16
@@ -813,24 +817,101 @@ and must be kept out of the match-found candidate set.
 ```
 
 The current Dispatcher at `0xAD3DA8` has a conditional `26349` branch. It first
-checks the controller byte at `+0x664` and the battle/context pointer at
-`+0x424`. When either readiness check selects the existing-state path, control
-goes through the controller virtual slot at `+448` or `sub_BDBB2C` and does not
-call `sub_AD9070`. The loader call is reached only when those checks and
-`sub_11FF54C` do not select the existing-state branch.
+checks the controller byte at `+0x298`, a match/context pointer at `+0x1A8`,
+and the `sub_11FF54C` readiness predicate. When those checks select the
+existing-state path, control goes through the active object's virtual slot at
+`+0x1C0` or `sub_BDBB2C` and does not call `sub_AD9070`. The loader call is
+reached only when the combined readiness condition is false. If the delayed
+condition path is selected instead, the dispatcher stores the message at
+`+0xA8` and resets its one-second timer at `+0xB0`.
 
-Once called, `sub_AD9070` reads a virtual boolean at incoming-object `+0x150`,
-sets the application state at `+8` to either `9` or `4`, performs presentation
-cleanup, forwards the loading controller at `+0x80` to `SectorManager`,
-allocates a `0x90`-byte object, constructs outbound message `11865`, and inserts
-it with `sub_AD3AC0`. The branch therefore has at least two state-dependent
-outcomes; `26349 -> AD9070` is not an unconditional battle-loader edge.
+The delayed path is drained by `sub_AD97C4`, which is called from the main
+network tick `sub_ADCB10` whenever the connection state is not `2` or `3`.
+`sub_AD97C4` accumulates frame time in `+0xB0`; only after the accumulator is
+at least `1.0` and the `sub_11FF54C` predicate succeeds does it call
+`sub_AD9070`, retire the stored message, and clear `+0xA8`. Thus `26349` can be
+handled immediately or delayed, but the delayed branch has an explicit
+one-second minimum.
+
+Once called, `sub_AD9070` obtains the incoming message's embedded ByteStream
+with `sub_121BD78(message)`, which returns `message + 8`, and resets that stream
+with `sub_121220C`. The stream vtable is `0x18BE1B8`; slot `+0x150` resolves to
+`sub_1213054`, which reads one U8 from buffer pointer `+0x38` at signed cursor
+`+0x14`, advances the cursor by one, and returns that byte. `sub_AD9070` calls
+this slot twice:
+
+```text
+reset stream
+byte[0] = read_u8()              ; discarded by this handler
+byte[1] = read_u8()
+if byte[1] == 1:
+    app_state = 9
+    pending_stage = 9 with parameter 1
+else:
+    app_state = 4
+    pending_stage = 4 with parameter 0
+apply pending stage
+reset stream
+construct and queue 11865/v27
+```
+
+The first byte's semantic is not established, so it must not yet be called a
+protocol version or a match type. The second byte is a proven binary selector
+only: value `1` selects stage `9`; every other value selects stage `4`.
+`sub_121220C` also clears ByteStream fields `+0x1C` and `+0x20`; the final reset
+means the dispatcher does not intentionally expose its two-byte read position
+to the next consumer. The ordinary codec's empty encoder does not write these
+bytes. A test producer must supply a valid ByteStream body and satisfy the
+surrounding controller state rather than assuming that an empty `26349`
+instance is a complete bootstrap.
 
 The controller field read on the `26349` path at `+0x298` is sourced from the
 configuration key `CACHE_MAX_EXTRA_SC_FILES`; it is not a battle-state field.
 Together with the loading/SectorManager calls, this places `26349` on the
-loading/application-controller branch. Calling either current `26349` or
-`11865` `MatchFound` would therefore be unsupported.
+loading/application-controller branch. The class name `MatchFound` and the
+payload field name for `byte[1]` remain unsupported.
+
+### Current global-controller stage map
+
+`sub_C8C900(old_stage, source+0x28, source+0x38)` is the central child-stage
+factory. Its current-build mapping is:
+
+| Old stage | Construction | Current meaning |
+| --- | --- | --- |
+| `1` | `sub_C8E920`, `0xB8` bytes | Startup/loading root controller |
+| `2` | `sub_C93730`, `0x90` bytes | Unresolved |
+| `3` | `sub_C85C88(mode=0)`, `0x330` bytes | AutoChess preload/UI controller candidate |
+| `4` | `sub_C85C88(mode=1)`, `0x330` bytes | Non-AutoChess live-battle controller candidate |
+| `5` | no allocation | No object is created by this implementation |
+| `6` | `sub_C951DC`, `0xB8` bytes | Supercell ID login controller |
+| `7` | `sub_C8276C`, `0x18` bytes | Unresolved |
+| `8` | `sub_C96934(mode=2)`, `0x360` bytes | AutoChess root controller |
+| `9` | `sub_C85C88(mode=2, parameter=1)`, `0x330` bytes | AutoChess live-battle controller candidate |
+
+The stage factory therefore does not describe one homogeneous loading layer.
+Stage `6` is excluded from the battle path by its SCID callbacks: `sub_C95970`
+selects the explicit strings `with_scid` and `without_scid`, and the
+`absent_scid` branch in `sub_BA7DFC` schedules pending stage `1`. Stage `8` is
+excluded by the AutoChess configuration, augment, game-mode, location, and bot
+strings reached through `sub_C96934`; `sub_C96D50` also schedules stage `8`.
+
+The three `sub_C85C88` modes are distinguished below the stage constructor.
+`sub_C86930`, which initializes the battle simulation/controller layer,
+switches on `object+0x88`:
+
+- mode `0` calls `sub_BC9D88`, which loads AutoChess UI assets and effects;
+- mode `1` skips that AutoChess asset path and constructs the live battle
+  simulation plus its controller-side wrapper;
+- mode `2` also constructs the live battle simulation, and when `object+0x480`
+  is `1` calls `sub_B5579C`, which loads AutoChess merge/effect resources.
+
+Later in `sub_C87620`, the scene-construction branch has the same split:
+mode `2` uses the AutoChess-specific path `sub_BB8F04`; other non-zero modes use
+`sub_BAEBE8`; mode `0` sets a `"MENU"` transition and constructs
+`sub_BBBD78`. This is strong same-build evidence that stage `9` is an
+AutoChess battle variant and that stage `4` is the non-AutoChess live-battle
+candidate. Stage `3` remains a preload/UI candidate until its gameplay entry is
+observed; it must not be folded into the ordinary PvP path.
 
 ### `23592/v10` is the current match controller parameter-notification candidate
 
@@ -1184,9 +1265,10 @@ Mainloop SIGTRAP                 libg+0x11C2F24
 ```
 
 This turns the static `26349 -> 11865` relation into an observed runtime edge
-for this test instance. Both message codecs are empty, so the experiment did
-not fabricate or parse a payload. It also demonstrates that the response is not
-only queued: the client sends it immediately.
+for this test instance. Both message classes' ordinary codecs are empty, so the
+experiment did not encode a valid body. It also demonstrates that, for that
+test instance, the response was not only queued: the client sent it
+immediately.
 
 The process then crashes with build ID
 `90e6f351f0dec4a28b494c3812d2629fd45d5a83`; therefore an empty `26349` is not
@@ -1209,8 +1291,9 @@ The static overlay places `0x11C2F24` at the return edge of the destructor
 object-cleanup path calls the loading controller tick `sub_C8DA38`; that tick
 can send `13584` when flags `+0x116` and `+0x117` transition. This supports a
 cleanup/loading contract violation in the synthetic branch, but does not yet
-identify the missing member. It is not evidence that the empty payload failed
-to parse.
+identify the missing member. The handler's two ByteStream reads were not
+represented by the empty synthetic body, so this is also not evidence that a
+validly encoded and state-compatible `26349` body fails.
 
 The next runtime pass must stay passive on a fresh client session and capture
 the normal messages and object setup after the real command-824 request. Until
@@ -1221,7 +1304,7 @@ This also corrects a proximity assumption: `26349` does not directly call
 `sub_BDB444`, and `match_found_start` is not a direct consequence of the
 `26349 -> 11865` branch.
 
-### Child-stage loading controller and preloading envelopes
+### Child-stage controller graph and preloading envelopes
 
 The loading UI is driven through an object hierarchy, so "stage 3" must not be
 used as a synonym for the function `sub_C90A4C`. The main loop reaches the
@@ -1232,7 +1315,7 @@ from range disassembly and must not be promoted into a fabricated function
 boundary.
 
 When `controller+0x34` is nonzero, `sub_C8DD84` moves that pending stage into
-action:
+action through the stage map above:
 
 ```text
 old_stage = controller+0x30
@@ -1826,9 +1909,11 @@ The next pass should proceed in this order:
   Those constructors and their immediate callers belong to Clan-War or
   Clan/Social presentation. `951B34`/`94D384` remain a broader specialized
   matchmaking UI family whose exact mode and network trigger are unresolved.
-- An empty `26349/v16` is not a valid battle bootstrap. It produces the
-  `11865/v27` reply in the tested instance, then reaches a reproducible
-  loading/cleanup SIGTRAP.
+- An empty `26349/v16` object is not a valid battle bootstrap. Its dispatcher
+  handler manually reads two stream bytes even though the ordinary message
+  codec is empty. The synthetic runtime instance produced the `11865/v27`
+  reply, then reached a reproducible loading/cleanup SIGTRAP without proving a
+  valid `26349` body was present.
 - The local `Checksum` and `ChecksumReport` file-dump functions do not establish
   a network checksum format. `sub_11549D8` is a replay/JSON schema initializer,
   not the turn-checksum codec.
@@ -1848,6 +1933,14 @@ The next pass should proceed in this order:
   tick of the child created by `sub_C8C900` case 1; this tick schedules pending
   stage `4` and sends the preloading envelope. Direct state-16-to-controller
   linkage remains unresolved.
+- The child-stage layer is not uniformly a loading layer. Case `6` is the SCID
+  login controller, case `8` is an AutoChess root controller, and cases `3`,
+  `4`, and `9` invoke three different `sub_C85C88` modes.
+- Stage `3` is not the ordinary PvP controller merely because it is the next
+  child after stage `2`. Its `sub_BC9D88` branch loads AutoChess UI resources.
+  Stage `4` is currently the non-AutoChess live-battle candidate.
+- An empty ByteStream is not proof that `26349` is an empty logical payload.
+  `sub_AD9070` reads two bytes from the embedded stream after resetting it.
 - `10711` is not Clan-War-only. `94D5C8` selects it for Clan mode 0, but
   `BD55B8` also selects it on its default branch. The empty message remains an
   unidentified control object; `15458` is the Clan-specific sibling proved so
