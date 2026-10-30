@@ -58,6 +58,67 @@ For `23913`, the dispatcher has a particularly strong semantic chain:
 This establishes a failure-reason discriminator, not the complete matchmaking
 state machine.
 
+### UDP connection-establishment candidate
+
+The legacy `B1CAF6D9` clientbound dispatcher contains a direct `21631` branch
+that tears down any existing high-rate UDP socket, configures a replacement,
+and sends `16226` over it. This is static evidence from the same build; it does
+not yet prove that `21631` is the message currently delivered after a successful
+match in the `110AA2B5` runtime.
+
+The same-build codec catalogue resolves `21631` as four logical fields:
+
+| Order | Wire value | Reconstructed object offset | Consumer evidence |
+| --- | --- | --- | --- |
+| 1 | UTF-8 string with a big-endian length prefix | `+0xB0` | Must be at least 80 bytes before the UDP handler builds two transform configurations from it. |
+| 2 | packed signed 32-bit integer | `+0x90` | Reaches the UDP address constructor as its 16-bit port argument. |
+| 3 | string with a big-endian length prefix | `+0x98` | Is split on `.` and four components are packed into the destination IPv4 address. |
+| 4 | byte array with a big-endian length prefix | pointer `+0xA0`, length `+0xA8` | The UDP endpoint path consumes the first eight bytes as a connection value. |
+
+The decoder has five primitive reads because the final byte array is read as a
+length and then its bytes. The encoder has four logical writes and is the better
+representation of the wire schema. Object offsets above are local to the legacy
+`LibgMessage_21631` class and must not be reused for another build.
+
+The strongest consumer chain is:
+
+```text
+21631 decoded
+-> move +0x98 endpoint string
+-> split host into four IPv4 components
+-> use +0x90 as UDP port
+-> copy eight bytes from +0xA0 as connection value
+-> configure HighRateUdpSocket
+-> construct HighRateUdpPacketHandler
+-> use +0xB0 as >=80-byte transform configuration
+-> send empty-payload Piranha message 16226 over the new UDP socket
+```
+
+The following statement is a high-confidence hypothesis rather than a field
+name: `21631` is the target build's equivalent of an older
+`UdpConnectionInfoMessage`. AstralRoyale composes its old `25513`
+`UdpConnectionInfoMessage` from UDP port, host, logic-long session ID, and nonce.
+The target has the same reusable pieces in a different order, but its message
+ID and codec were re-verified locally. It is therefore valid to call
+`port`, `host`, `connection value`, and `transform configuration`; it is too
+early to call the four fields `ServerPort`, `ServerHost`, `SessionID`, and
+`Nonce` as if those names were inherited facts.
+
+`16226` is confirmed as an empty-payload Piranha message constructed and sent
+through the newly configured high-rate UDP socket. Its direction is
+client-to-server because the socket send is explicit. Whether it is named
+connection acknowledgement, handshake, or keepalive remains unresolved.
+
+The UDP packet layer is also present in the same build. It assigns sequence
+and acknowledgement numbers, tracks a 16-bit sequence space with `65535` and
+`65000` treated as special values, fragments transformed Piranha messages,
+and uses 1456-byte and 1448-byte packet limits depending on transport
+configuration. A datagram therefore contains transport envelopes carrying one
+or more Piranha messages; `16226` is a message inside this layer, not proof that
+the first datagram has an empty body. The exact byte order and bit layout of
+the transport header still need to be closed against a packet builder or live
+datagram.
+
 ### UI and unrelated battle-like code
 
 The following were checked and removed from the network-battle candidate set:
@@ -174,32 +235,41 @@ The evidence supports a layered model:
    `0xADBC1C` router.
 2. Several nearby messages manipulate matchmaking UI or report matchmaking
    failure, but none yet proves the beginning of a network battle.
-3. The older reference suggests that matchmaking may issue a logical
+3. Legacy message `21631` can create and configure a separate UDP endpoint,
+   and the successful path immediately sends empty message `16226` over it.
+   This is the strongest same-build evidence for the sector/high-rate
+   transport bootstrap.
+4. The older reference suggests that matchmaking may issue a logical
    `EndClientTurn` command before a separate battle/sector session is created.
-4. A battle/sector phase may use different transport state from the existing
-   home TCP connection. This is still a hypothesis for the target build.
-5. Gameplay commands should be identified from command codecs and live frames,
+5. The legacy build demonstrably supports switching selected outbound
+   messages from the main Piranha stream to a high-rate UDP socket. The current
+   runtime's use of that path has not yet been captured.
+6. Gameplay commands should be identified from command codecs and live frames,
    not from the loose names of local animation or AutoChess state machines.
 
 ## Next experiments
 
 The next pass should proceed in this order:
 
-1. Find the same-build client-to-server dispatcher and enumerate the decoder
-   path used by a real UI action, rather than searching only the clientbound
-   router.
-2. Search command codecs for the EndClientTurn header shape: tick/checksum,
+1. Find the client-to-server matchmaking request, then capture the `110AA2B5`
+   clientbound response whose handler creates the UDP socket. Re-run the
+   `21631` codec comparison on that exact build before transferring the field
+   names.
+2. Decode the high-rate UDP transport header from its packet builder and
+   reconcile it with a captured datagram, including sequence, acknowledgement,
+   fragmentation, message count, and encryption state.
+3. Search command codecs for the EndClientTurn header shape: tick/checksum,
    bounded command count, then command-type plus payload.
-3. Search sector codecs by structure: connection endpoint/port pair, battle
+4. Search sector codecs by structure: connection endpoint/port pair, battle
    identity, participant descriptors, tick/checksum, and bounded command arrays.
-4. Inspect the visible tutorial overlay and the runtime checks around
+5. Inspect the visible tutorial overlay and the runtime checks around
    `tutorial_battles_completed`, `tutorial_state`, `matchmaking_start`,
    `BATTLE_TRAINING`, and `TUTORIAL_BATTLE_PREFER_OLD_TUTORIALS` before
    changing profile state. The exact force-gate or local-training decision has
    not been established.
-5. Capture the first new serverbound frame and map every parsed field back to
+6. Capture the first new serverbound frame and map every parsed field back to
    its same-build decoder and consumer.
-6. Stop before assigning card-command semantics until a command codec and a
+7. Stop before assigning card-command semantics until a command codec and a
    live command agree on the field order and widths.
 
 ## Rejected interpretations
