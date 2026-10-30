@@ -988,6 +988,134 @@ ordinary ranked/1v1 PvP. Friendly matches, challenges, events, replays, and
 other non-AutoChess battle modes can still share the same stage and simulation
 objects until their context values and runtime responses are separated.
 
+### Battle scene activation and first command boundary
+
+The stage-4 handoff continues through a scene and controller tick layer. This is
+the narrowest same-build static path currently identified between loading and
+the LogicCommand scheduler:
+
+```text
+loading stage 4
+  -> BAEBE8 constructs the battle scene
+  -> scene vtable slot +0x9E8 = BB2D08
+  -> BB2D08 calls C89A7C(controller, active)
+  -> C89A7C attempts C89890(controller) on a false-to-true transition
+  -> C89890 conditionally drains a command list as 16513/v9
+```
+
+`BB2D08` is the scene-local gameplay tick rather than a message dispatcher. It
+contains two `C89A7C` call sites, at `0xBB3A54` and `0xBB4060`. The second call
+is guarded by a battle state in `{6, 15, 17}`, a true battle-object predicate,
+and an empty result at scene `+0x310`. These checks establish an internal object
+lifecycle boundary; they do not prove that this is the ranked/1v1 branch.
+
+`C89A7C(controller, active)` only calls `C89890` when active differs from the
+stored byte at controller `+396`, and only when the new value is true. The
+`16513` drain is itself conditional:
+
+```text
+simulation state in 1..4
+and loading_controller +116 == 0
+and current_tick > controller +192
+```
+
+When those conditions pass, `C89890` detaches the current listener snapshot,
+constructs `16513`, optionally appends the tail from controller `+232`, sends
+through `AD3AC0`, and advances controller `+192`. Scene activation therefore
+contains a real `16513` attempt, but it is not an unconditional first packet.
+
+The controller vtable supplies two relevant ticks:
+
+```text
+controller vtable +0x58 -> C88BBC  main controller tick
+controller vtable +0x68 -> C899E0  alternate transition tick
+```
+
+`C88BBC` passes a time delta to `C890BC`, drains pending commands through
+`C893D0`, clears the pending count, and can construct `18193` state updates.
+`C899E0` calls `C890BC` and the scene tick only while controller `+396` is
+zero. In the currently inspected call sites, `C88BBC` is the branch that keeps
+the command queue moving during the active controller lifetime.
+
+`C893D0(controller, command, flags)` has two command transports:
+
+```text
+simulation condition false:
+  execute command as needed
+  C89778(controller, command, tick, state)
+  send 18193/v27
+
+simulation condition true:
+  execute command as needed
+  D2EEF0(simulation +56, command)
+  enqueue the ordered battle command
+```
+
+The ordered queue is consumed by `D2F37C`, which adjusts commands that are more
+than 20 ticks late, executes commands at the due tick, and can invoke a queue
+callback. The callback virtual slot `+0x20` resolves to a nullstub in this
+build. This rejects the earlier interpretation that every successful queued
+command reaches `7F5250` and produces another `16513`.
+
+The server-authoritative branch remains separate:
+
+```text
+message 20941/v16
+  -> Dispatcher branch 0x51CD
+  -> C89B20
+  -> controller mode in {1, 2}
+  -> CCE804
+  -> 1064A08
+```
+
+`1064A08` applies state and commands at ten times the wire tick and supports
+rewinding when a later state value conflicts for an already seen tick. This is
+the server-to-client state/turn path, not evidence for the client's first
+outbound packet order.
+
+The currently recovered LogicCommand type `2` can now be tied to its producer
+and codec without assigning cross-version field names:
+
+```text
+construct from actor  D329A8
+execute               D32A08
+type getter           D32E94 -> 2
+wire codec            D32EA0 / D32F10
+JSON codec            D32D98 / D32E1C
+```
+
+The actor-copy constructor loads:
+
+```text
+command +0x28 <- actor +0x08
+command +0x2C <- *(actor +72) -> +64
+command +0x30 <- actor +0x98
+```
+
+The wire body emits base fields, then subclass `+0x30`, `+0x28`, `+0x34`, and
+`+0x2C`. The JSON key `cgid` is proved for `+0x28`; the other subclass offsets
+remain structural. Several current producers call the same constructor and
+`C893D0`, including `8A92B0` and `115A67C`, but the available code does not yet
+separate player input, AI/bot activity, and replay/test paths.
+
+The current evidence therefore supports this bounded model:
+
+- `16513/v9` is the command-list drain used around battle-controller
+  activation and other controller states `1..4`.
+- `18193/v27` is the single-command runtime envelope emitted by `C89778`; it
+  prefers the configured UDP socket.
+- `20941/v16` is the authoritative server state/turn batch consumed by
+  `C89B20 -> CCE804 -> 1064A08`.
+- LogicCommand type `2` is a high-confidence actor/card operation, but neither
+  its first live carrier nor its exact first-battle trigger is proved.
+
+The remaining boundary is runtime closure. The controlled Null session reached
+98% and then showed the local privacy prompt; accepting it produced
+`Connection interrupted`, so no natural battle frame was captured in this pass.
+The first observed frame order must therefore remain a hypothesis until a
+same-build session records the transition from match/loading traffic through
+the first `16513`, `18193`, and `20941` envelopes.
+
 ### `23592/v10` is the current match controller parameter-notification candidate
 
 The strongest current-build clientbound matchmaking candidate is `23592/v10`.
