@@ -2602,3 +2602,186 @@ The next pass should proceed in this order:
   They own a touch animation, a log-only start path, and replay/JSON parsing,
   respectively.
 
+## Same-build boundary update: 17293, 27786, and 11418
+
+Research snapshot: 2026-10-31.
+
+This update isolates the current Null client build
+`110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783`. The
+supporting read-only artifact is:
+
+```text
+path      D:\IDA Scripts\ida-ai\.ida-ai-cache\battle-research-current-20261030-v2\battle-17293-27786-11418-boundary-20261031.json
+size      934912 bytes
+SHA-256   C100936E4C7BE38FB853F0A53BAE0D43BC79E83E07DB7D70104174558BD2F5EF
+contents  47 bounded function views, reciprocal codec operations, callers,
+          cross-references, and four raw vtable byte snapshots
+```
+
+The artifact was extracted from the isolated SQLite/IDB pair described under
+"Build isolation". It is evidence for this build only. The addresses and
+object offsets below must not be reused for another client release without a
+fresh codec, factory, caller, and consumer match.
+
+### Matchmaking notification 17293/v9
+
+The factory, constructor, reciprocal codec, vtable, dispatcher consumer, and
+id/version getters agree on the following identity:
+
+| Item | Same-build value |
+| --- | --- |
+| Factory branch | `0x438D` in `0x1026E64` |
+| Allocation size | `0xA0` |
+| Constructor | `0x10408C0` |
+| Encoder | `0x1040934` |
+| Decoder | `0x10409B8` |
+| ID getter | `0x1040A68` -> `17293` |
+| Version getter | `0x1040A70` -> `9` |
+| Vtable | `0x18A6EE0` |
+| Dispatcher consumer | `0xAD3BA8` |
+
+The encoder and decoder establish two independent optional `LogicLong` values:
+
+```text
+message +0x90  optional LogicLong
+message +0x98  optional LogicLong
+```
+
+The consumer compares the value from `message+0x98` with the current identity
+pair in `qword_19BC678`. Its finite-state effects are:
+
+```text
+identity match and controller object type == 20
+  -> BD5C38(controller, state=16, matched_id, started=1, ...)
+  -> C78474(...) clears the matching temporary IDs
+
+identity mismatch and controller+0x58 != -1
+  -> BD5C38(controller, state=20, id=-1, started=1, ...)
+
+otherwise
+  -> records a pending-match condition
+```
+
+This is a same-build fact: `17293/v9` is a two-optional-LogicLong clientbound
+notification capable of driving the matchmaking controller to state 16 or 20.
+It is not enough to assign business names to either `LogicLong`, state 16, or
+state 20.
+
+### 27786/v4 replay-related handler and 11418/v9 response
+
+The current build confirms a second boundary:
+
+| Item | Same-build value |
+| --- | --- |
+| Factory branch | `0x6C8A` in `0xAD3DA8` |
+| Allocation size | `0xA8` |
+| Constructor | `0x10424B4` |
+| Encoder | `0x1042540` |
+| Decoder | `0x10425C8` |
+| ID getter | `0x104269C` -> `27786` |
+| Version getter | `0x10426A4` -> `4` |
+| Vtable | `0x18A7430` |
+
+The reciprocal wire order is:
+
+```text
+packed signed int32
+optional LogicLong
+boolean
+optional string/blob
+```
+
+The decoded object fields are:
+
+```text
++0xA0  int32
++0x90  optional LogicLong
++0xA4  bool
++0x98  optional string/blob
+```
+
+The world dispatcher branch has two materially different outcomes:
+
+```text
+if message+0xA4 == false
+  -> the UI text is exactly TID_REPLAY_NOT_AVAILABLE
+
+if message+0xA4 == true
+  -> allocate an 0x88-byte handler
+  -> initialize it at 0x103B7E4
+  -> handler+0x44 <- message+0xA0
+  -> handler+0x48 <- message+0x90
+  -> handler+0x58 <- message+0x98
+  -> enqueue internal action 17 through BD6674
+  -> on success, call BD6A68(world)
+```
+
+The handler's own identity is `16308/v11`, not the action number:
+
+```text
+ID getter       0x103BD50 -> 16308
+version getter  0x103BD58 -> 11
+vtable          0x18A62B8
+```
+
+`BD6A68` switch case 17 constructs an outbound `11418/v9` message:
+
+| Item | Same-build value |
+| --- | --- |
+| Factory branch | `0x2C9A` in `0x1026E64` |
+| Allocation size | `0xD0` |
+| Constructor | `0x10518D0` |
+| Encoder region | `0x105196C..0x1051AA0` |
+| Decoder region | `0x1051AA0..0x1051C2C` |
+| ID getter | `0x1051C2C` -> `11418` |
+| Version getter | `0x1051C34` -> `9` |
+| Vtable | `0x18A9430` |
+
+Case 17 populates the response as follows:
+
+```text
+11418+0x98  <- handler+0x44 integer
+11418+0xA0  <- handler+0x48 optional LogicLong
+11418+0xBC  <- constant 4
+queue       <- sub_AD3AC0
+```
+
+The reciprocal `11418` codec is fully bounded and writes, in object-offset
+order, a length-delimited/tagged payload from `+0xC0`, `int32 +0xBC`, the
+conditional object at `+0xA0`, booleans at `+0xB3`, `+0xC8`, `+0xB0`, `+0xB1`,
+`int32 +0xB8`, `int32 +0x98`, boolean `+0xB2`, the conditional object at
+`+0xA8`, and `int32 +0xB4`. Only the integer from `+0x98`, the object from
+`+0xA0`, and request-kind constant `4` are tied to handler case 17 by the
+producer; the remaining fields retain offset names.
+
+The evidence supports these facts:
+
+1. `27786/v4` is a clientbound notification with the proven wire shape above.
+2. Its false branch is explicitly tied to `TID_REPLAY_NOT_AVAILABLE`.
+3. Its true branch constructs a `16308/v11` handler and internal action 17.
+4. A successful internal action 17 produces outbound `11418/v9` with
+   request-kind `4`.
+
+The following remain hypotheses or are rejected:
+
+- It is still a hypothesis that `27786` is replay-related overall. The strongest
+  current clue is the explicit replay-unavailable text on its false branch.
+- It is rejected to label `27786` as a normal `MatchFound`, `StartBattle`, or
+  generic challenge invitation from the present evidence.
+- It is rejected to treat internal action `17` as a wire message ID. The
+  observed IDs are `27786` clientbound and `11418` serverbound.
+- It is not established that `27786 -> 17293`, that `11418 ->` battle start, or
+  that command `824 ->` a guaranteed `17293`.
+- `11418` must not yet be named `ReplayData`, `ReplayAvailable`, or
+  `ChallengeResponse`; its codec is known, while most business field meanings
+  remain unproved.
+
+### Next battle boundary
+
+The current direct runtime request remains a serverbound `16513/v9` command-list
+envelope containing command `824`. The next bounded step is to give that
+command a typed decode and record the first normal clientbound sequence produced
+by an accepting server. Until that sequence is observed and decoded, do not
+synthesize `MatchFound`, battle start, loading completion, or a UDP session from
+`17293`, `27786`, or `11418`.
+
