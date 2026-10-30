@@ -209,6 +209,38 @@ or start-configuration candidate whose architecture is analogous to a home
 bootstrap**. The exact business name and mapping to `OwnHomeDataMessage`
 remain hypotheses.
 
+### Same-build keyed profile correction
+
+The current Null Android library contains a keyed profile decoder at
+`0xCE1DA4`. Its key namespace also exists in the older official Android build
+and in the IPA. The positional Object B decoder establishes the wire cursor;
+the keyed decoder then supplies field identity without relying on a global
+offset search. This closes:
+
+- `accountID.hi/lo` at `+0x20/+0x24`, with the `+0x18/+0x1C` copy retained as a
+  mirror;
+- `name`, `arena`, `scr`, `expLevel`, `expPoints`, `totalExpPoints`, `spi`,
+  `spt`, `lti`, `npc`, `birth_date`, `rnk_sc`, and `rnk_ps`;
+- four conditional clan fields, absent from the current sample because wire
+  `+84` is false.
+
+The corrected mapping is wire `+31 -> scr/+0x88`, not `+0x158`; wire `+32`
+belongs to the conditional `+0x158` scalar. `spt` is read at wire `+136` even
+though its ABI destination is `+0x198`, so wire order and storage order must be
+tracked independently.
+
+This correction strengthens Object B's ClientAvatar-family profile role but
+does not prove the exact `ClientAvatar` C++ type. It also does not expand the
+ambiguous abbreviations `scr`, `spi`, `spt`, `lti`, `welo`, or `rnk_*` into
+gameplay semantics. The observed `birth_date=946674000` is a plausible new-player
+sentinel, while the persistence literals `accepted_tos_version`, `new_user`,
+and `tutorial_state` remain configuration keys rather than mapped 23245 wire
+fields.
+
+A separate `spi > 0 && spi == lti` predicate is code-proven. The current values
+`spi=0` and `lti=6047` make it false; no current evidence ties that predicate to
+the privacy-policy toast.
+
 ### Loading-chain correction
 
 `23245` sets `GameRoot+0x8 = 3`. This is the high-level game-root object

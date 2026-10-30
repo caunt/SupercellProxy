@@ -29,6 +29,15 @@ The recovered wire split for the captured Android startup package remains:
 `23245` is still an OwnHomeData-family candidate. The exact current C++ class
 name is not proven.
 
+The strongest new bridge is the signed profile key namespace. Null, the older
+official Android build, and the IPA all expose the same 19 logical keys
+(`accountID.hi`, `accountID.lo`, `name`, `arena`, `scr`, `expLevel`, and the
+other entries listed below). This lets the stored ABI offsets be joined to a
+semantic key before the positional Object B decoder supplies the exact wire
+range. Offset-only searches were retained as discovery leads, but are not
+treated as field proof because unrelated objects and structures reuse the same
+small offsets.
+
 ## What each binary contributes
 
 ### Null runtime `libg.so`
@@ -44,6 +53,11 @@ proves:
   `0x36`, not a normal count or a transplanted Arena/name-change flag.
 - Object B contains nine collection handles. Their element objects are
   `0x20` bytes with a fixed record/handle and a VarInt value.
+- The keyed profile decoder at `0xCE1DA4` binds 15 currently present fields to
+  exact wire ranges after the positional decoder fixes the wire cursor.
+- The same decoder selects four conditional clan fields when the wire `+84`
+  flag is true. The current capture has the flag false, so those fields have
+  known key/ABI bindings but no observed values.
 - The 79 IPA bindings normalize to 74 unique HomeState member names and 39
   decode helpers. All 74 names have exact diagnostics in the current SO and
   are reachable from the current HomeState decode closure; 48 of them were
@@ -57,6 +71,10 @@ The older Android build supplies independent control-flow evidence:
 - Object B is initialized and decoded with size `0x208`.
 - The Null and official Object B decoders are structurally equivalent after
   address normalization.
+- The official build contains the same 19-key profile namespace at
+  `0xCF4240`, including the 15 active and four conditional field keys.
+- Its compact profile namespace at `0xD16E6C` and persistence-key initializer
+  at `0xFB13EC` independently preserve the cross-version string families.
 - The Object B vtable, constructor, encoder, and decoder establish storage
   offsets independent of the live capture.
 - The outer decoder reads five VarInt32 values after the two nested objects.
@@ -100,6 +118,13 @@ The verified vtable slots are:
 | `+0x30` | `0x1004757CC` | return byte at `+0x19C` |
 | `+0x38` | `0x10046FB44` | decode/encode round-trip probe |
 
+The IPA also contains the positional Object B encoder and decoder at
+`0x100471AD0` and `0x100471C80`, the full decoder at `0x10047094C`, the
+19-key initializer at `0x100476AF8`, the compact profile namespace at
+`0x10048EF80`, and the persistence-key initializer at `0x1006B41C8`. These
+addresses corroborate semantics through independently compiled code while
+remaining build-specific.
+
 The `0x560` IPA Home-state object and `0x570` Android Home-state object are a
 strong family-level bridge. Their size difference and different build ABI
 forbid copying offsets or complete types between them.
@@ -124,6 +149,43 @@ initial VarInt observations. Their current storage and business semantics are
 not all uniquely mapped. The final storage map therefore preserves every raw
 field and callsite, and assigns a specific storage path only where the decoder
 sequence and current evidence close the connection.
+
+### Closed keyed-profile ranges
+
+The current capture closes these 15 keyed values. The `wire range` is relative
+to the 137-byte Object B segment, while `ABI` is relative to the current Android
+Object B.
+
+| Wire range | Key | ABI | Type | Captured value | Interpretation boundary |
+| --- | --- | ---: | --- | ---: | --- |
+| `+5..+6` | `accountID.hi` | `+0x20` | VarInt32 | `0` | Key label and storage are proven |
+| `+6..+10` | `accountID.lo` | `+0x24` | VarInt32 | `71458820` | Key label and storage are proven |
+| `+15..+30` | `name` | `+0x78` | length-prefixed string | `CodexAITest` | Current display-name field |
+| `+30` | `arena` | `+0x160` | registry VarInt | `2` | Resolves `Arena2`; derived neighbor at `+0x168` |
+| `+31` | `scr` | `+0x88` | u32 | `0` | Keyed name proven; gameplay expansion unresolved |
+| `+79` | `expPoints` | `+0xEC` | u32 | `0` | Keyed name proven |
+| `+80` | `totalExpPoints` | `+0xF0` | u32 | `0` | Keyed name proven |
+| `+83` | `expLevel` | `+0xE8` | u32 | `1` | Keyed name proven |
+| `+96..+100` | `spi` | `+0x194` | u32be | `0` | Keyed name proven; expansion unresolved |
+| `+100..+102` | `lti` | `+0x58` | VarInt32 | `6047` | Keyed name proven; expansion unresolved |
+| `+102` | `npc` | `+0x19C` | bool | `false` | Keyed name and boolean read proven |
+| `+103..+108` | `birth_date` | `+0x1A0` | VarInt32 Unix seconds | `946674000` | UTC `1999-12-31T21:00:00Z` |
+| `+123` | `rnk_sc` | `+0x1D0` | VarInt32 | `0` | Keyed name proven; expansion unresolved |
+| `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | `0` | Keyed name proven; expansion unresolved |
+| `+136` | `spt` | `+0x198` | VarInt32 | `0` | Read last although it precedes several ABI fields; wire order is authoritative |
+
+Wire `+31` is therefore `scr` at `+0x88`; wire `+32` is a separate conditional
+scalar stored at `+0x158`. The previous reverse mapping was wrong.
+
+When wire `+84` is true, the keyed decoder reads `clan_id` into `+0x108`,
+`badge` into `+0x110`, `clan_name` into `+0x120`, and `welo` into `+0x130`.
+The current capture's `+84` flag is false, so the key order and ABI offsets are
+known but no wire values are present to verify.
+
+`spi > 0 && spi == lti` is a code-proven predicate. In this capture the
+predicate is false (`0 != 6047`); its UI consequence remains unproven.
+The `birth_date` value is consistent with a new-account sentinel, but no current
+consumer proves that interpretation.
 
 Nine collection groups follow. The current capture observes:
 
@@ -158,16 +220,25 @@ local evidence workspace:
 
 ```text
 D:\IDA Scripts\ida-ai\agent_reports\libg-profile-23245-joint-20261030
-\object-b-storage-map.json
+\object-b-storage-map-v2.json
+\profile-field-crosswalk.json
 \homestate-member-map.json
 ```
 
 The final storage map preserves all trace fields, fixed-width gaps, callsites,
-capture values, proven storage paths, confidence, and unresolved status. Its
-SHA-256 is
-`DBEBEA6C408065E34A807F5739F604479EF8FED4D53A49AC99155E88994AFDD8`.
-The member map SHA-256 is
-`BB33BF3DDBEF4D63AD44CDAE40DD5DA57A882FAAA016EF4066ABF23AA7AAEA79`.
+capture values, proven storage paths, confidence, and unresolved status. Hashes:
+
+```text
+object-b-storage-map-v2.json
+6623EB91EA9171A5CD2FBB618498C718C8E41690C57EC8ADC70EE05A4B6A411A
+
+profile-field-crosswalk.json
+7502A0DCB439E5EE3CAD2500BA6B71B63EFBC7AA2FFD2A97C8893C1075A29009
+
+homestate-member-map.json
+9A7FA9B82E1461FEAB0E2B4743393EC0AEF1DF724F8F8A66454E8B4122BD26EB
+```
+
 The older `object-b-ordinal.json` hash
 `1FCF8483B1FF585D6944A1F8F04BF266F6EC51BDDA825AFBDC76B033D1606E5B`
 is retained as history only and is not the corrected schema.
@@ -262,6 +333,14 @@ to a parent offset.
    dynamic-instance namespace.
 7. Most post-prefix fields need controlled variant captures or consumer proofs
    before they receive business names or database constraints.
+8. The keyed codec closes 15 current fields and four conditional keys, but it
+   does not expand ambiguous abbreviations such as `scr`, `spi`, `spt`, `lti`,
+   `welo`, `rnk_sc`, or `rnk_ps` into safer gameplay labels.
+9. Persistence strings such as `accepted_tos_version`, `new_user`, and
+   `tutorial_state` are real cross-binary key literals. They are not yet mapped
+   to Object B offsets or proven to trigger a specific startup UI.
+10. Offset-only consumer scans are insufficient for this object. A candidate
+    must preserve receiver identity or be corroborated by a keyed codec.
 
 The next useful capture changes one controlled profile dimension, such as the
 display name or one resource value, while keeping the same binary and message

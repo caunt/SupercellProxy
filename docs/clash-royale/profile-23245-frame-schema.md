@@ -35,6 +35,10 @@
    Home/game-state 家族对象，Object B 是强 `ClientAvatar` 家族前缀匹配。
    IPA 还独立给出 `0x560` Home-state-family 对象和 `0x208`
    ClientAvatar-family 对象，但当前 `23245/v10` 的精确类名仍未证明。
+10. Null、旧官服和 IPA 共享同一套有符号 profile key 命名空间。联合 key
+    decoder、ABI 写入偏移和完整 Object B 位置解码后，本次已经闭合 15 个
+    当前存在字段和 4 个条件 clan 字段。`wire +31` 是 `scr -> +0x88`，
+    `wire +32` 是条件标量 `-> +0x158`；此前两处反向不成立。
 
 机器可读结果位于：
 
@@ -57,11 +61,14 @@ D:\IDA Scripts\ida-ai\agent_reports\libg-profile-23245-joint-20261030
 其中：
 
 ```text
-object-b-storage-map.json
-SHA-256 DBEBEA6C408065E34A807F5739F604479EF8FED4D53A49AC99155E88994AFDD8
+object-b-storage-map-v2.json
+SHA-256 6623EB91EA9171A5CD2FBB618498C718C8E41690C57EC8ADC70EE05A4B6A411A
+
+profile-field-crosswalk.json
+SHA-256 7502A0DCB439E5EE3CAD2500BA6B71B63EFBC7AA2FFD2A97C8893C1075A29009
 
 homestate-member-map.json
-SHA-256 BB33BF3DDBEF4D63AD44CDAE40DD5DA57A882FAAA016EF4066ABF23AA7AAEA79
+SHA-256 9A7FA9B82E1461FEAB0E2B4743393EC0AEF1DF724F8F8A66454E8B4122BD26EB
 ```
 
 旧 `object-b-ordinal.json` 的
@@ -145,6 +152,55 @@ Object A 与 Object B 开头的 ID 不同，不能合并：
 | `47` | `09` | VarInt32 | decoder 正常读取后直接丢弃；后面的九个 collection handle 是固定 `for(i=0; i!=9; ++i)`，因此它不是 collection count |
 | `48..72` | 9 个集合 count 和 3 个元素 | 集合句柄 + `0x20` 字节运行时 item | count 为 `2,0,0,0,1,0,0,0,0`；元素是固定 `u32be` record/handle 加 VarInt value |
 | `73..136` | 64 字节 | VarInt、bit-packed flags、固定宽度和尾部零值 | 顺序已保留；除少数类型事实外，字段语义仍未证明 |
+
+### 联合 keyed codec 已闭合的字段
+
+三份二进制都包含同一套 19 个 profile key。当前抓包存在其中 15 个字段：
+
+| wire 偏移 | key | 当前 Android ABI | 类型 | 本次值 |
+| --- | --- | ---: | --- | ---: |
+| `+5..+6` | `accountID.hi` | `+0x20` | VarInt32 | 0 |
+| `+6..+10` | `accountID.lo` | `+0x24` | VarInt32 | 71458820 |
+| `+15..+30` | `name` | `+0x78` | 长度前缀 UTF-8 | `CodexAITest` |
+| `+30` | `arena` | `+0x160` | registry VarInt | 2，解析为 `Arena2` |
+| `+31` | `scr` | `+0x88` | u32 | 0 |
+| `+79` | `expPoints` | `+0xEC` | u32 | 0 |
+| `+80` | `totalExpPoints` | `+0xF0` | u32 | 0 |
+| `+83` | `expLevel` | `+0xE8` | u32 | 1 |
+| `+96..+100` | `spi` | `+0x194` | u32be | 0 |
+| `+100..+102` | `lti` | `+0x58` | VarInt32 | 6047 |
+| `+102` | `npc` | `+0x19C` | bool | false |
+| `+103..+108` | `birth_date` | `+0x1A0` | Unix seconds VarInt32 | 946674000 |
+| `+123` | `rnk_sc` | `+0x1D0` | VarInt32 | 0 |
+| `+125` | `rnk_ps` | `+0x1D8` | VarInt32 | 0 |
+| `+136` | `spt` | `+0x198` | VarInt32 | 0 |
+
+`spt` 虽然对应较靠前的 ABI 偏移，但实际在 wire 最后读取；storage offset 与
+wire order 不能互相推导。`spi > 0 && spi == lti` 是代码已证明的条件，
+本次两个值为 `0` 和 `6047`，所以条件为 false；其 UI 行为仍未证明。
+
+`birth_date=946674000` 对应 UTC `1999-12-31T21:00:00Z`，换算上海时间为
+`2000-01-01T05:00:00+08:00`。它符合“新账号哨兵值”的形状，但当前没有 UI
+consumer 把这个解释闭合。
+
+`wire +84` 是可选 clan 块开关。本抓包为 false，因此以下绑定已知但没有对应
+wire value：
+
+| key | ABI offset |
+| --- | ---: |
+| `clan_id` | `+0x108` |
+| `badge` | `+0x110` |
+| `clan_name` | `+0x120` |
+| `welo` | `+0x130` |
+
+`scr`、`spi`、`spt`、`lti`、`welo`、`rnk_sc`、`rnk_ps` 目前只证明 key、
+宽度、位置和值，尚未证明缩写展开后的完整玩法语义。`accepted_tos_version`、
+`new_user`、`tutorial_state` 等来自持久化 key 字符串命名空间，不能据此直接
+断言它们存在于本包或决定某个启动 UI。
+
+后段仍未闭合的标量不能只凭数值相同就去其他函数搜索。当前扫描已经证明
+“相同 ABI 偏移”会大量命中不同 receiver、不同对象和不同的逻辑地址表达式；
+后续候选必须保留 receiver 数据流，或再找到一个 keyed encoder/decoder 绑定。
 
 3 个集合元素在本次抓包中的值是：
 

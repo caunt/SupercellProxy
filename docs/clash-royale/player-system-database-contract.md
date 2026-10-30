@@ -17,8 +17,9 @@ Authoritative current-runtime identity:
 - external comparison:
   `D:\IDA Scripts\clash-royale-supply-chain\work\null-libg-analysis\profile23245-real-field-trace-20261029\external-reference-comparison.json`
   (`07985BF562A64741C8D7F0285F321C95DDE520FFAAC1165A9DCF987C1FF9562F`)
-- Job VCS: `libg-null-runtime-110aa2b5`, jobs 1/2; use `job-resume` for the
-  current revision after the three-binary refresh
+- Job VCS: `libg-null-runtime-110aa2b5`; joint work is recorded in jobs 3-6
+  beneath root job 1. Jobs 1-2 retain their pre-refresh `needs_review` history;
+  use `job-resume` on the relevant child instead of applying one global review.
 
 ## Field meanings that are safe to use
 
@@ -32,6 +33,8 @@ message class is still unproven.
 | Object B `+0..+14` | Three repeated LogicLongs `(0, 71458820)` | Current logic-ID component roles are unproven |
 | Object B `+15..+29` | `u32be` length 11 followed by UTF-8 `CodexAITest` | Current player display name |
 | Object B `+0x1E..` | Current-build-specific profile fields | Selector at `+0x1E` uses object type `0x36`, resolves table class 54 (`arenas.csv`), and selects `Arena2`; storage is `+0x160`, with a derived neighbor at `+0x168`. Astral `ClientAvatar` continuity ends before this selector |
+| Object B keyed fields | 15 exact wire-to-ABI profile bindings | Includes `accountID`, `name`, `arena`, `scr`, experience fields, `spi`, `spt`, `lti`, `npc`, `birth_date`, and two `rnk_*` fields; the storage map is authoritative |
+| Object B `+84` conditional block | Four exact keys, absent in the current capture | `clan_id -> +0x108`, `badge -> +0x110`, `clan_name -> +0x120`, `welo -> +0x130` |
 | Outer `+0xAC` and `+0xB8` | Timer base and end timestamp | Store both source values; treat the interval as derived |
 | Outer `+0xB0` | Quickmatch cooldown disabled/expired sentinel candidate | Signed `-1`; UI consumer supports this meaning |
 | Outer `+0xA8`, `+0xB4` | Unknown | Do not assign business names or constraints |
@@ -86,11 +89,12 @@ Store LogicLongs as two unsigned 32-bit VarInt components, for example
 `logic_id_hi` and `logic_id_lo`. A convenience composite value may be derived,
 but it must not replace the two source components.
 
-The three repeated Object B values use the same pair. AstralRoyale names the
-components `highID` and `lowID`, but the current build does not yet prove
-whether each occurrence is an account ID, player/avatar ID, home ID, or an
-ownership reference. Preserve occurrence order and a provisional relation
-label such as `avatar_identity_0/1/2` until consumers prove the roles.
+The keyed decoder proves the second repeated pair is `accountID`, stored at
+`+0x20/+0x24`, and the first pair at `+0x18/+0x1C` is its copy/mirror. The
+third repeated pair at `+0x28/+0x2C` still has no keyed or consumer proof.
+AstralRoyale's `highID`/`lowID` terms corroborate the component shape, not the
+third occurrence's meaning. Preserve occurrence order and retain a provisional
+label such as `repeated_unknown_logic_long` for the third pair.
 
 Do not:
 
@@ -115,15 +119,24 @@ The initial player/profile model should support:
 
 - player identity components;
 - display name;
-- the three repeated startup identity references, preserving order;
+- the proven keyed fields and the three repeated startup identity references,
+  preserving both wire order and ABI offset;
+- conditional clan slots, nullable when the `+84` branch is absent;
 - current profile schema/revision;
 - timestamps required by the session;
 - source snapshot reference.
 
 Do not promote `B+0x1E=02` to a name-change flag or trophy count. Current code
 and table registration prove an arena-family selector resolving `Arena2`;
-that does not prove every later object field. Those old meanings end at the
-confirmed 30-byte prefix.
+that does not prove every later object field. The older Astral continuity ends
+at the 30-byte prefix, while the same-build keyed codec independently extends
+exact storage meaning through the 15 listed fields.
+
+Store `birth_date` as `int64` Unix seconds with the source key. The observed
+`946674000` is UTC `1999-12-31T21:00:00Z`, but the "new account sentinel" label
+and any privacy-policy consequence remain hypotheses. Likewise, persistence
+strings such as `accepted_tos_version`, `new_user`, and `tutorial_state` are
+useful search keys, not packet offsets.
 
 ### 5. Preserve unknown fields losslessly
 
@@ -190,6 +203,7 @@ separate:
 | Account | internal stable key; authentication linkage; current player relationship |
 | Player/profile | internal key; LogicLong components; display name; profile revision |
 | Startup profile snapshot | libg/schema identity; message version; raw plaintext hash/bytes; import key; corrected Object B storage-map hash |
+| Profile scalar | keyed field key; wire range/value; current ABI offset as evidence; type; confidence; ambiguity boundary |
 | Decoded field observation | snapshot key; object/offset/encoding/value/status/confidence |
 | Home state | player key; schema revision; timers; versioned aggregate state |
 | Card content | immutable card-content SCID and content revision |
