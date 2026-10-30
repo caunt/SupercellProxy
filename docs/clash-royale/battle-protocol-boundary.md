@@ -573,18 +573,62 @@ and must be kept out of the match-found candidate set.
   ID / version      0x10414AC / 0x10414B4
 ```
 
-The current Dispatcher at `0xAD3DA8` has a `26349` branch. One accepted path
-reaches `0xAD6EA4`, where it calls `sub_AD9070`. That function reads a virtual
-boolean at incoming-object `+0x150`, sets the application state at `+8` to
-either `9` or `4`, performs presentation cleanup, forwards the loading
-controller at `+0x80` to `SectorManager`, allocates a `0x90`-byte object,
-constructs outbound message `11865`, and inserts it with `sub_AD3AC0`.
+The current Dispatcher at `0xAD3DA8` has a conditional `26349` branch. It first
+checks the controller byte at `+0x664` and the battle/context pointer at
+`+0x424`. When either readiness check selects the existing-state path, control
+goes through the controller virtual slot at `+448` or `sub_BDBB2C` and does not
+call `sub_AD9070`. The loader call is reached only when those checks and
+`sub_11FF54C` do not select the existing-state branch.
+
+Once called, `sub_AD9070` reads a virtual boolean at incoming-object `+0x150`,
+sets the application state at `+8` to either `9` or `4`, performs presentation
+cleanup, forwards the loading controller at `+0x80` to `SectorManager`,
+allocates a `0x90`-byte object, constructs outbound message `11865`, and inserts
+it with `sub_AD3AC0`. The branch therefore has at least two state-dependent
+outcomes; `26349 -> AD9070` is not an unconditional battle-loader edge.
 
 The controller field read on the `26349` path at `+0x298` is sourced from the
 configuration key `CACHE_MAX_EXTRA_SC_FILES`; it is not a battle-state field.
 Together with the loading/SectorManager calls, this places `26349` on the
 loading/application-controller branch. Calling either current `26349` or
 `11865` `MatchFound` would therefore be unsupported.
+
+### Clan-War controllers are not ordinary PvP matchmaking evidence
+
+Several nearby controller constructors contain matchmaking-themed UI code but
+belong to Clan/Social features. They must be kept separate from the ordinary
+home-screen PvP response:
+
+```text
+94D728       Clan-War map presentation controller
+968844       large Clan-War map controller
+C2FDBC       facade that constructs the Clan-War controller family
+C2FF3C       mode/state slot updater for that family
+C31824       inserts mode-specific child controllers, including 94D728
+```
+
+`94D728` installs vtable `0x180E740` and constructs the
+`war_map_params_cw2` configuration, `water_bg`, `screen_boat`, three
+`defense%d` slots, and clan/opponent presentation children. `968844` installs
+vtable `0x18114B0` and independently constructs the same war-map, boat, water,
+defense, opponent, and defense-editor UI.
+
+`C2FDBC` constructs `952C78`, whose body imports
+`panel_battleSpells_clan_war`, deck UI, and mode-specific Clan-War state.
+`C2FF3C` refreshes the controller's mode slots, and `C31824` constructs
+`94D728` for slot 2. Direct callers of the `C322F0`/`C32468` facade include
+`94F870`, `96C59C`, and `96C610`; the latter two are Clan-War controller
+methods. These relations reject the earlier broad claim that `94D728` and
+`C2FDBC` are ordinary matchmaking/loading controllers.
+
+The separate `951B34`/`94D384` family remains a specialized matchmaking UI
+candidate. `951B34` contains `shield_2v2`,
+`matchmaking_shield_clan_wars`, `match_making_ladder`, `play_arena`, and
+`TID_MATCHMAKE_FAILED`. `94D384` calls `951B34(a1, 1, 0)` and installs vtable
+`0x180E548`; `C32468` is one constructor that can create it after a profile
+predicate, otherwise showing `TID_MATCHMAKE_FAILED`. That presentation family
+may cover ladder, 2v2, or Clan-War matchmaking, but it contains no proved
+Piranha message constructor. Its presence is not a network MatchFound signal.
 
 The `29613` Dispatcher case at `0xAD4958` loads one of its optional values and
 reaches `sub_BDB444` at `0xAD497C`. Its top-level encoder/decoder order is:
@@ -1101,6 +1145,10 @@ The next pass should proceed in this order:
   is an event configuration with field keys, event times, targeting, and
   presentation metadata; the match/team strings belong to a generic UI
   transition reached from that path.
+- The earlier `94D728`/`C2FDBC` matchmaking-controller hypothesis is rejected.
+  Those constructors and their immediate callers belong to Clan-War or
+  Clan/Social presentation. `951B34`/`94D384` remain a broader specialized
+  matchmaking UI family whose exact mode and network trigger are unresolved.
 - An empty `26349/v16` is not a valid battle bootstrap. It produces the
   `11865/v27` reply in the tested instance, then reaches a reproducible
   loading/cleanup SIGTRAP.
