@@ -1129,6 +1129,94 @@ remain structural. `8A92B0` can construct this type on one branch, but it also
 has a separate type-`1548` action-command branch described below. The available
 code does not yet separate every player input, AI/bot, and replay/test producer.
 
+### Current command factory and choice commands
+
+The ordinary command-list reader `D2C0F4` only forwards a command type when it
+is at most `999`; it then calls `D2C138`. That constructor switch is a roughly
+10 KB compressed dispatch over types `2..1548`:
+
+```text
+jump table          0x341B38
+case relative base  0xD2C174
+distinct targets    261
+non-default 2..999  259
+default in 2..1548  739
+```
+
+The full type range is reachable by the low-level constructor switch, but type
+`1548` has no ordinary `D2C0F4` path because of the `<= 999` guard. This explains
+both sides of the prior observation: `1548` is constructible, while the checked
+`16513` and `18193` command-list readers do not instantiate it.
+
+Selected same-build constructor entries are:
+
+| Type | Constructor | Allocation |
+| ---: | --- | ---: |
+| `2` | `D32974` | `0x38` |
+| `64` | `D31330` | `0x30` |
+| `86` | `D309A8` | `0x58` |
+| `95` | `D31B00` | `0x30` |
+| `798` | `D50D6C` | `0x38` |
+| `824` | `D5C6D0` | `0x38` |
+| `1548` | `D32FD4` | `0x58` |
+
+The normal enqueue function `D2EEF0` appends to the pointer vector at object
+`+8`, whose count is at `+20`, and grows through `7F5328`. It destroys the
+command instead of appending it when `1062BC8(command_context)` returns `2`.
+`D2F37C` consumes the resulting commands by tick. Neither function proves that
+every accepted command is emitted unchanged in either envelope.
+
+Type `64` is best described provisionally as an indexed-choice command. Its
+producer `8B2BA8` obtains a 4- or 8-entry capacity, uses `D07150` to find the
+first empty index, and checks `D05060(container) == 1`. Passing selection
+objects equal to controller `+224`, `+232`, or `+240` encodes choice `0`, `1`,
+or `2`. The producer constructs `D31330`, calls `D31360`, immediately sends
+through `C893D0(..., 1)`, and then updates the local presentation through
+`8B1278`.
+
+```text
+type 64
+  execute           D31368
+  type getter       D31700 -> 64
+  JSON encode       D31568
+  JSON decode       D3163C
+  object +0x28      idx
+  object +0x2C      choice
+```
+
+The executor validates the index and choice for the 4/8-entry shape before
+calling `D073BC`. The JSON keys prove `idx` and `choice`, but the exact game
+screen or choice category is still unresolved.
+
+Type `95` has stronger semantic evidence and is provisionally a draft/card
+choice command. Producer `8BF670` checks that controller `+360 == 1`,
+controller `+400 == 0`, `1065AE8(..., 95)` is false, and `D0E0B8` permits the
+choice. The selected object must belong to the pointer vector at controller
+`+304`, with count at `+316`; the current selection bitmap is at `+320`. The
+already-selected list occupies `+280/+288`.
+
+```text
+type 95
+  construct          D31B00
+  set index          D31B30  -> object +0x28
+  execute            D31B38
+  type getter        D31ED4 -> 95
+```
+
+After construction, `D2BCA0` copies the base LogicCommand fields and
+`C893D0(..., 1)` sends the command immediately. The local handler `8BF7EC`
+finds `"time_bar"`, applies `"fade"`, displays `TID_CHOOSE_A_CARD`, hides
+`TID_TIME_LEFT` and `draft_time`, applies the local card-choice presentation,
+sets a `2.0` timer, and updates controller `+400` to prevent a second choice.
+The executor checks battle mode `5` and applies the selection through
+`D0DDF8`.
+
+This is direct static UI evidence for a draw/card-choice command, not a live
+frame observation. One earlier JSON-key note called the type-`95` key `spell`;
+that key is retained as a discrepancy rather than promoted to the complete
+class identity. A natural draft screen and captured command are still needed
+to prove the runtime envelope and final semantic name.
+
 ### HUD ability controls and the `1548` action-command family
 
 The battle HUD contains two different control families that were previously
