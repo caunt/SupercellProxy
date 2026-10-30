@@ -434,6 +434,107 @@ and that the click handler does not directly serialize the frame on its own
 call stack. It does not yet establish what `flags=3` means beyond the scheduler
 execution mode.
 
+### LogicCommand routing and queue checkpoint
+
+The current `C893D0(controller, &command, flag)` path has two distinct network
+outcomes. This corrects the earlier shorthand that every type-2 command is
+unconditionally sent as `18193`.
+
+When the command has already been executed while the battle context is in the
+requisite state, the function appends it to the pending array at
+`controller+32` and returns. On the normal path it obtains the current tick from
+`battle_context+96`, applies a minimum correction of one, lets the command
+initialize its tick when `command+20` is empty, and sets the command tick
+through virtual slot `+64`.
+
+The subsequent route at `1062F6C(battle_context)` is split:
+
+```text
+1062F6C(battle_context) == false
+  execute the command as needed
+  C89778(controller, command, tick, state)
+  construct and send 18193/v27
+
+1062F6C(battle_context) == true
+  execute the command as needed
+  D2EEF0(battle_context+56, &command)
+  append the command to the battle command queue
+```
+
+`D2EEF0(queue, &command)` is an append operation, not a sender. It destroys the
+incoming command when `battle_context+36 == 2`; otherwise it appends to the
+array at `queue+8` and increments the count at `queue+20`.
+
+`D2F37C` consumes that queue by tick. It compares the current and command ticks,
+adjusts commands that are at least 21 ticks away, executes a command at the
+20-tick boundary through virtual slot `+24`, and invokes the queue callback
+through `queue+24 -> vtable+24`. Its diagnostics distinguish an overdue command
+from a command rejected by the current state. This is strong evidence for the
+`D2EEF0 -> D2F37C` queue-consumption relationship, but the current pass has not
+yet located the concrete scheduler or virtual callback that supplies the queue
+to `D2F37C`.
+
+The same routing function adds 20 ticks for command types `2`, `64`, `86`, and
+`95` when `battle_context+168` is nonzero:
+
+```text
+if battle_context+168 != 0
+and command_type in {2, 64, 86, 95}
+    command_tick = current_tick + 20
+```
+
+The adjustment is a code fact. Whether it represents deployment latency,
+interpolation, schedulable lead time, or execution ordering remains a
+hypothesis.
+
+`C88BBC` is the controller tick that flushes `controller+32`, invokes `C893D0`
+for each pending command, and clears the pending count. With a live battle
+object, it also constructs an optional periodic `18193` state update. There is
+therefore a second `18193` path with no command payload.
+
+`C89890` provides the current `16513` threshold condition. It constructs the
+message only when controller state is one of `1..4`, loading flag `+116` is
+false, and the current tick exceeds `controller+192`; it copies the command
+list at `controller+136`, writes the current tick and state, optionally attaches
+the tail from `controller+232`, sends through the ordinary queue, and advances
+`controller+192`. The producer of `controller+136` and its exact relationship
+to the `battle_context+56` queue remain unresolved.
+
+For the live type-2 gameplay question, two statements are now separated:
+
+- `18193/v27` is definitively the immediate battle-command carrier on the
+  `1062F6C == false` branch.
+- `16513/v9` is definitively a periodic command-list carrier for controller
+  states `1..4`, but the current evidence does not yet prove that its
+  `controller+136` list is populated from the `battle_context+56` queue.
+
+### Matchmaking state 16 boundary
+
+`BD5C38` writes the matchmaking controller tuple:
+
+```text
+controller+656 = state
+controller+652 = started
+controller+660 = matched_id
+controller+957 = 0
+```
+
+`BD9A00` calls it with state `16` after a matching object's id agrees with the
+global selection. `BDB444` can also reach state `16` from a nested type-20
+object. This establishes state `16` as the post-match-object controller state
+and a local `matchmaking_start` / `team_found_start` UI transition. It does not
+by itself prove that state `16` is the loading screen or the first formal battle
+state.
+
+`BD978C` is a cancel/reset path. It clears the started flag, hides or tears down
+matchmaking UI, and sets state and matched id to `-1`. It must not be used as
+evidence for a loading transition.
+
+Replay handling at `C87620` and `1061B1C` reads replay JSON, extracts the battle
+object and command array, and feeds commands through `D2EEF0`. It confirms that
+`D2EEF0` is a general command queue, but it is not evidence for the online
+matchmaking or server-command startup path.
+
 ### Current LogicCommand type 2
 
 The current build contains a complete LogicCommand subclass whose type getter
