@@ -1,0 +1,199 @@
+# Clash Royale battle protocol boundary
+
+Research snapshot: 2026-10-30
+
+This note records the first evidence-bounded pass over matchmaking and battle
+protocol code. It deliberately separates confirmed same-build protocol facts,
+plausible semantic matches, runtime observations, and interpretations imported
+from other releases. The purpose is to establish a trustworthy starting point
+for recovering the active battle flow without mixing unrelated versions.
+
+## Build isolation
+
+There are two `libg` identities in this investigation:
+
+| Role | SHA-256 | Analysis / runtime source |
+| --- | --- | --- |
+| Legacy official-server knowledge base | `B1CAF6D94F7EFFAFEC4900A78F5D96DEFD98364B082A3CF5E560622A6858993C` | `agent_reports/libg-protocol-20261023/libg.i64` and `libg.sqlite` |
+| Null client runtime, derived from a newer official client | `110AA2B5CAC391C498645E072B0D88729428C2C2845E7E2737CA8EE979059783` | `clash-royale-supply-chain/work/NullsRoyale/.../arm64-v8a/libg.so`; isolated runtime analysis uses `libg-null-runtime-110aa2b5` |
+
+Addresses, message IDs, command IDs, vtables, and object offsets in this note
+belong to the legacy `B1CAF6D9` build unless explicitly labeled as a runtime
+observation. They must not be copied into the `110AA2B5` build without checking
+that build's codecs and consumers. Message IDs may remain stable across nearby
+releases, but that is a hypothesis to test rather than a transport rule.
+
+## Confirmed protocol boundary
+
+### Clientbound dispatch
+
+The legacy dispatcher at `0xADBC1C` receives a decoded Piranha message and uses
+the message ID plus fields stored at object offset `0x90`. This function is a
+clientbound router: it updates UI, stores decoded state, and invokes downstream
+controllers. The presence of a numeric case in this dispatcher does not prove
+that the corresponding message is part of a network battle.
+
+The following same-build codec facts are current:
+
+| ID | Wire shape from the selected codec | Dispatcher evidence | Best-supported meaning |
+| --- | --- | --- | --- |
+| `23913` | one packed signed integer stored at `+0x90` | Maps values to explicit matchmaking-failure resource IDs | Matchmaking failure reason notification. High confidence. |
+| `21186` | one packed signed integer stored at `+0x90` | Constructs `TID_PUSH_MATCHMAKING_TOP` and passes the decoded value into the UI event | Matchmaking presentation/status notification. The integer is UI-facing; its exact scale or enum is unresolved. |
+| `21162` | bool, then a two-word integer pair (`boolean_bit`, `u32`, `u32`) | Reaches the common `sub_CA4270` path used by the dispatcher region associated with tournament matchmaking | Tournament/matchmaking notification is a strong hypothesis; the pair's semantics are unresolved. |
+| `21240` | one packed signed integer stored at `+0x90` | Checks active matchmaking/sector state before pushing matchmaking UI | Matchmaking transition or presentation message; exact states are unresolved. |
+| `21393` | integer, bool, plus an unresolved shared-dispatch helper | Uses the common tournament/matchmaking dispatcher path | Tournament-related candidate only. The object meaning and nested value are not established. |
+| `18647` | empty payload | No battle-specific consumer established | Unknown empty-payload notification. It may be a trigger or acknowledgement, but treating it as a battle-start message would be speculation. |
+| `18685` | signed integer, bool, and a fixed two-word integer pair | No battle-specific consumer established | Unknown structured notification with two scalar-like components. It should not be named from the AstralRoyale ID list alone. |
+
+For `23913`, the dispatcher has a particularly strong semantic chain:
+
+- `9` selects `TID_MATCHMAKE_FAILED_WAR_SECTION_ENDED`;
+- `10` selects either `TID_SHUTDOWN_BATTLE_DISABLED` or
+  `TID_MATCHMAKE_FAILED_DUELS_DISABLED`;
+- `11` selects `TID_MATCHMAKE_FAILED_MAX_WAR_PARTICIPANTS`;
+- `3` selects `TID_TOURNAMENT_MATCHMAKE_FAILED_PROCESSING`;
+- `7` selects `TID_MATCHMAKE_FAILED_WAR_ANOTHER_PLAYER_BATTLING`;
+- other values fall back to a generic matchmaking-failure message.
+
+This establishes a failure-reason discriminator, not the complete matchmaking
+state machine.
+
+### UI and unrelated battle-like code
+
+The following were checked and removed from the network-battle candidate set:
+
+- `16513` is a status/UI update and is not a gameplay command. It also appears
+  repeatedly in the current runtime while no battle is occurring.
+- `0x10BBE60` contains `BattleInit`, `Preparing`, and `Battling` names, but it is
+  an AutoChess state machine. Those names do not describe Clash Royale PvP.
+- `0x95729C`, `0xA97AE8`, and `0xBDDE80` are matchmaking UI, animation, or
+  local state-machine code.
+- `0xC92458` and `0xCCE5CC` are battle debug/context output.
+- `0x1089460` and `0x11150A4` are small accessors for home battle/card data.
+- `0xD888C8`, `0xD8B990`, `0xE191AC`, and `0xE19EE8` consume matchmaking
+  configuration. No evidence yet shows that any of them writes a matchmaking
+  request to the network.
+
+## Runtime observation
+
+On the Null client build `110AA2B5`, tapping the yellow home-screen battle
+button opened the animated `Searching for opponent` screen. This proves that the
+home UI and local matchmaking presentation transition executed.
+
+The controlled server received no new request after the transition. Its log
+continued to show only keepalive and `16513` messages. A device socket snapshot
+showed:
+
+- the existing Piranha TCP connection from the app to `127.0.0.1:9339`;
+- no new TCP endpoint associated with the game;
+- no UDP endpoint associated with the game.
+
+Current interpretation: this profile is likely entering a tutorial or local
+training gate that displays matchmaking UI before issuing a real PvP request.
+That is a hypothesis, not a confirmed state-machine fact. The observation does
+establish that opening the matchmaking screen is not sufficient evidence for a
+network matchmaking message.
+
+Runtime artifacts:
+
+- `ida-ai/.ida-ai-cache/battle-runtime-20261030-200505/battle-click.png`
+- `ida-ai/.ida-ai-cache/battle-runtime-20261030-200505/battle-current.png`
+- `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/server.out.log`
+- `nulls-royale-server/tmp/profile-sentinel-20261030/baseline/capture/`
+
+## Cross-version prior, not fact
+
+AstralRoyale is a 2.1.8 reference. Its flow is useful as a list of questions:
+
+```text
+EndClientTurn(command 594)
+-> MatchmakeInfo
+-> StopHomeLogic
+-> UdpConnectionInfo
+-> SectorState
+-> RequestSectorState
+-> SectorCommand / SectorHeartbeat
+-> BattleResult
+```
+
+It also documents the following IDs for that older build:
+
+```text
+EndClientTurn       18688
+CancelMatchmake     12269
+UdpConnectionInfo   25513
+SectorState         21873
+SectorHeartbeat     21443
+BattleResult        28934
+```
+
+The legacy official `B1CAF6D9` catalogue contains none of those message IDs as
+codec entries. The only nearby IDs are `18647` and `18685`, whose meanings have
+not been established. Consequently, the Astral IDs are excluded from this
+build's fact set. The command type `594` belongs inside `EndClientTurn`; it is
+not a Piranha message ID.
+
+The older reference representation of a card-placement command is also only a
+structural search seed:
+
+```text
+command type 51
+tick
+checksum
+user ID high/low
+deck index
+card SCID high/low
+spell index
+card level
+x
+y
+```
+
+This shape must be matched against a codec and a live frame in the target
+build before any field name is accepted.
+
+## Working model and boundaries
+
+The evidence supports a layered model:
+
+1. Piranha clientbound messages are decoded and dispatched through the
+   `0xADBC1C` router.
+2. Several nearby messages manipulate matchmaking UI or report matchmaking
+   failure, but none yet proves the beginning of a network battle.
+3. The older reference suggests that matchmaking may issue a logical
+   `EndClientTurn` command before a separate battle/sector session is created.
+4. A battle/sector phase may use different transport state from the existing
+   home TCP connection. This is still a hypothesis for the target build.
+5. Gameplay commands should be identified from command codecs and live frames,
+   not from the loose names of local animation or AutoChess state machines.
+
+## Next experiments
+
+The next pass should proceed in this order:
+
+1. Find the same-build client-to-server dispatcher and enumerate the decoder
+   path used by a real UI action, rather than searching only the clientbound
+   router.
+2. Search command codecs for the EndClientTurn header shape: tick/checksum,
+   bounded command count, then command-type plus payload.
+3. Search sector codecs by structure: connection endpoint/port pair, battle
+   identity, participant descriptors, tick/checksum, and bounded command arrays.
+4. Advance or replace the current tutorial-gated profile only by changing
+   profile state in the controlled server, then repeat the same button action.
+5. Capture the first new serverbound frame and map every parsed field back to
+   its same-build decoder and consumer.
+6. Stop before assigning card-command semantics until a command codec and a
+   live command agree on the field order and widths.
+
+## Rejected interpretations
+
+- `16513` is not a battle command.
+- The `BattleInit`/`Battling` state names at `0x10BBE60` do not identify the
+  Clash Royale PvP protocol; that code is AutoChess.
+- A displayed matchmaking screen is not evidence that a request reached the
+  backend.
+- AstralRoyale message IDs and field offsets cannot be copied directly into the
+  legacy or current builds.
+- Structural similarity alone does not establish a class, message, or command
+  identity.
+
