@@ -467,12 +467,30 @@ incoming command when `battle_context+36 == 2`; otherwise it appends to the
 array at `queue+8` and increments the count at `queue+20`.
 
 `D2F37C` consumes that queue by tick. It compares the current and command ticks,
-adjusts commands that are at least 21 ticks away, executes a command at the
-20-tick boundary through virtual slot `+24`, and invokes the queue callback
-through `queue+24 -> [callback_object] -> +0x20`. Its diagnostics distinguish
-an overdue command
-from a command rejected by the current state. The outer logical-tick path is
-also current-build fact:
+adjusts commands that are at least 21 ticks away, and executes a command at the
+20-tick boundary through virtual slot `+24`. Its callback behavior depends on
+the active Sector substate:
+
+```text
+Sector mode false:
+  execute local queued commands
+  no controller-listener append
+
+Sector mode true, battle_context+168 -> state == 3:
+  execute the authored/replayed commands
+  invoke installed callback vtable +0x20 (nullstub)
+
+Sector mode true, other substate:
+  execute local queued commands
+  invoke installed callback vtable +0x18
+  -> 7F5250(listener, command)
+  -> append to controller+136 command list
+```
+
+The final branch is explicit at `D2FE34`-`D2FE48`: it loads
+`queue+0x18`, read from `[queue] + 0x18`, and calls it with the successfully
+executed command. The `D2F8A0` path seen earlier uses `[queue] + 0x20` and is a
+different branch. The outer logical-tick path is also current-build fact:
 
 ```text
 C890BC(controller, dt)
@@ -521,9 +539,8 @@ tick and state, detaches the listener's accumulated list with
 attaches the tail from `controller+232`, sends through the ordinary queue, and
 advances `controller+192`.
 
-The listener method `7F5250` appends an item to the listener's dynamic list,
-but it is not the callback used by `D2F37C`. The current-build vtable read at
-`0x17F3008` maps as follows:
+The listener method `7F5250` appends an item to the listener's dynamic list.
+The current-build vtable read at `0x17F3008` maps as follows:
 
 ```text
 vtable +0x00  7F50D4
@@ -533,7 +550,7 @@ vtable +0x18  7F5250   append(listener, item)
 vtable +0x20  7F5324   nullsub_336 (single RET)
 ```
 
-The relevant `D2F37C` instruction sequence is:
+The authoritative/replay `D2F37C` branch uses the empty callback:
 
 ```text
 D2F8A0  LDR X0, [X19,#0x18]   ; installed queue callback object
@@ -543,32 +560,46 @@ D2F8B0  LDR X8, [X8,#0x20]    ; callback slot
 D2F8B4  BLR X8
 ```
 
-Therefore this build does not support the earlier hypothesis that the
-successful-command callback appends through `7F5250`. It calls the empty
-`+0x20` slot instead. The following edge is rejected:
+The live local-command branch uses the other callback:
 
 ```text
-D2F37C successful command
-  -> installed controller+136 listener
-  -> vtable+0x20
-  -> 7F5250
-  -> 16513 command list
+D2FE34  LDR X0, [X19,#0x18]   ; installed queue callback object
+D2FE38  STR X21, [...]
+D2FE40  LDR X8, [X0]          ; callback vtable
+D2FE44  LDR X8, [X8,#0x18]    ; append slot
+D2FE48  BLR X8                ; 7F5250(listener, command)
 ```
 
-`C89890` still proves that it detaches and encodes the list held by
-`controller+136`. What remains open is which other event or explicit virtual
-call invokes the listener's `+0x18` append method.
+This closes the producer that was previously open. `C89890` detaches and
+encodes the list held by `controller+136`; `D2F37C` appends successful live
+local commands to that list. The active battle path can therefore coalesce
+commands for `16513` rather than sending each one as `18193`.
+
+The periodic `18193` call has independent support. Global configuration
+function `DAA1D4` reads
+`SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS` into configuration `+576`, and
+`C88BBC` compares the current tick against
+`controller+360 + 20 * configuration+576`. When the interval has elapsed, it
+calls `C89778` with a null command at `C88D64`. Thus `C89778` is used for both:
+
+- an immediate single-command `18193` on the `1062F6C == false` path;
+- a periodic Sector state update with a null command on the active battle path.
 
 For the live type-2 gameplay question, two statements are now separated:
 
-- `18193/v27` is definitively the immediate battle-command carrier on the
-  `1062F6C == false` branch.
-- `16513/v9` is definitively a periodic command-list carrier for controller
-  states `1..4`. The controller listener is installed as the
-  `battle_context+56` callback and holds the list drained by `C89890`.
-- The installed listener's `D2F37C` callback slot is empty. The successful
-  command callback is therefore not the producer of the periodically drained
-  16513 command list.
+- `18193/v27` is a single-command or periodic Sector-state envelope. In the
+  active Sector queue path it is not the carrier of every executed local
+  action.
+- `16513/v9` is the batched carrier for commands accumulated by the
+  controller listener. `C893D0` sets `controller+460` when a live battle object
+  exists, `C890BC` observes that flag, and `C89890` drains the listener into
+  `16513`.
+- `20941/v16` is the server-to-client counterpart that places authoritative
+  commands into the same `battle_context+56` queue.
+
+This still needs one runtime frame to prove the nominated first live action
+makes the predicted `16513` rather than the alternate `18193` path. The static
+control flow now favors the former for the stage-4 local Sector queue.
 
 ### Loading gate handshake around `29303` and `20129`
 
@@ -1284,13 +1315,18 @@ open.
 The current evidence therefore supports this bounded model:
 
 - `16513/v9` is the command-list drain used around battle-controller
-  activation and other controller states `1..4`.
-- `18193/v27` is the single-command runtime envelope emitted by `C89778`; it
-  prefers the configured UDP socket.
+  activation and other controller states `1..4`. In the active local Sector
+  branch, successful queued commands are appended through listener slot
+  `+0x18` and drained here.
+- `18193/v27` is emitted by `C89778` either for an immediate single command
+  when the Sector queue condition is false or as the periodic Sector state
+  update controlled by `SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS`; it prefers
+  the configured UDP socket.
 - `20941/v16` is the authoritative server state/turn batch consumed by
-  `C89B20 -> CCE804 -> 1064A08`.
+  `C89B20 -> CCE804 -> 1064A08`, then queued into `battle_context+56`.
 - LogicCommand type `2` is a high-confidence actor/card operation, but neither
-  its first live carrier nor its exact first-battle trigger is proved.
+  its first live carrier nor its exact first-battle trigger is proved by a
+  runtime frame. The static active-Sector path predicts `16513`.
 
 The remaining boundary is runtime closure. The controlled Null session reached
 98% and then showed the local privacy prompt; accepting it produced
@@ -1940,8 +1976,8 @@ versions below belong only to the current `110AA2B5` build.
 
 | Message | Direction and evidence | Current wire structure | Current role |
 | --- | --- | --- | --- |
-| `16513/v9` | client to server; `sub_C89890` constructs it and `sub_AD3AC0` queues it | tick, checksum, command count, command list, optional tail blob | general command-list envelope; structurally the current `EndClientTurn`-like form and the proven carrier for home command `824` |
-| `18193/v27` | client to server; `sub_C89778` constructs it and `sub_AD3A14` prefers the battle UDP socket | checksum, tick, optional single command, integrity bits | real-time battle command envelope |
+| `16513/v9` | client to server; `sub_C89890` constructs it and `sub_AD3AC0` queues it | tick, checksum, command count, command list, optional tail blob | general command-list envelope; structurally the current `EndClientTurn`-like form, the proven carrier for home command `824`, and the static active-Sector collector-to-wire path |
+| `18193/v27` | client to server; `sub_C89778` constructs it and `sub_AD3A14` prefers the battle UDP socket | checksum, tick, optional single command, integrity bits | immediate single-command fallback and periodic Sector state envelope |
 | `20941/v16` | server to client; Dispatcher branch `0x51CD` reaches `sub_C89B20` | server tick, checksum, command count, command list, optional raw payload | authoritative battle state/turn batch |
 | `13584/v9` | client to server; `sub_C89F28` sends it from the loading-state controller | current tick, secondary battle counter, command count, command list | loading-state synchronization or sector-state request candidate |
 | `27679/v9` | server to client; Dispatcher branch `0x6C1F` extracts its command and calls `sub_AD9658` | optional single LogicCommand | generic server-command delivery; not yet proven battle specific |
@@ -1969,6 +2005,15 @@ and `+0x98` with the command. `sub_778164` supplies `+0xA8` and logs
 `IntegrityBits` as `tick=%d bits=0x%03x`. `sub_AD3A14` first checks the current
 battle's HighRateUdpSocket at `+0x98`; when available it passes the packet to
 `0x13329DC`, otherwise it falls back to the ordinary Piranha send queue.
+
+`C89778` has two callers/local shapes. `C893D0` invokes it with a command on the
+`1062F6C == false` branch. `C88BBC` invokes it with a null command when the
+current tick exceeds `controller+360 + 20 * configuration+576`, where
+configuration `+576` is loaded from
+`SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS`. The live Sector command-queue path
+instead appends successful local commands to the `controller+136` listener,
+which `C89890` drains into `16513`. This is why `18193` must not be described
+as the unconditional carrier for every battle action.
 
 The integrity value is not a conventional CRC:
 
@@ -2214,9 +2259,14 @@ The evidence supports a layered model:
    `0xADBC1C` router.
 2. Current-build message `16513` is an outbound EndClientTurn-like
    command-list envelope. The traced home-battle click sends command `824`
-   inside it. Current `18193/v27` carries one real-time battle command and
-   prefers the configured UDP socket; current `20941/v16` is the corresponding
-   server-side state/turn batch with checksum-based rollback support.
+   inside it. In the active local Sector branch, `D2F37C` appends successful
+   due commands through listener slot `+0x18`; `C89890` drains that list into
+   `16513`. Current `18193/v27` instead has an immediate single-command path
+   and a periodic Sector-state path controlled by
+   `SECTOR_COMMAND_MESSAGE_INTERVAL_SECONDS`; both prefer the configured UDP
+   socket. Current `20941/v16` is the corresponding server-side state/turn
+   batch with checksum-based rollback support and feeds commands into the same
+   Sector queue.
 3. Current-build message `21631/v27` creates and configures a separate UDP
    endpoint,
    and the successful path immediately sends empty message `16226` over it.
