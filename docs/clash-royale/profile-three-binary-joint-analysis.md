@@ -133,6 +133,32 @@ The IPA LoginOK ID `24742` is not a startup `23245` alias. Android LoginOK is
 `20963`. The `24742` value helps identify the login boundary but does not
 establish an IPA startup-message identity corresponding to Android `23245`.
 
+### IDA type-layout correction
+
+The first local type draft declared `NullLibgMessageStringStorage` as three
+32-bit values plus an 8-byte pointer. IDA therefore padded it to 24 bytes.
+Current ABI stores prove that this helper is 16 bytes: two leading `u32`
+values followed by an 8-byte pointer. That pointer's high half was previously
+misread as a fourth `u32`.
+
+After correcting the helper and reapplying the four startup function
+prototypes, the IDA-reported sizes are:
+
+```text
+NullLibgMessageStringStorage                 0x10
+NullLibgMessage_23245_ClientAvatarCandidate  0x208
+NullLibgMessage_23245_HomeState              0x570
+NullLibgMessage_23245                        0xC0
+```
+
+Hex-Rays now emits `scr_0088`, `expLevel_00e8`, `npc_019c`, and
+`birth_date_01a0` at their matching instruction stores. This correction matters:
+using the original 24-byte helper would silently shift most fields after the
+display name or HomeState string by eight bytes. The read-only IDA type-layout
+check is retained locally at
+`type-layout-rerun-ida.log`, SHA-256
+`7588B6E44B798F731FCA0F0A5C160AD11929BD9ED8B12C0098D2D6F25FAEE49A`.
+
 ## Object B wire semantics
 
 The current capture and both Android decoders agree on this prefix:
