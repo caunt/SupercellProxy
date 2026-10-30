@@ -6,8 +6,11 @@ namespace SupercellProxy.Networking.Cryptography;
 
 /// <summary>
 /// The NaCl-style primitives the game protocol encrypts with: Curve25519 key agreement, a ChaCha stream cipher keyed through
-/// HChaCha, and Poly1305 authentication. Supercell changed the round counts (8 ChaCha double rounds and 17 HChaCha double rounds),
-/// so standard libsodium boxes do not interoperate with these.
+/// HChaCha, and Poly1305 authentication. The Release17286-family parameters
+/// use 8 ChaCha double rounds and 17 HChaCha double rounds; the analyzed
+/// current Clash Royale build uses ChaCha8 (4 double rounds) and HChaCha10
+/// (5 double rounds). These parameters are release-specific, so standard
+/// libsodium boxes do not interoperate with them.
 /// </summary>
 public static class NaClV3Cryptography
 {
