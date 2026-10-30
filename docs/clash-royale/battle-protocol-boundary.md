@@ -593,6 +593,82 @@ Together with the loading/SectorManager calls, this places `26349` on the
 loading/application-controller branch. Calling either current `26349` or
 `11865` `MatchFound` would therefore be unsupported.
 
+### `23592/v10` is the current match controller parameter-notification candidate
+
+The strongest current-build clientbound matchmaking candidate is `23592/v10`.
+It is a real same-build message class with a reciprocal codec and a Dispatcher
+consumer; it is not an old message ID copied from a reference implementation.
+
+```text
+23592 / v10
+  factory case      0x5C28 in 0x1026E64
+  allocation        0xA0 bytes
+  constructor       0x105252C
+  vtable            0x18A95C0
+  encode / decode   0x1052570 / 0x10525C8
+  ID / version      0x1052624 / 0x105262C
+```
+
+Both codec directions operate on the same three unsigned 32-bit fields. Their
+wire order is proved by the matching encoder and decoder:
+
+```text
+object +0x98
+object +0x90
+object +0x94
+```
+
+The constructor initializes `+0x90` and `+0x98` to `0xFFFFFFFF`. The Dispatcher
+case at `0xAD6218` first obtains a controller through `0xBBAEC0`, then follows
+two state-dependent paths:
+
+```text
+controller not ready
+  -> BDA93C(controller)
+
+controller ready
+  -> BDA918(controller, message +0x90)
+  -> BDA930(controller, message +0x98, message +0x94)
+
+current match controller present
+  -> 952B88(match_controller, message +0x90)
+```
+
+The consumers write:
+
+| Consumer | Controller effect |
+| --- | --- |
+| `BDA918` | `+0x2B0 = float(+0x90)`, `+0x2B4 = float(+0x90)`, `+0x2BC = -1` |
+| `BDA930` | `+0x29C = +0x98`, `+0x2A0 = +0x94` |
+| `952B88` | `+0x154 = float(+0x90)` |
+
+The not-ready path `BDA93C` scans entries rooted at controller `+0x220` through
+`FF51F8`. For a matching entry it reaches `C8E1F0`, calls `BC0290(..., 1)`,
+then invokes the general presentation transition
+`BD5C38(controller, 20, matched_id, ...)`. State `20` is associated with local
+match/team-found presentation in `BDB444`, but that shared state does not prove
+that `23592` itself is the server's final MatchFound message.
+
+The defensible label is therefore "matchmaking/battle controller parameter
+notification candidate." It is currently stronger than the old `27552`, the
+conditional `26349`, and the Clan-War-only `10711`/`15458` pair. The three
+payload integers must not yet be named as wait time, latency, player count, or
+match ticket without an additional setter/consumer or a live frame.
+
+Two adjacent same-build messages are match-control objects rather than ordinary
+PvP MatchFound messages:
+
+```text
+10711 / v7   constructor 0x1050B84
+15458 / v11  constructor 0xD25C24
+```
+
+Both are selected by the Clan-War controller method `0x94D5C8`: controller
+`+0x150` gates readiness, `+0x178` supplies the mode source, and
+`*(source + 0x68) + 0x78` selects `10711` for mode 0 or `15458` for mode 1
+before enqueueing through `AD3AC0`. They must remain outside the ordinary PvP
+matchmaking conclusion until a normal PvP dispatcher path selects them.
+
 ### Clan-War controllers are not ordinary PvP matchmaking evidence
 
 Several nearby controller constructors contain matchmaking-themed UI code but
@@ -1015,6 +1091,40 @@ The next byte-level checkpoint is to reproduce the output of `0x1336A5C` and
 compare it with a captured datagram before and after the `0x1335244` transform.
 That comparison will assign clear/encrypted/authenticated regions and close the
 meaning of the four special markers.
+
+## Startup/profile checkpoint
+
+The startup and profile pass is complete enough to separate the working labels
+from the abbreviations that remain unresolved. Those findings belong to the
+legacy official-server analysis snapshot identified above by
+`B1CAF6D9...`; they are not current-build `110AA2B5...` addresses. The detailed
+evidence remains in:
+
+- `docs/clash-royale/profile-abbreviated-scalar-evidence.md`
+- `docs/clash-royale/profile-three-binary-joint-analysis.md`
+- `docs/clash-royale/profile-23245-frame-schema.md`
+
+| Wire key | Defensible meaning | Boundary |
+| --- | --- | --- |
+| `rnk_sc` | Current ranked-ladder score | This is the strongest semantic match in the profile set |
+| `scr` | Score or rating value | The UI has mode-specific consumers, so one exclusive subsystem meaning is not proved |
+| `lti` | Monotonic progression index/value | An accepted update must advance beyond the stored value; the domain is still unresolved |
+| `spi` | Latest progression snapshot | It is written together with `spt` during progression delivery |
+| `spt` | Small enum-like tag paired with `spi` | Values `1..3` are observed; their business names are unresolved |
+| `welo` | Clan-adjacent scalar | Codec and storage placement are proved; the business meaning is not |
+| `rnk_ps` | Rank-related scalar | Previous, peak, and season interpretations are explicitly rejected |
+
+For persistence and server models, retain structural keys and assign these
+labels only where a consumer needs a readable field name. In particular, do not
+expand the abbreviations beyond the table. Cross-profile observations from the
+IPA or reference proxies can generate hypotheses, but acceptance still needs a
+same-build codec/consumer pair or a controlled runtime mutation.
+
+The transition marker to battle research is the verified home Arena click:
+LogicCommand `824` is serialized inside message `16513`. The following sections
+start from that traced request and separate ordinary PvP matchmaking,
+Clan-War-specific controllers, clientbound response dispatch, and the UDP
+transport bootstrap.
 
 ## Cross-version prior, not fact
 
