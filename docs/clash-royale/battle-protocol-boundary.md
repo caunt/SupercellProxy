@@ -23,6 +23,20 @@ observation. They must not be copied into the `110AA2B5` build without checking
 that build's codecs and consumers. Message IDs may remain stable across nearby
 releases, but that is a hypothesis to test rather than a transport rule.
 
+The follow-up static work uses the isolated current-build copy:
+
+```text
+D:\IDA Scripts\ida-ai\.ida-ai-cache\battle-research-current-20261030-v2\libg.sqlite
+D:\IDA Scripts\ida-ai\.ida-ai-cache\battle-research-current-20261030-v2\libg.i64
+```
+
+Its pre-research SHA-256 values were
+`55CA64A2AEDC8578E235C46FC1802638D326A2F2EFA026D53CF747510F63D186`
+for SQLite and
+`20CB073E70D8C0B1A0A019BDE6EC1666F1ED23258FE3B9ACEE0A163CB260C4E5`
+for the IDB. These copies prevent additional static exports from mutating the
+shared runtime analysis database.
+
 ## Confirmed protocol boundary
 
 ### Clientbound dispatch
@@ -461,12 +475,12 @@ above. The next matchmaking response must therefore be located by dispatcher
 consumer/state transition or a controlled server response, not by guessing
 that an old ID survived.
 
-### Current match-control candidates
+### Current match-control and event-control candidates
 
-Three additional current-build messages form the leading match-control
-candidates. Their wire structures and consumers are confirmed; the semantic
-names below remain explicitly provisional until a controlled live sequence
-orders them.
+Three current-build message classes were inspected. `26349` and `11865` remain
+match-control candidates. `29613` is not one: its nested object is now
+identified as event configuration and must be kept out of the match-found
+candidate set.
 
 ```text
 26349 / v16
@@ -497,8 +511,8 @@ object, constructs outbound message `11865`, and inserts it with
 does not prove that every `26349` produces an acknowledgement or that either
 message is named `MatchFound`.
 
-The `29613` Dispatcher case at `0xAD4958` loads message `+0x98` and calls
-`sub_BDB444` at `0xAD497C`. Its top-level encoder/decoder order is:
+The `29613` Dispatcher case at `0xAD4958` loads one of its optional values and
+reaches `sub_BDB444` at `0xAD497C`. Its top-level encoder/decoder order is:
 
 ```text
 nullable packed-VInt object at +0x98
@@ -526,17 +540,83 @@ bool
 optional byte length + byte payload
 ```
 
-`sub_BDB444` compares a two-word identity through `0x121A9F0`, reads a nested
-status through `0xEC0C24`, and tests that status against `20`. The matching
-branch calls `sub_BD5C38(controller, 16, value, 1, ...)`; the alternate branch
-emits `match_found_start` and `team_found_start` presentation events. The
-current evidence therefore supports "match/team-found consumer candidate" for
-`29613`, while a general lobby role remains possible.
+The nested helper is an event configuration rather than a battle-start record.
+Function `0xEC0A40` creates its field keys, while encoder `0xEC00C8` and
+decoder `0xEC0440` write and read the same object offsets:
 
-These findings also correct an earlier proximity assumption: `26349` does not
-directly call `sub_BDB444`, and `match_found_start` is not a direct consequence
-of the `26349 -> 11865` branch. The direct `29613` case is the current
-same-build bridge to that consumer.
+| Offset | Field |
+| --- | --- |
+| `+0x00` | `id` (i32) |
+| `+0x04` | `version_id` |
+| `+0x08` | `variant_id` |
+| `+0x10` | `name` |
+| `+0x20` | `category` |
+| `+0x24` | `start_time` |
+| `+0x28` | `end_time` |
+| `+0x2C` | `visible_time` |
+| `+0x30` | `visible_end_time` |
+| `+0x38` | `start_notif_tid` |
+| `+0x48` | `end_notif_tid` |
+| `+0x58` | `event_name` |
+| `+0x68` | optional `json` string pointer |
+| `+0x78` | `targeting_id` |
+| `+0x7C` | `personally_targeted` |
+| `+0x80` | `scheduling_type` |
+| `+0x84` | empty-string key |
+| `+0x88` | `event_top_group_id` |
+| `+0x8C` | `impression_id` |
+| `+0x90` | `scstore_exclusive` |
+| `+0x92` | `enabled` |
+| `+0x94` | `num_variants` |
+
+The time meanings have independent arithmetic support: `0xEC0C44` and
+`0xEC0C64` multiply `+0x24` and `+0x28` by `1000`, `0xEC0C9C` subtracts
+`+0x24` from `+0x28` to produce a duration, and `0xEC0CA8` returns the optional
+JSON pointer. This is high-confidence event schema evidence.
+
+`sub_BDB444` compares an identity through `0x121A9F0`, reads the event status
+through `0xEC0C24`, and tests it against `20`. The matching branch calls the
+general UI transition `sub_BD5C38(controller, 16, event_id, 1, ...)`.
+`match_found_start` and `team_found_start` are generic presentation strings in
+an alternate transition path; they do not prove that `29613` itself is a
+MatchFound or TeamFound message. The earlier "MatchFound/TeamFound consumer"
+interpretation is therefore rejected.
+
+This also corrects a proximity assumption: `26349` does not directly call
+`sub_BDB444`, and `match_found_start` is not a direct consequence of the
+`26349 -> 11865` branch.
+
+### Battle-entry string and structure candidates
+
+Current-build strings and their local xrefs provide the next battle-search
+frontier. These are navigation clues until their codecs and callers agree:
+
+| Search term | Address | Current function / role candidate |
+| --- | --- | --- |
+| `CommandTick` | `0x3120E7` | `sub_D2F37C`, the confirmed LogicCommand scheduler |
+| `ServerTick` | `0x31A87B` | `sub_D2F37C` |
+| `CurrentTick` | `0x32C009` | `sub_D2F37C` |
+| `ExecuteCommand` | `0x33CF64` | `sub_D2F37C` |
+| `SectorCommandMessage` | `0x31F25F` | source in `sub_DAA1D4`; sector message candidate |
+| `Sectormanager` | `0x32BDB3` | references `0xC88238`, `0xC89B58`, `0xC8AB3C` |
+| `Checksums` | `0x2F1A35` | `sub_11549D8`; turn/checksum candidate |
+| `Checksum` | `0x324746` | `sub_EC4CD0`, `sub_EC51EC`; local file-report path |
+| `ChecksumReport` | `0x338B2C` | `sub_C9942C`; creates `checksum_report.csv`, not wire proof |
+| `battleId` | embedded in `sub_D1B804` | field-map constructor with `allianceId`, `players`, `mapItemId`, `battleId`, `spectatorCount` |
+
+`sub_11549D8` is the stronger network-turn checksum lead. The
+`Checksum`/`ChecksumReport` file-map functions at `0xEC4CD0`, `0xEC51EC`, and
+`0xC9942C` are local diagnostics and are excluded from the wire schema.
+`sub_D1B804` is a strong battle/replay object candidate, but its constructor
+and xrefs still need to connect it to a current message codec. `sub_C8845C`
+prints battle, spectate, replay, and `battle_id` diagnostic data; it is useful
+for confirming object relationships, not for naming wire fields by itself.
+
+Battle-state names also need control-flow support. `sub_CC3EB0` contains
+`BattleStart`, `sub_BB1CC0` contains `PvpBattleStart`, `sub_BB2D08` contains
+`BattleEnd`, `sub_EF0C7C` contains `BattleResult`, and `sub_DC79A4` contains
+logic-battle strings. Those strings are search seeds because the binary uses
+the same words in unrelated state machines and debug code.
 
 ### Current UDP envelope and transform work
 
@@ -715,4 +795,11 @@ The next pass should proceed in this order:
   legacy or current builds.
 - Structural similarity alone does not establish a class, message, or command
   identity.
+- `29613` is not a confirmed MatchFound or TeamFound consumer. Its nested object
+  is an event configuration with field keys, event times, targeting, and
+  presentation metadata; the match/team strings belong to a generic UI
+  transition reached from that path.
+- The local `Checksum` and `ChecksumReport` file-dump functions do not establish
+  a network checksum format. `sub_11549D8` is the current wire-side lead that
+  still needs encoder/decoder correlation.
 
