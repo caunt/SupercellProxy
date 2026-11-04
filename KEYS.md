@@ -5,6 +5,7 @@
 ## [Brawl Stars](https://decrypt.day/app/id1229016807)
 | Game version | Key version | Key                                                                |
 | ------------ | ----------- | ------------------------------------------------------------------ |
+| 70.648       | —           | `1F7F356BA92043BBB8531028EFDCC2D52411677FEAEAC77C8728FE9E0AAECB2B` |
 | 69.414       | —           | `5F4BFA1DC7B58FAC0611F34DBAF3847B376F968530F76A9A202849017AA9510A` |
 | 69.252       | —           | `5F4BFA1DC7B58FAC0611F34DBAF3847B376F968530F76A9A202849017AA9510A` |
 | 69.230       | —           | `5F4BFA1DC7B58FAC0611F34DBAF3847B376F968530F76A9A202849017AA9510A` |
