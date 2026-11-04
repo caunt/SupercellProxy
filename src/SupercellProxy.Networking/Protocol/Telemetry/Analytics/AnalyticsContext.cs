@@ -4,12 +4,16 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>The optional context native attaches to an analytics batch or event: six presence flags, then each present part.</summary>
-/// <param name="Values">The first part.</param>
-/// <param name="FirstStatistics">The second part.</param>
-/// <param name="SecondStatistics">The third part.</param>
-/// <param name="Counters">The fourth part.</param>
-/// <param name="Timestamp">The fifth part.</param>
-/// <param name="ThirdStatistics">The sixth part.</param>
+/// <param name="Values">Battery level and charging data collected for the session.</param>
+/// <param name="FirstStatistics">The ordered statistics payload for collector kind 2; its business metric taxonomy is not identified.</param>
+/// <param name="SecondStatistics">The ordered statistics payload for collector kind 4; its business metric taxonomy is not identified.</param>
+/// <param name="Counters">Thermal status values sampled at session start and end and bounded during the session.</param>
+/// <param name="Timestamp">A release-specific timestamp collector subtype and the active session duration.</param>
+/// <param name="ThirdStatistics">The statistics payload for collector kind 6; its business role is not identified.</param>
+/// <remarks>
+/// The serialized section order is Values, FirstStatistics, SecondStatistics, Counters, Timestamp and ThirdStatistics. Collector kind order is
+/// different: Values is 1, FirstStatistics is 2, Timestamp is 3, SecondStatistics is 4, Counters is 5 and ThirdStatistics is 6.
+/// </remarks>
 public sealed record AnalyticsContext(
     AnalyticsContextValues? Values,
     AnalyticsContextStatistics? FirstStatistics,

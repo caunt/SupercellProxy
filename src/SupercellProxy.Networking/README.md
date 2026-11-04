@@ -53,6 +53,8 @@ Authenticated clients require `SessionAccountIdentifier` and load that account f
 
 Registry entries expose stable `CaptureName` labels. `MessageRegistry.GetCaptureName` supplies capture filenames independently of CLR type renames. Packet versions, JSON member names, session paths, capture formats, and raw payload preservation are independent of this source layout.
 
+The `AnalyticsBatchMessage` context has ordered, typed semantics even where its CLR member names remain generic. Session `Time2`, event segment durations and the timestamp collector exclude paused intervals; the statistics payload order is during-session minimum and maximum, session-start and session-end samples, the 1st, 5th, 50th, 95th and 99th percentiles, then the sample count. The `Values` section contains battery level at session start and end plus the charging bit, while `Counters` contains thermal status at session start and end plus the during-session minimum and maximum. The business metrics sampled by the two normal Statistics collectors remain unknown, and the complete release-specific mapping of `AnalyticsContextTimestamp.Value` is not established.
+
 `LoginFailedMessage.EstimatedMaintenanceSeconds` names the server's estimated remaining maintenance
 duration for `LoginFailureType.Maintenance`. It preserves the existing signed, big-endian 32-bit wire
 field immediately after `Reason`, as well as the legacy `Unknown1` JSON member. Nonpositive values do
