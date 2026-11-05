@@ -4,7 +4,7 @@ using SupercellProxy.Keys.Extract.Extensions;
 
 namespace SupercellProxy.Keys.Extract;
 
-/// <summary>Reads the key-version integer immediately before its native data anchor.</summary>
+/// <summary>Reads a key version from native data anchors or a qualified ARM64 Mach-O ClientHello producer.</summary>
 internal static class KeyVersionExtractor
 {
     private static readonly byte[][] Anchors =
@@ -36,6 +36,10 @@ internal static class KeyVersionExtractor
             }
         }
 
-        return version;
+        int? nativeVersion = MachOKeyVersionExtractor.Extract(binary);
+
+        return version is not null && nativeVersion is not null && version != nativeVersion
+            ? throw new InvalidOperationException(message: "Native data anchor and ClientHello key versions disagree.")
+            : nativeVersion ?? version;
     }
 }
