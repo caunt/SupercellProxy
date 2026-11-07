@@ -8,7 +8,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Authentication;
 
 /// <summary>
-/// Represents the <c language="csharp">LoginOkMessage</c> protocol message.
+/// Represents the Release17286-family <c language="csharp">LoginOkMessage</c>,
+/// registered as message 25220. The analyzed current Clash Royale client uses
+/// a wire-incompatible LoginOk at message 20963; see
+/// docs/clash-royale/loginok-20963.md before reusing this codec.
 /// </summary>
 public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvider<LoginOkMessage>
 {
@@ -207,7 +210,9 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
         );
     }
 
-    // Native reads each block only while payload bytes remain, so older servers end the message earlier.
+    // Release17286 reads each block only while payload bytes remain. The
+    // current Clash Royale 20963 compatibility blocks have a different order
+    // and shape; do not reuse this trailing layout for that build.
     private readonly record struct TrailingBlocks(
         LoginOkSessionData? SessionData,
         Presence<string?> Text,
