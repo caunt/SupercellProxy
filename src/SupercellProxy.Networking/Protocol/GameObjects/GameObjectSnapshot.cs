@@ -564,6 +564,10 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>State number of the object; what each value means depends on the kind of object.</summary>
     public int State { get; init; }
 
+    /// <summary>Gets how many sanctuary viewing stops a town passenger has made (native passenger +0x7c).</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? StateLoops { get; init; }
+
     /// <summary>Gets the retained state deadline used by stateful home objects.</summary>
     public int StateTimer { get; init; }
 

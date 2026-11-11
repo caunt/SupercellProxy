@@ -26,7 +26,7 @@ public sealed record DataTableChange
 
     /// <summary>
     /// Replacement CSV text. Without a <see cref="Column"/> it becomes the whole file; with one, only the named columns are copied
-    /// from it, row by row, so it must have exactly as many rows as the table.
+    /// from it, line by line; table lines past the replacement's end keep their own values.
     /// </summary>
     [JsonPropertyName("NewFullCSV")]
     public DataTableReplacement? NewFullCommaSeparatedValues { get; init; }

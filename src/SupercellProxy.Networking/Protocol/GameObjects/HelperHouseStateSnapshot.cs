@@ -23,6 +23,14 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int[]? LureAutoTargets { get; init; }
 
+    /// <summary>
+    /// Gets the caretaker's feeding mode, when retained: 0 also feeds every hungry animal, 1 also keeps spare feed, and 2 works for the
+    /// orders only.
+    /// </summary>
+    [JsonPropertyName("Mode")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Mode { get; init; }
+
     /// <summary>Whether the player turned down the current offer; a new offer clears it.</summary>
     [JsonPropertyName("OfferDeclined")]
     public bool OfferDeclined { get; init; }

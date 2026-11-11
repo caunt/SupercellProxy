@@ -18,8 +18,8 @@ namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 /// <param name="BonusRewardGlobalId">Global id of the bonus reward; 0 when there is none.</param>
 /// <param name="BonusCount">How many of the bonus reward the order gives.</param>
 /// <param name="ReceiverGlobalId">Global id of the customer who placed the order.</param>
-/// <param name="TimerRemaining">Time left on an empty slot's countdown until its next order arrives.</param>
-/// <param name="TimerDuration">Full length of that countdown.</param>
+/// <param name="TimerStartSeconds">Seconds the slot's countdown started with, saved as the timer's <c>StartSeconds</c> (native timer encode 0x1006df434).</param>
+/// <param name="TimerTicksLeft">Ticks left on that countdown, saved as the timer's <c>TicksLeft</c>.</param>
 /// <param name="ReviverAvatarId">Home of the player who filled the order for its owner; null when nobody did.</param>
 /// <param name="HelperId">Id of the order's help request; 0 when the owner has not asked for help.</param>
 /// <param name="HelperRewardData">Help value saved as <c>HRD</c> on the order; its meaning for orders is not identified.</param>
@@ -43,8 +43,8 @@ public sealed record RemoteOrder(
     int BonusRewardGlobalId,
     int BonusCount,
     int ReceiverGlobalId,
-    int TimerRemaining,
-    int TimerDuration,
+    int TimerStartSeconds,
+    int TimerTicksLeft,
     ReviverAvatar? ReviverAvatarId,
     int HelperId,
     int HelperRewardData,
@@ -78,7 +78,7 @@ public sealed record RemoteOrder(
         Codecs.VarInt,
         static order => order.ReceiverGlobalId,
         Timer.Codec,
-        static order => new Timer(order.TimerRemaining, order.TimerDuration),
+        static order => new Timer(order.TimerStartSeconds, order.TimerTicksLeft),
         Codecs.Optional(ReviverAvatar.Codec),
         static order => order.ReviverAvatarId,
         Helper.Codec,
@@ -121,8 +121,8 @@ public sealed record RemoteOrder(
             bonus.BonusRewardGlobalId,
             bonus.BonusCount,
             receiverGlobalId,
-            timer.TimerRemaining,
-            timer.TimerDuration,
+            timer.StartSeconds,
+            timer.TicksLeft,
             reviverAvatarId,
             helper.HelperId,
             helper.HelperRewardData,
@@ -192,14 +192,14 @@ public sealed record RemoteOrder(
     }
 
     // The order timer.
-    private readonly record struct Timer(int TimerRemaining, int TimerDuration)
+    private readonly record struct Timer(int StartSeconds, int TicksLeft)
     {
         public static ICodec<Timer> Codec { get; } = Codecs.Composite(
             Codecs.VarInt,
-            static segment => segment.TimerRemaining,
+            static segment => segment.StartSeconds,
             Codecs.VarInt,
-            static segment => segment.TimerDuration,
-            static (timerRemaining, timerDuration) => new Timer(timerRemaining, timerDuration)
+            static segment => segment.TicksLeft,
+            static (startSeconds, ticksLeft) => new Timer(startSeconds, ticksLeft)
         );
     }
 }

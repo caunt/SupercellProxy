@@ -3,10 +3,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Membership;
 
-/// <summary>Ends the valley map game and resets the last position.</summary>
+/// <summary>Ends the avatar's Valley game.</summary>
 /// <param name="MapGameId">Id of the Valley board that ended.</param>
-/// <param name="LastPosition">Where the player finished on the board; its exact meaning is not identified.</param>
-public sealed record EndMapGameServerCommand(LongId? MapGameId, int LastPosition) : CodecServerCommand<EndMapGameServerCommand>, ICommandCodecProvider<EndMapGameServerCommand>
+/// <param name="ChickenCoins">The ended game's Chicken coins; native stores them in that game's wallet (0x1004881c0) unless negative.</param>
+public sealed record EndMapGameServerCommand(LongId? MapGameId, int ChickenCoins) : CodecServerCommand<EndMapGameServerCommand>, ICommandCodecProvider<EndMapGameServerCommand>
 {
     /// <inheritdoc />
     public static CommandCodec<EndMapGameServerCommand> Codec { get; } = Codecs.Command(
@@ -14,8 +14,8 @@ public sealed record EndMapGameServerCommand(LongId? MapGameId, int LastPosition
             Codecs.OptionalLongId,
             static command => command.MapGameId,
             Codecs.VarInt,
-            static command => command.LastPosition,
-            static (mapGameId, lastPosition) => new EndMapGameServerCommand(mapGameId, lastPosition)
+            static command => command.ChickenCoins,
+            static (mapGameId, chickenCoins) => new EndMapGameServerCommand(mapGameId, chickenCoins)
         )
     );
 }

@@ -9,6 +9,9 @@ public sealed record FarmPassSnapshot
     [JsonPropertyName("FarmPassDailyTasks")]
     public FarmPassTaskSnapshot[] DailyTasks { get; init; } = [];
 
+    /// <summary>Id of the Farm Pass live event the manager runs; 0 when none was saved.</summary>
+    public int Event { get; init; }
+
     /// <summary>This season's weekly Farm Pass tasks, listed group after group.</summary>
     [JsonPropertyName("FarmPassWeeklyTasks")]
     public FarmPassTaskSnapshot[] WeeklyTasks { get; init; } = [];

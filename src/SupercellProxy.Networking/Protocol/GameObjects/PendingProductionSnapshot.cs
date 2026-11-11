@@ -29,9 +29,17 @@ public sealed record PendingProductionSnapshot : ExtensibleDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProductionTime { get; init; }
 
+    /// <summary>Gets the seconds a movie-ticket speed up took off this production; the game allows one per production.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ProductionTimeCut { get; init; }
+
     /// <summary>Gets the reduced production duration, when saved.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ReducedProductionTime { get; init; }
+
+    /// <summary>Gets the movie-ticket speed up, in seconds, the game has already shown the player for this production.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? TimeCutShownFromVideoAd { get; init; }
 
     /// <summary>Gets the saved timer for this queued production.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

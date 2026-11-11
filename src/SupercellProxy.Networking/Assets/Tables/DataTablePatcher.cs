@@ -22,7 +22,7 @@ public static class DataTablePatcher
     /// <param name="changes">Edits to apply; later edits see the result of earlier ones.</param>
     /// <returns>All files of the bundle, edited ones replaced.</returns>
     /// <exception cref="InvalidDataException">
-    /// An edit names a missing table or replacement column, or a column replacement has a different row count.
+    /// An edit names a missing table, a cell edit has no row or column, or a column replacement is not a table.
     /// </exception>
     public static GameAsset[] Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
     {
@@ -121,34 +121,40 @@ public static class DataTablePatcher
         }
     }
 
+    // Native LogicCSVChangeMap (0x100541400, column branch at 0x100541894): each named column drops its first n values, n being the
+    // shorter of the two columns, and takes the replacement's values in front, so lines past a shorter replacement keep their own values
+    // and the tables may differ in line count (2026-10-28 08:00 event). A column either table lacks ("New CSV: … no column found") or
+    // whose type differs ("type has changed") is skipped with a warning.
     private static void ApplyColumns(List<List<string>> rows, string content, string selector)
     {
         List<List<string>> replacement = GameDataTableParser.ParseMutableRows(content);
 
-        if (rows.Count < 2 || replacement.Count != rows.Count)
-            throw new InvalidDataException(message: "Replacement table columns have a different row count.");
+        if (rows.Count < 2 || replacement.Count < 2)
+            throw new InvalidDataException($"The replacement columns {selector} have no table: {rows.Count} and {replacement.Count} lines.");
 
         foreach (string name in SplitNames(selector))
         {
             int targetColumn = rows[index: 0].IndexOf(name);
             int sourceColumn = replacement[index: 0].IndexOf(name);
 
-            if (targetColumn < 0 || sourceColumn < 0)
-                throw new InvalidDataException($"The replacement column {name} is unavailable.");
+            if (targetColumn < 0 || sourceColumn < 0 || Cell(rows[index: 1], targetColumn) != Cell(replacement[index: 1], sourceColumn))
+                continue;
 
-            for (int index = 1; index < rows.Count; index++)
+            for (int index = 2; index < Math.Min(rows.Count, replacement.Count); index++)
             {
                 List<string> row = rows[index];
 
                 while (row.Count <= targetColumn)
                     row.Add(string.Empty);
 
-                row[targetColumn] =
-                    sourceColumn < replacement[index].Count
-                        ? replacement[index][sourceColumn]
-                        : string.Empty;
+                row[targetColumn] = Cell(replacement[index], sourceColumn);
             }
         }
+    }
+
+    private static string Cell(List<string> row, int column)
+    {
+        return column < row.Count ? row[column] : string.Empty;
     }
 
     private static string Quote(string value)

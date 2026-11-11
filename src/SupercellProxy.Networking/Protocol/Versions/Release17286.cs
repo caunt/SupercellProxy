@@ -354,7 +354,7 @@ internal static class Release17286
             Command(Events.Tasks.ClaimEventTaskRewardCommand.Codec, id: 360),
             Command(Events.Tasks.MarkTaskEventOpenedCommand.Codec, id: 361),
             Command(Events.Tasks.SpeedUpEventTaskCommand.Codec, id: 363),
-            Command(Events.Tasks.EventTaskUpdateServerCommand.Codec, id: 366),
+            Command(Events.Chronos.EventLeaderboardUpdateServerCommand.Codec, id: 366),
             Command(Events.Tasks.ClaimEventMilestoneRewardCommand.Codec, id: 367),
             Command(Events.Tasks.SubmitEventTaskCommand.Codec, id: 368),
             Command(Settings.SetManagerValueCommand.Codec, id: 369),
