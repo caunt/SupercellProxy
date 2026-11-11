@@ -2,10 +2,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
-/// <summary>The first optional analytics context part: two values and a flag.</summary>
-/// <param name="Value0">First number, 92 in the Farm_load capture; its meaning is not identified.</param>
-/// <param name="Value1">Second number, equal to the first in the captures; its meaning is not identified.</param>
-/// <param name="Flag">Flag that is clear in the captures; its meaning is not identified.</param>
+/// <summary>The first optional analytics context part: battery level at session start and end and a charging flag.</summary>
+/// <param name="Value0">Integer battery level captured at session start.</param>
+/// <param name="Value1">Integer battery level captured at session end.</param>
+/// <param name="Flag">Whether the device was charging when the session state was captured.</param>
+/// <remarks>The public CLR property names are retained for compatibility with existing captures and callers.</remarks>
 public sealed record AnalyticsContextValues(int Value0, int Value1, bool Flag) : ICodecProvider<AnalyticsContextValues>
 {
     /// <inheritdoc />

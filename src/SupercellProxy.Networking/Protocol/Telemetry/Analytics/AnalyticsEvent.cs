@@ -4,11 +4,11 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 
 /// <summary>One analytics event of a batch, such as <c>connection_failed</c> or <c>chronos_content_download_failed</c>.</summary>
 /// <param name="Name">The event name.</param>
-/// <param name="Time0">The first time.</param>
-/// <param name="Time1">The second time.</param>
-/// <param name="Time2">The third time.</param>
-/// <param name="Properties">The event properties.</param>
-/// <param name="Context">The event context, when present.</param>
+/// <param name="Time0">The segment's absolute start time relative to the session's absolute start time, in milliseconds.</param>
+/// <param name="Time1">The segment's total wall-clock duration in milliseconds, including paused intervals.</param>
+/// <param name="Time2">The segment's active duration in milliseconds, excluding paused intervals.</param>
+/// <param name="Properties">The event properties. The list can be empty; event measurements may instead be carried by <paramref name="Context"/>.</param>
+/// <param name="Context">The event's optional collector context.</param>
 public sealed record AnalyticsEvent(string? Name, long Time0, long Time1, long Time2, ReadOnlyMemory<AnalyticsProperty> Properties, AnalyticsContext? Context) : ICodecProvider<AnalyticsEvent>
 {
     /// <inheritdoc />
