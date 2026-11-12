@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 public sealed record AvatarStreamEntryHeader(LongId EntryId, LongId SenderAvatarId, string? SenderName, int SenderExpLevel, int AgeSeconds, bool Removed, bool New) : ICodecProvider<AvatarStreamEntryHeader>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarStreamEntryHeader> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<AvatarStreamEntryHeader> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.EntryId,
         Codecs.LongId,
         static value => value.SenderAvatarId,
@@ -28,6 +27,5 @@ public sealed record AvatarStreamEntryHeader(LongId EntryId, LongId SenderAvatar
         static value => value.Removed,
         Codecs.Boolean,
         static value => value.New,
-        static (entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew) => new AvatarStreamEntryHeader(entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew)
-    );
+        static (entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew) => new AvatarStreamEntryHeader(entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew));
 }

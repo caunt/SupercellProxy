@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 /// <param name="ObjectGlobalId">Game object id of the object being placed.</param>
 /// <param name="Rotation">Turned orientation of the object, as native numbers it.</param>
 /// <param name="LayoutIndex">Layout slot being edited.</param>
-public sealed record PlaceLayoutObjectCommand(
-    int DataGlobalId,
+public sealed record PlaceLayoutObjectCommand(int DataGlobalId,
     int VariantGlobalId,
     int PositionX,
     int PositionY,
@@ -22,31 +21,26 @@ public sealed record PlaceLayoutObjectCommand(
     bool Mirrored,
     int ObjectGlobalId,
     int Rotation,
-    int LayoutIndex
-) : CodecCommand<PlaceLayoutObjectCommand>, ICommandCodecProvider<PlaceLayoutObjectCommand>
+    int LayoutIndex) : CodecCommand<PlaceLayoutObjectCommand>, ICommandCodecProvider<PlaceLayoutObjectCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlaceLayoutObjectCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.DataGlobalId,
-            Codecs.VarInt,
-            static command => command.VariantGlobalId,
-            Codecs.VarInt,
-            static command => command.PositionX,
-            Codecs.VarInt,
-            static command => command.PositionY,
-            Codecs.Boolean,
-            static command => command.FromStorage,
-            Codecs.Boolean,
-            static command => command.Mirrored,
-            Codecs.VarInt,
-            static command => command.ObjectGlobalId,
-            Codecs.VarInt,
-            static command => command.Rotation,
-            Codecs.VarInt,
-            static command => command.LayoutIndex,
-            static (dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex) => new PlaceLayoutObjectCommand(dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex)
-        )
-    );
+    public static CommandCodec<PlaceLayoutObjectCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.DataGlobalId,
+        Codecs.VarInt,
+        static command => command.VariantGlobalId,
+        Codecs.VarInt,
+        static command => command.PositionX,
+        Codecs.VarInt,
+        static command => command.PositionY,
+        Codecs.Boolean,
+        static command => command.FromStorage,
+        Codecs.Boolean,
+        static command => command.Mirrored,
+        Codecs.VarInt,
+        static command => command.ObjectGlobalId,
+        Codecs.VarInt,
+        static command => command.Rotation,
+        Codecs.VarInt,
+        static command => command.LayoutIndex,
+        static (dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex) => new PlaceLayoutObjectCommand(dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex)));
 }

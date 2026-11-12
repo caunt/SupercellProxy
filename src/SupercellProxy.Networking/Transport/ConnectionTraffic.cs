@@ -22,14 +22,12 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
             RemoveExpired(now);
             double seconds = Math.Clamp(timeProvider.GetElapsedTime(_started, now).TotalSeconds, min: 0, ConnectionTrafficSnapshot.AveragingWindow.TotalSeconds);
 
-            return new(
-                _connectedAt,
+            return new(_connectedAt,
                 TimeSpan.FromSeconds(seconds),
                 _received,
                 _sent,
                 seconds > 0 ? _recentReceived / seconds : 0,
-                seconds > 0 ? _recentSent / seconds : 0
-            );
+                seconds > 0 ? _recentSent / seconds : 0);
         }
     }
 
@@ -45,7 +43,8 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
 
     private void Record(long received, long sent)
     {
-        if (received == 0 && sent == 0) return;
+        if (received == 0 && sent == 0)
+            return;
 
         using (IDisposable lease = _gate.Lock())
         {
@@ -63,7 +62,8 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
     {
         while (_samples.TryPeek(out Sample sample))
         {
-            if (timeProvider.GetElapsedTime(sample.Timestamp, now) < ConnectionTrafficSnapshot.AveragingWindow) break;
+            if (timeProvider.GetElapsedTime(sample.Timestamp, now) < ConnectionTrafficSnapshot.AveragingWindow)
+                break;
 
             Sample removed = _samples.Dequeue();
             _recentReceived -= removed.Received;

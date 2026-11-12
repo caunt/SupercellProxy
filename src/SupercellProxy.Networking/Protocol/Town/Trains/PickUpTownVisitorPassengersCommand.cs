@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town.Trains;
 public sealed record PickUpTownVisitorPassengersCommand(ReadOnlyMemory<int> PassengerGlobalIds) : CodecCommand<PickUpTownVisitorPassengersCommand>, ICommandCodecProvider<PickUpTownVisitorPassengersCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PickUpTownVisitorPassengersCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Memory(Codecs.VarInt),
-            static command => command.PassengerGlobalIds,
-            static passengerGlobalIds => new PickUpTownVisitorPassengersCommand(passengerGlobalIds)
-        )
-    );
+    public static CommandCodec<PickUpTownVisitorPassengersCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Memory(Codecs.VarInt),
+        static command => command.PassengerGlobalIds,
+        static passengerGlobalIds => new PickUpTownVisitorPassengersCommand(passengerGlobalIds)));
 }

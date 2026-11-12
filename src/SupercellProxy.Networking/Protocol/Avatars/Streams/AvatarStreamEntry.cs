@@ -9,33 +9,23 @@ public abstract record AvatarStreamEntry(AvatarStreamEntryHeader Header) : ICode
     /// <summary>
     /// Gets the wire codec: the entry type selects the entry record.
     /// </summary>
-    public static ICodec<AvatarStreamEntry> Codec { get; } = Codecs.Dispatch(
-        Codecs.VarInt,
+    /// <value>A codec that reads the VarInt entry type and then the matching neighborhood join response, invitation, kick-out, settings-change or derby opt entry; reading any other type throws an <see cref="InvalidDataException"/>.</value>
+    public static ICodec<AvatarStreamEntry> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static entry => entry.EntryType,
-        [
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(
-                JoinNeighborhoodResponseAvatarStreamEntry.Type,
-                Codecs.Subtype<AvatarStreamEntry, JoinNeighborhoodResponseAvatarStreamEntry>(JoinNeighborhoodResponseAvatarStreamEntry.Codec)
-            ),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(
-                NeighborhoodInvitationAvatarStreamEntry.Type,
-                Codecs.Subtype<AvatarStreamEntry, NeighborhoodInvitationAvatarStreamEntry>(NeighborhoodInvitationAvatarStreamEntry.Codec)
-            ),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(
-                NeighborhoodKickOutStreamEntry.Type,
-                Codecs.Subtype<AvatarStreamEntry, NeighborhoodKickOutStreamEntry>(NeighborhoodKickOutStreamEntry.Codec)
-            ),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(
-                NeighborhoodSettingsChangedStreamEntry.Type,
-                Codecs.Subtype<AvatarStreamEntry, NeighborhoodSettingsChangedStreamEntry>(NeighborhoodSettingsChangedStreamEntry.Codec)
-            ),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(
-                NeighborhoodDerbyOptStreamEntry.Type,
-                Codecs.Subtype<AvatarStreamEntry, NeighborhoodDerbyOptStreamEntry>(NeighborhoodDerbyOptStreamEntry.Codec)
-            ),
-        ]
-    );
+        cases: [
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(JoinNeighborhoodResponseAvatarStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, JoinNeighborhoodResponseAvatarStreamEntry>(JoinNeighborhoodResponseAvatarStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodInvitationAvatarStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodInvitationAvatarStreamEntry>(NeighborhoodInvitationAvatarStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodKickOutStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodKickOutStreamEntry>(NeighborhoodKickOutStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodSettingsChangedStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodSettingsChangedStreamEntry>(NeighborhoodSettingsChangedStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodDerbyOptStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodDerbyOptStreamEntry>(NeighborhoodDerbyOptStreamEntry.Codec)),
+        ]);
 
     /// <summary>Gets the native entry type written before the entry.</summary>
+    /// <value>The constant type id of the concrete entry record, written as a VarInt before its fields.</value>
     public abstract int EntryType { get; }
 }

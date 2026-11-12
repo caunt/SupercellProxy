@@ -10,13 +10,11 @@ public sealed record ChatStreamEntry(StreamEntryHeader Header, string? Message) 
     internal const int Type = 2;
 
     /// <inheritdoc />
-    public static new ICodec<ChatStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<ChatStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.OptionalString,
         static entry => entry.Message,
-        static (header, message) => new ChatStreamEntry(header, message)
-    );
+        static (header, message) => new ChatStreamEntry(header, message));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

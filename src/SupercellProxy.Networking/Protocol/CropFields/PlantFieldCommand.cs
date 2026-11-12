@@ -10,35 +10,25 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 /// <param name="CropGlobalId">The crop data id.</param>
 /// <param name="BuySeeds">Whether missing seeds are bought.</param>
 /// <param name="FieldGlobalId">The field game object id.</param>
-public sealed record PlantFieldCommand(
-    [property: JsonPropertyName("CropGlobalId")] int CropGlobalId,
+public sealed record PlantFieldCommand([property: JsonPropertyName("CropGlobalId")] int CropGlobalId,
     bool BuySeeds,
-    [property: JsonPropertyName("FieldGlobalId")] int FieldGlobalId
-) : CodecCommand<PlantFieldCommand>, ICommandCodecProvider<PlantFieldCommand>
+    [property: JsonPropertyName("FieldGlobalId")] int FieldGlobalId) : CodecCommand<PlantFieldCommand>, ICommandCodecProvider<PlantFieldCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlantFieldCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.Boolean,
+    public static CommandCodec<PlantFieldCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.BuySeeds,
                 Codecs.VarInt,
                 static command => command.FieldGlobalId,
                 Codecs.VarInt,
                 static command => command.CropGlobalId,
-                static (buySeeds, fieldGlobalId, cropGlobalId) => new PlantFieldCommand(cropGlobalId, buySeeds, fieldGlobalId)
-            ),
-            Codecs.Composite(
-                Codecs.VarInt,
+                static (buySeeds, fieldGlobalId, cropGlobalId) => new PlantFieldCommand(cropGlobalId, buySeeds, fieldGlobalId)),
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.CropGlobalId,
                 Codecs.Boolean,
                 static command => command.BuySeeds,
                 Codecs.VarInt,
                 static command => command.FieldGlobalId,
-                static (cropGlobalId, buySeeds, fieldGlobalId) => new PlantFieldCommand(cropGlobalId, buySeeds, fieldGlobalId)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (cropGlobalId, buySeeds, fieldGlobalId) => new PlantFieldCommand(cropGlobalId, buySeeds, fieldGlobalId))),
+        CommandLayout.MetadataFirst);
 }

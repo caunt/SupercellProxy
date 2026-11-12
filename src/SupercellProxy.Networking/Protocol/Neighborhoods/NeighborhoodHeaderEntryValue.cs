@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodHeaderEntryValue(NeighborhoodHeaderEntry Profile, int Value) : ICodecProvider<NeighborhoodHeaderEntryValue>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHeaderEntryValue> Codec { get; } = Codecs.Composite(
-        NeighborhoodHeaderEntry.Codec,
+    public static ICodec<NeighborhoodHeaderEntryValue> Codec { get; } = Codecs.Composite(NeighborhoodHeaderEntry.Codec,
         static entry => entry.Profile,
         Codecs.VarInt,
         static entry => entry.Value,
-        static (profile, value) => new NeighborhoodHeaderEntryValue(profile, value)
-    );
+        static (profile, value) => new NeighborhoodHeaderEntryValue(profile, value));
 }

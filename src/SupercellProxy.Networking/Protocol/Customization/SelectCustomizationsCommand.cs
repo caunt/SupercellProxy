@@ -10,16 +10,12 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record SelectCustomizationsCommand(int CustomizationGlobalId, ReadOnlyMemory<int> OptionGlobalIds, int ObjectGlobalId) : CodecCommand<SelectCustomizationsCommand>, ICommandCodecProvider<SelectCustomizationsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectCustomizationsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<SelectCustomizationsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.CustomizationGlobalId,
             Codecs.Memory(Codecs.VarInt),
             static command => command.OptionGlobalIds,
             Codecs.VarInt,
             static command => command.ObjectGlobalId,
-            static (customizationGlobalId, optionGlobalIds, objectGlobalId) => new SelectCustomizationsCommand(customizationGlobalId, optionGlobalIds, objectGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (customizationGlobalId, optionGlobalIds, objectGlobalId) => new SelectCustomizationsCommand(customizationGlobalId, optionGlobalIds, objectGlobalId)),
+        CommandLayout.MetadataFirst);
 }

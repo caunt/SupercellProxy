@@ -15,15 +15,11 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record VisitedBoatHelpRequestServerCommand([property: JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId, int CrateIndex, int RequestKind) : CodecServerCommand<VisitedBoatHelpRequestServerCommand>, ICommandCodecProvider<VisitedBoatHelpRequestServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<VisitedBoatHelpRequestServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.HomeOwnerId,
-            Codecs.VarInt,
-            static command => command.CrateIndex,
-            Codecs.VarInt,
-            static command => command.RequestKind,
-            static (owner, crate, requestKind) => new VisitedBoatHelpRequestServerCommand(owner, crate, requestKind)
-        )
-    );
+    public static CommandCodec<VisitedBoatHelpRequestServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.HomeOwnerId,
+        Codecs.VarInt,
+        static command => command.CrateIndex,
+        Codecs.VarInt,
+        static command => command.RequestKind,
+        static (owner, crate, requestKind) => new VisitedBoatHelpRequestServerCommand(owner, crate, requestKind)));
 }

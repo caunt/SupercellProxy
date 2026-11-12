@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record ClaimEventMilestoneRewardCommand(int EventId, int MilestoneIndex) : CodecCommand<ClaimEventMilestoneRewardCommand>, ICommandCodecProvider<ClaimEventMilestoneRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimEventMilestoneRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ClaimEventMilestoneRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.EventId,
             Codecs.VarInt,
             static command => command.MilestoneIndex,
-            static (eventId, milestoneIndex) => new ClaimEventMilestoneRewardCommand(eventId, milestoneIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (eventId, milestoneIndex) => new ClaimEventMilestoneRewardCommand(eventId, milestoneIndex)),
+        CommandLayout.MetadataFirst);
 }

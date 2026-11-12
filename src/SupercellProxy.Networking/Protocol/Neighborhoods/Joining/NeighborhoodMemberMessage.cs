@@ -8,9 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Joining;
 public sealed record NeighborhoodMemberMessage(NeighborhoodMemberEntry Member) : CodecMessage<NeighborhoodMemberMessage>, ICodecProvider<NeighborhoodMemberMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(
-        SupercellProxy.Networking.Protocol.Neighborhoods.Joining.NeighborhoodMemberEntry.Codec,
-        static message => message.Member,
-        static member => new NeighborhoodMemberMessage(member)
-    );
+    public static ICodec<NeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(NeighborhoodMemberEntry.Codec, static message => message.Member, static member => new NeighborhoodMemberMessage(member));
 }

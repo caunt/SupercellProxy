@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Production;
 public sealed record UnlockProductionSlotCommand(int SlotIndex, int BuildingObjectGlobalId) : CodecCommand<UnlockProductionSlotCommand>, ICommandCodecProvider<UnlockProductionSlotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UnlockProductionSlotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<UnlockProductionSlotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.SlotIndex,
             Codecs.VarInt,
             static command => command.BuildingObjectGlobalId,
-            static (slotIndex, buildingObjectGlobalId) => new UnlockProductionSlotCommand(slotIndex, buildingObjectGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (slotIndex, buildingObjectGlobalId) => new UnlockProductionSlotCommand(slotIndex, buildingObjectGlobalId)),
+        CommandLayout.MetadataFirst);
 }

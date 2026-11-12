@@ -12,11 +12,9 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 public sealed record DataReferenceValue([property: JsonPropertyName("GlobalDataId")] int GlobalDataId, int Value) : ICodecProvider<DataReferenceValue>
 {
     /// <inheritdoc />
-    public static ICodec<DataReferenceValue> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<DataReferenceValue> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GlobalDataId,
         Codecs.VarInt,
         static value => value.Value,
-        static (globalDataId, @value) => new DataReferenceValue(globalDataId, value)
-    );
+        static (globalDataId, @value) => new DataReferenceValue(globalDataId, value));
 }

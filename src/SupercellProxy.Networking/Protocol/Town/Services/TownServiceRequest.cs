@@ -10,8 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Town.Services;
 public sealed record TownServiceRequest(int ServiceBuildingGlobalId, bool Completed, bool Canceled, ReadOnlyMemory<TownServiceGood> RequiredGoods) : ICodecProvider<TownServiceRequest>
 {
     /// <inheritdoc />
-    public static ICodec<TownServiceRequest> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<TownServiceRequest> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.ServiceBuildingGlobalId,
         Codecs.Boolean,
         static value => value.Completed,
@@ -19,6 +18,5 @@ public sealed record TownServiceRequest(int ServiceBuildingGlobalId, bool Comple
         static value => value.Canceled,
         Codecs.Memory(TownServiceGood.Codec),
         static value => value.RequiredGoods,
-        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new TownServiceRequest(serviceBuildingGlobalId, completed, canceled, requiredGoods)
-    );
+        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new TownServiceRequest(serviceBuildingGlobalId, completed, canceled, requiredGoods));
 }

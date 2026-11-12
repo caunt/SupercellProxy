@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record BindAmazonAccountMessage(string? UserId, string? AccessToken, bool Force) : CodecMessage<BindAmazonAccountMessage>, ICodecProvider<BindAmazonAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BindAmazonAccountMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<BindAmazonAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.UserId,
         Codecs.OptionalString,
         static message => message.AccessToken,
         Codecs.Boolean,
         static message => message.Force,
-        static (userId, accessToken, force) => new BindAmazonAccountMessage(userId, accessToken, force)
-    );
+        static (userId, accessToken, force) => new BindAmazonAccountMessage(userId, accessToken, force));
 }

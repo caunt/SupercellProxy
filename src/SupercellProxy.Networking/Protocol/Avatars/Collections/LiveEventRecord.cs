@@ -15,16 +15,15 @@ public sealed record LiveEventRecord(int EventId, int SchedulingType, int Count,
 {
     /// <inheritdoc />
     /// <remarks>Native writes the impression id only for scheduling type 1.</remarks>
-    public static ICodec<LiveEventRecord> Codec { get; } = Codecs.Create(
-        static stream =>
-        {
-            int eventId = stream.ReadVarInt();
-            int schedulingType = stream.ReadVarInt();
-            int count = stream.ReadVarInt();
-            int? impressionId = schedulingType is 1 ? stream.ReadVarInt() : null;
+    public static ICodec<LiveEventRecord> Codec { get; } = Codecs.Create(static stream =>
+    {
+        int eventId = stream.ReadVarInt();
+        int schedulingType = stream.ReadVarInt();
+        int count = stream.ReadVarInt();
+        int? impressionId = schedulingType is 1 ? stream.ReadVarInt() : null;
 
-            return new LiveEventRecord(eventId, schedulingType, count, impressionId, stream.ReadVarInt());
-        },
+        return new LiveEventRecord(eventId, schedulingType, count, impressionId, stream.ReadVarInt());
+    },
         static (stream, record) =>
         {
             stream.WriteVarInt(record.EventId);
@@ -35,6 +34,5 @@ public sealed record LiveEventRecord(int EventId, int SchedulingType, int Count,
                 stream.WriteVarInt(record.ImpressionId ?? throw new InvalidOperationException($"{nameof(ImpressionId)} is null."));
 
             stream.WriteVarInt(record.EndTime);
-        }
-    );
+        });
 }

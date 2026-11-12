@@ -16,10 +16,8 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
     : CodecMessage<ReportGameModeEnteredMessage>, ICodecProvider<ReportGameModeEnteredMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportGameModeEnteredMessage> Codec { get; } = Codecs.Versioned(
-        Release17381.Version,
-        Codecs.Composite(
-            Codecs.OptionalString,
+    public static ICodec<ReportGameModeEnteredMessage> Codec { get; } = Codecs.Versioned(Release17381.Version,
+        Codecs.Composite(Codecs.OptionalString,
             static message => message.GameMode,
             Codecs.Memory(Codecs.VarLong),
             static message => message.CounterIds,
@@ -27,10 +25,8 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
             static message => message.Counters,
             Codecs.Memory(Codecs.VarLong),
             static message => message.Timestamps,
-            static (gameMode, counterIds, counters, timestamps) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)
-        ),
-        Codecs.Composite(
-            Codecs.Memory(Codecs.VarLong),
+            static (gameMode, counterIds, counters, timestamps) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)),
+        Codecs.Composite(Codecs.Memory(Codecs.VarLong),
             static message => message.Timestamps,
             Codecs.OptionalString,
             static message => message.GameMode,
@@ -38,7 +34,5 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
             static message => message.Counters,
             Codecs.Memory(Codecs.VarLong),
             static message => message.CounterIds,
-            static (timestamps, gameMode, counters, counterIds) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)
-        )
-    );
+            static (timestamps, gameMode, counters, counterIds) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)));
 }

@@ -14,7 +14,8 @@ namespace SupercellProxy.Networking.Events;
 public sealed record MessageReceivedEvent(IMessage Message, MessageDirection Direction, MessageStream Source, MessageStream Destination) : IEvent
 {
     /// <summary>
-    /// Set by a handler to drop the message: the proxy then does not forward it to the other side.
+    /// Gets or sets whether a handler dropped the message, in which case the proxy does not forward it to the other side.
     /// </summary>
+    /// <value><see langword="true"/> if a handler set it to drop the message instead of forwarding it to <see cref="Destination"/>; otherwise, <see langword="false"/>.</value>
     public bool IsCancelled { get; set; }
 }

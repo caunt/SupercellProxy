@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record RerollCustomizationOffersCommand(int OfferIndex) : CodecCommand<RerollCustomizationOffersCommand>, ICommandCodecProvider<RerollCustomizationOffersCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RerollCustomizationOffersCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new RerollCustomizationOffersCommand(offerIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<RerollCustomizationOffersCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new RerollCustomizationOffersCommand(offerIndex)),
+        CommandLayout.MetadataFirst);
 }

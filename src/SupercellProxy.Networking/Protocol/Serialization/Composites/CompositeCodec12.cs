@@ -3,8 +3,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Composites;
 
 /// <summary>Reads and writes 12 fields in wire order and builds the value from them.</summary>
-internal sealed class CompositeCodec12<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth>(
-    ICodec<TFirst> first,
+internal sealed class CompositeCodec12<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth>(ICodec<TFirst> first,
     Func<TValue, TFirst> getFirst,
     ICodec<TSecond> second,
     Func<TValue, TSecond> getSecond,
@@ -28,8 +27,7 @@ internal sealed class CompositeCodec12<TValue, TFirst, TSecond, TThird, TFourth,
     Func<TValue, TEleventh> getEleventh,
     ICodec<TTwelfth> twelfth,
     Func<TValue, TTwelfth> getTwelfth,
-    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TValue> factory
-) : ICodec<TValue>
+    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TValue> factory) : ICodec<TValue>
 {
     private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
@@ -72,8 +70,7 @@ internal sealed class CompositeCodec12<TValue, TFirst, TSecond, TThird, TFourth,
         TEleventh eleventhValue = _eleventh.Read(stream);
         TTwelfth twelfthValue = _twelfth.Read(stream);
 
-        return _factory(
-            firstValue,
+        return _factory(firstValue,
             secondValue,
             thirdValue,
             fourthValue,
@@ -84,8 +81,7 @@ internal sealed class CompositeCodec12<TValue, TFirst, TSecond, TThird, TFourth,
             ninthValue,
             tenthValue,
             eleventhValue,
-            twelfthValue
-        );
+            twelfthValue);
     }
 
     public void Write(ProtocolEncoder encoder, TValue value)

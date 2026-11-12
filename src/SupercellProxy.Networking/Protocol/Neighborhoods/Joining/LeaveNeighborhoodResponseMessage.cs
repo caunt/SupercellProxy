@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Joining;
 public sealed record LeaveNeighborhoodResponseMessage(int Value, int Result) : CodecMessage<LeaveNeighborhoodResponseMessage>, ICodecProvider<LeaveNeighborhoodResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LeaveNeighborhoodResponseMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<LeaveNeighborhoodResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Value,
         Codecs.VarInt,
         static message => message.Result,
-        static (@value, result) => new LeaveNeighborhoodResponseMessage(value, result)
-    );
+        static (@value, result) => new LeaveNeighborhoodResponseMessage(value, result));
 }

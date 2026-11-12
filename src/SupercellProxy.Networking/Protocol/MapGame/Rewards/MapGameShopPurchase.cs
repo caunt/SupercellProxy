@@ -8,19 +8,16 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Rewards;
 /// <param name="Amount">How many of the reward were bought.</param>
 /// <param name="Costs">Resources the purchase spends.</param>
 /// <param name="Rewards">Resources the purchase gives.</param>
-/// <param name="RewardSetName">Name of the reward set the contents were drawn from; null when none.</param>
-public sealed record MapGameShopPurchase(
-    int RewardGlobalId,
+/// <param name="RewardSetName">Name of the reward set the contents were drawn from; <see langword="null"/> when none.</param>
+public sealed record MapGameShopPurchase(int RewardGlobalId,
     int Price,
     int Amount,
     ReadOnlyMemory<MapGameShopGood> Costs,
     ReadOnlyMemory<MapGameShopGood> Rewards,
-    string? RewardSetName
-) : ICodecProvider<MapGameShopPurchase>
+    string? RewardSetName) : ICodecProvider<MapGameShopPurchase>
 {
     /// <inheritdoc />
-    public static ICodec<MapGameShopPurchase> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameShopPurchase> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.RewardGlobalId,
         Codecs.VarInt,
         static value => value.Price,
@@ -32,6 +29,5 @@ public sealed record MapGameShopPurchase(
         static value => value.Rewards,
         Codecs.OptionalString,
         static value => value.RewardSetName,
-        static (rewardGlobalId, price, amount, costs, rewards, rewardSetName) => new MapGameShopPurchase(rewardGlobalId, price, amount, costs, rewards, rewardSetName)
-    );
+        static (rewardGlobalId, price, amount, costs, rewards, rewardSetName) => new MapGameShopPurchase(rewardGlobalId, price, amount, costs, rewards, rewardSetName));
 }

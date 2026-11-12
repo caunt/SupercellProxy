@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Fishes;
 public sealed record MarkFishSeenCommand(int FishGlobalId) : CodecCommand<MarkFishSeenCommand>, ICommandCodecProvider<MarkFishSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkFishSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.FishGlobalId, static fishGlobalId => new MarkFishSeenCommand(fishGlobalId))
-    );
+    public static CommandCodec<MarkFishSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.FishGlobalId, static fishGlobalId => new MarkFishSeenCommand(fishGlobalId)));
 }

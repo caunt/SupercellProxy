@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary;
 public sealed record WakeSanctuaryAnimalCommand(int AnimalGlobalId) : CodecCommand<WakeSanctuaryAnimalCommand>, ICommandCodecProvider<WakeSanctuaryAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<WakeSanctuaryAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new WakeSanctuaryAnimalCommand(animalGlobalId))
-    );
+    public static CommandCodec<WakeSanctuaryAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new WakeSanctuaryAnimalCommand(animalGlobalId)));
 }

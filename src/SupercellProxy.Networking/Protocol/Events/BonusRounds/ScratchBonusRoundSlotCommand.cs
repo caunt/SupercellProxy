@@ -11,9 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Events.BonusRounds;
 public sealed record ScratchBonusRoundSlotCommand(int RoundId, int Round, int SlotIndex, int RewardGlobalId) : CodecCommand<ScratchBonusRoundSlotCommand>, ICommandCodecProvider<ScratchBonusRoundSlotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ScratchBonusRoundSlotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ScratchBonusRoundSlotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.RoundId,
             Codecs.VarInt,
             static command => command.Round,
@@ -21,8 +19,6 @@ public sealed record ScratchBonusRoundSlotCommand(int RoundId, int Round, int Sl
             static command => command.SlotIndex,
             Codecs.VarInt,
             static command => command.RewardGlobalId,
-            static (roundId, round, slotIndex, rewardGlobalId) => new ScratchBonusRoundSlotCommand(roundId, round, slotIndex, rewardGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (roundId, round, slotIndex, rewardGlobalId) => new ScratchBonusRoundSlotCommand(roundId, round, slotIndex, rewardGlobalId)),
+        CommandLayout.MetadataFirst);
 }

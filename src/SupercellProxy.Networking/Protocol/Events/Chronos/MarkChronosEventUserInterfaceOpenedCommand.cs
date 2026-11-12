@@ -12,8 +12,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record MarkChronosEventUserInterfaceOpenedCommand([property: JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkChronosEventUserInterfaceOpenedCommand>, ICommandCodecProvider<MarkChronosEventUserInterfaceOpenedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkChronosEventUserInterfaceOpenedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkChronosEventUserInterfaceOpenedCommand(eventId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<MarkChronosEventUserInterfaceOpenedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkChronosEventUserInterfaceOpenedCommand(eventId)),
+        CommandLayout.MetadataFirst);
 }

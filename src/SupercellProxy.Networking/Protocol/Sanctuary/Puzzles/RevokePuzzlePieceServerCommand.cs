@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary.Puzzles;
 public sealed record RevokePuzzlePieceServerCommand(int PuzzlePieceGlobalId) : CodecServerCommand<RevokePuzzlePieceServerCommand>, ICommandCodecProvider<RevokePuzzlePieceServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RevokePuzzlePieceServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.PuzzlePieceGlobalId,
-            static puzzlePieceGlobalId => new RevokePuzzlePieceServerCommand(puzzlePieceGlobalId)
-        )
-    );
+    public static CommandCodec<RevokePuzzlePieceServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PuzzlePieceGlobalId,
+        static puzzlePieceGlobalId => new RevokePuzzlePieceServerCommand(puzzlePieceGlobalId)));
 }

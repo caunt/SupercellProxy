@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 public sealed record RevokeGoodServerCommand(int GoodGlobalId, int Amount) : CodecServerCommand<RevokeGoodServerCommand>, ICommandCodecProvider<RevokeGoodServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RevokeGoodServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Int32,
+    public static CommandCodec<RevokeGoodServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
             static command => command.GoodGlobalId,
             Codecs.VarInt,
             static command => command.Amount,
-            static (goodGlobalId, amount) => new RevokeGoodServerCommand(goodGlobalId, amount)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (goodGlobalId, amount) => new RevokeGoodServerCommand(goodGlobalId, amount)),
+        CommandLayout.MetadataFirst);
 }

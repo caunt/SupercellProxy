@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Screens;
 
 /// <summary>Delivers a list of text entries the message manager keeps for the HUD.</summary>
-/// <param name="Entries">The HUD messages to keep; null when the list is absent.</param>
+/// <param name="Entries">The HUD messages to keep; <see langword="null"/> when the list is absent.</param>
 public sealed record TextEntryListMessage(ReadOnlyMemory<TextEntry>? Entries) : CodecMessage<TextEntryListMessage>, ICodecProvider<TextEntryListMessage>
 {
     /// <inheritdoc />

@@ -9,13 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Help;
 public sealed record NeighborhoodHelpEntry(int Value, LongId AvatarId, int Amount) : ICodecProvider<NeighborhoodHelpEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHelpEntry> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<NeighborhoodHelpEntry> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Value,
         Codecs.LongId,
         static value => value.AvatarId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (@value, avatarId, amount) => new NeighborhoodHelpEntry(value, avatarId, amount)
-    );
+        static (@value, avatarId, amount) => new NeighborhoodHelpEntry(value, avatarId, amount));
 }

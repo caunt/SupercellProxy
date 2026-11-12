@@ -10,8 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsContextCounters(int Value0, int Value1, int Value2, int Value3) : ICodecProvider<AnalyticsContextCounters>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsContextCounters> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<AnalyticsContextCounters> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Value0,
         Codecs.VarInt,
         static value => value.Value1,
@@ -19,6 +18,5 @@ public sealed record AnalyticsContextCounters(int Value0, int Value1, int Value2
         static value => value.Value2,
         Codecs.VarInt,
         static value => value.Value3,
-        static (value0, value1, value2, value3) => new AnalyticsContextCounters(value0, value1, value2, value3)
-    );
+        static (value0, value1, value2, value3) => new AnalyticsContextCounters(value0, value1, value2, value3));
 }

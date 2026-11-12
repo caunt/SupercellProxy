@@ -15,14 +15,12 @@ public sealed record MapGamePawnTaskValueEvent(int Type, MapGamePawn? Pawn, MapG
     /// </summary>
     internal static new ICodec<MapGamePawnTaskValueEvent> CodecFor(int type)
     {
-        return Codecs.Composite(
-            Codecs.Optional(MapGamePawn.Codec),
+        return Codecs.Composite(Codecs.Optional(MapGamePawn.Codec),
             static mapGameEvent => mapGameEvent.Pawn,
             Codecs.Optional(MapGameTask.Codec),
             static mapGameEvent => mapGameEvent.Task,
             Codecs.VarInt,
             static mapGameEvent => mapGameEvent.Value,
-            (pawn, task, value) => new MapGamePawnTaskValueEvent(type, pawn, task, value)
-        );
+            (pawn, task, value) => new MapGamePawnTaskValueEvent(type, pawn, task, value));
     }
 }

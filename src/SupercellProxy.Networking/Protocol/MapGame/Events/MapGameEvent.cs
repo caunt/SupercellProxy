@@ -1,3 +1,5 @@
+using SupercellProxy.Networking.Protocol.MapGame.Events.PawnEvents;
+using SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Events;
@@ -129,51 +131,50 @@ public abstract record MapGameEvent(int Type) : ICodecProvider<MapGameEvent>
     /// <summary>
     /// Gets the wire codec: the event type selects the event record.
     /// </summary>
-    public static ICodec<MapGameEvent> Codec { get; } = Codecs.Dispatch(
-        Codecs.VarInt,
+    /// <value>A codec that reads the variable-length event type first and hands the rest to the matching event record's codec; a type with no listed record fails with <see cref="InvalidDataException"/> in either direction.</value>
+    public static ICodec<MapGameEvent> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static mapGameEvent => mapGameEvent.Type,
-        [
+        cases: [
             Case(StateSynchronizationType, MapGameStateSynchronizationEvent.Codec),
             Case(PawnMovedType, MapGamePawnMovedEvent.Codec),
-            Case(DumpTaskCompletedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(DumpTaskCompletedType)),
+            Case(DumpTaskCompletedType, MapGamePawnTaskEvent.CodecFor(DumpTaskCompletedType)),
             Case(IdValuesType, MapGameIdValuesEvent.Codec),
-            Case(PawnTaskExpiredType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskExpiredType)),
-            Case(TaskRemovedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(TaskRemovedType)),
-            Case(PawnTaskUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskUpdatedType)),
-            Case(SharedTaskExpiredType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskExpiredType)),
-            Case(SharedTaskRemovedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskRemovedType)),
-            Case(SharedTaskUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskUpdatedType)),
-            Case(SharedTaskJoinedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskJoinedType)),
-            Case(SharedTaskCompletedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskCompletedType)),
-            Case(TaskCooldownSkippedType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(TaskCooldownSkippedType)),
-            Case(ObstaclePaidCompletionType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(ObstaclePaidCompletionType)),
-            Case(ObstacleHelpRequestedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(ObstacleHelpRequestedType)),
-            Case(ObstacleCompletedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(ObstacleCompletedType)),
-            Case(ChickensCollectedType, TaskEvents.MapGameContributionEvent.CodecFor(ChickensCollectedType)),
-            Case(PawnTaskType, TaskEvents.MapGamePawnTaskEvent.CodecFor(PawnTaskType)),
-            Case(SharedTaskMarkedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(SharedTaskMarkedType)),
-            Case(ChickenTaskCollectedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(ChickenTaskCollectedType)),
+            Case(PawnTaskExpiredType, MapGamePawnTaskEvent.CodecFor(PawnTaskExpiredType)),
+            Case(TaskRemovedType, MapGamePawnTaskEvent.CodecFor(TaskRemovedType)),
+            Case(PawnTaskUpdatedType, MapGamePawnTaskEvent.CodecFor(PawnTaskUpdatedType)),
+            Case(SharedTaskExpiredType, MapGamePawnTaskEvent.CodecFor(SharedTaskExpiredType)),
+            Case(SharedTaskRemovedType, MapGamePawnTaskEvent.CodecFor(SharedTaskRemovedType)),
+            Case(SharedTaskUpdatedType, MapGamePawnTaskEvent.CodecFor(SharedTaskUpdatedType)),
+            Case(SharedTaskJoinedType, MapGamePawnTaskEvent.CodecFor(SharedTaskJoinedType)),
+            Case(SharedTaskCompletedType, MapGamePawnTaskEvent.CodecFor(SharedTaskCompletedType)),
+            Case(TaskCooldownSkippedType, MapGamePawnTaskValueEvent.CodecFor(TaskCooldownSkippedType)),
+            Case(ObstaclePaidCompletionType, MapGamePawnTaskValueEvent.CodecFor(ObstaclePaidCompletionType)),
+            Case(ObstacleHelpRequestedType, MapGamePawnTaskEvent.CodecFor(ObstacleHelpRequestedType)),
+            Case(ObstacleCompletedType, MapGamePawnTaskRewardEvent.CodecFor(ObstacleCompletedType)),
+            Case(ChickensCollectedType, MapGameContributionEvent.CodecFor(ChickensCollectedType)),
+            Case(PawnTaskType, MapGamePawnTaskEvent.CodecFor(PawnTaskType)),
+            Case(SharedTaskMarkedType, MapGamePawnTaskEvent.CodecFor(SharedTaskMarkedType)),
+            Case(ChickenTaskCollectedType, MapGamePawnTaskRewardEvent.CodecFor(ChickenTaskCollectedType)),
             Case(NodeEmojiAddedType, MapGameNodeEmojiAddedEvent.Codec),
             Case(NodeEmojiRemovedType, MapGameNodeEmojiEvent.CodecFor(NodeEmojiRemovedType)),
             Case(NodeEmojiCollectedType, MapGameNodeEmojiEvent.CodecFor(NodeEmojiCollectedType)),
-            Case(PawnNeighborhoodTaskUpdatedType, PawnEvents.MapGamePawnNeighborhoodTaskEvent.Codec),
+            Case(PawnNeighborhoodTaskUpdatedType, MapGamePawnNeighborhoodTaskEvent.Codec),
             Case(EventFlagUpdatedType, MapGameEventFlagEvent.Codec),
-            Case(PawnNotificationUpdatedType, PawnEvents.MapGamePawnNotificationEvent.Codec),
-            Case(PawnDetailsUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnDetailsUpdatedType)),
-            Case(SharedTaskCommitResultType, TaskEvents.MapGameSharedTaskCommitResultEvent.Codec),
-            Case(PawnProfileUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnProfileUpdatedType)),
-            Case(PawnNeighborhoodUpdatedType, PawnEvents.MapGamePawnEvent.CodecFor(PawnNeighborhoodUpdatedType)),
-            Case(SanctuaryAnimalCollectedType, TaskEvents.MapGamePawnTaskRewardEvent.CodecFor(SanctuaryAnimalCollectedType)),
-            Case(SanctuaryAnimalsOffloadedType, TaskEvents.MapGameSanctuaryAnimalsOffloadedEvent.Codec),
-            Case(GasStationCollectedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(GasStationCollectedType)),
-            Case(GasStationPurchasedType, TaskEvents.MapGamePawnTaskValueEvent.CodecFor(GasStationPurchasedType)),
-            Case(GasStationUpdatedType, TaskEvents.MapGamePawnTaskEvent.CodecFor(GasStationUpdatedType)),
-            Case(SanctuaryAnimalsDeliveredType, TaskEvents.MapGameContributionEvent.CodecFor(SanctuaryAnimalsDeliveredType)),
-            Case(EscapedSanctuaryAnimalsRemovedType, TaskEvents.MapGameEscapedSanctuaryAnimalsRemovedEvent.Codec),
+            Case(PawnNotificationUpdatedType, MapGamePawnNotificationEvent.Codec),
+            Case(PawnDetailsUpdatedType, MapGamePawnEvent.CodecFor(PawnDetailsUpdatedType)),
+            Case(SharedTaskCommitResultType, MapGameSharedTaskCommitResultEvent.Codec),
+            Case(PawnProfileUpdatedType, MapGamePawnEvent.CodecFor(PawnProfileUpdatedType)),
+            Case(PawnNeighborhoodUpdatedType, MapGamePawnEvent.CodecFor(PawnNeighborhoodUpdatedType)),
+            Case(SanctuaryAnimalCollectedType, MapGamePawnTaskRewardEvent.CodecFor(SanctuaryAnimalCollectedType)),
+            Case(SanctuaryAnimalsOffloadedType, MapGameSanctuaryAnimalsOffloadedEvent.Codec),
+            Case(GasStationCollectedType, MapGamePawnTaskEvent.CodecFor(GasStationCollectedType)),
+            Case(GasStationPurchasedType, MapGamePawnTaskValueEvent.CodecFor(GasStationPurchasedType)),
+            Case(GasStationUpdatedType, MapGamePawnTaskEvent.CodecFor(GasStationUpdatedType)),
+            Case(SanctuaryAnimalsDeliveredType, MapGameContributionEvent.CodecFor(SanctuaryAnimalsDeliveredType)),
+            Case(EscapedSanctuaryAnimalsRemovedType, MapGameEscapedSanctuaryAnimalsRemovedEvent.Codec),
             Case(ProfileType, MapGameProfileEvent.Codec),
             Case(DataReferenceType, MapGameDataReferenceEvent.Codec),
-        ]
-    );
+        ]);
 
     private static KeyValuePair<int, ICodec<MapGameEvent>> Case<TEvent>(int type, ICodec<TEvent> codec) where TEvent : MapGameEvent
     {

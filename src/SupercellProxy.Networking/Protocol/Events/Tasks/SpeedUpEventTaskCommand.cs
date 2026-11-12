@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record SpeedUpEventTaskCommand(int EventId, int TaskIndex) : CodecCommand<SpeedUpEventTaskCommand>, ICommandCodecProvider<SpeedUpEventTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpEventTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.TaskIndex,
-            static (eventId, taskIndex) => new SpeedUpEventTaskCommand(eventId, taskIndex)
-        )
-    );
+    public static CommandCodec<SpeedUpEventTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.TaskIndex,
+        static (eventId, taskIndex) => new SpeedUpEventTaskCommand(eventId, taskIndex)));
 }

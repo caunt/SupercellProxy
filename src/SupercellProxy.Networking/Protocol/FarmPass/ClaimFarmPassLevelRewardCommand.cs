@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.FarmPass;
 public sealed record ClaimFarmPassLevelRewardCommand(int LevelIndex, int LevelId, bool Premium) : CodecCommand<ClaimFarmPassLevelRewardCommand>, ICommandCodecProvider<ClaimFarmPassLevelRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimFarmPassLevelRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.LevelIndex,
-            Codecs.VarInt,
-            static command => command.LevelId,
-            Codecs.Boolean,
-            static command => command.Premium,
-            static (level, levelId, premium) => new ClaimFarmPassLevelRewardCommand(level, levelId, premium)
-        )
-    );
+    public static CommandCodec<ClaimFarmPassLevelRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.LevelIndex,
+        Codecs.VarInt,
+        static command => command.LevelId,
+        Codecs.Boolean,
+        static command => command.Premium,
+        static (level, levelId, premium) => new ClaimFarmPassLevelRewardCommand(level, levelId, premium)));
 }

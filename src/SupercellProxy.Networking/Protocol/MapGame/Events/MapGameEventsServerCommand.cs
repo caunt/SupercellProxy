@@ -16,7 +16,7 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     public const int MaximumEventCount = 1024;
 
     /// <summary>
-    /// Bundles a batch of Valley events for one Valley game.
+    /// Initializes a new instance of the <see cref="MapGameEventsServerCommand"/> record. Bundles a batch of Valley events for one Valley game.
     /// </summary>
     /// <param name="unknownLongId0">Optional id sent first; which object it names is not identified.</param>
     /// <param name="mapGameId">Valley game the events belong to.</param>
@@ -33,32 +33,31 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     }
 
     /// <inheritdoc />
-    public static CommandCodec<MapGameEventsServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.OptionalLongId,
+    public static CommandCodec<MapGameEventsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalLongId,
             static command => command.UnknownLongId0,
             Codecs.OptionalLongId,
             static command => command.MapGameId,
             Codecs.Memory(MapGameEvent.Codec, CollectionCount.AtMost(MaximumEventCount)),
             static command => command.Events,
-            static (unknownLongId0, mapGameId, events) => new MapGameEventsServerCommand(unknownLongId0, mapGameId, events)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (unknownLongId0, mapGameId, events) => new MapGameEventsServerCommand(unknownLongId0, mapGameId, events)),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// What happened in the Valley since the last batch, in order: pawn moves, tasks taken and finished, emojis placed and so on.
+    /// Gets what happened in the Valley since the last batch, in order: pawn moves, tasks taken and finished, emojis placed and so on.
     /// </summary>
+    /// <value>A copy of the events given to the constructor, oldest first, at most <see cref="MaximumEventCount"/>; empty when the batch carries none.</value>
     public ReadOnlyMemory<MapGameEvent> Events { get; }
 
     /// <summary>
     /// Gets the map-game session id.
     /// </summary>
+    /// <value>The id of the Valley game the events apply to, sent second; <see langword="null"/> when the wire marks it absent.</value>
     public LongId? MapGameId { get; }
 
     /// <summary>
-    /// Optional id sent before the Valley game id; which object it names is not identified.
+    /// Gets the optional id sent before the Valley game id; which object it names is not identified.
     /// </summary>
+    /// <value>An optional 64-bit id at wire position 0, kept so the command re-encodes unchanged; <see langword="null"/> when the wire marks it absent.</value>
     [JsonPropertyName("UnknownLongId0")]
     public LongId? UnknownLongId0 { get; }
 }

@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Events.BonusRounds;
 public sealed record BuyNextBonusRoundCommand(int RoundId, int Round, int Price, int CurrencyGlobalId) : CodecCommand<BuyNextBonusRoundCommand>, ICommandCodecProvider<BuyNextBonusRoundCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyNextBonusRoundCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.RoundId,
-            Codecs.VarInt,
-            static command => command.Round,
-            Codecs.VarInt,
-            static command => command.Price,
-            Codecs.VarInt,
-            static command => command.CurrencyGlobalId,
-            static (roundId, round, price, currencyGlobalId) => new BuyNextBonusRoundCommand(roundId, round, price, currencyGlobalId)
-        )
-    );
+    public static CommandCodec<BuyNextBonusRoundCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.RoundId,
+        Codecs.VarInt,
+        static command => command.Round,
+        Codecs.VarInt,
+        static command => command.Price,
+        Codecs.VarInt,
+        static command => command.CurrencyGlobalId,
+        static (roundId, round, price, currencyGlobalId) => new BuyNextBonusRoundCommand(roundId, round, price, currencyGlobalId)));
 }

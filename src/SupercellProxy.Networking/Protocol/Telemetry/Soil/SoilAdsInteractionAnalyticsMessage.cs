@@ -15,10 +15,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Soil;
 /// <param name="Value3">Number that is -1 in every capture; its meaning is not identified.</param>
 /// <param name="Properties">Named details of the event; the captures carry the local notification id as <c>notificationGameId</c>.</param>
 /// <param name="Value4">Number that is 2 in every capture; its meaning is not identified.</param>
-/// <param name="Value5">Number that is 0 in every capture; its meaning is not identified.</param>
-/// <param name="Value6">Number that is 0 in every capture; its meaning is not identified.</param>
-public sealed record SoilAdsInteractionAnalyticsMessage(
-    string? Timezone,
+/// <param name="Value5">Var-int sent right after <paramref name="Value4"/>; it has been 0 in every capture, and its meaning is not identified.</param>
+/// <param name="Value6">64-bit var-long that ends the message; 0 in every capture, meaning not identified.</param>
+public sealed record SoilAdsInteractionAnalyticsMessage(string? Timezone,
     string? DeviceId,
     int Value0,
     int Value1,
@@ -30,12 +29,10 @@ public sealed record SoilAdsInteractionAnalyticsMessage(
     ReadOnlyMemory<SoilProperty> Properties,
     int Value4,
     int Value5,
-    long Value6
-) : CodecMessage<SoilAdsInteractionAnalyticsMessage>, ICodecProvider<SoilAdsInteractionAnalyticsMessage>
+    long Value6) : CodecMessage<SoilAdsInteractionAnalyticsMessage>, ICodecProvider<SoilAdsInteractionAnalyticsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SoilAdsInteractionAnalyticsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SoilAdsInteractionAnalyticsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Timezone,
         Codecs.OptionalString,
         static message => message.DeviceId,
@@ -61,6 +58,5 @@ public sealed record SoilAdsInteractionAnalyticsMessage(
         static message => message.Value5,
         Codecs.VarLong,
         static message => message.Value6,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6) => new SoilAdsInteractionAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6)
-    );
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6) => new SoilAdsInteractionAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6));
 }

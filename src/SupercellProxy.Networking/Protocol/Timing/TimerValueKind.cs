@@ -5,7 +5,7 @@ public enum TimerValueKind
 {
     /// <summary>The timer field was absent.</summary>
     Missing,
-    /// <summary>The timer field was explicitly null.</summary>
+    /// <summary>The timer field was explicitly <see langword="null"/>.</summary>
     Null,
     /// <summary>The timer is an integer counter.</summary>
     Counter,

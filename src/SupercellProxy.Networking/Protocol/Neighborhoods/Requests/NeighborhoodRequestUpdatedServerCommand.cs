@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 public sealed record NeighborhoodRequestUpdatedServerCommand(LongId RequesterHomeId, LongId RequestId, int State, NeighborhoodRequest? Request) : CodecServerCommand<NeighborhoodRequestUpdatedServerCommand>, ICommandCodecProvider<NeighborhoodRequestUpdatedServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<NeighborhoodRequestUpdatedServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.RequesterHomeId,
-            Codecs.LongId,
-            static command => command.RequestId,
-            Codecs.VarInt,
-            static command => command.State,
-            Codecs.Optional(NeighborhoodRequest.Codec),
-            static command => command.Request,
-            static (requesterHomeId, requestId, state, request) => new NeighborhoodRequestUpdatedServerCommand(requesterHomeId, requestId, state, request)
-        )
-    );
+    public static CommandCodec<NeighborhoodRequestUpdatedServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.RequesterHomeId,
+        Codecs.LongId,
+        static command => command.RequestId,
+        Codecs.VarInt,
+        static command => command.State,
+        Codecs.Optional(NeighborhoodRequest.Codec),
+        static command => command.Request,
+        static (requesterHomeId, requestId, state, request) => new NeighborhoodRequestUpdatedServerCommand(requesterHomeId, requestId, state, request)));
 }

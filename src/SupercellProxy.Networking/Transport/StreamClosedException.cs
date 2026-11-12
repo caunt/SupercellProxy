@@ -14,20 +14,20 @@ public sealed class StreamClosedException : IOException
     public const string DefaultMessage = "end of stream";
 
     /// <summary>
-    /// Creates a closed-connection error with the default text.
+    /// Initializes a new instance of the <see cref="StreamClosedException"/> class. Creates a closed-connection error with the default text.
     /// </summary>
     public StreamClosedException()
         : this(DefaultMessage) { }
 
     /// <summary>
-    /// Creates a closed-connection error described by text.
+    /// Initializes a new instance of the <see cref="StreamClosedException"/> class. Creates a closed-connection error described by text.
     /// </summary>
     /// <param name="message">Which side closed and how.</param>
     public StreamClosedException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Creates a closed-connection error caused by a lower-level socket or stream error.
+    /// Initializes a new instance of the <see cref="StreamClosedException"/> class. Creates a closed-connection error caused by a lower-level socket or stream error.
     /// </summary>
     /// <param name="message">Which side closed and how.</param>
     /// <param name="innerException">The socket or stream error that revealed the closure.</param>
@@ -35,7 +35,7 @@ public sealed class StreamClosedException : IOException
         : base(message, innerException) { }
 
     /// <summary>
-    /// Creates a closed-connection error for a disconnect the server announced.
+    /// Initializes a new instance of the <see cref="StreamClosedException"/> class. Creates a closed-connection error for a disconnect the server announced.
     /// </summary>
     /// <param name="message">Which side closed and how.</param>
     /// <param name="reason">Why the server ended the session, as it reported.</param>
@@ -46,5 +46,6 @@ public sealed class StreamClosedException : IOException
     }
 
     /// <summary>Gets the server-reported disconnect reason, when the server sent one.</summary>
+    /// <value>The reason from the server's disconnect notice, or <see langword="null"/> when the socket simply closed or failed.</value>
     public DisconnectReason? Reason { get; }
 }

@@ -8,9 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Objects;
 public sealed record RequestNeighborhoodObjectLeaderboardMessage(LongId? NeighborhoodId) : CodecMessage<RequestNeighborhoodObjectLeaderboardMessage>, ICodecProvider<RequestNeighborhoodObjectLeaderboardMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestNeighborhoodObjectLeaderboardMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static ICodec<RequestNeighborhoodObjectLeaderboardMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static message => message.NeighborhoodId,
-        static neighborhoodId => new RequestNeighborhoodObjectLeaderboardMessage(neighborhoodId)
-    );
+        static neighborhoodId => new RequestNeighborhoodObjectLeaderboardMessage(neighborhoodId));
 }

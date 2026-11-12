@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 public sealed record BirthdayHugs(ReadOnlyMemory<BirthdayHugReward> Rewards, int Total) : ICodecProvider<BirthdayHugs>
 {
     /// <inheritdoc />
-    public static ICodec<BirthdayHugs> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(BirthdayHugReward.Codec),
+    public static ICodec<BirthdayHugs> Codec { get; } = Codecs.Composite(Codecs.Memory(BirthdayHugReward.Codec),
         static value => value.Rewards,
         Codecs.VarInt,
         static value => value.Total,
-        static (rewards, total) => new BirthdayHugs(rewards, total)
-    );
+        static (rewards, total) => new BirthdayHugs(rewards, total));
 }

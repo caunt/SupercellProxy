@@ -20,8 +20,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// <param name="CollectedChickenCount">The total collected chickens.</param>
 /// <param name="DeliveredSanctuaryAnimalCount">The total delivered sanctuary animals.</param>
 /// <param name="LastDailySocialTaskSpawnTime">When the last social task spawned.</param>
-public sealed record MapGameConfiguration(
-    int CurrentDayIndex,
+public sealed record MapGameConfiguration(int CurrentDayIndex,
     int DailySocialTaskSpawnCount,
     int DailyChickenSpawnCount,
     int LastDailyChickenTaskSpawnTime,
@@ -30,12 +29,10 @@ public sealed record MapGameConfiguration(
     ReadOnlyMemory<MapGameChickenLogEntry> ChickenLogEntries,
     int CollectedChickenCount,
     int DeliveredSanctuaryAnimalCount,
-    int LastDailySocialTaskSpawnTime
-) : ICodecProvider<MapGameConfiguration>
+    int LastDailySocialTaskSpawnTime) : ICodecProvider<MapGameConfiguration>
 {
     /// <inheritdoc />
-    public static ICodec<MapGameConfiguration> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameConfiguration> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static configuration => configuration.CurrentDayIndex,
         Codecs.VarInt,
         static configuration => configuration.DailySocialTaskSpawnCount,
@@ -55,8 +52,7 @@ public sealed record MapGameConfiguration(
         static configuration => configuration.DeliveredSanctuaryAnimalCount,
         Codecs.VarInt,
         static configuration => configuration.LastDailySocialTaskSpawnTime,
-        static (
-            currentDayIndex,
+        static (currentDayIndex,
             dailySocialTaskSpawnCount,
             dailyChickenSpawnCount,
             lastDailyChickenTaskSpawnTime,
@@ -65,18 +61,14 @@ public sealed record MapGameConfiguration(
             chickenLogEntries,
             collectedChickenCount,
             deliveredSanctuaryAnimalCount,
-            lastDailySocialTaskSpawnTime
-        ) => new MapGameConfiguration(
-            currentDayIndex,
-            dailySocialTaskSpawnCount,
-            dailyChickenSpawnCount,
-            lastDailyChickenTaskSpawnTime,
-            dailySanctuaryAnimalDeliveredCount,
-            lastDailySanctuaryAnimalDeliveredTime,
-            chickenLogEntries,
-            collectedChickenCount,
-            deliveredSanctuaryAnimalCount,
-            lastDailySocialTaskSpawnTime
-        )
-    );
+            lastDailySocialTaskSpawnTime) => new MapGameConfiguration(currentDayIndex,
+                dailySocialTaskSpawnCount,
+                dailyChickenSpawnCount,
+                lastDailyChickenTaskSpawnTime,
+                dailySanctuaryAnimalDeliveredCount,
+                lastDailySanctuaryAnimalDeliveredTime,
+                chickenLogEntries,
+                collectedChickenCount,
+                deliveredSanctuaryAnimalCount,
+                lastDailySocialTaskSpawnTime));
 }

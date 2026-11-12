@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Recipients;
 public sealed record RecipientSettingsMessage(bool Flag, int Value) : CodecMessage<RecipientSettingsMessage>, ICodecProvider<RecipientSettingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RecipientSettingsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Boolean,
+    public static ICodec<RecipientSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
         static message => message.Flag,
         Codecs.VarInt,
         static message => message.Value,
-        static (flag, @value) => new RecipientSettingsMessage(flag, value)
-    );
+        static (flag, @value) => new RecipientSettingsMessage(flag, value));
 }

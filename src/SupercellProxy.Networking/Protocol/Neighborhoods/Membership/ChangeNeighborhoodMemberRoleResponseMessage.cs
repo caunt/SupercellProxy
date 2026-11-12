@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record ChangeNeighborhoodMemberRoleResponseMessage(int Role, LongId AvatarId) : CodecMessage<ChangeNeighborhoodMemberRoleResponseMessage>, ICodecProvider<ChangeNeighborhoodMemberRoleResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeNeighborhoodMemberRoleResponseMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ChangeNeighborhoodMemberRoleResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Role,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (role, avatarId) => new ChangeNeighborhoodMemberRoleResponseMessage(role, avatarId)
-    );
+        static (role, avatarId) => new ChangeNeighborhoodMemberRoleResponseMessage(role, avatarId));
 }

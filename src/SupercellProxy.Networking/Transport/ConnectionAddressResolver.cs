@@ -31,7 +31,8 @@ public static class ConnectionAddressResolver
     /// <summary>
     /// Reads a port number from text, falling back to <see cref="DefaultPort"/> when the text is missing or not a number.
     /// </summary>
-    /// <param name="value">Port as typed by the user, or null.</param>
+    /// <param name="value">Port as typed by the user, or <see langword="null"/>.</param>
+    /// <returns>The parsed number as is, without a range check, or <see cref="DefaultPort"/> when <paramref name="value"/> is <see langword="null"/> or not an integer.</returns>
     public static int ParsePort(string? value)
     {
         return int.TryParse(value, CultureInfo.InvariantCulture, out int port) ? port : DefaultPort;
@@ -43,16 +44,17 @@ public static class ConnectionAddressResolver
     /// </summary>
     /// <param name="arguments">Optional host as the first argument and optional port as the second; missing ones use the defaults.</param>
     /// <param name="cancellationToken">Stops the lookups.</param>
+    /// <returns>The resolved IPv4 address, or the host itself when it already is an IP address, together with the parsed port; <see cref="DefaultUpstreamHost"/> and <see cref="DefaultPort"/> fill in missing arguments.</returns>
     /// <exception cref="InvalidDataException">No lookup produced an IPv4 address.</exception>
     public static async Task<ConnectionAddress> ResolveAsync(string[] arguments, CancellationToken cancellationToken)
     {
         string host = arguments.ElementAtOrDefault(index: 0) ?? DefaultUpstreamHost;
-        string resolvedHost = await ResolveHostAsync(host, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        string resolvedHost = await ResolveAsync(host, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         return new ConnectionAddress(resolvedHost, ParsePort(arguments.ElementAtOrDefault(index: 1)));
     }
 
-    private static async Task<string> ResolveHostAsync(string host, CancellationToken cancellationToken)
+    private static async Task<string> ResolveAsync(string host, CancellationToken cancellationToken)
     {
         if (IPAddress.IsValid(host))
             return host;

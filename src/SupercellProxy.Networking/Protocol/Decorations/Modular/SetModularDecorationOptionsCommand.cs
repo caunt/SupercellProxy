@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Decorations.Modular;
 public sealed record SetModularDecorationOptionsCommand(int ObjectGlobalId, ReadOnlyMemory<int> OptionGlobalIds) : CodecCommand<SetModularDecorationOptionsCommand>, ICommandCodecProvider<SetModularDecorationOptionsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetModularDecorationOptionsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ObjectGlobalId,
-            Codecs.Memory(Codecs.VarInt),
-            static command => command.OptionGlobalIds,
-            static (objectGlobalId, optionGlobalIds) => new SetModularDecorationOptionsCommand(objectGlobalId, optionGlobalIds)
-        )
-    );
+    public static CommandCodec<SetModularDecorationOptionsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ObjectGlobalId,
+        Codecs.Memory(Codecs.VarInt),
+        static command => command.OptionGlobalIds,
+        static (objectGlobalId, optionGlobalIds) => new SetModularDecorationOptionsCommand(objectGlobalId, optionGlobalIds)));
 }

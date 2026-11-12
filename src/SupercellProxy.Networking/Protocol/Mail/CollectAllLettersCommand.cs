@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record CollectAllLettersCommand : CodecCommand<CollectAllLettersCommand>, ICommandCodecProvider<CollectAllLettersCommand>
 {
     /// <summary>
-    /// Creates the command; it carries no fields of its own.
+    /// Initializes a new instance of the <see cref="CollectAllLettersCommand"/> record. Creates the command; it carries no fields of its own.
     /// </summary>
     public CollectAllLettersCommand() { }
 

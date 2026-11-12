@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record NeighborhoodMutedMembersMessage(ReadOnlyMemory<LongId> MemberIds, ReadOnlyMemory<string?> MemberNames, int Value) : CodecMessage<NeighborhoodMutedMembersMessage>, ICodecProvider<NeighborhoodMutedMembersMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodMutedMembersMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(Codecs.LongId),
+    public static ICodec<NeighborhoodMutedMembersMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(Codecs.LongId),
         static message => message.MemberIds,
         Codecs.Memory(Codecs.OptionalString),
         static message => message.MemberNames,
         Codecs.VarInt,
         static message => message.Value,
-        static (memberIds, memberNames, @value) => new NeighborhoodMutedMembersMessage(memberIds, memberNames, value)
-    );
+        static (memberIds, memberNames, @value) => new NeighborhoodMutedMembersMessage(memberIds, memberNames, value));
 }

@@ -6,14 +6,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.MapGame.Notifications;
 
 /// <summary>Removes one pending Valley notification after it has been presented.</summary>
+/// <param name="NotificationGlobalId">Global id of a row in the Valley notifications table.</param>
 public sealed record RemoveMapGameNotificationCommand([property: JsonPropertyName("NotificationGlobalId")] int NotificationGlobalId) : CodecCommand<RemoveMapGameNotificationCommand>, ICommandCodecProvider<RemoveMapGameNotificationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RemoveMapGameNotificationCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.NotificationGlobalId,
-            static notificationGlobalId => new RemoveMapGameNotificationCommand(notificationGlobalId)
-        )
-    );
+    public static CommandCodec<RemoveMapGameNotificationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.NotificationGlobalId,
+        static notificationGlobalId => new RemoveMapGameNotificationCommand(notificationGlobalId)));
 }

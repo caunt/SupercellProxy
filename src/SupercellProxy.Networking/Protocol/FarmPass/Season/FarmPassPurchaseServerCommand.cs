@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Season;
 public sealed record FarmPassPurchaseServerCommand(int PassType, string? ProductId, string? TransactionId, string? Receipt, int Timestamp) : CodecServerCommand<FarmPassPurchaseServerCommand>, ICommandCodecProvider<FarmPassPurchaseServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FarmPassPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.PassType,
-            Codecs.OptionalString,
-            static command => command.ProductId,
-            Codecs.OptionalString,
-            static command => command.TransactionId,
-            Codecs.OptionalString,
-            static command => command.Receipt,
-            Codecs.VarInt,
-            static command => command.Timestamp,
-            static (passType, productId, transactionId, receipt, timestamp) => new FarmPassPurchaseServerCommand(passType, productId, transactionId, receipt, timestamp)
-        )
-    );
+    public static CommandCodec<FarmPassPurchaseServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PassType,
+        Codecs.OptionalString,
+        static command => command.ProductId,
+        Codecs.OptionalString,
+        static command => command.TransactionId,
+        Codecs.OptionalString,
+        static command => command.Receipt,
+        Codecs.VarInt,
+        static command => command.Timestamp,
+        static (passType, productId, transactionId, receipt, timestamp) => new FarmPassPurchaseServerCommand(passType, productId, transactionId, receipt, timestamp)));
 }

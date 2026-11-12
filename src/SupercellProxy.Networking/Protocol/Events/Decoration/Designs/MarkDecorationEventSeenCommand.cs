@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 public sealed record MarkDecorationEventSeenCommand(int EventId) : CodecCommand<MarkDecorationEventSeenCommand>, ICommandCodecProvider<MarkDecorationEventSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkDecorationEventSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkDecorationEventSeenCommand(eventId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<MarkDecorationEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new MarkDecorationEventSeenCommand(eventId)),
+        CommandLayout.MetadataFirst);
 }

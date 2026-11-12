@@ -19,11 +19,10 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// <param name="TaskDataIds">Id list at the position of <see cref="MapGamePawn.SelectedOptions"/>.</param>
 /// <param name="NamePresent">Whether the name was sent.</param>
 /// <param name="Name">Name shown for the player.</param>
-/// <param name="OptionalValues">Emblem background, pattern and symbol; null when no emblem is set.</param>
+/// <param name="OptionalValues">Emblem background, pattern and symbol; <see langword="null"/> when no emblem is set.</param>
 /// <param name="DataId">Global id at the position of <see cref="MapGamePawn.DerbyTaskGlobalId"/>.</param>
 /// <param name="Entries">Table entries with values, at the position of <see cref="MapGamePawn.PendingNotifications"/>.</param>
-public sealed record MapGameParticipant(
-    [property: JsonPropertyName("Id0")] LongId? Id0,
+public sealed record MapGameParticipant([property: JsonPropertyName("Id0")] LongId? Id0,
     [property: JsonPropertyName("Id1")] LongId? Id1,
     int[] Values,
     int[] RouteValues,
@@ -32,12 +31,10 @@ public sealed record MapGameParticipant(
     string? Name,
     int[]? OptionalValues,
     [property: JsonPropertyName("DataId")] int DataId,
-    DataReferenceValue[] Entries
-) : ICodecProvider<MapGameParticipant>
+    DataReferenceValue[] Entries) : ICodecProvider<MapGameParticipant>
 {
     /// <inheritdoc />
-    public static ICodec<MapGameParticipant> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static ICodec<MapGameParticipant> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static participant => participant.Id0,
         Codecs.OptionalLongId,
         static participant => participant.Id1,
@@ -55,6 +52,5 @@ public sealed record MapGameParticipant(
         static participant => participant.DataId,
         Codecs.Array(DataReferenceValue.Codec, CollectionCount.Bounded),
         static participant => participant.Entries,
-        static (id0, id1, values, routeValues, taskDataIds, name, optionalValues, dataId, entries) => new MapGameParticipant(id0, id1, values, routeValues, taskDataIds, name.IsPresent, name.Value, optionalValues, dataId, entries)
-    );
+        static (id0, id1, values, routeValues, taskDataIds, name, optionalValues, dataId, entries) => new MapGameParticipant(id0, id1, values, routeValues, taskDataIds, name.IsPresent, name.Value, optionalValues, dataId, entries));
 }

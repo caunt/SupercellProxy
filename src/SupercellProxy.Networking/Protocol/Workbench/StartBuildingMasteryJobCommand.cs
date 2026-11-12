@@ -10,16 +10,12 @@ namespace SupercellProxy.Networking.Protocol.Workbench;
 public sealed record StartBuildingMasteryJobCommand(int JobKind, int BuildingGlobalId, int WorkbenchObjectGlobalId) : CodecCommand<StartBuildingMasteryJobCommand>, ICommandCodecProvider<StartBuildingMasteryJobCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StartBuildingMasteryJobCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<StartBuildingMasteryJobCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.JobKind,
             Codecs.VarInt,
             static command => command.BuildingGlobalId,
             Codecs.VarInt,
             static command => command.WorkbenchObjectGlobalId,
-            static (jobKind, buildingGlobalId, workbenchObjectGlobalId) => new StartBuildingMasteryJobCommand(jobKind, buildingGlobalId, workbenchObjectGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (jobKind, buildingGlobalId, workbenchObjectGlobalId) => new StartBuildingMasteryJobCommand(jobKind, buildingGlobalId, workbenchObjectGlobalId)),
+        CommandLayout.MetadataFirst);
 }

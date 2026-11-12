@@ -113,12 +113,10 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
         Nonce handshakeNonce = new(encryption.ReceiveNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPublicKey.Span);
 
-        byte[] ciphertext = NaClV3Cryptography.Box(
-            [.. encryption.SendNonce.Span, .. encryption.SharedKey.Span, .. payload],
+        byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [.. encryption.SendNonce.Span, .. encryption.SharedKey.Span, .. payload],
             handshakeNonce.Span,
             encryption.RemotePublicKey.Span,
-            encryption.LocalPrivateKey.Span
-        );
+            encryption.LocalPrivateKey.Span);
 
         return new MemoryStream(ciphertext, writable: false);
     }
@@ -132,8 +130,7 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
         Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span, serverPublicKey: encryption.RemotePublicKey.Span);
 
-        byte[] ciphertext = NaClV3Cryptography.Box(
-            [
+        byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [
                 .. encryption.SessionKey.Span,
                 .. encryption.SendNonce.Span,
                 .. payload,
@@ -141,10 +138,9 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
             ],
             temporaryNonce.Span,
             encryption.RemotePublicKey.Span,
-            encryption.LocalPrivateKey.Span
-        );
+            encryption.LocalPrivateKey.Span);
 
-        return new MemoryStream([.. encryption.LocalPublicKey.Span, .. ciphertext], writable: false);
+        return new MemoryStream(buffer: [.. encryption.LocalPublicKey.Span, .. ciphertext], writable: false);
     }
 
     private static byte[] GetPayloadBuffer(MemoryStream stream)

@@ -13,21 +13,18 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
     /// <summary>
     /// Gets the metadata codec of serverbound commands: the execution phase counter and, outside production, two optional debug data blocks.
     /// </summary>
-    internal static ICodec<CommandMetadata> ClientCodec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    internal static ICodec<CommandMetadata> ClientCodec { get; } = Codecs.Composite(Codecs.VarInt,
         static metadata => metadata.ExecutionPhaseCounter,
         DebugDataCodec(),
         static metadata => metadata.DebugData0,
         DebugDataCodec(),
         static metadata => metadata.DebugData1,
-        static (executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(ServerCommandId: null, executionPhaseCounter, debugData0, debugData1)
-    );
+        static (executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(ServerCommandId: null, executionPhaseCounter, debugData0, debugData1));
 
     /// <summary>
     /// Gets the metadata codec of clientbound commands, which lead with the server command id.
     /// </summary>
-    internal static ICodec<CommandMetadata> ServerCodec { get; } = Codecs.Composite(
-        Codecs.Map(Codecs.VarInt, static id => ValidateServerCommandId(id), static id => ValidateServerCommandId(id)),
+    internal static ICodec<CommandMetadata> ServerCodec { get; } = Codecs.Composite(Codecs.Map(Codecs.VarInt, static id => Validate(id), static id => Validate(id)),
         static metadata => metadata.ServerCommandId ?? throw new InvalidDataException(MissingServerCommandIdMessage),
         Codecs.VarInt,
         static metadata => metadata.ExecutionPhaseCounter,
@@ -35,8 +32,7 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
         static metadata => metadata.DebugData0,
         DebugDataCodec(),
         static metadata => metadata.DebugData1,
-        static (serverCommandId, executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(serverCommandId, executionPhaseCounter, debugData0, debugData1)
-    );
+        static (serverCommandId, executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(serverCommandId, executionPhaseCounter, debugData0, debugData1));
 
     /// <summary>
     /// Gets the metadata a command carries.
@@ -54,7 +50,7 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
         command.ApplyMetadata(ExecutionPhaseCounter, DebugData0, DebugData1);
 
         if (command is ServerCommand server)
-            server.ApplyServerCommandId(ServerCommandId ?? throw new InvalidDataException(MissingServerCommandIdMessage));
+            server.Apply(ServerCommandId ?? throw new InvalidDataException(MissingServerCommandIdMessage));
     }
 
     private static ICodec<CommandData?> DebugDataCodec()
@@ -62,7 +58,7 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
         return Codecs.OutsideProduction(Codecs.Optional(CommandData.Codec), absent: null);
     }
 
-    private static int ValidateServerCommandId(int serverCommandId)
+    private static int Validate(int serverCommandId)
     {
         return serverCommandId is -1 ? throw new InvalidDataException(message: "Server command ID cannot be -1.") : serverCommandId;
     }

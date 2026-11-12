@@ -3,8 +3,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Composites;
 
 /// <summary>Reads and writes 11 fields in wire order and builds the value from them.</summary>
-internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh>(
-    ICodec<TFirst> first,
+internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh>(ICodec<TFirst> first,
     Func<TValue, TFirst> getFirst,
     ICodec<TSecond> second,
     Func<TValue, TSecond> getSecond,
@@ -26,8 +25,7 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
     Func<TValue, TTenth> getTenth,
     ICodec<TEleventh> eleventh,
     Func<TValue, TEleventh> getEleventh,
-    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TValue> factory
-) : ICodec<TValue>
+    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TValue> factory) : ICodec<TValue>
 {
     private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
@@ -67,8 +65,7 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
         TTenth tenthValue = _tenth.Read(stream);
         TEleventh eleventhValue = _eleventh.Read(stream);
 
-        return _factory(
-            firstValue,
+        return _factory(firstValue,
             secondValue,
             thirdValue,
             fourthValue,
@@ -78,8 +75,7 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
             eighthValue,
             ninthValue,
             tenthValue,
-            eleventhValue
-        );
+            eleventhValue);
     }
 
     public void Write(ProtocolEncoder encoder, TValue value)

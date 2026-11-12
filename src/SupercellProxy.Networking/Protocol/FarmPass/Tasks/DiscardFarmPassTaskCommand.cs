@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Tasks;
 public sealed record DiscardFarmPassTaskCommand(int TaskIndex) : CodecCommand<DiscardFarmPassTaskCommand>, ICommandCodecProvider<DiscardFarmPassTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DiscardFarmPassTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new DiscardFarmPassTaskCommand(taskIndex))
-    );
+    public static CommandCodec<DiscardFarmPassTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new DiscardFarmPassTaskCommand(taskIndex)));
 }

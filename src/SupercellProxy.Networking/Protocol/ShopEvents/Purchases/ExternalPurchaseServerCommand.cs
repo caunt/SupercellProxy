@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 public sealed record ExternalPurchaseServerCommand(string? ProductId, int Amount) : CodecServerCommand<ExternalPurchaseServerCommand>, ICommandCodecProvider<ExternalPurchaseServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ExternalPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.OptionalString,
-            static command => command.ProductId,
-            Codecs.Int32,
-            static command => command.Amount,
-            static (productId, amount) => new ExternalPurchaseServerCommand(productId, amount)
-        )
-    );
+    public static CommandCodec<ExternalPurchaseServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString,
+        static command => command.ProductId,
+        Codecs.Int32,
+        static command => command.Amount,
+        static (productId, amount) => new ExternalPurchaseServerCommand(productId, amount)));
 }

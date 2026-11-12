@@ -10,12 +10,8 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record HomeLoadFailedMessage(HomeVisitFailureReason Reason) : CodecMessage<HomeLoadFailedMessage>, ICodecProvider<HomeLoadFailedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HomeLoadFailedMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.Enum<HomeVisitFailureReason>(Codecs.VarInt),
+    public static ICodec<HomeLoadFailedMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Enum<HomeVisitFailureReason>(Codecs.VarInt),
             static message => message.Reason,
-            static reason => new HomeLoadFailedMessage(reason)
-        ),
-        trailingDataMessage: "Home-load failure has trailing data."
-    );
+            static reason => new HomeLoadFailedMessage(reason)),
+        trailingDataMessage: "Home-load failure has trailing data.");
 }

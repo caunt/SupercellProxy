@@ -4,10 +4,13 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Orders;
 
 /// <summary>Discards one truck order and starts its free replacement countdown.</summary>
+/// <param name="OrderIndex">
+/// Zero-based slot on the truck order board, written as a single byte, so only the low 8 bits are sent.
+/// </param>
 public sealed record CancelTruckOrderCommand(int OrderIndex) : CodecCommand<CancelTruckOrderCommand>, ICommandCodecProvider<CancelTruckOrderCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CancelTruckOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Byte, static command => (byte)command.OrderIndex, static orderIndex => new CancelTruckOrderCommand(orderIndex))
-    );
+    public static CommandCodec<CancelTruckOrderCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Byte,
+        static command => byte.CreateTruncating(command.OrderIndex),
+        static orderIndex => new CancelTruckOrderCommand(orderIndex)));
 }

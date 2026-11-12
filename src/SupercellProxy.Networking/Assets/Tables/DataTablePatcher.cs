@@ -24,6 +24,7 @@ public static class DataTablePatcher
     /// <exception cref="InvalidDataException">
     /// An edit names a missing table, a cell edit has no row or column, or a column replacement is not a table.
     /// </exception>
+    /// <exception cref="ArgumentNullException"><paramref name="changes"/> or <paramref name="assets"/> is <see langword="null"/>.</exception>
     public static GameAsset[] Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
     {
         ArgumentNullException.ThrowIfNull(changes);
@@ -64,7 +65,7 @@ public static class DataTablePatcher
         {
             resources[file] = resources[file] with
             {
-                Content = Encoding.UTF8.GetBytes(WriteRows(rows)),
+                Content = Encoding.UTF8.GetBytes(Write(rows)),
             };
         }
 
@@ -81,9 +82,9 @@ public static class DataTablePatcher
         if (rows.Count < 2 || string.IsNullOrEmpty(change.Row) || string.IsNullOrEmpty(change.Column))
             throw new InvalidDataException($"The table cell change {change.File} has {rows.Count} rows; row '{change.Row}', column '{change.Column}'.");
 
-        HashSet<string> names = SplitNames(change.Row).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> names = Split(change.Row).ToHashSet(StringComparer.Ordinal);
         bool everyEntry = names.Contains(item: "*");
-        int[] columns = [.. SplitNames(change.Column).Select(name => rows[index: 0].IndexOf(name)).Where(static column => column >= 0)];
+        int[] columns = [.. Split(change.Column).Select(name => rows[index: 0].IndexOf(name)).Where(static column => column >= 0)];
 
         int[] starts =
         [
@@ -107,7 +108,7 @@ public static class DataTablePatcher
             int line = start + Math.Max(change.ArrayIndex ?? 0, val2: 0);
 
             while (line >= end)
-                rows.Insert(end++, [string.Empty]);
+                rows.Insert(end++, item: [string.Empty]);
 
             List<string> target = rows[line];
 
@@ -132,7 +133,7 @@ public static class DataTablePatcher
         if (rows.Count < 2 || replacement.Count < 2)
             throw new InvalidDataException($"The replacement columns {selector} have no table: {rows.Count} and {replacement.Count} lines.");
 
-        foreach (string name in SplitNames(selector))
+        foreach (string name in Split(selector))
         {
             int targetColumn = rows[index: 0].IndexOf(name);
             int sourceColumn = replacement[index: 0].IndexOf(name);
@@ -159,7 +160,7 @@ public static class DataTablePatcher
 
     private static string Quote(string value)
     {
-        return value.IndexOfAny([',', '"', '\r', '\n']) >= 0
+        return value.IndexOfAny(anyOf: [',', '"', '\r', '\n']) >= 0
             ? "\"" + value.Replace(oldValue: "\"", newValue: "\"\"", StringComparison.Ordinal) + "\""
             : value;
     }
@@ -175,12 +176,12 @@ public static class DataTablePatcher
         return stored.TryGetTarget(out GameAsset? shared) ? shared : edited;
     }
 
-    private static string[] SplitNames(string names)
+    private static string[] Split(string names)
     {
         return names.Split(separator: ',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     }
 
-    private static string WriteRows(List<List<string>> rows)
+    private static string Write(List<List<string>> rows)
     {
         return string.Join(separator: '\n', rows.Select(static row => string.Join(separator: ',', row.Select(Quote))));
     }

@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Settings;
 public sealed record ChangeAccountSettingsResponseMessage(int Setting, long Timestamp) : CodecMessage<ChangeAccountSettingsResponseMessage>, ICodecProvider<ChangeAccountSettingsResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeAccountSettingsResponseMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ChangeAccountSettingsResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Setting,
         Codecs.Int64,
         static message => message.Timestamp,
-        static (setting, timestamp) => new ChangeAccountSettingsResponseMessage(setting, timestamp)
-    );
+        static (setting, timestamp) => new ChangeAccountSettingsResponseMessage(setting, timestamp));
 }

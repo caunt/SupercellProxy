@@ -13,13 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 public sealed record StartForestClearingCommand([property: JsonPropertyName("ForestGlobalId")] int ForestGlobalId, bool BuyMissingTool) : CodecCommand<StartForestClearingCommand>, ICommandCodecProvider<StartForestClearingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StartForestClearingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ForestGlobalId,
-            Codecs.Boolean,
-            static command => command.BuyMissingTool,
-            static (forest, buyTool) => new StartForestClearingCommand(forest, buyTool)
-        )
-    );
+    public static CommandCodec<StartForestClearingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ForestGlobalId,
+        Codecs.Boolean,
+        static command => command.BuyMissingTool,
+        static (forest, buyTool) => new StartForestClearingCommand(forest, buyTool)));
 }

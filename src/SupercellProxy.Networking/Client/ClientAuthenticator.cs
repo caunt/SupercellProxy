@@ -46,15 +46,13 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
     {
         try
         {
-            LoginOkMessage unexpected = await LoginCoreAsync(
-                client.Configuration.BootstrapFingerprintSha ?? string.Empty,
+            LoginOkMessage unexpected = await LoginCoreAsync(client.Configuration.BootstrapFingerprintSha ?? string.Empty,
                 sessionToken: null,
                 AppStore.GooglePlay,
                 requestOwnHome: false,
                 allowAnonymous: false,
                 credentials: null,
-                cancellationToken
-            ).ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             throw new InvalidDataException($"Fingerprint discovery returned {unexpected.GetType().Name}.");
         }
@@ -73,15 +71,13 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
     {
         try
         {
-            LoginOkMessage unexpectedLogin = await LoginCoreAsync(
-                string.Empty,
+            LoginOkMessage unexpectedLogin = await LoginCoreAsync(string.Empty,
                 sessionToken: null,
                 AppStore.GooglePlay,
                 requestOwnHome: false,
                 allowAnonymous: false,
                 credentials: null,
-                cancellationToken
-            )
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             throw new InvalidDataException($"Catalog bootstrap returned {unexpectedLogin.GetType().Name} without asset metadata.");
@@ -98,15 +94,13 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
     internal async Task<ClientLoginResult> LoginAnonymousAsync(GameAssetBundle assets, AnonymousAccountCredentials? credentials, bool requestOwnHome, CancellationToken cancellationToken)
     {
-        LoginOkMessage login = await LoginCoreAsync(
-            assets.Fingerprint.Sha,
+        LoginOkMessage login = await LoginCoreAsync(assets.Fingerprint.Sha,
             sessionToken: null,
             AppStore.GooglePlay,
             requestOwnHome,
             allowAnonymous: true,
             credentials,
-            cancellationToken
-        ).ConfigureAwait(continueOnCapturedContext: false);
+            cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         return new ClientLoginResult(login, assets.Fingerprint, assets.Resources);
     }
@@ -135,7 +129,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         return new ClientLoginResult(login, fingerprint, resources);
     }
 
-    private static TMessage RequireMessage<TMessage>(IMessage message)
+    private static TMessage Require<TMessage>(IMessage message)
         where TMessage : class, IMessage
     {
         LoginException.ThrowIfFailed(message);
@@ -160,27 +154,26 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         };
     }
 
-    private async Task<LoginOkMessage> LoginAttemptAsync(
-        string fingerprintSha1,
+    private async Task<LoginOkMessage> LoginAttemptAsync(string fingerprintSha1,
         SessionTokenData? sessionToken,
         AppStore appStore,
         bool requestOwnHome,
         bool allowAnonymous,
         AnonymousAccountCredentials? credentials,
-        CancellationToken cancellationToken = default
-    )
+        CancellationToken cancellationToken = default)
     {
-        if (requestOwnHome && !allowAnonymous) SessionTokenData.ValidateAuthentication(sessionToken, TimeProvider.System);
+        if (requestOwnHome && !allowAnonymous)
+            SessionTokenData.ValidateAuthentication(sessionToken, TimeProvider.System);
 
         try
         {
             MessageStream stream = await client.GetStreamAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             await stream
-                .WriteMessageAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)
+                .WriteAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            ServerHelloMessage serverHello = RequireMessage<ServerHelloMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            ServerHelloMessage serverHello = Require<ServerHelloMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
 
             await stream
                 .SetupEncryptionAsync(RemotePeerRole.Server, serverHello.SessionKey, cancellationToken)
@@ -205,10 +198,10 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             }
 
             await stream
-                .WriteMessageAsync(loginMessage, cancellationToken)
+                .WriteAsync(loginMessage, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            LoginOkMessage loginOkMessage = RequireMessage<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            LoginOkMessage loginOkMessage = Require<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
 
             if (loginOkMessage.AccountId == LongId.Empty || (!allowAnonymous && (sessionToken is null || sessionToken.IsEmpty)))
                 throw new InvalidDataException(message: "Authentication did not establish an account.");
@@ -219,7 +212,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             if (requestOwnHome)
             {
                 await stream
-                    .WriteMessageAsync(new RequestOwnHomeMessage(), cancellationToken)
+                    .WriteAsync(new RequestOwnHomeMessage(), cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 
@@ -233,15 +226,13 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         }
     }
 
-    private async Task<LoginOkMessage> LoginCoreAsync(
-        string fingerprintSha1,
+    private async Task<LoginOkMessage> LoginCoreAsync(string fingerprintSha1,
         SessionTokenData? sessionToken,
         AppStore appStore,
         bool requestOwnHome,
         bool allowAnonymous,
         AnonymousAccountCredentials? credentials,
-        CancellationToken cancellationToken = default
-    )
+        CancellationToken cancellationToken = default)
     {
         try
         {

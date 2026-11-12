@@ -25,7 +25,7 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
         if (_baseRow is not null)
             throw new InvalidOperationException(message: "Base row has already been applied.");
 
-        ApplyValues(values);
+        Apply(values);
         _baseRow = CreateReadOnlyCopy(values);
         _snapshots.Add(CreateReadOnlyCopy(_currentValues));
     }
@@ -42,7 +42,7 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
         if (_baseRow is null)
             throw new InvalidOperationException(message: "Cannot apply a continuation row before a base row.");
 
-        ApplyValues(values);
+        Apply(values);
         _continuationRows.Add(CreateReadOnlyCopy(values));
         _snapshots.Add(CreateReadOnlyCopy(_currentValues));
     }
@@ -73,7 +73,7 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
         return new ReadOnlyDictionary<string, LiteralValue>(new Dictionary<string, LiteralValue>(source, StringComparer.Ordinal));
     }
 
-    private void ApplyValues(Dictionary<string, LiteralValue> values)
+    private void Apply(Dictionary<string, LiteralValue> values)
     {
         foreach (KeyValuePair<string, LiteralValue> pair in values)
             _currentValues[pair.Key] = pair.Value;

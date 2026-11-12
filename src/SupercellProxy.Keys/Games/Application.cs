@@ -50,9 +50,7 @@ internal static partial class Application
 
         if (outputDocument)
         {
-            Console.WriteLine(
-                JsonSerializer.Serialize(document.Sections.Select(static section => new { app_id = section.AppStoreId, app_name = section.Name, }))
-            );
+            Console.WriteLine(JsonSerializer.Serialize(document.Sections.Select(static section => new { app_id = section.AppStoreId, app_name = section.Name, })));
         }
         else
         {

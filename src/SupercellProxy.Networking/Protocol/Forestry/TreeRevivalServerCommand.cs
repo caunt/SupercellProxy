@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 public sealed record TreeRevivalServerCommand(LongId OwnerHomeId, LongId HelperHomeId, int PlantHelpId, ReadOnlyMemory<RevivalReward> HelperRewards) : CodecServerCommand<TreeRevivalServerCommand>, ICommandCodecProvider<TreeRevivalServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<TreeRevivalServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.OwnerHomeId,
-            Codecs.LongId,
-            static command => command.HelperHomeId,
-            Codecs.VarInt,
-            static command => command.PlantHelpId,
-            Codecs.Memory(RevivalReward.Codec),
-            static command => command.HelperRewards,
-            static (ownerHomeId, helperHomeId, plantHelpId, helperRewards) => new TreeRevivalServerCommand(ownerHomeId, helperHomeId, plantHelpId, helperRewards)
-        )
-    );
+    public static CommandCodec<TreeRevivalServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.OwnerHomeId,
+        Codecs.LongId,
+        static command => command.HelperHomeId,
+        Codecs.VarInt,
+        static command => command.PlantHelpId,
+        Codecs.Memory(RevivalReward.Codec),
+        static command => command.HelperRewards,
+        static (ownerHomeId, helperHomeId, plantHelpId, helperRewards) => new TreeRevivalServerCommand(ownerHomeId, helperHomeId, plantHelpId, helperRewards)));
 }

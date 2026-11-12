@@ -13,19 +13,17 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
     /// </summary>
     internal const string NativeTaskType = "Chicken";
 
-    /// <summary>Creates the state from its decoded fields.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MapGameChickenTaskStatePayload"/> record. Creates the state from its decoded fields.</summary>
     /// <param name="requiredCollectorCount">How many players must collect the chicken.</param>
     /// <param name="helpRequestSent">Whether help was asked for the task.</param>
-    /// <param name="helperAvatarId">Account of the player who helped; null when nobody did.</param>
-    /// <param name="rewardData">Reward of the task; null when not drawn yet.</param>
+    /// <param name="helperAvatarId">Account of the player who helped; <see langword="null"/> when nobody did.</param>
+    /// <param name="rewardData">Reward of the task; <see langword="null"/> when not drawn yet.</param>
     /// <param name="collectorAvatarIds">Accounts of the players who collected the chicken.</param>
-    public MapGameChickenTaskStatePayload(
-        int requiredCollectorCount,
+    public MapGameChickenTaskStatePayload(int requiredCollectorCount,
         bool helpRequestSent,
         LongId? helperAvatarId,
         ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData,
-        ReadOnlyMemory<LongId> collectorAvatarIds
-    )
+        ReadOnlyMemory<LongId> collectorAvatarIds)
     {
         RequiredCollectorCount = requiredCollectorCount;
         HelpRequestSent = helpRequestSent;
@@ -37,8 +35,7 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
     }
 
     /// <inheritdoc />
-    public static ICodec<MapGameChickenTaskStatePayload> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameChickenTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.RequiredCollectorCount,
         Codecs.Boolean,
         static value => value.HelpRequestSent,
@@ -48,33 +45,37 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
         static value => value.RewardData,
         Codecs.Memory(Codecs.LongId),
         static value => value.CollectorAvatarIds,
-        static (requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds) => new MapGameChickenTaskStatePayload(requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds)
-    );
+        static (requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds) => new MapGameChickenTaskStatePayload(requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds));
 
     /// <summary>
-    /// Gets the avatars that collected (native JSON <c>CollectorAvatarIDs</c>).
+    /// Gets or sets the avatars that collected (native JSON <c>CollectorAvatarIDs</c>).
     /// </summary>
+    /// <value>Account ids in collection order, each player at most once. Empty when nobody has collected yet.</value>
     [JsonPropertyName("CollectorAvatarIds")]
     public ReadOnlyMemory<LongId> CollectorAvatarIds { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether help was requested (native JSON <c>HelpRequestSent</c>).
     /// </summary>
+    /// <value><see langword="true"/> if the task's owner asked other players for help with it; otherwise, <see langword="false"/>.</value>
     public bool HelpRequestSent { get; }
 
     /// <summary>
     /// Gets the helping avatar (native JSON <c>HelperAvatarID</c>).
     /// </summary>
+    /// <value>The account id of the player who helped; <see langword="null"/> when the wire marks it absent because nobody has helped.</value>
     public LongId? HelperAvatarId { get; }
 
     /// <summary>
     /// Gets the number of collectors the task needs (native JSON <c>RequiredCollectorCount</c>).
     /// </summary>
+    /// <value>How many different players must collect the chickens, the first field of the payload.</value>
     public int RequiredCollectorCount { get; }
 
     /// <summary>
     /// Gets the reward granted for the task (native JSON <c>RewardData</c>).
     /// </summary>
+    /// <value>Pairs of a reward row's global id and amount; <see langword="null"/> when the wire marks the list absent.</value>
     public ReadOnlyMemory<CommandDataReferenceVarIntPair>? RewardData { get; }
 
     /// <inheritdoc />

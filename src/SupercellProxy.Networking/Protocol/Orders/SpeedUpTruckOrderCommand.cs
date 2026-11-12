@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 public sealed record SpeedUpTruckOrderCommand(int OrderIndex) : CodecCommand<SpeedUpTruckOrderCommand>, ICommandCodecProvider<SpeedUpTruckOrderCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpTruckOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static orderIndex => new SpeedUpTruckOrderCommand(orderIndex))
-    );
+    public static CommandCodec<SpeedUpTruckOrderCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static orderIndex => new SpeedUpTruckOrderCommand(orderIndex)));
 }

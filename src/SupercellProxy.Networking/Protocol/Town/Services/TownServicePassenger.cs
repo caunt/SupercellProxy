@@ -13,9 +13,8 @@ namespace SupercellProxy.Networking.Protocol.Town.Services;
 /// <param name="Services">Services the passenger wants, with what each one needs.</param>
 /// <param name="Rewards">What the passenger pays for its services.</param>
 /// <param name="BonusRewards">Extra reward the passenger gives once all its services are done.</param>
-/// <param name="HelperHomeId">Home of the player who helped the service; null when nobody has.</param>
-public sealed record TownServicePassenger(
-    int Unknown0,
+/// <param name="HelperHomeId">Home of the player who helped the service; <see langword="null"/> when nobody has.</param>
+public sealed record TownServicePassenger(int Unknown0,
     int PassengerObjectId,
     int Unknown2,
     int HelpId,
@@ -25,12 +24,10 @@ public sealed record TownServicePassenger(
     ReadOnlyMemory<TownServiceRequest> Services,
     ReadOnlyMemory<TownServiceGood> Rewards,
     ReadOnlyMemory<TownServiceGood> BonusRewards,
-    LongId? HelperHomeId
-) : ICodecProvider<TownServicePassenger>
+    LongId? HelperHomeId) : ICodecProvider<TownServicePassenger>
 {
     /// <inheritdoc />
-    public static ICodec<TownServicePassenger> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<TownServicePassenger> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Unknown0,
         Codecs.VarInt,
         static value => value.PassengerObjectId,
@@ -52,8 +49,7 @@ public sealed record TownServicePassenger(
         static value => value.BonusRewards,
         Codecs.OptionalLongId,
         static value => value.HelperHomeId,
-        static (
-            unknown0,
+        static (unknown0,
             passengerObjectId,
             unknown2,
             helpId,
@@ -63,19 +59,15 @@ public sealed record TownServicePassenger(
             services,
             rewards,
             bonusRewards,
-            helperHomeId
-        ) => new TownServicePassenger(
-            unknown0,
-            passengerObjectId,
-            unknown2,
-            helpId,
-            helpKind,
-            unknown5,
-            passengerGlobalId,
-            services,
-            rewards,
-            bonusRewards,
-            helperHomeId
-        )
-    );
+            helperHomeId) => new TownServicePassenger(unknown0,
+                passengerObjectId,
+                unknown2,
+                helpId,
+                helpKind,
+                unknown5,
+                passengerGlobalId,
+                services,
+                rewards,
+                bonusRewards,
+                helperHomeId));
 }

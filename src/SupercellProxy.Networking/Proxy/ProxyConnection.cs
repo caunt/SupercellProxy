@@ -29,14 +29,12 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     private MessageStream? _serverStream;
     private bool _started;
 
-    private ProxyConnection(
-        TcpClient socketClient,
+    private ProxyConnection(TcpClient socketClient,
         ProxyCaptureWriter trafficCapture,
         Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider,
         ILogger? logger,
         AnonymousAccountLease? anonymousAccount,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         SocketClient = socketClient;
         _logger = logger ?? NullLogger.Instance;
@@ -51,53 +49,62 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     }
 
     /// <summary>
-    /// Ends the whole connection when cancelled: both forwarding loops stop and both sockets are dropped. Linked to the token the
+    /// Gets the source that ends the whole connection when cancelled: both forwarding loops stop and both sockets are dropped. Linked to the token the
     /// connection was opened with.
     /// </summary>
+    /// <value>A linked source owned by the connection; it is cancelled automatically when either forwarding loop ends and disposed with the connection.</value>
     public CancellationTokenSource CancellationTokenSource { get; }
 
     /// <summary>
-    /// Encrypted message stream to the game client on the local side.
+    /// Gets the encrypted message stream to the game client on the local side.
     /// </summary>
+    /// <value>Stream over the accepted client socket, created with the connection; encryption is set up on it when the server hello is forwarded.</value>
     public MessageStream ClientStream { get; }
 
     /// <summary>
-    /// Finishes when both forwarding loops have stopped; already complete before <see cref="RunAsync"/> starts them.
+    /// Gets a task that finishes when both forwarding loops have stopped; already complete before <see cref="RunAsync"/> starts them.
     /// </summary>
+    /// <value>Replaced by the forwarding task when <see cref="RunAsync"/> starts; it ends once one side disconnects and the other loop has been stopped.</value>
     public Task CompletionTask { get; private set; } = Task.CompletedTask;
 
     /// <summary>
-    /// Raises an event for every message this connection receives (cancellable) and forwards, so callers can watch or filter traffic.
+    /// Gets the bus that raises an event for every message this connection receives (cancellable) and forwards, so callers can watch or filter traffic.
     /// </summary>
+    /// <value>Bus that publishes a <c>MessageReceivedEvent</c> before forwarding, which a handler can cancel to drop the message, and a <c>MessageSentEvent</c> after it is written.</value>
     public EventBus EventBus { get; }
 
     /// <summary>
-    /// Address and port of the game client, used to name the connection in logs and its capture folder.
+    /// Gets the address and port of the game client, used to name the connection in logs and its capture folder.
     /// </summary>
+    /// <value>Text form of the client socket's remote endpoint, such as <c>192.168.1.5:51234</c>, read once when the connection is created.</value>
     public string RemoteEndPoint { get; }
 
     /// <summary>
-    /// Encrypted message stream to the real game server.
+    /// Gets the encrypted message stream to the real game server.
     /// </summary>
+    /// <value>Stream over the upstream socket, created once the connection to the server succeeds and set up with the server key source and command tables.</value>
     /// <exception cref="InvalidOperationException">The upstream socket is not connected yet.</exception>
     public MessageStream ServerStream =>
         _serverStream ?? throw new InvalidOperationException(message: "The upstream stream is unavailable.");
 
     /// <summary>
-    /// Socket of the game client that connected to the proxy.
+    /// Gets the socket of the game client that connected to the proxy.
     /// </summary>
+    /// <value>The accepted client socket the connection was opened with; disposing the connection disposes it too.</value>
     [JsonPropertyName("TcpClient")]
     public TcpClient SocketClient { get; }
 
     /// <summary>
-    /// Socket the proxy opened to the real game server for this client.
+    /// Gets the socket the proxy opened to the real game server for this client.
     /// </summary>
+    /// <value>A socket created with the connection and connected to the upstream host before the connection is returned; disposed together with the connection.</value>
     [JsonPropertyName("TcpUpstream")]
     public TcpClient SocketUpstream { get; }
 
     /// <summary>
-    /// Records this connection's frames, both as received and as written after any rewriting.
+    /// Gets the writer that records this connection's frames, both as received and as written after any rewriting.
     /// </summary>
+    /// <value>The capture writer passed when the connection was opened; it also decides whether original frame bytes are preserved while forwarding.</value>
     public ProxyCaptureWriter TrafficCapture { get; }
 
     /// <summary>
@@ -110,14 +117,14 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// <param name="trafficCapture">Writer for this connection's capture.</param>
     /// <param name="sessionTokenProvider">
     /// When set, the client's login is rewritten to log in with this Supercell ID session token instead of the client's own
-    /// credentials; called again with true to refresh a token the server rejects.
+    /// credentials; called again with <see langword="true"/> to refresh a token the server rejects.
     /// </param>
     /// <param name="serverKeys">Source of the real server's public key.</param>
     /// <param name="commandDataResolver">Game tables used to decode commands in both directions.</param>
     /// <param name="logger">Receives login and decoding warnings.</param>
     /// <param name="cancellationToken">Ends the connection, now or later.</param>
-    public static Task<ProxyConnection> ConnectAsync(
-        TcpClient socketClient,
+    /// <returns>A connection whose upstream socket is connected and whose two streams are ready; the caller owns it and must dispose it.</returns>
+    public static Task<ProxyConnection> ConnectAsync(TcpClient socketClient,
         string upstreamHost,
         int upstreamPort,
         ProxyCaptureWriter trafficCapture,
@@ -125,11 +132,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         IServerPublicKeySource? serverKeys = null,
         ICommandDataResolver? commandDataResolver = null,
         ILogger? logger = null,
-        CancellationToken cancellationToken = default
-    )
+        CancellationToken cancellationToken = default)
     {
-        return ConnectAsync(
-            socketClient,
+        return ConnectAsync(socketClient,
             upstreamHost,
             upstreamPort,
             trafficCapture,
@@ -138,13 +143,23 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             commandDataResolver,
             logger,
             anonymousAccount: null,
-            cancellationToken
-        );
+            cancellationToken);
     }
 
     /// <summary>Opens a proxy connection using a host-owned anonymous account lease.</summary>
-    public static async Task<ProxyConnection> ConnectAsync(
-        TcpClient socketClient,
+    /// <param name="socketClient">The accepted game client.</param>
+    /// <param name="upstreamHost">Game server host name or address to connect to.</param>
+    /// <param name="upstreamPort">Game server TCP port.</param>
+    /// <param name="trafficCapture">Writer for this connection's capture.</param>
+    /// <param name="sessionTokenProvider">When set and no anonymous lease is given, rewrites the client's login to this Supercell ID session token; called with <see langword="true"/> to refresh a rejected token.</param>
+    /// <param name="serverKeys">Source of the real server's public key, or <see langword="null"/> when the upstream stream needs none.</param>
+    /// <param name="commandDataResolver">Game tables used to decode commands in both directions, or <see langword="null"/> to decode without them.</param>
+    /// <param name="logger">Receives login and decoding warnings; <see langword="null"/> discards them.</param>
+    /// <param name="anonymousAccount">Lease whose saved account id and pass token replace the client's login and whose token is saved again when the server accepts it; it takes precedence over <paramref name="sessionTokenProvider"/>, and <see langword="null"/> leaves the login alone.</param>
+    /// <param name="cancellationToken">Ends the connection, now or later, including while the upstream socket is still connecting.</param>
+    /// <returns>A connection whose upstream socket is connected and whose two streams are ready; if connecting fails, the partly built connection is disposed and the error rethrown.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="socketClient"/> is <see langword="null"/>.</exception>
+    public static async Task<ProxyConnection> ConnectAsync(TcpClient socketClient,
         string upstreamHost,
         int upstreamPort,
         ProxyCaptureWriter trafficCapture,
@@ -153,8 +168,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         ICommandDataResolver? commandDataResolver,
         ILogger? logger,
         AnonymousAccountLease? anonymousAccount,
-        CancellationToken cancellationToken = default
-    )
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(socketClient);
         ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, anonymousAccount, cancellationToken);
@@ -194,10 +208,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         _started = true;
         await EventBus
-            .SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedEventAsync, cancellationToken)
+            .SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
         await EventBus
-            .SubscribeAsync<MessageSentEvent>(OnMessageSentEventAsync, cancellationToken)
+            .SubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         try
@@ -209,10 +223,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         finally
         {
             await EventBus
-                .UnsubscribeAsync<MessageReceivedEvent>(OnMessageReceivedEventAsync, cancellationToken)
+                .UnsubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
             await EventBus
-                .UnsubscribeAsync<MessageSentEvent>(OnMessageSentEventAsync, cancellationToken)
+                .UnsubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -220,6 +234,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// <summary>
     /// Names the connection by the game client's address and port.
     /// </summary>
+    /// <returns>The value of <see cref="RemoteEndPoint"/>.</returns>
     public override string ToString()
     {
         return RemoteEndPoint;
@@ -231,13 +246,14 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// </summary>
     /// <param name="target">Home id of the farm to visit.</param>
     /// <param name="cancellationToken">Stops waiting for the farm data.</param>
+    /// <returns>The farm data message the server sent back for <paramref name="target"/>, returned after the client's follow-up turns have settled or gone quiet for 3 seconds.</returns>
     /// <exception cref="TimeoutException">The farm data did not arrive within 15 seconds.</exception>
     public ValueTask<OtherHomeDataMessage> VisitHomeAsync(LongId target, CancellationToken cancellationToken = default)
     {
         return _homeVisitor.VisitHomeAsync(target, cancellationToken);
     }
 
-    internal async Task WriteMessageAsync(IMessage message, MessageDirection direction, CancellationToken cancellationToken = default)
+    internal async Task WriteAsync(IMessage message, MessageDirection direction, CancellationToken cancellationToken = default)
     {
         MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
         MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
@@ -287,9 +303,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         await CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
     }
 
-    private async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken = default)
+    private async Task OnMessageReceivedAsync(MessageReceivedEvent @event, CancellationToken cancellationToken = default)
     {
-        await _handshake.OnMessageReceivedEventAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await _handshake.OnMessageReceivedAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         switch (@event.Message)
         {
@@ -312,21 +328,17 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         if (@event.IsCancelled)
         {
-            Console.WriteLine(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"
-                )
-            );
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"));
         }
     }
 
-    private async Task OnMessageSentEventAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
+    private async Task OnMessageSentAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
     {
         if (@event.Message is LoginFailedMessage failure && @event.Direction is MessageDirection.Clientbound)
             LogLoginRejected(_logger, new LoginException(failure).Message);
 
-        await _handshake.OnMessageSentEventAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await _handshake.OnMessageSentAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         // The structured warning above is intentionally concise; the record's default rendering
         // includes the complete asset catalog carried by OutdatedContent.
@@ -335,12 +347,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         if (@event.Message is EndClientTurnMessage endClientTurnMessage)
         {
-            Console.WriteLine(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"
-                )
-            );
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"));
         }
         else if (@event.Message is PassthroughMessage)
         {
@@ -370,7 +378,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             if (@event.IsCancelled)
                 continue;
 
-            await WriteForwardMessageAsync(message, original, destination, direction, cancellationToken)
+            await WriteForwardAsync(message, original, destination, direction, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await EventBus
@@ -429,12 +437,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (MacVerificationException exception) when (exception.IsPublicKeyBox)
         {
-            Console.WriteLine(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"
-                )
-            );
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"));
         }
         catch (StreamClosedException exception)
         {
@@ -472,13 +476,11 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
     }
 
-    private async Task WriteForwardMessageAsync(
-        IMessage message,
+    private async Task WriteForwardAsync(IMessage message,
         MessageContainer original,
         MessageStream destination,
         MessageDirection direction,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         // A rejection before Login can carry the asset fingerprint and download locations needed by
         // an outdated client. Preserve that server response even though device identity has not yet

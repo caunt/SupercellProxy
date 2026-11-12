@@ -35,12 +35,13 @@ public sealed class ProxyCaptureWriter
     private long _sequence;
 
     /// <summary>
-    /// Picks the connection's capture folder, named by the current UTC time, the peer address and a random suffix; nothing is
+    /// Initializes a new instance of the <see cref="ProxyCaptureWriter"/> class. Picks the connection's capture folder, named by the current UTC time, the peer address and a random suffix; nothing is
     /// created on disk yet.
     /// </summary>
-    /// <param name="rootDirectoryPath">Folder that holds all captures; null turns capturing off for this connection.</param>
+    /// <param name="rootDirectoryPath">Folder that holds all captures; <see langword="null"/> turns capturing off for this connection.</param>
     /// <param name="remoteEndPoint">Address of the peer, made safe for use in the folder name.</param>
-    /// <param name="timeProvider">Clock for folder names and frame timestamps; the system clock when null.</param>
+    /// <param name="timeProvider">Clock for folder names and frame timestamps; the system clock when <see langword="null"/>.</param>
+    /// <exception cref="ArgumentException"><paramref name="rootDirectoryPath"/> is empty or only white space.</exception>
     public ProxyCaptureWriter(string? rootDirectoryPath, string remoteEndPoint, TimeProvider? timeProvider = null)
     {
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -50,33 +51,40 @@ public sealed class ProxyCaptureWriter
 
         ArgumentException.ThrowIfNullOrWhiteSpace(rootDirectoryPath);
 
-        string connectionName = string.Create(
-            CultureInfo.InvariantCulture,
-            $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}"
-        );
+        string connectionName = string.Create(CultureInfo.InvariantCulture,
+            $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}");
 
         _directoryPath = Path.GetFullPath(Path.Combine(rootDirectoryPath, connectionName));
     }
 
-    /// <summary>Optionally attaches metadata to each captured frame.</summary>
+    /// <summary>Gets or sets an optional callback that attaches metadata to each captured frame.</summary>
+    /// <value>Called once per saved frame with its sequence, file name and bytes; a returned annotation is appended beside the frame and <see langword="null"/> adds nothing. <see langword="null"/> by default.</value>
     public Func<ProxyCapturedFrame, ProxyCaptureAnnotation?>? AnnotateFrame { get; set; }
 
-    /// <summary>Optionally retains recording assets and groups captures by their handshake version.</summary>
+    /// <summary>Gets or sets the archive that optionally retains recording assets and groups captures by their handshake version.</summary>
+    /// <value>When set, the client hello moves the capture folder under its version, a login acceptance retains the game assets, and nothing is published before that; <see langword="null"/> keeps the plain folder and publishes without assets.</value>
     public CaptureArchive? Archive { get; init; }
 
-    /// <summary>Whether capture publication waits for an explicit call to <see cref="PublishAsync"/>.</summary>
+    /// <summary>Gets or sets whether capture publication waits for an explicit call to <see cref="PublishAsync"/>.</summary>
+    /// <value><see langword="true"/> if frames stay in memory until <see cref="PublishAsync"/> approves them; otherwise, <see langword="false"/>.</value>
+    /// <remarks>The flag defaults to <see langword="false"/>, under which the first saved frame publishes the capture.</remarks>
     public bool DeferPublication { get; set; }
 
     /// <summary>
-    /// Full path of this connection's capture folder; empty when capturing is off. The folder may not exist until the capture is
+    /// Gets the full path of this connection's capture folder; empty when capturing is off. The folder may not exist until the capture is
     /// published.
     /// </summary>
+    /// <value>An absolute path, which moves under the version folder once the client hello is seen when <see cref="Archive"/> is set, or <see cref="string.Empty"/> when no root folder was given.</value>
     public string DirectoryPath => _directoryPath ?? string.Empty;
 
-    /// <summary>Whether this capture has begun writing to disk.</summary>
+    /// <summary>Gets whether this capture has begun writing to disk.</summary>
+    /// <value><see langword="true"/> if publication created the folder, after which every frame and artifact is written immediately; otherwise, <see langword="false"/>.</value>
+    /// <remarks>While the value is <see langword="false"/>, data is still held in memory.</remarks>
     public bool IsPersisted => Volatile.Read(ref _persisted) != 0;
 
-    /// <summary>Whether the proxy should preserve received frame bytes while forwarding.</summary>
+    /// <summary>Gets or sets whether the proxy should preserve received frame bytes while forwarding.</summary>
+    /// <value><see langword="true"/> if forwarded frames keep their original bytes instead of being re-encoded, except the login the proxy rewrites, and messages that fail to decode (other than the hello and login exchange) are passed through undecoded; otherwise, <see langword="false"/>.</value>
+    /// <remarks>The flag defaults to <see langword="false"/> and is safe to change from any thread.</remarks>
     public bool PreserveForwardedFrames
     {
         get => Volatile.Read(ref _preserveForwardedFrames) != 0;
@@ -87,6 +95,7 @@ public sealed class ProxyCaptureWriter
     /// Gives the word capture file names use for a direction: <c>clientbound</c> or <c>serverbound</c>.
     /// </summary>
     /// <param name="direction">Direction the frame travelled.</param>
+    /// <returns><c>clientbound</c> for <see cref="MessageDirection.Clientbound"/> or <c>serverbound</c> for <see cref="MessageDirection.Serverbound"/>, in lower case.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The direction is neither of the two.</exception>
     public static string GetDirectionName(MessageDirection direction)
     {
@@ -112,6 +121,8 @@ public sealed class ProxyCaptureWriter
     }
 
     /// <summary>Prepares a recording whose retained window starts after its client handshake.</summary>
+    /// <param name="identity">Game version and asset fingerprint of the recording; it picks the version folder and the assets to retain, and must match any identity already seen on this capture.</param>
+    /// <param name="cancellationToken">Stops waiting for the writer's lock or for the assets to be retained.</param>
     public async Task PrepareAsync(CaptureIdentity identity, CancellationToken cancellationToken = default)
     {
         using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -120,6 +131,7 @@ public sealed class ProxyCaptureWriter
     }
 
     /// <summary>Approves publication once at least one captured frame is available.</summary>
+    /// <param name="cancellationToken">Stops waiting for the writer's lock or for the pending frames to be written; the approval itself stays in effect.</param>
     public async Task PublishAsync(CancellationToken cancellationToken = default)
     {
         using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -129,6 +141,13 @@ public sealed class ProxyCaptureWriter
     }
 
     /// <summary>Stages an artifact without creating a capture directory before publication.</summary>
+    /// <param name="directoryName">Subfolder of the capture folder to put the artifact in, such as <c>diagnostics</c>; must be a single path segment.</param>
+    /// <param name="name">File name of the artifact; must be a single path segment, and saving the same name again replaces the earlier contents.</param>
+    /// <param name="contents">Bytes to write; they are copied, and count toward the 64 MiB pending limit until the capture is published.</param>
+    /// <param name="cancellationToken">Stops waiting for the writer's lock or the disk write.</param>
+    /// <exception cref="InvalidOperationException">The writer was created without a capture root, so it has no folder to put artifacts in.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directoryName"/> or <paramref name="name"/> is empty, <c>.</c>, <c>..</c> or contains a path separator.</exception>
+    /// <exception cref="IOException">Staging the artifact would push the unpublished data past 64 MiB.</exception>
     public async Task SaveArtifactAsync(string directoryName, string name, ReadOnlyMemory<byte> contents, CancellationToken cancellationToken = default)
     {
         if (_directoryPath is null)
@@ -142,7 +161,7 @@ public sealed class ProxyCaptureWriter
 
         if (IsPersisted)
         {
-            await WriteArtifactAsync(artifact, contents, overwrite: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await WriteAsync(artifact, contents, overwrite: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             return;
         }
@@ -163,13 +182,13 @@ public sealed class ProxyCaptureWriter
     /// <param name="messageName">Decoded message type name, added to the file name for readability.</param>
     /// <param name="cancellationToken">Stops waiting for the writer's lock or the disk write.</param>
     /// <exception cref="IOException">More than 64 MiB piled up before the capture was published.</exception>
-    public async ValueTask SaveAsync(
-        string stage,
+    /// <exception cref="ArgumentNullException"><paramref name="container"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidDataException">A login acceptance was captured while <see cref="Archive"/> is set but no client hello was captured before it.</exception>
+    public async ValueTask SaveAsync(string stage,
         MessageDirection direction,
         MessageContainer container,
         string messageName,
-        CancellationToken cancellationToken = default
-    )
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(container);
 
@@ -190,8 +209,8 @@ public sealed class ProxyCaptureWriter
         {
             using MessageStream stream = MessageStream.Create(payload);
 
-            CaptureIdentity identity = CaptureIdentity.FromHello(ClientHelloMessage.Codec.Read(stream));
-            ConfigureIdentity(identity);
+            CaptureIdentity identity = CaptureIdentity.From(ClientHelloMessage.Codec.Read(stream));
+            Configure(identity);
         }
 
         bool loginAccepted = Archive is not null && stage == "incoming" && direction == MessageDirection.Clientbound
@@ -209,14 +228,10 @@ public sealed class ProxyCaptureWriter
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 5, length: 2), container.Version);
         payload.CopyTo(frame, index: 7);
 
-        string fileName = string.Create(
-            CultureInfo.InvariantCulture,
-            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin"
-        );
+        string fileName = string.Create(CultureInfo.InvariantCulture,
+            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
 
-        ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(
-            new ProxyCapturedFrame(sequence, fileName, stage, direction, container.Id, container.Version, frame, timestamp, _timeProvider.TimestampFrequency)
-        );
+        ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(new ProxyCapturedFrame(sequence, fileName, stage, direction, container.Id, container.Version, frame, timestamp, _timeProvider.TimestampFrequency));
 
         if (annotation is not null)
             ValidateArtifactName(annotation.Directory, annotation.File);
@@ -225,7 +240,7 @@ public sealed class ProxyCaptureWriter
 
         if (IsPersisted)
         {
-            await WriteFrameAsync(pending, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await WriteAsync(pending, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
         else
         {
@@ -241,7 +256,7 @@ public sealed class ProxyCaptureWriter
     {
         char[] invalidCharacters = Path.GetInvalidFileNameChars();
 
-        return new string([.. value.Select(character => invalidCharacters.Contains(character) ? '_' : character)]);
+        return new string(value: [.. value.Select(character => invalidCharacters.Contains(character) ? '_' : character)]);
     }
 
     private static void TrySetDirectoryPermissions(string path)
@@ -271,14 +286,12 @@ public sealed class ProxyCaptureWriter
 
     private static async Task WriteFileAsync(string path, ReadOnlyMemory<byte> bytes, bool overwrite, CancellationToken cancellationToken)
     {
-        FileStream stream = new(
-            path,
+        FileStream stream = new(path,
             overwrite ? FileMode.Create : FileMode.CreateNew,
             FileAccess.Write,
             FileShare.Read,
             bufferSize: 4096,
-            FileOptions.Asynchronous | FileOptions.WriteThrough
-        );
+            FileOptions.Asynchronous | FileOptions.WriteThrough);
 
         await using (stream.ConfigureAwait(continueOnCapturedContext: false))
         {
@@ -287,18 +300,20 @@ public sealed class ProxyCaptureWriter
         }
     }
 
-    private void ConfigureIdentity(CaptureIdentity identity)
+    private void Configure(CaptureIdentity identity)
     {
         CaptureArchive archive = Archive ?? throw new InvalidOperationException(message: "The capture archive is unavailable.");
 
         if (_identity is not null)
         {
-            if (_identity != identity) throw new InvalidDataException(message: "A capture cannot change its game version or asset fingerprint.");
+            if (_identity != identity)
+                throw new InvalidDataException(message: "A capture cannot change its game version or asset fingerprint.");
 
             return;
         }
 
-        if (IsPersisted) throw new InvalidOperationException(message: "The capture was published before its version was selected.");
+        if (IsPersisted)
+            throw new InvalidOperationException(message: "The capture was published before its version was selected.");
 
         string name = Path.GetFileName(_directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled."));
         _directoryPath = Path.Combine(archive.VersionDirectory(identity), name);
@@ -309,13 +324,15 @@ public sealed class ProxyCaptureWriter
     {
         ArgumentNullException.ThrowIfNull(identity);
         CaptureArchive archive = Archive ?? throw new InvalidOperationException(message: "The capture archive is unavailable.");
-        ConfigureIdentity(identity);
+        Configure(identity);
 
-        if (_assetsRetained) return;
+        if (_assetsRetained)
+            return;
 
         string retained = await archive.RetainAssetsAsync(identity, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        if (!Directory.Exists(retained)) throw new DirectoryNotFoundException(message: "The recording's assets were not retained.");
+        if (!Directory.Exists(retained))
+            throw new DirectoryNotFoundException(message: "The recording's assets were not retained.");
 
         _assetsRetained = true;
     }
@@ -340,10 +357,10 @@ public sealed class ProxyCaptureWriter
         Volatile.Write(ref _persisted, value: 1);
 
         foreach ((ArtifactName artifact, byte[] bytes) in _pendingArtifacts)
-            await WriteArtifactAsync(artifact, bytes, overwrite: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await WriteAsync(artifact, bytes, overwrite: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         foreach (PendingFrame frame in _pendingFrames)
-            await WriteFrameAsync(frame, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await WriteAsync(frame, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         _pendingFrames.Clear();
         _pendingArtifacts.Clear();
@@ -360,7 +377,7 @@ public sealed class ProxyCaptureWriter
         }
     }
 
-    private async Task WriteArtifactAsync(ArtifactName artifact, ReadOnlyMemory<byte> bytes, bool overwrite, CancellationToken cancellationToken)
+    private async Task WriteAsync(ArtifactName artifact, ReadOnlyMemory<byte> bytes, bool overwrite, CancellationToken cancellationToken)
     {
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         DirectoryInfo directory = Directory.CreateDirectory(Path.Combine(path, artifact.Directory));
@@ -368,7 +385,7 @@ public sealed class ProxyCaptureWriter
         await WriteFileAsync(Path.Combine(directory.FullName, artifact.File), bytes, overwrite, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
-    private async Task WriteFrameAsync(PendingFrame frame, CancellationToken cancellationToken)
+    private async Task WriteAsync(PendingFrame frame, CancellationToken cancellationToken)
     {
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         await WriteFileAsync(Path.Combine(path, frame.Name), frame.Bytes, overwrite: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

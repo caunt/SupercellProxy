@@ -12,8 +12,7 @@ public sealed record ChangeAccountSettingsMessage(string? Setting, int Value, bo
     : CodecMessage<ChangeAccountSettingsMessage>, ICodecProvider<ChangeAccountSettingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeAccountSettingsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<ChangeAccountSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Setting,
         Codecs.Int32,
         static message => message.Value,
@@ -21,6 +20,5 @@ public sealed record ChangeAccountSettingsMessage(string? Setting, int Value, bo
         static message => message.Flag,
         Codecs.Trailing(Codecs.OptionalByteArray, absent: null, static data => data is not null),
         static message => message.Data,
-        static (setting, value, flag, data) => new ChangeAccountSettingsMessage(setting, value, flag, data)
-    );
+        static (setting, value, flag, data) => new ChangeAccountSettingsMessage(setting, value, flag, data));
 }

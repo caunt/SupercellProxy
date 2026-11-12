@@ -4,16 +4,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Derby;
 
 /// <summary>Requests a comparison between two derby neighborhoods.</summary>
-/// <param name="FirstNeighborhoodId">One neighbourhood of the pair; null when not given.</param>
-/// <param name="SecondNeighborhoodId">The neighbourhood to compare it with; null when not given.</param>
+/// <param name="FirstNeighborhoodId">One neighbourhood of the pair; <see langword="null"/> when not given.</param>
+/// <param name="SecondNeighborhoodId">The neighbourhood to compare it with; <see langword="null"/> when not given.</param>
 public sealed record RequestNeighborhoodDerbyComparisonMessage(LongId? FirstNeighborhoodId, LongId? SecondNeighborhoodId) : CodecMessage<RequestNeighborhoodDerbyComparisonMessage>, ICodecProvider<RequestNeighborhoodDerbyComparisonMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestNeighborhoodDerbyComparisonMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static ICodec<RequestNeighborhoodDerbyComparisonMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static message => message.FirstNeighborhoodId,
         Codecs.OptionalLongId,
         static message => message.SecondNeighborhoodId,
-        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodDerbyComparisonMessage(firstNeighborhoodId, secondNeighborhoodId)
-    );
+        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodDerbyComparisonMessage(firstNeighborhoodId, secondNeighborhoodId));
 }

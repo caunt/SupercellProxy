@@ -19,17 +19,13 @@ namespace SupercellProxy.Networking.Protocol.Fishing;
 public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlobalId, int FishGlobalId, int BaitGlobalId) : CodecCommand<CompleteFishingCatchCommand>, ICommandCodecProvider<CompleteFishingCatchCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CompleteFishingCatchCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Boolean,
-            static command => command.Caught,
-            Codecs.VarInt,
-            static command => command.FishingSpotGlobalId,
-            Codecs.VarInt,
-            static command => command.FishGlobalId,
-            Codecs.VarInt,
-            static command => command.BaitGlobalId,
-            static (caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId) => new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId)
-        )
-    );
+    public static CommandCodec<CompleteFishingCatchCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
+        static command => command.Caught,
+        Codecs.VarInt,
+        static command => command.FishingSpotGlobalId,
+        Codecs.VarInt,
+        static command => command.FishGlobalId,
+        Codecs.VarInt,
+        static command => command.BaitGlobalId,
+        static (caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId) => new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId)));
 }

@@ -13,17 +13,15 @@ namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 public sealed record SupercellIdAccountAlreadyBoundMessage(string? SupercellId, LongId? AccountId, string? PassToken, ClientAvatar Avatar, string? Text) : CodecMessage<SupercellIdAccountAlreadyBoundMessage>, ICodecProvider<SupercellIdAccountAlreadyBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SupercellIdAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.SupercellId,
         Codecs.OptionalLongId,
         static message => message.AccountId,
         Codecs.OptionalString,
         static message => message.PassToken,
-        SupercellProxy.Networking.Protocol.Avatars.ClientAvatar.Codec,
+        ClientAvatar.Codec,
         static message => message.Avatar,
         Codecs.OptionalString,
         static message => message.Text,
-        static (supercellId, accountId, passToken, avatar, text) => new SupercellIdAccountAlreadyBoundMessage(supercellId, accountId, passToken, avatar, text)
-    );
+        static (supercellId, accountId, passToken, avatar, text) => new SupercellIdAccountAlreadyBoundMessage(supercellId, accountId, passToken, avatar, text));
 }

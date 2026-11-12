@@ -9,13 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Directory;
 public sealed record NeighborhoodBadge(int Background, int Pattern, int Symbol) : ICodecProvider<NeighborhoodBadge>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodBadge> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<NeighborhoodBadge> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Background,
         Codecs.VarInt,
         static value => value.Pattern,
         Codecs.VarInt,
         static value => value.Symbol,
-        static (background, pattern, symbol) => new NeighborhoodBadge(background, pattern, symbol)
-    );
+        static (background, pattern, symbol) => new NeighborhoodBadge(background, pattern, symbol));
 }

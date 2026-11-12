@@ -8,12 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Workbench;
 public sealed record FinishBuildingMasteryWithDiamondsCommand(int BuildingGlobalId) : CodecCommand<FinishBuildingMasteryWithDiamondsCommand>, ICommandCodecProvider<FinishBuildingMasteryWithDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FinishBuildingMasteryWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<FinishBuildingMasteryWithDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.BuildingGlobalId,
-            static buildingGlobalId => new FinishBuildingMasteryWithDiamondsCommand(buildingGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static buildingGlobalId => new FinishBuildingMasteryWithDiamondsCommand(buildingGlobalId)),
+        CommandLayout.MetadataFirst);
 }

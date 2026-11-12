@@ -13,27 +13,22 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 /// <param name="PositionX">Horizontal map position, aligned to the tile grid.</param>
 /// <param name="Variant">Variant of the placed object; -1 for the default, which is the only value the ported paths accept.</param>
 /// <param name="PositionY">Vertical map position, aligned to the tile grid.</param>
-/// <param name="LayoutMode">Whether the object is placed from the farm layout editor; the ported paths accept only false.</param>
+/// <param name="LayoutMode">Whether the object is placed from the farm layout editor.</param>
 /// <param name="ReplacedObjectGlobalId">Global id of the object the new one replaces; -1 when placing a new object.</param>
 /// <param name="TargetDataGlobalId">Global id of the table entry of the object to build.</param>
 /// <param name="Mirrored">Whether the object is placed mirrored.</param>
-public sealed record ConstructGameObjectCommand(
-    int PositionX,
+public sealed record ConstructGameObjectCommand(int PositionX,
     int Variant,
     int PositionY,
     bool LayoutMode,
     [property: JsonPropertyName("ReplacedObjectGlobalId")] int ReplacedObjectGlobalId,
     [property: JsonPropertyName("TargetDataGlobalId")] int TargetDataGlobalId,
-    bool Mirrored
-)
+    bool Mirrored)
     : CodecCommand<ConstructGameObjectCommand>, ICommandCodecProvider<ConstructGameObjectCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ConstructGameObjectCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.Boolean,
+    public static CommandCodec<ConstructGameObjectCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.LayoutMode,
                 Codecs.VarInt,
                 static command => command.Variant,
@@ -47,10 +42,8 @@ public sealed record ConstructGameObjectCommand(
                 static command => command.PositionX,
                 Codecs.Boolean,
                 static command => command.Mirrored,
-                static (layoutMode, variant, targetDataGlobalId, replacedObjectGlobalId, positionY, positionX, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored)
-            ),
-            Codecs.Composite(
-                Codecs.VarInt,
+                static (layoutMode, variant, targetDataGlobalId, replacedObjectGlobalId, positionY, positionX, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored)),
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.PositionX,
                 Codecs.VarInt,
                 static command => command.Variant,
@@ -64,9 +57,6 @@ public sealed record ConstructGameObjectCommand(
                 static command => command.TargetDataGlobalId,
                 Codecs.Boolean,
                 static command => command.Mirrored,
-                static (positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored) => new ConstructGameObjectCommand(positionX, variant, positionY, layoutMode, replacedObjectGlobalId, targetDataGlobalId, mirrored))),
+        CommandLayout.MetadataFirst);
 }

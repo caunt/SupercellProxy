@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Tutorials;
 public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>, ICommandCodecProvider<FinishTutorialCommand>
 {
     /// <summary>
-    /// Marks one tutorial step finished.
+    /// Initializes a new instance of the <see cref="FinishTutorialCommand"/> record. Marks one tutorial step finished.
     /// </summary>
     /// <param name="tutorialGlobalId">Global id of the step in the tutorials table.</param>
     public FinishTutorialCommand(int tutorialGlobalId)
@@ -20,17 +20,14 @@ public sealed record FinishTutorialCommand : CodecCommand<FinishTutorialCommand>
     }
 
     /// <inheritdoc />
-    public static CommandCodec<FinishTutorialCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.TutorialGlobalId,
-            static tutorialGlobalId => new FinishTutorialCommand(tutorialGlobalId)
-        )
-    );
+    public static CommandCodec<FinishTutorialCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.TutorialGlobalId,
+        static tutorialGlobalId => new FinishTutorialCommand(tutorialGlobalId)));
 
     /// <summary>
-    /// Global id of the finished step in the tutorials table; the server refuses steps that are already complete.
+    /// Gets the global id of the finished step in the tutorials table.
     /// </summary>
+    /// <value>Data id of a row in the tutorials table, written as a variable-length integer.</value>
     [JsonPropertyName("TutorialGlobalId")]
     public int TutorialGlobalId { get; }
 }

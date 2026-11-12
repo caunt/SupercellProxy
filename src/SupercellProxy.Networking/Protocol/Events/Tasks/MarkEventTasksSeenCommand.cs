@@ -13,14 +13,10 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record MarkEventTasksSeenCommand(int TaskIndex, [property: JsonPropertyName("EventId")] int EventId) : CodecCommand<MarkEventTasksSeenCommand>, ICommandCodecProvider<MarkEventTasksSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkEventTasksSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<MarkEventTasksSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.TaskIndex,
             Codecs.VarInt,
             static command => command.EventId,
-            static (taskIndex, eventId) => new MarkEventTasksSeenCommand(taskIndex, eventId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (taskIndex, eventId) => new MarkEventTasksSeenCommand(taskIndex, eventId)),
+        CommandLayout.MetadataFirst);
 }

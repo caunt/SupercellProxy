@@ -34,14 +34,12 @@ internal static partial class Application
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
-    private static async Task DownloadWithRetryAsync(
-        DecryptDayClient decryptDayClient,
+    private static async Task DownloadWithRetryAsync(DecryptDayClient decryptDayClient,
         IpaDownload download,
         string temporaryPath,
         string appName,
         string version,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         for (int retry = 0; retry <= MaximumDownloadRetries; retry++)
         {
@@ -62,11 +60,9 @@ internal static partial class Application
                     throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message), exception);
 
                 await Console
-                    .Error.WriteLineAsync(
-                        $"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
+                    .Error.WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
                             + "Retrying from the beginning with a fresh browser session "
-                            + string.Create(CultureInfo.InvariantCulture, $"(retry {retry + 1}/{MaximumDownloadRetries})...")
-                    )
+                            + string.Create(CultureInfo.InvariantCulture, $"(retry {retry + 1}/{MaximumDownloadRetries})..."))
                     .ConfigureAwait(continueOnCapturedContext: false);
                 await Task.Delay(TimeSpan.FromSeconds((retry + 1) * 2), TimeProvider.System, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
@@ -109,7 +105,7 @@ internal static partial class Application
         return normalized.Length <= 500 ? normalized : normalized[..497] + "...";
     }
 
-    private static UpdateArguments ParseUpdateArguments(string[] arguments)
+    private static UpdateArguments ParseUpdate(string[] arguments)
     {
         List<string> positionalArguments = new(capacity: 1);
         string? summaryOption = null;
@@ -167,7 +163,7 @@ internal static partial class Application
         if (arguments.Any(IsHelp))
             return PrintUpdateHelp();
 
-        (string? keysPath, string? summaryPath, string? appOption) = ParseUpdateArguments(arguments);
+        (string? keysPath, string? summaryPath, string? appOption) = ParseUpdate(arguments);
         KeysUpdateReport report = new();
 
         try
@@ -179,9 +175,7 @@ internal static partial class Application
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            report.Add(
-                new KeysUpdateResult(AppName: "Updater", Version: null, KeysUpdateOutcome.NotUpdated, Key: null, NormalizeReason(exception.Message), IsWarning: true)
-            );
+            report.Add(new KeysUpdateResult(AppName: "Updater", Version: null, KeysUpdateOutcome.NotUpdated, Key: null, NormalizeReason(exception.Message), IsWarning: true));
 
             throw;
         }
@@ -222,9 +216,9 @@ internal static partial class Application
         }
 
         foreach (KeysSection section in sections)
-            await UpdateSectionAsync(section).ConfigureAwait(continueOnCapturedContext: false);
+            await FetchKeysAsync(section).ConfigureAwait(continueOnCapturedContext: false);
 
-        async Task UpdateSectionAsync(KeysSection section)
+        async Task FetchKeysAsync(KeysSection section)
         {
             IpaApp app;
 
@@ -239,7 +233,7 @@ internal static partial class Application
             {
                 string reason = $"Metadata request failed: {NormalizeReason(exception.Message)}";
                 AddWarning(report, section.Name, version: null, reason);
-                updates[section.AppStoreId] = new KeysSectionUpdate([]);
+                updates[section.AppStoreId] = new KeysSectionUpdate(NewKeys: []);
 
                 return;
             }
@@ -261,24 +255,20 @@ internal static partial class Application
             }
 
             foreach (AppVersion version in sourceVersions)
-                await UpdateVersionAsync(version).ConfigureAwait(continueOnCapturedContext: false);
+                await FetchKeyAsync(version).ConfigureAwait(continueOnCapturedContext: false);
 
-            async Task UpdateVersionAsync(AppVersion version)
+            async Task FetchKeyAsync(AppVersion version)
             {
                 ExistingKeyEntry? existingEntry = existing.GetValueOrDefault(version.Value);
 
                 if (existingEntry?.KeyVersion is not null)
                 {
-                    report.Add(
-                        new KeysUpdateResult(
-                            section.Name,
-                            version.Value,
-                            KeysUpdateOutcome.NotUpdated,
-                            existingEntry.Key,
-                            Reason: "Already present",
-                            KeyVersion: existingEntry.KeyVersion
-                        )
-                    );
+                    report.Add(new KeysUpdateResult(section.Name,
+                        version.Value,
+                        KeysUpdateOutcome.NotUpdated,
+                        existingEntry.Key,
+                        Reason: "Already present",
+                        KeyVersion: existingEntry.KeyVersion));
 
                     return;
                 }
@@ -299,16 +289,12 @@ internal static partial class Application
                 string reason = existingEntry is null ? "Added to KEYS.md"
                     : changed ? "Filled missing key version" : "Key version anchor not found; existing public key retained";
 
-                report.Add(
-                    new KeysUpdateResult(
-                        section.Name,
-                        version.Value,
-                        changed ? KeysUpdateOutcome.Updated : KeysUpdateOutcome.NotUpdated,
-                        key.Key,
-                        reason,
-                        KeyVersion: key.KeyVersion
-                    )
-                );
+                report.Add(new KeysUpdateResult(section.Name,
+                    version.Value,
+                    changed ? KeysUpdateOutcome.Updated : KeysUpdateOutcome.NotUpdated,
+                    key.Key,
+                    reason,
+                    KeyVersion: key.KeyVersion));
 
                 async Task<IpaDownload?> TryAuthorizeVersionAsync()
                 {

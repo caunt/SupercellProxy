@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Wallets;
 public sealed record CollectMapGamePiggyBankCommand(LongId MapGameId) : CodecCommand<CollectMapGamePiggyBankCommand>, ICommandCodecProvider<CollectMapGamePiggyBankCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectMapGamePiggyBankCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.LongId, static command => command.MapGameId, static mapGameId => new CollectMapGamePiggyBankCommand(mapGameId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<CollectMapGamePiggyBankCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId, static command => command.MapGameId, static mapGameId => new CollectMapGamePiggyBankCommand(mapGameId)),
+        CommandLayout.MetadataFirst);
 }

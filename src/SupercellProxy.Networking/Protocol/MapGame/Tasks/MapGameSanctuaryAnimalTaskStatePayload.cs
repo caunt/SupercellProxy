@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// <param name="EscapeNodeId">The node selected for the escape.</param>
 /// <param name="EscapeCount">The retained wrapping escape counter.</param>
 /// <param name="CollectorId">The collecting pawn's avatar id.</param>
-public sealed record MapGameSanctuaryAnimalTaskStatePayload(
-    int Pickup,
+public sealed record MapGameSanctuaryAnimalTaskStatePayload(int Pickup,
     int DeliveryNodeType,
     int AnimalGlobalId,
     bool Collected,
@@ -23,8 +22,7 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(
     bool Escaped,
     int EscapeNodeId,
     int EscapeCount,
-    LongId? CollectorId
-) : MapGameTaskStatePayload, ICodecProvider<MapGameSanctuaryAnimalTaskStatePayload>
+    LongId? CollectorId) : MapGameTaskStatePayload, ICodecProvider<MapGameSanctuaryAnimalTaskStatePayload>
 {
     /// <summary>
     /// The native <c>TaskType</c> name of this payload.
@@ -32,8 +30,7 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(
     internal const string NativeTaskType = "Sanctuary Animal";
 
     /// <inheritdoc />
-    public static ICodec<MapGameSanctuaryAnimalTaskStatePayload> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameSanctuaryAnimalTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Pickup,
         Codecs.VarInt,
         static value => value.DeliveryNodeType,
@@ -51,8 +48,7 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(
         static value => value.EscapeCount,
         Codecs.OptionalLongId,
         static value => value.CollectorId,
-        static (pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId) => new MapGameSanctuaryAnimalTaskStatePayload(pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId)
-    );
+        static (pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId) => new MapGameSanctuaryAnimalTaskStatePayload(pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId));
 
     /// <inheritdoc />
     public override string TaskType => NativeTaskType;

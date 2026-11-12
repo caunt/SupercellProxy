@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Advertisements;
 public sealed record ClaimAdvertisementRewardMessage(bool Completed, int Placement) : CodecMessage<ClaimAdvertisementRewardMessage>, ICodecProvider<ClaimAdvertisementRewardMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClaimAdvertisementRewardMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Boolean,
+    public static ICodec<ClaimAdvertisementRewardMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
         static message => message.Completed,
         Codecs.VarInt,
         static message => message.Placement,
-        static (completed, placement) => new ClaimAdvertisementRewardMessage(completed, placement)
-    );
+        static (completed, placement) => new ClaimAdvertisementRewardMessage(completed, placement));
 }

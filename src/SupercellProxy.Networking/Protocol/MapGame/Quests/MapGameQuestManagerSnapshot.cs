@@ -4,29 +4,37 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 /// <summary>Saved Valley quest state: today's daily quests, the season's quest progression and the daily chicken.</summary>
 public sealed record MapGameQuestManagerSnapshot
 {
-    /// <summary>Gets whether the daily progression chicken has been collected.</summary>
+    /// <summary>Gets or sets whether the daily progression chicken has been collected.</summary>
+    /// <value><see langword="true"/> if today's chicken was collected; otherwise, <see langword="false"/>.</value>
     public bool ChickenCollected { get; init; }
 
-    /// <summary>Gets the completed-quest position of the daily chicken, or -1 when none is placed.</summary>
+    /// <summary>Gets or sets the completed-quest position of the daily chicken, or -1 when none is placed.</summary>
+    /// <value>The completed-quest count at which the chicken sits on the progression track; -1 by default.</value>
     public int ChickenPosition { get; init; } = -1;
 
-    /// <summary>Gets the progression-prize data ids already claimed, in claim order.</summary>
+    /// <summary>Gets or sets the progression-prize data ids already claimed, in claim order.</summary>
+    /// <value>Global ids of daily quests progression rows. Empty by default.</value>
     public int[] ClaimedProgressionPrizes { get; init; } = [];
 
-    /// <summary>Gets the number of completed quests in the active Valley progression.</summary>
+    /// <summary>Gets or sets the number of completed quests in the active Valley progression.</summary>
+    /// <value>A running count.</value>
     public int CompletedQuests { get; init; }
 
-    /// <summary>Gets the completed-quest count last acknowledged by the player.</summary>
+    /// <summary>Gets or sets the completed-quest count last acknowledged by the player.</summary>
+    /// <value>The value <see cref="CompletedQuests"/> had when the player last viewed the progression.</value>
     public int CompletedQuestsSeen { get; init; }
 
-    /// <summary>Today's daily quests; null before the first ones are drawn.</summary>
+    /// <summary>Gets or sets today's daily quests; <see langword="null"/> before the first ones are drawn.</summary>
+    /// <value>The current daily quest list with each quest's progress.</value>
     public MapGameCurrentQuestsSnapshot? CurrentQuests { get; init; }
 
-    /// <summary>Gets whether the current Valley daily quests have been seen.</summary>
+    /// <summary>Gets or sets whether the current Valley daily quests have been seen.</summary>
+    /// <value><see langword="true"/> if the player has viewed today's quest list; otherwise, <see langword="false"/>.</value>
     public bool HasSeenCurrentQuests { get; init; }
 
     /// <summary>
-    /// Gets the day on which a daily chicken was last placed, or -1 before the first placement.
+    /// Gets or sets the day on which a daily chicken was last placed, or -1 before the first placement.
     /// </summary>
+    /// <value>A UTC day number (days since 1970-01-01).</value>
     public int LastChickenDayIndex { get; init; } = -1;
 }

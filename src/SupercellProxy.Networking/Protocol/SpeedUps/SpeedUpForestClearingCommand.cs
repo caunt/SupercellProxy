@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.SpeedUps;
 public sealed record SpeedUpForestClearingCommand(int ForestGlobalId) : CodecCommand<SpeedUpForestClearingCommand>, ICommandCodecProvider<SpeedUpForestClearingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpForestClearingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ForestGlobalId,
-            static forestGlobalId => new SpeedUpForestClearingCommand(forestGlobalId)
-        )
-    );
+    public static CommandCodec<SpeedUpForestClearingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ForestGlobalId,
+        static forestGlobalId => new SpeedUpForestClearingCommand(forestGlobalId)));
 }

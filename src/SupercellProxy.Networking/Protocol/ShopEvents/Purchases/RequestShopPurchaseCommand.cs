@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 public sealed record RequestShopPurchaseCommand(int EventId, int VariantId, int PackageGlobalId, int Origin, int FarmPassPurchase) : CodecCommand<RequestShopPurchaseCommand>, ICommandCodecProvider<RequestShopPurchaseCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestShopPurchaseCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Int32,
-            static command => command.EventId,
-            Codecs.Int32,
-            static command => command.VariantId,
-            Codecs.Int32,
-            static command => command.PackageGlobalId,
-            Codecs.VarInt,
-            static command => command.Origin,
-            Codecs.VarInt,
-            static command => command.FarmPassPurchase,
-            static (eventId, variantId, packageGlobalId, origin, farmPassPurchase) => new RequestShopPurchaseCommand(eventId, variantId, packageGlobalId, origin, farmPassPurchase)
-        )
-    );
+    public static CommandCodec<RequestShopPurchaseCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+        static command => command.EventId,
+        Codecs.Int32,
+        static command => command.VariantId,
+        Codecs.Int32,
+        static command => command.PackageGlobalId,
+        Codecs.VarInt,
+        static command => command.Origin,
+        Codecs.VarInt,
+        static command => command.FarmPassPurchase,
+        static (eventId, variantId, packageGlobalId, origin, farmPassPurchase) => new RequestShopPurchaseCommand(eventId, variantId, packageGlobalId, origin, farmPassPurchase)));
 }

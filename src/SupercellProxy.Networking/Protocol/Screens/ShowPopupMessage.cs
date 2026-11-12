@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Screens;
 public sealed record ShowPopupMessage(int Value, int Popup) : CodecMessage<ShowPopupMessage>, ICodecProvider<ShowPopupMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ShowPopupMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ShowPopupMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Value,
         Codecs.VarInt,
         static message => message.Popup,
-        static (@value, popup) => new ShowPopupMessage(value, popup)
-    );
+        static (@value, popup) => new ShowPopupMessage(value, popup));
 }

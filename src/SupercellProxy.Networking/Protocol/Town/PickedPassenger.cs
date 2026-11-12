@@ -11,12 +11,11 @@ namespace SupercellProxy.Networking.Protocol.Town;
 /// <param name="PassengerGlobalId">Global id of the passenger's table entry; entries outside the passenger table are skipped on arrival.</param>
 /// <param name="PickupHomeId">Home whose personal train picked the passenger up; the passenger keeps it once it arrives.</param>
 /// <param name="UnknownId1">Second home or account id of the entry; its meaning is not identified.</param>
-/// <param name="PassengerDocument">The passenger's saved game object state as JSON, restored when it arrives; null or empty for a fresh passenger.</param>
+/// <param name="PassengerDocument">The passenger's saved game object state as JSON; <see langword="null"/> or empty for a fresh passenger.</param>
 public sealed record PickedPassenger(int Unknown0, int Unknown1, int PassengerGlobalId, LongId PickupHomeId, LongId UnknownId1, string? PassengerDocument) : ICodecProvider<PickedPassenger>
 {
     /// <inheritdoc />
-    public static ICodec<PickedPassenger> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<PickedPassenger> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Unknown0,
         Codecs.VarInt,
         static value => value.Unknown1,
@@ -28,6 +27,5 @@ public sealed record PickedPassenger(int Unknown0, int Unknown1, int PassengerGl
         static value => value.UnknownId1,
         Codecs.OptionalString,
         static value => value.PassengerDocument,
-        static (unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument) => new PickedPassenger(unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument)
-    );
+        static (unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument) => new PickedPassenger(unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument));
 }

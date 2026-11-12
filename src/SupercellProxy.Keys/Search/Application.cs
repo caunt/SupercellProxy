@@ -50,14 +50,12 @@ internal static partial class Application
 
             Console.WriteLine($"   Bundle ID: {app.BundleId}");
             Console.WriteLine($"   App ID: {appStoreId}");
-            Console.WriteLine(
-                $"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
+            Console.WriteLine($"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
                     + (
                         app.Versions.Count > 10
                             ? string.Create(CultureInfo.InvariantCulture, $" (+{app.Versions.Count - 10} more)")
                             : string.Empty
-                    )
-            );
+                    ));
         }
 
         if (found is 0)

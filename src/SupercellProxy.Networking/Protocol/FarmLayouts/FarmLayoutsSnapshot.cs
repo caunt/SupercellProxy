@@ -7,7 +7,8 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 /// <summary>Represents decoded FarmLayoutsSnapshot state.</summary>
 public sealed record FarmLayoutsSnapshot : ExtensibleDocument
 {
-    /// <summary>The player's saved farm layouts, one per layout slot; empty slots are null.</summary>
+    /// <summary>Gets or sets the player's saved farm layouts, one per layout slot; empty slots are <see langword="null"/>.</summary>
+    /// <value>Up to five layout documents in slot order, each kept as its raw JSON; empty when the player has saved no layout.</value>
     [JsonPropertyName("Layouts")]
     public EncodedDocumentValue?[] Layouts { get; init; } = [];
 }

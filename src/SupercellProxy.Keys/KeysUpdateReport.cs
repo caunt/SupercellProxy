@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 using SupercellProxy.Keys.Models;
@@ -53,7 +54,7 @@ internal sealed class KeysUpdateReport
                 .Append(value: " | ")
                 .Append(EscapeMarkdown(result.Version ?? "—"))
                 .Append(value: " | ")
-                .Append(result.KeyVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—")
+                .Append(result.KeyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—")
                 .Append(value: " | ")
                 .Append(result.Key is null ? "—" : $"`{result.Key}`")
                 .Append(value: " | ")

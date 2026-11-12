@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// </summary>
 public sealed record RoadsideFriendCountServerCommand : CodecServerCommand<RoadsideFriendCountServerCommand>, ICommandCodecProvider<RoadsideFriendCountServerCommand>
 {
-    /// <summary>Creates the command for one farm.</summary>
+    /// <summary>Initializes a new instance of the <see cref="RoadsideFriendCountServerCommand"/> record. Creates the command for one farm.</summary>
     /// <param name="friendCount">How many friends the farm has.</param>
     /// <param name="homeOwnerId">Home the count belongs to.</param>
     public RoadsideFriendCountServerCommand(int friendCount, LongId homeOwnerId)
@@ -18,19 +18,17 @@ public sealed record RoadsideFriendCountServerCommand : CodecServerCommand<Roads
     }
 
     /// <inheritdoc />
-    public static CommandCodec<RoadsideFriendCountServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.FriendCount,
-            Codecs.LongId,
-            static command => command.HomeOwnerId,
-            static (friendCount, homeOwnerId) => new RoadsideFriendCountServerCommand(friendCount, homeOwnerId)
-        )
-    );
+    public static CommandCodec<RoadsideFriendCountServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.FriendCount,
+        Codecs.LongId,
+        static command => command.HomeOwnerId,
+        static (friendCount, homeOwnerId) => new RoadsideFriendCountServerCommand(friendCount, homeOwnerId)));
 
-    /// <summary>How many friends the farm has; a negative count changes nothing.</summary>
+    /// <summary>Gets how many friends the farm has.</summary>
+    /// <value>The friend count, written as a var-int before the home id.</value>
     public int FriendCount { get; }
 
-    /// <summary>Home the count belongs to; other homes ignore the command.</summary>
+    /// <summary>Gets the home the count belongs to.</summary>
+    /// <value>The farm's home id, written as a high/low <see cref="LongId"/> after the count.</value>
     public LongId HomeOwnerId { get; }
 }

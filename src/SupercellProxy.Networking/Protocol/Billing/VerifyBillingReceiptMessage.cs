@@ -12,8 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Billing;
 public sealed record VerifyBillingReceiptMessage(string? PriceLocale, string? LocalPrice, string? TransactionId, string? ProductId, ReadOnlyMemory<byte>? Receipt) : CodecMessage<VerifyBillingReceiptMessage>, ICodecProvider<VerifyBillingReceiptMessage>
 {
     /// <inheritdoc />
-    public static ICodec<VerifyBillingReceiptMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<VerifyBillingReceiptMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.PriceLocale,
         Codecs.OptionalString,
         static message => message.LocalPrice,
@@ -23,6 +22,5 @@ public sealed record VerifyBillingReceiptMessage(string? PriceLocale, string? Lo
         static message => message.ProductId,
         Codecs.OptionalByteArray,
         static message => message.Receipt,
-        static (priceLocale, localPrice, transactionId, productId, receipt) => new VerifyBillingReceiptMessage(priceLocale, localPrice, transactionId, productId, receipt)
-    );
+        static (priceLocale, localPrice, transactionId, productId, receipt) => new VerifyBillingReceiptMessage(priceLocale, localPrice, transactionId, productId, receipt));
 }

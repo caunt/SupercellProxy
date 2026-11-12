@@ -2,9 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Keys.AppStore;
 
-internal readonly record struct AppStoreSearchResult(
-    [property: JsonPropertyName("trackId")] long TrackId,
+internal readonly record struct AppStoreSearchResult([property: JsonPropertyName("trackId")] long TrackId,
     [property: JsonPropertyName("trackCensoredName")] string Name,
     [property: JsonPropertyName("bundleId")] string BundleId,
-    [property: JsonPropertyName("sellerName")] string? SellerName
-);
+    [property: JsonPropertyName("sellerName")] string? SellerName);

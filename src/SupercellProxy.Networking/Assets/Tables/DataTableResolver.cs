@@ -37,7 +37,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     private readonly Dictionary<string, int> _tableIdsByFile;
 
     /// <summary>
-    /// Indexes a downloaded asset bundle by table id and file name; no table is parsed until it is first read.
+    /// Initializes a new instance of the <see cref="DataTableResolver"/> class. Indexes a downloaded asset bundle by table id and file name; no table is parsed until it is first read.
     /// </summary>
     /// <param name="resources">Every file of the bundle. The tables the game numbers must all be present.</param>
     /// <exception cref="InvalidOperationException">A numbered table's file is missing from the bundle.</exception>
@@ -62,17 +62,27 @@ public sealed class DataTableResolver : ICommandDataResolver
     }
 
     /// <summary>
-    /// Largest table number this bundle defines; global ids above this table's range cannot resolve.
+    /// Gets the largest table number this bundle defines; global ids above this table's range cannot resolve.
     /// </summary>
+    /// <value>The highest table id the bundle's table registry assigns, fixed when the resolver is built and serialized as
+    /// <c>HighestTableId</c>.</value>
     [JsonPropertyName("HighestTableId")]
     public int HighestTableId { get; }
 
     /// <summary>
     /// Gets the paths of every table the game numbers in this bundle; listing them parses none.
     /// </summary>
+    /// <value>Bundle-relative paths such as <c>data/animals.csv</c>, one per table id; files without a table id are not listed.</value>
     public IEnumerable<string> TableFiles => _tableIdsByFile.Keys;
 
     /// <summary>Returns one resolver per asset fingerprint, so connections on the same assets share parsed tables.</summary>
+    /// <param name="fingerprint">Catalog of the bundle; resolvers are cached for the life of the process under its
+    /// <see cref="GameAssetFingerprint.Sha"/>. <see langword="null"/> skips the cache.</param>
+    /// <param name="resources">Every file of the bundle. It is only read when no resolver is cached for the fingerprint yet, so later
+    /// calls with the same fingerprint get the first call's tables.</param>
+    /// <returns>The cached resolver for the fingerprint, built from <paramref name="resources"/> on first use; a new unshared resolver
+    /// on every call when <paramref name="fingerprint"/> is <see langword="null"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="resources"/> is <see langword="null"/>.</exception>
     public static DataTableResolver Shared(GameAssetFingerprint? fingerprint, GameAsset[] resources)
     {
         ArgumentNullException.ThrowIfNull(resources);
@@ -84,6 +94,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// Reads any file of the bundle as UTF-8 text, including files that are not tables, such as the Valley map JSON.
     /// </summary>
     /// <param name="file">Path inside the bundle, as listed in <see cref="GameAssetFiles"/>.</param>
+    /// <returns>The file's whole content, decoded anew on every call.</returns>
     /// <exception cref="InvalidDataException">The bundle has no such file.</exception>
     public string ReadAssetText(string file)
     {
@@ -96,6 +107,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// Lists every entry of a numbered table, in file order, so the array index equals the entry's row index.
     /// </summary>
     /// <param name="file">Path of a table the game gives a table id.</param>
+    /// <returns>A new array the caller owns, one reference per entry, where index <c>i</c> holds the entry whose global id is the table
+    /// id times <see cref="GlobalIdTableSize"/> plus <c>i</c>; empty for a table without entries.</returns>
     /// <exception cref="InvalidDataException">The file is not a numbered table, or one of its entries has no name.</exception>
     public DataTableReference[] ResolveAll(string file)
     {
@@ -115,6 +128,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// Lists every entry of the table with the given native table id, in file order.
     /// </summary>
     /// <param name="tableId">Table number as used in global ids, such as 13 for animals.</param>
+    /// <returns>A new array the caller owns, holding the same entries as <see cref="ResolveAll(string)"/> returns for the table's
+    /// file.</returns>
     /// <exception cref="InvalidDataException">This bundle has no table with that number.</exception>
     public DataTableReference[] ResolveAll(int tableId)
     {
@@ -128,6 +143,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="file">Path of a table the game gives a table id.</param>
     /// <param name="count">Number of entries, or 0 when the file is not a numbered table.</param>
+    /// <returns><see langword="true"/> if <paramref name="file"/> is a numbered table of this bundle, which the first call parses;
+    /// otherwise, <see langword="false"/>.</returns>
     public bool TryGetTableEntryCount(string file, out int count)
     {
         count = default;
@@ -148,6 +165,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="file">Path of the table inside the bundle.</param>
     /// <param name="tableId">The table's number, or 0 when the file is not a numbered table.</param>
+    /// <returns><see langword="true"/> if the game gives <paramref name="file"/>, matched exactly with letter case, a table id in this
+    /// bundle; otherwise, <see langword="false"/>.</returns>
     public bool TryGetTableId(string file, out int tableId)
     {
         return _tableIdsByFile.TryGetValue(file, out tableId);
@@ -157,7 +176,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// Turns a global id received from the server or read from a save into the table entry it points at.
     /// </summary>
     /// <param name="globalId">Table id times <see cref="GlobalIdTableSize"/> plus the entry's row index.</param>
-    /// <param name="reference">The entry's table, row and name; null when the id is out of range or points at an unnamed row.</param>
+    /// <param name="reference">The entry's table, row and name; <see langword="null"/> when the id is out of range or points at an unnamed row.</param>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> is at least <see cref="GlobalIdTableSize"/>, names a table of this
+    /// bundle and falls on one of its named entries; otherwise, <see langword="false"/>.</returns>
     public bool TryResolve(int globalId, [NotNullWhen(true)] out DataTableReference? reference)
     {
         reference = null;
@@ -181,7 +202,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="file">Path of a table the game gives a table id.</param>
     /// <param name="name">Entry name exactly as written in the table's first column, such as <c>Chicken</c>.</param>
-    /// <param name="reference">The entry with its global id; null when the table or the name is unknown.</param>
+    /// <param name="reference">The entry with its global id; <see langword="null"/> when the table or the name is unknown.</param>
+    /// <returns><see langword="true"/> if <paramref name="file"/> is a numbered table with an entry named exactly <paramref name="name"/>;
+    /// otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolve(string file, string name, [NotNullWhen(true)] out DataTableReference? reference)
     {
@@ -196,8 +219,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="globalId">Entry to read, as a global id.</param>
     /// <param name="fieldName">Column header, such as <c>Disabled</c>.</param>
-    /// <param name="value">The cell's value; false when it could not be read.</param>
-    /// <returns>False when the entry is unknown or the cell is empty or not a Boolean.</returns>
+    /// <param name="value">The cell's value; <see langword="false"/> when it could not be read.</param>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry whose named line holds a Boolean in the column;
+    /// otherwise, <see langword="false"/>.</returns>
     public bool TryResolveBoolean(int globalId, string fieldName, out bool value)
     {
         value = default;
@@ -220,8 +244,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="file">Path of the table inside the bundle.</param>
     /// <param name="name">Entry name as written in the table's first column.</param>
     /// <param name="fieldName">Column header to read.</param>
-    /// <param name="value">The cell's value; false when it could not be read.</param>
-    /// <returns>False when the table or entry is unknown or the cell is empty or not a Boolean.</returns>
+    /// <param name="value">The cell's value; <see langword="false"/> when it could not be read.</param>
+    /// <returns><see langword="true"/> if the table has an entry named <paramref name="name"/> whose named line holds a Boolean in the
+    /// column; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolveBoolean(string file, string name, string fieldName, out bool value)
     {
@@ -245,8 +270,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="globalId">Entry to read, as a global id.</param>
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="valueIndex">Line within the entry, starting at 0 for the named line.</param>
-    /// <param name="value">The element; false when that line leaves the cell empty.</param>
-    /// <returns>True for an empty cell too; false when the entry, column or line does not exist or the cell is not a Boolean.</returns>
+    /// <param name="value">The element; <see langword="false"/> when that line leaves the cell empty.</param>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry that has the column and line
+    /// <paramref name="valueIndex"/>, and the cell there is empty or a Boolean; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveBoolean(int globalId, string fieldName, int valueIndex, out bool value)
     {
         value = default;
@@ -273,6 +299,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <summary>Gets the number of rows belonging to one data-table entry, including continuation rows.</summary>
     /// <param name="globalId">Entry to measure, as a global id.</param>
     /// <param name="count">The named line plus its continuation lines; 0 when the entry is unknown.</param>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry of a numbered table; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool TryResolveEntryRowCount(int globalId, out int count)
     {
         GameDataTableEntry? entry = ResolveEntry(globalId);
@@ -287,7 +315,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="globalId">Entry to read, as a global id.</param>
     /// <param name="fieldName">Column header, such as <c>UnlockLevel</c>.</param>
     /// <param name="value">The cell's value; 0 when it could not be read.</param>
-    /// <returns>False when the entry is unknown or the cell is empty or not an integer.</returns>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry whose named line holds a 32-bit integer in the
+    /// column; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveInt(int globalId, string fieldName, out int value)
     {
         value = default;
@@ -312,7 +341,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="physicalRowIndex">Line number after the two header rows, starting at 0, skipping blank lines.</param>
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="value">The cell's value; 0 when it could not be read.</param>
-    /// <returns>False when the table or line does not exist or the value is empty or not an integer.</returns>
+    /// <returns><see langword="true"/> if the table has line <paramref name="physicalRowIndex"/> and the column holds a 32-bit integer
+    /// there, possibly carried over from an earlier line of the entry; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveInt(string file, int physicalRowIndex, string fieldName, out int value)
     {
         value = default;
@@ -338,7 +368,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="name">Entry name as written in the table's first column.</param>
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="value">The cell's value; 0 when it could not be read.</param>
-    /// <returns>False when the table or entry is unknown or the cell is empty or not an integer.</returns>
+    /// <returns><see langword="true"/> if the table has an entry named <paramref name="name"/> whose named line holds a 32-bit integer in
+    /// the column; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolveInt(string file, string name, string fieldName, out int value)
     {
@@ -363,7 +394,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="valueIndex">Line within the entry, starting at 0 for the named line.</param>
     /// <param name="value">The element; 0 when that line leaves the cell empty.</param>
-    /// <returns>True for an empty cell too; false when the entry, column or line does not exist or the cell is not an integer.</returns>
+    /// <returns><see langword="true"/> if the table has the entry, the column and line <paramref name="valueIndex"/>, and the cell there is
+    /// empty or a 32-bit integer; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolveInt(string file, string name, string fieldName, int valueIndex, out int value)
     {
@@ -392,7 +424,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="valueIndex">Line within the entry, starting at 0 for the named line.</param>
     /// <param name="value">The element; 0 when that line leaves the cell empty.</param>
-    /// <returns>True for an empty cell too; false when the entry, column or line does not exist or the cell is not an integer.</returns>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry that has the column and line
+    /// <paramref name="valueIndex"/>, and the cell there is empty or a 32-bit integer; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveInt(int globalId, string fieldName, int valueIndex, out int value)
     {
         value = default;
@@ -422,6 +455,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="file">Path of any CSV table in the bundle.</param>
     /// <param name="count">Number of lines; 0 when the file is missing or not a table.</param>
+    /// <returns><see langword="true"/> if the bundle has <paramref name="file"/> and it parses as a game table; otherwise,
+    /// <see langword="false"/>.</returns>
     public bool TryResolvePhysicalRowCount(string file, out int count)
     {
         count = default;
@@ -439,8 +474,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="globalId">Entry to read, as a global id.</param>
     /// <param name="fieldName">Column header, such as <c>Tags</c>.</param>
-    /// <param name="value">The cell's text; null when it could not be read.</param>
-    /// <returns>False when the entry is unknown or the cell is empty.</returns>
+    /// <param name="value">The cell's text; <see langword="null"/> when it could not be read.</param>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry whose named line has text in the column, so an
+    /// empty cell or a numeric or Boolean column does not qualify; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveString(int globalId, string fieldName, [NotNullWhen(true)] out string? value)
     {
         value = null;
@@ -463,7 +499,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="valueIndex">Line within the entry, starting at 0 for the named line.</param>
     /// <param name="value">The element; an empty string when that line leaves the cell empty.</param>
-    /// <returns>True for an empty cell too; false when the entry, column or line does not exist.</returns>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry that has the column and line
+    /// <paramref name="valueIndex"/>, and the cell there is empty or text; otherwise, <see langword="false"/>.</returns>
     public bool TryResolveString(int globalId, string fieldName, int valueIndex, [NotNullWhen(true)] out string? value)
     {
         value = null;
@@ -500,7 +537,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="fieldName">Column header to read.</param>
     /// <param name="valueIndex">Line within the entry, starting at 0 for the named line.</param>
     /// <param name="value">The element; an empty string when that line leaves the cell empty.</param>
-    /// <returns>True for an empty cell too; false when the table, entry, column or line does not exist.</returns>
+    /// <returns><see langword="true"/> if the table has the entry, the column and line <paramref name="valueIndex"/>, and the cell there is
+    /// empty or text; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolveString(string file, string name, string fieldName, int valueIndex, [NotNullWhen(true)] out string? value)
     {
@@ -534,6 +572,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="name">Entry name as written in the table's first column.</param>
     /// <param name="fieldName">Column header to measure.</param>
     /// <param name="count">The named line plus its continuation lines when the column exists; otherwise 0.</param>
+    /// <returns><see langword="true"/> if the table has an entry named <paramref name="name"/> and a column headed
+    /// <paramref name="fieldName"/>, even when every cell of it is empty; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="InvalidDataException">Two entries in the table share the name.</exception>
     public bool TryResolveValueCount(string file, string name, string fieldName, out int count)
     {
@@ -554,7 +594,8 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// <param name="globalId">Entry to measure, as a global id.</param>
     /// <param name="fieldName">Column header to measure.</param>
     /// <param name="count">Number of filled lines; 0 when no line fills the column.</param>
-    /// <returns>False when the entry is unknown or no line fills the column.</returns>
+    /// <returns><see langword="true"/> if <paramref name="globalId"/> points at an entry and at least one of its lines fills the column;
+    /// otherwise, <see langword="false"/>.</returns>
     public bool TryResolveValueCount(int globalId, string fieldName, out int count)
     {
         count = default;
@@ -571,8 +612,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// Builds a separate resolver over a copy of the bundle with live table-change events applied; this resolver is left untouched.
     /// </summary>
     /// <param name="changes">Edits from the table-change events that are running, applied in order.</param>
+    /// <returns>A new, unshared resolver whose edited tables are parsed afresh; files no edit touches keep this resolver's parsed
+    /// tables. An empty <paramref name="changes"/> list gives a resolver over the same files.</returns>
     /// <exception cref="InvalidDataException">An edit names a table, entry or column the bundle does not have.</exception>
-    public DataTableResolver WithChanges(IReadOnlyList<DataTableChange> changes)
+    public DataTableResolver With(IReadOnlyList<DataTableChange> changes)
     {
         return new(DataTablePatcher.Apply(_resourcesByFile.Values, changes));
     }
@@ -589,7 +632,10 @@ public sealed class DataTableResolver : ICommandDataResolver
         int count = 0;
 
         for (int index = 0; index < rows.Count; index++)
-            if (rows[index].ContainsKey(fieldName)) count++;
+        {
+            if (rows[index].ContainsKey(fieldName))
+                count++;
+        }
 
         return count;
     }

@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Settings.Preferences;
 public sealed record SetNotificationSettingsMessage(bool Enabled, bool Sound) : CodecMessage<SetNotificationSettingsMessage>, ICodecProvider<SetNotificationSettingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SetNotificationSettingsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Boolean,
+    public static ICodec<SetNotificationSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
         static message => message.Enabled,
         Codecs.Boolean,
         static message => message.Sound,
-        static (enabled, sound) => new SetNotificationSettingsMessage(enabled, sound)
-    );
+        static (enabled, sound) => new SetNotificationSettingsMessage(enabled, sound));
 }

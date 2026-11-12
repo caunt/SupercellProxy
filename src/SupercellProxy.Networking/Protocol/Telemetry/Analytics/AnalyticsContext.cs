@@ -10,41 +10,36 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 /// <param name="Counters">The fourth part.</param>
 /// <param name="Timestamp">The fifth part.</param>
 /// <param name="ThirdStatistics">The sixth part.</param>
-public sealed record AnalyticsContext(
-    AnalyticsContextValues? Values,
+public sealed record AnalyticsContext(AnalyticsContextValues? Values,
     AnalyticsContextStatistics? FirstStatistics,
     AnalyticsContextStatistics? SecondStatistics,
     AnalyticsContextCounters? Counters,
     AnalyticsContextTimestamp? Timestamp,
-    AnalyticsContextStatistics? ThirdStatistics
-) : ICodecProvider<AnalyticsContext>
+    AnalyticsContextStatistics? ThirdStatistics) : ICodecProvider<AnalyticsContext>
 {
     /// <inheritdoc />
     /// <remarks>Native writes all six presence flags before the present sections.</remarks>
-    public static ICodec<AnalyticsContext> Codec { get; } = Codecs.Create(
-        static stream =>
-        {
-            bool hasValues = stream.ReadBoolean();
-            bool hasFirstStatistics = stream.ReadBoolean();
-            bool hasSecondStatistics = stream.ReadBoolean();
-            bool hasCounters = stream.ReadBoolean();
-            bool hasTimestamp = stream.ReadBoolean();
-            bool hasThirdStatistics = stream.ReadBoolean();
-            AnalyticsContextValues? values = hasValues ? AnalyticsContextValues.Codec.Read(stream) : null;
-            AnalyticsContextStatistics? firstStatistics = hasFirstStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
-            AnalyticsContextStatistics? secondStatistics = hasSecondStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
-            AnalyticsContextCounters? counters = hasCounters ? AnalyticsContextCounters.Codec.Read(stream) : null;
-            AnalyticsContextTimestamp? timestamp = hasTimestamp ? AnalyticsContextTimestamp.Codec.Read(stream) : null;
+    public static ICodec<AnalyticsContext> Codec { get; } = Codecs.Create(static stream =>
+    {
+        bool hasValues = stream.ReadBoolean();
+        bool hasFirstStatistics = stream.ReadBoolean();
+        bool hasSecondStatistics = stream.ReadBoolean();
+        bool hasCounters = stream.ReadBoolean();
+        bool hasTimestamp = stream.ReadBoolean();
+        bool hasThirdStatistics = stream.ReadBoolean();
+        AnalyticsContextValues? values = hasValues ? AnalyticsContextValues.Codec.Read(stream) : null;
+        AnalyticsContextStatistics? firstStatistics = hasFirstStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
+        AnalyticsContextStatistics? secondStatistics = hasSecondStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
+        AnalyticsContextCounters? counters = hasCounters ? AnalyticsContextCounters.Codec.Read(stream) : null;
+        AnalyticsContextTimestamp? timestamp = hasTimestamp ? AnalyticsContextTimestamp.Codec.Read(stream) : null;
 
-            return new AnalyticsContext(
-                values,
-                firstStatistics,
-                secondStatistics,
-                counters,
-                timestamp,
-                hasThirdStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null
-            );
-        },
+        return new AnalyticsContext(values,
+            firstStatistics,
+            secondStatistics,
+            counters,
+            timestamp,
+            hasThirdStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null);
+    },
         static (stream, context) =>
         {
             stream.WriteBoolean(context.Values is not null);
@@ -59,8 +54,7 @@ public sealed record AnalyticsContext(
             WriteIfPresent(stream, AnalyticsContextCounters.Codec, context.Counters);
             WriteIfPresent(stream, AnalyticsContextTimestamp.Codec, context.Timestamp);
             WriteIfPresent(stream, AnalyticsContextStatistics.Codec, context.ThirdStatistics);
-        }
-    );
+        });
 
     private static void WriteIfPresent<TSection>(ProtocolEncoder encoder, ICodec<TSection> codec, TSection? section) where TSection : class
     {

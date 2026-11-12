@@ -4,16 +4,14 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 
 /// <summary>Mutes or unmutes a neighborhood member.</summary>
-/// <param name="Muted">Whether to mute the member; false unmutes them.</param>
+/// <param name="Muted">Whether to mute the member; <see langword="false"/> unmutes them.</param>
 /// <param name="AvatarId">Account of the member.</param>
 public sealed record MuteNeighborhoodMemberMessage(bool Muted, LongId AvatarId) : CodecMessage<MuteNeighborhoodMemberMessage>, ICodecProvider<MuteNeighborhoodMemberMessage>
 {
     /// <inheritdoc />
-    public static ICodec<MuteNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Boolean,
+    public static ICodec<MuteNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
         static message => message.Muted,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (muted, avatarId) => new MuteNeighborhoodMemberMessage(muted, avatarId)
-    );
+        static (muted, avatarId) => new MuteNeighborhoodMemberMessage(muted, avatarId));
 }

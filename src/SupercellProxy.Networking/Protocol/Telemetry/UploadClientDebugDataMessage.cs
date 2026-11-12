@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Telemetry;
 
 /// <summary>Uploads client debug data.</summary>
-/// <param name="Data">Raw debug bytes, kept as received; null when none are sent.</param>
+/// <param name="Data">Raw debug bytes, kept as received; <see langword="null"/> when none are sent.</param>
 public sealed record UploadClientDebugDataMessage(ReadOnlyMemory<byte>? Data) : CodecMessage<UploadClientDebugDataMessage>, ICodecProvider<UploadClientDebugDataMessage>
 {
     /// <inheritdoc />

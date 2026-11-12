@@ -4,11 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
 
 /// <summary>Claims a free reward tier from the neighborhood event.</summary>
+/// <param name="TierIndex">Zero-based index into the event's distinct point thresholds, lowest first, written as a VarInt.</param>
 public sealed record ClaimNeighborhoodObjectRewardCommand(int TierIndex) : CodecCommand<ClaimNeighborhoodObjectRewardCommand>, ICommandCodecProvider<ClaimNeighborhoodObjectRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimNeighborhoodObjectRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TierIndex, static tierIndex => new ClaimNeighborhoodObjectRewardCommand(tierIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<ClaimNeighborhoodObjectRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TierIndex, static tierIndex => new ClaimNeighborhoodObjectRewardCommand(tierIndex)),
+        CommandLayout.MetadataFirst);
 }

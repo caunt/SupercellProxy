@@ -7,11 +7,13 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record ChronosEventBoardSnapshot
 {
     /// <summary>
-    /// The events currently on the player's event board, each with its schedule and the player's progress in it.
+    /// Gets or sets the events currently on the player's event board, each with its schedule and the player's progress in it.
     /// </summary>
+    /// <value>One snapshot per board event in saved order; empty when the board holds no events.</value>
     public ChronosEventSnapshot[] Events { get; init; } = [];
 
-    /// <summary>Gets the native integer flags indexed by event type; nonzero means liked.</summary>
+    /// <summary>Gets or sets the native integer flags indexed by event type; nonzero means liked.</summary>
+    /// <value>Element <c>n</c> is 1 when the player liked event type <c>n</c> and 0 otherwise; empty by default.</value>
     [JsonPropertyName("likedEventTypes")]
     public int[] LikedEventTypes { get; init; } = [];
 }

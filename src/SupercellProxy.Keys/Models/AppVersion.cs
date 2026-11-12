@@ -37,9 +37,7 @@ internal sealed class AppVersion
         }
 
         return [.. values
-            .Select(
-                value => new AppVersion(value, [..aliasesByValue[value].OrderBy(alias => string.Equals(alias, value, StringComparison.Ordinal) ? 0 : 1)])
-            )];
+            .Select(value => new AppVersion(value, sourceNames: [..aliasesByValue[value].OrderBy(alias => string.Equals(alias, value, StringComparison.Ordinal) ? 0 : 1)]))];
     }
 
     public static string Normalize(string value)

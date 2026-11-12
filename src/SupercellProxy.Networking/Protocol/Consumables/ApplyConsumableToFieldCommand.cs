@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Consumables;
 public sealed record ApplyConsumableToFieldCommand(int FieldObjectGlobalId, int ConsumableGlobalId) : CodecCommand<ApplyConsumableToFieldCommand>, ICommandCodecProvider<ApplyConsumableToFieldCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ApplyConsumableToFieldCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ApplyConsumableToFieldCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.FieldObjectGlobalId,
             Codecs.VarInt,
             static command => command.ConsumableGlobalId,
-            static (fieldObjectGlobalId, consumableGlobalId) => new ApplyConsumableToFieldCommand(fieldObjectGlobalId, consumableGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (fieldObjectGlobalId, consumableGlobalId) => new ApplyConsumableToFieldCommand(fieldObjectGlobalId, consumableGlobalId)),
+        CommandLayout.MetadataFirst);
 }

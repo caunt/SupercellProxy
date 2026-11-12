@@ -4,29 +4,28 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Requests the selected waiting passengers from the currently visited Town.</summary>
+/// <param name="HelpIds">Help ids of the visited town's waiting passengers to pick up, or <see langword="null"/> for no list, which is written as a count of -1.</param>
 public sealed record RequestTownPassengerPickupMessage(int[]? HelpIds) : CodecMessage<RequestTownPassengerPickupMessage>, ICodecProvider<RequestTownPassengerPickupMessage>
 {
     private const int MaximumHelpIdCount = 10_000;
 
     /// <inheritdoc />
     /// <remarks>Native treats a negative count, or one above 10000, as no list and stops reading.</remarks>
-    public static ICodec<RequestTownPassengerPickupMessage> Codec { get; } = Codecs.Create(
-        static stream =>
-        {
-            int count = stream.ReadVarInt();
+    public static ICodec<RequestTownPassengerPickupMessage> Codec { get; } = Codecs.Create(static stream =>
+    {
+        int count = stream.ReadVarInt();
 
-            if (count is < 0 or > MaximumHelpIdCount)
-                return new RequestTownPassengerPickupMessage(HelpIds: null);
+        if (count is < 0 or > MaximumHelpIdCount)
+            return new RequestTownPassengerPickupMessage(HelpIds: null);
 
-            int[] helpIds = new int[count];
+        int[] helpIds = new int[count];
 
-            for (int index = 0; index < helpIds.Length; index++)
-                helpIds[index] = stream.ReadVarInt();
+        for (int index = 0; index < helpIds.Length; index++)
+            helpIds[index] = stream.ReadVarInt();
 
-            return new RequestTownPassengerPickupMessage(helpIds);
-        },
-        static (stream, message) => HelpIdsCodec.Write(stream, message.HelpIds)
-    );
+        return new RequestTownPassengerPickupMessage(helpIds);
+    },
+        static (stream, message) => HelpIdsCodec.Write(stream, message.HelpIds));
 
     private static ICodec<int[]?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt, CollectionCount.Unbounded);
 }

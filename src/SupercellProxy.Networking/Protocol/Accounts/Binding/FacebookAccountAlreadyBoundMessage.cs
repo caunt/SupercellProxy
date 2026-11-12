@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record FacebookAccountAlreadyBoundMessage(int SecondsSinceLastPlayed, string? FacebookId, LongId? AccountId, string? PassToken, bool IsSupercellId, ClientAvatar Avatar) : CodecMessage<FacebookAccountAlreadyBoundMessage>, ICodecProvider<FacebookAccountAlreadyBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FacebookAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<FacebookAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
         Codecs.OptionalString,
         static message => message.FacebookId,
@@ -25,8 +24,7 @@ public sealed record FacebookAccountAlreadyBoundMessage(int SecondsSinceLastPlay
         static message => message.PassToken,
         Codecs.Boolean,
         static message => message.IsSupercellId,
-        SupercellProxy.Networking.Protocol.Avatars.ClientAvatar.Codec,
+        ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar) => new FacebookAccountAlreadyBoundMessage(secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar)
-    );
+        static (secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar) => new FacebookAccountAlreadyBoundMessage(secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar));
 }

@@ -10,13 +10,11 @@ public sealed record EmoteStreamEntry(StreamEntryHeader Header, int Emote) : Nei
     internal const int Type = 18;
 
     /// <inheritdoc />
-    public static new ICodec<EmoteStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<EmoteStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.Int32,
         static entry => entry.Emote,
-        static (header, emote) => new EmoteStreamEntry(header, emote)
-    );
+        static (header, emote) => new EmoteStreamEntry(header, emote));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

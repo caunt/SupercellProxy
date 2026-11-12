@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town.Hall;
 public sealed record SelectTownHallSettingCommand(int SettingGlobalId) : CodecCommand<SelectTownHallSettingCommand>, ICommandCodecProvider<SelectTownHallSettingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectTownHallSettingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Int32,
-            static command => command.SettingGlobalId,
-            static settingGlobalId => new SelectTownHallSettingCommand(settingGlobalId)
-        )
-    );
+    public static CommandCodec<SelectTownHallSettingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+        static command => command.SettingGlobalId,
+        static settingGlobalId => new SelectTownHallSettingCommand(settingGlobalId)));
 }

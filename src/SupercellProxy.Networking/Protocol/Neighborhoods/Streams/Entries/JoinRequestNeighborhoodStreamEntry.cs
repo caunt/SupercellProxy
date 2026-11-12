@@ -13,8 +13,7 @@ public sealed record JoinRequestNeighborhoodStreamEntry(StreamEntryHeader Header
     internal const int Type = 3;
 
     /// <inheritdoc />
-    public static new ICodec<JoinRequestNeighborhoodStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<JoinRequestNeighborhoodStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.OptionalString,
         static entry => entry.Message,
@@ -24,8 +23,7 @@ public sealed record JoinRequestNeighborhoodStreamEntry(StreamEntryHeader Header
         static entry => entry.State,
         Codecs.OptionalString,
         static entry => entry.SourceId,
-        static (header, message, responderName, state, sourceId) => new JoinRequestNeighborhoodStreamEntry(header, message, responderName, state, sourceId)
-    );
+        static (header, message, responderName, state, sourceId) => new JoinRequestNeighborhoodStreamEntry(header, message, responderName, state, sourceId));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

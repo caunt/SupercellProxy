@@ -20,7 +20,7 @@ public sealed record PostmanStateCommand : CodecCommand<PostmanStateCommand>, IC
     public const int ResultState = 2;
 
     /// <summary>
-    /// Creates the command; it carries no fields of its own.
+    /// Initializes a new instance of the <see cref="PostmanStateCommand"/> record. Creates the command; it carries no fields of its own.
     /// </summary>
     public PostmanStateCommand() { }
 

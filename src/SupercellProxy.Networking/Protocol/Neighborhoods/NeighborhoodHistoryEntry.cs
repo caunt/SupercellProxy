@@ -8,8 +8,7 @@ public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHisto
     private const int ValueCount = 8;
 
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHistoryEntry> Codec { get; } = Codecs.Composite(
-        Codecs.FixedArray(Codecs.VarInt, ValueCount),
+    public static ICodec<NeighborhoodHistoryEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, ValueCount),
         static entry => entry.Values,
         Codecs.Boolean,
         static entry => entry.Flag,
@@ -17,15 +16,16 @@ public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHisto
         {
             Values = values,
             Flag = flag,
-        }
-    );
+        });
 
-    /// <summary>Flag of the week, set in the captures exactly for weeks whose fifth number is 0; its meaning is not identified.</summary>
+    /// <summary>Gets or sets the flag of the week, set in the captures exactly for weeks whose fifth number is 0; its meaning is not identified.</summary>
+    /// <value><see langword="true"/> if the server set the flag, written after the eight numbers; otherwise, <see langword="false"/>.</value>
     public bool Flag { get; init; }
 
     /// <summary>
-    /// The week's numbers: the first is the week's start as Unix time in seconds; the others look like weekly event results such as
+    /// Gets or sets the week's numbers: the first is the week's start as Unix time in seconds; the others look like weekly event results such as
     /// points, and their exact meanings are not identified.
     /// </summary>
+    /// <value>Exactly eight VarInts in wire order; the array defaults to eight zeros and must keep that length to encode.</value>
     public int[] Values { get; init; } = new int[ValueCount];
 }

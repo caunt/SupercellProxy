@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 public sealed record MapGameEventFlagEvent(int EventId, bool Value) : MapGameEvent(MapGameEvent.EventFlagUpdatedType), ICodecProvider<MapGameEventFlagEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameEventFlagEvent> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static new ICodec<MapGameEventFlagEvent> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static mapGameEvent => mapGameEvent.EventId,
         Codecs.Boolean,
         static mapGameEvent => mapGameEvent.Value,
-        static (eventId, value) => new MapGameEventFlagEvent(eventId, value)
-    );
+        static (eventId, value) => new MapGameEventFlagEvent(eventId, value));
 }

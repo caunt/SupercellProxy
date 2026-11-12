@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 public sealed record GrantedResource(int ResourceGlobalId, int Amount) : ICodecProvider<GrantedResource>
 {
     /// <inheritdoc />
-    public static ICodec<GrantedResource> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<GrantedResource> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.ResourceGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (resourceGlobalId, amount) => new GrantedResource(resourceGlobalId, amount)
-    );
+        static (resourceGlobalId, amount) => new GrantedResource(resourceGlobalId, amount));
 }

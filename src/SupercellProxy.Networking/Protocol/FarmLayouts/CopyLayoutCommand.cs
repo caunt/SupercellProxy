@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record CopyLayoutCommand(int SourceSlotIndex, int TargetSlotIndex) : CodecCommand<CopyLayoutCommand>, ICommandCodecProvider<CopyLayoutCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CopyLayoutCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.SourceSlotIndex,
-            Codecs.VarInt,
-            static command => command.TargetSlotIndex,
-            static (sourceSlotIndex, targetSlotIndex) => new CopyLayoutCommand(sourceSlotIndex, targetSlotIndex)
-        )
-    );
+    public static CommandCodec<CopyLayoutCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SourceSlotIndex,
+        Codecs.VarInt,
+        static command => command.TargetSlotIndex,
+        static (sourceSlotIndex, targetSlotIndex) => new CopyLayoutCommand(sourceSlotIndex, targetSlotIndex)));
 }

@@ -11,19 +11,16 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 /// <param name="Salt">Random bytes Apple mixed into the signed data.</param>
 /// <param name="Timestamp">Signing time as Apple encoded it, part of the signed data.</param>
 /// <param name="Force">Whether to bind even when the Game Center account already belongs to another farm.</param>
-public sealed record BindGamecenterAccountMessage(
-    string? PlayerId,
+public sealed record BindGamecenterAccountMessage(string? PlayerId,
     string? BundleId,
     string? PublicKeyLink,
     ReadOnlyMemory<byte>? Signature,
     ReadOnlyMemory<byte>? Salt,
     ReadOnlyMemory<byte>? Timestamp,
-    bool Force
-) : CodecMessage<BindGamecenterAccountMessage>, ICodecProvider<BindGamecenterAccountMessage>
+    bool Force) : CodecMessage<BindGamecenterAccountMessage>, ICodecProvider<BindGamecenterAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BindGamecenterAccountMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<BindGamecenterAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.PlayerId,
         Codecs.OptionalString,
         static message => message.BundleId,
@@ -37,6 +34,5 @@ public sealed record BindGamecenterAccountMessage(
         static message => message.Timestamp,
         Codecs.Boolean,
         static message => message.Force,
-        static (playerId, bundleId, publicKeyLink, signature, salt, timestamp, force) => new BindGamecenterAccountMessage(playerId, bundleId, publicKeyLink, signature, salt, timestamp, force)
-    );
+        static (playerId, bundleId, publicKeyLink, signature, salt, timestamp, force) => new BindGamecenterAccountMessage(playerId, bundleId, publicKeyLink, signature, salt, timestamp, force));
 }

@@ -13,13 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record BuySeasonalCatalogueGiftCommand([property: JsonPropertyName("EventId")] int EventId, int GiftIndex) : CodecCommand<BuySeasonalCatalogueGiftCommand>, ICommandCodecProvider<BuySeasonalCatalogueGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuySeasonalCatalogueGiftCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.GiftIndex,
-            static (eventId, giftIndex) => new BuySeasonalCatalogueGiftCommand(eventId, giftIndex)
-        )
-    );
+    public static CommandCodec<BuySeasonalCatalogueGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.GiftIndex,
+        static (eventId, giftIndex) => new BuySeasonalCatalogueGiftCommand(eventId, giftIndex)));
 }

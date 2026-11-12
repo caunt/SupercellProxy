@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Town.Circus;
 public sealed record FeedCircusAnimalCommand(int CircusAnimalGlobalId, int ItemGlobalId) : CodecCommand<FeedCircusAnimalCommand>, ICommandCodecProvider<FeedCircusAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FeedCircusAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.CircusAnimalGlobalId,
-            Codecs.VarInt,
-            static command => command.ItemGlobalId,
-            static (circusAnimalGlobalId, itemGlobalId) => new FeedCircusAnimalCommand(circusAnimalGlobalId, itemGlobalId)
-        )
-    );
+    public static CommandCodec<FeedCircusAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.CircusAnimalGlobalId,
+        Codecs.VarInt,
+        static command => command.ItemGlobalId,
+        static (circusAnimalGlobalId, itemGlobalId) => new FeedCircusAnimalCommand(circusAnimalGlobalId, itemGlobalId)));
 }

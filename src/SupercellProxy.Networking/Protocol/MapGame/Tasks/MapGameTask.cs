@@ -10,7 +10,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 public sealed record MapGameTask : ICodecProvider<MapGameTask>
 {
-    /// <summary>Creates a task from its decoded fields.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MapGameTask"/> record. Creates a task from its decoded fields.</summary>
     /// <param name="taskGlobalId">Global id of the task's table entry.</param>
     /// <param name="nodeId">Board node the task sits on.</param>
     /// <param name="state">Where the task is: 0 waiting, 1 active, 2 expired, 3 completed, 4 finished.</param>
@@ -25,8 +25,7 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
     /// <param name="rewards">Valley coins the task gives, each as a coin table entry and an amount.</param>
     /// <param name="piggyBankRewards">Valley coins the task adds to the piggy bank, each as a coin table entry and an amount.</param>
     /// <param name="states">Each player's progress on the task.</param>
-    public MapGameTask(
-        int taskGlobalId,
+    public MapGameTask(int taskGlobalId,
         int nodeId,
         int state,
         int initialDurationSeconds,
@@ -39,8 +38,7 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
         bool completeCooldownEnabled,
         ReadOnlyMemory<CommandVarIntPair> rewards,
         ReadOnlyMemory<CommandVarIntPair> piggyBankRewards,
-        ReadOnlyMemory<MapGameTaskState> states
-    )
+        ReadOnlyMemory<MapGameTaskState> states)
     {
         TaskGlobalId = taskGlobalId;
         NodeId = nodeId;
@@ -59,8 +57,7 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
     }
 
     /// <inheritdoc />
-    public static ICodec<MapGameTask> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameTask> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static task => task.TaskGlobalId,
         Codecs.VarInt,
         static task => task.NodeId,
@@ -88,8 +85,7 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
         static task => task.PiggyBankRewards,
         Codecs.Memory(MapGameTaskState.Codec),
         static task => task.States,
-        static (
-            taskGlobalId,
+        static (taskGlobalId,
             nodeId,
             state,
             initialDurationSeconds,
@@ -102,65 +98,75 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
             completeCooldownEnabled,
             rewards,
             piggyBankRewards,
-            states
-        ) => new MapGameTask(
-            taskGlobalId,
-            nodeId,
-            state,
-            initialDurationSeconds,
-            expirationTime,
-            respawnTime,
-            timer,
-            cooldownTimer,
-            expireEnabled,
-            expireCooldownEnabled,
-            completeCooldownEnabled,
-            rewards,
-            piggyBankRewards,
-            states
-        )
-    );
+            states) => new MapGameTask(taskGlobalId,
+                nodeId,
+                state,
+                initialDurationSeconds,
+                expirationTime,
+                respawnTime,
+                timer,
+                cooldownTimer,
+                expireEnabled,
+                expireCooldownEnabled,
+                completeCooldownEnabled,
+                rewards,
+                piggyBankRewards,
+                states));
 
-    /// <summary>Whether a completed task comes back after a cooldown.</summary>
+    /// <summary>Gets or sets whether a completed task comes back after a cooldown.</summary>
+    /// <value><see langword="true"/> if a cooldown follows the task's completion; otherwise, <see langword="false"/>.</value>
     public bool CompleteCooldownEnabled { get; init; }
 
-    /// <summary>Countdown before the task comes back, as start seconds and updates left.</summary>
+    /// <summary>Gets or sets the countdown before the task comes back, as start seconds and updates left.</summary>
+    /// <value>The cooldown length in seconds paired with the timer updates still left.</value>
     public CommandVarIntPair CooldownTimer { get; init; }
 
-    /// <summary>When the task expires.</summary>
+    /// <summary>Gets or sets when the task expires.</summary>
+    /// <value>The expiry value the server sent, kept for re-encoding.</value>
     public int ExpirationTime { get; init; }
 
-    /// <summary>Whether an expired task comes back after a cooldown.</summary>
+    /// <summary>Gets or sets whether an expired task comes back after a cooldown.</summary>
+    /// <value><see langword="true"/> if a cooldown follows the task's expiry; otherwise, <see langword="false"/>.</value>
     public bool ExpireCooldownEnabled { get; init; }
 
-    /// <summary>Whether the task expires when its countdown ends.</summary>
+    /// <summary>Gets or sets whether the task expires when its countdown ends.</summary>
+    /// <value><see langword="true"/> if <see cref="Timer"/> is the task's time limit; otherwise, <see langword="false"/>.</value>
     public bool ExpireEnabled { get; init; }
 
-    /// <summary>Length of the task's active time in seconds.</summary>
+    /// <summary>Gets or sets the length of the task's active time in seconds.</summary>
+    /// <value>The full duration the task was given when it spawned, in seconds; 0 for a task without a time limit.</value>
     public int InitialDurationSeconds { get; init; }
 
-    /// <summary>Board node the task sits on.</summary>
+    /// <summary>Gets or sets the board node the task sits on.</summary>
+    /// <value>The id of a node of the season's Valley map, sent right after <see cref="TaskGlobalId"/>.</value>
     public int NodeId { get; init; }
 
-    /// <summary>Valley coins the task adds to the piggy bank, each as a coin table entry and an amount.</summary>
+    /// <summary>Gets or sets the Valley coins the task adds to the piggy bank, each as a coin table entry and an amount.</summary>
+    /// <value>Pairs of a Valley coin row's global id and an amount; empty when the task feeds none.</value>
     public ReadOnlyMemory<CommandVarIntPair> PiggyBankRewards { get; init; }
 
-    /// <summary>Unix time in seconds when the task comes back after its cooldown.</summary>
+    /// <summary>Gets or sets the Unix time in seconds when the task comes back after its cooldown.</summary>
+    /// <value>Seconds since 1970-01-01 UTC.</value>
     public int RespawnTime { get; init; }
 
-    /// <summary>Valley coins the task gives, each as a coin table entry and an amount.</summary>
+    /// <summary>Gets or sets the Valley coins the task gives, each as a coin table entry and an amount.</summary>
+    /// <value>Pairs of a Valley coin row's global id and an amount, sent before <see cref="PiggyBankRewards"/>; empty when the task gives no coins.</value>
     public ReadOnlyMemory<CommandVarIntPair> Rewards { get; init; }
 
-    /// <summary>Where the task is: 0 waiting, 1 active, 2 expired, 3 completed, 4 finished.</summary>
+    /// <summary>Gets or sets where the task is: 0 waiting, 1 active, 2 expired, 3 completed, 4 finished.</summary>
+    /// <value>The task's state code.</value>
     public int State { get; init; }
 
-    /// <summary>Each player's progress on the task.</summary>
+    /// <summary>Gets or sets each player's progress on the task.</summary>
+    /// <value>One entry per participant, each with its own completion flag and task-type payload.</value>
     public ReadOnlyMemory<MapGameTaskState> States { get; init; }
 
-    /// <summary>Global id of the task's table entry.</summary>
+    /// <summary>Gets or sets the global id of the task's table entry.</summary>
+    /// <value>The global id of the Valley task row, whose <c>TaskType</c> decides the kind of payload in <see cref="States"/>; the first field on the wire.</value>
     [JsonPropertyName("TaskGlobalId")]
     public int TaskGlobalId { get; init; }
 
-    /// <summary>Countdown of the active task, as start seconds and updates left.</summary>
+    /// <summary>Gets or sets the countdown of the active task, as start seconds and updates left.</summary>
+    /// <value>The active duration in seconds paired with the timer updates still left.</value>
     public CommandVarIntPair Timer { get; init; }
 }

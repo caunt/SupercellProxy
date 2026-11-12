@@ -12,8 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Directory;
 /// <param name="Value0">First compared number; its meaning is not identified.</param>
 /// <param name="Value1">Second compared number; its meaning is not identified.</param>
 /// <param name="Value2">Third compared number; its meaning is not identified.</param>
-public sealed record NeighborhoodComparisonEntry(
-    LongId? AvatarId,
+public sealed record NeighborhoodComparisonEntry(LongId? AvatarId,
     LongId? HomeId,
     LongId? NeighborhoodId,
     string? Name,
@@ -21,12 +20,10 @@ public sealed record NeighborhoodComparisonEntry(
     LongId Id,
     int Value0,
     int Value1,
-    int Value2
-) : ICodecProvider<NeighborhoodComparisonEntry>
+    int Value2) : ICodecProvider<NeighborhoodComparisonEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodComparisonEntry> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static ICodec<NeighborhoodComparisonEntry> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static value => value.AvatarId,
         Codecs.OptionalLongId,
         static value => value.HomeId,
@@ -44,6 +41,5 @@ public sealed record NeighborhoodComparisonEntry(
         static value => value.Value1,
         Codecs.VarInt,
         static value => value.Value2,
-        static (avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2) => new NeighborhoodComparisonEntry(avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2)
-    );
+        static (avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2) => new NeighborhoodComparisonEntry(avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2));
 }

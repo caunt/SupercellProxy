@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record PinDecorationEventPhotoCommand(bool Pinned, int PhotoIndex) : CodecCommand<PinDecorationEventPhotoCommand>, ICommandCodecProvider<PinDecorationEventPhotoCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PinDecorationEventPhotoCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Boolean,
+    public static CommandCodec<PinDecorationEventPhotoCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
             static command => command.Pinned,
             Codecs.VarInt,
             static command => command.PhotoIndex,
-            static (pinned, photoIndex) => new PinDecorationEventPhotoCommand(pinned, photoIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (pinned, photoIndex) => new PinDecorationEventPhotoCommand(pinned, photoIndex)),
+        CommandLayout.MetadataFirst);
 }

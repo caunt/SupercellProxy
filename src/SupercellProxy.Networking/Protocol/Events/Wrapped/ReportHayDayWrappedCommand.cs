@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Events.Wrapped;
 public sealed record ReportHayDayWrappedCommand(string? Locale, int State) : CodecCommand<ReportHayDayWrappedCommand>, ICommandCodecProvider<ReportHayDayWrappedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ReportHayDayWrappedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.OptionalString,
+    public static CommandCodec<ReportHayDayWrappedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString,
             static command => command.Locale,
             Codecs.VarInt,
             static command => command.State,
-            static (locale, state) => new ReportHayDayWrappedCommand(locale, state)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (locale, state) => new ReportHayDayWrappedCommand(locale, state)),
+        CommandLayout.MetadataFirst);
 }

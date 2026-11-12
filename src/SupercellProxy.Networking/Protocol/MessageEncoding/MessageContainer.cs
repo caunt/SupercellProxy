@@ -14,6 +14,17 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 public sealed record MessageContainer([property: JsonPropertyName("Id")] ushort Id, ushort Version, MessageStream Payload)
 {
     /// <summary>Frames an encoded message with its registered id and resolved or recorded header version.</summary>
+    /// <param name="message">The message to encode; a <see cref="PassthroughMessage"/> keeps its own id and raw bytes.</param>
+    /// <param name="version">
+    /// The header version to write, or <see langword="null"/> to use the version a <see cref="PassthroughMessage"/> was received with, and 0
+    /// for any other message.
+    /// </param>
+    /// <param name="gameVersion">
+    /// The game release whose id table and payload layouts apply; it is also set on the new payload stream. With <see langword="null"/>, the
+    /// message's id must be the same in every release.
+    /// </param>
+    /// <returns>A new container with the message's wire id, the chosen header version and an in-memory payload holding the encoded bytes.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
     public static MessageContainer Create(IMessage message, ushort? version = null, Version? gameVersion = null)
     {
         ArgumentNullException.ThrowIfNull(message);

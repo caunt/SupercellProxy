@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Rewards;
 public sealed record ClaimFarmPassLoopRewardCommand(bool UseDiamonds) : CodecCommand<ClaimFarmPassLoopRewardCommand>, ICommandCodecProvider<ClaimFarmPassLoopRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimFarmPassLoopRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new ClaimFarmPassLoopRewardCommand(useDiamonds)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<ClaimFarmPassLoopRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new ClaimFarmPassLoopRewardCommand(useDiamonds)),
+        CommandLayout.MetadataFirst);
 }

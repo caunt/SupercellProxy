@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record AudioAnalyticsProperty(string? Key, string? Value) : ICodecProvider<AudioAnalyticsProperty>
 {
     /// <inheritdoc />
-    public static ICodec<AudioAnalyticsProperty> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<AudioAnalyticsProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static value => value.Key,
         Codecs.OptionalString,
         static value => value.Value,
-        static (key, @value) => new AudioAnalyticsProperty(key, value)
-    );
+        static (key, @value) => new AudioAnalyticsProperty(key, value));
 }

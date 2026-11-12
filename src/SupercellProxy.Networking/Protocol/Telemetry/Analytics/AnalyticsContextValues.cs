@@ -9,13 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsContextValues(int Value0, int Value1, bool Flag) : ICodecProvider<AnalyticsContextValues>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsContextValues> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<AnalyticsContextValues> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Value0,
         Codecs.VarInt,
         static value => value.Value1,
         Codecs.Boolean,
         static value => value.Flag,
-        static (value0, value1, flag) => new AnalyticsContextValues(value0, value1, flag)
-    );
+        static (value0, value1, flag) => new AnalyticsContextValues(value0, value1, flag));
 }

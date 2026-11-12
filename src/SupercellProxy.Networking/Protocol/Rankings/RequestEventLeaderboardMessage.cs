@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Rankings;
 public sealed record RequestEventLeaderboardMessage(int EventId, int VariantId, int Page, int PageSize) : CodecMessage<RequestEventLeaderboardMessage>, ICodecProvider<RequestEventLeaderboardMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestEventLeaderboardMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<RequestEventLeaderboardMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.EventId,
         Codecs.VarInt,
         static message => message.VariantId,
@@ -20,6 +19,5 @@ public sealed record RequestEventLeaderboardMessage(int EventId, int VariantId, 
         static message => message.Page,
         Codecs.VarInt,
         static message => message.PageSize,
-        static (eventId, variantId, page, pageSize) => new RequestEventLeaderboardMessage(eventId, variantId, page, pageSize)
-    );
+        static (eventId, variantId, page, pageSize) => new RequestEventLeaderboardMessage(eventId, variantId, page, pageSize));
 }

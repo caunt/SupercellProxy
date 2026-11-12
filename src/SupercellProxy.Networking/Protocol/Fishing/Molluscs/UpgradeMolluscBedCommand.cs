@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Molluscs;
 public sealed record UpgradeMolluscBedCommand(int BedObjectGlobalId) : CodecCommand<UpgradeMolluscBedCommand>, ICommandCodecProvider<UpgradeMolluscBedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UpgradeMolluscBedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.BedObjectGlobalId,
-            static bedObjectGlobalId => new UpgradeMolluscBedCommand(bedObjectGlobalId)
-        )
-    );
+    public static CommandCodec<UpgradeMolluscBedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.BedObjectGlobalId,
+        static bedObjectGlobalId => new UpgradeMolluscBedCommand(bedObjectGlobalId)));
 }

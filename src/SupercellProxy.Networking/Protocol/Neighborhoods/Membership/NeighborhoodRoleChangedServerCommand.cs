@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record NeighborhoodRoleChangedServerCommand(LongId NeighborhoodId, int Role) : CodecServerCommand<NeighborhoodRoleChangedServerCommand>, ICommandCodecProvider<NeighborhoodRoleChangedServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<NeighborhoodRoleChangedServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.NeighborhoodId,
-            Codecs.VarInt,
-            static command => command.Role,
-            static (neighborhoodId, role) => new NeighborhoodRoleChangedServerCommand(neighborhoodId, role)
-        )
-    );
+    public static CommandCodec<NeighborhoodRoleChangedServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.NeighborhoodId,
+        Codecs.VarInt,
+        static command => command.Role,
+        static (neighborhoodId, role) => new NeighborhoodRoleChangedServerCommand(neighborhoodId, role)));
 }

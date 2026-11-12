@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 using SupercellProxy.Networking.Protocol.Authentication;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -12,19 +13,19 @@ namespace SupercellProxy.Networking.Client;
 public sealed class LoginException : Exception
 {
     /// <summary>
-    /// Creates a login failure with no description and no server reply attached.
+    /// Initializes a new instance of the <see cref="LoginException"/> class. Creates a login failure with no description and no server reply attached.
     /// </summary>
     public LoginException() { }
 
     /// <summary>
-    /// Creates a login failure described by text alone, for refusals detected locally rather than reported by the server.
+    /// Initializes a new instance of the <see cref="LoginException"/> class. Creates a login failure described by text alone, for refusals detected locally rather than reported by the server.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     public LoginException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Creates a login failure caused by another error, such as a broken connection during the handshake.
+    /// Initializes a new instance of the <see cref="LoginException"/> class. Creates a login failure caused by another error, such as a broken connection during the handshake.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     /// <param name="innerException">The error that stopped the login.</param>
@@ -32,7 +33,7 @@ public sealed class LoginException : Exception
         : base(message, innerException) { }
 
     /// <summary>
-    /// Creates a login failure from the server's refusal; the text names the error code and the server's reason.
+    /// Initializes a new instance of the <see cref="LoginException"/> class. Creates a login failure from the server's refusal; the text names the error code and the server's reason.
     /// </summary>
     /// <param name="loginFailedMessage">The server's reply, kept in <see cref="LoginFailedMessage"/>.</param>
     public LoginException(LoginFailedMessage loginFailedMessage)
@@ -42,9 +43,10 @@ public sealed class LoginException : Exception
     }
 
     /// <summary>
-    /// The server's refusal, with its error code, reason, maintenance countdown or new asset manifest; null when the failure was
+    /// Gets the server's refusal, with its error code, reason, maintenance countdown or new asset manifest; <see langword="null"/> when the failure was
     /// not reported by the server.
     /// </summary>
+    /// <value>The <see cref="Protocol.Authentication.LoginFailedMessage"/> passed to the constructor, or <see langword="null"/> for a failure created from a plain error text.</value>
     public LoginFailedMessage? LoginFailedMessage { get; }
 
     /// <summary>
@@ -77,10 +79,7 @@ public sealed class LoginException : Exception
             _ => loginFailedMessage.ErrorCode.ToString(),
         };
 
-        string error = string.Create(
-            CultureInfo.InvariantCulture,
-            $"{System.Runtime.CompilerServices.Unsafe.BitCast<LoginFailureType, int>(loginFailedMessage.ErrorCode)} ({errorDescription})"
-        );
+        string error = string.Create(CultureInfo.InvariantCulture, $"{Unsafe.BitCast<LoginFailureType, int>(loginFailedMessage.ErrorCode)} ({errorDescription})");
 
         return $"{error}{(string.IsNullOrWhiteSpace(loginFailedMessage.Reason) ? string.Empty : $" (reason: {loginFailedMessage.Reason})")}";
     }

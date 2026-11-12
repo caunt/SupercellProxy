@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 public sealed record StreamEntryReactionAddedMessage(StreamEntryId? EntryId, int Reaction, LongId? AvatarId) : CodecMessage<StreamEntryReactionAddedMessage>, ICodecProvider<StreamEntryReactionAddedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<StreamEntryReactionAddedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Optional(SupercellProxy.Networking.Protocol.Neighborhoods.Chat.StreamEntryId.Codec),
+    public static ICodec<StreamEntryReactionAddedMessage> Codec { get; } = Codecs.Composite(Codecs.Optional(StreamEntryId.Codec),
         static message => message.EntryId,
         Codecs.VarInt,
         static message => message.Reaction,
         Codecs.OptionalLongId,
         static message => message.AvatarId,
-        static (entryId, reaction, avatarId) => new StreamEntryReactionAddedMessage(entryId, reaction, avatarId)
-    );
+        static (entryId, reaction, avatarId) => new StreamEntryReactionAddedMessage(entryId, reaction, avatarId));
 }

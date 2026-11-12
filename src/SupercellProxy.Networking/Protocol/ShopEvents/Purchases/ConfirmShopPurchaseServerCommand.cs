@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 public sealed record ConfirmShopPurchaseServerCommand(int EventId, int VariantId, int PackageGlobalId, int FarmPassPurchase) : CodecServerCommand<ConfirmShopPurchaseServerCommand>, ICommandCodecProvider<ConfirmShopPurchaseServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ConfirmShopPurchaseServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Int32,
-            static command => command.EventId,
-            Codecs.Int32,
-            static command => command.VariantId,
-            Codecs.Int32,
-            static command => command.PackageGlobalId,
-            Codecs.VarInt,
-            static command => command.FarmPassPurchase,
-            static (eventId, variantId, packageGlobalId, farmPassPurchase) => new ConfirmShopPurchaseServerCommand(eventId, variantId, packageGlobalId, farmPassPurchase)
-        )
-    );
+    public static CommandCodec<ConfirmShopPurchaseServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+        static command => command.EventId,
+        Codecs.Int32,
+        static command => command.VariantId,
+        Codecs.Int32,
+        static command => command.PackageGlobalId,
+        Codecs.VarInt,
+        static command => command.FarmPassPurchase,
+        static (eventId, variantId, packageGlobalId, farmPassPurchase) => new ConfirmShopPurchaseServerCommand(eventId, variantId, packageGlobalId, farmPassPurchase)));
 }

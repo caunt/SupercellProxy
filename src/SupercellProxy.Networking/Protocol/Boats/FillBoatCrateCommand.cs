@@ -12,28 +12,20 @@ public sealed record FillBoatCrateCommand(bool UseDirectRewards, int CrateIndex,
     : CodecCommand<FillBoatCrateCommand>, ICommandCodecProvider<FillBoatCrateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FillBoatCrateCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.Boolean,
+    public static CommandCodec<FillBoatCrateCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.UseDirectRewards,
                 Codecs.Boolean,
                 static command => command.AllowCompletedOrder,
                 Codecs.VarInt,
                 static command => command.CrateIndex,
-                static (useDirectRewards, allowCompletedOrder, crateIndex) => new FillBoatCrateCommand(useDirectRewards, crateIndex, allowCompletedOrder)
-            ),
-            Codecs.Composite(
-                Codecs.Boolean,
+                static (useDirectRewards, allowCompletedOrder, crateIndex) => new FillBoatCrateCommand(useDirectRewards, crateIndex, allowCompletedOrder)),
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.UseDirectRewards,
                 Codecs.VarInt,
                 static command => command.CrateIndex,
                 Codecs.Boolean,
                 static command => command.AllowCompletedOrder,
-                static (useDirectRewards, crateIndex, allowCompletedOrder) => new FillBoatCrateCommand(useDirectRewards, crateIndex, allowCompletedOrder)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (useDirectRewards, crateIndex, allowCompletedOrder) => new FillBoatCrateCommand(useDirectRewards, crateIndex, allowCompletedOrder))),
+        CommandLayout.MetadataFirst);
 }

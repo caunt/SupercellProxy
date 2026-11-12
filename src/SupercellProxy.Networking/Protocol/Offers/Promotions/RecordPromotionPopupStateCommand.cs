@@ -14,23 +14,19 @@ namespace SupercellProxy.Networking.Protocol.Offers.Promotions;
 public sealed record RecordPromotionPopupStateCommand(string? PromotionId, int EventId, int VariantId, int State, int Timestamp, bool Accepted, int Placement) : CodecCommand<RecordPromotionPopupStateCommand>, ICommandCodecProvider<RecordPromotionPopupStateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RecordPromotionPopupStateCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.OptionalString,
-            static command => command.PromotionId,
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.VariantId,
-            Codecs.VarInt,
-            static command => command.State,
-            Codecs.VarInt,
-            static command => command.Timestamp,
-            Codecs.Boolean,
-            static command => command.Accepted,
-            Codecs.VarInt,
-            static command => command.Placement,
-            static (promotionId, eventId, variantId, state, timestamp, accepted, placement) => new RecordPromotionPopupStateCommand(promotionId, eventId, variantId, state, timestamp, accepted, placement)
-        )
-    );
+    public static CommandCodec<RecordPromotionPopupStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString,
+        static command => command.PromotionId,
+        Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.VariantId,
+        Codecs.VarInt,
+        static command => command.State,
+        Codecs.VarInt,
+        static command => command.Timestamp,
+        Codecs.Boolean,
+        static command => command.Accepted,
+        Codecs.VarInt,
+        static command => command.Placement,
+        static (promotionId, eventId, variantId, state, timestamp, accepted, placement) => new RecordPromotionPopupStateCommand(promotionId, eventId, variantId, state, timestamp, accepted, placement)));
 }

@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 public sealed record ChangeLayoutNamesMessage(int LayoutIndex, int NameIndex) : CodecMessage<ChangeLayoutNamesMessage>, ICodecProvider<ChangeLayoutNamesMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeLayoutNamesMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ChangeLayoutNamesMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.LayoutIndex,
         Codecs.VarInt,
         static message => message.NameIndex,
-        static (layoutIndex, nameIndex) => new ChangeLayoutNamesMessage(layoutIndex, nameIndex)
-    );
+        static (layoutIndex, nameIndex) => new ChangeLayoutNamesMessage(layoutIndex, nameIndex));
 }

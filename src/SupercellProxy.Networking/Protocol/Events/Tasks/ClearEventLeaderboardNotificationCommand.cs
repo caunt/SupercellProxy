@@ -13,13 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record ClearEventLeaderboardNotificationCommand([property: JsonPropertyName("EventId")] int EventId, int ButtonState) : CodecCommand<ClearEventLeaderboardNotificationCommand>, ICommandCodecProvider<ClearEventLeaderboardNotificationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClearEventLeaderboardNotificationCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.ButtonState,
-            static (eventId, state) => new ClearEventLeaderboardNotificationCommand(eventId, state)
-        )
-    );
+    public static CommandCodec<ClearEventLeaderboardNotificationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.ButtonState,
+        static (eventId, state) => new ClearEventLeaderboardNotificationCommand(eventId, state)));
 }

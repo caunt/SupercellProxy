@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record NeighborhoodEmblemChangedServerCommand(LongId NeighborhoodId, int EmblemBackground, int EmblemPattern, int EmblemSymbol) : CodecServerCommand<NeighborhoodEmblemChangedServerCommand>, ICommandCodecProvider<NeighborhoodEmblemChangedServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<NeighborhoodEmblemChangedServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.NeighborhoodId,
-            Codecs.VarInt,
-            static command => command.EmblemBackground,
-            Codecs.VarInt,
-            static command => command.EmblemPattern,
-            Codecs.VarInt,
-            static command => command.EmblemSymbol,
-            static (neighborhoodId, emblemBackground, emblemPattern, emblemSymbol) => new NeighborhoodEmblemChangedServerCommand(neighborhoodId, emblemBackground, emblemPattern, emblemSymbol)
-        )
-    );
+    public static CommandCodec<NeighborhoodEmblemChangedServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.NeighborhoodId,
+        Codecs.VarInt,
+        static command => command.EmblemBackground,
+        Codecs.VarInt,
+        static command => command.EmblemPattern,
+        Codecs.VarInt,
+        static command => command.EmblemSymbol,
+        static (neighborhoodId, emblemBackground, emblemPattern, emblemSymbol) => new NeighborhoodEmblemChangedServerCommand(neighborhoodId, emblemBackground, emblemPattern, emblemSymbol)));
 }

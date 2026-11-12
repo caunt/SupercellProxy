@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record OfferGood(int GoodGlobalId, int Amount) : ICodecProvider<OfferGood>
 {
     /// <inheritdoc />
-    public static ICodec<OfferGood> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<OfferGood> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new OfferGood(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new OfferGood(goodGlobalId, amount));
 }

@@ -10,7 +10,5 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 public sealed record MarkTruckOrdersSeenCommand([property: JsonPropertyName("OrderTableGlobalId")] int OrderTableGlobalId) : CodecCommand<MarkTruckOrdersSeenCommand>, ICommandCodecProvider<MarkTruckOrdersSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTruckOrdersSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OrderTableGlobalId, static table => new MarkTruckOrdersSeenCommand(table))
-    );
+    public static CommandCodec<MarkTruckOrdersSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OrderTableGlobalId, static table => new MarkTruckOrdersSeenCommand(table)));
 }

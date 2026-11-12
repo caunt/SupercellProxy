@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Town.Services;
 public sealed record HelpTownServiceCommand(int HelpId, int ServiceIndex, int ServiceBuildingGlobalId) : CodecCommand<HelpTownServiceCommand>, ICommandCodecProvider<HelpTownServiceCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<HelpTownServiceCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.HelpId,
-            Codecs.VarInt,
-            static command => command.ServiceIndex,
-            Codecs.VarInt,
-            static command => command.ServiceBuildingGlobalId,
-            static (helpId, serviceIndex, serviceBuildingGlobalId) => new HelpTownServiceCommand(helpId, serviceIndex, serviceBuildingGlobalId)
-        )
-    );
+    public static CommandCodec<HelpTownServiceCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.HelpId,
+        Codecs.VarInt,
+        static command => command.ServiceIndex,
+        Codecs.VarInt,
+        static command => command.ServiceBuildingGlobalId,
+        static (helpId, serviceIndex, serviceBuildingGlobalId) => new HelpTownServiceCommand(helpId, serviceIndex, serviceBuildingGlobalId)));
 }

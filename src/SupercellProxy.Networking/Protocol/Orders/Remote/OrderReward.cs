@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 public sealed record OrderReward(int GoodGlobalId, int Amount) : ICodecProvider<OrderReward>
 {
     /// <inheritdoc />
-    public static ICodec<OrderReward> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<OrderReward> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new OrderReward(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new OrderReward(goodGlobalId, amount));
 }

@@ -12,8 +12,8 @@ public static class CompressedDocumentValidator
     /// Checks the header without inflating anything: a non-negative little-endian length followed by a zlib stream header that
     /// uses deflate and passes zlib's header checksum.
     /// </summary>
-    /// <param name="data">The embedded bytes; null or empty counts as a valid absent document.</param>
-    /// <returns>False when the bytes cannot start a compressed document.</returns>
+    /// <param name="data">The embedded bytes; <see langword="null"/> or empty counts as a valid absent document.</param>
+    /// <returns><see langword="true"/> if <paramref name="data"/> is absent or empty, or is at least 6 bytes with a non-negative length and a valid deflate zlib header; otherwise, <see langword="false"/>.</returns>
     public static bool IsValid(ReadOnlyMemory<byte>? data)
     {
         if (data is null || data.Value.IsEmpty)

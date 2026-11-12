@@ -8,12 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Calendar;
 public sealed record CollectCalendarGiftCommand(int GiftBoxObjectGlobalId) : CodecCommand<CollectCalendarGiftCommand>, ICommandCodecProvider<CollectCalendarGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectCalendarGiftCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<CollectCalendarGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.GiftBoxObjectGlobalId,
-            static giftBoxObjectGlobalId => new CollectCalendarGiftCommand(giftBoxObjectGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static giftBoxObjectGlobalId => new CollectCalendarGiftCommand(giftBoxObjectGlobalId)),
+        CommandLayout.MetadataFirst);
 }

@@ -6,6 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record DecorationCanvasLayoutSnapshot
 {
-    /// <summary>Gets the placed canvas objects.</summary>
+    /// <summary>Gets or sets the placed canvas objects.</summary>
+    /// <value>Each decoration placed on the canvas with its data id and tile position, in saved order; empty for a blank canvas.</value>
     public DecorationCanvasObjectSnapshot[] Objects { get; init; } = [];
 }

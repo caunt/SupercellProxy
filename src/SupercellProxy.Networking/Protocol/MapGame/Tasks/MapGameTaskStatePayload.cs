@@ -12,6 +12,7 @@ public abstract record MapGameTaskStatePayload
     /// <summary>
     /// Gets the native <c>TaskType</c> name that selects this payload layout.
     /// </summary>
+    /// <value>The <c>TaskType</c> column value this payload type is registered under, such as <c>Obstacle</c> or <c>Gas Station</c>; writing a state uses it to pick the codec.</value>
     public abstract string TaskType { get; }
 
     private static FrozenDictionary<string, ICodec<MapGameTaskStatePayload>> Variants => field ??= new Dictionary<string, ICodec<MapGameTaskStatePayload>>(StringComparer.Ordinal)

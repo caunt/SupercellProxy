@@ -26,21 +26,20 @@ namespace SupercellProxy.Networking.Proxy;
 /// Optional hook started for each accepted client with its socket and capture writer. When present, the client's capture is only
 /// published when the hook approves it. The returned object is disposed when the connection ends.
 /// </param>
-public sealed partial class ProtocolProxy(
-    IOptions<ProxyOptions> options,
+public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
     IServerPublicKeySource serverKeys,
     ILogger<ProtocolProxy> logger,
     TimeProvider timeProvider,
     ICommandDataResolver? commandDataResolver = null,
-    Func<TcpClient, ProxyCaptureWriter, ICommandDataResolver?, CancellationToken, ValueTask<IAsyncDisposable>>? captureSession = null
-)
+    Func<TcpClient, ProxyCaptureWriter, ICommandDataResolver?, CancellationToken, ValueTask<IAsyncDisposable>>? captureSession = null)
 {
     private readonly TaskCompletionSource<IPEndPoint> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private CaptureArchive? _archive;
     private ICommandDataResolver? _commandDataResolver = commandDataResolver;
 
-    /// <summary>Completes with the actual endpoint when the listener starts, including an assigned ephemeral port.</summary>
+    /// <summary>Gets a task that completes with the actual endpoint when the listener starts, including an assigned ephemeral port.</summary>
+    /// <value>A task that stays pending until <see cref="RunAsync(CancellationToken)"/> has started the listener and then holds its bound local address and port; it never completes if the proxy is not run.</value>
     public Task<IPEndPoint> Listening => _listening.Task;
 
     /// <summary>
@@ -136,7 +135,8 @@ public sealed partial class ProtocolProxy(
             Archive = _archive,
         };
 
-        if (configuration.CaptureDirectory is { } archiveRoot) LogCaptureDirectory(logger, archiveRoot);
+        if (configuration.CaptureDirectory is { } archiveRoot)
+            LogCaptureDirectory(logger, archiveRoot);
 
         IAsyncDisposable? recording = captureSession is null
             ? null
@@ -145,8 +145,7 @@ public sealed partial class ProtocolProxy(
         try
         {
             ProxyConnection client = await ProxyConnection
-                .ConnectAsync(
-                    socketClient,
+                .ConnectAsync(socketClient,
                     configuration.UpstreamHost,
                     configuration.UpstreamPort,
                     trafficCapture,
@@ -155,8 +154,7 @@ public sealed partial class ProtocolProxy(
                     _commandDataResolver,
                     logger,
                     configuration.AnonymousAccount,
-                    cancellationToken
-                )
+                    cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await using (client.ConfigureAwait(continueOnCapturedContext: false))

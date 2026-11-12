@@ -13,7 +13,8 @@ public sealed record VisitOtherFishingHomeMessage : CodecMessage<VisitOtherFishi
     public static ICodec<VisitOtherFishingHomeMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.Target, static target => new VisitOtherFishingHomeMessage { Target = target });
 
     /// <summary>
-    /// Home id of the farm whose fishing area to visit.
+    /// Gets or sets the home id of the farm whose fishing area to visit.
     /// </summary>
+    /// <value>The visited player's home id, the message's only field, sent as a high and low 32-bit pair; the server replies with that player's fishing area and avatar.</value>
     public required LongId Target { get; init; }
 }

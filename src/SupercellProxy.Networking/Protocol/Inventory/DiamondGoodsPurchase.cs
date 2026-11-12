@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 public sealed record DiamondGoodsPurchase(int ItemGlobalId, int Amount) : ICodecProvider<DiamondGoodsPurchase>
 {
     /// <inheritdoc />
-    public static ICodec<DiamondGoodsPurchase> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<DiamondGoodsPurchase> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.ItemGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (itemGlobalId, amount) => new DiamondGoodsPurchase(itemGlobalId, amount)
-    );
+        static (itemGlobalId, amount) => new DiamondGoodsPurchase(itemGlobalId, amount));
 }

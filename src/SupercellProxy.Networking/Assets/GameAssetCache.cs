@@ -25,7 +25,8 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         finally
         {
             // A failed load is forgotten so the next login retries it instead of reusing the failure.
-            if (loading.IsFaulted) Forget(directory, loading);
+            if (loading.IsFaulted)
+                Forget(directory, loading);
         }
     }
 
@@ -33,7 +34,8 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     {
         bool removed = Loaded.TryRemove(new KeyValuePair<string, Task<GameAsset[]>>(directory, loading));
 
-        if (!removed) return;
+        if (!removed)
+            return;
     }
 
     private static async Task<GameAsset> ReadAssetAsync(GameAssetFingerprintEntry file, string filePath, CancellationToken cancellationToken)
@@ -53,17 +55,16 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         }
         finally
         {
-            if (File.Exists(temporary)) File.Delete(temporary);
+            if (File.Exists(temporary))
+                File.Delete(temporary);
         }
     }
 
-    private async Task<GameAsset?> GetAssetAsync(
-        GameAssetFingerprint fingerprint,
+    private async Task<GameAsset?> GetAssetAsync(GameAssetFingerprint fingerprint,
         GameAssetFingerprintEntry file,
         string filePath,
         IEnumerable<string> downloadUrls,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         if (File.Exists(filePath))
             return await ReadAssetAsync(file, filePath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -94,8 +95,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         bool[] downloadedAssets = new bool[fingerprint.Files.Count];
 
         await Parallel
-            .ForAsync(
-                fromInclusive: 0,
+            .ForAsync(fromInclusive: 0,
                 fingerprint.Files.Count,
                 new ParallelOptions
                 {
@@ -113,8 +113,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
                     resources[index] = resource;
                     downloadedAssets[index] = !alreadyCached && resource is not null;
-                }
-            )
+                })
             .ConfigureAwait(continueOnCapturedContext: false);
 
         int downloadedAssetCount = downloadedAssets.Count(static downloaded => downloaded);
@@ -130,13 +129,11 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         return [.. resources.OfType<GameAsset>()];
     }
 
-    private async Task<bool> TryDownloadAssetAsync(
-        GameAssetFingerprint fingerprint,
+    private async Task<bool> TryDownloadAssetAsync(GameAssetFingerprint fingerprint,
         GameAssetFingerprintEntry file,
         string filePath,
         string downloadAddress,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         try
         {

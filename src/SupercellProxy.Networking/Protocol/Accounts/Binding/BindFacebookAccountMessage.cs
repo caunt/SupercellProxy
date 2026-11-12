@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record BindFacebookAccountMessage(string? FacebookId, string? AuthenticationToken, bool Force) : CodecMessage<BindFacebookAccountMessage>, ICodecProvider<BindFacebookAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BindFacebookAccountMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<BindFacebookAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.FacebookId,
         Codecs.OptionalString,
         static message => message.AuthenticationToken,
         Codecs.Boolean,
         static message => message.Force,
-        static (facebookId, authenticationToken, force) => new BindFacebookAccountMessage(facebookId, authenticationToken, force)
-    );
+        static (facebookId, authenticationToken, force) => new BindFacebookAccountMessage(facebookId, authenticationToken, force));
 }

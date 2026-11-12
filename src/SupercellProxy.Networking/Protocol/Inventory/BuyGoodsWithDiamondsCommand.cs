@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Inventory;
 public sealed record BuyGoodsWithDiamondsCommand(ReadOnlyMemory<DiamondGoodsPurchase> Goods, int Reason, int ReasonDataGlobalId, int ReasonValue) : CodecCommand<BuyGoodsWithDiamondsCommand>, ICommandCodecProvider<BuyGoodsWithDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyGoodsWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Memory(DiamondGoodsPurchase.Codec),
-            static command => command.Goods,
-            Codecs.VarInt,
-            static command => command.Reason,
-            Codecs.VarInt,
-            static command => command.ReasonDataGlobalId,
-            Codecs.VarInt,
-            static command => command.ReasonValue,
-            static (goods, reason, reasonDataGlobalId, reasonValue) => new BuyGoodsWithDiamondsCommand(goods, reason, reasonDataGlobalId, reasonValue)
-        )
-    );
+    public static CommandCodec<BuyGoodsWithDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Memory(DiamondGoodsPurchase.Codec),
+        static command => command.Goods,
+        Codecs.VarInt,
+        static command => command.Reason,
+        Codecs.VarInt,
+        static command => command.ReasonDataGlobalId,
+        Codecs.VarInt,
+        static command => command.ReasonValue,
+        static (goods, reason, reasonDataGlobalId, reasonValue) => new BuyGoodsWithDiamondsCommand(goods, reason, reasonDataGlobalId, reasonValue)));
 }

@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 /// <param name="ObjectEventId">The live event id of the neighborhood object the points belong to.</param>
 /// <param name="ObjectVariantId">The live event variant id of the neighborhood object.</param>
 /// <param name="ObjectPoints">The neighborhood object points; native maps them to a level through the event's point thresholds.</param>
-public sealed record NeighborhoodData(
-    [property: JsonPropertyName("NeighborhoodId")] LongId NeighborhoodId,
+public sealed record NeighborhoodData([property: JsonPropertyName("NeighborhoodId")] LongId NeighborhoodId,
     string? NeighborhoodName,
     int NeighborhoodRole,
     int BadgeBackground,
@@ -23,12 +22,10 @@ public sealed record NeighborhoodData(
     int BadgeSymbol,
     int ObjectEventId,
     int ObjectVariantId,
-    int ObjectPoints
-) : ICodecProvider<NeighborhoodData>
+    int ObjectPoints) : ICodecProvider<NeighborhoodData>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodData> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodData> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.NeighborhoodId,
         Codecs.OptionalString,
         static value => value.NeighborhoodName,
@@ -46,8 +43,7 @@ public sealed record NeighborhoodData(
         static value => value.ObjectVariantId,
         Codecs.VarInt,
         static value => value.ObjectPoints,
-        static (
-            neighborhoodId,
+        static (neighborhoodId,
             neighborhoodName,
             neighborhoodRole,
             badgeBackground,
@@ -55,17 +51,13 @@ public sealed record NeighborhoodData(
             badgeSymbol,
             objectEventId,
             objectVariantId,
-            objectPoints
-        ) => new NeighborhoodData(
-            neighborhoodId,
-            neighborhoodName,
-            neighborhoodRole,
-            badgeBackground,
-            badgePattern,
-            badgeSymbol,
-            objectEventId,
-            objectVariantId,
-            objectPoints
-        )
-    );
+            objectPoints) => new NeighborhoodData(neighborhoodId,
+                neighborhoodName,
+                neighborhoodRole,
+                badgeBackground,
+                badgePattern,
+                badgeSymbol,
+                objectEventId,
+                objectVariantId,
+                objectPoints));
 }

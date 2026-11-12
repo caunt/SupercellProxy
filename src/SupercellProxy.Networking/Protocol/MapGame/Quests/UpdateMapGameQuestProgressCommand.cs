@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 public sealed record UpdateMapGameQuestProgressCommand(int QuestGlobalId, int Progress) : CodecCommand<UpdateMapGameQuestProgressCommand>, ICommandCodecProvider<UpdateMapGameQuestProgressCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UpdateMapGameQuestProgressCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.QuestGlobalId,
-            Codecs.VarInt,
-            static command => command.Progress,
-            static (questGlobalId, progress) => new UpdateMapGameQuestProgressCommand(questGlobalId, progress)
-        )
-    );
+    public static CommandCodec<UpdateMapGameQuestProgressCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.QuestGlobalId,
+        Codecs.VarInt,
+        static command => command.Progress,
+        static (questGlobalId, progress) => new UpdateMapGameQuestProgressCommand(questGlobalId, progress)));
 }

@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 public sealed record BuyBoosterCommand(int BoosterGlobalId, int Count) : CodecCommand<BuyBoosterCommand>, ICommandCodecProvider<BuyBoosterCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyBoosterCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.BoosterGlobalId,
-            Codecs.VarInt,
-            static command => command.Count,
-            static (boosterGlobalId, count) => new BuyBoosterCommand(boosterGlobalId, count)
-        )
-    );
+    public static CommandCodec<BuyBoosterCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.BoosterGlobalId,
+        Codecs.VarInt,
+        static command => command.Count,
+        static (boosterGlobalId, count) => new BuyBoosterCommand(boosterGlobalId, count)));
 }

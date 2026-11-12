@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Events;
 public sealed record PreviousEventNeighborhoodScore(NeighborhoodHeaderEntry Profile, int Points) : ICodecProvider<PreviousEventNeighborhoodScore>
 {
     /// <inheritdoc />
-    public static ICodec<PreviousEventNeighborhoodScore> Codec { get; } = Codecs.Composite(
-        SupercellProxy.Networking.Protocol.Neighborhoods.NeighborhoodHeaderEntry.Codec,
+    public static ICodec<PreviousEventNeighborhoodScore> Codec { get; } = Codecs.Composite(NeighborhoodHeaderEntry.Codec,
         static value => value.Profile,
         Codecs.VarInt,
         static value => value.Points,
-        static (profile, points) => new PreviousEventNeighborhoodScore(profile, points)
-    );
+        static (profile, points) => new PreviousEventNeighborhoodScore(profile, points));
 }

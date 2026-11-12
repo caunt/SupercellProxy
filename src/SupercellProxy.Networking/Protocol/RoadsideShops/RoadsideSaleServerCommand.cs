@@ -10,7 +10,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// </summary>
 public sealed record RoadsideSaleServerCommand : CodecServerCommand<RoadsideSaleServerCommand>, ICommandCodecProvider<RoadsideSaleServerCommand>
 {
-    /// <summary>Creates the command for one sold stand.</summary>
+    /// <summary>Initializes a new instance of the <see cref="RoadsideSaleServerCommand"/> record. Creates the command for one sold stand.</summary>
     /// <param name="buyerAvatarId">Home of the player who bought the stand.</param>
     /// <param name="roadsideOwnerAvatarId">Home of the seller.</param>
     /// <param name="itemGlobalId">Global id of the sold goods.</param>
@@ -28,42 +28,44 @@ public sealed record RoadsideSaleServerCommand : CodecServerCommand<RoadsideSale
     }
 
     /// <inheritdoc />
-    public static CommandCodec<RoadsideSaleServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.BuyerAvatarId,
-            Codecs.LongId,
-            static command => command.RoadsideOwnerAvatarId,
-            Codecs.Int32,
-            static command => command.ItemGlobalId,
-            Codecs.Int32,
-            static command => command.SlotIndex,
-            Codecs.Int32,
-            static command => command.Price,
-            Codecs.Int32,
-            static command => command.Quantity,
-            static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity)
-        )
-    );
+    public static CommandCodec<RoadsideSaleServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.BuyerAvatarId,
+        Codecs.LongId,
+        static command => command.RoadsideOwnerAvatarId,
+        Codecs.Int32,
+        static command => command.ItemGlobalId,
+        Codecs.Int32,
+        static command => command.SlotIndex,
+        Codecs.Int32,
+        static command => command.Price,
+        Codecs.Int32,
+        static command => command.Quantity,
+        static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity)));
 
-    /// <summary>Home of the player who bought the stand.</summary>
+    /// <summary>Gets the home of the player who bought the stand.</summary>
+    /// <value>The buyer's home id, the first field on the wire.</value>
     [JsonPropertyName("BuyerAvatarId")]
     public LongId BuyerAvatarId { get; }
 
-    /// <summary>Global id of the sold goods; the stand must still hold them for the sale to apply.</summary>
+    /// <summary>Gets the global id of the sold goods.</summary>
+    /// <value>The goods' data id, written as a big-endian 32-bit integer rather than a var-int.</value>
     [JsonPropertyName("ItemGlobalId")]
     public int ItemGlobalId { get; }
 
-    /// <summary>Coin price of the stand; it must match the stand for the sale to apply.</summary>
+    /// <summary>Gets the coin price of the stand.</summary>
+    /// <value>The coins for the whole stand, as a big-endian 32-bit integer; the seller receives them when collecting the sale.</value>
     public int Price { get; }
 
-    /// <summary>How many goods were on the stand; it must match the stand for the sale to apply.</summary>
+    /// <summary>Gets how many goods were on the stand.</summary>
+    /// <value>The number of goods sold together, as a big-endian 32-bit integer and the last field on the wire.</value>
     public int Quantity { get; }
 
-    /// <summary>Home of the seller; other homes ignore the command.</summary>
+    /// <summary>Gets the home of the seller.</summary>
+    /// <value>The seller's home id, written right after the buyer's.</value>
     [JsonPropertyName("RoadsideOwnerAvatarId")]
     public LongId RoadsideOwnerAvatarId { get; }
 
-    /// <summary>Position of the sold stand in the seller's shop.</summary>
+    /// <summary>Gets the position of the sold stand in the seller's shop.</summary>
+    /// <value>The zero-based stand index, as a big-endian 32-bit integer.</value>
     public int SlotIndex { get; }
 }

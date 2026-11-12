@@ -13,12 +13,8 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record CollectAnimalProductCommand([property: JsonPropertyName("AnimalGlobalId")] int AnimalGlobalId) : CodecCommand<CollectAnimalProductCommand>, ICommandCodecProvider<CollectAnimalProductCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectAnimalProductCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<CollectAnimalProductCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.AnimalGlobalId,
-            static animalGlobalId => new CollectAnimalProductCommand(animalGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static animalGlobalId => new CollectAnimalProductCommand(animalGlobalId)),
+        CommandLayout.MetadataFirst);
 }

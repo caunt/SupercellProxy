@@ -15,25 +15,21 @@ namespace SupercellProxy.Networking.Protocol.Offers.PopPromos;
 public sealed record PopPromoUpdateServerCommand(LongId HomeId, int PromoId, int State, int RewardGlobalId, int Amount, int StartTime, int Duration, int Probability) : CodecServerCommand<PopPromoUpdateServerCommand>, ICommandCodecProvider<PopPromoUpdateServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PopPromoUpdateServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.HomeId,
-            Codecs.VarInt,
-            static command => command.PromoId,
-            Codecs.VarInt,
-            static command => command.State,
-            Codecs.VarInt,
-            static command => command.RewardGlobalId,
-            Codecs.VarInt,
-            static command => command.Amount,
-            Codecs.VarInt,
-            static command => command.StartTime,
-            Codecs.VarInt,
-            static command => command.Duration,
-            Codecs.VarInt,
-            static command => command.Probability,
-            static (homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability) => new PopPromoUpdateServerCommand(homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability)
-        )
-    );
+    public static CommandCodec<PopPromoUpdateServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.HomeId,
+        Codecs.VarInt,
+        static command => command.PromoId,
+        Codecs.VarInt,
+        static command => command.State,
+        Codecs.VarInt,
+        static command => command.RewardGlobalId,
+        Codecs.VarInt,
+        static command => command.Amount,
+        Codecs.VarInt,
+        static command => command.StartTime,
+        Codecs.VarInt,
+        static command => command.Duration,
+        Codecs.VarInt,
+        static command => command.Probability,
+        static (homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability) => new PopPromoUpdateServerCommand(homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability)));
 }

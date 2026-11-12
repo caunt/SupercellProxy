@@ -4,6 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 
 /// <summary>Records the number of derby bunny appearances shown to the player.</summary>
+/// <param name="Count">The total number of flying bunnies the player has seen.</param>
 public sealed record MarkFlyingDerbyBunniesSeenCommand(int Count) : CodecCommand<MarkFlyingDerbyBunniesSeenCommand>, ICommandCodecProvider<MarkFlyingDerbyBunniesSeenCommand>
 {
     /// <inheritdoc />

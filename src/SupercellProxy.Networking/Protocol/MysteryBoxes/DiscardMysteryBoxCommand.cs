@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 public sealed record DiscardMysteryBoxCommand(int MysteryBoxGlobalId) : CodecCommand<DiscardMysteryBoxCommand>, ICommandCodecProvider<DiscardMysteryBoxCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DiscardMysteryBoxCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.MysteryBoxGlobalId,
-            static mysteryBoxGlobalId => new DiscardMysteryBoxCommand(mysteryBoxGlobalId)
-        )
-    );
+    public static CommandCodec<DiscardMysteryBoxCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.MysteryBoxGlobalId,
+        static mysteryBoxGlobalId => new DiscardMysteryBoxCommand(mysteryBoxGlobalId)));
 }

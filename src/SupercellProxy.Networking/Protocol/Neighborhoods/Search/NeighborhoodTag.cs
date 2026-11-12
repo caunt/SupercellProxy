@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 public sealed record NeighborhoodTag(int High, int Low) : ICodecProvider<NeighborhoodTag>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodTag> Codec { get; } = Codecs.Composite(
-        Codecs.Int32,
+    public static ICodec<NeighborhoodTag> Codec { get; } = Codecs.Composite(Codecs.Int32,
         static value => value.High,
         Codecs.Int32,
         static value => value.Low,
-        static (high, low) => new NeighborhoodTag(high, low)
-    );
+        static (high, low) => new NeighborhoodTag(high, low));
 }

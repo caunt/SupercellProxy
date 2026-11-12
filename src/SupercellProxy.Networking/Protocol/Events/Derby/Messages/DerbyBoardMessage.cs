@@ -7,17 +7,13 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodecProvider<DerbyBoardMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DerbyBoardMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            BoardCounters.Codec,
-            static message => new BoardCounters(
-                message.TaskLimit,
+    public static ICodec<DerbyBoardMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(BoardCounters.Codec,
+            static message => new BoardCounters(message.TaskLimit,
                 message.RemainingTasks,
                 message.DailyTasksRefillTime,
                 message.Unknown0,
                 message.Unknown1,
-                message.ExtraTaskOfferValue
-            ),
+                message.ExtraTaskOfferValue),
             Codecs.OptionalLongId,
             static message => message.CurrentInstanceId,
             Codecs.Boolean,
@@ -48,8 +44,7 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             static message => message.Groups,
             Codecs.Optional(DerbyBoardSupplement.Codec),
             static message => message.Supplement,
-            static (
-                boardCounters,
+            static (boardCounters,
                 currentInstanceId,
                 flag0,
                 flag1,
@@ -64,79 +59,102 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
                 flag3,
                 unknown6,
                 groups,
-                supplement
-            ) => new DerbyBoardMessage
-            {
-                TaskLimit = boardCounters.TaskLimit,
-                RemainingTasks = boardCounters.RemainingTasks,
-                DailyTasksRefillTime = boardCounters.DailyTasksRefillTime,
-                Unknown0 = boardCounters.Unknown0,
-                Unknown1 = boardCounters.Unknown1,
-                ExtraTaskOfferValue = boardCounters.ExtraTaskOfferValue,
-                CurrentInstanceId = currentInstanceId,
-                Flag0 = flag0,
-                Flag1 = flag1,
-                Flag2 = flag2,
-                PreviousInstanceId = previousInstanceId,
-                Tasks = tasks,
-                AuxiliaryEntries = auxiliaryEntries,
-                Unknown2 = unknown2,
-                Unknown3 = unknown3,
-                Unknown4 = unknown4,
-                Unknown5 = unknown5,
-                Flag3 = flag3,
-                Unknown6 = unknown6,
-                Groups = groups,
-                Supplement = supplement,
-            }
-        ),
-        trailingDataMessage: "The derby message has trailing data."
-    );
+                supplement) => new DerbyBoardMessage
+                {
+                    TaskLimit = boardCounters.TaskLimit,
+                    RemainingTasks = boardCounters.RemainingTasks,
+                    DailyTasksRefillTime = boardCounters.DailyTasksRefillTime,
+                    Unknown0 = boardCounters.Unknown0,
+                    Unknown1 = boardCounters.Unknown1,
+                    ExtraTaskOfferValue = boardCounters.ExtraTaskOfferValue,
+                    CurrentInstanceId = currentInstanceId,
+                    Flag0 = flag0,
+                    Flag1 = flag1,
+                    Flag2 = flag2,
+                    PreviousInstanceId = previousInstanceId,
+                    Tasks = tasks,
+                    AuxiliaryEntries = auxiliaryEntries,
+                    Unknown2 = unknown2,
+                    Unknown3 = unknown3,
+                    Unknown4 = unknown4,
+                    Unknown5 = unknown5,
+                    Flag3 = flag3,
+                    Unknown6 = unknown6,
+                    Groups = groups,
+                    Supplement = supplement,
+                }),
+        trailingDataMessage: "The derby message has trailing data.");
 
-    /// <summary>Gets the optional auxiliary board entries.</summary>
+    /// <summary>Gets or sets the optional auxiliary board entries.</summary>
+    /// <value>The five-value entries of the board's second collection, in wire order, or <see langword="null"/> when native wrote the -1 absent count; their meaning is not yet identified.</value>
     public DerbyBoardAuxiliaryEntry[]? AuxiliaryEntries { get; init; }
-    /// <summary>Gets the cached current derby race instance.</summary>
+    /// <summary>Gets or sets the cached current derby race instance.</summary>
+    /// <value>The identifier of the derby race the neighborhood is in now, or <see langword="null"/> when the presence flag is clear because no race is running.</value>
     public LongId? CurrentInstanceId { get; init; }
-    /// <summary>Gets the Unix time in seconds at which the daily task allowance refills, or minus one when none is scheduled.</summary>
+    /// <summary>Gets or sets the Unix time in seconds at which the daily task allowance refills, or minus one when none is scheduled.</summary>
+    /// <value>Seconds since the Unix epoch of the next allowance refill, or -1 when no refill is pending; it is the third board counter on the wire.</value>
     public int DailyTasksRefillTime { get; init; }
-    /// <summary>Gets the offer value echoed when purchasing an additional task.</summary>
+    /// <summary>Gets or sets the offer value echoed when purchasing an additional task.</summary>
+    /// <value>The opaque offer value to send back unchanged in <see cref="BuyExtraDerbyTaskMessage.OfferValue"/>; it is the last of the six leading board counters.</value>
     public int ExtraTaskOfferValue { get; init; }
-    /// <summary>Gets the first retained board flag.</summary>
+    /// <summary>Gets or sets the first retained board flag.</summary>
+    /// <value><see langword="true"/> if native set the first Boolean after <see cref="CurrentInstanceId"/>; otherwise, <see langword="false"/>.</value>
+    /// <remarks>Its meaning is not yet identified.</remarks>
     public bool Flag0 { get; init; }
-    /// <summary>Gets the second retained board flag.</summary>
+    /// <summary>Gets or sets the second retained board flag.</summary>
+    /// <value><see langword="true"/> if native set the second Boolean after <see cref="CurrentInstanceId"/>; otherwise, <see langword="false"/>.</value>
+    /// <remarks>Its meaning is not yet identified.</remarks>
     public bool Flag1 { get; init; }
-    /// <summary>Gets the third retained board flag.</summary>
+    /// <summary>Gets or sets the third retained board flag.</summary>
+    /// <value><see langword="true"/> if native set the Boolean just before <see cref="PreviousInstanceId"/>; otherwise, <see langword="false"/>.</value>
+    /// <remarks>Its meaning is not yet identified.</remarks>
     public bool Flag2 { get; init; }
-    /// <summary>Gets the final retained board flag.</summary>
+    /// <summary>Gets or sets the final retained board flag.</summary>
+    /// <value><see langword="true"/> if native set the Boolean between <see cref="Unknown5"/> and <see cref="Unknown6"/>; otherwise, <see langword="false"/>.</value>
+    /// <remarks>Its meaning is not yet identified.</remarks>
     public bool Flag3 { get; init; }
-    /// <summary>Gets the ordered board groups.</summary>
+    /// <summary>Gets or sets the ordered board groups.</summary>
+    /// <value>The group entries in wire order, each with its member identifiers; an empty array when the reply lists no groups, and at most 65536 entries.</value>
     public DerbyBoardGroupEntry[] Groups { get; init; } = [];
-    /// <summary>Gets the cached previous derby race instance.</summary>
+    /// <summary>Gets or sets the cached previous derby race instance.</summary>
+    /// <value>The identifier of the race the neighborhood took part in before the current one, or <see langword="null"/> when the presence flag is clear.</value>
     public LongId? PreviousInstanceId { get; init; }
-    /// <summary>Gets the remaining task allowance supplied by the server.</summary>
+    /// <summary>Gets or sets the remaining task allowance supplied by the server.</summary>
+    /// <value>How many more tasks the player may still take before the allowance refills at <see cref="DailyTasksRefillTime"/>.</value>
     public int RemainingTasks { get; init; }
-    /// <summary>Gets the optional board supplement.</summary>
+    /// <summary>Gets or sets the optional board supplement.</summary>
+    /// <value>The six-value block that closes the reply, or <see langword="null"/> when its presence flag is clear.</value>
     public DerbyBoardSupplement? Supplement { get; init; }
-    /// <summary>Gets the native task limit.</summary>
+    /// <summary>Gets or sets the native task limit.</summary>
+    /// <value>The total number of tasks the player may take in the allowance period, written as the first var-int of the reply.</value>
     public int TaskLimit { get; init; }
-    /// <summary>Gets the optional ordered task board.</summary>
+    /// <summary>Gets or sets the optional ordered task board.</summary>
+    /// <value>The board's task slots in board order, or <see langword="null"/> when native wrote the -1 absent count; any other negative count is rejected as malformed.</value>
     public DerbyTaskEntry[]? Tasks { get; init; }
-    /// <summary>Gets the first retained board counter.</summary>
+    /// <summary>Gets or sets the first retained board counter.</summary>
+    /// <value>The var-int written right after <see cref="DailyTasksRefillTime"/>; its meaning is not yet identified, so it is carried through unchanged.</value>
     public int Unknown0 { get; init; }
-    /// <summary>Gets the second retained board counter.</summary>
+    /// <summary>Gets or sets the second retained board counter.</summary>
+    /// <value>The var-int written just before <see cref="ExtraTaskOfferValue"/>; its meaning is not yet identified.</value>
     public int Unknown1 { get; init; }
-    /// <summary>Gets the first retained value following auxiliary entries.</summary>
+    /// <summary>Gets or sets the first retained value following auxiliary entries.</summary>
+    /// <value>The var-int written right after <see cref="AuxiliaryEntries"/>; its meaning is not yet identified.</value>
     public int Unknown2 { get; init; }
-    /// <summary>Gets the second retained value following auxiliary entries.</summary>
+    /// <summary>Gets or sets the second retained value following auxiliary entries.</summary>
+    /// <value>The var-int written after <see cref="Unknown2"/>; its meaning is not yet identified.</value>
     public int Unknown3 { get; init; }
-    /// <summary>Gets the third retained value following auxiliary entries.</summary>
+    /// <summary>Gets or sets the third retained value following auxiliary entries.</summary>
+    /// <value>The var-int written after <see cref="Unknown3"/>; its meaning is not yet identified.</value>
     public int Unknown4 { get; init; }
-    /// <summary>Gets the fourth retained value following auxiliary entries.</summary>
+    /// <summary>Gets or sets the fourth retained value following auxiliary entries.</summary>
+    /// <value>The var-int written just before <see cref="Flag3"/>; its meaning is not yet identified.</value>
     public int Unknown5 { get; init; }
-    /// <summary>Gets the retained value preceding board groups.</summary>
+    /// <summary>Gets or sets the retained value preceding board groups.</summary>
+    /// <value>The var-int written between <see cref="Flag3"/> and <see cref="Groups"/>; its meaning is not yet identified.</value>
     public int Unknown6 { get; init; }
 
     /// <summary>Omits identifiers and player details from diagnostic text.</summary>
+    /// <returns>The type name <c>DerbyBoardMessage</c> alone, so instance identifiers, task holders and group members never reach logs.</returns>
     public override string ToString()
     {
         return nameof(DerbyBoardMessage);
@@ -145,8 +163,7 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
     // The leading board counters, read as one group to keep the field list within a composite.
     private readonly record struct BoardCounters(int TaskLimit, int RemainingTasks, int DailyTasksRefillTime, int Unknown0, int Unknown1, int ExtraTaskOfferValue)
     {
-        public static ICodec<BoardCounters> Codec { get; } = Codecs.Composite(
-            Codecs.VarInt,
+        public static ICodec<BoardCounters> Codec { get; } = Codecs.Composite(Codecs.VarInt,
             static segment => segment.TaskLimit,
             Codecs.VarInt,
             static segment => segment.RemainingTasks,
@@ -158,7 +175,6 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             static segment => segment.Unknown1,
             Codecs.VarInt,
             static segment => segment.ExtraTaskOfferValue,
-            static (taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue)
-        );
+            static (taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue));
     }
 }

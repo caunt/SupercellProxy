@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record SendThankYouGiftCommand(int GiftKind, int TargetIndex, LongId HelperId) : CodecCommand<SendThankYouGiftCommand>, ICommandCodecProvider<SendThankYouGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SendThankYouGiftCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.GiftKind,
-            Codecs.VarInt,
-            static command => command.TargetIndex,
-            Codecs.LongId,
-            static command => command.HelperId,
-            static (giftKind, targetIndex, helperId) => new SendThankYouGiftCommand(giftKind, targetIndex, helperId)
-        )
-    );
+    public static CommandCodec<SendThankYouGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GiftKind,
+        Codecs.VarInt,
+        static command => command.TargetIndex,
+        Codecs.LongId,
+        static command => command.HelperId,
+        static (giftKind, targetIndex, helperId) => new SendThankYouGiftCommand(giftKind, targetIndex, helperId)));
 }

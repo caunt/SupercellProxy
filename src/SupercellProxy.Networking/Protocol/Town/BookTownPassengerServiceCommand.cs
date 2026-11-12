@@ -4,18 +4,17 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Books a passenger into a town service slot.</summary>
+/// <param name="PassengerGlobalId">Game object id of the waiting passenger in the player's own town, written first as a VarInt.</param>
+/// <param name="ServiceIndex">Zero-based index into the passenger's service requests, written as a VarInt after the passenger id.</param>
+/// <param name="TutorialDataGlobalId">Tutorials table data id when the booking is part of a tutorial step; a negative value (the client sends -1) for a normal booking.</param>
 public sealed record BookTownPassengerServiceCommand(int PassengerGlobalId, int ServiceIndex, int TutorialDataGlobalId) : CodecCommand<BookTownPassengerServiceCommand>, ICommandCodecProvider<BookTownPassengerServiceCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BookTownPassengerServiceCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.PassengerGlobalId,
-            Codecs.VarInt,
-            static command => command.ServiceIndex,
-            Codecs.VarInt,
-            static command => command.TutorialDataGlobalId,
-            static (passenger, service, tutorial) => new BookTownPassengerServiceCommand(passenger, service, tutorial)
-        )
-    );
+    public static CommandCodec<BookTownPassengerServiceCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PassengerGlobalId,
+        Codecs.VarInt,
+        static command => command.ServiceIndex,
+        Codecs.VarInt,
+        static command => command.TutorialDataGlobalId,
+        static (passenger, service, tutorial) => new BookTownPassengerServiceCommand(passenger, service, tutorial)));
 }

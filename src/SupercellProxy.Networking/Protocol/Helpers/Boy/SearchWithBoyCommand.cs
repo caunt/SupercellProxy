@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record SearchWithBoyCommand(int ItemGlobalId) : CodecCommand<SearchWithBoyCommand>, ICommandCodecProvider<SearchWithBoyCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SearchWithBoyCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ItemGlobalId, static itemGlobalId => new SearchWithBoyCommand(itemGlobalId))
-    );
+    public static CommandCodec<SearchWithBoyCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ItemGlobalId, static itemGlobalId => new SearchWithBoyCommand(itemGlobalId)));
 }

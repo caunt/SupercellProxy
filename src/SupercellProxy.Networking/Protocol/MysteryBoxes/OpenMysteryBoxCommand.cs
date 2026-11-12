@@ -13,13 +13,9 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 public sealed record OpenMysteryBoxCommand([property: JsonPropertyName("BoxGlobalId")] int BoxGlobalId, bool LegacyFlag) : CodecCommand<OpenMysteryBoxCommand>, ICommandCodecProvider<OpenMysteryBoxCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OpenMysteryBoxCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.BoxGlobalId,
-            Codecs.Boolean,
-            static command => command.LegacyFlag,
-            static (box, flag) => new OpenMysteryBoxCommand(box, flag)
-        )
-    );
+    public static CommandCodec<OpenMysteryBoxCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.BoxGlobalId,
+        Codecs.Boolean,
+        static command => command.LegacyFlag,
+        static (box, flag) => new OpenMysteryBoxCommand(box, flag)));
 }

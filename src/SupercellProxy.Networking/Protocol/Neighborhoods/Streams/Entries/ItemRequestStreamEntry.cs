@@ -10,20 +10,17 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 /// <param name="Quantity">The requested quantity.</param>
 /// <param name="Completed">Whether the request was completed.</param>
 /// <param name="Donations">The members who donated.</param>
-public sealed record ItemRequestStreamEntry(
-    StreamEntryHeader Header,
+public sealed record ItemRequestStreamEntry(StreamEntryHeader Header,
     int ExpiresAtSeconds,
     int ItemGlobalId,
     int Quantity,
     bool Completed,
-    ReadOnlyMemory<NeighborhoodMemberSummary>? Donations
-) : NeighborhoodStreamEntry(Header), ICodecProvider<ItemRequestStreamEntry>
+    ReadOnlyMemory<NeighborhoodMemberSummary>? Donations) : NeighborhoodStreamEntry(Header), ICodecProvider<ItemRequestStreamEntry>
 {
     internal const int Type = 7;
 
     /// <inheritdoc />
-    public static new ICodec<ItemRequestStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<ItemRequestStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.VarInt,
         static entry => entry.ExpiresAtSeconds,
@@ -35,8 +32,7 @@ public sealed record ItemRequestStreamEntry(
         static entry => entry.Completed,
         Codecs.NullableMemory(NeighborhoodMemberSummary.Codec),
         static entry => entry.Donations,
-        static (header, expiresAtSeconds, itemGlobalId, quantity, completed, donations) => new ItemRequestStreamEntry(header, expiresAtSeconds, itemGlobalId, quantity, completed, donations)
-    );
+        static (header, expiresAtSeconds, itemGlobalId, quantity, completed, donations) => new ItemRequestStreamEntry(header, expiresAtSeconds, itemGlobalId, quantity, completed, donations));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

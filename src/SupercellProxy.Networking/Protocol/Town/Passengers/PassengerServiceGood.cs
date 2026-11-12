@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Town.Passengers;
 public sealed record PassengerServiceGood(int GoodGlobalId, int Amount) : ICodecProvider<PassengerServiceGood>
 {
     /// <inheritdoc />
-    public static ICodec<PassengerServiceGood> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<PassengerServiceGood> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new PassengerServiceGood(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new PassengerServiceGood(goodGlobalId, amount));
 }

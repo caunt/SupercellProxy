@@ -4,13 +4,17 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects and removes one ready lobster or duck through its native command.</summary>
+/// <param name="AnimalId">Game object global id of the lobster or duck in the fishing area; it is the only field written on the wire.</param>
+/// <param name="Duck"><see langword="true"/> for a duck, sent as the native <c>CollectDuckCommand</c>; <see langword="false"/> for a lobster, sent as <c>CollectLobsterCommand</c>. It picks the codec and is not itself encoded.</param>
 public sealed record CollectFishingAnimalCommand(int AnimalId, bool Duck)
     : Command
 {
     /// <summary>Gets the contract of the native command that collects a duck.</summary>
+    /// <value>The codec registered as <c>CollectDuckCommand</c>, which writes the animal id as one variable-length integer and decodes with <see cref="Duck"/> set to <see langword="true"/>.</value>
     public static CommandCodec<CollectFishingAnimalCommand> DuckCodec { get; } = Create(name: "CollectDuckCommand", duck: true);
 
     /// <summary>Gets the contract of the native command that collects a lobster.</summary>
+    /// <value>The codec registered as <c>CollectLobsterCommand</c>, which writes the animal id as one variable-length integer and decodes with <see cref="Duck"/> set to <see langword="false"/>.</value>
     public static CommandCodec<CollectFishingAnimalCommand> LobsterCodec { get; } = Create(name: "CollectLobsterCommand", duck: false);
 
     /// <inheritdoc />
@@ -18,9 +22,7 @@ public sealed record CollectFishingAnimalCommand(int AnimalId, bool Duck)
 
     private static CommandCodec<CollectFishingAnimalCommand> Create(string name, bool duck)
     {
-        return Codecs.Command(
-            name,
-            Codecs.Composite(Codecs.VarInt, static command => command.AnimalId, animalId => new CollectFishingAnimalCommand(animalId, duck))
-        );
+        return Codecs.Command(name,
+            Codecs.Composite(Codecs.VarInt, static command => command.AnimalId, animalId => new CollectFishingAnimalCommand(animalId, duck)));
     }
 }

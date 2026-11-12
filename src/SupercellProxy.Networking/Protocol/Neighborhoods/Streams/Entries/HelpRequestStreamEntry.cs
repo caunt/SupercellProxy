@@ -23,8 +23,7 @@ public sealed record HelpRequestStreamEntry(StreamEntryHeader Header, int EntryT
     /// </summary>
     internal static ICodec<HelpRequestStreamEntry> CodecFor(int entryType)
     {
-        return Codecs.Composite(
-            StreamEntryHeader.Codec,
+        return Codecs.Composite(StreamEntryHeader.Codec,
             static entry => entry.Header,
             Codecs.VarInt,
             static entry => entry.Value,
@@ -32,7 +31,6 @@ public sealed record HelpRequestStreamEntry(StreamEntryHeader Header, int EntryT
             static entry => entry.HelperIds,
             Codecs.Boolean,
             static entry => entry.Completed,
-            (header, value, helperIds, completed) => new HelpRequestStreamEntry(header, entryType, value, helperIds, completed)
-        );
+            (header, value, helperIds, completed) => new HelpRequestStreamEntry(header, entryType, value, helperIds, completed));
     }
 }

@@ -9,9 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record FriendMetadataMessage(ReadOnlyMemory<FriendMeta> Friends) : CodecMessage<FriendMetadataMessage>, ICodecProvider<FriendMetadataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FriendMetadataMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(FriendMeta.Codec, CollectionCount.Unbounded),
+    public static ICodec<FriendMetadataMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(FriendMeta.Codec, CollectionCount.Unbounded),
         static message => message.Friends,
-        static friends => new FriendMetadataMessage(friends)
-    );
+        static friends => new FriendMetadataMessage(friends));
 }

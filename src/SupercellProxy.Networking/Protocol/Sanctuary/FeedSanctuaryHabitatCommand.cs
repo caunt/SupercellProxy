@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary;
 public sealed record FeedSanctuaryHabitatCommand(int HabitatGlobalId) : CodecCommand<FeedSanctuaryHabitatCommand>, ICommandCodecProvider<FeedSanctuaryHabitatCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FeedSanctuaryHabitatCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.HabitatGlobalId,
-            static habitatGlobalId => new FeedSanctuaryHabitatCommand(habitatGlobalId)
-        )
-    );
+    public static CommandCodec<FeedSanctuaryHabitatCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.HabitatGlobalId,
+        static habitatGlobalId => new FeedSanctuaryHabitatCommand(habitatGlobalId)));
 }

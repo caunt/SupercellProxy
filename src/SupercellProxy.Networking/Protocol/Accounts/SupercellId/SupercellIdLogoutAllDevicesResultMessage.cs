@@ -8,9 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 public sealed record SupercellIdLogoutAllDevicesResultMessage(int ResultCode) : CodecMessage<SupercellIdLogoutAllDevicesResultMessage>, ICodecProvider<SupercellIdLogoutAllDevicesResultMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdLogoutAllDevicesResultMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<SupercellIdLogoutAllDevicesResultMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.ResultCode,
-        static resultCode => new SupercellIdLogoutAllDevicesResultMessage(resultCode)
-    );
+        static resultCode => new SupercellIdLogoutAllDevicesResultMessage(resultCode));
 }

@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Buildings.Upgrades;
 public sealed record UpgradeStorageBuildingCommand(int ObjectGlobalId, byte Rank) : CodecCommand<UpgradeStorageBuildingCommand>, ICommandCodecProvider<UpgradeStorageBuildingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UpgradeStorageBuildingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ObjectGlobalId,
-            Codecs.Byte,
-            static command => command.Rank,
-            static (objectGlobalId, rank) => new UpgradeStorageBuildingCommand(objectGlobalId, rank)
-        )
-    );
+    public static CommandCodec<UpgradeStorageBuildingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ObjectGlobalId,
+        Codecs.Byte,
+        static command => command.Rank,
+        static (objectGlobalId, rank) => new UpgradeStorageBuildingCommand(objectGlobalId, rank)));
 }

@@ -16,10 +16,8 @@ public sealed record ReportAdvertisementWatchedMessage(int Placement, int Reward
     : CodecMessage<ReportAdvertisementWatchedMessage>, ICodecProvider<ReportAdvertisementWatchedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportAdvertisementWatchedMessage> Codec { get; } = Codecs.Versioned(
-        Release17381.Version,
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static ICodec<ReportAdvertisementWatchedMessage> Codec { get; } = Codecs.Versioned(Release17381.Version,
+        Codecs.Composite(Codecs.VarInt,
             static message => message.Placement,
             Codecs.VarInt,
             static message => message.RewardType,
@@ -33,10 +31,8 @@ public sealed record ReportAdvertisementWatchedMessage(int Placement, int Reward
             static message => message.Attempt,
             Codecs.Boolean,
             static message => message.Skipped,
-            static (placement, rewardType, completed, duration, rewardAmount, attempt, skipped) => new ReportAdvertisementWatchedMessage(placement, rewardType, completed, duration, rewardAmount, attempt, skipped)
-        ),
-        Codecs.Composite(
-            Codecs.Boolean,
+            static (placement, rewardType, completed, duration, rewardAmount, attempt, skipped) => new ReportAdvertisementWatchedMessage(placement, rewardType, completed, duration, rewardAmount, attempt, skipped)),
+        Codecs.Composite(Codecs.Boolean,
             static message => message.Skipped,
             Codecs.Boolean,
             static message => message.Completed,
@@ -50,7 +46,5 @@ public sealed record ReportAdvertisementWatchedMessage(int Placement, int Reward
             static message => message.Placement,
             Codecs.VarInt,
             static message => message.RewardType,
-            static (skipped, completed, attempt, duration, rewardAmount, placement, rewardType) => new ReportAdvertisementWatchedMessage(placement, rewardType, completed, duration, rewardAmount, attempt, skipped)
-        )
-    );
+            static (skipped, completed, attempt, duration, rewardAmount, placement, rewardType) => new ReportAdvertisementWatchedMessage(placement, rewardType, completed, duration, rewardAmount, attempt, skipped)));
 }

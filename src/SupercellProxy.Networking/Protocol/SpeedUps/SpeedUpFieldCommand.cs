@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.SpeedUps;
 public sealed record SpeedUpFieldCommand(int FieldGlobalId, bool IncludeOtherGrowingFields) : CodecCommand<SpeedUpFieldCommand>, ICommandCodecProvider<SpeedUpFieldCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpFieldCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.FieldGlobalId,
-            Codecs.Boolean,
-            static command => command.IncludeOtherGrowingFields,
-            static (fieldGlobalId, includeOtherGrowingFields) => new SpeedUpFieldCommand(fieldGlobalId, includeOtherGrowingFields)
-        )
-    );
+    public static CommandCodec<SpeedUpFieldCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.FieldGlobalId,
+        Codecs.Boolean,
+        static command => command.IncludeOtherGrowingFields,
+        static (fieldGlobalId, includeOtherGrowingFields) => new SpeedUpFieldCommand(fieldGlobalId, includeOtherGrowingFields)));
 }

@@ -20,16 +20,15 @@ namespace SupercellProxy.Networking.Protocol.Orders.Remote;
 /// <param name="ReceiverGlobalId">Global id of the customer who placed the order.</param>
 /// <param name="TimerStartSeconds">Seconds the slot's countdown started with, saved as the timer's <c>StartSeconds</c> (native timer encode 0x1006df434).</param>
 /// <param name="TimerTicksLeft">Ticks left on that countdown, saved as the timer's <c>TicksLeft</c>.</param>
-/// <param name="ReviverAvatarId">Home of the player who filled the order for its owner; null when nobody did.</param>
+/// <param name="ReviverAvatarId">Home of the player who filled the order for its owner; <see langword="null"/> when nobody did.</param>
 /// <param name="HelperId">Id of the order's help request; 0 when the owner has not asked for help.</param>
 /// <param name="HelperRewardData">Help value saved as <c>HRD</c> on the order; its meaning for orders is not identified.</param>
 /// <param name="HelperCompleted">Help flag saved as <c>HC</c> on the order; its meaning for orders is not identified.</param>
 /// <param name="HelperGranted">Help flag saved as <c>HG</c> on the order; its meaning for orders is not identified.</param>
-/// <param name="PromotionReward">Promotion box reward attached to the order; null when there is none.</param>
+/// <param name="PromotionReward">Promotion box reward attached to the order; <see langword="null"/> when there is none.</param>
 /// <param name="SeasonalCurrencyBonus">Whether the bonus reward pays out in the event's seasonal currency.</param>
-/// <param name="OrderSourceGlobalId">Global id of the table entry the order was generated from; null when not sent.</param>
-public sealed record RemoteOrder(
-    ReadOnlyMemory<int> DataGlobalIds,
+/// <param name="OrderSourceGlobalId">Global id of the table entry the order was generated from; <see langword="null"/> when not sent.</param>
+public sealed record RemoteOrder(ReadOnlyMemory<int> DataGlobalIds,
     ReadOnlyMemory<int> Amounts,
     int Cash,
     int Experience,
@@ -52,12 +51,10 @@ public sealed record RemoteOrder(
     bool HelperGranted,
     OrderPromotionReward? PromotionReward,
     bool SeasonalCurrencyBonus,
-    int? OrderSourceGlobalId
-) : ICodecProvider<RemoteOrder>
+    int? OrderSourceGlobalId) : ICodecProvider<RemoteOrder>
 {
     /// <inheritdoc />
-    public static ICodec<RemoteOrder> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(Codecs.VarInt),
+    public static ICodec<RemoteOrder> Codec { get; } = Codecs.Composite(Codecs.Memory(Codecs.VarInt),
         static order => order.DataGlobalIds,
         Codecs.Memory(Codecs.VarInt),
         static order => order.Amounts,
@@ -89,8 +86,7 @@ public sealed record RemoteOrder(
         static order => order.SeasonalCurrencyBonus,
         Codecs.Since(Release17381.Version, OrderSourceCodec(), absent: null),
         static order => order.OrderSourceGlobalId,
-        static (
-            dataGlobalIds,
+        static (dataGlobalIds,
             amounts,
             rewards,
             slot,
@@ -105,53 +101,46 @@ public sealed record RemoteOrder(
             helper,
             promotionReward,
             seasonalCurrencyBonus,
-            orderSourceGlobalId
-        ) => new RemoteOrder(
-            dataGlobalIds,
-            amounts,
-            rewards.Cash,
-            rewards.Experience,
-            slot,
-            level,
-            isNew,
-            voucher,
-            cashExperienceMultiplier,
-            bonus.BonusRewardEnabled,
-            bonus.BonusEventId,
-            bonus.BonusRewardGlobalId,
-            bonus.BonusCount,
-            receiverGlobalId,
-            timer.StartSeconds,
-            timer.TicksLeft,
-            reviverAvatarId,
-            helper.HelperId,
-            helper.HelperRewardData,
-            helper.HelperCompleted,
-            helper.HelperGranted,
-            promotionReward,
-            seasonalCurrencyBonus,
-            orderSourceGlobalId
-        )
-    );
+            orderSourceGlobalId) => new RemoteOrder(dataGlobalIds,
+                amounts,
+                rewards.Cash,
+                rewards.Experience,
+                slot,
+                level,
+                isNew,
+                voucher,
+                cashExperienceMultiplier,
+                bonus.BonusRewardEnabled,
+                bonus.BonusEventId,
+                bonus.BonusRewardGlobalId,
+                bonus.BonusCount,
+                receiverGlobalId,
+                timer.StartSeconds,
+                timer.TicksLeft,
+                reviverAvatarId,
+                helper.HelperId,
+                helper.HelperRewardData,
+                helper.HelperCompleted,
+                helper.HelperGranted,
+                promotionReward,
+                seasonalCurrencyBonus,
+                orderSourceGlobalId));
 
     // 1.73.81 appends the order source; native writes it only when the order has one.
     private static ICodec<int?> OrderSourceCodec()
     {
-        return Codecs.Create<int?>(
-            static stream => stream.ReadVarInt(),
+        return Codecs.Create<int?>(static stream => stream.ReadVarInt(),
             static (stream, orderSourceGlobalId) =>
             {
                 if (orderSourceGlobalId is { } value)
                     stream.WriteVarInt(value);
-            }
-        );
+            });
     }
 
     // The bonus reward.
     private readonly record struct Bonus(bool BonusRewardEnabled, int BonusEventId, int BonusRewardGlobalId, int BonusCount)
     {
-        public static ICodec<Bonus> Codec { get; } = Codecs.Composite(
-            Codecs.Boolean,
+        public static ICodec<Bonus> Codec { get; } = Codecs.Composite(Codecs.Boolean,
             static segment => segment.BonusRewardEnabled,
             Codecs.VarInt,
             static segment => segment.BonusEventId,
@@ -159,15 +148,13 @@ public sealed record RemoteOrder(
             static segment => segment.BonusRewardGlobalId,
             Codecs.VarInt,
             static segment => segment.BonusCount,
-            static (bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount) => new Bonus(bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount)
-        );
+            static (bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount) => new Bonus(bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount));
     }
 
     // The helper state.
     private readonly record struct Helper(int HelperId, int HelperRewardData, bool HelperCompleted, bool HelperGranted)
     {
-        public static ICodec<Helper> Codec { get; } = Codecs.Composite(
-            Codecs.VarInt,
+        public static ICodec<Helper> Codec { get; } = Codecs.Composite(Codecs.VarInt,
             static segment => segment.HelperId,
             Codecs.VarInt,
             static segment => segment.HelperRewardData,
@@ -175,31 +162,26 @@ public sealed record RemoteOrder(
             static segment => segment.HelperCompleted,
             Codecs.Boolean,
             static segment => segment.HelperGranted,
-            static (helperId, helperRewardData, helperCompleted, helperGranted) => new Helper(helperId, helperRewardData, helperCompleted, helperGranted)
-        );
+            static (helperId, helperRewardData, helperCompleted, helperGranted) => new Helper(helperId, helperRewardData, helperCompleted, helperGranted));
     }
 
     // The cash and experience rewards.
     private readonly record struct Rewards(int Cash, int Experience)
     {
-        public static ICodec<Rewards> Codec { get; } = Codecs.Composite(
-            Codecs.VarInt,
+        public static ICodec<Rewards> Codec { get; } = Codecs.Composite(Codecs.VarInt,
             static segment => segment.Cash,
             Codecs.VarInt,
             static segment => segment.Experience,
-            static (cash, experience) => new Rewards(cash, experience)
-        );
+            static (cash, experience) => new Rewards(cash, experience));
     }
 
     // The order timer.
     private readonly record struct Timer(int StartSeconds, int TicksLeft)
     {
-        public static ICodec<Timer> Codec { get; } = Codecs.Composite(
-            Codecs.VarInt,
+        public static ICodec<Timer> Codec { get; } = Codecs.Composite(Codecs.VarInt,
             static segment => segment.StartSeconds,
             Codecs.VarInt,
             static segment => segment.TicksLeft,
-            static (startSeconds, ticksLeft) => new Timer(startSeconds, ticksLeft)
-        );
+            static (startSeconds, ticksLeft) => new Timer(startSeconds, ticksLeft));
     }
 }

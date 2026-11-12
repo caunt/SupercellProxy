@@ -26,38 +26,45 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write), $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
 
     /// <summary>
-    /// The turn checksum, the first field of the turn header.
+    /// Gets or sets the turn checksum, the first field of the turn header.
     /// </summary>
+    /// <value>Signed 32-bit value written as a variable-length integer; the server compares it against its own result for the same turn and answers a mismatch with an <see cref="OutOfSyncMessage"/>. 0 by default.</value>
     public int Checksum { get; init; }
 
     /// <summary>
-    /// The player's actions in this turn, each stamped with the sub-tick it happened at, in order.
+    /// Gets or sets the player's actions in this turn, each stamped with the sub-tick it happened at, in order.
     /// </summary>
+    /// <value>Commands written after the header in execution order, at most <see cref="MaximumCommandCount"/>; empty by default, which makes a turn that only advances time.</value>
     public Memory<Command> Commands { get; init; }
 
     /// <summary>
-    /// Diagnostic blocks, one per command, that only non-production builds send; empty in production.
+    /// Gets or sets diagnostic blocks, one per command, that only non-production builds send; empty in production.
     /// </summary>
+    /// <value>Array written after the commands whenever <see cref="Environment"/> is not production; writing a non-empty value with the production environment throws <see cref="InvalidDataException"/>.</value>
     public Memory<CommandData> DebugCommandData { get; init; }
 
     /// <summary>
-    /// Extra byte arrays that only development builds send; empty in production.
+    /// Gets or sets extra byte arrays that only development builds send; empty in production.
     /// </summary>
+    /// <value>Length-prefixed byte arrays written last, only in the development environment; any other environment rejects a non-empty value when the message is written.</value>
     public Memory<ReadOnlyMemory<byte>> DevelopmentByteArrays { get; init; }
 
     /// <summary>
-    /// The <see cref="SubChecksumCount"/> sub-checksums the turn header sends after the sub-tick.
+    /// Gets or sets the <see cref="SubChecksumCount"/> sub-checksums the turn header sends after the sub-tick.
     /// </summary>
+    /// <value>Exactly <see cref="SubChecksumCount"/> variable-length integers with no count prefix; all zeros by default, and any other length fails when the message is written.</value>
     public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
 
     /// <summary>
-    /// Build environment whose layout the turn is written in; it decides whether the debug and development blocks are present.
+    /// Gets or sets the build environment whose layout the turn is written in; it decides whether the debug and development blocks are present.
     /// </summary>
+    /// <value>Taken from the stream's command environment when the message is read, and swapped in for the encoder's environment while it is written; <see cref="CommandEnvironment.Production"/> by default.</value>
     public CommandEnvironment Environment { get; init; } = CommandEnvironment.Production;
 
     /// <summary>
-    /// Game sub-tick the turn ends at, sent in the turn header after the checksum.
+    /// Gets or sets the game sub-tick the turn ends at, sent in the turn header after the checksum.
     /// </summary>
+    /// <value>Sub-tick counter of the client's game clock at the end of the turn, written as a variable-length integer; 0 by default.</value>
     public int SubTick { get; init; }
 
     private static ICodec<CommandData[]> DebugCommandDataCodec => field ??= Codecs.Array(CommandData.Codec);

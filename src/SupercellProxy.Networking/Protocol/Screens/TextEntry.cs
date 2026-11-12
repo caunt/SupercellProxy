@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Screens;
 public sealed record TextEntry(string? Text0, string? Text1, string? Text2, string? Text3, string? Text4, string? Text5, string? Text6, int Value) : ICodecProvider<TextEntry>
 {
     /// <inheritdoc />
-    public static ICodec<TextEntry> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<TextEntry> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static value => value.Text0,
         Codecs.OptionalString,
         static value => value.Text1,
@@ -31,6 +30,5 @@ public sealed record TextEntry(string? Text0, string? Text1, string? Text2, stri
         static value => value.Text6,
         Codecs.Int32,
         static value => value.Value,
-        static (text0, text1, text2, text3, text4, text5, text6, @value) => new TextEntry(text0, text1, text2, text3, text4, text5, text6, value)
-    );
+        static (text0, text1, text2, text3, text4, text5, text6, @value) => new TextEntry(text0, text1, text2, text3, text4, text5, text6, value));
 }

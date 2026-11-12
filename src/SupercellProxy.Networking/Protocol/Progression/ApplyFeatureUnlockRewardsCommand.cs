@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Progression;
 public sealed record ApplyFeatureUnlockRewardsCommand(int Level, int FeatureIndex) : CodecCommand<ApplyFeatureUnlockRewardsCommand>, ICommandCodecProvider<ApplyFeatureUnlockRewardsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ApplyFeatureUnlockRewardsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ApplyFeatureUnlockRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Level,
             Codecs.VarInt,
             static command => command.FeatureIndex,
-            static (level, featureIndex) => new ApplyFeatureUnlockRewardsCommand(level, featureIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (level, featureIndex) => new ApplyFeatureUnlockRewardsCommand(level, featureIndex)),
+        CommandLayout.MetadataFirst);
 }

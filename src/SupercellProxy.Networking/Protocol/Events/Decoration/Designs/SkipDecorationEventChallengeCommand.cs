@@ -10,16 +10,12 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 public sealed record SkipDecorationEventChallengeCommand(int Price, int EventId, int ChallengeIndex) : CodecCommand<SkipDecorationEventChallengeCommand>, ICommandCodecProvider<SkipDecorationEventChallengeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SkipDecorationEventChallengeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<SkipDecorationEventChallengeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Price,
             Codecs.VarInt,
             static command => command.EventId,
             Codecs.VarInt,
             static command => command.ChallengeIndex,
-            static (price, eventId, challengeIndex) => new SkipDecorationEventChallengeCommand(price, eventId, challengeIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (price, eventId, challengeIndex) => new SkipDecorationEventChallengeCommand(price, eventId, challengeIndex)),
+        CommandLayout.MetadataFirst);
 }

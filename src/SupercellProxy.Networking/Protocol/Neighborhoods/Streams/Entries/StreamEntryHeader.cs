@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 /// <param name="SenderRole">The sender's neighborhood role.</param>
 /// <param name="Value">The value native reads after the sender's role.</param>
 /// <param name="Reactions">The entry's reactions, when present.</param>
-public sealed record StreamEntryHeader(
-    int PostedTimestamp,
+public sealed record StreamEntryHeader(int PostedTimestamp,
     int AgeSeconds,
     bool New,
     bool Removed,
@@ -25,12 +24,10 @@ public sealed record StreamEntryHeader(
     int SenderLevel,
     int SenderRole,
     int Value,
-    ReadOnlyMemory<StreamEntryReaction>? Reactions
-) : ICodecProvider<StreamEntryHeader>
+    ReadOnlyMemory<StreamEntryReaction>? Reactions) : ICodecProvider<StreamEntryHeader>
 {
     /// <inheritdoc />
-    public static ICodec<StreamEntryHeader> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<StreamEntryHeader> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static header => header.PostedTimestamp,
         Codecs.VarInt,
         static header => header.AgeSeconds,
@@ -52,6 +49,5 @@ public sealed record StreamEntryHeader(
         static header => header.Value,
         Codecs.OptionalValue(Codecs.Memory(StreamEntryReaction.Codec)),
         static header => header.Reactions,
-        static (postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions) => new StreamEntryHeader(postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions)
-    );
+        static (postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions) => new StreamEntryHeader(postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions));
 }

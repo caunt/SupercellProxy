@@ -3,8 +3,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Composites;
 
 /// <summary>Reads and writes 9 fields in wire order and builds the value from them.</summary>
-internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth>(
-    ICodec<TFirst> first,
+internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth>(ICodec<TFirst> first,
     Func<TValue, TFirst> getFirst,
     ICodec<TSecond> second,
     Func<TValue, TSecond> getSecond,
@@ -22,8 +21,7 @@ internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, 
     Func<TValue, TEighth> getEighth,
     ICodec<TNinth> ninth,
     Func<TValue, TNinth> getNinth,
-    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TValue> factory
-) : ICodec<TValue>
+    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TValue> factory) : ICodec<TValue>
 {
     private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));

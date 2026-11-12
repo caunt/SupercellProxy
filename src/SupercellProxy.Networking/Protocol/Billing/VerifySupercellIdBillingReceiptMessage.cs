@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Billing;
 public sealed record VerifySupercellIdBillingReceiptMessage(string? ProductId, string? ReceiptToken) : CodecMessage<VerifySupercellIdBillingReceiptMessage>, ICodecProvider<VerifySupercellIdBillingReceiptMessage>
 {
     /// <inheritdoc />
-    public static ICodec<VerifySupercellIdBillingReceiptMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<VerifySupercellIdBillingReceiptMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.ProductId,
         Codecs.OptionalString,
         static message => message.ReceiptToken,
-        static (productId, receiptToken) => new VerifySupercellIdBillingReceiptMessage(productId, receiptToken)
-    );
+        static (productId, receiptToken) => new VerifySupercellIdBillingReceiptMessage(productId, receiptToken));
 }

@@ -4,14 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Sanctuary;
 
 /// <summary>Calls compatible sanctuary animals home and collects rewards from animals woken by the call.</summary>
+/// <param name="HabitatGlobalId">Global id of the placed habitat object in the player's own town (an object id, not a data id), written as a var-int.</param>
 public sealed record CallSanctuaryAnimalsToHabitatCommand(int HabitatGlobalId) : CodecCommand<CallSanctuaryAnimalsToHabitatCommand>, ICommandCodecProvider<CallSanctuaryAnimalsToHabitatCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CallSanctuaryAnimalsToHabitatCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.HabitatGlobalId,
-            static habitatGlobalId => new CallSanctuaryAnimalsToHabitatCommand(habitatGlobalId)
-        )
-    );
+    public static CommandCodec<CallSanctuaryAnimalsToHabitatCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.HabitatGlobalId,
+        static habitatGlobalId => new CallSanctuaryAnimalsToHabitatCommand(habitatGlobalId)));
 }

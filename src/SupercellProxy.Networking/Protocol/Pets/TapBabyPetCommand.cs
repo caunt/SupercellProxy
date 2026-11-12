@@ -4,6 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Pets;
 
 /// <summary>Makes an available Farm Pass baby pet run to another point near its house.</summary>
+/// <param name="PetGlobalId">Object id of the baby pet on the farm, written as a VarInt.</param>
 public sealed record TapBabyPetCommand(int PetGlobalId) : CodecCommand<TapBabyPetCommand>, ICommandCodecProvider<TapBabyPetCommand>
 {
     /// <inheritdoc />

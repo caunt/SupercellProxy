@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ClientCapabilitiesMessage(string? DeviceModel, ushort Width, ushort Height, ushort MemoryMegabytes) : CodecMessage<ClientCapabilitiesMessage>, ICodecProvider<ClientCapabilitiesMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClientCapabilitiesMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<ClientCapabilitiesMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.DeviceModel,
         Codecs.UInt16,
         static message => message.Width,
@@ -20,6 +19,5 @@ public sealed record ClientCapabilitiesMessage(string? DeviceModel, ushort Width
         static message => message.Height,
         Codecs.UInt16,
         static message => message.MemoryMegabytes,
-        static (deviceModel, width, height, memoryMegabytes) => new ClientCapabilitiesMessage(deviceModel, width, height, memoryMegabytes)
-    );
+        static (deviceModel, width, height, memoryMegabytes) => new ClientCapabilitiesMessage(deviceModel, width, height, memoryMegabytes));
 }

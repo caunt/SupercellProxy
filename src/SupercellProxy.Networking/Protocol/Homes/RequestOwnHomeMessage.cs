@@ -9,9 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record RequestOwnHomeMessage : CodecMessage<RequestOwnHomeMessage>, ICodecProvider<RequestOwnHomeMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestOwnHomeMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static ICodec<RequestOwnHomeMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.Unknown0,
             Codecs.String,
             static message => message.UnknownString0,
@@ -19,18 +17,18 @@ public sealed record RequestOwnHomeMessage : CodecMessage<RequestOwnHomeMessage>
             {
                 Unknown0 = unknown0,
                 UnknownString0 = unknownString0,
-            }
-        ),
-        trailingDataMessage: "Unexpected trailing RequestOwnHomeMessage data."
-    );
+            }),
+        trailingDataMessage: "Unexpected trailing RequestOwnHomeMessage data.");
 
     /// <summary>
-    /// Number sent first; its meaning is not identified. The client sends -1.
+    /// Gets or sets the number sent first; its meaning is not identified. The client sends -1.
     /// </summary>
+    /// <value>A variable-length integer at wire position 0; -1 by default, matching what the game client sends.</value>
     public int Unknown0 { get; init; } = -1;
 
     /// <summary>
-    /// Text sent after it; its meaning is not identified. The client sends an empty string.
+    /// Gets or sets the text sent after it; its meaning is not identified. The client sends an empty string.
     /// </summary>
+    /// <value>A length-prefixed string at wire position 1; empty by default, matching what the game client sends.</value>
     public string UnknownString0 { get; init; } = string.Empty;
 }

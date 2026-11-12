@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Town.Services;
 public sealed record CollectTownServiceHelpCommand(int ServiceIndex, int ServiceBuildingGlobalId) : CodecCommand<CollectTownServiceHelpCommand>, ICommandCodecProvider<CollectTownServiceHelpCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectTownServiceHelpCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ServiceIndex,
-            Codecs.VarInt,
-            static command => command.ServiceBuildingGlobalId,
-            static (serviceIndex, serviceBuildingGlobalId) => new CollectTownServiceHelpCommand(serviceIndex, serviceBuildingGlobalId)
-        )
-    );
+    public static CommandCodec<CollectTownServiceHelpCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ServiceIndex,
+        Codecs.VarInt,
+        static command => command.ServiceBuildingGlobalId,
+        static (serviceIndex, serviceBuildingGlobalId) => new CollectTownServiceHelpCommand(serviceIndex, serviceBuildingGlobalId)));
 }

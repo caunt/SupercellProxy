@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Orders.Help;
 public sealed record TruckHelpReward(int GoodGlobalId, int Amount) : ICodecProvider<TruckHelpReward>
 {
     /// <inheritdoc />
-    public static ICodec<TruckHelpReward> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<TruckHelpReward> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new TruckHelpReward(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new TruckHelpReward(goodGlobalId, amount));
 }

@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Surveys;
 public sealed record ClaimSurveyRewardCommand(int SurveyId, int RewardIndex) : CodecCommand<ClaimSurveyRewardCommand>, ICommandCodecProvider<ClaimSurveyRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimSurveyRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ClaimSurveyRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.SurveyId,
             Codecs.VarInt,
             static command => command.RewardIndex,
-            static (surveyId, rewardIndex) => new ClaimSurveyRewardCommand(surveyId, rewardIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (surveyId, rewardIndex) => new ClaimSurveyRewardCommand(surveyId, rewardIndex)),
+        CommandLayout.MetadataFirst);
 }

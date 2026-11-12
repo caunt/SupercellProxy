@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Objects;
 public sealed record RequestNeighborhoodObjectRewardsMessage(LongId? NeighborhoodId, int ObjectId) : CodecMessage<RequestNeighborhoodObjectRewardsMessage>, ICodecProvider<RequestNeighborhoodObjectRewardsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestNeighborhoodObjectRewardsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static ICodec<RequestNeighborhoodObjectRewardsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static message => message.NeighborhoodId,
         Codecs.VarInt,
         static message => message.ObjectId,
-        static (neighborhoodId, objectId) => new RequestNeighborhoodObjectRewardsMessage(neighborhoodId, objectId)
-    );
+        static (neighborhoodId, objectId) => new RequestNeighborhoodObjectRewardsMessage(neighborhoodId, objectId));
 }

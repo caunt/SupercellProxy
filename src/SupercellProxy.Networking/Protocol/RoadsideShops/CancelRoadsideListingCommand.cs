@@ -4,11 +4,10 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 
 /// <summary>Cancels an unsold listing; native configuration determines item return and diamond cost.</summary>
+/// <param name="SlotIndex">Zero-based position of the stand in the own roadside shop, written as a var-int.</param>
 public sealed record CancelRoadsideListingCommand(int SlotIndex) : CodecCommand<CancelRoadsideListingCommand>, ICommandCodecProvider<CancelRoadsideListingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CancelRoadsideListingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new CancelRoadsideListingCommand(slotIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<CancelRoadsideListingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new CancelRoadsideListingCommand(slotIndex)),
+        CommandLayout.MetadataFirst);
 }

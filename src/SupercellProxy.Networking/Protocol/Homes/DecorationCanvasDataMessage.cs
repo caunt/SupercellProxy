@@ -5,6 +5,7 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>Represents the deco-canvas home snapshot carried by clientbound message 28544, loaded in native game mode 9.</summary>
+/// <param name="Data">The deco canvas payload, decoded with the same layout as <see cref="OwnHomeDataMessage"/>: server timestamp, the player's avatar and the compressed avatar and home documents, where the home is the canvas area.</param>
 public sealed record DecorationCanvasDataMessage(OwnHomeDataMessage Data) : CodecMessage<DecorationCanvasDataMessage>, ICodecProvider<DecorationCanvasDataMessage>
 {
     /// <inheritdoc />

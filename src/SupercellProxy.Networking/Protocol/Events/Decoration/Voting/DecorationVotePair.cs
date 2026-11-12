@@ -10,8 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Voting;
 public sealed record DecorationVotePair(int EventId, DecorationVoteCandidate? First, DecorationVoteCandidate? Second, int EventVariantId) : ICodecProvider<DecorationVotePair>
 {
     /// <inheritdoc />
-    public static ICodec<DecorationVotePair> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<DecorationVotePair> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.EventId,
         Codecs.Optional(DecorationVoteCandidate.Codec),
         static value => value.First,
@@ -19,6 +18,5 @@ public sealed record DecorationVotePair(int EventId, DecorationVoteCandidate? Fi
         static value => value.Second,
         Codecs.VarInt,
         static value => value.EventVariantId,
-        static (eventId, first, second, eventVariantId) => new DecorationVotePair(eventId, first, second, eventVariantId)
-    );
+        static (eventId, first, second, eventVariantId) => new DecorationVotePair(eventId, first, second, eventVariantId));
 }

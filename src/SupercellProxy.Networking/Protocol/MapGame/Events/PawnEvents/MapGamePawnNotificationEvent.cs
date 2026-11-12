@@ -10,8 +10,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.PawnEvents;
 public sealed record MapGamePawnNotificationEvent(LongId AvatarId, int Operation, int Value, int DataGlobalId) : MapGameEvent(MapGameEvent.PawnNotificationUpdatedType), ICodecProvider<MapGamePawnNotificationEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGamePawnNotificationEvent> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static new ICodec<MapGamePawnNotificationEvent> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static mapGameEvent => mapGameEvent.AvatarId,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.Operation,
@@ -19,6 +18,5 @@ public sealed record MapGamePawnNotificationEvent(LongId AvatarId, int Operation
         static mapGameEvent => mapGameEvent.Value,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.DataGlobalId,
-        static (avatarId, operation, value, dataGlobalId) => new MapGamePawnNotificationEvent(avatarId, operation, value, dataGlobalId)
-    );
+        static (avatarId, operation, value, dataGlobalId) => new MapGamePawnNotificationEvent(avatarId, operation, value, dataGlobalId));
 }

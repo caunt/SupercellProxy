@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Molluscs;
 public sealed record SpeedUpMolluscCommand(int MolluscGlobalId) : CodecCommand<SpeedUpMolluscCommand>, ICommandCodecProvider<SpeedUpMolluscCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpMolluscCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.MolluscGlobalId, static molluscGlobalId => new SpeedUpMolluscCommand(molluscGlobalId))
-    );
+    public static CommandCodec<SpeedUpMolluscCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.MolluscGlobalId, static molluscGlobalId => new SpeedUpMolluscCommand(molluscGlobalId)));
 }

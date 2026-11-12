@@ -16,22 +16,17 @@ namespace SupercellProxy.Networking.Protocol.MovieTickets;
 /// <param name="ObjectGlobalId">Game object the ticket was used on, for placements tied to an object.</param>
 /// <param name="DataGlobalId">Game data entry the ticket was used for, for placements tied to one.</param>
 /// <param name="SlotIndex">Slot within that object the ticket was used on, for placements tied to one.</param>
-public sealed record ActivateMovieTicketCommand(
-    [property: JsonPropertyName("RequestId")] string RequestId,
+public sealed record ActivateMovieTicketCommand([property: JsonPropertyName("RequestId")] string RequestId,
     int OrderIndex,
     int TicketIndex,
     [property: JsonPropertyName("ObjectGlobalId")] int ObjectGlobalId,
     [property: JsonPropertyName("DataGlobalId")] int DataGlobalId,
-    int SlotIndex
-)
+    int SlotIndex)
     : CodecCommand<ActivateMovieTicketCommand>, ICommandCodecProvider<ActivateMovieTicketCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ActivateMovieTicketCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.String,
+    public static CommandCodec<ActivateMovieTicketCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.String,
                 static command => command.RequestId,
                 Codecs.VarInt,
                 static command => command.DataGlobalId,
@@ -43,10 +38,8 @@ public sealed record ActivateMovieTicketCommand(
                 static command => command.ObjectGlobalId,
                 Codecs.VarInt,
                 static command => command.TicketIndex,
-                static (requestId, dataGlobalId, orderIndex, slotIndex, objectGlobalId, ticketIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)
-            ),
-            Codecs.Composite(
-                Codecs.String,
+                static (requestId, dataGlobalId, orderIndex, slotIndex, objectGlobalId, ticketIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)),
+            Codecs.Composite(Codecs.String,
                 static command => command.RequestId,
                 Codecs.VarInt,
                 static command => command.OrderIndex,
@@ -58,9 +51,6 @@ public sealed record ActivateMovieTicketCommand(
                 static command => command.DataGlobalId,
                 Codecs.VarInt,
                 static command => command.SlotIndex,
-                static (requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex))),
+        CommandLayout.MetadataFirst);
 }

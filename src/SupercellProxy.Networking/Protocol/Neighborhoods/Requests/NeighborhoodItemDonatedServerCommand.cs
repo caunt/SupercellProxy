@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 public sealed record NeighborhoodItemDonatedServerCommand(LongId RequesterHomeId, LongId DonorHomeId, LongId RequestId, int Amount, NeighborhoodRequest? Request) : CodecServerCommand<NeighborhoodItemDonatedServerCommand>, ICommandCodecProvider<NeighborhoodItemDonatedServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<NeighborhoodItemDonatedServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.RequesterHomeId,
-            Codecs.LongId,
-            static command => command.DonorHomeId,
-            Codecs.LongId,
-            static command => command.RequestId,
-            Codecs.VarInt,
-            static command => command.Amount,
-            Codecs.Optional(NeighborhoodRequest.Codec),
-            static command => command.Request,
-            static (requesterHomeId, donorHomeId, requestId, amount, request) => new NeighborhoodItemDonatedServerCommand(requesterHomeId, donorHomeId, requestId, amount, request)
-        )
-    );
+    public static CommandCodec<NeighborhoodItemDonatedServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.RequesterHomeId,
+        Codecs.LongId,
+        static command => command.DonorHomeId,
+        Codecs.LongId,
+        static command => command.RequestId,
+        Codecs.VarInt,
+        static command => command.Amount,
+        Codecs.Optional(NeighborhoodRequest.Codec),
+        static command => command.Request,
+        static (requesterHomeId, donorHomeId, requestId, amount, request) => new NeighborhoodItemDonatedServerCommand(requesterHomeId, donorHomeId, requestId, amount, request)));
 }

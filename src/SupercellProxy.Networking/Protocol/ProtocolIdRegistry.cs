@@ -55,12 +55,23 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     }
 
     /// <summary>Gets every contract any release assigns.</summary>
+    /// <value>Each contract once, in the order releases first mention it, including contracts a later release removes.</value>
     public ImmutableArray<TContract> Contracts { get; }
 
     /// <summary>Gets the versions of the releases with their own id tables, oldest first.</summary>
+    /// <value>Strictly increasing versions; a client version between two entries uses the table of the older one.</value>
     public ImmutableArray<Version> Releases { get; }
 
     /// <summary>Gets the contract that owns a wire id in a game release.</summary>
+    /// <param name="id">The wire id read from a frame header or command payload.</param>
+    /// <param name="gameVersion">
+    /// The client's game release; the newest release at or before it decides. With <see langword="null"/>, every release that uses the id
+    /// must give it to the same contract.
+    /// </param>
+    /// <returns>The contract that owns <paramref name="id"/> in the release.</returns>
+    /// <exception cref="NotSupportedException">
+    /// No contract owns <paramref name="id"/> in the release, or <paramref name="gameVersion"/> is older than every release.
+    /// </exception>
     public TContract GetContract(int id, Version? gameVersion)
     {
         return TryGetContract(id, gameVersion, out TContract? contract)
@@ -69,6 +80,16 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     }
 
     /// <summary>Gets the wire id of a contract in a game release.</summary>
+    /// <param name="contract">The message type or command contract to look up.</param>
+    /// <param name="gameVersion">
+    /// The client's game release; the newest release at or before it decides. With <see langword="null"/>, every release that knows the
+    /// contract must agree on its id.
+    /// </param>
+    /// <returns>The wire id the release assigns to <paramref name="contract"/>.</returns>
+    /// <exception cref="NotSupportedException">
+    /// The release does not assign <paramref name="contract"/> an id: it was never added, was removed, or <paramref name="gameVersion"/> is
+    /// older than every release.
+    /// </exception>
     public int GetId(TContract contract, Version? gameVersion)
     {
         return TryGetId(contract, gameVersion, out int id)
@@ -77,18 +98,39 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     }
 
     /// <summary>Gets every wire id a contract has used across releases.</summary>
+    /// <param name="contract">The message type or command contract to look up.</param>
+    /// <returns>The distinct ids in release order, oldest first; empty when no release assigns the contract.</returns>
     public IEnumerable<int> GetIds(TContract contract)
     {
         return _idsByRelease.Select(ids => ids.TryGetValue(contract, out int id) ? id : (int?)null).OfType<int>().Distinct();
     }
 
     /// <summary>Checks whether a wire id belongs to a contract in a game release.</summary>
+    /// <param name="id">The wire id read from a frame header or command payload.</param>
+    /// <param name="contract">The contract to compare the id's owner with.</param>
+    /// <param name="gameVersion">
+    /// The client's game release, or <see langword="null"/> to require that every release using the id gives it to the same contract.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="id"/> is assigned in the release and resolves to <paramref name="contract"/> there; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public bool Is(int id, TContract contract, Version? gameVersion)
     {
         return TryGetContract(id, gameVersion, out TContract? owner) && EqualityComparer<TContract>.Default.Equals(owner, contract);
     }
 
     /// <summary>Resolves the contract that owns a wire id in a game release.</summary>
+    /// <param name="id">The wire id read from a frame header or command payload.</param>
+    /// <param name="gameVersion">
+    /// The client's game release; the newest release at or before it decides, and a version older than every release finds nothing. With
+    /// <see langword="null"/>, the id resolves only when every release that uses it gives it to the same contract.
+    /// </param>
+    /// <param name="contract">When this method returns <see langword="true"/>, the contract that owns <paramref name="id"/>.</param>
+    /// <returns><see langword="true"/> if a contract owns <paramref name="id"/> in the release; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="gameVersion"/> is <see langword="null"/> and different releases give <paramref name="id"/> to different contracts.
+    /// </exception>
     public bool TryGetContract(int id, Version? gameVersion, [MaybeNullWhen(returnValue: false)] out TContract contract)
     {
         if (gameVersion is not null)
@@ -102,11 +144,7 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         TContract[] owners = DistinctValues(_contractsByRelease, id);
 
         if (owners.Length > 1)
-        {
-            throw new InvalidOperationException(
-                string.Create(CultureInfo.InvariantCulture, $"Id {id} belongs to different contracts across releases; the game version is required.")
-            );
-        }
+            throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Id {id} belongs to different contracts across releases; the game version is required."));
 
         if (owners is [TContract owner])
         {
@@ -121,6 +159,16 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     }
 
     /// <summary>Gets the wire id of a contract in a game release when it is registered there.</summary>
+    /// <param name="contract">The message type or command contract to look up.</param>
+    /// <param name="gameVersion">
+    /// The client's game release; the newest release at or before it decides, and a version older than every release finds nothing. With
+    /// <see langword="null"/>, the id is taken only when every release that knows the contract agrees on it.
+    /// </param>
+    /// <param name="id">When this method returns <see langword="true"/>, the contract's wire id; otherwise, 0.</param>
+    /// <returns><see langword="true"/> if the release assigns <paramref name="contract"/> an id; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="gameVersion"/> is <see langword="null"/> and releases give <paramref name="contract"/> different ids.
+    /// </exception>
     public bool TryGetId(TContract contract, Version? gameVersion, out int id)
     {
         if (gameVersion is not null)

@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Lobsters;
 public sealed record SelectLobsterCommand(int PoolGlobalId, int LobsterGlobalId) : CodecCommand<SelectLobsterCommand>, ICommandCodecProvider<SelectLobsterCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectLobsterCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.PoolGlobalId,
-            Codecs.VarInt,
-            static command => command.LobsterGlobalId,
-            static (poolGlobalId, lobsterGlobalId) => new SelectLobsterCommand(poolGlobalId, lobsterGlobalId)
-        )
-    );
+    public static CommandCodec<SelectLobsterCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PoolGlobalId,
+        Codecs.VarInt,
+        static command => command.LobsterGlobalId,
+        static (poolGlobalId, lobsterGlobalId) => new SelectLobsterCommand(poolGlobalId, lobsterGlobalId)));
 }

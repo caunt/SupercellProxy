@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 public sealed record LogicDeviceLinkResponseMessage(int ErrorCode, string? Text, string? SecondText, int Value, string? ThirdText, LongId AccountId) : CodecMessage<LogicDeviceLinkResponseMessage>, ICodecProvider<LogicDeviceLinkResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LogicDeviceLinkResponseMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Int32,
+    public static ICodec<LogicDeviceLinkResponseMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
         static message => message.ErrorCode,
         Codecs.OptionalString,
         static message => message.Text,
@@ -26,6 +25,5 @@ public sealed record LogicDeviceLinkResponseMessage(int ErrorCode, string? Text,
         static message => message.ThirdText,
         Codecs.LongId,
         static message => message.AccountId,
-        static (errorCode, text, secondText, @value, thirdText, accountId) => new LogicDeviceLinkResponseMessage(errorCode, text, secondText, value, thirdText, accountId)
-    );
+        static (errorCode, text, secondText, @value, thirdText, accountId) => new LogicDeviceLinkResponseMessage(errorCode, text, secondText, value, thirdText, accountId));
 }

@@ -9,15 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 public sealed record ApplyFieldBoosterCommand(int BoosterGlobalId, int FieldGlobalId) : CodecCommand<ApplyFieldBoosterCommand>, ICommandCodecProvider<ApplyFieldBoosterCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ApplyFieldBoosterCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ApplyFieldBoosterCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.BoosterGlobalId,
             Codecs.VarInt,
             static command => command.FieldGlobalId,
-            static (boosterGlobalId, fieldGlobalId) => new ApplyFieldBoosterCommand(boosterGlobalId, fieldGlobalId)
-        ),
+            static (boosterGlobalId, fieldGlobalId) => new ApplyFieldBoosterCommand(boosterGlobalId, fieldGlobalId)),
         CommandLayout.FieldsFirst,
-        productionAllowed: false
-    );
+        productionAllowed: false);
 }

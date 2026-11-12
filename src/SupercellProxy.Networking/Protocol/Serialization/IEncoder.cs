@@ -7,5 +7,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization;
 public interface IEncoder<in TValue>
 {
     /// <summary>Writes one value.</summary>
+    /// <param name="encoder">The target that receives the encoded value, appended after whatever it already holds; its game version and command environment can steer versioned layouts.</param>
+    /// <param name="value">The value to encode; whether <see langword="null"/> or empty values are accepted depends on the implementation.</param>
     void Write(ProtocolEncoder encoder, TValue value);
 }

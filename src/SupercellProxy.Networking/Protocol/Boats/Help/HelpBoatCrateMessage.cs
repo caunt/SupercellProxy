@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Boats.Help;
 public sealed record HelpBoatCrateMessage(bool UseDiamonds, int ProductGlobalId, int Amount, int CrateIndex) : CodecMessage<HelpBoatCrateMessage>, ICodecProvider<HelpBoatCrateMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HelpBoatCrateMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Boolean,
+    public static ICodec<HelpBoatCrateMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
         static message => message.UseDiamonds,
         Codecs.VarInt,
         static message => message.ProductGlobalId,
@@ -20,6 +19,5 @@ public sealed record HelpBoatCrateMessage(bool UseDiamonds, int ProductGlobalId,
         static message => message.Amount,
         Codecs.VarInt,
         static message => message.CrateIndex,
-        static (useDiamonds, productGlobalId, amount, crateIndex) => new HelpBoatCrateMessage(useDiamonds, productGlobalId, amount, crateIndex)
-    );
+        static (useDiamonds, productGlobalId, amount, crateIndex) => new HelpBoatCrateMessage(useDiamonds, productGlobalId, amount, crateIndex));
 }

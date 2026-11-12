@@ -12,13 +12,15 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Tasks;
 /// </summary>
 public sealed record MapGameTaskCommand : Command
 {
-    /// <summary>Creates one of the Valley task commands.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MapGameTaskCommand"/> record. Creates one of the Valley task commands.</summary>
     /// <param name="kind">Which Valley command this is.</param>
-    /// <param name="task">The task the command acts on, as the client has it; null when not sent.</param>
+    /// <param name="task">The task the command acts on, as the client has it; <see langword="null"/> when not sent.</param>
     /// <param name="optionalValues">
     /// Extra numbers that only obstacle completion, chicken collection and sanctuary animal collection carry; for a sanctuary
     /// animal they are the route the car continues on.
     /// </param>
+    /// <exception cref="NotSupportedException"><paramref name="kind"/> is not a defined <see cref="MapGameTaskKind"/> member.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="optionalValues"/> is given for a kind other than obstacle completion, chicken collection or sanctuary animal collection.</exception>
     public MapGameTaskCommand(MapGameTaskKind kind, MapGameTask? task, ReadOnlyMemory<int>? optionalValues = null)
     {
         if (!Enum.IsDefined(kind))
@@ -35,6 +37,7 @@ public sealed record MapGameTaskCommand : Command
     /// <summary>
     /// Gets the contract of each native command that carries the task structure.
     /// </summary>
+    /// <value>One codec per <see cref="MapGameTaskKind"/> member, each named after its kind and reading the optional task, plus the optional value array for the three kinds that carry one.</value>
     public static FrozenDictionary<MapGameTaskKind, CommandCodec<MapGameTaskCommand>> ContractCodecs { get; } = Enum.GetValues<MapGameTaskKind>().ToFrozenDictionary(static kind => kind, Create);
 
     /// <inheritdoc />
@@ -43,33 +46,32 @@ public sealed record MapGameTaskCommand : Command
     /// <summary>
     /// Gets the native command this record carries.
     /// </summary>
+    /// <value>A defined <see cref="MapGameTaskKind"/> member; it selects the wire contract and decides whether <see cref="OptionalValues"/> may be present.</value>
     public MapGameTaskKind Kind { get; }
 
     /// <summary>
     /// Gets the optional values that completing an obstacle, collecting a chicken and collecting a sanctuary animal append.
     /// </summary>
+    /// <value>A copy of the numbers sent after the task, such as the route a car continues on after collecting a sanctuary animal; <see langword="null"/> when absent, and always <see langword="null"/> for the other kinds.</value>
     public ReadOnlyMemory<int>? OptionalValues { get; }
 
-    /// <summary>The task the command acts on, as the client has it; null when not sent.</summary>
+    /// <summary>Gets the task the command acts on, as the client has it; <see langword="null"/> when not sent.</summary>
+    /// <value>The client's copy of the task with its states, the first field after the command metadata; <see langword="null"/> when the wire marks it absent.</value>
     public MapGameTask? Task { get; }
 
     private static CommandCodec<MapGameTaskCommand> Create(MapGameTaskKind kind)
     {
         ICodec<MapGameTask?> task = Codecs.Optional(MapGameTask.Codec);
 
-        return Codecs.Command(
-            string.Create(CultureInfo.InvariantCulture, $"{kind}Command"),
+        return Codecs.Command(string.Create(CultureInfo.InvariantCulture, $"{kind}Command"),
             HasOptionalValues(kind)
-                ? Codecs.Composite(
-                    task,
+                ? Codecs.Composite(task,
                     static command => command.Task,
                     Codecs.OptionalValue(Codecs.Memory(Codecs.VarInt)),
                     static command => command.OptionalValues,
-                    (taskValue, optionalValues) => new MapGameTaskCommand(kind, taskValue, optionalValues)
-                )
+                    (taskValue, optionalValues) => new MapGameTaskCommand(kind, taskValue, optionalValues))
                 : Codecs.Composite(task, static command => command.Task, taskValue => new MapGameTaskCommand(kind, taskValue)),
-            CommandLayout.MetadataFirst
-        );
+            CommandLayout.MetadataFirst);
     }
 
     private static bool HasOptionalValues(MapGameTaskKind kind)

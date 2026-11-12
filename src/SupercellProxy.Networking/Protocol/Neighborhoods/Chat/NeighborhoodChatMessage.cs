@@ -9,8 +9,6 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record NeighborhoodChatMessage(NeighborhoodStreamEntry Entry) : CodecMessage<NeighborhoodChatMessage>, ICodecProvider<NeighborhoodChatMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodChatMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(NeighborhoodStreamEntry.Codec, static message => message.Entry, static entry => new NeighborhoodChatMessage(entry)),
-        trailingDataMessage: "The neighborhood chat message has trailing data."
-    );
+    public static ICodec<NeighborhoodChatMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(NeighborhoodStreamEntry.Codec, static message => message.Entry, static entry => new NeighborhoodChatMessage(entry)),
+        trailingDataMessage: "The neighborhood chat message has trailing data.");
 }

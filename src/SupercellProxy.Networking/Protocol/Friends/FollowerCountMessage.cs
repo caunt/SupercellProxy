@@ -4,21 +4,20 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends;
 
 /// <summary>Carries the number of followers of the identified farm.</summary>
+/// <param name="HomeId">Home id of the farm the count belongs to.</param>
+/// <param name="FollowerCount">How many players follow that farm.</param>
 public sealed record FollowerCountMessage(LongId HomeId, int FollowerCount) : CodecMessage<FollowerCountMessage>, ICodecProvider<FollowerCountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FollowerCountMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.LongId,
+    public static ICodec<FollowerCountMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId,
             static message => message.HomeId,
             Codecs.VarInt,
             static message => message.FollowerCount,
-            static (homeId, followerCount) => new FollowerCountMessage(homeId, followerCount)
-        ),
-        trailingDataMessage: "The follower count has trailing data."
-    );
+            static (homeId, followerCount) => new FollowerCountMessage(homeId, followerCount)),
+        trailingDataMessage: "The follower count has trailing data.");
 
     /// <summary>Omits the private farm id from diagnostic text.</summary>
+    /// <returns>Always the type name <c>FollowerCountMessage</c>, without the farm id or count.</returns>
     public override string ToString()
     {
         return nameof(FollowerCountMessage);

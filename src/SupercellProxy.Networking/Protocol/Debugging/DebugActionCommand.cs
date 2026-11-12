@@ -12,9 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Debugging;
 public sealed record DebugActionCommand(int Action, int AdditionalData, int TargetGlobalId, int Amount, string? Text) : CodecCommand<DebugActionCommand>, ICommandCodecProvider<DebugActionCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DebugActionCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<DebugActionCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Action,
             Codecs.VarInt,
             static command => command.AdditionalData,
@@ -24,9 +22,7 @@ public sealed record DebugActionCommand(int Action, int AdditionalData, int Targ
             static command => command.Amount,
             Codecs.OptionalString,
             static command => command.Text,
-            static (action, additionalData, targetGlobalId, amount, text) => new DebugActionCommand(action, additionalData, targetGlobalId, amount, text)
-        ),
+            static (action, additionalData, targetGlobalId, amount, text) => new DebugActionCommand(action, additionalData, targetGlobalId, amount, text)),
         CommandLayout.FieldsFirst,
-        productionAllowed: false
-    );
+        productionAllowed: false);
 }

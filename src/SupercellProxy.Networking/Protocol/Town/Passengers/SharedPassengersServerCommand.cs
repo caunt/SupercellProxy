@@ -14,17 +14,13 @@ namespace SupercellProxy.Networking.Protocol.Town.Passengers;
 public sealed record SharedPassengersServerCommand(int Action, LongId? SharingHomeId, ReadOnlyMemory<int> PassengerIds, ReadOnlyMemory<int> HelpIds) : CodecServerCommand<SharedPassengersServerCommand>, ICommandCodecProvider<SharedPassengersServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SharedPassengersServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.Action,
-            Codecs.OptionalLongId,
-            static command => command.SharingHomeId,
-            Codecs.Memory(Codecs.VarInt),
-            static command => command.PassengerIds,
-            Codecs.Memory(Codecs.VarInt),
-            static command => command.HelpIds,
-            static (action, sharingHomeId, passengerIds, helpIds) => new SharedPassengersServerCommand(action, sharingHomeId, passengerIds, helpIds)
-        )
-    );
+    public static CommandCodec<SharedPassengersServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.Action,
+        Codecs.OptionalLongId,
+        static command => command.SharingHomeId,
+        Codecs.Memory(Codecs.VarInt),
+        static command => command.PassengerIds,
+        Codecs.Memory(Codecs.VarInt),
+        static command => command.HelpIds,
+        static (action, sharingHomeId, passengerIds, helpIds) => new SharedPassengersServerCommand(action, sharingHomeId, passengerIds, helpIds)));
 }

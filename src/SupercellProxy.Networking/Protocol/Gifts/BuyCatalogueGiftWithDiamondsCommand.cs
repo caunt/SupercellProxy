@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 public sealed record BuyCatalogueGiftWithDiamondsCommand(int GiftGlobalId) : CodecCommand<BuyCatalogueGiftWithDiamondsCommand>, ICommandCodecProvider<BuyCatalogueGiftWithDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyCatalogueGiftWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.GiftGlobalId,
-            static giftGlobalId => new BuyCatalogueGiftWithDiamondsCommand(giftGlobalId)
-        )
-    );
+    public static CommandCodec<BuyCatalogueGiftWithDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GiftGlobalId,
+        static giftGlobalId => new BuyCatalogueGiftWithDiamondsCommand(giftGlobalId)));
 }

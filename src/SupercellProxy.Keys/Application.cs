@@ -17,13 +17,11 @@ internal static partial class Application
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        ConsoleCancelEventHandler cancellationHandler = new(
-            (unusedParameter0, eventArguments) =>
+        ConsoleCancelEventHandler cancellationHandler = new((unusedParameter0, eventArguments) =>
         {
             eventArguments.Cancel = true;
             cancellationTokenSource.CancelAfter(millisecondsDelay: 0);
-        }
-        );
+        });
 
         Console.CancelKeyPress += cancellationHandler;
 
@@ -103,12 +101,8 @@ internal static partial class Application
 
     private static int PrintRootHelp()
     {
-        return Print(
-            string.Join(
-                Environment.NewLine,
-                value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT [--key-version]", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]
-            )
-        );
+        return Print(string.Join(Environment.NewLine,
+            value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT [--key-version]", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]));
     }
 
     private static void RequireOneArgument(string[] arguments, string usage)
@@ -117,7 +111,7 @@ internal static partial class Application
             throw new ArgumentException($"Usage: SupercellProxy.Keys {usage}", nameof(arguments));
     }
 
-    private static string ResolveAppStoreAddress(Uri address, string value)
+    private static string ResolveAppStore(Uri address, string value)
     {
         Match match = AppStoreIdRegex.Match(address.AbsolutePath);
 
@@ -136,7 +130,7 @@ internal static partial class Application
             return value;
 
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? address))
-            return ResolveAppStoreAddress(address, value);
+            return ResolveAppStore(address, value);
 
         AppStoreSearchResponse response = await appStoreClient
             .SearchAsync(value, cancellationToken)
@@ -145,11 +139,9 @@ internal static partial class Application
         string normalizedValue = Normalize(value);
 
         AppStoreSearchResult[] exactMatches = [.. response
-            .Results.Where(
-                result =>
+            .Results.Where(result =>
                 string.Equals(Normalize(result.Name), normalizedValue, StringComparison.Ordinal)
-                || result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase)
-            )];
+                || result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
 
         foreach (AppStoreSearchResult result in exactMatches.Length > 0 ? exactMatches : response.Results)
         {

@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record KickNeighborhoodMemberMessage(LongId NeighborhoodId, LongId AvatarId) : CodecMessage<KickNeighborhoodMemberMessage>, ICodecProvider<KickNeighborhoodMemberMessage>
 {
     /// <inheritdoc />
-    public static ICodec<KickNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<KickNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.NeighborhoodId,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (neighborhoodId, avatarId) => new KickNeighborhoodMemberMessage(neighborhoodId, avatarId)
-    );
+        static (neighborhoodId, avatarId) => new KickNeighborhoodMemberMessage(neighborhoodId, avatarId));
 }

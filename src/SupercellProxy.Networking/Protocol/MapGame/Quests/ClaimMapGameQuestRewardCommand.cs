@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 public sealed record ClaimMapGameQuestRewardCommand(int QuestGlobalId) : CodecCommand<ClaimMapGameQuestRewardCommand>, ICommandCodecProvider<ClaimMapGameQuestRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimMapGameQuestRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.QuestGlobalId,
-            static questGlobalId => new ClaimMapGameQuestRewardCommand(questGlobalId)
-        )
-    );
+    public static CommandCodec<ClaimMapGameQuestRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.QuestGlobalId,
+        static questGlobalId => new ClaimMapGameQuestRewardCommand(questGlobalId)));
 }

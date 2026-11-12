@@ -9,9 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 public sealed record NeighborhoodStreamMessage(ReadOnlyMemory<NeighborhoodStreamEntry>? Entries) : CodecMessage<NeighborhoodStreamMessage>, ICodecProvider<NeighborhoodStreamMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodStreamMessage> Codec { get; } = Codecs.Composite(
-        Codecs.NullableMemory(NeighborhoodStreamEntry.Codec),
+    public static ICodec<NeighborhoodStreamMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(NeighborhoodStreamEntry.Codec),
         static message => message.Entries,
-        static entries => new NeighborhoodStreamMessage(entries)
-    );
+        static entries => new NeighborhoodStreamMessage(entries));
 }

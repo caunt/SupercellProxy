@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record MarkNeighborhoodChatReadCommand(int Timestamp) : CodecCommand<MarkNeighborhoodChatReadCommand>, ICommandCodecProvider<MarkNeighborhoodChatReadCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkNeighborhoodChatReadCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.Timestamp, static timestamp => new MarkNeighborhoodChatReadCommand(timestamp))
-    );
+    public static CommandCodec<MarkNeighborhoodChatReadCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Timestamp, static timestamp => new MarkNeighborhoodChatReadCommand(timestamp)));
 }

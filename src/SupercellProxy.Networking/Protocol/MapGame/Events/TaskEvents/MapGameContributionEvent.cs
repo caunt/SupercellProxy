@@ -16,8 +16,7 @@ public sealed record MapGameContributionEvent(int Type, LongId? AvatarId, MapGam
     /// </summary>
     internal static ICodec<MapGameContributionEvent> CodecFor(int type)
     {
-        return Codecs.Composite(
-            Codecs.OptionalLongId,
+        return Codecs.Composite(Codecs.OptionalLongId,
             static mapGameEvent => mapGameEvent.AvatarId,
             Codecs.Optional(MapGamePawn.Codec),
             static mapGameEvent => mapGameEvent.Pawn,
@@ -27,7 +26,6 @@ public sealed record MapGameContributionEvent(int Type, LongId? AvatarId, MapGam
             static mapGameEvent => mapGameEvent.Amount,
             Codecs.VarInt,
             static mapGameEvent => mapGameEvent.Value,
-            (avatarId, pawn, dataGlobalId, amount, value) => new MapGameContributionEvent(type, avatarId, pawn, dataGlobalId, amount, value)
-        );
+            (avatarId, pawn, dataGlobalId, amount, value) => new MapGameContributionEvent(type, avatarId, pawn, dataGlobalId, amount, value));
     }
 }

@@ -10,8 +10,6 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 public sealed record ClaimDecisionBoxCommand(int ChoiceIndex) : CodecCommand<ClaimDecisionBoxCommand>, ICommandCodecProvider<ClaimDecisionBoxCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDecisionBoxCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ChoiceIndex, static choiceIndex => new ClaimDecisionBoxCommand(choiceIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<ClaimDecisionBoxCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ChoiceIndex, static choiceIndex => new ClaimDecisionBoxCommand(choiceIndex)),
+        CommandLayout.MetadataFirst);
 }

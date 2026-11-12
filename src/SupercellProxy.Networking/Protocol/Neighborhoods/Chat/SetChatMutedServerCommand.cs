@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record SetChatMutedServerCommand(bool Permanent, bool Muted) : CodecServerCommand<SetChatMutedServerCommand>, ICommandCodecProvider<SetChatMutedServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetChatMutedServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Boolean,
+    public static CommandCodec<SetChatMutedServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
             static command => command.Permanent,
             Codecs.Boolean,
             static command => command.Muted,
-            static (permanent, muted) => new SetChatMutedServerCommand(permanent, muted)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (permanent, muted) => new SetChatMutedServerCommand(permanent, muted)),
+        CommandLayout.MetadataFirst);
 }

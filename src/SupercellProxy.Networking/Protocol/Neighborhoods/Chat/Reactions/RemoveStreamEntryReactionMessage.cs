@@ -8,9 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 public sealed record RemoveStreamEntryReactionMessage(StreamEntryId? EntryId) : CodecMessage<RemoveStreamEntryReactionMessage>, ICodecProvider<RemoveStreamEntryReactionMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RemoveStreamEntryReactionMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Optional(SupercellProxy.Networking.Protocol.Neighborhoods.Chat.StreamEntryId.Codec),
+    public static ICodec<RemoveStreamEntryReactionMessage> Codec { get; } = Codecs.Composite(Codecs.Optional(StreamEntryId.Codec),
         static message => message.EntryId,
-        static entryId => new RemoveStreamEntryReactionMessage(entryId)
-    );
+        static entryId => new RemoveStreamEntryReactionMessage(entryId));
 }

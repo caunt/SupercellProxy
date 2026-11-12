@@ -8,12 +8,8 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record PlaceEditModeObjectsCommand(ReadOnlyMemory<int> ObjectGlobalIds) : CodecCommand<PlaceEditModeObjectsCommand>, ICommandCodecProvider<PlaceEditModeObjectsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlaceEditModeObjectsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Memory(Codecs.VarInt),
+    public static CommandCodec<PlaceEditModeObjectsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Memory(Codecs.VarInt),
             static command => command.ObjectGlobalIds,
-            static objectGlobalIds => new PlaceEditModeObjectsCommand(objectGlobalIds)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static objectGlobalIds => new PlaceEditModeObjectsCommand(objectGlobalIds)),
+        CommandLayout.MetadataFirst);
 }

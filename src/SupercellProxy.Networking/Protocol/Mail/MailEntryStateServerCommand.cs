@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record MailEntryStateServerCommand(int GameObjectId, LongId HomeOwnerId, LongId HelperId) : CodecServerCommand<MailEntryStateServerCommand>, ICommandCodecProvider<MailEntryStateServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MailEntryStateServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.GameObjectId,
-            Codecs.LongId,
-            static command => command.HomeOwnerId,
-            Codecs.LongId,
-            static command => command.HelperId,
-            static (gameObjectId, homeOwnerId, helperId) => new MailEntryStateServerCommand(gameObjectId, homeOwnerId, helperId)
-        )
-    );
+    public static CommandCodec<MailEntryStateServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GameObjectId,
+        Codecs.LongId,
+        static command => command.HomeOwnerId,
+        Codecs.LongId,
+        static command => command.HelperId,
+        static (gameObjectId, homeOwnerId, helperId) => new MailEntryStateServerCommand(gameObjectId, homeOwnerId, helperId)));
 }

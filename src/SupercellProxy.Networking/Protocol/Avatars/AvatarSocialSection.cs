@@ -7,8 +7,7 @@ using SupercellProxy.Networking.Protocol.Town;
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>The avatar social block: roadside shop, neighborhood, mail and help entries.</summary>
-internal readonly record struct AvatarSocialSection(
-    RoadsideShopEntry[] RoadsideShop,
+internal readonly record struct AvatarSocialSection(RoadsideShopEntry[] RoadsideShop,
     NeighborhoodData? Neighborhood,
     MailEntry[] MailEntries,
     int[] UnknownValues0,
@@ -19,12 +18,10 @@ internal readonly record struct AvatarSocialSection(
     PassengerReservation[] PassengerReservations,
     PickedPassenger[] PickedPassengers,
     ServiceHelpRequest[] ServiceHelpRequests,
-    ServiceHelpRequest[] TruckOrderHelpRequests
-) : ICodecProvider<AvatarSocialSection>
+    ServiceHelpRequest[] TruckOrderHelpRequests) : ICodecProvider<AvatarSocialSection>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarSocialSection> Codec { get; } = Codecs.Composite(
-        Codecs.Array(RoadsideShopEntry.Codec, CollectionCount.Bounded),
+    public static ICodec<AvatarSocialSection> Codec { get; } = Codecs.Composite(Codecs.Array(RoadsideShopEntry.Codec, CollectionCount.Bounded),
         static section => section.RoadsideShop,
         Codecs.Optional(NeighborhoodData.Codec),
         static section => section.Neighborhood,
@@ -48,8 +45,7 @@ internal readonly record struct AvatarSocialSection(
         static section => section.ServiceHelpRequests,
         Codecs.Array(ServiceHelpRequest.Codec, CollectionCount.Bounded),
         static section => section.TruckOrderHelpRequests,
-        static (
-            roadsideShop,
+        static (roadsideShop,
             neighborhood,
             mailEntries,
             unknownValues0,
@@ -60,20 +56,16 @@ internal readonly record struct AvatarSocialSection(
             passengerReservations,
             pickedPassengers,
             serviceHelpRequests,
-            truckOrderHelpRequests
-        ) => new AvatarSocialSection(
-            roadsideShop,
-            neighborhood,
-            mailEntries,
-            unknownValues0,
-            boatCrateHelpEntries,
-            trainStationReady,
-            isMuted,
-            canEditFarm,
-            passengerReservations,
-            pickedPassengers,
-            serviceHelpRequests,
-            truckOrderHelpRequests
-        )
-    );
+            truckOrderHelpRequests) => new AvatarSocialSection(roadsideShop,
+                neighborhood,
+                mailEntries,
+                unknownValues0,
+                boatCrateHelpEntries,
+                trainStationReady,
+                isMuted,
+                canEditFarm,
+                passengerReservations,
+                pickedPassengers,
+                serviceHelpRequests,
+                truckOrderHelpRequests));
 }
