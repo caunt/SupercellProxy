@@ -14,10 +14,14 @@ public static class PublicKeyCodec
     /// <summary>Zero-filled prefix used to locate the native key table.</summary>
     public const int ZeroPrefixLength = 64;
 
-    /// <summary>Marker following the native key table.</summary>
+    /// <summary>Gets the marker following the native key table.</summary>
+    /// <value>The eight bytes <c>1A D5 00 00 00 00 00 00</c> that the key extractor searches the game binary for; the key table is the 128 bytes just before them, preceded by 64 zero bytes.</value>
     public static ReadOnlySpan<byte> TableAnchor => [0x1a, 0xd5, 0, 0, 0, 0, 0, 0];
 
     /// <summary>Decodes a native key table into a 32-byte public key.</summary>
+    /// <param name="input">The obfuscated key table as stored in the game binary, read as little-endian 16-bit words; it must be exactly <see cref="EncodedLength"/> (128) bytes.</param>
+    /// <returns>A new 32-byte span holding the server's raw public key.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="input"/> is not exactly 128 bytes long.</exception>
     public static Span<byte> Decode(ReadOnlySpan<byte> input)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, EncodedLength, nameof(input));
@@ -46,6 +50,9 @@ public static class PublicKeyCodec
     }
 
     /// <summary>Encodes a 32-byte public key into the native key table.</summary>
+    /// <param name="input">The raw public key; it must be exactly <see cref="DecodedLength"/> (32) bytes.</param>
+    /// <returns>A new 128-byte table in which only the 16-bit words 0, 2, …, 30 carry the rotated key words and the rest stay zero, which the client accepts; <see cref="Decode"/> turns it back into <paramref name="input"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="input"/> is not exactly 32 bytes long.</exception>
     public static Span<byte> Encode(ReadOnlySpan<byte> input)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, DecodedLength, nameof(input));

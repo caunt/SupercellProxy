@@ -4,10 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Validates that a passenger is present in the player's town without changing its state.</summary>
+/// <param name="PassengerGlobalId">Game object id of the passenger to check, written as a VarInt.</param>
 public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : CodecCommand<ValidateTownPassengerCommand>, ICommandCodecProvider<ValidateTownPassengerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static passenger => new ValidateTownPassengerCommand(passenger))
-    );
+    public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static passenger => new ValidateTownPassengerCommand(passenger)));
 }

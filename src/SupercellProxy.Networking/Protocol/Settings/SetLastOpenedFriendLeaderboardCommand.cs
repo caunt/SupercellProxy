@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetLastOpenedFriendLeaderboardCommand(int LeaderboardHash) : CodecCommand<SetLastOpenedFriendLeaderboardCommand>, ICommandCodecProvider<SetLastOpenedFriendLeaderboardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetLastOpenedFriendLeaderboardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.LeaderboardHash,
-            static leaderboardHash => new SetLastOpenedFriendLeaderboardCommand(leaderboardHash)
-        )
-    );
+    public static CommandCodec<SetLastOpenedFriendLeaderboardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.LeaderboardHash,
+        static leaderboardHash => new SetLastOpenedFriendLeaderboardCommand(leaderboardHash)));
 }

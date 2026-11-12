@@ -6,6 +6,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Gatherers;
 
 /// <summary>Collects the completed product from a gatherer nest.</summary>
+/// <param name="GathererNestGlobalId">Global id of the placed nest object to collect from, written as a VarInt.</param>
 public sealed record CollectGathererNestCommand([property: JsonPropertyName("GathererNestGlobalId")] int GathererNestGlobalId) : CodecCommand<CollectGathererNestCommand>, ICommandCodecProvider<CollectGathererNestCommand>
 {
     /// <inheritdoc />

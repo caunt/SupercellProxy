@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record UnlockStyleGuideCommand(int StyleGuideGlobalId) : CodecCommand<UnlockStyleGuideCommand>, ICommandCodecProvider<UnlockStyleGuideCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<UnlockStyleGuideCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.StyleGuideGlobalId,
-            static styleGuideGlobalId => new UnlockStyleGuideCommand(styleGuideGlobalId)
-        )
-    );
+    public static CommandCodec<UnlockStyleGuideCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.StyleGuideGlobalId,
+        static styleGuideGlobalId => new UnlockStyleGuideCommand(styleGuideGlobalId)));
 }

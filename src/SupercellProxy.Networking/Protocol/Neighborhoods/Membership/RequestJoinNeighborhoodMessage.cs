@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record RequestJoinNeighborhoodMessage(LongId NeighborhoodId, string? NeighborhoodName, string? Message) : CodecMessage<RequestJoinNeighborhoodMessage>, ICodecProvider<RequestJoinNeighborhoodMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestJoinNeighborhoodMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<RequestJoinNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.NeighborhoodId,
         Codecs.OptionalString,
         static message => message.NeighborhoodName,
         Codecs.OptionalString,
         static message => message.Message,
-        static (neighborhoodId, neighborhoodName, message) => new RequestJoinNeighborhoodMessage(neighborhoodId, neighborhoodName, message)
-    );
+        static (neighborhoodId, neighborhoodName, message) => new RequestJoinNeighborhoodMessage(neighborhoodId, neighborhoodName, message));
 }

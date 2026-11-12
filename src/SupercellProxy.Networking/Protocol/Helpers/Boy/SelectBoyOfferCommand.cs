@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Helpers.Boy;
 public sealed record SelectBoyOfferCommand(int OfferIndex) : CodecCommand<SelectBoyOfferCommand>, ICommandCodecProvider<SelectBoyOfferCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectBoyOfferCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new SelectBoyOfferCommand(offerIndex))
-    );
+    public static CommandCodec<SelectBoyOfferCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OfferIndex, static offerIndex => new SelectBoyOfferCommand(offerIndex)));
 }

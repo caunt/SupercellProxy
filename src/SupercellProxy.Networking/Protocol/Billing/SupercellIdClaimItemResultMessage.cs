@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Billing;
 public sealed record SupercellIdClaimItemResultMessage(string? ProductId, string? ClaimToken, int ResultCode) : CodecMessage<SupercellIdClaimItemResultMessage>, ICodecProvider<SupercellIdClaimItemResultMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdClaimItemResultMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SupercellIdClaimItemResultMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.ProductId,
         Codecs.OptionalString,
         static message => message.ClaimToken,
         Codecs.Int32,
         static message => message.ResultCode,
-        static (productId, claimToken, resultCode) => new SupercellIdClaimItemResultMessage(productId, claimToken, resultCode)
-    );
+        static (productId, claimToken, resultCode) => new SupercellIdClaimItemResultMessage(productId, claimToken, resultCode));
 }

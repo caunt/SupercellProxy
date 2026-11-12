@@ -9,9 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 public sealed record LeagueMemberListMessage : CodecMessage<LeagueMemberListMessage>, ICodecProvider<LeagueMemberListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LeagueMemberListMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static ICodec<LeagueMemberListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.TimestampSeconds,
             Codecs.VarInt,
             static message => message.FirstSelector,
@@ -28,30 +26,38 @@ public sealed record LeagueMemberListMessage : CodecMessage<LeagueMemberListMess
                 SecondSelector = secondSelector,
                 Entries = entries,
                 Supplement = supplement,
-            }
-        ),
-        trailingDataMessage: "The avatar-stream page has trailing data."
-    );
+            }),
+        trailingDataMessage: "The avatar-stream page has trailing data.");
 
-    /// <summary>Gets the optional neighborhood race entries.</summary>
+    /// <summary>Gets or sets the optional neighborhood race entries.</summary>
+    /// <value>
+    /// One entry per neighbourhood in the derby race the request named, in the order the server sent them, or <see langword="null"/> when
+    /// the server writes the list as absent.
+    /// </value>
     public DerbyRaceEntry[]? Entries { get; init; }
 
     /// <summary>Gets the optional entry count, including existing empty-page callers.</summary>
+    /// <value>The length of <see cref="Entries"/>, or <see langword="null"/> when the list is absent.</value>
     public int? EntryCount => Entries?.Length;
 
-    /// <summary>Gets the first native stream selector.</summary>
+    /// <summary>Gets or sets the first native stream selector.</summary>
+    /// <value>The second VarInt of the message, after <see cref="TimestampSeconds"/>; its meaning is not identified.</value>
     public int FirstSelector { get; init; }
 
-    /// <summary>Gets the second native stream selector.</summary>
+    /// <summary>Gets or sets the second native stream selector.</summary>
+    /// <value>The third VarInt of the message, before the entry list; its meaning is not identified.</value>
     public int SecondSelector { get; init; }
 
-    /// <summary>Gets the optional native derby race supplement.</summary>
+    /// <summary>Gets or sets the optional native derby race supplement.</summary>
+    /// <value>The optional block that ends the message, or <see langword="null"/> when the server leaves it out.</value>
     public DerbyBoardSupplement? Supplement { get; init; }
 
-    /// <summary>Gets the seconds timestamp carried by this stream page.</summary>
+    /// <summary>Gets or sets the seconds timestamp carried by this stream page.</summary>
+    /// <value>The first VarInt of the message, a Unix time in seconds.</value>
     public int TimestampSeconds { get; init; }
 
     /// <summary>Omits stream contents from diagnostic text.</summary>
+    /// <returns>Always <c>LeagueMemberListMessage</c>, so logs never show neighbourhood names or scores.</returns>
     public override string ToString()
     {
         return nameof(LeagueMemberListMessage);

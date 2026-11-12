@@ -5,15 +5,13 @@ namespace SupercellProxy.Networking.Protocol.Rankings;
 
 /// <summary>Requests a leaderboard.</summary>
 /// <param name="Entries">Accounts whose standings the client wants.</param>
-/// <param name="NeighborhoodId">Neighbourhood the standings are for; null when not about one.</param>
+/// <param name="NeighborhoodId">Neighbourhood the standings are for; <see langword="null"/> when not about one.</param>
 public sealed record RequestLeaderboardMessage(ReadOnlyMemory<LeaderboardEntryId> Entries, LongId? NeighborhoodId) : CodecMessage<RequestLeaderboardMessage>, ICodecProvider<RequestLeaderboardMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestLeaderboardMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(LeaderboardEntryId.Codec),
+    public static ICodec<RequestLeaderboardMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(LeaderboardEntryId.Codec),
         static message => message.Entries,
         Codecs.OptionalLongId,
         static message => message.NeighborhoodId,
-        static (entries, neighborhoodId) => new RequestLeaderboardMessage(entries, neighborhoodId)
-    );
+        static (entries, neighborhoodId) => new RequestLeaderboardMessage(entries, neighborhoodId));
 }

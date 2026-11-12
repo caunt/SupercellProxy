@@ -12,6 +12,10 @@ public sealed partial record GameObjectSnapshot
     /// location the save leaves out is locked and has no mussel.
     /// </summary>
     /// <param name="index">The location, starting at 0.</param>
+    /// <returns>
+    /// The location's unlocked flag and the global id of the mussel linked to it; a missing or non-<see langword="true"/> unlock member reads as
+    /// locked, and a missing or non-numeric mussel member reads as 0.
+    /// </returns>
     public MolluscBedLocationSnapshot MolluscBedLocation(int index)
     {
         string suffix = index.ToString(CultureInfo.InvariantCulture);

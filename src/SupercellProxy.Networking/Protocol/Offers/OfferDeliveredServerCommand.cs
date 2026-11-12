@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record OfferDeliveredServerCommand(ReadOnlyMemory<OfferGood> Goods, int OfferId, int RewardMode, int Count, string? ProductId) : CodecServerCommand<OfferDeliveredServerCommand>, ICommandCodecProvider<OfferDeliveredServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OfferDeliveredServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Memory(OfferGood.Codec),
-            static command => command.Goods,
-            Codecs.VarInt,
-            static command => command.OfferId,
-            Codecs.VarInt,
-            static command => command.RewardMode,
-            Codecs.VarInt,
-            static command => command.Count,
-            Codecs.OptionalString,
-            static command => command.ProductId,
-            static (goods, offerId, rewardMode, count, productId) => new OfferDeliveredServerCommand(goods, offerId, rewardMode, count, productId)
-        )
-    );
+    public static CommandCodec<OfferDeliveredServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Memory(OfferGood.Codec),
+        static command => command.Goods,
+        Codecs.VarInt,
+        static command => command.OfferId,
+        Codecs.VarInt,
+        static command => command.RewardMode,
+        Codecs.VarInt,
+        static command => command.Count,
+        Codecs.OptionalString,
+        static command => command.ProductId,
+        static (goods, offerId, rewardMode, count, productId) => new OfferDeliveredServerCommand(goods, offerId, rewardMode, count, productId)));
 }

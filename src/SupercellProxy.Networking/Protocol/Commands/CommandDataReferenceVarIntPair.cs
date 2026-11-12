@@ -13,11 +13,9 @@ public readonly record struct CommandDataReferenceVarIntPair([property: JsonProp
     : ICodecProvider<CommandDataReferenceVarIntPair>
 {
     /// <inheritdoc />
-    public static ICodec<CommandDataReferenceVarIntPair> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<CommandDataReferenceVarIntPair> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static pair => pair.GlobalId,
         Codecs.VarInt,
         static pair => pair.Value,
-        static (globalId, value) => new CommandDataReferenceVarIntPair(globalId, value)
-    );
+        static (globalId, value) => new CommandDataReferenceVarIntPair(globalId, value));
 }

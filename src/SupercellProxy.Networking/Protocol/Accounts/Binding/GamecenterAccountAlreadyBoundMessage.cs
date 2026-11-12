@@ -12,19 +12,16 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 /// <param name="IsSupercellId">Whether the other farm is bound to a Supercell ID, in which case the client asks to load it through Supercell ID.</param>
 /// <param name="AdditionalValue">A value the client decodes but never reads.</param>
 /// <param name="Avatar">The avatar of the farm bound to the Game Center account.</param>
-public sealed record GamecenterAccountAlreadyBoundMessage(
-    int SecondsSinceLastPlayed,
+public sealed record GamecenterAccountAlreadyBoundMessage(int SecondsSinceLastPlayed,
     string? GamecenterId,
     LongId? AccountId,
     string? PassToken,
     bool IsSupercellId,
     int AdditionalValue,
-    ClientAvatar Avatar
-) : CodecMessage<GamecenterAccountAlreadyBoundMessage>, ICodecProvider<GamecenterAccountAlreadyBoundMessage>
+    ClientAvatar Avatar) : CodecMessage<GamecenterAccountAlreadyBoundMessage>, ICodecProvider<GamecenterAccountAlreadyBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<GamecenterAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<GamecenterAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
         Codecs.OptionalString,
         static message => message.GamecenterId,
@@ -36,8 +33,7 @@ public sealed record GamecenterAccountAlreadyBoundMessage(
         static message => message.IsSupercellId,
         Codecs.VarInt,
         static message => message.AdditionalValue,
-        SupercellProxy.Networking.Protocol.Avatars.ClientAvatar.Codec,
+        ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar) => new GamecenterAccountAlreadyBoundMessage(secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar)
-    );
+        static (secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar) => new GamecenterAccountAlreadyBoundMessage(secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar));
 }

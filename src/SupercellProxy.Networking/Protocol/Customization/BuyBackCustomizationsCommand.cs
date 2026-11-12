@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomizationsCommand>, ICommandCodecProvider<BuyBackCustomizationsCommand>
 {
     /// <summary>
-    /// Describes one buy-back at the renovator stand.
+    /// Initializes a new instance of the <see cref="BuyBackCustomizationsCommand"/> record. Describes one buy-back at the renovator stand.
     /// </summary>
     /// <param name="globalId">Id written first, before the list; see <see cref="GlobalId"/>.</param>
     /// <param name="globalIds">Global ids of the customization parts bought back.</param>
@@ -31,20 +31,18 @@ public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomiz
 
     /// <inheritdoc />
     /// <remarks>Outside production native appends one Int32 diagnostic value per customization.</remarks>
-    public static CommandCodec<BuyBackCustomizationsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Create(
-            static stream =>
-            {
-                int globalId = stream.ReadVarInt();
-                ReadOnlyMemory<int> globalIds = GlobalIdsCodec.Read(stream);
-                int unknown0 = stream.ReadVarInt();
-                int[] diagnosticValues = stream.CommandEnvironment is CommandEnvironment.Production ? [] : new int[globalIds.Length];
+    public static CommandCodec<BuyBackCustomizationsCommand> Codec { get; } = Codecs.Command(Codecs.Create(static stream =>
+    {
+        int globalId = stream.ReadVarInt();
+        ReadOnlyMemory<int> globalIds = GlobalIdsCodec.Read(stream);
+        int unknown0 = stream.ReadVarInt();
+        int[] diagnosticValues = stream.CommandEnvironment is CommandEnvironment.Production ? [] : new int[globalIds.Length];
 
-                for (int index = 0; index < diagnosticValues.Length; index++)
-                    diagnosticValues[index] = stream.ReadInt32();
+        for (int index = 0; index < diagnosticValues.Length; index++)
+            diagnosticValues[index] = stream.ReadInt32();
 
-                return new BuyBackCustomizationsCommand(globalId, globalIds, unknown0, diagnosticValues);
-            },
+        return new BuyBackCustomizationsCommand(globalId, globalIds, unknown0, diagnosticValues);
+    },
             static (stream, command) =>
             {
                 bool production = stream.CommandEnvironment is CommandEnvironment.Production;
@@ -61,31 +59,33 @@ public sealed record BuyBackCustomizationsCommand : CodecCommand<BuyBackCustomiz
 
                 foreach (int diagnosticValue in command.DiagnosticValues.Span)
                     stream.WriteInt32(diagnosticValue);
-            }
-        ),
-        CommandLayout.MetadataFirst
-    );
+            }),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// One number per bought-back part that only non-production builds append; empty in production.
+    /// Gets one number per bought-back part that only non-production builds append; empty in production.
     /// </summary>
+    /// <value>Int32 values written after <see cref="Unknown0"/>, one per entry of <see cref="GlobalIds"/> outside production; writing a command whose count does not match throws <see cref="InvalidDataException"/>.</value>
     public ReadOnlyMemory<int> DiagnosticValues { get; }
 
     /// <summary>
-    /// Id written before the part list; which object it names (stand or category) is not identified.
+    /// Gets the id written before the part list; which object it names (stand or category) is not identified.
     /// </summary>
+    /// <value>The first VarInt of the command's fields, carried through unchanged.</value>
     [JsonPropertyName("GlobalId")]
     public int GlobalId { get; }
 
     /// <summary>
-    /// Global ids of the customization parts the player buys back.
+    /// Gets the global ids of the customization parts the player buys back.
     /// </summary>
+    /// <value>A VarInt-counted list of part data global ids, each a part the player used before.</value>
     [JsonPropertyName("GlobalIds")]
     public ReadOnlyMemory<int> GlobalIds { get; }
 
     /// <summary>
-    /// Number written after the part list; its meaning is not identified.
+    /// Gets the number written after the part list; its meaning is not identified.
     /// </summary>
+    /// <value>The VarInt that follows <see cref="GlobalIds"/>, carried through unchanged.</value>
     public int Unknown0 { get; }
 
     private static ICodec<ReadOnlyMemory<int>> GlobalIdsCodec => field ??= Codecs.Memory(Codecs.VarInt);

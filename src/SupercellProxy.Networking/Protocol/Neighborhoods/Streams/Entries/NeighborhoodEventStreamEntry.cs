@@ -13,8 +13,7 @@ public sealed record NeighborhoodEventStreamEntry(StreamEntryHeader Header, int 
     internal const int Type = 4;
 
     /// <inheritdoc />
-    public static new ICodec<NeighborhoodEventStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<NeighborhoodEventStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.VarInt,
         static entry => entry.EventType,
@@ -24,8 +23,7 @@ public sealed record NeighborhoodEventStreamEntry(StreamEntryHeader Header, int 
         static entry => entry.TargetName,
         Codecs.VarLong,
         static entry => entry.Value,
-        static (header, eventType, targetAvatarId, targetName, value) => new NeighborhoodEventStreamEntry(header, eventType, targetAvatarId, targetName, value)
-    );
+        static (header, eventType, targetAvatarId, targetName, value) => new NeighborhoodEventStreamEntry(header, eventType, targetAvatarId, targetName, value));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

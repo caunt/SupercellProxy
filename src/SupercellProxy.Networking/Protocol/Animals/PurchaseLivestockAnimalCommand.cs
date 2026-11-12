@@ -12,20 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 /// <param name="HabitatGlobalId">The habitat game object id.</param>
 /// <param name="AnimalDataGlobalId">Global id of the animal type in the animals table, such as the Chicken entry.</param>
 /// <param name="PositionX">The horizontal position.</param>
-public sealed record PurchaseLivestockAnimalCommand(
-    bool Mirrored,
+public sealed record PurchaseLivestockAnimalCommand(bool Mirrored,
     int PositionY,
     [property: JsonPropertyName("HabitatGlobalId")] int HabitatGlobalId,
     [property: JsonPropertyName("AnimalDataGlobalId")] int AnimalDataGlobalId,
-    int PositionX
-) : CodecCommand<PurchaseLivestockAnimalCommand>, ICommandCodecProvider<PurchaseLivestockAnimalCommand>
+    int PositionX) : CodecCommand<PurchaseLivestockAnimalCommand>, ICommandCodecProvider<PurchaseLivestockAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PurchaseLivestockAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.VarInt,
+    public static CommandCodec<PurchaseLivestockAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.HabitatGlobalId,
                 Codecs.VarInt,
                 static command => command.AnimalDataGlobalId,
@@ -35,10 +30,8 @@ public sealed record PurchaseLivestockAnimalCommand(
                 static command => command.Mirrored,
                 Codecs.VarInt,
                 static command => command.PositionY,
-                static (habitatGlobalId, animalDataGlobalId, positionX, mirrored, positionY) => new PurchaseLivestockAnimalCommand(mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX)
-            ),
-            Codecs.Composite(
-                Codecs.Boolean,
+                static (habitatGlobalId, animalDataGlobalId, positionX, mirrored, positionY) => new PurchaseLivestockAnimalCommand(mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX)),
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.Mirrored,
                 Codecs.VarInt,
                 static command => command.PositionY,
@@ -48,9 +41,6 @@ public sealed record PurchaseLivestockAnimalCommand(
                 static command => command.AnimalDataGlobalId,
                 Codecs.VarInt,
                 static command => command.PositionX,
-                static (mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX) => new PurchaseLivestockAnimalCommand(mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX) => new PurchaseLivestockAnimalCommand(mirrored, positionY, habitatGlobalId, animalDataGlobalId, positionX))),
+        CommandLayout.MetadataFirst);
 }

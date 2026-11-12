@@ -129,7 +129,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         return string.Join(separator: ',', bytes);
     }
 
-    private static async Task ClickDownloadControlAsync(ILocator control, CancellationToken cancellationToken)
+    private static async Task ClickDownloadAsync(ILocator control, CancellationToken cancellationToken)
     {
         // Run the overlay handlers and actionability checks without sending the actual click.
         await Humanize.Unwrap(control).ClickAsync(new LocatorClickOptions { Trial = true, Timeout = 30_000 })
@@ -147,13 +147,13 @@ internal sealed class DecryptDayClient(HttpClient client)
         // The Turnstile component renders its errors next to its .turnstile mount, outside .form-error.
         ILocator verificationError = page.Locator(selector: ".form-error:visible, .turnstile-container > div:not(.turnstile):visible").First;
         ILocator enabledButton = verificationButton.And(page.Locator(selector: "button:enabled:visible"));
-        await WaitForVerificationControlAsync(enabledButton, verificationError, timeout: 60_000, cancellationToken)
+        await WaitForVerificationAsync(enabledButton, verificationError, timeout: 60_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
-        await ClickDownloadControlAsync(verificationButton, cancellationToken)
+        await ClickDownloadAsync(verificationButton, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         ILocator downloadButton = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Download", Exact = true });
-        await WaitForVerificationControlAsync(downloadButton, verificationError, timeout: 90_000, cancellationToken)
+        await WaitForVerificationAsync(downloadButton, verificationError, timeout: 90_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         return downloadButton;
@@ -207,14 +207,12 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         using HttpClient downloadClient = new() { Timeout = TimeSpan.FromMinutes(minutes: 10) };
 
-        FileStream archive = new(
-            archivePath,
+        FileStream archive = new(archivePath,
             FileMode.CreateNew,
             FileAccess.Write,
             FileShare.None,
             bufferSize: 131_072,
-            FileOptions.Asynchronous | FileOptions.SequentialScan
-        );
+            FileOptions.Asynchronous | FileOptions.SequentialScan);
 
         await using (archive.ConfigureAwait(continueOnCapturedContext: false))
         {
@@ -303,16 +301,14 @@ internal sealed class DecryptDayClient(HttpClient client)
             if (!File.Exists(binaryPath))
                 throw new InvalidOperationException($"CloakBrowser archive did not contain its expected executable at {binaryPath}.");
 
-            File.SetUnixFileMode(
-                binaryPath,
+            File.SetUnixFileMode(binaryPath,
                 UnixFileMode.UserRead
                     | UnixFileMode.UserWrite
                     | UnixFileMode.UserExecute
                     | UnixFileMode.GroupRead
                     | UnixFileMode.GroupExecute
                     | UnixFileMode.OtherRead
-                    | UnixFileMode.OtherExecute
-            );
+                    | UnixFileMode.OtherExecute);
         }
         finally
         {
@@ -323,15 +319,13 @@ internal sealed class DecryptDayClient(HttpClient client)
     private static async Task ExtractBrowserArchiveAsync(string archivePath, string binaryDirectory, CancellationToken cancellationToken)
     {
         using Process process =
-            Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = "/usr/bin/tar",
-                    UseShellExecute = false,
-                    RedirectStandardError = true,
-                    ArgumentList = { "-xzf", archivePath, "-C", binaryDirectory },
-                }
-            ) ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "/usr/bin/tar",
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                ArgumentList = { "-xzf", archivePath, "-C", binaryDirectory },
+            }) ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
 
         Task<string> errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 
@@ -361,12 +355,10 @@ internal sealed class DecryptDayClient(HttpClient client)
             .FrameLocator(selector: "ins.adsbygoogle[data-vignette-loaded='true'] iframe[title='Advertisement']")
             .GetByRole(AriaRole.Button, new FrameLocatorGetByRoleOptions { Name = "Close ad", Exact = true });
 
-        await rawPage.AddLocatorHandlerAsync(
-            closeAdvertisement,
+        await rawPage.AddLocatorHandlerAsync(closeAdvertisement,
             async () =>
             await closeAdvertisement.ClickAsync(new LocatorClickOptions { Timeout = 10_000 })
-                .ConfigureAwait(continueOnCapturedContext: false)
-        )
+                .ConfigureAwait(continueOnCapturedContext: false))
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -388,15 +380,13 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .Error.WriteLineAsync(value: "decrypt.day initialized the app page; reopening the file in the same browser session...")
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            navigation = await page.GotoAsync(
-                    download.Address.AbsoluteUri,
-                    new PageGotoOptions
-                    {
-                        Timeout = 60_000,
-                        WaitUntil = WaitUntilState.DOMContentLoaded,
-                        Referer = page.Url,
-                    }
-                )
+            navigation = await page.GotoAsync(download.Address.AbsoluteUri,
+                new PageGotoOptions
+                {
+                    Timeout = 60_000,
+                    WaitUntil = WaitUntilState.DOMContentLoaded,
+                    Referer = page.Url,
+                })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
@@ -423,10 +413,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task<string> SaveDiagnosticsAsync(IPage page, Exception exception, CancellationToken cancellationToken)
     {
-        string directory = Path.Combine(
-            Environment.CurrentDirectory,
-            string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}")
-        );
+        string directory = Path.Combine(Environment.CurrentDirectory,
+            string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
         string reportPath = Path.Combine(directory, path2: "error.txt");
@@ -434,11 +422,9 @@ internal sealed class DecryptDayClient(HttpClient client)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IBrowserContext context = Humanize.Unwrap(page.Context);
-        await CaptureAsync(
-            description: "browser trace",
+        await CaptureAsync(description: "browser trace",
             () => context.Tracing.StopAsync(new TracingStopOptions { Path = Path.Combine(directory, path2: "trace.zip") })
-                .WaitAsync(TimeSpan.FromSeconds(seconds: 15), cancellationToken)
-        )
+                .WaitAsync(TimeSpan.FromSeconds(seconds: 15), cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IPage[] pages = [.. context.Pages];
@@ -450,20 +436,17 @@ internal sealed class DecryptDayClient(HttpClient client)
             await File.AppendAllTextAsync(reportPath, $"{Environment.NewLine}{pageName}: {diagnosticPage.Url}{Environment.NewLine}", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await CaptureAsync(
-                pageName + " HTML",
+            await CaptureAsync(pageName + " HTML",
                 async () =>
-            {
-                string content = await diagnosticPage.ContentAsync().WaitAsync(TimeSpan.FromSeconds(seconds: 10), cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+                {
+                    string content = await diagnosticPage.ContentAsync().WaitAsync(TimeSpan.FromSeconds(seconds: 10), cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
 
-                await File.WriteAllTextAsync(Path.Combine(directory, pageName + ".html"), content, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
-            }
-            ).ConfigureAwait(continueOnCapturedContext: false);
+                    await File.WriteAllTextAsync(Path.Combine(directory, pageName + ".html"), content, cancellationToken)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+                }).ConfigureAwait(continueOnCapturedContext: false);
 
-            await CaptureAsync(
-                pageName + " screenshot",
+            await CaptureAsync(pageName + " screenshot",
                 async () =>
                 {
                     byte[] screenshot = await diagnosticPage.ScreenshotAsync(new PageScreenshotOptions { FullPage = true, Timeout = 10_000 })
@@ -471,8 +454,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
                     await File.WriteAllBytesAsync(Path.Combine(directory, pageName + ".png"), screenshot, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
-                }
-            ).ConfigureAwait(continueOnCapturedContext: false);
+                }).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         return directory;
@@ -553,7 +535,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         try
         {
-            await ClickDownloadControlAsync(downloadButton, deadline.Token)
+            await ClickDownloadAsync(downloadButton, deadline.Token)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             Task result = await Task.WhenAny(completion.Task, responseFailure.Task).WaitAsync(deadline.Token)
@@ -580,7 +562,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         }
     }
 
-    private static async Task WaitForVerificationControlAsync(ILocator control, ILocator verificationError, float timeout, CancellationToken cancellationToken)
+    private static async Task WaitForVerificationAsync(ILocator control, ILocator verificationError, float timeout, CancellationToken cancellationToken)
     {
         // Assertions also run overlay handlers while waiting for verification to finish.
         await Assertions.Expect(Humanize.Unwrap(control.Or(verificationError).First))
@@ -657,11 +639,9 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new HttpRequestException(
-                string.Create(CultureInfo.InvariantCulture, $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
+            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture, $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
                 inner: null,
-                response.StatusCode
-            );
+                response.StatusCode);
         }
 
         Stream responseContent = await response.EnsureSuccessStatusCode()

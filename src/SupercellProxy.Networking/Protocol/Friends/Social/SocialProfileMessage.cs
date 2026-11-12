@@ -4,7 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Social;
 
 /// <summary>Carries one optional social profile to the social manager's listeners.</summary>
-/// <param name="Profile">The player's public card; null when the server sent none.</param>
+/// <param name="Profile">The player's public card; <see langword="null"/> when the server sent none.</param>
 public sealed record SocialProfileMessage(SocialProfile? Profile) : CodecMessage<SocialProfileMessage>, ICodecProvider<SocialProfileMessage>
 {
     /// <inheritdoc />

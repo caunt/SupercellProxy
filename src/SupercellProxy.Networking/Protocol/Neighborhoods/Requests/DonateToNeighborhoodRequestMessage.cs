@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 public sealed record DonateToNeighborhoodRequestMessage(int ItemGlobalId, int Amount, LongId RequesterHomeId, LongId RequestId, LongId DonorHomeId, string? RequesterName, bool Premium) : CodecMessage<DonateToNeighborhoodRequestMessage>, ICodecProvider<DonateToNeighborhoodRequestMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DonateToNeighborhoodRequestMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<DonateToNeighborhoodRequestMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.ItemGlobalId,
         Codecs.VarInt,
         static message => message.Amount,
@@ -29,6 +28,5 @@ public sealed record DonateToNeighborhoodRequestMessage(int ItemGlobalId, int Am
         static message => message.RequesterName,
         Codecs.Boolean,
         static message => message.Premium,
-        static (itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium) => new DonateToNeighborhoodRequestMessage(itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium)
-    );
+        static (itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium) => new DonateToNeighborhoodRequestMessage(itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium));
 }

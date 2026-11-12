@@ -14,21 +14,17 @@ public sealed record EventLeaderboardUpdateServerCommand(int EventId, int Rank, 
     : CodecServerCommand<EventLeaderboardUpdateServerCommand>, ICommandCodecProvider<EventLeaderboardUpdateServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<EventLeaderboardUpdateServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.Rank,
-            Codecs.VarInt,
-            static command => command.Unknown2,
-            Codecs.Boolean,
-            static command => command.Completed,
-            Codecs.VarLong,
-            static command => command.Unknown4,
-            Codecs.VarInt,
-            static command => command.Unknown5,
-            static (eventId, rank, unknown2, completed, unknown4, unknown5) => new EventLeaderboardUpdateServerCommand(eventId, rank, unknown2, completed, unknown4, unknown5)
-        )
-    );
+    public static CommandCodec<EventLeaderboardUpdateServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.Rank,
+        Codecs.VarInt,
+        static command => command.Unknown2,
+        Codecs.Boolean,
+        static command => command.Completed,
+        Codecs.VarLong,
+        static command => command.Unknown4,
+        Codecs.VarInt,
+        static command => command.Unknown5,
+        static (eventId, rank, unknown2, completed, unknown4, unknown5) => new EventLeaderboardUpdateServerCommand(eventId, rank, unknown2, completed, unknown4, unknown5)));
 }

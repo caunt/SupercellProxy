@@ -8,31 +8,36 @@ namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 public sealed record SeenEventSnapshot
 {
     /// <summary>
-    /// How many times this showing was looked at (saved as <c>cnt</c>); a new record starts at 1.
+    /// Gets or sets how many times this showing was looked at (saved as <c>cnt</c>).
     /// </summary>
+    /// <value>A positive view count; 1 by default.</value>
     [JsonPropertyName("cnt")]
     public int Count { get; init; } = 1;
 
     /// <summary>
-    /// Unix seconds when the event ends (saved as <c>et</c>), after which the record can be dropped.
+    /// Gets or sets the Unix seconds when the event ends (saved as <c>et</c>).
     /// </summary>
+    /// <value>The end time of the event the record names; 0 when unset.</value>
     [JsonPropertyName("et")]
     public int EndTime { get; init; }
     /// <summary>
-    /// The targeted event that was looked at (saved as <c>id</c>).
+    /// Gets or sets the targeted event that was looked at (saved as <c>id</c>).
     /// </summary>
+    /// <value>The id of the shop live event; together with <see cref="ImpressionId"/> it identifies the record.</value>
     [JsonPropertyName("id")]
     public int EventId { get; init; }
 
     /// <summary>
-    /// Which showing of the event it was (saved as <c>imp</c>); the same event can be shown to the player several times.
+    /// Gets or sets which showing of the event it was (saved as <c>imp</c>); the same event can be shown to the player several times.
     /// </summary>
+    /// <value>The impression id of the showing, as the event definition gives it.</value>
     [JsonPropertyName("imp")]
     public int ImpressionId { get; init; }
 
     /// <summary>
-    /// Kind of record (saved as <c>st</c>); records for targeted events use 1.
+    /// Gets or sets the kind of record (saved as <c>st</c>); records for targeted events use 1.
     /// </summary>
+    /// <value>The record kind as saved; the meaning of values other than 1 is not yet identified.</value>
     [JsonPropertyName("st")]
     public int Kind { get; init; }
 }

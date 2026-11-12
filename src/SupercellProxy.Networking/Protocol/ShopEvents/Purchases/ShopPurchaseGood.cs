@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents.Purchases;
 public sealed record ShopPurchaseGood(int GoodGlobalId, int Amount) : ICodecProvider<ShopPurchaseGood>
 {
     /// <inheritdoc />
-    public static ICodec<ShopPurchaseGood> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ShopPurchaseGood> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new ShopPurchaseGood(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new ShopPurchaseGood(goodGlobalId, amount));
 }

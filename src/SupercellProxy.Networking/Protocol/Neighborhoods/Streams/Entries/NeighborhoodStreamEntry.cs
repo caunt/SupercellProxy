@@ -9,10 +9,13 @@ public abstract record NeighborhoodStreamEntry(StreamEntryHeader Header) : ICode
     /// <summary>
     /// Gets the wire codec: the entry type selects the entry record.
     /// </summary>
-    public static ICodec<NeighborhoodStreamEntry> Codec { get; } = Codecs.Dispatch(
-        Codecs.VarInt,
+    /// <value>
+    /// A codec that writes <see cref="EntryType"/> as a VarInt followed by the entry's own fields; reading an entry type with no known record
+    /// fails with <see cref="InvalidDataException"/>.
+    /// </value>
+    public static ICodec<NeighborhoodStreamEntry> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static entry => entry.EntryType,
-        [
+        cases: [
             Case(ChatStreamEntry.Type, ChatStreamEntry.Codec),
             Case(JoinRequestNeighborhoodStreamEntry.Type, JoinRequestNeighborhoodStreamEntry.Codec),
             Case(NeighborhoodEventStreamEntry.Type, NeighborhoodEventStreamEntry.Codec),
@@ -23,10 +26,13 @@ public abstract record NeighborhoodStreamEntry(StreamEntryHeader Header) : ICode
             Case(EmoteStreamEntry.Type, EmoteStreamEntry.Codec),
             Case(ValuesStreamEntry.Type, ValuesStreamEntry.Codec),
             .. HelpRequestCases(),
-        ]
-    );
+        ]);
 
     /// <summary>Gets the native entry type written before the entry.</summary>
+    /// <value>
+    /// A fixed number per record: 2 chat, 3 join request, 4 neighbourhood event, 6 derby event, 7 item request, 8 notification, 17 gift,
+    /// 18 emote, 19 values, and 5, 9 or 10 for the help request kinds.
+    /// </value>
     public abstract int EntryType { get; }
 
     private static KeyValuePair<int, ICodec<NeighborhoodStreamEntry>> Case<TEntry>(int entryType, ICodec<TEntry> codec) where TEntry : NeighborhoodStreamEntry

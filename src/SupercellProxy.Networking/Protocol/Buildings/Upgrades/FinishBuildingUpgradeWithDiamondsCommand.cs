@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Buildings.Upgrades;
 public sealed record FinishBuildingUpgradeWithDiamondsCommand(int ObjectGlobalId) : CodecCommand<FinishBuildingUpgradeWithDiamondsCommand>, ICommandCodecProvider<FinishBuildingUpgradeWithDiamondsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FinishBuildingUpgradeWithDiamondsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ObjectGlobalId,
-            static objectGlobalId => new FinishBuildingUpgradeWithDiamondsCommand(objectGlobalId)
-        )
-    );
+    public static CommandCodec<FinishBuildingUpgradeWithDiamondsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ObjectGlobalId,
+        static objectGlobalId => new FinishBuildingUpgradeWithDiamondsCommand(objectGlobalId)));
 }

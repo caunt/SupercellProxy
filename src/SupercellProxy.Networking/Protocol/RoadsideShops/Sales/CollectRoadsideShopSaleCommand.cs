@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops.Sales;
 public sealed record CollectRoadsideShopSaleCommand(int SlotIndex) : CodecCommand<CollectRoadsideShopSaleCommand>, ICommandCodecProvider<CollectRoadsideShopSaleCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectRoadsideShopSaleCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new CollectRoadsideShopSaleCommand(slotIndex))
-    );
+    public static CommandCodec<CollectRoadsideShopSaleCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new CollectRoadsideShopSaleCommand(slotIndex)));
 }

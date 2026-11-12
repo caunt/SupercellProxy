@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record ApplyCustomizationCommand(int PartGlobalId, int CustomizationGlobalId) : CodecCommand<ApplyCustomizationCommand>, ICommandCodecProvider<ApplyCustomizationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ApplyCustomizationCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.PartGlobalId,
-            Codecs.VarInt,
-            static command => command.CustomizationGlobalId,
-            static (partGlobalId, customizationGlobalId) => new ApplyCustomizationCommand(partGlobalId, customizationGlobalId)
-        )
-    );
+    public static CommandCodec<ApplyCustomizationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PartGlobalId,
+        Codecs.VarInt,
+        static command => command.CustomizationGlobalId,
+        static (partGlobalId, customizationGlobalId) => new ApplyCustomizationCommand(partGlobalId, customizationGlobalId)));
 }

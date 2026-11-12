@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Orders.Help;
 public sealed record HelpTruckOrderCommand(int OrderIndex, int HelpId) : CodecCommand<HelpTruckOrderCommand>, ICommandCodecProvider<HelpTruckOrderCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<HelpTruckOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.OrderIndex,
-            Codecs.VarInt,
-            static command => command.HelpId,
-            static (orderIndex, helpId) => new HelpTruckOrderCommand(orderIndex, helpId)
-        )
-    );
+    public static CommandCodec<HelpTruckOrderCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.OrderIndex,
+        Codecs.VarInt,
+        static command => command.HelpId,
+        static (orderIndex, helpId) => new HelpTruckOrderCommand(orderIndex, helpId)));
 }

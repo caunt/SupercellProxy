@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record SetSupercellStorePromotionAllowedCommand(bool Allowed) : CodecCommand<SetSupercellStorePromotionAllowedCommand>, ICommandCodecProvider<SetSupercellStorePromotionAllowedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetSupercellStorePromotionAllowedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.Allowed, static allowed => new SetSupercellStorePromotionAllowedCommand(allowed)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<SetSupercellStorePromotionAllowedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Allowed, static allowed => new SetSupercellStorePromotionAllowedCommand(allowed)),
+        CommandLayout.MetadataFirst);
 }

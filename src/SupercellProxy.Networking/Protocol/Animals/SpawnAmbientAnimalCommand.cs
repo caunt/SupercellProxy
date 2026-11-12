@@ -12,7 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimalCommand>, ICommandCodecProvider<SpawnAmbientAnimalCommand>
 {
     /// <summary>
-    /// Describes one ambient animal to spawn.
+    /// Initializes a new instance of the <see cref="SpawnAmbientAnimalCommand"/> record. Describes one ambient animal to spawn.
     /// </summary>
     /// <param name="behavior">Movement pattern, 0 to 4; see <see cref="Behavior"/>.</param>
     /// <param name="horizontalCoordinate">Horizontal start position in farm coordinates.</param>
@@ -31,54 +31,56 @@ public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimal
     }
 
     /// <inheritdoc />
-    public static CommandCodec<SpawnAmbientAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.Behavior,
-            Codecs.VarInt,
-            static command => command.HorizontalCoordinate,
-            Codecs.VarInt,
-            static command => command.VerticalCoordinate,
-            Codecs.VarInt,
-            static command => command.DestinationX,
-            Codecs.VarInt,
-            static command => command.DestinationY,
-            Codecs.Boolean,
-            static command => command.NotifyListener,
-            static (behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener) => new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener)
-        )
-    );
+    public static CommandCodec<SpawnAmbientAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.Behavior,
+        Codecs.VarInt,
+        static command => command.HorizontalCoordinate,
+        Codecs.VarInt,
+        static command => command.VerticalCoordinate,
+        Codecs.VarInt,
+        static command => command.DestinationX,
+        Codecs.VarInt,
+        static command => command.DestinationY,
+        Codecs.Boolean,
+        static command => command.NotifyListener,
+        static (behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener) => new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener)));
 
     /// <summary>
-    /// Movement pattern the animal follows, 0 to 4; it selects which avoidance, attraction and landing points apply. Pattern 4 is
+    /// Gets the movement pattern the animal follows, 0 to 4. Pattern 4 is
     /// the fish that swims near the boat dock. Anything outside 0 to 4 is invalid.
     /// </summary>
+    /// <value>The first VarInt of the command, as given to the constructor; it is sent unchecked, so a value outside 0 to 4 reaches the server as is.</value>
     public int Behavior { get; }
 
     /// <summary>
-    /// Horizontal position the animal heads for, used by patterns that travel to a point.
+    /// Gets the horizontal position the animal heads for, used by patterns that travel to a point.
     /// </summary>
+    /// <value>The fourth VarInt of the command, in the same farm coordinates as <see cref="HorizontalCoordinate"/>.</value>
     public int DestinationX { get; }
 
     /// <summary>
-    /// Vertical position the animal heads for, used by patterns that travel to a point.
+    /// Gets the vertical position the animal heads for, used by patterns that travel to a point.
     /// </summary>
+    /// <value>The fifth VarInt of the command, in the same farm coordinates as <see cref="VerticalCoordinate"/>.</value>
     public int DestinationY { get; }
 
     /// <summary>
-    /// Horizontal start position in farm coordinates.
+    /// Gets the horizontal start position in farm coordinates.
     /// </summary>
+    /// <value>The second VarInt of the command, where the animal appears; JSON names it <c>X</c>.</value>
     [JsonPropertyName("X")]
     public int HorizontalCoordinate { get; }
 
     /// <summary>
-    /// Whether native also tells its display listener about the new animal; it has no effect on game state.
+    /// Gets whether the new animal is also announced to the display.
     /// </summary>
+    /// <value><see langword="true"/> if the command's closing boolean is set; otherwise, <see langword="false"/>.</value>
     public bool NotifyListener { get; }
 
     /// <summary>
-    /// Vertical start position in farm coordinates.
+    /// Gets the vertical start position in farm coordinates.
     /// </summary>
+    /// <value>The third VarInt of the command, where the animal appears; JSON names it <c>Y</c>.</value>
     [JsonPropertyName("Y")]
     public int VerticalCoordinate { get; }
 }

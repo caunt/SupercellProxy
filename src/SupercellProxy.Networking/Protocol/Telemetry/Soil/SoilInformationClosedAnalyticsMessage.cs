@@ -15,8 +15,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Soil;
 /// <param name="Value3">Fourth number of the event; not seen in the captures, and its meaning is not identified.</param>
 /// <param name="Properties">Named details of the event.</param>
 /// <param name="Value4">Fifth number of the event; not seen in the captures, and its meaning is not identified.</param>
-public sealed record SoilInformationClosedAnalyticsMessage(
-    string? Timezone,
+public sealed record SoilInformationClosedAnalyticsMessage(string? Timezone,
     string? DeviceId,
     int Value0,
     int Value1,
@@ -26,12 +25,10 @@ public sealed record SoilInformationClosedAnalyticsMessage(
     string? Text,
     int Value3,
     ReadOnlyMemory<SoilProperty> Properties,
-    int Value4
-) : CodecMessage<SoilInformationClosedAnalyticsMessage>, ICodecProvider<SoilInformationClosedAnalyticsMessage>
+    int Value4) : CodecMessage<SoilInformationClosedAnalyticsMessage>, ICodecProvider<SoilInformationClosedAnalyticsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SoilInformationClosedAnalyticsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SoilInformationClosedAnalyticsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Timezone,
         Codecs.OptionalString,
         static message => message.DeviceId,
@@ -53,6 +50,5 @@ public sealed record SoilInformationClosedAnalyticsMessage(
         static message => message.Properties,
         Codecs.VarInt,
         static message => message.Value4,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4) => new SoilInformationClosedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4)
-    );
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4) => new SoilInformationClosedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4));
 }

@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record BuyEventTaskSlotCommand(int EventId) : CodecCommand<BuyEventTaskSlotCommand>, ICommandCodecProvider<BuyEventTaskSlotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyEventTaskSlotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new BuyEventTaskSlotCommand(eventId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<BuyEventTaskSlotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new BuyEventTaskSlotCommand(eventId)),
+        CommandLayout.MetadataFirst);
 }

@@ -16,15 +16,13 @@ public sealed record MapGameDeliveryTaskStatePayload(int Pickup, int Delivery, b
     internal const string NativeTaskType = "Delivery";
 
     /// <inheritdoc />
-    public static ICodec<MapGameDeliveryTaskStatePayload> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameDeliveryTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Pickup,
         Codecs.VarInt,
         static value => value.Delivery,
         Codecs.Boolean,
         static value => value.Started,
-        static (pickup, delivery, started) => new MapGameDeliveryTaskStatePayload(pickup, delivery, started)
-    );
+        static (pickup, delivery, started) => new MapGameDeliveryTaskStatePayload(pickup, delivery, started));
 
     /// <inheritdoc />
     public override string TaskType => NativeTaskType;

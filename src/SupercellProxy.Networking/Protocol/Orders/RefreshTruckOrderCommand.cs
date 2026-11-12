@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 public sealed record RefreshTruckOrderCommand(int Mode, int OrderIndex) : CodecCommand<RefreshTruckOrderCommand>, ICommandCodecProvider<RefreshTruckOrderCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RefreshTruckOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<RefreshTruckOrderCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Mode,
             Codecs.VarInt,
             static command => command.OrderIndex,
-            static (mode, orderIndex) => new RefreshTruckOrderCommand(mode, orderIndex)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (mode, orderIndex) => new RefreshTruckOrderCommand(mode, orderIndex)),
+        CommandLayout.MetadataFirst);
 }

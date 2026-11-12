@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.SpeedUps;
 public sealed record SpeedUpAnimalCommand(int AnimalGlobalId) : CodecCommand<SpeedUpAnimalCommand>, ICommandCodecProvider<SpeedUpAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new SpeedUpAnimalCommand(animalGlobalId))
-    );
+    public static CommandCodec<SpeedUpAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new SpeedUpAnimalCommand(animalGlobalId)));
 }

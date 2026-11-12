@@ -5,6 +5,7 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Protocol.Homes;
 
 /// <summary>The player's town home snapshot carried by clientbound message 28543.</summary>
+/// <param name="Data">The town payload, decoded with the shared <see cref="OwnHomeDataMessage"/> layout; its home document describes the player's town area.</param>
 public sealed record TrainStationDataMessage(OwnHomeDataMessage Data) : CodecMessage<TrainStationDataMessage>, ICodecProvider<TrainStationDataMessage>
 {
     /// <inheritdoc />

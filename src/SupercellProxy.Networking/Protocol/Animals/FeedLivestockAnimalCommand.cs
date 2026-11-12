@@ -12,8 +12,6 @@ namespace SupercellProxy.Networking.Protocol.Animals;
 public sealed record FeedLivestockAnimalCommand([property: JsonPropertyName("AnimalGlobalId")] int AnimalGlobalId) : CodecCommand<FeedLivestockAnimalCommand>, ICommandCodecProvider<FeedLivestockAnimalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FeedLivestockAnimalCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new FeedLivestockAnimalCommand(animalGlobalId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<FeedLivestockAnimalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.AnimalGlobalId, static animalGlobalId => new FeedLivestockAnimalCommand(animalGlobalId)),
+        CommandLayout.MetadataFirst);
 }

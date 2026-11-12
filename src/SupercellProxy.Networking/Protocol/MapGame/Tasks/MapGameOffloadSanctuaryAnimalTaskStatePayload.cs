@@ -14,11 +14,9 @@ public sealed record MapGameOffloadSanctuaryAnimalTaskStatePayload(int DiamondPr
     internal const string NativeTaskType = "Offload Sanctuary Animal";
 
     /// <inheritdoc />
-    public static ICodec<MapGameOffloadSanctuaryAnimalTaskStatePayload> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameOffloadSanctuaryAnimalTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.DiamondPrice,
-        static diamondPrice => new MapGameOffloadSanctuaryAnimalTaskStatePayload(diamondPrice)
-    );
+        static diamondPrice => new MapGameOffloadSanctuaryAnimalTaskStatePayload(diamondPrice));
 
     /// <inheritdoc />
     public override string TaskType => NativeTaskType;

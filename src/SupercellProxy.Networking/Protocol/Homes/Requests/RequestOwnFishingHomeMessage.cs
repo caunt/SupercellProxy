@@ -7,8 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestOwnFishingHomeMessage : CodecMessage<RequestOwnFishingHomeMessage>, ICodecProvider<RequestOwnFishingHomeMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestOwnFishingHomeMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Unit(static () => new RequestOwnFishingHomeMessage()),
-        trailingDataMessage: "The own-fishing-home request must have an empty payload."
-    );
+    public static ICodec<RequestOwnFishingHomeMessage> Codec { get; } = Codecs.Complete(Codecs.Unit(static () => new RequestOwnFishingHomeMessage()),
+        trailingDataMessage: "The own-fishing-home request must have an empty payload.");
 }

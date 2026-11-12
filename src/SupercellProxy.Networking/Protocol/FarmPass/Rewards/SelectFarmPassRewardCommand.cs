@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Rewards;
 public sealed record SelectFarmPassRewardCommand(int RewardIndex) : CodecCommand<SelectFarmPassRewardCommand>, ICommandCodecProvider<SelectFarmPassRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectFarmPassRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.RewardIndex, static rewardIndex => new SelectFarmPassRewardCommand(rewardIndex))
-    );
+    public static CommandCodec<SelectFarmPassRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.RewardIndex, static rewardIndex => new SelectFarmPassRewardCommand(rewardIndex)));
 }

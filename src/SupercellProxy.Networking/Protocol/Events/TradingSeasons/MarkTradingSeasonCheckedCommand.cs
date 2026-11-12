@@ -4,10 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.TradingSeasons;
 
 /// <summary>Records the trading season most recently checked by the player.</summary>
+/// <param name="TradingSeasonId">The identifier of the trading season the player has just looked at, sent as the command's only var-int.</param>
 public sealed record MarkTradingSeasonCheckedCommand(int TradingSeasonId) : CodecCommand<MarkTradingSeasonCheckedCommand>, ICommandCodecProvider<MarkTradingSeasonCheckedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTradingSeasonCheckedCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TradingSeasonId, static seasonId => new MarkTradingSeasonCheckedCommand(seasonId))
-    );
+    public static CommandCodec<MarkTradingSeasonCheckedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TradingSeasonId, static seasonId => new MarkTradingSeasonCheckedCommand(seasonId)));
 }

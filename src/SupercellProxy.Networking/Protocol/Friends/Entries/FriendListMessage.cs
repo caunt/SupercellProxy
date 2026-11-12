@@ -4,6 +4,8 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 
 /// <summary>Carries a nullable, mode-specific list of friend entries.</summary>
+/// <param name="Mode">Which list the entries belong to: <see cref="RelationshipMode"/> (3) for friends and pending requests, <see cref="RecipientMode"/> (4) for the recipient list; other modes are not yet identified.</param>
+/// <param name="Entries">The list's entries, at most 100,000, or <see langword="null"/> when the server sends no list.</param>
 public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : CodecMessage<FriendListMessage>, ICodecProvider<FriendListMessage>
 {
     /// <summary>Selects the separate recipient-list consumer.</summary>
@@ -14,18 +16,15 @@ public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : Codec
     private const int MaximumEntryCount = 100_000;
 
     /// <inheritdoc />
-    public static ICodec<FriendListMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static ICodec<FriendListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.Mode,
-            Codecs.NullableArray(FriendEntry.Codec, CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).WithMaximum(MaximumEntryCount).WithStrictAbsence()),
+            Codecs.NullableArray(FriendEntry.Codec, CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).With(MaximumEntryCount).WithStrictAbsence()),
             static message => message.Entries,
-            static (mode, entries) => new FriendListMessage(mode, entries)
-        ),
-        trailingDataMessage: "The friend list has trailing data."
-    );
+            static (mode, entries) => new FriendListMessage(mode, entries)),
+        trailingDataMessage: "The friend list has trailing data.");
 
     /// <summary>Omits private entries from diagnostics.</summary>
+    /// <returns>Always the type name <c>FriendListMessage</c>, without the mode or any entry.</returns>
     public override string ToString()
     {
         return nameof(FriendListMessage);

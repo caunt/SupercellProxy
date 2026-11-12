@@ -11,15 +11,13 @@ public sealed record ValuesStreamEntry(StreamEntryHeader Header, int Value0, int
     internal const int Type = 19;
 
     /// <inheritdoc />
-    public static new ICodec<ValuesStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<ValuesStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.VarInt,
         static entry => entry.Value0,
         Codecs.VarInt,
         static entry => entry.Value1,
-        static (header, value0, value1) => new ValuesStreamEntry(header, value0, value1)
-    );
+        static (header, value0, value1) => new ValuesStreamEntry(header, value0, value1));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

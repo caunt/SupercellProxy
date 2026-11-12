@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Events;
 public sealed record GrantEventPointsServerCommand(int Amount) : CodecServerCommand<GrantEventPointsServerCommand>, ICommandCodecProvider<GrantEventPointsServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<GrantEventPointsServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Int32, static command => command.Amount, static amount => new GrantEventPointsServerCommand(amount)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<GrantEventPointsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32, static command => command.Amount, static amount => new GrantEventPointsServerCommand(amount)),
+        CommandLayout.MetadataFirst);
 }

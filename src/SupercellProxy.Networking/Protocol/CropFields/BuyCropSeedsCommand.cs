@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 public sealed record BuyCropSeedsCommand(int CropGlobalId) : CodecCommand<BuyCropSeedsCommand>, ICommandCodecProvider<BuyCropSeedsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyCropSeedsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.CropGlobalId, static cropGlobalId => new BuyCropSeedsCommand(cropGlobalId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<BuyCropSeedsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.CropGlobalId, static cropGlobalId => new BuyCropSeedsCommand(cropGlobalId)),
+        CommandLayout.MetadataFirst);
 }

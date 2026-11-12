@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 public sealed record RequestNeighborhoodTradingMessage(LongId NeighborhoodId, LongId AvatarId) : CodecMessage<RequestNeighborhoodTradingMessage>, ICodecProvider<RequestNeighborhoodTradingMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestNeighborhoodTradingMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<RequestNeighborhoodTradingMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.NeighborhoodId,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (neighborhoodId, avatarId) => new RequestNeighborhoodTradingMessage(neighborhoodId, avatarId)
-    );
+        static (neighborhoodId, avatarId) => new RequestNeighborhoodTradingMessage(neighborhoodId, avatarId));
 }

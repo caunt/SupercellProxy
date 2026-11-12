@@ -10,31 +10,30 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record OtherFishingHomeDataMessage : OtherHomeDataMessage, ICodecProvider<OtherFishingHomeDataMessage>
 {
     /// <inheritdoc />
-    public static new ICodec<OtherFishingHomeDataMessage> Codec { get; } = Codecs.Create(
-        static stream =>
-        {
-            ReadOnlyMemory<byte> rawPayload = stream.ReadToEnd();
-            OtherHomeDataMessage message = FromPayload(rawPayload, stream.GameVersion);
+    public static new ICodec<OtherFishingHomeDataMessage> Codec { get; } = Codecs.Create(static stream =>
+    {
+        ReadOnlyMemory<byte> rawPayload = stream.ReadToEnd();
+        OtherHomeDataMessage message = FromPayload(rawPayload, stream.GameVersion);
 
-            return new OtherFishingHomeDataMessage
-            {
-                HomeOwnerAvatar = message.HomeOwnerAvatar,
-                ServerTimestamp = message.ServerTimestamp,
-                ClientAvatar = message.ClientAvatar,
-                CompressedHomeOwnerAvatarDataDocument = message.CompressedHomeOwnerAvatarDataDocument,
-                CompressedAvatarDataDocument = message.CompressedAvatarDataDocument,
-                CompressedHomeDataDocument = message.CompressedHomeDataDocument,
-                Fallback = message.Fallback,
-                DecodeError = message.DecodeError,
-                RawPayload = rawPayload,
-            };
-        },
-        static (stream, message) => OtherHomeDataMessage.Codec.Write(stream, message)
-    );
+        return new OtherFishingHomeDataMessage
+        {
+            HomeOwnerAvatar = message.HomeOwnerAvatar,
+            ServerTimestamp = message.ServerTimestamp,
+            ClientAvatar = message.ClientAvatar,
+            CompressedHomeOwnerAvatarDataDocument = message.CompressedHomeOwnerAvatarDataDocument,
+            CompressedAvatarDataDocument = message.CompressedAvatarDataDocument,
+            CompressedHomeDataDocument = message.CompressedHomeDataDocument,
+            Fallback = message.Fallback,
+            DecodeError = message.DecodeError,
+            RawPayload = rawPayload,
+        };
+    },
+        static (stream, message) => OtherHomeDataMessage.Codec.Write(stream, message));
 
     /// <summary>
-    /// The message's payload exactly as received, kept for forwarding and captures.
+    /// Gets or sets the message's payload exactly as received, kept for forwarding and captures.
     /// </summary>
+    /// <value>Every byte read for the message, whether or not it decoded; empty for a message built in code. Writing ignores it and re-encodes the decoded fields or <see cref="OtherHomeDataMessage.Fallback"/>.</value>
     [JsonIgnore]
     public ReadOnlyMemory<byte> RawPayload { get; init; }
 }

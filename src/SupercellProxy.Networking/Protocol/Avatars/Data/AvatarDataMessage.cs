@@ -9,9 +9,7 @@ public sealed record AvatarDataMessage(ReadOnlyMemory<byte>? Data) : CodecMessag
 {
     /// <inheritdoc />
     /// <remarks>Native reads the data only while payload bytes remain.</remarks>
-    public static ICodec<AvatarDataMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Trailing(Codecs.OptionalByteArray, absent: null, static data => data is not null),
+    public static ICodec<AvatarDataMessage> Codec { get; } = Codecs.Composite(Codecs.Trailing(Codecs.OptionalByteArray, absent: null, static data => data is not null),
         static message => message.Data,
-        static data => new AvatarDataMessage(data)
-    );
+        static data => new AvatarDataMessage(data));
 }

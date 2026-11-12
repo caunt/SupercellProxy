@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Objects;
 public sealed record SwapNeighborhoodObjectTaskCommand(int TaskIndex) : CodecCommand<SwapNeighborhoodObjectTaskCommand>, ICommandCodecProvider<SwapNeighborhoodObjectTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SwapNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new SwapNeighborhoodObjectTaskCommand(taskIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<SwapNeighborhoodObjectTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new SwapNeighborhoodObjectTaskCommand(taskIndex)),
+        CommandLayout.MetadataFirst);
 }

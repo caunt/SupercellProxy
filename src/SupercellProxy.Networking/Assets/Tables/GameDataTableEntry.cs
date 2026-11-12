@@ -10,9 +10,7 @@ namespace SupercellProxy.Networking.Assets.Tables;
 /// One full set of column values per line, starting with the named line, where cells a line leaves empty keep the value from the
 /// entry's earlier lines.
 /// </param>
-public sealed record GameDataTableEntry(
-    string Name,
+public sealed record GameDataTableEntry(string Name,
     IReadOnlyDictionary<string, LiteralValue> BaseRow,
     IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>> ContinuationRows,
-    IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>> Snapshots
-);
+    IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>> Snapshots);

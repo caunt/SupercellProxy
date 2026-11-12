@@ -11,9 +11,8 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 /// <param name="Closed">Whether the request takes no more donations.</param>
 /// <param name="RequesterName">Name of the member who asked.</param>
 /// <param name="Donations">Each donation the request got.</param>
-/// <param name="LastDonorHomeId">Home of the latest donor; null when nobody donated yet.</param>
-public sealed record NeighborhoodRequest(
-    LongId RequesterHomeId,
+/// <param name="LastDonorHomeId">Home of the latest donor; <see langword="null"/> when nobody donated yet.</param>
+public sealed record NeighborhoodRequest(LongId RequesterHomeId,
     int ItemGlobalId,
     int RequestedAmount,
     int ReceivedAmount,
@@ -21,12 +20,10 @@ public sealed record NeighborhoodRequest(
     bool Closed,
     string? RequesterName,
     ReadOnlyMemory<NeighborhoodRequestDonation> Donations,
-    LongId? LastDonorHomeId
-) : ICodecProvider<NeighborhoodRequest>
+    LongId? LastDonorHomeId) : ICodecProvider<NeighborhoodRequest>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodRequest> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodRequest> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.RequesterHomeId,
         Codecs.VarInt,
         static value => value.ItemGlobalId,
@@ -44,6 +41,5 @@ public sealed record NeighborhoodRequest(
         static value => value.Donations,
         Codecs.OptionalLongId,
         static value => value.LastDonorHomeId,
-        static (requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId) => new NeighborhoodRequest(requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId)
-    );
+        static (requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId) => new NeighborhoodRequest(requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId));
 }

@@ -12,12 +12,8 @@ namespace SupercellProxy.Networking.Protocol.Production;
 public sealed record CollectBuildingProductCommand([property: JsonPropertyName("BuildingGlobalId")] int BuildingGlobalId) : CodecCommand<CollectBuildingProductCommand>, ICommandCodecProvider<CollectBuildingProductCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectBuildingProductCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<CollectBuildingProductCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.BuildingGlobalId,
-            static buildingGlobalId => new CollectBuildingProductCommand(buildingGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static buildingGlobalId => new CollectBuildingProductCommand(buildingGlobalId)),
+        CommandLayout.MetadataFirst);
 }

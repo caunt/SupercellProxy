@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Workbench;
 public sealed record PlaceMasteryPlusWorkbenchCommand(int PositionY, int PositionX) : CodecCommand<PlaceMasteryPlusWorkbenchCommand>, ICommandCodecProvider<PlaceMasteryPlusWorkbenchCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlaceMasteryPlusWorkbenchCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<PlaceMasteryPlusWorkbenchCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.PositionY,
             Codecs.VarInt,
             static command => command.PositionX,
-            static (positionY, positionX) => new PlaceMasteryPlusWorkbenchCommand(positionY, positionX)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (positionY, positionX) => new PlaceMasteryPlusWorkbenchCommand(positionY, positionX)),
+        CommandLayout.MetadataFirst);
 }

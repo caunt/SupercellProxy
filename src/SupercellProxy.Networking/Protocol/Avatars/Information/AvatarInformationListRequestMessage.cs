@@ -4,13 +4,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Avatars.Information;
 
 /// <summary>Requests the public info of several avatars.</summary>
-/// <param name="AvatarIds">Accounts to describe; null sends the list as absent.</param>
+/// <param name="AvatarIds">Accounts to describe; <see langword="null"/> sends the list as absent.</param>
 public sealed record AvatarInformationListRequestMessage(ReadOnlyMemory<LongId>? AvatarIds) : CodecMessage<AvatarInformationListRequestMessage>, ICodecProvider<AvatarInformationListRequestMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarInformationListRequestMessage> Codec { get; } = Codecs.Composite(
-        Codecs.NullableMemory(Codecs.LongId),
+    public static ICodec<AvatarInformationListRequestMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.LongId),
         static message => message.AvatarIds,
-        static avatarIds => new AvatarInformationListRequestMessage(avatarIds)
-    );
+        static avatarIds => new AvatarInformationListRequestMessage(avatarIds));
 }

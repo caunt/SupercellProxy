@@ -6,7 +6,8 @@ namespace SupercellProxy.Networking.Events;
 public static class EventTypeIndex
 {
     /// <summary>
-    /// Reserves and returns the next unused slot number, starting at 0; each read takes a new number, safely across threads.
+    /// Gets the next unused slot number, reserving it, starting at 0; each read takes a new number, safely across threads.
     /// </summary>
+    /// <value>One more than the number handed out by the previous read, so the first read returns 0; every event type caches the number it got once.</value>
     public static int NextIndex { get => Interlocked.Increment(ref field); } = -1;
 }

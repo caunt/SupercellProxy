@@ -135,12 +135,8 @@ internal sealed class MessageTransport(MessageStream stream)
 
         if (container.Payload.Position != container.Payload.Length)
         {
-            Console.WriteLine(
-                string.Create(
-                    CultureInfo.InvariantCulture,
-                    $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"
-                )
-            );
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
         }
 
         return message;
@@ -159,8 +155,7 @@ internal sealed class MessageTransport(MessageStream stream)
         if (_encryption is not null)
             throw new InvalidOperationException(message: "Encryption is already set up.");
 
-        _encryption = new MessageEncryption(
-            with: with,
+        _encryption = new MessageEncryption(with: with,
             sessionKey: sessionKey.ToArray(),
             localPrivateKey: with is RemotePeerRole.Server
                 ? RandomNumberGenerator.GetBytes(count: 32)
@@ -172,8 +167,20 @@ internal sealed class MessageTransport(MessageStream stream)
                 )
                     .GetServerPublicKeyAsync(cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false)
-                : default(Memory<byte>)
-        );
+                : default(Memory<byte>));
+    }
+
+    /// <summary>
+    /// Writes <c language="csharp">MessageAsync</c> to the stream.
+    /// </summary>
+    internal async Task WriteAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
+        where TValue : class, IMessage
+    {
+        ObserveGameVersion(message);
+        ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
+
+        await WriteContainerAsync(MessageContainer.Create(message, version, stream.GameVersion), message, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -182,19 +189,6 @@ internal sealed class MessageTransport(MessageStream stream)
     internal ValueTask WriteContainerAsync(MessageContainer messageContainer, CancellationToken cancellationToken = default)
     {
         return WriteContainerAsync(messageContainer, message: null, cancellationToken);
-    }
-
-    /// <summary>
-    /// Writes <c language="csharp">MessageAsync</c> to the stream.
-    /// </summary>
-    internal async Task WriteMessageAsync<TValue>(TValue message, CancellationToken cancellationToken = default)
-        where TValue : class, IMessage
-    {
-        ObserveGameVersion(message);
-        ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
-
-        await WriteContainerAsync(MessageContainer.Create(message, version, stream.GameVersion), message, cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     private void ObserveGameVersion(IMessage message)

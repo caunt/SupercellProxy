@@ -1,4 +1,4 @@
 namespace SupercellProxy.Keys.Update;
 
-/// <summary>Named result returned by ParseUpdateArguments.</summary>
+/// <summary>The command-line options of this command, as <see cref="Application"/> reads them from its arguments.</summary>
 internal readonly record struct UpdateArguments(string KeysPath, string? SummaryPath, string? AppOption);

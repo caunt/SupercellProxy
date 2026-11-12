@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams.Entries;
 public sealed record StreamEntryReaction(int Reaction, LongId? AvatarId) : ICodecProvider<StreamEntryReaction>
 {
     /// <inheritdoc />
-    public static ICodec<StreamEntryReaction> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<StreamEntryReaction> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Reaction,
         Codecs.OptionalLongId,
         static value => value.AvatarId,
-        static (reaction, avatarId) => new StreamEntryReaction(reaction, avatarId)
-    );
+        static (reaction, avatarId) => new StreamEntryReaction(reaction, avatarId));
 }

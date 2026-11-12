@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Settings;
 public sealed record FailWithErrorCodeCommand(int ErrorCode) : CodecCommand<FailWithErrorCodeCommand>, ICommandCodecProvider<FailWithErrorCodeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FailWithErrorCodeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ErrorCode, static errorCode => new FailWithErrorCodeCommand(errorCode))
-    );
+    public static CommandCodec<FailWithErrorCodeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ErrorCode, static errorCode => new FailWithErrorCodeCommand(errorCode)));
 }

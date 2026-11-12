@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.MiniPass;
 public sealed record OpenMiniPassChestCommand(bool UseDiamonds) : CodecCommand<OpenMiniPassChestCommand>, ICommandCodecProvider<OpenMiniPassChestCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OpenMiniPassChestCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new OpenMiniPassChestCommand(useDiamonds)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<OpenMiniPassChestCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new OpenMiniPassChestCommand(useDiamonds)),
+        CommandLayout.MetadataFirst);
 }

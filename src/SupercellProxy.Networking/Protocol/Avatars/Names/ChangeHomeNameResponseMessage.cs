@@ -12,11 +12,9 @@ public sealed record ChangeHomeNameResponseMessage(int Result, string? Name) : C
     public const int Accepted = 1;
 
     /// <inheritdoc />
-    public static ICodec<ChangeHomeNameResponseMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ChangeHomeNameResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Result,
         Codecs.OptionalString,
         static message => message.Name,
-        static (result, name) => new ChangeHomeNameResponseMessage(result, name)
-    );
+        static (result, name) => new ChangeHomeNameResponseMessage(result, name));
 }

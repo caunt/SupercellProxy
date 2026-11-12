@@ -14,8 +14,7 @@ public sealed record NeighborhoodGiftStreamEntry(StreamEntryHeader Header, int V
     internal const int Type = 17;
 
     /// <inheritdoc />
-    public static new ICodec<NeighborhoodGiftStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<NeighborhoodGiftStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.VarInt,
         static entry => entry.Value0,
@@ -27,8 +26,7 @@ public sealed record NeighborhoodGiftStreamEntry(StreamEntryHeader Header, int V
         static entry => entry.Value3,
         Codecs.NullableMemory(Codecs.LongId, CollectionCount.Int32),
         static entry => entry.ClaimedAvatarIds,
-        static (header, value0, value1, value2, value3, claimedAvatarIds) => new NeighborhoodGiftStreamEntry(header, value0, value1, value2, value3, claimedAvatarIds)
-    );
+        static (header, value0, value1, value2, value3, claimedAvatarIds) => new NeighborhoodGiftStreamEntry(header, value0, value1, value2, value3, claimedAvatarIds));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

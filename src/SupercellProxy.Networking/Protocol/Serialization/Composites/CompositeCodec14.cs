@@ -3,8 +3,7 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Composites;
 
 /// <summary>Reads and writes 14 fields in wire order and builds the value from them.</summary>
-internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth>(
-    ICodec<TFirst> first,
+internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth>(ICodec<TFirst> first,
     Func<TValue, TFirst> getFirst,
     ICodec<TSecond> second,
     Func<TValue, TSecond> getSecond,
@@ -32,8 +31,7 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
     Func<TValue, TThirteenth> getThirteenth,
     ICodec<TFourteenth> fourteenth,
     Func<TValue, TFourteenth> getFourteenth,
-    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TValue> factory
-) : ICodec<TValue>
+    Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TValue> factory) : ICodec<TValue>
 {
     private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
@@ -82,8 +80,7 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
         TThirteenth thirteenthValue = _thirteenth.Read(stream);
         TFourteenth fourteenthValue = _fourteenth.Read(stream);
 
-        return _factory(
-            firstValue,
+        return _factory(firstValue,
             secondValue,
             thirdValue,
             fourthValue,
@@ -96,8 +93,7 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
             eleventhValue,
             twelfthValue,
             thirteenthValue,
-            fourteenthValue
-        );
+            fourteenthValue);
     }
 
     public void Write(ProtocolEncoder encoder, TValue value)

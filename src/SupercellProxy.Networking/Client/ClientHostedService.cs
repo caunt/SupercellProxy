@@ -5,12 +5,10 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Client;
 
-internal sealed class ClientHostedService(
-    ProtocolClientFactory clients,
+internal sealed class ClientHostedService(ProtocolClientFactory clients,
     IOptions<ClientOptions> options,
     Func<IMessage, CancellationToken, Task> onMessage,
-    IHostApplicationLifetime lifetime
-) : BackgroundService
+    IHostApplicationLifetime lifetime) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

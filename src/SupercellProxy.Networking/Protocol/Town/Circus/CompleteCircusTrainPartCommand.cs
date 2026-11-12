@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town.Circus;
 public sealed record CompleteCircusTrainPartCommand(int CircusTrainPartGlobalId) : CodecCommand<CompleteCircusTrainPartCommand>, ICommandCodecProvider<CompleteCircusTrainPartCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CompleteCircusTrainPartCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.CircusTrainPartGlobalId,
-            static circusTrainPartGlobalId => new CompleteCircusTrainPartCommand(circusTrainPartGlobalId)
-        )
-    );
+    public static CommandCodec<CompleteCircusTrainPartCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.CircusTrainPartGlobalId,
+        static circusTrainPartGlobalId => new CompleteCircusTrainPartCommand(circusTrainPartGlobalId)));
 }

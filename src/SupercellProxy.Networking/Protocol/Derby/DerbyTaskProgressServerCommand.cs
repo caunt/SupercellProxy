@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Derby;
 public sealed record DerbyTaskProgressServerCommand(LongId HomeId, LongId NeighborhoodId, int TaskGlobalId, int RewardPoints, int TaskStatus) : CodecServerCommand<DerbyTaskProgressServerCommand>, ICommandCodecProvider<DerbyTaskProgressServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DerbyTaskProgressServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.HomeId,
-            Codecs.LongId,
-            static command => command.NeighborhoodId,
-            Codecs.Int32,
-            static command => command.TaskGlobalId,
-            Codecs.Int32,
-            static command => command.RewardPoints,
-            Codecs.Int32,
-            static command => command.TaskStatus,
-            static (homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus) => new DerbyTaskProgressServerCommand(homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus)
-        )
-    );
+    public static CommandCodec<DerbyTaskProgressServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.HomeId,
+        Codecs.LongId,
+        static command => command.NeighborhoodId,
+        Codecs.Int32,
+        static command => command.TaskGlobalId,
+        Codecs.Int32,
+        static command => command.RewardPoints,
+        Codecs.Int32,
+        static command => command.TaskStatus,
+        static (homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus) => new DerbyTaskProgressServerCommand(homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus)));
 }

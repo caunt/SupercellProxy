@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Screens;
 public sealed record GameModeNoticeMessage(string? Text, int Kind) : CodecMessage<GameModeNoticeMessage>, ICodecProvider<GameModeNoticeMessage>
 {
     /// <inheritdoc />
-    public static ICodec<GameModeNoticeMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<GameModeNoticeMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Text,
         Codecs.VarInt,
         static message => message.Kind,
-        static (text, kind) => new GameModeNoticeMessage(text, kind)
-    );
+        static (text, kind) => new GameModeNoticeMessage(text, kind));
 }

@@ -8,13 +8,11 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsProperty(string? Key, string? Value) : ICodecProvider<AnalyticsProperty>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsProperty> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<AnalyticsProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static value => value.Key,
         Codecs.OptionalString,
         static value => value.Value,
-        static (key, @value) => new AnalyticsProperty(key, value)
-    );
+        static (key, @value) => new AnalyticsProperty(key, value));
 
     /// <summary>Reads and writes a counted list of properties.</summary>
     internal static ICodec<ReadOnlyMemory<AnalyticsProperty>> ListCodec => field ??= Codecs.Memory(Codec);

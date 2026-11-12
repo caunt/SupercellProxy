@@ -7,8 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Recipients;
 public sealed record RecipientSelectedMessage : CodecMessage<RecipientSelectedMessage>, ICodecProvider<RecipientSelectedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RecipientSelectedMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Unit(static () => new RecipientSelectedMessage()),
-        trailingDataMessage: "The recipient acknowledgement has trailing data."
-    );
+    public static ICodec<RecipientSelectedMessage> Codec { get; } = Codecs.Complete(Codecs.Unit(static () => new RecipientSelectedMessage()),
+        trailingDataMessage: "The recipient acknowledgement has trailing data.");
 }

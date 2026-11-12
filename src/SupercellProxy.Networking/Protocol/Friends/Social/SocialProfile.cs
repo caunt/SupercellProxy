@@ -7,13 +7,12 @@ namespace SupercellProxy.Networking.Protocol.Friends.Social;
 /// <param name="FacebookId">Facebook user id linked to the account, if any.</param>
 /// <param name="GamecenterId">Game Center player id linked to the account, if any.</param>
 /// <param name="SupercellId">Supercell ID linked to the account, if any.</param>
-/// <param name="FarmName">Name of the player's farm; null for a farm that was never named.</param>
+/// <param name="FarmName">Name of the player's farm; <see langword="null"/> for a farm that was never named.</param>
 /// <param name="Value0">First number after the farm name; its meaning is not identified.</param>
 /// <param name="Value1">Second number after the farm name; not identified.</param>
 /// <param name="Value2">Third number after the farm name; not identified.</param>
 /// <param name="Value3">Fourth number after the farm name; not identified.</param>
-public sealed record SocialProfile(
-    LongId AvatarId,
+public sealed record SocialProfile(LongId AvatarId,
     string? FacebookId,
     string? GamecenterId,
     string? SupercellId,
@@ -21,12 +20,10 @@ public sealed record SocialProfile(
     int Value0,
     int Value1,
     int Value2,
-    int Value3
-) : ICodecProvider<SocialProfile>
+    int Value3) : ICodecProvider<SocialProfile>
 {
     /// <inheritdoc />
-    public static ICodec<SocialProfile> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<SocialProfile> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.AvatarId,
         Codecs.OptionalString,
         static value => value.FacebookId,
@@ -44,6 +41,5 @@ public sealed record SocialProfile(
         static value => value.Value2,
         Codecs.VarInt,
         static value => value.Value3,
-        static (avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3) => new SocialProfile(avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3)
-    );
+        static (avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3) => new SocialProfile(avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3));
 }

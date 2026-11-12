@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 public sealed record BirthdayHugReward(int GoodGlobalId, int Amount) : ICodecProvider<BirthdayHugReward>
 {
     /// <inheritdoc />
-    public static ICodec<BirthdayHugReward> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<BirthdayHugReward> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new BirthdayHugReward(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new BirthdayHugReward(goodGlobalId, amount));
 }

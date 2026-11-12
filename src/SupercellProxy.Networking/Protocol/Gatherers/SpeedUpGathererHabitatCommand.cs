@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Gatherers;
 public sealed record SpeedUpGathererHabitatCommand(int HabitatGlobalId) : CodecCommand<SpeedUpGathererHabitatCommand>, ICommandCodecProvider<SpeedUpGathererHabitatCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpGathererHabitatCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.HabitatGlobalId,
-            static habitatGlobalId => new SpeedUpGathererHabitatCommand(habitatGlobalId)
-        )
-    );
+    public static CommandCodec<SpeedUpGathererHabitatCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.HabitatGlobalId,
+        static habitatGlobalId => new SpeedUpGathererHabitatCommand(habitatGlobalId)));
 }

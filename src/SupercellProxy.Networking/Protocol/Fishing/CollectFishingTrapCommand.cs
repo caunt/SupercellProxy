@@ -4,6 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects the retained drops of a completed fishing net or trap.</summary>
+/// <param name="SpotId">Game object global id of the fishing spot holding the net or trap, written as a VarInt.</param>
 public sealed record CollectFishingTrapCommand(int SpotId) : CodecCommand<CollectFishingTrapCommand>, ICommandCodecProvider<CollectFishingTrapCommand>
 {
     /// <inheritdoc />

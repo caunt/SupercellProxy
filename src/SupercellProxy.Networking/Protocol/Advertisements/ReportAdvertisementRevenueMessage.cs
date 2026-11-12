@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Advertisements;
 public sealed record ReportAdvertisementRevenueMessage(string? Network, float Revenue, string? Currency, string? Placement, string? AdvertisementId, string? Precision) : CodecMessage<ReportAdvertisementRevenueMessage>, ICodecProvider<ReportAdvertisementRevenueMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportAdvertisementRevenueMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<ReportAdvertisementRevenueMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Network,
         Codecs.Float,
         static message => message.Revenue,
@@ -26,6 +25,5 @@ public sealed record ReportAdvertisementRevenueMessage(string? Network, float Re
         static message => message.AdvertisementId,
         Codecs.OptionalString,
         static message => message.Precision,
-        static (network, revenue, currency, placement, advertisementId, precision) => new ReportAdvertisementRevenueMessage(network, revenue, currency, placement, advertisementId, precision)
-    );
+        static (network, revenue, currency, placement, advertisementId, precision) => new ReportAdvertisementRevenueMessage(network, revenue, currency, placement, advertisementId, precision));
 }

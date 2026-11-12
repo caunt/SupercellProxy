@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Boats.Help;
 public sealed record NotifyVisitorsOnBoatHelpReceivedMessage(int CrateIndex, LongId HelperId, LongId OwnerId) : CodecMessage<NotifyVisitorsOnBoatHelpReceivedMessage>, ICodecProvider<NotifyVisitorsOnBoatHelpReceivedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NotifyVisitorsOnBoatHelpReceivedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<NotifyVisitorsOnBoatHelpReceivedMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.CrateIndex,
         Codecs.LongId,
         static message => message.HelperId,
         Codecs.LongId,
         static message => message.OwnerId,
-        static (crateIndex, helperId, ownerId) => new NotifyVisitorsOnBoatHelpReceivedMessage(crateIndex, helperId, ownerId)
-    );
+        static (crateIndex, helperId, ownerId) => new NotifyVisitorsOnBoatHelpReceivedMessage(crateIndex, helperId, ownerId));
 }

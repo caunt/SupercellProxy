@@ -15,28 +15,20 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
     : CodecCommand<RequestNewspaperCommand>, ICommandCodecProvider<RequestNewspaperCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestNewspaperCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.String,
+    public static CommandCodec<RequestNewspaperCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.String,
                 static command => command.CountryCode,
                 Codecs.Boolean,
                 static command => command.SpendDiamonds,
                 Codecs.Boolean,
                 static command => command.Alternate,
-                static (countryCode, spendDiamonds, alternate) => new RequestNewspaperCommand(spendDiamonds, countryCode, alternate)
-            ),
-            Codecs.Composite(
-                Codecs.Boolean,
+                static (countryCode, spendDiamonds, alternate) => new RequestNewspaperCommand(spendDiamonds, countryCode, alternate)),
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.SpendDiamonds,
                 Codecs.String,
                 static command => command.CountryCode,
                 Codecs.Boolean,
                 static command => command.Alternate,
-                static (spendDiamonds, countryCode, alternate) => new RequestNewspaperCommand(spendDiamonds, countryCode, alternate)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (spendDiamonds, countryCode, alternate) => new RequestNewspaperCommand(spendDiamonds, countryCode, alternate))),
+        CommandLayout.MetadataFirst);
 }

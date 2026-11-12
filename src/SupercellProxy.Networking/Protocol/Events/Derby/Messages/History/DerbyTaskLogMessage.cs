@@ -7,9 +7,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.History;
 public sealed record DerbyTaskLogMessage : CodecMessage<DerbyTaskLogMessage>, ICodecProvider<DerbyTaskLogMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DerbyTaskLogMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+    public static ICodec<DerbyTaskLogMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.FirstEntries,
             Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.SecondEntries,
@@ -23,21 +21,24 @@ public sealed record DerbyTaskLogMessage : CodecMessage<DerbyTaskLogMessage>, IC
                 SecondEntries = secondEntries,
                 Value0 = value0,
                 Value1 = value1,
-            }
-        ),
-        trailingDataMessage: "The derby message has trailing data."
-    );
+            }),
+        trailingDataMessage: "The derby message has trailing data.");
 
-    /// <summary>Gets the first optional collection in native order.</summary>
+    /// <summary>Gets or sets the first optional collection in native order.</summary>
+    /// <value>The member rows of the first list in the reply, or <see langword="null"/> when native wrote the -1 absent count; which tab of the log it fills is not yet identified.</value>
     public DerbyMemberTaskLogEntry[]? FirstEntries { get; init; }
-    /// <summary>Gets the second optional collection in native order.</summary>
+    /// <summary>Gets or sets the second optional collection in native order.</summary>
+    /// <value>The member rows of the second list, read right after <see cref="FirstEntries"/>, or <see langword="null"/> when native wrote the -1 absent count.</value>
     public DerbyMemberTaskLogEntry[]? SecondEntries { get; init; }
-    /// <summary>Gets the first value following the two collections.</summary>
+    /// <summary>Gets or sets the first value following the two collections.</summary>
+    /// <value>The var-int written after <see cref="SecondEntries"/>; its meaning is not yet identified, so it is carried through unchanged.</value>
     public int Value0 { get; init; }
-    /// <summary>Gets the second value following the two collections.</summary>
+    /// <summary>Gets or sets the second value following the two collections.</summary>
+    /// <value>The var-int that ends the reply, written after <see cref="Value0"/>; its meaning is not yet identified.</value>
     public int Value1 { get; init; }
 
     /// <summary>Omits member details from diagnostic text.</summary>
+    /// <returns>The type name <c>DerbyTaskLogMessage</c> alone, so member identifiers and names never reach logs.</returns>
     public override string ToString()
     {
         return nameof(DerbyTaskLogMessage);

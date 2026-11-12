@@ -13,9 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Designs;
 public sealed record DecorationEventDesignServerCommand(int Points, int EventId, long DesignId, int VariantId, string? DesignName, int Votes) : CodecServerCommand<DecorationEventDesignServerCommand>, ICommandCodecProvider<DecorationEventDesignServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DecorationEventDesignServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<DecorationEventDesignServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Points,
             Codecs.VarInt,
             static command => command.EventId,
@@ -27,8 +25,6 @@ public sealed record DecorationEventDesignServerCommand(int Points, int EventId,
             static command => command.DesignName,
             Codecs.VarInt,
             static command => command.Votes,
-            static (points, eventId, designId, variantId, designName, votes) => new DecorationEventDesignServerCommand(points, eventId, designId, variantId, designName, votes)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (points, eventId, designId, variantId, designName, votes) => new DecorationEventDesignServerCommand(points, eventId, designId, variantId, designName, votes)),
+        CommandLayout.MetadataFirst);
 }

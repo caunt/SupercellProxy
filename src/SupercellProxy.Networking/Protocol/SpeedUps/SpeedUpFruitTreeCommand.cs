@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.SpeedUps;
 public sealed record SpeedUpFruitTreeCommand(int TreeGlobalId) : CodecCommand<SpeedUpFruitTreeCommand>, ICommandCodecProvider<SpeedUpFruitTreeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpFruitTreeCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TreeGlobalId, static treeGlobalId => new SpeedUpFruitTreeCommand(treeGlobalId))
-    );
+    public static CommandCodec<SpeedUpFruitTreeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TreeGlobalId, static treeGlobalId => new SpeedUpFruitTreeCommand(treeGlobalId)));
 }

@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record SelectDailyTaskCommand(int TaskIndex) : CodecCommand<SelectDailyTaskCommand>, ICommandCodecProvider<SelectDailyTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectDailyTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new SelectDailyTaskCommand(taskIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<SelectDailyTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TaskIndex, static taskIndex => new SelectDailyTaskCommand(taskIndex)),
+        CommandLayout.MetadataFirst);
 }

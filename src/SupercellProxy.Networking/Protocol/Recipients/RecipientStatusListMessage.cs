@@ -8,9 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Recipients;
 public sealed record RecipientStatusListMessage(ReadOnlyMemory<RecipientStatus> Entries) : CodecMessage<RecipientStatusListMessage>, ICodecProvider<RecipientStatusListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RecipientStatusListMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(RecipientStatus.Codec),
+    public static ICodec<RecipientStatusListMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(RecipientStatus.Codec),
         static message => message.Entries,
-        static entries => new RecipientStatusListMessage(entries)
-    );
+        static entries => new RecipientStatusListMessage(entries));
 }

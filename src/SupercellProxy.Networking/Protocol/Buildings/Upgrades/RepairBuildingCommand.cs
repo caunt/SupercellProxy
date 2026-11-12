@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Buildings.Upgrades;
 public sealed record RepairBuildingCommand(int DataGlobalId, int ObjectGlobalId, int PositionX, int PositionY, bool UseDiamonds) : CodecCommand<RepairBuildingCommand>, ICommandCodecProvider<RepairBuildingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RepairBuildingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.DataGlobalId,
-            Codecs.VarInt,
-            static command => command.ObjectGlobalId,
-            Codecs.VarInt,
-            static command => command.PositionX,
-            Codecs.VarInt,
-            static command => command.PositionY,
-            Codecs.Boolean,
-            static command => command.UseDiamonds,
-            static (dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds) => new RepairBuildingCommand(dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds)
-        )
-    );
+    public static CommandCodec<RepairBuildingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.DataGlobalId,
+        Codecs.VarInt,
+        static command => command.ObjectGlobalId,
+        Codecs.VarInt,
+        static command => command.PositionX,
+        Codecs.VarInt,
+        static command => command.PositionY,
+        Codecs.Boolean,
+        static command => command.UseDiamonds,
+        static (dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds) => new RepairBuildingCommand(dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds)));
 }

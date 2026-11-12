@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 public sealed record DeviceLinkStateMessage(int Value, bool Flag) : CodecMessage<DeviceLinkStateMessage>, ICodecProvider<DeviceLinkStateMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DeviceLinkStateMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Int32,
+    public static ICodec<DeviceLinkStateMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
         static message => message.Value,
         Codecs.Boolean,
         static message => message.Flag,
-        static (@value, flag) => new DeviceLinkStateMessage(value, flag)
-    );
+        static (@value, flag) => new DeviceLinkStateMessage(value, flag));
 }

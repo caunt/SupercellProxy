@@ -10,7 +10,7 @@ namespace SupercellProxy.Networking.Proxy;
 
 internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionTokenData>>? sessionTokenProvider, AnonymousAccountLease? anonymousAccount = null)
 {
-    internal async Task OnMessageReceivedEventAsync(MessageReceivedEvent @event, CancellationToken cancellationToken)
+    internal async Task OnMessageReceivedAsync(MessageReceivedEvent @event, CancellationToken cancellationToken)
     {
         if (@event.Message is ClientHelloMessage)
             @event.Destination.GameVersion = @event.Source.GameVersion;
@@ -51,7 +51,7 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
         }
     }
 
-    internal async Task OnMessageSentEventAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
+    internal async Task OnMessageSentAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
     {
         if (@event.Message is ServerHelloMessage hello)
         {

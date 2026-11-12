@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.GameObjects.Placement;
 public sealed record StoreGameObjectCommand(int ObjectGlobalId) : CodecCommand<StoreGameObjectCommand>, ICommandCodecProvider<StoreGameObjectCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StoreGameObjectCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static objectGlobalId => new StoreGameObjectCommand(objectGlobalId))
-    );
+    public static CommandCodec<StoreGameObjectCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static objectGlobalId => new StoreGameObjectCommand(objectGlobalId)));
 }

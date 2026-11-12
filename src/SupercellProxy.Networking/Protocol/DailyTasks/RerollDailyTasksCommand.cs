@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record RerollDailyTasksCommand(bool UseDiamonds) : CodecCommand<RerollDailyTasksCommand>, ICommandCodecProvider<RerollDailyTasksCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RerollDailyTasksCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new RerollDailyTasksCommand(useDiamonds)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<RerollDailyTasksCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.UseDiamonds, static useDiamonds => new RerollDailyTasksCommand(useDiamonds)),
+        CommandLayout.MetadataFirst);
 }

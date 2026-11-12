@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record ClaimEventTaskRewardCommand(int EventId, int RewardIndex, bool EventCompletedReward) : CodecCommand<ClaimEventTaskRewardCommand>, ICommandCodecProvider<ClaimEventTaskRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimEventTaskRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.RewardIndex,
-            Codecs.Boolean,
-            static command => command.EventCompletedReward,
-            static (eventId, rewardIndex, eventCompletedReward) => new ClaimEventTaskRewardCommand(eventId, rewardIndex, eventCompletedReward)
-        )
-    );
+    public static CommandCodec<ClaimEventTaskRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.RewardIndex,
+        Codecs.Boolean,
+        static command => command.EventCompletedReward,
+        static (eventId, rewardIndex, eventCompletedReward) => new ClaimEventTaskRewardCommand(eventId, rewardIndex, eventCompletedReward)));
 }

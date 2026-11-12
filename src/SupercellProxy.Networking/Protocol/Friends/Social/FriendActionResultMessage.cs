@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Friends.Social;
 public sealed record FriendActionResultMessage(LongId AvatarId, int Result) : CodecMessage<FriendActionResultMessage>, ICodecProvider<FriendActionResultMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FriendActionResultMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<FriendActionResultMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.AvatarId,
         Codecs.VarInt,
         static message => message.Result,
-        static (avatarId, result) => new FriendActionResultMessage(avatarId, result)
-    );
+        static (avatarId, result) => new FriendActionResultMessage(avatarId, result));
 }

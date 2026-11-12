@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Membership;
 public sealed record EndMapGameServerCommand(LongId? MapGameId, int ChickenCoins) : CodecServerCommand<EndMapGameServerCommand>, ICommandCodecProvider<EndMapGameServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<EndMapGameServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.OptionalLongId,
-            static command => command.MapGameId,
-            Codecs.VarInt,
-            static command => command.ChickenCoins,
-            static (mapGameId, chickenCoins) => new EndMapGameServerCommand(mapGameId, chickenCoins)
-        )
-    );
+    public static CommandCodec<EndMapGameServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalLongId,
+        static command => command.MapGameId,
+        Codecs.VarInt,
+        static command => command.ChickenCoins,
+        static (mapGameId, chickenCoins) => new EndMapGameServerCommand(mapGameId, chickenCoins)));
 }

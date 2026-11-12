@@ -6,19 +6,19 @@ namespace SupercellProxy.Networking.Cryptography;
 public class NaClV3Exception : Exception
 {
     /// <summary>
-    /// Creates an encryption failure with no description.
+    /// Initializes a new instance of the <see cref="NaClV3Exception"/> class. Creates an encryption failure with no description.
     /// </summary>
     public NaClV3Exception() { }
 
     /// <summary>
-    /// Creates an encryption failure described by text.
+    /// Initializes a new instance of the <see cref="NaClV3Exception"/> class. Creates an encryption failure described by text.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     public NaClV3Exception(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Creates an encryption failure caused by another error.
+    /// Initializes a new instance of the <see cref="NaClV3Exception"/> class. Creates an encryption failure caused by another error.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     /// <param name="innerException">The error that caused it.</param>

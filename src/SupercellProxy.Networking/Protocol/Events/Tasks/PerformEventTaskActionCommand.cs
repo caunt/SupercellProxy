@@ -28,15 +28,11 @@ public sealed record PerformEventTaskActionCommand(int EventId, int TaskIndex, i
     public const int SpeedUpAction = 4;
 
     /// <inheritdoc />
-    public static CommandCodec<PerformEventTaskActionCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.TaskIndex,
-            Codecs.VarInt,
-            static command => command.Action,
-            static (eventId, taskIndex, action) => new PerformEventTaskActionCommand(eventId, taskIndex, action)
-        )
-    );
+    public static CommandCodec<PerformEventTaskActionCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.TaskIndex,
+        Codecs.VarInt,
+        static command => command.Action,
+        static (eventId, taskIndex, action) => new PerformEventTaskActionCommand(eventId, taskIndex, action)));
 }

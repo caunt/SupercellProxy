@@ -95,12 +95,10 @@ public static class NaClV3Cryptography
     /// <param name="localPrivateKey">Recipient's 32-byte Curve25519 private key.</param>
     /// <returns>The decrypted bytes.</returns>
     /// <exception cref="MacVerificationException">The tag does not match: wrong keys or nonce, or the bytes were altered.</exception>
-    public static byte[] BoxOpen(
-        ReadOnlySpan<byte> ciphertext,
+    public static byte[] BoxOpen(ReadOnlySpan<byte> ciphertext,
         ReadOnlySpan<byte> nonce24,
         ReadOnlySpan<byte> remotePublicKey,
-        ReadOnlySpan<byte> localPrivateKey
-    )
+        ReadOnlySpan<byte> localPrivateKey)
     {
         ReadOnlySpan<byte> messageAuthenticationCode = ciphertext[..16];
         ReadOnlySpan<byte> encryptedPayload = ciphertext[16..];
@@ -358,11 +356,9 @@ public static class NaClV3Cryptography
         zCoordinate3 = Modulo(baseXCoordinate * Modulo(diffProducts * diffProducts, Curve25519PrimeModulus), Curve25519PrimeModulus);
 
         xCoordinate2 = Modulo(squaredSumX2Z2 * squaredDiffX2Z2, Curve25519PrimeModulus);
-        zCoordinate2 = Modulo(
-            diffSquaredSumAndDiff
+        zCoordinate2 = Modulo(diffSquaredSumAndDiff
                 * Modulo(squaredSumX2Z2 + Modulo(CurveConstantA24 * diffSquaredSumAndDiff, Curve25519PrimeModulus), Curve25519PrimeModulus),
-            Curve25519PrimeModulus
-        );
+            Curve25519PrimeModulus);
 
         return new MontgomeryStepResult(xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3);
     }
@@ -411,27 +407,27 @@ public static class NaClV3Cryptography
             accumulator3 += (BinaryPrimitives.ReadUInt32LittleEndian(block[9..]) >> 6) & LimbMask;
             accumulator4 += (BinaryPrimitives.ReadUInt32LittleEndian(block[12..]) >> 8) | highBit;
 
-            ulong product0 = ((ulong)accumulator0 * keyLimb0) + (accumulator1 * scaledLimb4) + (accumulator2 * scaledLimb3) + (accumulator3 * scaledLimb2) + (accumulator4 * scaledLimb1);
-            ulong product1 = ((ulong)accumulator0 * keyLimb1) + ((ulong)accumulator1 * keyLimb0) + (accumulator2 * scaledLimb4) + (accumulator3 * scaledLimb3) + (accumulator4 * scaledLimb2);
-            ulong product2 = ((ulong)accumulator0 * keyLimb2) + ((ulong)accumulator1 * keyLimb1) + ((ulong)accumulator2 * keyLimb0) + (accumulator3 * scaledLimb4) + (accumulator4 * scaledLimb3);
-            ulong product3 = ((ulong)accumulator0 * keyLimb3) + ((ulong)accumulator1 * keyLimb2) + ((ulong)accumulator2 * keyLimb1) + ((ulong)accumulator3 * keyLimb0) + (accumulator4 * scaledLimb4);
-            ulong product4 = ((ulong)accumulator0 * keyLimb4) + ((ulong)accumulator1 * keyLimb3) + ((ulong)accumulator2 * keyLimb2) + ((ulong)accumulator3 * keyLimb1) + ((ulong)accumulator4 * keyLimb0);
+            ulong product0 = (ulong.CreateChecked(accumulator0) * keyLimb0) + (accumulator1 * scaledLimb4) + (accumulator2 * scaledLimb3) + (accumulator3 * scaledLimb2) + (accumulator4 * scaledLimb1);
+            ulong product1 = (ulong.CreateChecked(accumulator0) * keyLimb1) + (ulong.CreateChecked(accumulator1) * keyLimb0) + (accumulator2 * scaledLimb4) + (accumulator3 * scaledLimb3) + (accumulator4 * scaledLimb2);
+            ulong product2 = (ulong.CreateChecked(accumulator0) * keyLimb2) + (ulong.CreateChecked(accumulator1) * keyLimb1) + (ulong.CreateChecked(accumulator2) * keyLimb0) + (accumulator3 * scaledLimb4) + (accumulator4 * scaledLimb3);
+            ulong product3 = (ulong.CreateChecked(accumulator0) * keyLimb3) + (ulong.CreateChecked(accumulator1) * keyLimb2) + (ulong.CreateChecked(accumulator2) * keyLimb1) + (ulong.CreateChecked(accumulator3) * keyLimb0) + (accumulator4 * scaledLimb4);
+            ulong product4 = (ulong.CreateChecked(accumulator0) * keyLimb4) + (ulong.CreateChecked(accumulator1) * keyLimb3) + (ulong.CreateChecked(accumulator2) * keyLimb2) + (ulong.CreateChecked(accumulator3) * keyLimb1) + (ulong.CreateChecked(accumulator4) * keyLimb0);
 
             ulong carry = product0 >> 26;
-            accumulator0 = (uint)product0 & LimbMask;
+            accumulator0 = uint.CreateTruncating(product0) & LimbMask;
             product1 += carry;
             carry = product1 >> 26;
-            accumulator1 = (uint)product1 & LimbMask;
+            accumulator1 = uint.CreateTruncating(product1) & LimbMask;
             product2 += carry;
             carry = product2 >> 26;
-            accumulator2 = (uint)product2 & LimbMask;
+            accumulator2 = uint.CreateTruncating(product2) & LimbMask;
             product3 += carry;
             carry = product3 >> 26;
-            accumulator3 = (uint)product3 & LimbMask;
+            accumulator3 = uint.CreateTruncating(product3) & LimbMask;
             product4 += carry;
             carry = product4 >> 26;
-            accumulator4 = (uint)product4 & LimbMask;
-            accumulator0 += (uint)carry * 5;
+            accumulator4 = uint.CreateTruncating(product4) & LimbMask;
+            accumulator0 += uint.CreateTruncating(carry) * 5;
             accumulator1 += accumulator0 >> 26;
             accumulator0 &= LimbMask;
         }
@@ -480,14 +476,14 @@ public static class NaClV3Cryptography
         uint word2 = (accumulator2 >> 12) | (accumulator3 << 14);
         uint word3 = (accumulator3 >> 18) | (accumulator4 << 8);
 
-        ulong sum = (ulong)word0 + BinaryPrimitives.ReadUInt32LittleEndian(key[16..]);
-        BinaryPrimitives.WriteUInt32LittleEndian(macResult, (uint)sum);
-        sum = (ulong)word1 + BinaryPrimitives.ReadUInt32LittleEndian(key[20..]) + (sum >> 32);
-        BinaryPrimitives.WriteUInt32LittleEndian(macResult[4..], (uint)sum);
-        sum = (ulong)word2 + BinaryPrimitives.ReadUInt32LittleEndian(key[24..]) + (sum >> 32);
-        BinaryPrimitives.WriteUInt32LittleEndian(macResult[8..], (uint)sum);
-        sum = (ulong)word3 + BinaryPrimitives.ReadUInt32LittleEndian(key[28..]) + (sum >> 32);
-        BinaryPrimitives.WriteUInt32LittleEndian(macResult[12..], (uint)sum);
+        ulong sum = ulong.CreateChecked(word0) + BinaryPrimitives.ReadUInt32LittleEndian(key[16..]);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult, uint.CreateTruncating(sum));
+        sum = ulong.CreateChecked(word1) + BinaryPrimitives.ReadUInt32LittleEndian(key[20..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[4..], uint.CreateTruncating(sum));
+        sum = ulong.CreateChecked(word2) + BinaryPrimitives.ReadUInt32LittleEndian(key[24..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[8..], uint.CreateTruncating(sum));
+        sum = ulong.CreateChecked(word3) + BinaryPrimitives.ReadUInt32LittleEndian(key[28..]) + (sum >> 32);
+        BinaryPrimitives.WriteUInt32LittleEndian(macResult[12..], uint.CreateTruncating(sum));
     }
 
     private static void QuarterRound(Span<uint> span, int indexA, int indexB, int indexC, int indexD)

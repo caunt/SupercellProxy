@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 public sealed record MapGameEscapedSanctuaryAnimalsRemovedEvent(MapGamePawn? Pawn, MapGameTaskCollection? Tasks) : MapGameEvent(MapGameEvent.EscapedSanctuaryAnimalsRemovedType), ICodecProvider<MapGameEscapedSanctuaryAnimalsRemovedEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameEscapedSanctuaryAnimalsRemovedEvent> Codec { get; } = Codecs.Composite(
-        Codecs.Optional(MapGamePawn.Codec),
+    public static new ICodec<MapGameEscapedSanctuaryAnimalsRemovedEvent> Codec { get; } = Codecs.Composite(Codecs.Optional(MapGamePawn.Codec),
         static mapGameEvent => mapGameEvent.Pawn,
         Codecs.Optional(MapGameTaskCollection.Codec),
         static mapGameEvent => mapGameEvent.Tasks,
-        static (pawn, tasks) => new MapGameEscapedSanctuaryAnimalsRemovedEvent(pawn, tasks)
-    );
+        static (pawn, tasks) => new MapGameEscapedSanctuaryAnimalsRemovedEvent(pawn, tasks));
 }

@@ -18,8 +18,11 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     /// <summary>
     /// Gets the wire codec.
     /// </summary>
-    public static ICodec<LoginFailedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Enum<LoginFailureType>(Codecs.Int32),
+    /// <value>
+    /// A composite codec that reads and writes the fields in wire order: the error code, manifest, reason, maintenance time, the unidentified
+    /// fields, the asset addresses and finally the redirect host.
+    /// </value>
+    public static ICodec<LoginFailedMessage> Codec { get; } = Codecs.Composite(Codecs.Enum<LoginFailureType>(Codecs.Int32),
         static message => message.ErrorCode,
         Codecs.OptionalString,
         static message => message.GameAssetFingerprintData,
@@ -49,8 +52,7 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
         static message => message.AssetsUrls,
         Codecs.OptionalString,
         static message => message.RedirectHost,
-        static (
-            errorCode,
+        static (errorCode,
             gameAssetFingerprintData,
             reason,
             estimatedMaintenanceSeconds,
@@ -64,26 +66,24 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
             unknown8,
             unknown9,
             assetsUrls,
-            redirectHost
-        ) => new LoginFailedMessage
-        {
-            ErrorCode = errorCode,
-            GameAssetFingerprintData = gameAssetFingerprintData,
-            Reason = reason,
-            EstimatedMaintenanceSeconds = estimatedMaintenanceSeconds,
-            Unknown2 = unknown2,
-            UpdateAddress = updateAddress,
-            Unknown3 = unknown3,
-            Unknown4 = unknown4,
-            Unknown5 = unknown5,
-            Unknown6 = unknown6,
-            Unknown7 = unknown7,
-            Unknown8 = unknown8,
-            Unknown9 = unknown9,
-            AssetsUrls = assetsUrls,
-            RedirectHost = redirectHost,
-        }
-    );
+            redirectHost) => new LoginFailedMessage
+            {
+                ErrorCode = errorCode,
+                GameAssetFingerprintData = gameAssetFingerprintData,
+                Reason = reason,
+                EstimatedMaintenanceSeconds = estimatedMaintenanceSeconds,
+                Unknown2 = unknown2,
+                UpdateAddress = updateAddress,
+                Unknown3 = unknown3,
+                Unknown4 = unknown4,
+                Unknown5 = unknown5,
+                Unknown6 = unknown6,
+                Unknown7 = unknown7,
+                Unknown8 = unknown8,
+                Unknown9 = unknown9,
+                AssetsUrls = assetsUrls,
+                RedirectHost = redirectHost,
+            });
 
     private static readonly JsonSerializerOptions DocumentSerializerOptions = new()
     {
@@ -91,31 +91,47 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     };
 
     /// <summary>
-    /// Asset server addresses to download a new bundle from, in order of preference, as sent; entries may be null or blank.
+    /// Gets or sets the asset server addresses to download a new bundle from, in order of preference, as sent; entries may be <see langword="null"/> or blank.
     /// </summary>
+    /// <value>
+    /// The base addresses from an Int32-counted array of optional strings; empty by default and when the server writes a negative count.
+    /// </value>
     public string?[] AssetsUrls { get; init; } = [];
 
     /// <summary>
-    /// The asset server addresses with null and blank entries removed, ready to try one after another.
+    /// Gets the asset server addresses with <see langword="null"/> and blank entries removed, ready to try one after another.
     /// </summary>
+    /// <value>
+    /// A lazily filtered view of <see cref="AssetsUrls"/> in the server's order; it is empty when the server sent no usable address.
+    /// </value>
     public IEnumerable<string> AssetsUrlsFiltered =>
         AssetsUrls.Where(static address => !string.IsNullOrWhiteSpace(address)).WhereNotNull();
 
     /// <summary>
-    /// Why the login was refused; it decides which other fields carry information (manifest, maintenance time, redirect host).
+    /// Gets or sets why the login was refused; it decides which other fields carry information (manifest, maintenance time, redirect host).
     /// </summary>
+    /// <value>
+    /// The refusal code, written first as a 32-bit integer; codes not named in <see cref="LoginFailureType"/> are kept as their raw number.
+    /// </value>
     public required LoginFailureType ErrorCode { get; init; }
 
     /// <summary>
-    /// Gets the server's estimated remaining maintenance duration in seconds.
+    /// Gets or sets the server's estimated remaining maintenance duration in seconds.
     /// Nonpositive values do not provide a positive countdown. Used when <see cref="ErrorCode"/> is <see cref="LoginFailureType.Maintenance"/>.
     /// </summary>
+    /// <value>
+    /// A 32-bit count of seconds until the servers are expected back; 0 by default and for refusals other than maintenance.
+    /// </value>
     public int EstimatedMaintenanceSeconds { get; init; }
 
     /// <summary>
-    /// The current asset manifest, parsed from <see cref="GameAssetFingerprintData"/>; present when the error code is out-of-date
+    /// Gets the current asset manifest, parsed from <see cref="GameAssetFingerprintData"/>; present when the error code is out-of-date
     /// content.
     /// </summary>
+    /// <value>
+    /// A new <see cref="Assets.GameAssetFingerprint"/> deserialized from the camel-case JSON on every read, holding the bundle hash, its version
+    /// and the hash of each file.
+    /// </value>
     /// <exception cref="InvalidOperationException">The message carries no manifest, or the manifest is not valid JSON.</exception>
     public GameAssetFingerprint GameAssetFingerprint
     {
@@ -134,63 +150,106 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     }
 
     /// <summary>
-    /// The current asset manifest as raw JSON text; null when the refusal is not about outdated content.
+    /// Gets or sets the current asset manifest as raw JSON text; <see langword="null"/> when the refusal is not about outdated content.
     /// </summary>
+    /// <value>
+    /// The fingerprint JSON (bundle hash, version and per-file hashes) exactly as sent; <see cref="GameAssetFingerprint"/> parses it on each read.
+    /// </value>
     public string? GameAssetFingerprintData { get; init; }
 
     /// <summary>
-    /// Human-readable explanation from the server, such as a ban reason; null or empty when none is given.
+    /// Gets or sets the human-readable explanation from the server, such as a ban reason; <see langword="null"/> or empty when none is given.
     /// </summary>
+    /// <value>
+    /// Free text shown to the player; <see cref="Client.LoginException"/> appends it to its message when it is not blank.
+    /// </value>
     public string? Reason { get; init; }
 
     /// <summary>
-    /// Game server host the client should connect to instead, sent with a redirection refusal.
+    /// Gets or sets the game server host the client should connect to instead, sent with a redirection refusal.
     /// </summary>
+    /// <value>
+    /// The host written as the last field of the message; <see langword="null"/> unless <see cref="ErrorCode"/> is
+    /// <see cref="LoginFailureType.Redirection"/>.
+    /// </value>
     public string? RedirectHost { get; init; }
 
     /// <summary>
-    /// Flag sent after the maintenance time; its meaning is not identified.
+    /// Gets or sets the flag sent after the maintenance time; its meaning is not identified.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the server set this flag; otherwise, <see langword="false"/>.
+    /// </value>
+    /// <remarks>The flag is the Boolean written between <see cref="EstimatedMaintenanceSeconds"/> and <see cref="UpdateAddress"/>, and it defaults to <see langword="false"/>.</remarks>
     public bool Unknown2 { get; init; }
 
     /// <summary>
-    /// First number after the update address; its meaning is not identified.
+    /// Gets or sets the first number after the update address; its meaning is not identified.
     /// </summary>
+    /// <value>
+    /// A variable-length integer written right after <see cref="UpdateAddress"/>; it defaults to 0.
+    /// </value>
     public int Unknown3 { get; init; }
 
     /// <summary>
-    /// Second number after the update address; its meaning is not identified.
+    /// Gets or sets the second number after the update address; its meaning is not identified.
     /// </summary>
+    /// <value>
+    /// A variable-length integer written right after <see cref="Unknown3"/>; it defaults to 0.
+    /// </value>
     public int Unknown4 { get; init; }
 
     /// <summary>
-    /// Optional id sent after those numbers (written only when it is not empty); its meaning is not identified.
+    /// Gets or sets the optional id sent after those numbers (written only when it is not empty); its meaning is not identified.
     /// </summary>
+    /// <value>
+    /// A presence flag followed, when set, by a high/low id pair; <see cref="LongId.Empty"/> when the flag is clear, which is also the default.
+    /// </value>
     public LongId Unknown5 { get; init; }
 
     /// <summary>
-    /// First of four optional texts sent after that id; their meanings are not identified.
+    /// Gets or sets the first of four optional texts sent after that id; their meanings are not identified.
     /// </summary>
+    /// <value>
+    /// A presence flag followed, when set, by an optional string; <see langword="null"/> when the server sends none, and a blank value is written
+    /// back with the flag cleared.
+    /// </value>
     public string? Unknown6 { get; init; }
 
     /// <summary>
-    /// Second of the four optional texts; not identified.
+    /// Gets or sets the second of the four optional texts; not identified.
     /// </summary>
+    /// <value>
+    /// A flag-prefixed optional string written after <see cref="Unknown6"/>; <see langword="null"/> when the server sends none, and a blank value
+    /// is written back as absent.
+    /// </value>
     public string? Unknown7 { get; init; }
 
     /// <summary>
-    /// Third of the four optional texts; not identified.
+    /// Gets or sets the third of the four optional texts; not identified.
     /// </summary>
+    /// <value>
+    /// A flag-prefixed optional string written after <see cref="Unknown7"/>; <see langword="null"/> when the server sends none, and a blank value
+    /// is written back as absent.
+    /// </value>
     public string? Unknown8 { get; init; }
 
     /// <summary>
-    /// Fourth of the four optional texts; not identified.
+    /// Gets or sets the fourth of the four optional texts; not identified.
     /// </summary>
+    /// <value>
+    /// A flag-prefixed optional string written just before <see cref="AssetsUrls"/>; <see langword="null"/> when the server sends none, and a blank
+    /// value is written back as absent.
+    /// </value>
     public string? Unknown9 { get; init; }
 
     /// <summary>
-    /// Store page the player is sent to when the refusal says the app itself is outdated.
+    /// Gets or sets the store page the player is sent to when the refusal says the app itself is outdated.
     /// </summary>
+    /// <value>
+    /// An address written as an optional string after <see cref="Unknown2"/>; <see langword="null"/> when the server sends none, and it is serialized
+    /// to JSON as <c>UpdateUrl</c>.
+    /// </value>
     [JsonPropertyName("UpdateUrl")]
     public string? UpdateAddress { get; init; }
 

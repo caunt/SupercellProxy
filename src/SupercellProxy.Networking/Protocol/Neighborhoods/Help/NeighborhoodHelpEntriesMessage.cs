@@ -6,17 +6,15 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Help;
 /// <summary>Delivers the help entries of a farm; the client passes them to the neighborhood chat when it is visiting that farm.</summary>
 /// <param name="Value">Number sent before the owner; its meaning is not identified.</param>
 /// <param name="OwnerId">Account of the farm the help entries belong to.</param>
-/// <param name="Entries">Who helped and how much; null when none are listed.</param>
+/// <param name="Entries">Who helped and how much; <see langword="null"/> when none are listed.</param>
 public sealed record NeighborhoodHelpEntriesMessage(int Value, LongId OwnerId, ReadOnlyMemory<NeighborhoodHelpEntry>? Entries) : CodecMessage<NeighborhoodHelpEntriesMessage>, ICodecProvider<NeighborhoodHelpEntriesMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHelpEntriesMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<NeighborhoodHelpEntriesMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Value,
         Codecs.LongId,
         static message => message.OwnerId,
         Codecs.NullableMemory(NeighborhoodHelpEntry.Codec),
         static message => message.Entries,
-        static (value, ownerId, entries) => new NeighborhoodHelpEntriesMessage(value, ownerId, entries)
-    );
+        static (value, ownerId, entries) => new NeighborhoodHelpEntriesMessage(value, ownerId, entries));
 }

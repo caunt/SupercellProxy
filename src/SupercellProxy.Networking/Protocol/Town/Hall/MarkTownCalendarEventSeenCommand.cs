@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town.Hall;
 public sealed record MarkTownCalendarEventSeenCommand(int CalendarEventGlobalId) : CodecCommand<MarkTownCalendarEventSeenCommand>, ICommandCodecProvider<MarkTownCalendarEventSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTownCalendarEventSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.CalendarEventGlobalId,
-            static calendarEventGlobalId => new MarkTownCalendarEventSeenCommand(calendarEventGlobalId)
-        )
-    );
+    public static CommandCodec<MarkTownCalendarEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.CalendarEventGlobalId,
+        static calendarEventGlobalId => new MarkTownCalendarEventSeenCommand(calendarEventGlobalId)));
 }

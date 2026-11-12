@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record ReportNeighborhoodMemberMessage(LongId ReporterId, LongId NeighborhoodId, LongId AvatarId) : CodecMessage<ReportNeighborhoodMemberMessage>, ICodecProvider<ReportNeighborhoodMemberMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<ReportNeighborhoodMemberMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.ReporterId,
         Codecs.LongId,
         static message => message.NeighborhoodId,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (reporterId, neighborhoodId, avatarId) => new ReportNeighborhoodMemberMessage(reporterId, neighborhoodId, avatarId)
-    );
+        static (reporterId, neighborhoodId, avatarId) => new ReportNeighborhoodMemberMessage(reporterId, neighborhoodId, avatarId));
 }

@@ -8,14 +8,16 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks.Definitions;
 public sealed record TaskEventLimitedTasks
 {
     /// <summary>
-    /// New tasks a player gets each day.
+    /// Gets or sets the number of new tasks a player gets each day.
     /// </summary>
+    /// <value>The <c>Count</c> of new tasks per event day; 0 when the document omits it.</value>
     [JsonPropertyName("Count")]
     public int Count { get; init; }
 
     /// <summary>
-    /// Diamond prices of the extra task slots bought in one day, in purchase order; the last price repeats.
+    /// Gets or sets the diamond prices of the extra task slots bought in one day, in purchase order.
     /// </summary>
+    /// <value>The <c>TaskQueuePurchaseCosts</c> list, where the first entry is the price of the day's first extra slot; an empty array by default.</value>
     [JsonPropertyName("TaskQueuePurchaseCosts")]
     public int[] TaskQueuePurchaseCosts { get; init; } = [];
 }

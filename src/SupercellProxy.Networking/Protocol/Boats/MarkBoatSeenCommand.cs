@@ -10,22 +10,22 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record MarkBoatSeenCommand : CodecCommand<MarkBoatSeenCommand>, ICommandCodecProvider<MarkBoatSeenCommand>
 {
     /// <summary>
-    /// Acknowledges either the docked boat or the next one.
+    /// Initializes a new instance of the <see cref="MarkBoatSeenCommand"/> record. Acknowledges either the docked boat or the next one.
     /// </summary>
-    /// <param name="nextBoat">True for the announced next boat; false for the boat that is docked now.</param>
+    /// <param name="nextBoat">True for the announced next boat; <see langword="false"/> for the boat that is docked now.</param>
     public MarkBoatSeenCommand(bool nextBoat)
     {
         NextBoat = nextBoat;
     }
 
     /// <inheritdoc />
-    public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Boolean, static command => command.NextBoat, static nextBoat => new MarkBoatSeenCommand(nextBoat)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.NextBoat, static nextBoat => new MarkBoatSeenCommand(nextBoat)),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// True when the announced next boat is acknowledged; false for the boat that is docked now.
+    /// Gets a value indicating which boat is acknowledged: the announced next boat or the docked one.
     /// </summary>
+    /// <value><see langword="true"/> if the announced next boat is acknowledged, while no boat is docked; otherwise, <see langword="false"/>.</value>
+    /// <remarks><see langword="false"/> acknowledges the boat that is docked now and loading or choosing a destination.</remarks>
     public bool NextBoat { get; }
 }

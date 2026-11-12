@@ -3,12 +3,15 @@ namespace SupercellProxy.Networking.Protocol.MiniPass;
 /// <summary>Saved rewards of one Mini Pass track.</summary>
 public sealed record MiniPassRewardTrackSnapshot
 {
-    /// <summary>Gets the claimed-reward bit set.</summary>
+    /// <summary>Gets or sets the claimed-reward bit set.</summary>
+    /// <value>One bit per reward index, set once that reward is claimed; <see langword="null"/> means nothing has been claimed yet.</value>
     public MiniPassClaimedRewardsSnapshot? Claimed { get; init; }
 
-    /// <summary>Gets the reward amounts by index.</summary>
+    /// <summary>Gets or sets the reward amounts by index.</summary>
+    /// <value>How many of the item in <see cref="Ids"/> at the same index the reward grants.</value>
     public int[] Counts { get; init; } = [];
 
-    /// <summary>Gets the reward data rows by index.</summary>
+    /// <summary>Gets or sets the reward data rows by index.</summary>
+    /// <value>Global ids of the rewarded items, such as coins, goods or gacha currency, one per reward index on the track.</value>
     public int[] Ids { get; init; } = [];
 }

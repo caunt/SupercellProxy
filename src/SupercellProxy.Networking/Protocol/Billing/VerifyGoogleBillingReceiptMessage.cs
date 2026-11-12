@@ -10,11 +10,10 @@ namespace SupercellProxy.Networking.Protocol.Billing;
 /// <param name="Price">Price the store showed the player, as text.</param>
 /// <param name="PurchaseData">Google Play's signed purchase JSON.</param>
 /// <param name="Signature">Google Play's signature over the purchase JSON, which the server checks with the app's public key.</param>
-/// <param name="Value0">A value native reads only when bytes remain.</param>
-/// <param name="Value1">A value native reads only when bytes remain.</param>
-/// <param name="Value2">A value native reads only when bytes remain.</param>
-public sealed record VerifyGoogleBillingReceiptMessage(
-    string? TransactionId,
+/// <param name="Value0">The first trailing value, an Int32 read after the signature only when bytes remain; <see langword="null"/> when the message ends there. Its meaning is not yet identified.</param>
+/// <param name="Value1">The second trailing value, an Int32 that follows <paramref name="Value0"/> when bytes still remain; <see langword="null"/> otherwise. Its meaning is not yet identified.</param>
+/// <param name="Value2">The third trailing value, a VarInt rather than an Int32, read last when bytes still remain; <see langword="null"/> otherwise. Its meaning is not yet identified.</param>
+public sealed record VerifyGoogleBillingReceiptMessage(string? TransactionId,
     string? ProductId,
     string? CurrencyCode,
     string? Price,
@@ -22,12 +21,10 @@ public sealed record VerifyGoogleBillingReceiptMessage(
     string? Signature,
     int? Value0,
     int? Value1,
-    int? Value2
-) : CodecMessage<VerifyGoogleBillingReceiptMessage>, ICodecProvider<VerifyGoogleBillingReceiptMessage>
+    int? Value2) : CodecMessage<VerifyGoogleBillingReceiptMessage>, ICodecProvider<VerifyGoogleBillingReceiptMessage>
 {
     /// <inheritdoc />
-    public static ICodec<VerifyGoogleBillingReceiptMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<VerifyGoogleBillingReceiptMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.TransactionId,
         Codecs.OptionalString,
         static message => message.ProductId,
@@ -45,6 +42,5 @@ public sealed record VerifyGoogleBillingReceiptMessage(
         static message => message.Value1,
         Codecs.TrailingValue(Codecs.VarInt),
         static message => message.Value2,
-        static (transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2) => new VerifyGoogleBillingReceiptMessage(transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2)
-    );
+        static (transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2) => new VerifyGoogleBillingReceiptMessage(transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2));
 }

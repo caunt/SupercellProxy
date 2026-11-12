@@ -6,14 +6,11 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Fishing;
 
 /// <summary>Collects one fish from a fishing spot.</summary>
+/// <param name="FishingSpotGlobalId">Game object global id of the fishing spot to collect from, written as a VarInt.</param>
 public sealed record CollectFishingSpotCommand([property: JsonPropertyName("FishingSpotGlobalId")] int FishingSpotGlobalId) : CodecCommand<CollectFishingSpotCommand>, ICommandCodecProvider<CollectFishingSpotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectFishingSpotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.FishingSpotGlobalId,
-            static fishingSpotGlobalId => new CollectFishingSpotCommand(fishingSpotGlobalId)
-        )
-    );
+    public static CommandCodec<CollectFishingSpotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.FishingSpotGlobalId,
+        static fishingSpotGlobalId => new CollectFishingSpotCommand(fishingSpotGlobalId)));
 }

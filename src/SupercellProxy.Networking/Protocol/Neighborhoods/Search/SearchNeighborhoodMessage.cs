@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 public sealed record SearchNeighborhoodMessage(string? Query, int MinimumMembers, int MaximumMembers, int RequiredLevel, LongId? NeighborhoodId, bool JoinableOnly) : CodecMessage<SearchNeighborhoodMessage>, ICodecProvider<SearchNeighborhoodMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SearchNeighborhoodMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SearchNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Query,
         Codecs.Int32,
         static message => message.MinimumMembers,
@@ -26,6 +25,5 @@ public sealed record SearchNeighborhoodMessage(string? Query, int MinimumMembers
         static message => message.NeighborhoodId,
         Codecs.Boolean,
         static message => message.JoinableOnly,
-        static (query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly) => new SearchNeighborhoodMessage(query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly)
-    );
+        static (query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly) => new SearchNeighborhoodMessage(query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly));
 }

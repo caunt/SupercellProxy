@@ -13,21 +13,17 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops.Advertisements;
 public sealed record RoadsideAdvertisementServerCommand(LongId HomeId, int StandIndex, int ItemGlobalId, bool Sold, int Amount, int Price) : CodecServerCommand<RoadsideAdvertisementServerCommand>, ICommandCodecProvider<RoadsideAdvertisementServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RoadsideAdvertisementServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.HomeId,
-            Codecs.Int32,
-            static command => command.StandIndex,
-            Codecs.Int32,
-            static command => command.ItemGlobalId,
-            Codecs.Boolean,
-            static command => command.Sold,
-            Codecs.Int32,
-            static command => command.Amount,
-            Codecs.Int32,
-            static command => command.Price,
-            static (homeId, standIndex, itemGlobalId, sold, amount, price) => new RoadsideAdvertisementServerCommand(homeId, standIndex, itemGlobalId, sold, amount, price)
-        )
-    );
+    public static CommandCodec<RoadsideAdvertisementServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.HomeId,
+        Codecs.Int32,
+        static command => command.StandIndex,
+        Codecs.Int32,
+        static command => command.ItemGlobalId,
+        Codecs.Boolean,
+        static command => command.Sold,
+        Codecs.Int32,
+        static command => command.Amount,
+        Codecs.Int32,
+        static command => command.Price,
+        static (homeId, standIndex, itemGlobalId, sold, amount, price) => new RoadsideAdvertisementServerCommand(homeId, standIndex, itemGlobalId, sold, amount, price)));
 }

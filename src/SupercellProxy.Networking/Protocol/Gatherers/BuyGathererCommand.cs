@@ -12,19 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Gatherers;
 public sealed record BuyGathererCommand(int GathererGlobalId, int PositionX, int PositionY, int NestObjectGlobalId, bool UseDiamonds) : CodecCommand<BuyGathererCommand>, ICommandCodecProvider<BuyGathererCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyGathererCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.GathererGlobalId,
-            Codecs.VarInt,
-            static command => command.PositionX,
-            Codecs.VarInt,
-            static command => command.PositionY,
-            Codecs.VarInt,
-            static command => command.NestObjectGlobalId,
-            Codecs.Boolean,
-            static command => command.UseDiamonds,
-            static (gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds) => new BuyGathererCommand(gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds)
-        )
-    );
+    public static CommandCodec<BuyGathererCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GathererGlobalId,
+        Codecs.VarInt,
+        static command => command.PositionX,
+        Codecs.VarInt,
+        static command => command.PositionY,
+        Codecs.VarInt,
+        static command => command.NestObjectGlobalId,
+        Codecs.Boolean,
+        static command => command.UseDiamonds,
+        static (gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds) => new BuyGathererCommand(gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds)));
 }

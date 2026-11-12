@@ -13,8 +13,7 @@ public sealed record NeighborhoodNotificationStreamEntry(StreamEntryHeader Heade
     internal const int Type = 8;
 
     /// <inheritdoc />
-    public static new ICodec<NeighborhoodNotificationStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<NeighborhoodNotificationStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.OptionalString,
         static entry => entry.Message,
@@ -22,8 +21,7 @@ public sealed record NeighborhoodNotificationStreamEntry(StreamEntryHeader Heade
         static entry => entry.NeighborhoodName,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,
-        static (header, message, neighborhoodName, badge) => new NeighborhoodNotificationStreamEntry(header, message, neighborhoodName, badge)
-    );
+        static (header, message, neighborhoodName, badge) => new NeighborhoodNotificationStreamEntry(header, message, neighborhoodName, badge));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

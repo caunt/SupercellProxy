@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
 public sealed record FavouriteDecorationDesignMessage(int EventId, DesignAvatarId? DesignId, int VariantId) : CodecMessage<FavouriteDecorationDesignMessage>, ICodecProvider<FavouriteDecorationDesignMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FavouriteDecorationDesignMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<FavouriteDecorationDesignMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.EventId,
         Codecs.Optional(DesignAvatarId.Codec),
         static message => message.DesignId,
         Codecs.VarInt,
         static message => message.VariantId,
-        static (eventId, designId, variantId) => new FavouriteDecorationDesignMessage(eventId, designId, variantId)
-    );
+        static (eventId, designId, variantId) => new FavouriteDecorationDesignMessage(eventId, designId, variantId));
 }

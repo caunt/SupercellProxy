@@ -44,7 +44,7 @@ internal static class SvelteDataDecoder
                 return Resolve(reference);
 
             if (value is JsonArray array)
-                return new JsonArray([.. array.Select(Expand)]);
+                return new JsonArray(items: [.. array.Select(Expand)]);
 
             if (value is JsonObject source)
             {

@@ -4,11 +4,9 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 
 /// <summary>Replaces the birthday event hug rewards.</summary>
-/// <param name="Hugs">The new set of hug rewards; null when the server sent none.</param>
+/// <param name="Hugs">The new set of hug rewards; <see langword="null"/> when the server sent none.</param>
 public sealed record BirthdayHugsServerCommand(BirthdayHugs? Hugs) : CodecServerCommand<BirthdayHugsServerCommand>, ICommandCodecProvider<BirthdayHugsServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BirthdayHugsServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.Optional(BirthdayHugs.Codec), static command => command.Hugs, static hugs => new BirthdayHugsServerCommand(hugs))
-    );
+    public static CommandCodec<BirthdayHugsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Optional(BirthdayHugs.Codec), static command => command.Hugs, static hugs => new BirthdayHugsServerCommand(hugs)));
 }

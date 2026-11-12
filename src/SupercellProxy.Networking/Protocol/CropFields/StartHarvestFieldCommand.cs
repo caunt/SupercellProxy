@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.CropFields;
 public sealed record StartHarvestFieldCommand : CodecCommand<StartHarvestFieldCommand>, ICommandCodecProvider<StartHarvestFieldCommand>
 {
     /// <summary>
-    /// Starts the harvest of one field; the gain follows 50 sub-ticks later and the field resets 10 sub-ticks after that.
+    /// Initializes a new instance of the <see cref="StartHarvestFieldCommand"/> record. Starts the harvest of one field.
     /// </summary>
     /// <param name="fieldGlobalId">Game object id of the ready field.</param>
     public StartHarvestFieldCommand(int fieldGlobalId)
@@ -20,14 +20,13 @@ public sealed record StartHarvestFieldCommand : CodecCommand<StartHarvestFieldCo
     }
 
     /// <inheritdoc />
-    public static CommandCodec<StartHarvestFieldCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static fieldGlobalId => new StartHarvestFieldCommand(fieldGlobalId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<StartHarvestFieldCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static fieldGlobalId => new StartHarvestFieldCommand(fieldGlobalId)),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// Game object id of the field being harvested.
+    /// Gets the game object id of the field being harvested.
     /// </summary>
+    /// <value>The field's game object id, written as a VarInt; the follow-up gain and harvest commands carry the same id.</value>
     [JsonPropertyName("FieldGlobalId")]
     public int FieldGlobalId { get; }
 }

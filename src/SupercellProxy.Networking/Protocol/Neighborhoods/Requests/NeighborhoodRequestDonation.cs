@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Requests;
 /// <param name="CoinReward">Coins the donor got for the donation.</param>
 /// <param name="ReputationReward">Reputation the donor got for the donation.</param>
 /// <param name="Thanked">Whether the requester thanked the donor, as a number; its values are not identified.</param>
-public sealed record NeighborhoodRequestDonation(
-    LongId DonorHomeId,
+public sealed record NeighborhoodRequestDonation(LongId DonorHomeId,
     string? DonorName,
     int Amount,
     int DonatedAt,
@@ -23,12 +22,10 @@ public sealed record NeighborhoodRequestDonation(
     int ExperienceReward,
     int CoinReward,
     int ReputationReward,
-    int Thanked
-) : ICodecProvider<NeighborhoodRequestDonation>
+    int Thanked) : ICodecProvider<NeighborhoodRequestDonation>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodRequestDonation> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodRequestDonation> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.DonorHomeId,
         Codecs.OptionalString,
         static value => value.DonorName,
@@ -48,6 +45,5 @@ public sealed record NeighborhoodRequestDonation(
         static value => value.ReputationReward,
         Codecs.VarInt,
         static value => value.Thanked,
-        static (donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked) => new NeighborhoodRequestDonation(donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked)
-    );
+        static (donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked) => new NeighborhoodRequestDonation(donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked));
 }

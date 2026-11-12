@@ -13,8 +13,7 @@ public sealed record DerbyEventStreamEntry(StreamEntryHeader Header, int EventTy
     internal const int Type = 6;
 
     /// <inheritdoc />
-    public static new ICodec<DerbyEventStreamEntry> Codec { get; } = Codecs.Composite(
-        StreamEntryHeader.Codec,
+    public static new ICodec<DerbyEventStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
         Codecs.VarInt,
         static entry => entry.EventType,
@@ -24,8 +23,7 @@ public sealed record DerbyEventStreamEntry(StreamEntryHeader Header, int EventTy
         static entry => entry.Value0,
         Codecs.VarInt,
         static entry => entry.Value1,
-        static (header, eventType, avatarId, value0, value1) => new DerbyEventStreamEntry(header, eventType, avatarId, value0, value1)
-    );
+        static (header, eventType, avatarId, value0, value1) => new DerbyEventStreamEntry(header, eventType, avatarId, value0, value1));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

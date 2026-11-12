@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Spots;
 public sealed record RestockFishingSpotCommand(int SpotObjectGlobalId) : CodecCommand<RestockFishingSpotCommand>, ICommandCodecProvider<RestockFishingSpotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RestockFishingSpotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.SpotObjectGlobalId,
-            static spotObjectGlobalId => new RestockFishingSpotCommand(spotObjectGlobalId)
-        )
-    );
+    public static CommandCodec<RestockFishingSpotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SpotObjectGlobalId,
+        static spotObjectGlobalId => new RestockFishingSpotCommand(spotObjectGlobalId)));
 }

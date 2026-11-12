@@ -8,9 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Streams;
 public sealed record NeighborhoodNotificationStreamEntryRemovedMessage(LongId EntryId) : CodecMessage<NeighborhoodNotificationStreamEntryRemovedMessage>, ICodecProvider<NeighborhoodNotificationStreamEntryRemovedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodNotificationStreamEntryRemovedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodNotificationStreamEntryRemovedMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.EntryId,
-        static entryId => new NeighborhoodNotificationStreamEntryRemovedMessage(entryId)
-    );
+        static entryId => new NeighborhoodNotificationStreamEntryRemovedMessage(entryId));
 }

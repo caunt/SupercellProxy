@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 public sealed record RevivalReward(int GoodGlobalId, int Amount) : ICodecProvider<RevivalReward>
 {
     /// <inheritdoc />
-    public static ICodec<RevivalReward> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<RevivalReward> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new RevivalReward(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new RevivalReward(goodGlobalId, amount));
 }

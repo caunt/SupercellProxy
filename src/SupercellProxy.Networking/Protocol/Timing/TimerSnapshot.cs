@@ -12,8 +12,10 @@ namespace SupercellProxy.Networking.Protocol.Timing;
 public readonly record struct TimerSnapshot(int StartSeconds, int TicksLeft)
 {
     /// <summary>
-    /// Whether the countdown has run out (no ticks left).
+    /// Gets whether the countdown has run out (no ticks left).
     /// </summary>
+    /// <value><see langword="true"/> if <see cref="TicksLeft"/> is 0 or negative; otherwise, <see langword="false"/>.</value>
+    /// <remarks>The value is computed from the ticks and never written to JSON.</remarks>
     [JsonIgnore]
     public bool IsComplete => TicksLeft < 1;
 }

@@ -8,12 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Visitors.Orders;
 public sealed record DismissVisitorOrderWithGiftCommand(int VisitorObjectGlobalId) : CodecCommand<DismissVisitorOrderWithGiftCommand>, ICommandCodecProvider<DismissVisitorOrderWithGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DismissVisitorOrderWithGiftCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<DismissVisitorOrderWithGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.VisitorObjectGlobalId,
-            static visitorObjectGlobalId => new DismissVisitorOrderWithGiftCommand(visitorObjectGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static visitorObjectGlobalId => new DismissVisitorOrderWithGiftCommand(visitorObjectGlobalId)),
+        CommandLayout.MetadataFirst);
 }

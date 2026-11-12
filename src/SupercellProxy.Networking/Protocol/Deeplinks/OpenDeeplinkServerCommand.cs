@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Deeplinks;
 public sealed record OpenDeeplinkServerCommand(LongId HomeId, int DeeplinkGlobalId, ReadOnlyMemory<string?> Parameters) : CodecServerCommand<OpenDeeplinkServerCommand>, ICommandCodecProvider<OpenDeeplinkServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OpenDeeplinkServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.HomeId,
-            Codecs.VarInt,
-            static command => command.DeeplinkGlobalId,
-            Codecs.Memory(Codecs.OptionalString),
-            static command => command.Parameters,
-            static (homeId, deeplinkGlobalId, parameters) => new OpenDeeplinkServerCommand(homeId, deeplinkGlobalId, parameters)
-        )
-    );
+    public static CommandCodec<OpenDeeplinkServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.HomeId,
+        Codecs.VarInt,
+        static command => command.DeeplinkGlobalId,
+        Codecs.Memory(Codecs.OptionalString),
+        static command => command.Parameters,
+        static (homeId, deeplinkGlobalId, parameters) => new OpenDeeplinkServerCommand(homeId, deeplinkGlobalId, parameters)));
 }

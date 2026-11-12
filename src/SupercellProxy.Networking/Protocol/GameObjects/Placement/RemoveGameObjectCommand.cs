@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.GameObjects.Placement;
 public sealed record RemoveGameObjectCommand(int ObjectGlobalId) : CodecCommand<RemoveGameObjectCommand>, ICommandCodecProvider<RemoveGameObjectCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RemoveGameObjectCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static objectGlobalId => new RemoveGameObjectCommand(objectGlobalId))
-    );
+    public static CommandCodec<RemoveGameObjectCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ObjectGlobalId, static objectGlobalId => new RemoveGameObjectCommand(objectGlobalId)));
 }

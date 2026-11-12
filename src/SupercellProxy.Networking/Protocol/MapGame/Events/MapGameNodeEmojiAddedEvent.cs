@@ -10,8 +10,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 public sealed record MapGameNodeEmojiAddedEvent(LongId? AvatarId, int NodeId, int EmojiGlobalId, int Duration) : MapGameEvent(MapGameEvent.NodeEmojiAddedType), ICodecProvider<MapGameNodeEmojiAddedEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameNodeEmojiAddedEvent> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static new ICodec<MapGameNodeEmojiAddedEvent> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static mapGameEvent => mapGameEvent.AvatarId,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.NodeId,
@@ -19,6 +18,5 @@ public sealed record MapGameNodeEmojiAddedEvent(LongId? AvatarId, int NodeId, in
         static mapGameEvent => mapGameEvent.EmojiGlobalId,
         Codecs.Int32,
         static mapGameEvent => mapGameEvent.Duration,
-        static (avatarId, nodeId, emojiGlobalId, duration) => new MapGameNodeEmojiAddedEvent(avatarId, nodeId, emojiGlobalId, duration)
-    );
+        static (avatarId, nodeId, emojiGlobalId, duration) => new MapGameNodeEmojiAddedEvent(avatarId, nodeId, emojiGlobalId, duration));
 }

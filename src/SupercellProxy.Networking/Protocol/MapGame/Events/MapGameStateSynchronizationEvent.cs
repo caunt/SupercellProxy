@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events;
 public sealed record MapGameStateSynchronizationEvent(LongId? MapGameId, int EventId, MapGameState? State, MapGamePawn? Pawn, bool Value) : MapGameEvent(MapGameEvent.StateSynchronizationType), ICodecProvider<MapGameStateSynchronizationEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameStateSynchronizationEvent> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static new ICodec<MapGameStateSynchronizationEvent> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static mapGameEvent => mapGameEvent.MapGameId,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.EventId,
@@ -22,6 +21,5 @@ public sealed record MapGameStateSynchronizationEvent(LongId? MapGameId, int Eve
         static mapGameEvent => mapGameEvent.Pawn,
         Codecs.Boolean,
         static mapGameEvent => mapGameEvent.Value,
-        static (mapGameId, eventId, state, pawn, value) => new MapGameStateSynchronizationEvent(mapGameId, eventId, state, pawn, value)
-    );
+        static (mapGameId, eventId, state, pawn, value) => new MapGameStateSynchronizationEvent(mapGameId, eventId, state, pawn, value));
 }

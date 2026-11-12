@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Boats.States;
 public sealed record MarkBoatDestinationTutorialSeenCommand(int Step) : CodecCommand<MarkBoatDestinationTutorialSeenCommand>, ICommandCodecProvider<MarkBoatDestinationTutorialSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkBoatDestinationTutorialSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.Step, static step => new MarkBoatDestinationTutorialSeenCommand(step)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<MarkBoatDestinationTutorialSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Step, static step => new MarkBoatDestinationTutorialSeenCommand(step)),
+        CommandLayout.MetadataFirst);
 }

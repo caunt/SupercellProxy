@@ -17,8 +17,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Management;
 /// <param name="Language">Language the neighbourhood uses.</param>
 /// <param name="InvitedHomeId">Home of a player invited along at creation.</param>
 /// <param name="AutoAccept">Whether join requests are accepted without a member approving them.</param>
-public sealed record CreateNeighborhoodMessage(
-    int EmblemBackground,
+public sealed record CreateNeighborhoodMessage(int EmblemBackground,
     int EmblemPattern,
     int EmblemSymbol,
     string? Name,
@@ -30,12 +29,10 @@ public sealed record CreateNeighborhoodMessage(
     bool DerbyEnabled,
     string? Language,
     LongId InvitedHomeId,
-    bool AutoAccept
-) : CodecMessage<CreateNeighborhoodMessage>, ICodecProvider<CreateNeighborhoodMessage>
+    bool AutoAccept) : CodecMessage<CreateNeighborhoodMessage>, ICodecProvider<CreateNeighborhoodMessage>
 {
     /// <inheritdoc />
-    public static ICodec<CreateNeighborhoodMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<CreateNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.EmblemBackground,
         Codecs.VarInt,
         static message => message.EmblemPattern,
@@ -61,8 +58,7 @@ public sealed record CreateNeighborhoodMessage(
         static message => message.InvitedHomeId,
         Codecs.Boolean,
         static message => message.AutoAccept,
-        static (
-            emblemBackground,
+        static (emblemBackground,
             emblemPattern,
             emblemSymbol,
             name,
@@ -74,21 +70,17 @@ public sealed record CreateNeighborhoodMessage(
             derbyEnabled,
             language,
             invitedHomeId,
-            autoAccept
-        ) => new CreateNeighborhoodMessage(
-            emblemBackground,
-            emblemPattern,
-            emblemSymbol,
-            name,
-            motto,
-            description,
-            type,
-            requiredLevel,
-            familyFriendly,
-            derbyEnabled,
-            language,
-            invitedHomeId,
-            autoAccept
-        )
-    );
+            autoAccept) => new CreateNeighborhoodMessage(emblemBackground,
+                emblemPattern,
+                emblemSymbol,
+                name,
+                motto,
+                description,
+                type,
+                requiredLevel,
+                familyFriendly,
+                derbyEnabled,
+                language,
+                invitedHomeId,
+                autoAccept));
 }

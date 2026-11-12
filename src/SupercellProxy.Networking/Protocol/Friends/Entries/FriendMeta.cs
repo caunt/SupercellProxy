@@ -9,13 +9,11 @@ namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 public sealed record FriendMeta(int Flags, int Value, LongId HomeId) : ICodecProvider<FriendMeta>
 {
     /// <inheritdoc />
-    public static ICodec<FriendMeta> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<FriendMeta> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static meta => meta.Flags,
         Codecs.VarInt,
         static meta => meta.Value,
         Codecs.LongId,
         static meta => meta.HomeId,
-        static (flags, value, homeId) => new FriendMeta(flags, value, homeId)
-    );
+        static (flags, value, homeId) => new FriendMeta(flags, value, homeId));
 }

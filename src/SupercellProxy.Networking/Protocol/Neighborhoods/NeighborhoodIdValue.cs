@@ -10,11 +10,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodIdValue([property: JsonPropertyName("Id")] LongId Id, int Value) : ICodecProvider<NeighborhoodIdValue>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodIdValue> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodIdValue> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static entry => entry.Id,
         Codecs.VarInt,
         static entry => entry.Value,
-        static (id, value) => new NeighborhoodIdValue(id, value)
-    );
+        static (id, value) => new NeighborhoodIdValue(id, value));
 }

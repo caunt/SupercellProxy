@@ -10,15 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Boosters;
 public sealed record DiscardBoosterCommand(int BoosterGlobalId, bool Active, bool Silent) : CodecCommand<DiscardBoosterCommand>, ICommandCodecProvider<DiscardBoosterCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DiscardBoosterCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.BoosterGlobalId,
-            Codecs.Boolean,
-            static command => command.Active,
-            Codecs.Boolean,
-            static command => command.Silent,
-            static (boosterGlobalId, active, silent) => new DiscardBoosterCommand(boosterGlobalId, active, silent)
-        )
-    );
+    public static CommandCodec<DiscardBoosterCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.BoosterGlobalId,
+        Codecs.Boolean,
+        static command => command.Active,
+        Codecs.Boolean,
+        static command => command.Silent,
+        static (boosterGlobalId, active, silent) => new DiscardBoosterCommand(boosterGlobalId, active, silent)));
 }

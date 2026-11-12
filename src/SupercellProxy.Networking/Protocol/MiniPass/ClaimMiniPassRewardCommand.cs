@@ -15,14 +15,10 @@ public sealed record ClaimMiniPassRewardCommand(int Track, int Index) : CodecCom
     public const int PremiumTrack = 1;
 
     /// <inheritdoc />
-    public static CommandCodec<ClaimMiniPassRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<ClaimMiniPassRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.Track,
             Codecs.VarInt,
             static command => command.Index,
-            static (track, index) => new ClaimMiniPassRewardCommand(track, index)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (track, index) => new ClaimMiniPassRewardCommand(track, index)),
+        CommandLayout.MetadataFirst);
 }

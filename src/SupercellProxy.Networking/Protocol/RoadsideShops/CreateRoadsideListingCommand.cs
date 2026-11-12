@@ -13,7 +13,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 public sealed record CreateRoadsideListingCommand
     : CodecCommand<CreateRoadsideListingCommand>, ICommandCodecProvider<CreateRoadsideListingCommand>
 {
-    /// <summary>Creates the command for one stand.</summary>
+    /// <summary>Initializes a new instance of the <see cref="CreateRoadsideListingCommand"/> record. Creates the command for one stand.</summary>
     /// <param name="advertise">Whether to also advertise the stand in the newspaper.</param>
     /// <param name="slotIndex">Position of the empty stand in the shop.</param>
     /// <param name="itemGlobalId">Global id of the goods to sell.</param>
@@ -31,11 +31,8 @@ public sealed record CreateRoadsideListingCommand
     }
 
     /// <inheritdoc />
-    public static CommandCodec<CreateRoadsideListingCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.VarInt,
+    public static CommandCodec<CreateRoadsideListingCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.ItemGlobalId,
                 Codecs.Boolean,
                 static command => command.Advertise,
@@ -47,10 +44,8 @@ public sealed record CreateRoadsideListingCommand
                 static command => command.Price,
                 Codecs.VarInt,
                 static command => command.Quantity,
-                static (itemGlobalId, advertise, slotIndex, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity)
-            ),
-            Codecs.Composite(
-                Codecs.Boolean,
+                static (itemGlobalId, advertise, slotIndex, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity)),
+            Codecs.Composite(Codecs.Boolean,
                 static command => command.Advertise,
                 Codecs.VarInt,
                 static command => command.SlotIndex,
@@ -62,31 +57,33 @@ public sealed record CreateRoadsideListingCommand
                 static command => command.Price,
                 Codecs.VarInt,
                 static command => command.Quantity,
-                static (advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity))),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// Whether the stand is also advertised in the newspaper; that uses a bought advertisement credit when there is one, and
-    /// otherwise starts the free advertisement's cooldown.
+    /// Gets a value indicating whether the stand is also advertised in the newspaper.
     /// </summary>
+    /// <value><see langword="true"/> if the new stand is advertised by this same command; otherwise, <see langword="false"/>.</value>
     public bool Advertise { get; }
 
-    /// <summary>Global id of the goods put up for sale.</summary>
+    /// <summary>Gets the global id of the goods put up for sale.</summary>
+    /// <value>The goods' data id, written as a var-int: the first field from release 1.73.81 on, and the third, after the stand index, before it.</value>
     [JsonPropertyName("ItemGlobalId")]
     public int ItemGlobalId { get; }
 
-    /// <summary>Coin price of the whole stand.</summary>
+    /// <summary>Gets the coin price of the whole stand.</summary>
+    /// <value>The coins asked for all <see cref="Quantity"/> goods together, not per unit, written as a var-int.</value>
     public int Price { get; }
 
-    /// <summary>How many goods go on the stand.</summary>
+    /// <summary>Gets how many goods go on the stand.</summary>
+    /// <value>The count of goods put on the stand, written as a var-int.</value>
     public int Quantity { get; }
 
-    /// <summary>Position of the empty stand in the shop.</summary>
+    /// <summary>Gets the position of the empty stand in the shop.</summary>
+    /// <value>The zero-based stand index, written as a var-int.</value>
     public int SlotIndex { get; }
 
-    /// <summary>Whether the goods come only from the main inventory instead of all inventories together.</summary>
+    /// <summary>Gets a value indicating whether the goods come only from the main inventory instead of all inventories together.</summary>
+    /// <value><see langword="true"/> if the goods are taken from the main inventory alone rather than spent from all inventories combined; otherwise, <see langword="false"/>.</value>
     public bool UsePrimaryInventory { get; }
 }

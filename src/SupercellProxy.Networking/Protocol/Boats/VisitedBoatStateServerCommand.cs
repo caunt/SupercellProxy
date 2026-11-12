@@ -20,11 +20,8 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
     : CodecServerCommand<VisitedBoatStateServerCommand>, ICommandCodecProvider<VisitedBoatStateServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<VisitedBoatStateServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Versioned(
-            Release17381.Version,
-            Codecs.Composite(
-                Codecs.VarInt,
+    public static CommandCodec<VisitedBoatStateServerCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.StateTicks,
                 Codecs.VarInt,
                 static command => command.NewState,
@@ -38,10 +35,8 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
                 static command => command.ExpectedState,
                 Codecs.VarInt,
                 static command => command.OwnerLow,
-                static (stateTicks, newState, ownerHigh, stateDuration, orderIndex, expectedState, ownerLow) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks)
-            ),
-            Codecs.Composite(
-                Codecs.VarInt,
+                static (stateTicks, newState, ownerHigh, stateDuration, orderIndex, expectedState, ownerLow) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks)),
+            Codecs.Composite(Codecs.VarInt,
                 static command => command.NewState,
                 Codecs.VarInt,
                 static command => command.ExpectedState,
@@ -55,9 +50,6 @@ public sealed record VisitedBoatStateServerCommand(int NewState, int ExpectedSta
                 static command => command.StateDuration,
                 Codecs.VarInt,
                 static command => command.StateTicks,
-                static (newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks)
-            )
-        ),
-        CommandLayout.MetadataFirst
-    );
+                static (newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks) => new VisitedBoatStateServerCommand(newState, expectedState, orderIndex, ownerHigh, ownerLow, stateDuration, stateTicks))),
+        CommandLayout.MetadataFirst);
 }

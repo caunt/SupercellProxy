@@ -9,13 +9,15 @@ public sealed class ChronosEventPlayerDataConverter : JsonConverter<ChronosEvent
     /// <inheritdoc />
     public override ChronosEventPlayerData[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.StartArray) throw new JsonException(message: "Expected the saved event-data array.");
+        if (reader.TokenType != JsonTokenType.StartArray)
+            throw new JsonException(message: "Expected the saved event-data array.");
 
         List<ChronosEventPlayerData> entries = [];
 
         while (reader.Read())
         {
-            if (reader.TokenType == JsonTokenType.EndArray) return [.. entries];
+            if (reader.TokenType == JsonTokenType.EndArray)
+                return [.. entries];
 
             if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int eventId))
                 throw new JsonException(message: "Expected a saved event identifier.");

@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Town.Hall;
 public sealed record TouchParachuteCommand(int ParachuteGlobalId, int Value) : CodecCommand<TouchParachuteCommand>, ICommandCodecProvider<TouchParachuteCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<TouchParachuteCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.ParachuteGlobalId,
-            Codecs.VarInt,
-            static command => command.Value,
-            static (parachuteGlobalId, @value) => new TouchParachuteCommand(parachuteGlobalId, value)
-        )
-    );
+    public static CommandCodec<TouchParachuteCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.ParachuteGlobalId,
+        Codecs.VarInt,
+        static command => command.Value,
+        static (parachuteGlobalId, @value) => new TouchParachuteCommand(parachuteGlobalId, value)));
 }

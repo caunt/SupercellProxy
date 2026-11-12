@@ -7,6 +7,7 @@ namespace SupercellProxy.Networking.Json;
 public abstract record ExtensibleDocument
 {
     /// <summary>Gets the names of retained members whose schemas are not decoded yet.</summary>
+    /// <value>A snapshot of the JSON property names that had no matching member when the document was read; empty when every member is known. These members are written back unchanged on serialization.</value>
     [JsonIgnore]
     public IReadOnlyCollection<string> UnknownFields => [.. ExtensionData.Keys];
     [JsonExtensionData]

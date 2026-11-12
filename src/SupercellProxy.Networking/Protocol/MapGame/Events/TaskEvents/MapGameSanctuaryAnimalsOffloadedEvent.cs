@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 public sealed record MapGameSanctuaryAnimalsOffloadedEvent(int DiamondCost, MapGamePawn? Pawn) : MapGameEvent(MapGameEvent.SanctuaryAnimalsOffloadedType), ICodecProvider<MapGameSanctuaryAnimalsOffloadedEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameSanctuaryAnimalsOffloadedEvent> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static new ICodec<MapGameSanctuaryAnimalsOffloadedEvent> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static mapGameEvent => mapGameEvent.DiamondCost,
         Codecs.Optional(MapGamePawn.Codec),
         static mapGameEvent => mapGameEvent.Pawn,
-        static (diamondCost, pawn) => new MapGameSanctuaryAnimalsOffloadedEvent(diamondCost, pawn)
-    );
+        static (diamondCost, pawn) => new MapGameSanctuaryAnimalsOffloadedEvent(diamondCost, pawn));
 }

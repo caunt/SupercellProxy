@@ -8,12 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Visitors.Friendship;
 public sealed record CollectVisitorFriendshipPointsCommand(int VisitorGlobalId) : CodecCommand<CollectVisitorFriendshipPointsCommand>, ICommandCodecProvider<CollectVisitorFriendshipPointsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectVisitorFriendshipPointsCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<CollectVisitorFriendshipPointsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.VisitorGlobalId,
-            static visitorGlobalId => new CollectVisitorFriendshipPointsCommand(visitorGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static visitorGlobalId => new CollectVisitorFriendshipPointsCommand(visitorGlobalId)),
+        CommandLayout.MetadataFirst);
 }

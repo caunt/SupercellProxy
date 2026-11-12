@@ -11,17 +11,13 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Season;
 public sealed record FarmPassProgressServerCommand(int SeasonId, int Points, int Level, int Tier) : CodecServerCommand<FarmPassProgressServerCommand>, ICommandCodecProvider<FarmPassProgressServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FarmPassProgressServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.SeasonId,
-            Codecs.VarInt,
-            static command => command.Points,
-            Codecs.VarInt,
-            static command => command.Level,
-            Codecs.VarInt,
-            static command => command.Tier,
-            static (seasonId, points, level, tier) => new FarmPassProgressServerCommand(seasonId, points, level, tier)
-        )
-    );
+    public static CommandCodec<FarmPassProgressServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SeasonId,
+        Codecs.VarInt,
+        static command => command.Points,
+        Codecs.VarInt,
+        static command => command.Level,
+        Codecs.VarInt,
+        static command => command.Tier,
+        static (seasonId, points, level, tier) => new FarmPassProgressServerCommand(seasonId, points, level, tier)));
 }

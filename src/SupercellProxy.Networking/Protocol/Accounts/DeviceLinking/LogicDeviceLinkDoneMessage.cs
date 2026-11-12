@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 public sealed record LogicDeviceLinkDoneMessage(LongId AccountId, string? PassToken) : CodecMessage<LogicDeviceLinkDoneMessage>, ICodecProvider<LogicDeviceLinkDoneMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LogicDeviceLinkDoneMessage> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<LogicDeviceLinkDoneMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.AccountId,
         Codecs.OptionalString,
         static message => message.PassToken,
-        static (accountId, passToken) => new LogicDeviceLinkDoneMessage(accountId, passToken)
-    );
+        static (accountId, passToken) => new LogicDeviceLinkDoneMessage(accountId, passToken));
 }

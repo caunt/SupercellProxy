@@ -16,37 +16,31 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 /// <param name="SlotIndex">Position of the bought stand in the shop.</param>
 /// <param name="Quantity">How many goods the buyer gets.</param>
 /// <param name="Price">Coins the buyer pays.</param>
-public sealed record RoadsidePurchaseServerCommand(
-    [property: JsonPropertyName("BuyerId")] LongId BuyerId,
+public sealed record RoadsidePurchaseServerCommand([property: JsonPropertyName("BuyerId")] LongId BuyerId,
     [property: JsonPropertyName("ShopOwnerId")] LongId ShopOwnerId,
     [property: JsonPropertyName("ContextId")] LongId ContextId,
     [property: JsonPropertyName("ItemGlobalId")] int ItemGlobalId,
     int SlotIndex,
     int Quantity,
-    int Price
-) : CodecServerCommand<RoadsidePurchaseServerCommand>, ICommandCodecProvider<RoadsidePurchaseServerCommand>
+    int Price) : CodecServerCommand<RoadsidePurchaseServerCommand>, ICommandCodecProvider<RoadsidePurchaseServerCommand>
 {
     /// <summary>How many collection tools a player may buy from roadside shops per day.</summary>
     public const int DailyCollectionToolLimit = 80;
 
     /// <inheritdoc />
-    public static CommandCodec<RoadsidePurchaseServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.LongId,
-            static command => command.BuyerId,
-            Codecs.LongId,
-            static command => command.ShopOwnerId,
-            Codecs.LongId,
-            static command => command.ContextId,
-            Codecs.Int32,
-            static command => command.ItemGlobalId,
-            Codecs.Int32,
-            static command => command.SlotIndex,
-            Codecs.Int32,
-            static command => command.Quantity,
-            Codecs.Int32,
-            static command => command.Price,
-            static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer, owner, context, item, slot, quantity, price)
-        )
-    );
+    public static CommandCodec<RoadsidePurchaseServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.BuyerId,
+        Codecs.LongId,
+        static command => command.ShopOwnerId,
+        Codecs.LongId,
+        static command => command.ContextId,
+        Codecs.Int32,
+        static command => command.ItemGlobalId,
+        Codecs.Int32,
+        static command => command.SlotIndex,
+        Codecs.Int32,
+        static command => command.Quantity,
+        Codecs.Int32,
+        static command => command.Price,
+        static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer, owner, context, item, slot, quantity, price)));
 }

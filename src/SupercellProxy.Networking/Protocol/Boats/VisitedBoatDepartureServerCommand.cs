@@ -13,7 +13,5 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record VisitedBoatDepartureServerCommand([property: JsonPropertyName("HomeOwnerId")] LongId HomeOwnerId) : CodecServerCommand<VisitedBoatDepartureServerCommand>, ICommandCodecProvider<VisitedBoatDepartureServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<VisitedBoatDepartureServerCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.LongId, static command => command.HomeOwnerId, static owner => new VisitedBoatDepartureServerCommand(owner))
-    );
+    public static CommandCodec<VisitedBoatDepartureServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId, static command => command.HomeOwnerId, static owner => new VisitedBoatDepartureServerCommand(owner)));
 }

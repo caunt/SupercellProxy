@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Sanctuary;
 public sealed record PlaceSanctuaryPuzzlePiecesCommand(int AnimalGlobalId, bool ClearAllPending) : CodecCommand<PlaceSanctuaryPuzzlePiecesCommand>, ICommandCodecProvider<PlaceSanctuaryPuzzlePiecesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlaceSanctuaryPuzzlePiecesCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.AnimalGlobalId,
-            Codecs.Boolean,
-            static command => command.ClearAllPending,
-            static (animalGlobalId, clearAllPending) => new PlaceSanctuaryPuzzlePiecesCommand(animalGlobalId, clearAllPending)
-        )
-    );
+    public static CommandCodec<PlaceSanctuaryPuzzlePiecesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.AnimalGlobalId,
+        Codecs.Boolean,
+        static command => command.ClearAllPending,
+        static (animalGlobalId, clearAllPending) => new PlaceSanctuaryPuzzlePiecesCommand(animalGlobalId, clearAllPending)));
 }

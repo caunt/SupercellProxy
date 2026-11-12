@@ -8,11 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Customization;
 public sealed record MarkCustomizationOfferCommand(int CustomizationGlobalId) : CodecCommand<MarkCustomizationOfferCommand>, ICommandCodecProvider<MarkCustomizationOfferCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkCustomizationOfferCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.CustomizationGlobalId,
-            static customizationGlobalId => new MarkCustomizationOfferCommand(customizationGlobalId)
-        )
-    );
+    public static CommandCodec<MarkCustomizationOfferCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.CustomizationGlobalId,
+        static customizationGlobalId => new MarkCustomizationOfferCommand(customizationGlobalId)));
 }

@@ -9,9 +9,7 @@ public sealed record AnalyticsContextStatistics(ReadOnlyMemory<long> Values) : I
     private const int ValueCount = 10;
 
     /// <inheritdoc />
-    public static ICodec<AnalyticsContextStatistics> Codec { get; } = Codecs.Composite(
-        Codecs.Map(Codecs.FixedArray(Codecs.Int64, ValueCount), static values => (ReadOnlyMemory<long>)values, static values => values.ToArray()),
+    public static ICodec<AnalyticsContextStatistics> Codec { get; } = Codecs.Composite(Codecs.Map(Codecs.FixedArray(Codecs.Int64, ValueCount), static values => (ReadOnlyMemory<long>)values, static values => values.ToArray()),
         static statistics => statistics.Values,
-        static values => new AnalyticsContextStatistics(values)
-    );
+        static values => new AnalyticsContextStatistics(values));
 }

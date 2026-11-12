@@ -12,19 +12,19 @@ public sealed class MacVerificationException : NaClV3Exception
     public const string DefaultMessage = "MAC verification failed";
 
     /// <summary>
-    /// Creates a failed-check error with no description.
+    /// Initializes a new instance of the <see cref="MacVerificationException"/> class. Creates a failed-check error with no description.
     /// </summary>
     public MacVerificationException() { }
 
     /// <summary>
-    /// Creates a failed-check error described by text.
+    /// Initializes a new instance of the <see cref="MacVerificationException"/> class. Creates a failed-check error described by text.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     public MacVerificationException(string? message)
         : base(message) { }
 
     /// <summary>
-    /// Creates a failed-check error caused by another error.
+    /// Initializes a new instance of the <see cref="MacVerificationException"/> class. Creates a failed-check error caused by another error.
     /// </summary>
     /// <param name="message">What went wrong.</param>
     /// <param name="innerException">The error that caused it.</param>
@@ -32,10 +32,10 @@ public sealed class MacVerificationException : NaClV3Exception
         : base(message, innerException) { }
 
     /// <summary>
-    /// Creates a failed-check error that records which kind of box failed.
+    /// Initializes a new instance of the <see cref="MacVerificationException"/> class. Creates a failed-check error that records which kind of box failed.
     /// </summary>
-    /// <param name="isPublicKeyBox">True for a handshake message opened with key pairs; false for a session message.</param>
-    /// <param name="message">What went wrong; null leaves the default exception text.</param>
+    /// <param name="isPublicKeyBox">True for a handshake message opened with key pairs; <see langword="false"/> for a session message.</param>
+    /// <param name="message">What went wrong; <see langword="null"/> leaves the default exception text.</param>
     public MacVerificationException(bool isPublicKeyBox, string? message = null)
         : base(message)
     {
@@ -43,8 +43,9 @@ public sealed class MacVerificationException : NaClV3Exception
     }
 
     /// <summary>
-    /// True when the failure happened while opening a handshake message sealed with key pairs; false for a message sealed with the
+    /// Gets or sets whether the failure happened while opening a handshake message sealed with key pairs rather than a message sealed with the
     /// shared session key.
     /// </summary>
+    /// <value><see langword="true"/> if the exception was created for a failed handshake (public-key) box; otherwise, <see langword="false"/>.</value>
     public bool IsPublicKeyBox { get; set; }
 }

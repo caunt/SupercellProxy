@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record DecorationEventTutorialCommand : CodecCommand<DecorationEventTutorialCommand>, ICommandCodecProvider<DecorationEventTutorialCommand>
 {
     /// <summary>
-    /// Records the intro screen the player has reached.
+    /// Initializes a new instance of the <see cref="DecorationEventTutorialCommand"/> record. Records the intro screen the player has reached.
     /// </summary>
     /// <param name="lastIntroStep">Index of that intro screen.</param>
     public DecorationEventTutorialCommand(int lastIntroStep = 0)
@@ -18,17 +18,14 @@ public sealed record DecorationEventTutorialCommand : CodecCommand<DecorationEve
     }
 
     /// <inheritdoc />
-    public static CommandCodec<DecorationEventTutorialCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<DecorationEventTutorialCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.LastIntroStep,
-            static lastIntroStep => new DecorationEventTutorialCommand(lastIntroStep)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static lastIntroStep => new DecorationEventTutorialCommand(lastIntroStep)),
+        CommandLayout.MetadataFirst);
 
     /// <summary>
-    /// <para>Gets the tutorial step selected by the client.</para>
+    /// Gets the tutorial step selected by the client.
     /// </summary>
+    /// <value>The index of the intro screen the player reached, written as a VarInt.</value>
     public int LastIntroStep { get; }
 }

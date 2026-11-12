@@ -8,26 +8,25 @@ internal readonly record struct AvatarInventorySection(AvatarInventoryLayout Lay
     : ICodecProvider<AvatarInventorySection>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarInventorySection> Codec { get; } = Codecs.Create(
-        static stream =>
-        {
-            AvatarInventoryLayout layout = AvatarInventoryLayout.ForVersion(stream.GameVersion);
-            int[][] values = new int[layout.ArrayCount][];
+    public static ICodec<AvatarInventorySection> Codec { get; } = Codecs.Create(static stream =>
+    {
+        AvatarInventoryLayout layout = AvatarInventoryLayout.For(stream.GameVersion);
+        int[][] values = new int[layout.ArrayCount][];
 
-            for (int index = 0; index < values.Length; index++)
-                values[index] = ValuesCodec.Read(stream);
+        for (int index = 0; index < values.Length; index++)
+            values[index] = ValuesCodec.Read(stream);
 
-            DataReferenceValue[][] maps = new DataReferenceValue[layout.MapCount][];
+        DataReferenceValue[][] maps = new DataReferenceValue[layout.MapCount][];
 
-            for (int index = 0; index < maps.Length; index++)
-                maps[index] = MapCodec.Read(stream);
+        for (int index = 0; index < maps.Length; index++)
+            maps[index] = MapCodec.Read(stream);
 
-            int deprecatedDataCount = stream.ReadVarInt();
+        int deprecatedDataCount = stream.ReadVarInt();
 
-            return deprecatedDataCount is not 0
-                ? throw new InvalidDataException(message: "The deprecated polymorphic inventory section is not implemented.")
-                : new AvatarInventorySection(layout, values, maps, deprecatedDataCount, stream.ReadVarInt());
-        },
+        return deprecatedDataCount is not 0
+            ? throw new InvalidDataException(message: "The deprecated polymorphic inventory section is not implemented.")
+            : new AvatarInventorySection(layout, values, maps, deprecatedDataCount, stream.ReadVarInt());
+    },
         static (stream, section) =>
         {
             if (section.Values.Length != section.Layout.ArrayCount || section.Maps.Length != section.Layout.MapCount)
@@ -44,8 +43,7 @@ internal readonly record struct AvatarInventorySection(AvatarInventoryLayout Lay
 
             stream.WriteVarInt(section.DeprecatedDataCount);
             stream.WriteVarInt(section.Unknown0);
-        }
-    );
+        });
 
     private static ICodec<DataReferenceValue[]> MapCodec => field ??= Codecs.Array(DataReferenceValue.Codec, CollectionCount.Bounded);
 

@@ -1,8 +1,7 @@
 using System.Text.Json.Serialization;
 namespace SupercellProxy.Keys.Models;
 
-internal sealed record KeysSection(
-    string Name,
+internal sealed record KeysSection(string Name,
     [property: JsonPropertyName("AppStoreId")] string AppStoreId,
     int HeaderIndex,
     int SeparatorIndex,
@@ -13,5 +12,4 @@ internal sealed record KeysSection(
     int VersionColumnIndex,
     int KeyVersionColumnIndex,
     int KeyColumnIndex,
-    IReadOnlyList<ExistingKeyEntry> Entries
-);
+    IReadOnlyList<ExistingKeyEntry> Entries);

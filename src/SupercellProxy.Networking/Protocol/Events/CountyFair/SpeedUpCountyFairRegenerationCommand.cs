@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Events.CountyFair;
 public sealed record SpeedUpCountyFairRegenerationCommand(int EventId, int Price) : CodecCommand<SpeedUpCountyFairRegenerationCommand>, ICommandCodecProvider<SpeedUpCountyFairRegenerationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpCountyFairRegenerationCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<SpeedUpCountyFairRegenerationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.EventId,
             Codecs.VarInt,
             static command => command.Price,
-            static (eventId, price) => new SpeedUpCountyFairRegenerationCommand(eventId, price)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (eventId, price) => new SpeedUpCountyFairRegenerationCommand(eventId, price)),
+        CommandLayout.MetadataFirst);
 }

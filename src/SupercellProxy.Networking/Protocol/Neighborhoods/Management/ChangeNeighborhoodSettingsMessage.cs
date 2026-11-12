@@ -16,8 +16,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Management;
 /// <param name="Language">Language the neighbourhood uses.</param>
 /// <param name="DerbyLeague">Derby league the neighbourhood plays in; its values are not identified.</param>
 /// <param name="Tags">Tags describing the neighbourhood's play style, packed into one number; the packing is not identified.</param>
-public sealed record ChangeNeighborhoodSettingsMessage(
-    int EmblemBackground,
+public sealed record ChangeNeighborhoodSettingsMessage(int EmblemBackground,
     int EmblemPattern,
     int EmblemSymbol,
     int Type,
@@ -28,12 +27,10 @@ public sealed record ChangeNeighborhoodSettingsMessage(
     string? Description,
     string? Language,
     int DerbyLeague,
-    int Tags
-) : CodecMessage<ChangeNeighborhoodSettingsMessage>, ICodecProvider<ChangeNeighborhoodSettingsMessage>
+    int Tags) : CodecMessage<ChangeNeighborhoodSettingsMessage>, ICodecProvider<ChangeNeighborhoodSettingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeNeighborhoodSettingsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<ChangeNeighborhoodSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.EmblemBackground,
         Codecs.VarInt,
         static message => message.EmblemPattern,
@@ -57,8 +54,7 @@ public sealed record ChangeNeighborhoodSettingsMessage(
         static message => message.DerbyLeague,
         Codecs.Int32,
         static message => message.Tags,
-        static (
-            emblemBackground,
+        static (emblemBackground,
             emblemPattern,
             emblemSymbol,
             type,
@@ -69,20 +65,16 @@ public sealed record ChangeNeighborhoodSettingsMessage(
             description,
             language,
             derbyLeague,
-            tags
-        ) => new ChangeNeighborhoodSettingsMessage(
-            emblemBackground,
-            emblemPattern,
-            emblemSymbol,
-            type,
-            requiredLevel,
-            familyFriendly,
-            derbyEnabled,
-            motto,
-            description,
-            language,
-            derbyLeague,
-            tags
-        )
-    );
+            tags) => new ChangeNeighborhoodSettingsMessage(emblemBackground,
+                emblemPattern,
+                emblemSymbol,
+                type,
+                requiredLevel,
+                familyFriendly,
+                derbyEnabled,
+                motto,
+                description,
+                language,
+                derbyLeague,
+                tags));
 }

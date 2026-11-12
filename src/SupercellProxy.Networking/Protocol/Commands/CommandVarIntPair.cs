@@ -11,14 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Commands;
 public readonly record struct CommandVarIntPair(int Value0, int Value1) : ICodecProvider<CommandVarIntPair>
 {
     /// <summary>Gets the count bound native applies to pair arrays: two encoded bytes per pair at least.</summary>
+    /// <value>A VarInt count that rejects as corrupt any count above the unread byte count divided by two, before any pair is read; it sets no smaller cap of its own.</value>
     public static CollectionCount ArrayCount { get; } = CollectionCount.PerElement(minimumElementSize: 2);
 
     /// <inheritdoc />
-    public static ICodec<CommandVarIntPair> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<CommandVarIntPair> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static pair => pair.Value0,
         Codecs.VarInt,
         static pair => pair.Value1,
-        static (value0, value1) => new CommandVarIntPair(value0, value1)
-    );
+        static (value0, value1) => new CommandVarIntPair(value0, value1));
 }

@@ -12,11 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Achievements;
 public sealed record ClaimAchievementRewardCommand([property: JsonPropertyName("AchievementGlobalId")] int AchievementGlobalId) : CodecCommand<ClaimAchievementRewardCommand>, ICommandCodecProvider<ClaimAchievementRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimAchievementRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.AchievementGlobalId,
-            static achievement => new ClaimAchievementRewardCommand(achievement)
-        )
-    );
+    public static CommandCodec<ClaimAchievementRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.AchievementGlobalId,
+        static achievement => new ClaimAchievementRewardCommand(achievement)));
 }

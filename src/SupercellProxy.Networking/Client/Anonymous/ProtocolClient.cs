@@ -32,7 +32,8 @@ public sealed partial class ProtocolClient
 
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
-        if (_login is not null) return _login;
+        if (_login is not null)
+            return _login;
 
         LogAuthenticating(_logger);
 
@@ -42,7 +43,8 @@ public sealed partial class ProtocolClient
                 ? await LoginAnonymousAccountAsync(requestOwnHome, request.Token).ConfigureAwait(continueOnCapturedContext: false)
                 : await _authenticator.LoginAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
 
-            if (_login.Resources.Length > 0) Stream.CommandDataResolver = DataTableResolver.Shared(_login.Fingerprint, _login.Resources);
+            if (_login.Resources.Length > 0)
+                Stream.CommandDataResolver = DataTableResolver.Shared(_login.Fingerprint, _login.Resources);
 
             return _login;
         }
@@ -92,7 +94,8 @@ public sealed partial class ProtocolClient
                 await lease.RejectAsync(saving.Token).ConfigureAwait(continueOnCapturedContext: false);
                 await DisconnectAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                if (Configuration.AnonymousAccountId is not null) throw;
+                if (Configuration.AnonymousAccountId is not null)
+                    throw;
             }
         }
 
@@ -103,7 +106,8 @@ public sealed partial class ProtocolClient
     {
         AnonymousAccountLease? lease = _anonymousLease;
 
-        if (lease?.Credentials is not { } credentials || _supercellStream?.CommandDataResolver is not DataTableResolver resolver) return;
+        if (lease?.Credentials is not { } credentials || _supercellStream?.CommandDataResolver is not DataTableResolver resolver)
+            return;
 
         ClientAvatar? avatar = message switch
         {
@@ -112,27 +116,29 @@ public sealed partial class ProtocolClient
             _ => null,
         };
 
-        if (avatar is null || avatar.AccountId.AsInt64 != credentials.AccountId || avatar.InventoryMaps.Length == 0) return;
+        if (avatar is null || avatar.AccountId.AsInt64 != credentials.AccountId || avatar.InventoryMaps.Length == 0)
+            return;
 
         int? level = ProfileValue(resolver, avatar, resource: "ExpLevel");
         int? experience = ProfileValue(resolver, avatar, resource: "ExpPoints");
 
-        if (level is null) return;
+        if (level is null)
+            return;
 
-        lease.Observe(
-            new(avatar.FarmName, level.Value, experience ?? 0)
-            {
-                HomeId = avatar.HomeId.AsInt64,
-                Coins = ProfileValue(resolver, avatar, resource: "Cash"),
-                Diamonds = ProfileValue(resolver, avatar, resource: "Diamonds"),
-            }
-        );
+        lease.Observe(new(avatar.FarmName, level.Value, experience ?? 0)
+        {
+            HomeId = avatar.HomeId.AsInt64,
+            Coins = ProfileValue(resolver, avatar, resource: "Cash"),
+            Diamonds = ProfileValue(resolver, avatar, resource: "Diamonds"),
+        });
     }
 
     private async ValueTask ObserveMessageAsync(MessageDirection direction, MessageContainer container, IMessage? message)
     {
-        if (direction == MessageDirection.Clientbound) ObserveAnonymousProfile(message);
+        if (direction == MessageDirection.Clientbound)
+            ObserveAnonymousProfile(message);
 
-        if (Configuration.ObserveMessage is { } observer) await observer(direction, container, message).ConfigureAwait(continueOnCapturedContext: false);
+        if (Configuration.ObserveMessage is { } observer)
+            await observer(direction, container, message).ConfigureAwait(continueOnCapturedContext: false);
     }
 }

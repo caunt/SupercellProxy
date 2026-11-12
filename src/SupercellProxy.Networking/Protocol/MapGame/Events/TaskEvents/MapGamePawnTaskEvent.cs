@@ -14,12 +14,10 @@ public record MapGamePawnTaskEvent(int Type, MapGamePawn? Pawn, MapGameTask? Tas
     /// </summary>
     internal static ICodec<MapGamePawnTaskEvent> CodecFor(int type)
     {
-        return Codecs.Composite(
-            Codecs.Optional(MapGamePawn.Codec),
+        return Codecs.Composite(Codecs.Optional(MapGamePawn.Codec),
             static mapGameEvent => mapGameEvent.Pawn,
             Codecs.Optional(MapGameTask.Codec),
             static mapGameEvent => mapGameEvent.Task,
-            (pawn, task) => new MapGamePawnTaskEvent(type, pawn, task)
-        );
+            (pawn, task) => new MapGamePawnTaskEvent(type, pawn, task));
     }
 }

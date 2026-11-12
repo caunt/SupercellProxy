@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record StreamEntryId(int High, int Low) : ICodecProvider<StreamEntryId>
 {
     /// <inheritdoc />
-    public static ICodec<StreamEntryId> Codec { get; } = Codecs.Composite(
-        Codecs.Int32,
+    public static ICodec<StreamEntryId> Codec { get; } = Codecs.Composite(Codecs.Int32,
         static value => value.High,
         Codecs.Int32,
         static value => value.Low,
-        static (high, low) => new StreamEntryId(high, low)
-    );
+        static (high, low) => new StreamEntryId(high, low));
 }

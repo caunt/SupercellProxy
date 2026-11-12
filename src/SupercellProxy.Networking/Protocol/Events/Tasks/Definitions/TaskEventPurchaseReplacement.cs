@@ -8,8 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks.Definitions;
 public sealed record TaskEventPurchaseReplacement
 {
     /// <summary>
-    /// Diamonds a replacement costs.
+    /// Gets or sets the diamonds a replacement costs.
     /// </summary>
+    /// <value>The <c>PurchaseCost</c> in diamonds charged each time the player buys a replacement task; 0 when the document omits it.</value>
     [JsonPropertyName("PurchaseCost")]
     public int PurchaseCost { get; init; }
 }

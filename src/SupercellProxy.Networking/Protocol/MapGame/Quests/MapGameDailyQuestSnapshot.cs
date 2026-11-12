@@ -5,10 +5,14 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 /// <param name="QuestGlobalId">The quest data id.</param>
 public sealed record MapGameDailyQuestSnapshot([property: JsonPropertyName("QuestGlobalId")] int QuestGlobalId)
 {
-    /// <summary>Gets whether the quest target has been reached.</summary>
+    /// <summary>Gets or sets whether the quest target has been reached.</summary>
+    /// <value><see langword="true"/> if <see cref="Progress"/> reached the quest's <c>Param1</c> target; otherwise, <see langword="false"/>.</value>
+    /// <remarks>The flag defaults to <see langword="false"/>.</remarks>
     public bool Complete { get; init; }
-    /// <summary>Gets the retained progress, capped at the quest target on completion.</summary>
+    /// <summary>Gets or sets the retained progress.</summary>
+    /// <value>A non-negative count toward the quest's <c>Param1</c> target.</value>
     public int Progress { get; init; }
-    /// <summary>Gets whether completion has been presented to the player.</summary>
+    /// <summary>Gets or sets whether completion has been presented to the player.</summary>
+    /// <value><see langword="true"/> if the player was shown the completed quest; otherwise, <see langword="false"/>.</value>
     public bool Seen { get; init; }
 }

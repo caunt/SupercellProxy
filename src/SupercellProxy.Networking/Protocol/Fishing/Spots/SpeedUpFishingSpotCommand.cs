@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Spots;
 public sealed record SpeedUpFishingSpotCommand(int SpotObjectGlobalId, bool UseDiamonds) : CodecCommand<SpeedUpFishingSpotCommand>, ICommandCodecProvider<SpeedUpFishingSpotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SpeedUpFishingSpotCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.SpotObjectGlobalId,
-            Codecs.Boolean,
-            static command => command.UseDiamonds,
-            static (spotObjectGlobalId, useDiamonds) => new SpeedUpFishingSpotCommand(spotObjectGlobalId, useDiamonds)
-        )
-    );
+    public static CommandCodec<SpeedUpFishingSpotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SpotObjectGlobalId,
+        Codecs.Boolean,
+        static command => command.UseDiamonds,
+        static (spotObjectGlobalId, useDiamonds) => new SpeedUpFishingSpotCommand(spotObjectGlobalId, useDiamonds)));
 }

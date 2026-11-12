@@ -10,16 +10,12 @@ namespace SupercellProxy.Networking.Protocol.Workbench;
 public sealed record AssignWorkbenchPerkCommand(int WorkbenchObjectGlobalId, int MaterialGlobalId, int PerkGlobalId) : CodecCommand<AssignWorkbenchPerkCommand>, ICommandCodecProvider<AssignWorkbenchPerkCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AssignWorkbenchPerkCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<AssignWorkbenchPerkCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.WorkbenchObjectGlobalId,
             Codecs.VarInt,
             static command => command.MaterialGlobalId,
             Codecs.VarInt,
             static command => command.PerkGlobalId,
-            static (workbenchObjectGlobalId, materialGlobalId, perkGlobalId) => new AssignWorkbenchPerkCommand(workbenchObjectGlobalId, materialGlobalId, perkGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (workbenchObjectGlobalId, materialGlobalId, perkGlobalId) => new AssignWorkbenchPerkCommand(workbenchObjectGlobalId, materialGlobalId, perkGlobalId)),
+        CommandLayout.MetadataFirst);
 }

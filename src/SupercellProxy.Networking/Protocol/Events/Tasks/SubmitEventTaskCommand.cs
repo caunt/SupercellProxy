@@ -13,21 +13,17 @@ namespace SupercellProxy.Networking.Protocol.Events.Tasks;
 public sealed record SubmitEventTaskCommand(int EventId, int TaskIndex, bool UseDiamonds, ReadOnlyMemory<long> GoodIds, long TaskId, int Points) : CodecCommand<SubmitEventTaskCommand>, ICommandCodecProvider<SubmitEventTaskCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SubmitEventTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.EventId,
-            Codecs.VarInt,
-            static command => command.TaskIndex,
-            Codecs.Boolean,
-            static command => command.UseDiamonds,
-            Codecs.Memory(Codecs.VarLong),
-            static command => command.GoodIds,
-            Codecs.VarLong,
-            static command => command.TaskId,
-            Codecs.VarInt,
-            static command => command.Points,
-            static (eventId, taskIndex, useDiamonds, goodIds, taskId, points) => new SubmitEventTaskCommand(eventId, taskIndex, useDiamonds, goodIds, taskId, points)
-        )
-    );
+    public static CommandCodec<SubmitEventTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        Codecs.VarInt,
+        static command => command.TaskIndex,
+        Codecs.Boolean,
+        static command => command.UseDiamonds,
+        Codecs.Memory(Codecs.VarLong),
+        static command => command.GoodIds,
+        Codecs.VarLong,
+        static command => command.TaskId,
+        Codecs.VarInt,
+        static command => command.Points,
+        static (eventId, taskIndex, useDiamonds, goodIds, taskId, points) => new SubmitEventTaskCommand(eventId, taskIndex, useDiamonds, goodIds, taskId, points)));
 }

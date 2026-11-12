@@ -8,11 +8,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Rewards;
 public sealed record MapGameShopGood(int GoodGlobalId, int Amount) : ICodecProvider<MapGameShopGood>
 {
     /// <inheritdoc />
-    public static ICodec<MapGameShopGood> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<MapGameShopGood> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.GoodGlobalId,
         Codecs.VarInt,
         static value => value.Amount,
-        static (goodGlobalId, amount) => new MapGameShopGood(goodGlobalId, amount)
-    );
+        static (goodGlobalId, amount) => new MapGameShopGood(goodGlobalId, amount));
 }

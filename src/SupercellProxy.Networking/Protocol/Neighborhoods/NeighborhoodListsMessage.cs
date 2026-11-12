@@ -10,9 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodListsMessage : CodecMessage<NeighborhoodListsMessage>, ICodecProvider<NeighborhoodListsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodListsMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Composite(
-            Codecs.NullableArray(NeighborhoodIdValue.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+    public static ICodec<NeighborhoodListsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(NeighborhoodIdValue.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.SecondEntries,
             Codecs.NullableArray(NeighborhoodIdValue.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.FirstEntries,
@@ -26,26 +24,29 @@ public sealed record NeighborhoodListsMessage : CodecMessage<NeighborhoodListsMe
                 FirstEntries = firstEntries,
                 Profiles = profiles,
                 Value = value,
-            }
-        ),
-        trailingDataMessage: "The neighborhood lists contain trailing data."
-    );
+            }),
+        trailingDataMessage: "The neighborhood lists contain trailing data.");
 
     /// <summary>
-    /// Ids with a score each, sent second and sorted from the highest score in the captures; likely a player ranking, not confirmed.
+    /// Gets or sets ids with a score each, sent second and sorted from the highest score in the captures; likely a player ranking, not confirmed.
     /// </summary>
+    /// <value>The second list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
     public NeighborhoodIdValue[]? FirstEntries { get; init; }
 
-    /// <summary>Neighbourhood profiles with a score each, sorted from the highest score in the captures.</summary>
+    /// <summary>Gets or sets the neighbourhood profiles with a score each, sorted from the highest score in the captures.</summary>
+    /// <value>The third list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
     public NeighborhoodHeaderEntryValue[]? Profiles { get; init; }
 
-    /// <summary>Ids with a number each, sent first and not sorted in the captures; their meaning is not identified.</summary>
+    /// <summary>Gets or sets ids with a number each, sent first and not sorted in the captures; their meaning is not identified.</summary>
+    /// <value>The first list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
     public NeighborhoodIdValue[]? SecondEntries { get; init; }
 
-    /// <summary>Number sent last, 0 when the lists are empty; its meaning is not identified.</summary>
+    /// <summary>Gets or sets the number sent last, 0 when the lists are empty; its meaning is not identified.</summary>
+    /// <value>The VarInt that ends the message; any bytes after it fail the decode.</value>
     public int Value { get; init; }
 
     /// <summary>Returns only the message name, without the lists.</summary>
+    /// <returns>Always <c>NeighborhoodListsMessage</c>, so logs never show the listed ids or profiles.</returns>
     public override string ToString()
     {
         return nameof(NeighborhoodListsMessage);

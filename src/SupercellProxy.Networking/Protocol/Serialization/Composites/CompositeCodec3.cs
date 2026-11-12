@@ -3,15 +3,13 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Composites;
 
 /// <summary>Reads and writes 3 fields in wire order and builds the value from them.</summary>
-internal sealed class CompositeCodec3<TValue, TFirst, TSecond, TThird>(
-    ICodec<TFirst> first,
+internal sealed class CompositeCodec3<TValue, TFirst, TSecond, TThird>(ICodec<TFirst> first,
     Func<TValue, TFirst> getFirst,
     ICodec<TSecond> second,
     Func<TValue, TSecond> getSecond,
     ICodec<TThird> third,
     Func<TValue, TThird> getThird,
-    Func<TFirst, TSecond, TThird, TValue> factory
-) : ICodec<TValue>
+    Func<TFirst, TSecond, TThird, TValue> factory) : ICodec<TValue>
 {
     private readonly Func<TFirst, TSecond, TThird, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));

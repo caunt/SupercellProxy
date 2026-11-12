@@ -14,14 +14,12 @@ public sealed record MapGameNodeEmojiEvent(int Type, LongId? AvatarId, int NodeI
     /// </summary>
     internal static ICodec<MapGameNodeEmojiEvent> CodecFor(int type)
     {
-        return Codecs.Composite(
-            Codecs.OptionalLongId,
+        return Codecs.Composite(Codecs.OptionalLongId,
             static mapGameEvent => mapGameEvent.AvatarId,
             Codecs.VarInt,
             static mapGameEvent => mapGameEvent.NodeId,
             Codecs.VarInt,
             static mapGameEvent => mapGameEvent.EmojiGlobalId,
-            (avatarId, nodeId, emojiGlobalId) => new MapGameNodeEmojiEvent(type, avatarId, nodeId, emojiGlobalId)
-        );
+            (avatarId, nodeId, emojiGlobalId) => new MapGameNodeEmojiEvent(type, avatarId, nodeId, emojiGlobalId));
     }
 }

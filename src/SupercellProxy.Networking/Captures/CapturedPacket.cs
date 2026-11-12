@@ -15,8 +15,7 @@ namespace SupercellProxy.Networking.Captures;
 /// <param name="TimestampFrequency">The number of timestamp ticks per second.</param>
 /// <param name="Turn">The native turn that produced the frame, when known.</param>
 /// <param name="AssetFingerprint">The asset fingerprint active for the frame, when known.</param>
-public sealed record CapturedPacket(
-    long Sequence,
+public sealed record CapturedPacket(long Sequence,
     string File,
     string Stage,
     string Direction,
@@ -27,5 +26,4 @@ public sealed record CapturedPacket(
     long Timestamp,
     long TimestampFrequency,
     CapturedTurn? Turn,
-    string? AssetFingerprint
-);
+    string? AssetFingerprint);

@@ -17,15 +17,14 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Joining;
 /// <param name="Flag1">Flag that is set in every capture; its meaning is not identified.</param>
 /// <param name="Flag2">Per-member flag; its meaning is not identified.</param>
 /// <param name="Flag3">Per-member flag that matches <paramref name="Flag2"/> in the captures; its meaning is not identified.</param>
-/// <param name="Value3">Number that is 0 in every capture; its meaning is not identified.</param>
+/// <param name="Value3">VarInt read right after the four flags; like <paramref name="Value2"/> it is 0 in every capture, and its meaning is not identified.</param>
 /// <param name="Value4">Unix time in seconds, always equal to <paramref name="Timestamp0"/> in the captures.</param>
 /// <param name="Value5">Per-member number that changes between captures; its meaning is not identified.</param>
 /// <param name="Timestamp0">Recent Unix time in seconds, likely the member's last activity; not confirmed.</param>
 /// <param name="Timestamp1">Older Unix time in seconds, likely when the member joined; not confirmed.</param>
 /// <param name="HomeId">Optional id that two members share in the captures; its meaning is not identified.</param>
 /// <param name="NeighborhoodId">Optional id that differs between members in the captures; its meaning is not identified.</param>
-public sealed record NeighborhoodMemberEntry(
-    LongId AvatarId,
+public sealed record NeighborhoodMemberEntry(LongId AvatarId,
     string? Name,
     int Role,
     int ExpLevel,
@@ -42,12 +41,10 @@ public sealed record NeighborhoodMemberEntry(
     long Timestamp0,
     long Timestamp1,
     LongId? HomeId,
-    LongId? NeighborhoodId
-) : ICodecProvider<NeighborhoodMemberEntry>
+    LongId? NeighborhoodId) : ICodecProvider<NeighborhoodMemberEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodMemberEntry> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodMemberEntry> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static entry => entry.AvatarId,
         Codecs.OptionalString,
         static entry => entry.Name,
@@ -77,8 +74,7 @@ public sealed record NeighborhoodMemberEntry(
         static entry => entry.HomeId,
         Codecs.OptionalLongId,
         static entry => entry.NeighborhoodId,
-        static (
-            avatarId,
+        static (avatarId,
             name,
             role,
             expLevel,
@@ -92,34 +88,29 @@ public sealed record NeighborhoodMemberEntry(
             timestamp0,
             timestamp1,
             homeId,
-            neighborhoodId
-        ) => new NeighborhoodMemberEntry(
-            avatarId,
-            name,
-            role,
-            expLevel,
-            value0,
-            value1,
-            value2,
-            memberFlags.Flag0,
-            memberFlags.Flag1,
-            memberFlags.Flag2,
-            memberFlags.Flag3,
-            value3,
-            value4,
-            value5,
-            timestamp0,
-            timestamp1,
-            homeId,
-            neighborhoodId
-        )
-    );
+            neighborhoodId) => new NeighborhoodMemberEntry(avatarId,
+                name,
+                role,
+                expLevel,
+                value0,
+                value1,
+                value2,
+                memberFlags.Flag0,
+                memberFlags.Flag1,
+                memberFlags.Flag2,
+                memberFlags.Flag3,
+                value3,
+                value4,
+                value5,
+                timestamp0,
+                timestamp1,
+                homeId,
+                neighborhoodId));
 
     // The four member flags native reads together.
     private readonly record struct MemberFlags(bool Flag0, bool Flag1, bool Flag2, bool Flag3)
     {
-        public static ICodec<MemberFlags> Codec { get; } = Codecs.Composite(
-            Codecs.Boolean,
+        public static ICodec<MemberFlags> Codec { get; } = Codecs.Composite(Codecs.Boolean,
             static segment => segment.Flag0,
             Codecs.Boolean,
             static segment => segment.Flag1,
@@ -127,7 +118,6 @@ public sealed record NeighborhoodMemberEntry(
             static segment => segment.Flag2,
             Codecs.Boolean,
             static segment => segment.Flag3,
-            static (flag0, flag1, flag2, flag3) => new MemberFlags(flag0, flag1, flag2, flag3)
-        );
+            static (flag0, flag1, flag2, flag3) => new MemberFlags(flag0, flag1, flag2, flag3));
     }
 }

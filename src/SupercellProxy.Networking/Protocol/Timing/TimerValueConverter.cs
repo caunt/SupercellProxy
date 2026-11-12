@@ -12,8 +12,8 @@ public sealed class TimerValueConverter : JsonConverter<TimerValue>
         return reader.TokenType switch
         {
             JsonTokenType.Null => new TimerValue(TimerValueKind.Null, counter: 0, countdown: default),
-            JsonTokenType.Number => TimerValue.FromCounter(reader.GetInt32()),
-            JsonTokenType.StartObject => TimerValue.FromCountdown(JsonSerializer.Deserialize<TimerSnapshot>(ref reader, options)),
+            JsonTokenType.Number => TimerValue.From(reader.GetInt32()),
+            JsonTokenType.StartObject => TimerValue.From(JsonSerializer.Deserialize<TimerSnapshot>(ref reader, options)),
             JsonTokenType.None => throw new JsonException(message: "Unsupported JSON literal for this contract."),
             JsonTokenType.EndObject => throw new JsonException(message: "Unsupported JSON literal for this contract."),
             JsonTokenType.StartArray => throw new JsonException(message: "Unsupported JSON literal for this contract."),

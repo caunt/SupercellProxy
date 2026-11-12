@@ -9,14 +9,10 @@ namespace SupercellProxy.Networking.Protocol.Visitors.Friendship;
 public sealed record GiveVisitorFriendshipGiftCommand(int VisitorGlobalId, int GiftGlobalId) : CodecCommand<GiveVisitorFriendshipGiftCommand>, ICommandCodecProvider<GiveVisitorFriendshipGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<GiveVisitorFriendshipGiftCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<GiveVisitorFriendshipGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.VisitorGlobalId,
             Codecs.VarInt,
             static command => command.GiftGlobalId,
-            static (visitorGlobalId, giftGlobalId) => new GiveVisitorFriendshipGiftCommand(visitorGlobalId, giftGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (visitorGlobalId, giftGlobalId) => new GiveVisitorFriendshipGiftCommand(visitorGlobalId, giftGlobalId)),
+        CommandLayout.MetadataFirst);
 }

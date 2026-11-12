@@ -11,17 +11,9 @@ namespace SupercellProxy.Keys.Extract;
 internal static class ServerPublicKeyExtractor
 {
     /// <summary>
-    /// <para>Extracts a server public key from raw native executable bytes.</para>
-    /// </summary>
-    public static byte[] Extract(ReadOnlySpan<byte> content)
-    {
-        return ExtractBinary(content);
-    }
-
-    /// <summary>
     /// <para>Extracts a server public key from a native executable image.</para>
     /// </summary>
-    public static byte[] ExtractBinary(ReadOnlySpan<byte> binary)
+    public static byte[] Extract(ReadOnlySpan<byte> binary)
     {
         int foundIndex = -1;
 
@@ -35,14 +27,10 @@ internal static class ServerPublicKeyExtractor
 
             if (foundIndex is not -1)
             {
-                throw new InvalidOperationException(
-                    "Multiple possible server public keys found in the binary (expected 1):\n"
-                        + string.Create(
-                            CultureInfo.InvariantCulture,
-                            $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength))}\n"
-                        )
-                        + string.Create(CultureInfo.InvariantCulture, $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, PublicKeyCodec.EncodedLength))}")
-                );
+                throw new InvalidOperationException("Multiple possible server public keys found in the binary (expected 1):\n"
+                        + string.Create(CultureInfo.InvariantCulture,
+                            $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength))}\n")
+                        + string.Create(CultureInfo.InvariantCulture, $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, PublicKeyCodec.EncodedLength))}"));
             }
 
             foundIndex = index;
@@ -60,7 +48,7 @@ internal static class ServerPublicKeyExtractor
     {
         byte[] binary = await ReadBinaryFileAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        return ExtractBinary(binary);
+        return Extract(binary);
     }
 
     /// <summary>Extracts the public key and, when recognized, its numeric version.</summary>
@@ -68,7 +56,7 @@ internal static class ServerPublicKeyExtractor
     {
         byte[] binary = await ReadBinaryFileAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        return new ExtractedServerKey(KeyVersionExtractor.Extract(binary), Convert.ToHexString(ExtractBinary(binary)));
+        return new ExtractedServerKey(KeyVersionExtractor.Extract(binary), Convert.ToHexString(Extract(binary)));
     }
 
     private static async ValueTask<byte[]> ReadBinaryFileAsync(string path, CancellationToken cancellationToken)

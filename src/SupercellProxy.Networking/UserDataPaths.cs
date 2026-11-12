@@ -10,14 +10,18 @@ public static class UserDataPaths
     private const string OutOfSyncDirectoryName = "out-of-sync";
 
     /// <summary>Gets the shared root directory for persisted SupercellProxy application data.</summary>
+    /// <value>A <c>SupercellProxy</c> folder inside the user's local application-data folder, computed once; the folder is not created here.</value>
     public static string RootDirectoryPath { get; } = CreateRootDirectoryPath();
 
     /// <summary>Gets the shared root directory for versioned game assets.</summary>
+    /// <value>The <c>assets</c> subfolder of <see cref="RootDirectoryPath"/>.</value>
     public static string AssetDirectoryPath { get; } = Path.Combine(RootDirectoryPath, AssetDirectoryName);
 
     /// <summary>Gets the shared directory for retained proxy captures.</summary>
+    /// <value>The <c>captures</c> subfolder of <see cref="RootDirectoryPath"/>.</value>
     public static string CaptureDirectoryPath { get; } = Path.Combine(RootDirectoryPath, CaptureDirectoryName);
     /// <summary>Gets managed connection failure recordings, separate from retained real-device replay captures.</summary>
+    /// <value>The <c>out-of-sync</c> subfolder of <see cref="RootDirectoryPath"/>, the default home of the replay windows that managed connections save only when a session fails.</value>
     public static string OutOfSyncDirectoryPath { get; } = Path.Combine(RootDirectoryPath, OutOfSyncDirectoryName);
 
 

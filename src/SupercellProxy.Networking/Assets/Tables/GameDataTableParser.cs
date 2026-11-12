@@ -13,9 +13,12 @@ public static class GameDataTableParser
     /// Parses a whole table, converting each cell to the type its column declares and grouping continuation lines under their entry.
     /// </summary>
     /// <param name="csvText">Full text of the CSV file.</param>
+    /// <returns>The table with its header and type rows and one entry per named line, in file order; blank lines are skipped and empty
+    /// cells are left out of each line's values.</returns>
     /// <exception cref="FormatException">
     /// The text lacks the two header rows, a cell does not fit its column type, or a continuation line comes before any named line.
     /// </exception>
+    /// <exception cref="ArgumentException"><paramref name="csvText"/> is <see langword="null"/>, empty or only white space.</exception>
     public static GameDataTable Parse(string csvText)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(csvText);
@@ -26,16 +29,16 @@ public static class GameDataTableParser
             throw new FormatException(message: "Expected at least a header row and a type row.");
 
         List<string> headers = rows[index: 0];
-        List<string> types = NormalizeDataRow(rows[index: 1], headers.Count, rowIndex: 1);
+        List<string> types = Normalize(rows[index: 1], headers.Count, rowIndex: 1);
         List<GameDataTableEntryBuilder> entryBuilders = [];
 
         GameDataTableEntryBuilder? currentEntryBuilder = null;
 
         for (int rowIndex = 2; rowIndex < rows.Count; rowIndex++)
         {
-            List<string> row = NormalizeDataRow(rows[rowIndex], headers.Count, rowIndex);
+            List<string> row = Normalize(rows[rowIndex], headers.Count, rowIndex);
 
-            if (IsEmptyRow(row))
+            if (IsEmpty(row))
                 continue;
 
             Dictionary<string, LiteralValue> parsedValues = ParseSparseValues(headers, types, row);
@@ -70,6 +73,8 @@ public static class GameDataTableParser
     /// CSV files that are not game tables.
     /// </summary>
     /// <param name="csvText">Full text of the CSV file.</param>
+    /// <returns>Every line as its list of cell strings with quotes removed, header rows first; empty for empty text. Lines keep their
+    /// own cell counts, and blank lines inside the text are kept.</returns>
     public static IReadOnlyList<IReadOnlyList<string>> ParsePhysicalRows(string csvText)
     {
         return ParseMutableRows(csvText).AsReadOnly();
@@ -126,7 +131,7 @@ public static class GameDataTableParser
             currentCell.Add(currentCharacter);
         }
 
-        return CompletePhysicalRows(rows, currentRow, currentCell, insideQuotes);
+        return Complete(rows, currentRow, currentCell, insideQuotes);
     }
 
     private static void AppendQuotedCharacter(string csvText, ref int index, char currentCharacter, List<char> currentCell, ref bool insideQuotes)
@@ -151,7 +156,7 @@ public static class GameDataTableParser
         insideQuotes = false;
     }
 
-    private static List<List<string>> CompletePhysicalRows(List<List<string>> rows, List<string> currentRow, List<char> currentCell, bool insideQuotes)
+    private static List<List<string>> Complete(List<List<string>> rows, List<string> currentRow, List<char> currentCell, bool insideQuotes)
     {
         if (insideQuotes)
             throw new FormatException(message: "CSV ended while still inside a quoted field.");
@@ -164,7 +169,7 @@ public static class GameDataTableParser
         return rows;
     }
 
-    private static bool IsEmptyRow(List<string> row)
+    private static bool IsEmpty(List<string> row)
     {
         foreach (string value in row)
         {
@@ -175,14 +180,10 @@ public static class GameDataTableParser
         return true;
     }
 
-    private static List<string> NormalizeDataRow(List<string> row, int expectedColumnCount, int rowIndex)
+    private static List<string> Normalize(List<string> row, int expectedColumnCount, int rowIndex)
     {
         if (row.Count > expectedColumnCount)
-        {
-            throw new FormatException(
-                string.Create(CultureInfo.InvariantCulture, $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns.")
-            );
-        }
+            throw new FormatException(string.Create(CultureInfo.InvariantCulture, $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns."));
 
         if (row.Count == expectedColumnCount)
             return row;

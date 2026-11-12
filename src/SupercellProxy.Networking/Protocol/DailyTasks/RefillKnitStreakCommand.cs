@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.DailyTasks;
 public sealed record RefillKnitStreakCommand(int Days) : CodecCommand<RefillKnitStreakCommand>, ICommandCodecProvider<RefillKnitStreakCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RefillKnitStreakCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.Days, static days => new RefillKnitStreakCommand(days)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<RefillKnitStreakCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.Days, static days => new RefillKnitStreakCommand(days)),
+        CommandLayout.MetadataFirst);
 }

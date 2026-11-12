@@ -8,7 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record KickNeighborhoodMemberCommand(LongId MemberHomeId) : CodecCommand<KickNeighborhoodMemberCommand>, ICommandCodecProvider<KickNeighborhoodMemberCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<KickNeighborhoodMemberCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.LongId, static command => command.MemberHomeId, static memberHomeId => new KickNeighborhoodMemberCommand(memberHomeId))
-    );
+    public static CommandCodec<KickNeighborhoodMemberCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId, static command => command.MemberHomeId, static memberHomeId => new KickNeighborhoodMemberCommand(memberHomeId)));
 }

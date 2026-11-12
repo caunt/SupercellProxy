@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 public sealed record BuyFromNewspaperAdvertisementMessage(int AdvertisementIndex, int Price) : CodecMessage<BuyFromNewspaperAdvertisementMessage>, ICodecProvider<BuyFromNewspaperAdvertisementMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BuyFromNewspaperAdvertisementMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<BuyFromNewspaperAdvertisementMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.AdvertisementIndex,
         Codecs.VarInt,
         static message => message.Price,
-        static (advertisementIndex, price) => new BuyFromNewspaperAdvertisementMessage(advertisementIndex, price)
-    );
+        static (advertisementIndex, price) => new BuyFromNewspaperAdvertisementMessage(advertisementIndex, price));
 }

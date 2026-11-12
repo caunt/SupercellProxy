@@ -17,8 +17,7 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, bool Flag, string? Text0, string? Text1, string? Text2, string? Text3, string? Text4) : ICodecProvider<NewspaperStoryEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NewspaperStoryEntry> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<NewspaperStoryEntry> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static value => value.Value0,
         Codecs.VarInt,
         static value => value.Value1,
@@ -36,6 +35,5 @@ public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, boo
         static value => value.Text3,
         Codecs.OptionalString,
         static value => value.Text4,
-        static (value0, value1, value2, flag, text0, text1, text2, text3, text4) => new NewspaperStoryEntry(value0, value1, value2, flag, text0, text1, text2, text3, text4)
-    );
+        static (value0, value1, value2, flag, text0, text1, text2, text3, text4) => new NewspaperStoryEntry(value0, value1, value2, flag, text0, text1, text2, text3, text4));
 }

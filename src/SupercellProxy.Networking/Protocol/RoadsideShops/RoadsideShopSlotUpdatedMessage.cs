@@ -12,8 +12,7 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 public sealed record RoadsideShopSlotUpdatedMessage(int Quantity, int Slot, int Price, int ItemId, LongId OwnerId) : CodecMessage<RoadsideShopSlotUpdatedMessage>, ICodecProvider<RoadsideShopSlotUpdatedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RoadsideShopSlotUpdatedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<RoadsideShopSlotUpdatedMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Quantity,
         Codecs.VarInt,
         static message => message.Slot,
@@ -23,6 +22,5 @@ public sealed record RoadsideShopSlotUpdatedMessage(int Quantity, int Slot, int 
         static message => message.ItemId,
         Codecs.LongId,
         static message => message.OwnerId,
-        static (quantity, slot, price, itemId, ownerId) => new RoadsideShopSlotUpdatedMessage(quantity, slot, price, itemId, ownerId)
-    );
+        static (quantity, slot, price, itemId, ownerId) => new RoadsideShopSlotUpdatedMessage(quantity, slot, price, itemId, ownerId));
 }

@@ -9,13 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Fishing.Ducks;
 public sealed record SelectDuckCommand(int SalonGlobalId, int DuckGlobalId) : CodecCommand<SelectDuckCommand>, ICommandCodecProvider<SelectDuckCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectDuckCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
-            static command => command.SalonGlobalId,
-            Codecs.VarInt,
-            static command => command.DuckGlobalId,
-            static (salonGlobalId, duckGlobalId) => new SelectDuckCommand(salonGlobalId, duckGlobalId)
-        )
-    );
+    public static CommandCodec<SelectDuckCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SalonGlobalId,
+        Codecs.VarInt,
+        static command => command.DuckGlobalId,
+        static (salonGlobalId, duckGlobalId) => new SelectDuckCommand(salonGlobalId, duckGlobalId)));
 }

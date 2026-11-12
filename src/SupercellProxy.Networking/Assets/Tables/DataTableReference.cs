@@ -10,11 +10,9 @@ namespace SupercellProxy.Networking.Assets.Tables;
 /// <param name="Name">Entry name from the table's first column, such as <c>Chicken</c>.</param>
 /// <param name="File">Path of the table inside the asset bundle.</param>
 /// <param name="FileSha">Content hash of the table file the entry was read from.</param>
-public sealed record DataTableReference(
-    [property: JsonPropertyName("GlobalId")] int GlobalId,
+public sealed record DataTableReference([property: JsonPropertyName("GlobalId")] int GlobalId,
     [property: JsonPropertyName("TableId")] int TableId,
     int RowIndex,
     string Name,
     string File,
-    string FileSha
-);
+    string FileSha);

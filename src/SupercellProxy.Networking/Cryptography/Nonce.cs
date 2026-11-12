@@ -17,7 +17,7 @@ public sealed class Nonce
     private NonceBuffer _bytes;
 
     /// <summary>
-    /// Builds a nonce in one of three ways: copies <paramref name="nonceBytes"/> as given; picks random bytes with the lowest bit
+    /// Initializes a new instance of the <see cref="Nonce"/> class. Builds a nonce in one of three ways: copies <paramref name="nonceBytes"/> as given; picks random bytes with the lowest bit
     /// cleared when nothing is given; or, when public keys are given, hashes the optional bytes and both keys with Blake2b, which is
     /// how the handshake derives its one-off nonces.
     /// </summary>
@@ -25,11 +25,9 @@ public sealed class Nonce
     /// <param name="clientPublicKey">The client's 32-byte public key; supplying it selects the hashed form.</param>
     /// <param name="serverPublicKey">The server's 32-byte public key, hashed after the client's.</param>
     /// <exception cref="InvalidOperationException">The Blake2b hash could not be produced.</exception>
-    public Nonce(
-        ReadOnlySpan<byte> nonceBytes = default,
+    public Nonce(ReadOnlySpan<byte> nonceBytes = default,
         ReadOnlySpan<byte> clientPublicKey = default,
-        ReadOnlySpan<byte> serverPublicKey = default
-    )
+        ReadOnlySpan<byte> serverPublicKey = default)
     {
         if (Unsafe.IsNullRef(ref MemoryMarshal.GetReference(clientPublicKey)))
         {
@@ -67,8 +65,9 @@ public sealed class Nonce
     }
 
     /// <summary>
-    /// The current 24 bytes, writable in place; pass them to the box functions.
+    /// Gets the current 24 bytes, writable in place; pass them to the box functions.
     /// </summary>
+    /// <value>A view over the nonce's own buffer, so increments show through it and writes to it change the nonce.</value>
     public Span<byte> Span => _bytes;
 
     /// <summary>

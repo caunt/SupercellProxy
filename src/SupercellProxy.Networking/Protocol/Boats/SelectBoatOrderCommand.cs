@@ -11,8 +11,6 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record SelectBoatOrderCommand(int OrderIndex) : CodecCommand<SelectBoatOrderCommand>, ICommandCodecProvider<SelectBoatOrderCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectBoatOrderCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static orderIndex => new SelectBoatOrderCommand(orderIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<SelectBoatOrderCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static orderIndex => new SelectBoatOrderCommand(orderIndex)),
+        CommandLayout.MetadataFirst);
 }

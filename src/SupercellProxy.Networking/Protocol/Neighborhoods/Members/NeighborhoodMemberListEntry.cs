@@ -6,14 +6,13 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Members;
 /// <param name="Id">Id of the list; it equals the owner's account id in the captures.</param>
 /// <param name="Value0">Global id of a table entry, 2200002 in the captures; what it names is not identified.</param>
 /// <param name="Value1">Number that is 3 in the captures; its meaning is not identified.</param>
-/// <param name="Value2">Number that is 3 in the captures; its meaning is not identified.</param>
+/// <param name="Value2">VarInt read right after <paramref name="Value1"/> and equal to it (3) in the captures; whether the two are related is not identified.</param>
 /// <param name="Value3">Unix time in seconds, likely when the list was made; not confirmed.</param>
 /// <param name="Flag">Flag that is clear in the captures; its meaning is not identified.</param>
 /// <param name="Name">Text identifier of the list, a GUID in the captures.</param>
-/// <param name="Members">The members, or null when native writes a negative count.</param>
+/// <param name="Members">The members, or <see langword="null"/> when native writes a negative count.</param>
 /// <param name="OwnerId">Account that owns the list.</param>
-public sealed record NeighborhoodMemberListEntry(
-    LongId Id,
+public sealed record NeighborhoodMemberListEntry(LongId Id,
     int Value0,
     int Value1,
     int Value2,
@@ -21,12 +20,10 @@ public sealed record NeighborhoodMemberListEntry(
     bool Flag,
     string? Name,
     ReadOnlyMemory<NeighborhoodMemberSummary>? Members,
-    LongId? OwnerId
-) : ICodecProvider<NeighborhoodMemberListEntry>
+    LongId? OwnerId) : ICodecProvider<NeighborhoodMemberListEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodMemberListEntry> Codec { get; } = Codecs.Composite(
-        Codecs.LongId,
+    public static ICodec<NeighborhoodMemberListEntry> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static entry => entry.Id,
         Codecs.VarInt,
         static entry => entry.Value0,
@@ -44,6 +41,5 @@ public sealed record NeighborhoodMemberListEntry(
         static entry => entry.Members,
         Codecs.OptionalLongId,
         static entry => entry.OwnerId,
-        static (id, value0, value1, value2, value3, flag, name, members, ownerId) => new NeighborhoodMemberListEntry(id, value0, value1, value2, value3, flag, name, members, ownerId)
-    );
+        static (id, value0, value1, value2, value3, flag, name, members, ownerId) => new NeighborhoodMemberListEntry(id, value0, value1, value2, value3, flag, name, members, ownerId));
 }

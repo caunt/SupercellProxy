@@ -22,14 +22,12 @@ internal static partial class Application
 
         try
         {
-            FileStream output = new(
-                partialPath,
+            FileStream output = new(partialPath,
                 FileMode.Create,
                 FileAccess.Write,
                 FileShare.None,
                 bufferSize,
-                FileOptions.Asynchronous | FileOptions.SequentialScan
-            );
+                FileOptions.Asynchronous | FileOptions.SequentialScan);
 
             await using (output.ConfigureAwait(continueOnCapturedContext: false))
             {
@@ -62,12 +60,10 @@ internal static partial class Application
 
             await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
-                return archive.Entries.Any(
-                    static entry =>
+                return archive.Entries.Any(static entry =>
                     !string.IsNullOrEmpty(entry.Name)
                     && entry.FullName.StartsWith(value: "Payload/", StringComparison.Ordinal)
-                    && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal)
-                );
+                    && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal));
             }
         }
         catch (InvalidDataException)
@@ -76,7 +72,7 @@ internal static partial class Application
         }
     }
 
-    private static DownloadArguments ParseDownloadArguments(string[] arguments)
+    private static DownloadArguments ParseDownload(string[] arguments)
     {
         List<string> positionalArguments = new(capacity: 2);
         string? outputOption = null;
@@ -151,7 +147,7 @@ internal static partial class Application
         if (arguments.Any(IsHelp))
             return PrintDownloadHelp();
 
-        (List<string>? positionalArguments, string? outputOption) = ParseDownloadArguments(arguments);
+        (List<string>? positionalArguments, string? outputOption) = ParseDownload(arguments);
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 

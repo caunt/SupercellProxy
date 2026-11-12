@@ -4,6 +4,7 @@ using SupercellProxy.Networking.Protocol.Serialization;
 namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 
 /// <summary>Requests the Town belonging to the selected home.</summary>
+/// <param name="HomeId">Home id of the player whose town to load, sent as its two 32-bit words.</param>
 public sealed record RequestOtherTownMessage(LongId HomeId) : CodecMessage<RequestOtherTownMessage>, ICodecProvider<RequestOtherTownMessage>
 {
     /// <inheritdoc />

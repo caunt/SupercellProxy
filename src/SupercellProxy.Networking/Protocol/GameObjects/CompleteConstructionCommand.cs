@@ -13,7 +13,5 @@ namespace SupercellProxy.Networking.Protocol.GameObjects;
 public sealed record CompleteConstructionCommand([property: JsonPropertyName("ConstructionGlobalId")] int ConstructionGlobalId) : CodecCommand<CompleteConstructionCommand>, ICommandCodecProvider<CompleteConstructionCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CompleteConstructionCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ConstructionGlobalId, static id => new CompleteConstructionCommand(id))
-    );
+    public static CommandCodec<CompleteConstructionCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ConstructionGlobalId, static id => new CompleteConstructionCommand(id)));
 }

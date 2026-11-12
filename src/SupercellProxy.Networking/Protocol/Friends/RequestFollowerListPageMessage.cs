@@ -7,12 +7,11 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record RequestFollowerListPageMessage : CodecMessage<RequestFollowerListPageMessage>, ICodecProvider<RequestFollowerListPageMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestFollowerListPageMessage> Codec { get; } = Codecs.Complete(
-        Codecs.Unit(static () => new RequestFollowerListPageMessage()),
-        trailingDataMessage: "The follower-page request has trailing data."
-    );
+    public static ICodec<RequestFollowerListPageMessage> Codec { get; } = Codecs.Complete(Codecs.Unit(static () => new RequestFollowerListPageMessage()),
+        trailingDataMessage: "The follower-page request has trailing data.");
 
     /// <summary>Identifies the request without exposing client data.</summary>
+    /// <returns>Always the type name <c>RequestFollowerListPageMessage</c>; the message has no fields to show.</returns>
     public override string ToString()
     {
         return nameof(RequestFollowerListPageMessage);

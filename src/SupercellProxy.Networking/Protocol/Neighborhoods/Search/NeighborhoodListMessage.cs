@@ -9,11 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 public sealed record NeighborhoodListMessage(ReadOnlyMemory<NeighborhoodHeaderEntry> Neighborhoods, string? SearchText) : CodecMessage<NeighborhoodListMessage>, ICodecProvider<NeighborhoodListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodListMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Memory(SupercellProxy.Networking.Protocol.Neighborhoods.NeighborhoodHeaderEntry.Codec),
+    public static ICodec<NeighborhoodListMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(NeighborhoodHeaderEntry.Codec),
         static message => message.Neighborhoods,
         Codecs.OptionalString,
         static message => message.SearchText,
-        static (neighborhoods, searchText) => new NeighborhoodListMessage(neighborhoods, searchText)
-    );
+        static (neighborhoods, searchText) => new NeighborhoodListMessage(neighborhoods, searchText));
 }

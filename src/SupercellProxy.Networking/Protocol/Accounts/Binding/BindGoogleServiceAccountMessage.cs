@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record BindGoogleServiceAccountMessage(string? PlayerId, string? AuthorizationCode, bool Force) : CodecMessage<BindGoogleServiceAccountMessage>, ICodecProvider<BindGoogleServiceAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BindGoogleServiceAccountMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<BindGoogleServiceAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.PlayerId,
         Codecs.OptionalString,
         static message => message.AuthorizationCode,
         Codecs.Boolean,
         static message => message.Force,
-        static (playerId, authorizationCode, force) => new BindGoogleServiceAccountMessage(playerId, authorizationCode, force)
-    );
+        static (playerId, authorizationCode, force) => new BindGoogleServiceAccountMessage(playerId, authorizationCode, force));
 }

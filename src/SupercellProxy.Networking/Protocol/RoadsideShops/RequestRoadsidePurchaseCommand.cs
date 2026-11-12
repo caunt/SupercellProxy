@@ -14,14 +14,10 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 public sealed record RequestRoadsidePurchaseCommand(int SlotIndex, [property: JsonPropertyName("ItemGlobalId")] int ItemGlobalId) : CodecCommand<RequestRoadsidePurchaseCommand>, ICommandCodecProvider<RequestRoadsidePurchaseCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestRoadsidePurchaseCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.VarInt,
+    public static CommandCodec<RequestRoadsidePurchaseCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
             static command => command.SlotIndex,
             Codecs.VarInt,
             static command => command.ItemGlobalId,
-            static (slotIndex, itemGlobalId) => new RequestRoadsidePurchaseCommand(slotIndex, itemGlobalId)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (slotIndex, itemGlobalId) => new RequestRoadsidePurchaseCommand(slotIndex, itemGlobalId)),
+        CommandLayout.MetadataFirst);
 }

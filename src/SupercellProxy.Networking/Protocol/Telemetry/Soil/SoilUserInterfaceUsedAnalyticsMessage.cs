@@ -14,8 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Soil;
 /// <param name="Text">Text that is empty in every capture; its meaning is not identified.</param>
 /// <param name="Value3">Number that is -1 in every capture; its meaning is not identified.</param>
 /// <param name="Properties">Named details of the event; the captures carry the local notification id as <c>notificationGameId</c>.</param>
-public sealed record SoilUserInterfaceUsedAnalyticsMessage(
-    string? Timezone,
+public sealed record SoilUserInterfaceUsedAnalyticsMessage(string? Timezone,
     string? DeviceId,
     int Value0,
     int Value1,
@@ -24,12 +23,10 @@ public sealed record SoilUserInterfaceUsedAnalyticsMessage(
     int Value2,
     string? Text,
     int Value3,
-    ReadOnlyMemory<SoilProperty> Properties
-) : CodecMessage<SoilUserInterfaceUsedAnalyticsMessage>, ICodecProvider<SoilUserInterfaceUsedAnalyticsMessage>
+    ReadOnlyMemory<SoilProperty> Properties) : CodecMessage<SoilUserInterfaceUsedAnalyticsMessage>, ICodecProvider<SoilUserInterfaceUsedAnalyticsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SoilUserInterfaceUsedAnalyticsMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<SoilUserInterfaceUsedAnalyticsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Timezone,
         Codecs.OptionalString,
         static message => message.DeviceId,
@@ -49,6 +46,5 @@ public sealed record SoilUserInterfaceUsedAnalyticsMessage(
         static message => message.Value3,
         Codecs.Memory(SoilProperty.Codec),
         static message => message.Properties,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties) => new SoilUserInterfaceUsedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties)
-    );
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties) => new SoilUserInterfaceUsedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties));
 }

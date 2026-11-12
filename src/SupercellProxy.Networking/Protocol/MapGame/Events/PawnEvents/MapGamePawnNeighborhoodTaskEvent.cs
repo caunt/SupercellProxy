@@ -9,13 +9,11 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.PawnEvents;
 public sealed record MapGamePawnNeighborhoodTaskEvent(LongId? AvatarId, int Operation, int DataGlobalId) : MapGameEvent(MapGameEvent.PawnNeighborhoodTaskUpdatedType), ICodecProvider<MapGamePawnNeighborhoodTaskEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGamePawnNeighborhoodTaskEvent> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalLongId,
+    public static new ICodec<MapGamePawnNeighborhoodTaskEvent> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static mapGameEvent => mapGameEvent.AvatarId,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.Operation,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.DataGlobalId,
-        static (avatarId, operation, dataGlobalId) => new MapGamePawnNeighborhoodTaskEvent(avatarId, operation, dataGlobalId)
-    );
+        static (avatarId, operation, dataGlobalId) => new MapGamePawnNeighborhoodTaskEvent(avatarId, operation, dataGlobalId));
 }

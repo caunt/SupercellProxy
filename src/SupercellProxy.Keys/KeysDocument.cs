@@ -62,7 +62,7 @@ internal sealed class KeysDocument
 
         RenderedKeysSection[] renderedSections = [.. Sections
             .Where(section => updates.ContainsKey(section.AppStoreId))
-            .Select(section => CreateRenderedSection(section, updates[section.AppStoreId]))];
+            .Select(section => Render(section, updates[section.AppStoreId]))];
 
         if (renderedSections.Length is 0)
             return _content;
@@ -107,14 +107,12 @@ internal sealed class KeysDocument
     {
         return [.. Enumerable
             .Range(start: 0, section.Headers.Count)
-            .Select(
-                columnIndex =>
+            .Select(columnIndex =>
             {
                 int rowWidth = rows.Length is 0 ? 0 : rows.Max(cells => cells[columnIndex].Length);
 
                 return Math.Max(GetMinimumSeparatorWidth(section.Separators[columnIndex]), Math.Max(section.Headers[columnIndex].Length, rowWidth));
-            }
-            )];
+            })];
     }
 
     private static string[] CreateGeneratedCells(KeysSection section, string version, string key, int? keyVersion)
@@ -130,44 +128,6 @@ internal sealed class KeysDocument
     private static InvalidDataException CreateInvalidRowException(string sectionName, int rowIndex)
     {
         return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture, $"{rowIndex + 1}."));
-    }
-
-    private static RenderedKeysSection CreateRenderedSection(KeysSection section, KeysSectionUpdate update)
-    {
-        Dictionary<string, (string Key, int? KeyVersion, string[] Cells)> rowsByVersion = new(StringComparer.Ordinal);
-
-        foreach (ExistingKeyEntry entry in section.Entries)
-            rowsByVersion.Add(entry.Version, (entry.Key, entry.KeyVersion, [.. entry.Cells]));
-
-        foreach (GeneratedKeyEntry key in update.NewKeys)
-        {
-            string version = AppVersion.Normalize(key.Version);
-
-            if (rowsByVersion.TryGetValue(version, out (string Key, int? KeyVersion, string[] Cells) existing))
-            {
-                if (!string.Equals(existing.Key, key.Key, StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidDataException($"The {section.Name} table contains conflicting keys for version {version}.");
-
-                if (existing.KeyVersion is not null && key.KeyVersion is not null && existing.KeyVersion != key.KeyVersion)
-                    throw new InvalidDataException($"The {section.Name} table contains conflicting key versions for version {version}.");
-
-                if (key.KeyVersion is not null)
-                {
-                    existing.Cells[section.KeyVersionColumnIndex] = key.KeyVersion.Value.ToString(CultureInfo.InvariantCulture);
-                    rowsByVersion[version] = (existing.Key, key.KeyVersion, existing.Cells);
-                }
-
-                continue;
-            }
-
-            rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
-        }
-
-        string[][] rows = [.. rowsByVersion
-            .Values.Select(static value => value.Cells)
-            .OrderByDescending(cells => cells[section.VersionColumnIndex], AppVersion.ValueComparer)];
-
-        return new RenderedKeysSection(section, rows, CreateColumnWidths(section, rows));
     }
 
     private static string FormatSeparatorCell(string separator, int width)
@@ -204,15 +164,13 @@ internal sealed class KeysDocument
         return -1;
     }
 
-    private static KeyDocumentRows ParseEntries(
-        string[] parsedLines,
+    private static KeyDocumentRows ParseEntries(string[] parsedLines,
         int dataStartIndex,
         int columnCount,
         int versionColumnIndex,
         int keyColumnIndex,
         int keyVersionColumnIndex,
-        string sectionName
-    )
+        string sectionName)
     {
         List<ExistingKeyEntry> entries = [];
         Dictionary<string, int> versions = new(StringComparer.Ordinal);
@@ -296,11 +254,9 @@ internal sealed class KeysDocument
 
         int versionColumnIndex = headers is null
             ? -1
-            : Array.FindIndex(
-                headers,
+            : Array.FindIndex(headers,
                 static header => header.Equals(value: "Version", StringComparison.OrdinalIgnoreCase)
-                || header.Equals(value: "Game version", StringComparison.OrdinalIgnoreCase)
-            );
+                || header.Equals(value: "Game version", StringComparison.OrdinalIgnoreCase));
 
         int keyVersionColumnIndex = headers is null
             ? -1
@@ -328,21 +284,19 @@ internal sealed class KeysDocument
         int[] extraColumns = [.. Enumerable.Range(start: 0, headers.Length)
             .Where(index => index != versionColumnIndex && index != keyColumnIndex && index != keyVersionColumnIndex)];
 
-        return new KeysSection(
-            name,
+        return new KeysSection(name,
             appId,
             headerIndex,
             separatorIndex,
             dataStartIndex,
             dataEndIndex,
-            ["Game version", "Key version", "Key", .. extraColumns.Select(index => headers[index])],
-            [separators[versionColumnIndex], keyVersionColumnIndex < 0 ? "---" : separators[keyVersionColumnIndex],
+            Headers: ["Game version", "Key version", "Key", .. extraColumns.Select(index => headers[index])],
+            Separators: [separators[versionColumnIndex], keyVersionColumnIndex < 0 ? "---" : separators[keyVersionColumnIndex],
                 separators[keyColumnIndex], .. extraColumns.Select(index => separators[index])],
             VersionColumnIndex: 0,
             KeyVersionColumnIndex: 1,
             KeyColumnIndex: 2,
-            entries
-        );
+            entries);
     }
 
     private static string[]? ParseTableCells(string line)
@@ -354,6 +308,44 @@ internal sealed class KeysDocument
             : [.. trimmed[1..^1]
             .Split(separator: '|', StringSplitOptions.None)
             .Select(static cell => cell.Trim())];
+    }
+
+    private static RenderedKeysSection Render(KeysSection section, KeysSectionUpdate update)
+    {
+        Dictionary<string, (string Key, int? KeyVersion, string[] Cells)> rowsByVersion = new(StringComparer.Ordinal);
+
+        foreach (ExistingKeyEntry entry in section.Entries)
+            rowsByVersion.Add(entry.Version, (entry.Key, entry.KeyVersion, [.. entry.Cells]));
+
+        foreach (GeneratedKeyEntry key in update.NewKeys)
+        {
+            string version = AppVersion.Normalize(key.Version);
+
+            if (rowsByVersion.TryGetValue(version, out (string Key, int? KeyVersion, string[] Cells) existing))
+            {
+                if (!string.Equals(existing.Key, key.Key, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException($"The {section.Name} table contains conflicting keys for version {version}.");
+
+                if (existing.KeyVersion is not null && key.KeyVersion is not null && existing.KeyVersion != key.KeyVersion)
+                    throw new InvalidDataException($"The {section.Name} table contains conflicting key versions for version {version}.");
+
+                if (key.KeyVersion is not null)
+                {
+                    existing.Cells[section.KeyVersionColumnIndex] = key.KeyVersion.Value.ToString(CultureInfo.InvariantCulture);
+                    rowsByVersion[version] = (existing.Key, key.KeyVersion, existing.Cells);
+                }
+
+                continue;
+            }
+
+            rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
+        }
+
+        string[][] rows = [.. rowsByVersion
+            .Values.Select(static value => value.Cells)
+            .OrderByDescending(cells => cells[section.VersionColumnIndex], AppVersion.ValueComparer)];
+
+        return new RenderedKeysSection(section, rows, CreateColumnWidths(section, rows));
     }
 
     private string FormatLine(int lineIndex, IReadOnlyDictionary<int, RenderedKeysSection> headers, IReadOnlyDictionary<int, RenderedKeysSection> separators)

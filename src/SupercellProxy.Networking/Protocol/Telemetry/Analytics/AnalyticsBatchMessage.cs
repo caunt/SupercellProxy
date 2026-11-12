@@ -8,20 +8,17 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 /// <param name="Time1">Length of the measured session, which looks like milliseconds in the captures (about 14 s for launch).</param>
 /// <param name="Time2">Second length, equal to <paramref name="Time1"/> in every capture; its meaning is not identified.</param>
 /// <param name="Properties">Named details of the batch, such as <c>session_name</c> with launch or Farm_load.</param>
-/// <param name="Context">Performance figures measured during the session; null when not sent.</param>
+/// <param name="Context">Performance figures measured during the session; <see langword="null"/> when not sent.</param>
 /// <param name="Events">Analytics events recorded during the session, at most 32.</param>
-public sealed record AnalyticsBatchMessage(
-    long Time0,
+public sealed record AnalyticsBatchMessage(long Time0,
     long Time1,
     long Time2,
     ReadOnlyMemory<AnalyticsProperty> Properties,
     AnalyticsContext? Context,
-    ReadOnlyMemory<AnalyticsEvent> Events
-) : CodecMessage<AnalyticsBatchMessage>, ICodecProvider<AnalyticsBatchMessage>
+    ReadOnlyMemory<AnalyticsEvent> Events) : CodecMessage<AnalyticsBatchMessage>, ICodecProvider<AnalyticsBatchMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsBatchMessage> Codec { get; } = Codecs.Composite(
-        Codecs.Int64,
+    public static ICodec<AnalyticsBatchMessage> Codec { get; } = Codecs.Composite(Codecs.Int64,
         static message => message.Time0,
         Codecs.Int64,
         static message => message.Time1,
@@ -33,6 +30,5 @@ public sealed record AnalyticsBatchMessage(
         static message => message.Context,
         Codecs.Memory(AnalyticsEvent.Codec),
         static message => message.Events,
-        static (time0, time1, time2, properties, context, events) => new AnalyticsBatchMessage(time0, time1, time2, properties, context, events)
-    );
+        static (time0, time1, time2, properties, context, events) => new AnalyticsBatchMessage(time0, time1, time2, properties, context, events));
 }

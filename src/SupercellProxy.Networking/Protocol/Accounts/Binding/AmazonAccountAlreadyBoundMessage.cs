@@ -13,8 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record AmazonAccountAlreadyBoundMessage(int SecondsSinceLastPlayed, string? AmazonId, LongId? AccountId, string? PassToken, ClientAvatar Avatar) : CodecMessage<AmazonAccountAlreadyBoundMessage>, ICodecProvider<AmazonAccountAlreadyBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AmazonAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static ICodec<AmazonAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
         Codecs.OptionalString,
         static message => message.AmazonId,
@@ -22,8 +21,7 @@ public sealed record AmazonAccountAlreadyBoundMessage(int SecondsSinceLastPlayed
         static message => message.AccountId,
         Codecs.OptionalString,
         static message => message.PassToken,
-        SupercellProxy.Networking.Protocol.Avatars.ClientAvatar.Codec,
+        ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, amazonId, accountId, passToken, avatar) => new AmazonAccountAlreadyBoundMessage(secondsSinceLastPlayed, amazonId, accountId, passToken, avatar)
-    );
+        static (secondsSinceLastPlayed, amazonId, accountId, passToken, avatar) => new AmazonAccountAlreadyBoundMessage(secondsSinceLastPlayed, amazonId, accountId, passToken, avatar));
 }

@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 public sealed record ClaimDecoStickerBookPageRewardCommand(int PageIndex) : CodecCommand<ClaimDecoStickerBookPageRewardCommand>, ICommandCodecProvider<ClaimDecoStickerBookPageRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDecoStickerBookPageRewardCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.PageIndex, static pageIndex => new ClaimDecoStickerBookPageRewardCommand(pageIndex)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<ClaimDecoStickerBookPageRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PageIndex, static pageIndex => new ClaimDecoStickerBookPageRewardCommand(pageIndex)),
+        CommandLayout.MetadataFirst);
 }

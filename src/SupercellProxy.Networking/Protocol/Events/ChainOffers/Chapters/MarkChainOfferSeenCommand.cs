@@ -8,8 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Events.ChainOffers.Chapters;
 public sealed record MarkChainOfferSeenCommand(int ChainOfferId) : CodecCommand<MarkChainOfferSeenCommand>, ICommandCodecProvider<MarkChainOfferSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkChainOfferSeenCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(Codecs.VarInt, static command => command.ChainOfferId, static chainOfferId => new MarkChainOfferSeenCommand(chainOfferId)),
-        CommandLayout.MetadataFirst
-    );
+    public static CommandCodec<MarkChainOfferSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.ChainOfferId, static chainOfferId => new MarkChainOfferSeenCommand(chainOfferId)),
+        CommandLayout.MetadataFirst);
 }

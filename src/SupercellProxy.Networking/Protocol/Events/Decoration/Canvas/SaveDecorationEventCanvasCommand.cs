@@ -14,19 +14,17 @@ public sealed record SaveDecorationEventCanvasCommand(int EventId, int EventVari
 {
     /// <inheritdoc />
     /// <remarks>Native writes the design length before the optional design id and the design bytes after it.</remarks>
-    public static CommandCodec<SaveDecorationEventCanvasCommand> Codec { get; } = Codecs.Command(
-        Codecs.Create(
-            static stream =>
-            {
-                int eventId = stream.ReadInt32();
-                int eventVariantId = stream.ReadInt32();
-                int designLength = stream.ReadInt32();
-                LongId? designId = stream.ReadOptionalLongId();
+    public static CommandCodec<SaveDecorationEventCanvasCommand> Codec { get; } = Codecs.Command(Codecs.Create(static stream =>
+    {
+        int eventId = stream.ReadInt32();
+        int eventVariantId = stream.ReadInt32();
+        int designLength = stream.ReadInt32();
+        LongId? designId = stream.ReadOptionalLongId();
 
-                return designLength < 0 || designLength > stream.Length - stream.Position
-                    ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid decoration canvas design length: {designLength}."))
-                    : new SaveDecorationEventCanvasCommand(eventId, eventVariantId, stream.ReadBytes(designLength), designId);
-            },
+        return designLength < 0 || designLength > stream.Length - stream.Position
+            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid decoration canvas design length: {designLength}."))
+            : new SaveDecorationEventCanvasCommand(eventId, eventVariantId, stream.ReadBytes(designLength), designId);
+    },
             static (stream, command) =>
             {
                 stream.WriteInt32(command.EventId);
@@ -34,8 +32,6 @@ public sealed record SaveDecorationEventCanvasCommand(int EventId, int EventVari
                 stream.WriteInt32(command.Design.Length);
                 stream.WriteOptionalLongId(command.DesignId);
                 stream.Write(command.Design.Span);
-            }
-        ),
-        CommandLayout.MetadataFirst
-    );
+            }),
+        CommandLayout.MetadataFirst);
 }

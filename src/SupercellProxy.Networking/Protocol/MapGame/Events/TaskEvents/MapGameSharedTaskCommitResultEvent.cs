@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 public sealed record MapGameSharedTaskCommitResultEvent(int Status, MapGamePawn? Pawn, MapGameTask? Task, MapGameDumpTaskStatePayload? Submission) : MapGamePawnTaskEvent(MapGameEvent.SharedTaskCommitResultType, Pawn, Task), ICodecProvider<MapGameSharedTaskCommitResultEvent>
 {
     /// <inheritdoc />
-    public static new ICodec<MapGameSharedTaskCommitResultEvent> Codec { get; } = Codecs.Composite(
-        Codecs.VarInt,
+    public static new ICodec<MapGameSharedTaskCommitResultEvent> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static mapGameEvent => mapGameEvent.Status,
         Codecs.Optional(MapGamePawn.Codec),
         static mapGameEvent => mapGameEvent.Pawn,
@@ -20,6 +19,5 @@ public sealed record MapGameSharedTaskCommitResultEvent(int Status, MapGamePawn?
         static mapGameEvent => mapGameEvent.Task,
         Codecs.Optional(MapGameDumpTaskStatePayload.Codec),
         static mapGameEvent => mapGameEvent.Submission,
-        static (status, pawn, task, submission) => new MapGameSharedTaskCommitResultEvent(status, pawn, task, submission)
-    );
+        static (status, pawn, task, submission) => new MapGameSharedTaskCommitResultEvent(status, pawn, task, submission));
 }

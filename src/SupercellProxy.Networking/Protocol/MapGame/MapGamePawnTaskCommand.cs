@@ -10,9 +10,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// </summary>
 public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskCommand>, ICommandCodecProvider<MapGamePawnTaskCommand>
 {
-    /// <summary>Creates the command from its decoded fields.</summary>
-    /// <param name="pawn">The car the command is about; null when not sent.</param>
-    /// <param name="taskCollection">Valley tasks sent with the car; null when not sent.</param>
+    /// <summary>Initializes a new instance of the <see cref="MapGamePawnTaskCommand"/> record. Creates the command from its decoded fields.</summary>
+    /// <param name="pawn">The car the command is about; <see langword="null"/> when not sent.</param>
+    /// <param name="taskCollection">Valley tasks sent with the car; <see langword="null"/> when not sent.</param>
     public MapGamePawnTaskCommand(MapGamePawn? pawn, MapGameTaskCollection? taskCollection)
     {
         Pawn = pawn;
@@ -20,20 +20,18 @@ public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskComman
     }
 
     /// <inheritdoc />
-    public static CommandCodec<MapGamePawnTaskCommand> Codec { get; } = Codecs.Command(
-        Codecs.Composite(
-            Codecs.Optional(MapGamePawn.Codec),
+    public static CommandCodec<MapGamePawnTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Optional(MapGamePawn.Codec),
             static command => command.Pawn,
             Codecs.Optional(MapGameTaskCollection.Codec),
             static command => command.TaskCollection,
-            static (pawn, taskCollection) => new MapGamePawnTaskCommand(pawn, taskCollection)
-        ),
-        CommandLayout.MetadataFirst
-    );
+            static (pawn, taskCollection) => new MapGamePawnTaskCommand(pawn, taskCollection)),
+        CommandLayout.MetadataFirst);
 
-    /// <summary>The Valley car the command is about; null when not sent.</summary>
+    /// <summary>Gets the Valley car the command is about; <see langword="null"/> when not sent.</summary>
+    /// <value>The full car record, the first optional field after the command metadata; kept as received because the command's purpose is not identified.</value>
     public MapGamePawn? Pawn { get; }
 
-    /// <summary>Valley tasks sent with the car; null when not sent.</summary>
+    /// <summary>Gets the Valley tasks sent with the car; <see langword="null"/> when not sent.</summary>
+    /// <value>The task collection that follows <see cref="Pawn"/> on the wire, kept as received for re-encoding.</value>
     public MapGameTaskCollection? TaskCollection { get; }
 }

@@ -68,7 +68,7 @@ internal static class MachOKeyVersionExtractor
                 throw new InvalidOperationException(message: "Multiple supported ARM64 Mach-O slices found.");
 
             (long Offset, long Length) slice = selected[index: 0];
-            binary = binary.Slice((int)slice.Offset, (int)slice.Length);
+            binary = binary.Slice(int.CreateTruncating(slice.Offset), int.CreateTruncating(slice.Length));
         }
 
         if (BinaryPrimitives.ReadUInt32LittleEndian(binary) != 0xFEEDFACF)
@@ -101,7 +101,7 @@ internal static class MachOKeyVersionExtractor
             if (end - cursor < 8)
                 throw Malformed(message: "Truncated Mach-O load command.");
 
-            ReadOnlySpan<byte> command = binary[(int)cursor..];
+            ReadOnlySpan<byte> command = binary[int.CreateTruncating(cursor)..];
             uint kind = BinaryPrimitives.ReadUInt32LittleEndian(command);
             uint size = BinaryPrimitives.ReadUInt32LittleEndian(command[4..]);
 
@@ -373,7 +373,7 @@ internal static class MachOKeyVersionExtractor
                                 return null;
                         }
 
-                        return (int)fields[index: 1];
+                        return int.CreateTruncating(fields[index: 1]);
                     }
                 }
 
@@ -498,7 +498,7 @@ internal static class MachOKeyVersionExtractor
 
     private static bool MoveOrAdd(uint word, RegisterValue?[] registers)
     {
-        int destination = (int)(word & 31);
+        int destination = int.CreateTruncating(word & 31);
 
         if (destination == 31)
             return false;
@@ -577,12 +577,12 @@ internal static class MachOKeyVersionExtractor
     {
         ulong value = BinaryPrimitives.ReadUInt64LittleEndian(bytes);
 
-        return value > long.MaxValue ? throw Malformed(message: "Mach-O address exceeds supported range.") : (long)value;
+        return value > long.MaxValue ? throw Malformed(message: "Mach-O address exceeds supported range.") : long.CreateTruncating(value);
     }
 
     private static Dictionary<long, long>? ReadChainedPointers(ReadOnlySpan<byte> binary, List<Segment> segments, long offset, long length)
     {
-        ReadOnlySpan<byte> data = binary.Slice((int)offset, (int)length);
+        ReadOnlySpan<byte> data = binary.Slice(int.CreateTruncating(offset), int.CreateTruncating(length));
         Require(data, offset: 0, length: 28);
 
         if (BinaryPrimitives.ReadUInt32LittleEndian(data) != 0)
@@ -590,7 +590,7 @@ internal static class MachOKeyVersionExtractor
 
         long starts = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
         Require(data, starts, length: 4);
-        uint count = BinaryPrimitives.ReadUInt32LittleEndian(data[(int)starts..]);
+        uint count = BinaryPrimitives.ReadUInt32LittleEndian(data[int.CreateTruncating(starts)..]);
 
         if (count != segments.Count)
             throw Malformed(message: "Chained-fixups segment count differs.");
@@ -607,14 +607,14 @@ internal static class MachOKeyVersionExtractor
 
         for (int index = 0; index < count; index++)
         {
-            uint relative = BinaryPrimitives.ReadUInt32LittleEndian(data[(int)(starts + 4 + (index * 4L))..]);
+            uint relative = BinaryPrimitives.ReadUInt32LittleEndian(data[int.CreateTruncating(starts + 4 + (index * 4L))..]);
 
             if (relative == 0)
                 continue;
 
             long segmentInformation = starts + relative;
             Require(data, segmentInformation, length: 22);
-            ReadOnlySpan<byte> header = data[(int)segmentInformation..];
+            ReadOnlySpan<byte> header = data[int.CreateTruncating(segmentInformation)..];
             uint size = BinaryPrimitives.ReadUInt32LittleEndian(header);
             ushort pageSize = BinaryPrimitives.ReadUInt16LittleEndian(header[4..]);
             ushort format = BinaryPrimitives.ReadUInt16LittleEndian(header[6..]);
@@ -638,7 +638,7 @@ internal static class MachOKeyVersionExtractor
 
             for (int page = 0; page < pages; page++)
             {
-                ushort first = BinaryPrimitives.ReadUInt16LittleEndian(data[(int)(segmentInformation + 22 + (page * 2L))..]);
+                ushort first = BinaryPrimitives.ReadUInt16LittleEndian(data[int.CreateTruncating(segmentInformation + 22 + (page * 2L))..]);
 
                 if (first == ushort.MaxValue)
                     continue;
@@ -646,14 +646,14 @@ internal static class MachOKeyVersionExtractor
                 if ((first & 0x8000) != 0)
                     return null;
 
-                long position = (page * (long)pageSize) + first;
+                long position = (page * long.CreateChecked(pageSize)) + first;
                 long pageEnd = Math.Min((page + 1L) * pageSize, segment.Length);
 
                 bool hasNext = true;
 
                 while (hasNext)
                 {
-                    if ((position & 3) != 0 || position < page * (long)pageSize || position > pageEnd - 8)
+                    if ((position & 3) != 0 || position < page * long.CreateChecked(pageSize) || position > pageEnd - 8)
                         throw Malformed(message: "Chained pointer crosses its file-backed page.");
 
                     long address = segment.Address + position;
@@ -661,7 +661,7 @@ internal static class MachOKeyVersionExtractor
                     if (!visited.Add(address) || visited.Count > 1_000_000)
                         throw Malformed(message: "Duplicate or excessive chained pointers.");
 
-                    ulong raw = BinaryPrimitives.ReadUInt64LittleEndian(binary[(int)(segment.Offset + position)..]);
+                    ulong raw = BinaryPrimitives.ReadUInt64LittleEndian(binary[int.CreateTruncating(segment.Offset + position)..]);
 
                     if ((raw >> 63) == 0)
                     {
@@ -671,15 +671,15 @@ internal static class MachOKeyVersionExtractor
                         ulong target = raw & 0xFFFFFFFFFUL;
 
                         if (format == 6)
-                            target = checked((ulong)imageBase + target);
+                            target = checked(ulong.CreateChecked(imageBase) + target);
 
                         target |= ((raw >> 36) & 255) << 56;
 
                         if (target <= long.MaxValue)
-                            pointers.Add(address, (long)target);
+                            pointers.Add(address, long.CreateTruncating(target));
                     }
 
-                    long next = (long)((raw >> 51) & 4095) * 4;
+                    long next = long.CreateTruncating((raw >> 51) & 4095) * 4;
 
                     hasNext = next != 0;
 
@@ -741,7 +741,7 @@ internal static class MachOKeyVersionExtractor
 
             ulong raw = BinaryPrimitives.ReadUInt64LittleEndian(Read(address, length: 8));
 
-            return raw <= long.MaxValue ? (long)raw : null;
+            return raw <= long.MaxValue ? long.CreateTruncating(raw) : null;
         }
 
         public ReadOnlySpan<byte> Read(long address, int length)
@@ -749,7 +749,7 @@ internal static class MachOKeyVersionExtractor
             foreach (Segment segment in _segments)
             {
                 if (address >= segment.Address && address - segment.Address <= segment.Length - length)
-                    return _binary.Slice((int)(segment.Offset + address - segment.Address), length);
+                    return _binary.Slice(int.CreateTruncating(segment.Offset + address - segment.Address), length);
             }
 
             throw Malformed(message: "Mach-O pointer has no file-backed mapping.");

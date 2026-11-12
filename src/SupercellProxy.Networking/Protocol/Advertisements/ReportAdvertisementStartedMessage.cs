@@ -10,13 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Advertisements;
 public sealed record ReportAdvertisementStartedMessage(string? Network, string? Placement, string? AdvertisementId) : CodecMessage<ReportAdvertisementStartedMessage>, ICodecProvider<ReportAdvertisementStartedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportAdvertisementStartedMessage> Codec { get; } = Codecs.Composite(
-        Codecs.OptionalString,
+    public static ICodec<ReportAdvertisementStartedMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
         static message => message.Network,
         Codecs.OptionalString,
         static message => message.Placement,
         Codecs.OptionalString,
         static message => message.AdvertisementId,
-        static (network, placement, advertisementId) => new ReportAdvertisementStartedMessage(network, placement, advertisementId)
-    );
+        static (network, placement, advertisementId) => new ReportAdvertisementStartedMessage(network, placement, advertisementId));
 }
