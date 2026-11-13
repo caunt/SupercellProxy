@@ -1,13 +1,14 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 
 /// <summary>Preserves the native alternating event-id and document-string array.</summary>
-public sealed class ChronosEventPlayerDataConverter : JsonConverter<ChronosEventPlayerData[]>
+public sealed class ChronosEventPlayerDataConverter : JsonConverter<ImmutableArray<ChronosEventPlayerData>>
 {
     /// <inheritdoc />
-    public override ChronosEventPlayerData[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ImmutableArray<ChronosEventPlayerData> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartArray)
             throw new JsonException(message: "Expected the saved event-data array.");
@@ -32,10 +33,12 @@ public sealed class ChronosEventPlayerDataConverter : JsonConverter<ChronosEvent
     }
 
     /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, ChronosEventPlayerData[] value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ImmutableArray<ChronosEventPlayerData> value, JsonSerializerOptions options)
     {
         ArgumentNullException.ThrowIfNull(writer);
-        ArgumentNullException.ThrowIfNull(value);
+
+        if (value.IsDefault)
+            throw new ArgumentException(message: "The saved event data is uninitialized.", nameof(value));
 
         writer.WriteStartArray();
 
