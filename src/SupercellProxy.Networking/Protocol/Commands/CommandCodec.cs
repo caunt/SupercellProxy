@@ -31,6 +31,7 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
         CommandMetadata? leading = Layout is CommandLayout.MetadataFirst ? MetadataCodec.Read(stream) : null;
         TCommand command = _fields.Read(stream);
         CommandMetadata metadata = leading ?? MetadataCodec.Read(stream);
+
         metadata.Apply(command);
 
         return command;

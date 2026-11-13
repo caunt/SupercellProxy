@@ -18,6 +18,7 @@ internal sealed class DispatchCodec<TKey, TValue>(ICodec<TKey> key, Func<TValue,
     {
         TKey tag = keyOf(value);
         ICodec<TValue> codec = Select(tag);
+
         key.Write(encoder, tag);
         codec.Write(encoder, value);
     }

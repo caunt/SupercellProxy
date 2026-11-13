@@ -370,7 +370,6 @@ public static class DataTableRegistry
     public static IReadOnlyDictionary<int, string> Create(IEnumerable<GameAsset> resources)
     {
         Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
-
         Dictionary<int, string> dataTableFiles = new(NativeDataTableFiles);
 
         if (resourcesByFile.ContainsKey(GameAssetFiles.ConsumableBoosters))

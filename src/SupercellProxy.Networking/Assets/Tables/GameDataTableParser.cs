@@ -31,7 +31,6 @@ public static class GameDataTableParser
         List<string> headers = rows[index: 0];
         List<string> types = Normalize(rows[index: 1], headers.Count, rowIndex: 1);
         List<GameDataTableEntryBuilder> entryBuilders = [];
-
         GameDataTableEntryBuilder? currentEntryBuilder = null;
 
         for (int rowIndex = 2; rowIndex < rows.Count; rowIndex++)
@@ -42,12 +41,12 @@ public static class GameDataTableParser
                 continue;
 
             Dictionary<string, LiteralValue> parsedValues = ParseSparseValues(headers, types, row);
-
             bool startsNewEntry = !string.IsNullOrWhiteSpace(row[index: 0]);
 
             if (startsNewEntry)
             {
                 currentEntryBuilder = new GameDataTableEntryBuilder(headers, row[index: 0]);
+
                 currentEntryBuilder.ApplyBaseRow(parsedValues);
                 entryBuilders.Add(currentEntryBuilder);
 
@@ -83,6 +82,7 @@ public static class GameDataTableParser
     internal static List<List<string>> ParseMutableRows(string csvText)
     {
         ArgumentNullException.ThrowIfNull(csvText);
+
         List<List<string>> rows = [];
         List<string> currentRow = [];
         List<char> currentCell = [];
@@ -121,8 +121,8 @@ public static class GameDataTableParser
             {
                 currentRow.Add(new string(CollectionsMarshal.AsSpan(currentCell)));
                 currentCell.Clear();
-
                 rows.Add(currentRow);
+
                 currentRow = [];
 
                 continue;
@@ -148,6 +148,7 @@ public static class GameDataTableParser
         if (nextIndex < csvText.Length && csvText[nextIndex] == '"')
         {
             currentCell.Add(item: '"');
+
             index++;
 
             return;
@@ -189,6 +190,7 @@ public static class GameDataTableParser
             return row;
 
         List<string> normalizedRow = new(expectedColumnCount);
+
         normalizedRow.AddRange(row);
 
         while (normalizedRow.Count < expectedColumnCount)

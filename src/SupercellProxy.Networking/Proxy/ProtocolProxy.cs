@@ -49,6 +49,7 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
+
         _archive = configuration.CaptureDirectory is { } captureRoot ? new CaptureArchive(captureRoot, configuration.AssetDirectory) : null;
 
         if (configuration.AssetDirectory is { } directory)
@@ -127,6 +128,7 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
     private async Task RunClientAsync(TcpClient socketClient, ProxyConfiguration configuration, CancellationToken cancellationToken = default)
     {
         string remoteEndPoint = socketClient.GetRemoteEndPoint();
+
         LogIncomingConnection(logger, remoteEndPoint);
 
         ProxyCaptureWriter trafficCapture = new(configuration.CaptureDirectory, remoteEndPoint, timeProvider)
@@ -208,7 +210,9 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
         finally
         {
             await lifetime.CancelAsync().ConfigureAwait(continueOnCapturedContext: false);
+
             listener.Stop();
+
             await Task.WhenAll(connections).ConfigureAwait(continueOnCapturedContext: false);
         }
     }

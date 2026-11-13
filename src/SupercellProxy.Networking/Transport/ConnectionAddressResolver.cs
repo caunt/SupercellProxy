@@ -49,6 +49,7 @@ public static class ConnectionAddressResolver
     public static async Task<ConnectionAddress> ResolveAsync(string[] arguments, CancellationToken cancellationToken)
     {
         string host = arguments.ElementAtOrDefault(index: 0) ?? DefaultUpstreamHost;
+
         string resolvedHost = await ResolveAsync(host, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         return new ConnectionAddress(resolvedHost, ParsePort(arguments.ElementAtOrDefault(index: 1)));
@@ -77,7 +78,6 @@ public static class ConnectionAddressResolver
         using HttpResponseMessage response = await webClient
             .SendAsync(request, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
-
 
         Stream content = await response.EnsureSuccessStatusCode()
             .Content.ReadAsStreamAsync(cancellationToken)
@@ -111,8 +111,7 @@ public static class ConnectionAddressResolver
 
             return response.Answers.ARecords().FirstOrDefault()?.Address.ToString();
         }
-        catch (Exception exception)
-            when (exception is DnsResponseException or OperationCanceledException or SocketException or TimeoutException)
+        catch (Exception exception) when (exception is DnsResponseException or OperationCanceledException or SocketException or TimeoutException)
         {
             return null;
         }

@@ -72,10 +72,13 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
 
     private static HayDayServerKey? ReadLatest(string content)
     {
+        // Track whether the scan is inside the Hay Day section and where its table columns are.
         bool selected = false;
         int versionColumn = -1;
         int keyVersionColumn = -1;
         int keyColumn = -1;
+
+        // The row with the highest game version is the one returned.
         HayDayServerKey? latest = null;
 
         foreach (string line in content.Split(separator: '\n'))

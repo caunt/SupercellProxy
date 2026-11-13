@@ -19,9 +19,12 @@ public sealed record MapGameNodeEmoji : ICodecProvider<MapGameNodeEmoji>
         int ticksRemaining,
         ReadOnlyMemory<LongId> collectorAvatarIds)
     {
+        // What the emoji is, where it sits and who left it.
         EmojiGlobalId = emojiGlobalId;
         NodeId = nodeId;
         AvatarId = avatarId;
+
+        // How long it stays, plus a private copy of who already collected it.
         ExpirationTime = expirationTime;
         TicksRemaining = ticksRemaining;
         CollectorAvatarIds = collectorAvatarIds.ToArray();

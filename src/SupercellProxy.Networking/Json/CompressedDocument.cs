@@ -32,6 +32,7 @@ public static class CompressedDocument
         using SynchronousZLibReader zlib = new(input);
 
         byte[] document = new byte[decompressedLength];
+
         zlib.ReadExactly(document);
 
         return zlib.ReadByte() is not -1

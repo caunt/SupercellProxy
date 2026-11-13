@@ -28,9 +28,11 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
         int sanctuaryAnimalGlobalId)
     {
         RequiredGoods = requiredGoods.ToArray();
+
         RewardData = rewardData is null
             ? null
             : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
+
         HelpRequestSent = helpRequestSent;
         HelperAvatarId = helperAvatarId;
         EmojiGlobalId = emojiGlobalId;

@@ -25,6 +25,7 @@ public static class PublicKeyCodec
     public static Span<byte> Decode(ReadOnlySpan<byte> input)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, EncodedLength, nameof(input));
+
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[16];
 
@@ -33,14 +34,15 @@ public static class PublicKeyCodec
             outputIndex++, aIndex += 2, bIndex += 2, cIndex -= 2, dIndex -= 1
         )
         {
+            // Each output word is spread over four table words, two walking forward and two walking back from the end.
             ushort wordA = inputWords[aIndex];
             ushort wordB = inputWords[bIndex];
             ushort wordC = inputWords[cIndex];
             ushort wordD = inputWords[dIndex];
 
+            // Combine three of them and undo the table's rotation, whose amount repeats every eight words.
             ushort horizontalCoordinate = ushort.CreateTruncating(((wordB ^ wordC) | (wordC ^ wordA)) & 0xFFFF);
             int rotationCount = 11 - (outputIndex & 7);
-
             ushort rotatedValue = ushort.CreateTruncating((horizontalCoordinate << rotationCount) | (horizontalCoordinate >> (16 - rotationCount)));
 
             outputWords[outputIndex] = ushort.CreateTruncating(rotatedValue ^ wordD);
@@ -56,6 +58,7 @@ public static class PublicKeyCodec
     public static Span<byte> Encode(ReadOnlySpan<byte> input)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(input.Length, DecodedLength, nameof(input));
+
         ReadOnlySpan<ushort> inputWords = MemoryMarshal.Cast<byte, ushort>(input);
         ushort[] outputWords = new ushort[64];
 
@@ -65,7 +68,6 @@ public static class PublicKeyCodec
         )
         {
             int rotationCount = 11 - (inputIndex & 7);
-
             ushort rotatedValue = ushort.CreateTruncating((inputWords[inputIndex] >> rotationCount) | (inputWords[inputIndex] << (16 - rotationCount)));
 
             outputWords[aIndex] = rotatedValue;

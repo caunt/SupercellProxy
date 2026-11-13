@@ -69,18 +69,25 @@ internal sealed class CompositeCodec15<TValue, TFirst, TSecond, TThird, TFourth,
 
     public TValue Read(MessageStream stream)
     {
+        // The leading four fields, read one after another.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The next four, starting where the previous field ended.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
         TEighth eighthValue = _eighth.Read(stream);
+
+        // Four more; locals hold them until the record is complete.
         TNinth ninthValue = _ninth.Read(stream);
         TTenth tenthValue = _tenth.Read(stream);
         TEleventh eleventhValue = _eleventh.Read(stream);
         TTwelfth twelfthValue = _twelfth.Read(stream);
+
+        // The trailing three; a failed read here leaves no half-built value.
         TThirteenth thirteenthValue = _thirteenth.Read(stream);
         TFourteenth fourteenthValue = _fourteenth.Read(stream);
         TFifteenth fifteenthValue = _fifteenth.Read(stream);
@@ -104,18 +111,25 @@ internal sealed class CompositeCodec15<TValue, TFirst, TSecond, TThird, TFourth,
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The leading four fields, which Read decodes first.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // The next four, appended in registration order.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));
         _eighth.Write(encoder, _getEighth(value));
+
+        // Four more, with nothing written between fields.
         _ninth.Write(encoder, _getNinth(value));
         _tenth.Write(encoder, _getTenth(value));
         _eleventh.Write(encoder, _getEleventh(value));
         _twelfth.Write(encoder, _getTwelfth(value));
+
+        // The trailing three end the record.
         _thirteenth.Write(encoder, _getThirteenth(value));
         _fourteenth.Write(encoder, _getFourteenth(value));
         _fifteenth.Write(encoder, _getFifteenth(value));

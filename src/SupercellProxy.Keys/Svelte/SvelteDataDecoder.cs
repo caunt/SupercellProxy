@@ -29,9 +29,10 @@ internal static class SvelteDataDecoder
                 return null;
 
             active[index] = true;
-            JsonNode? result = Expand(values[index]);
-            active[index] = false;
 
+            JsonNode? result = Expand(values[index]);
+
+            active[index] = false;
             cache[index] = result;
             cached[index] = true;
 

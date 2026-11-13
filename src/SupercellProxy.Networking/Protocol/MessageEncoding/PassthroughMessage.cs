@@ -68,11 +68,13 @@ public sealed record PassthroughMessage : IMessage
     /// </returns>
     public override string ToString()
     {
+        // Show at most 20 payload bytes so long frames stay readable in a log.
         int maximumDataLength = 20;
         int actualDataLength = Data.Length;
         int lengthToConvert = Math.Min(actualDataLength, maximumDataLength);
-
         string hexDataString = Convert.ToHexString(Data.Span[..lengthToConvert]);
+
+        // Flag the hex as cut short when bytes were left out.
         string truncationSuffix = actualDataLength > maximumDataLength ? "..." : string.Empty;
 
         return $"{nameof(PassthroughMessage)} {{ Id = {Id}, Version = {Version}, DataLength = {actualDataLength}, Data = {hexDataString}{truncationSuffix} }}";

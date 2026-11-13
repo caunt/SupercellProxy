@@ -28,9 +28,11 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
         RequiredCollectorCount = requiredCollectorCount;
         HelpRequestSent = helpRequestSent;
         HelperAvatarId = helperAvatarId;
+
         RewardData = rewardData is null
             ? null
             : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
+
         CollectorAvatarIds = collectorAvatarIds.ToArray();
     }
 

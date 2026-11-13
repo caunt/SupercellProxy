@@ -1273,6 +1273,7 @@ public static class Codecs
             (stream, value) =>
             {
                 bool present = isPresent(value);
+
                 stream.WriteBoolean(present);
 
                 if (present)

@@ -23,7 +23,9 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
     public static CaptureIdentity From(ClientHelloMessage hello)
     {
         ArgumentNullException.ThrowIfNull(hello);
+
         CaptureIdentity identity = new(new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion).ToString(fieldCount: 3), hello.FingerprintSha1);
+
         identity.Validate();
 
         return identity;
@@ -85,6 +87,7 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
     public async Task SaveAsync(string capture, CancellationToken cancellationToken = default)
     {
         Validate();
+
         string path = Path.Combine(capture, FileName);
 
         if (File.Exists(path))

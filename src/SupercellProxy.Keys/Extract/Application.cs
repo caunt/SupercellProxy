@@ -16,6 +16,7 @@ internal static partial class Application
         }
 
         bool keyVersion = arguments.Length == 2 && arguments[1] == "--key-version";
+
         RequireOneArgument(keyVersion ? arguments[..1] : arguments, usage: "extract INPUT [--key-version]");
 
         byte[] binary = await arguments[0]
@@ -25,6 +26,7 @@ internal static partial class Application
         if (binary.HasZipArchiveHeader())
         {
             ReadOnlyMemory<byte> archive = binary;
+
             binary = await archive
                 .GetIpaAppEntryAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);

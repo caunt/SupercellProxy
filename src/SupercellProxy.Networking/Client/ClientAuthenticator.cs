@@ -82,8 +82,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
             throw new InvalidDataException($"Catalog bootstrap returned {unexpectedLogin.GetType().Name} without asset metadata.");
         }
-        catch (LoginException exception)
-            when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent } content)
+        catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent } content)
         {
             GameAsset[] resources = await assets.GetAssetsAsync(content.GameAssetFingerprint, content.AssetsUrlsFiltered, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -111,7 +110,9 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             ?? throw new InvalidOperationException(message: "A session-token provider is required.");
 
         (GameAssetFingerprint fingerprint, GameAsset[] resources) = await DiscoverAssetsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         SessionTokenData token = await provider(arg1: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         LoginOkMessage login;
 
         try
@@ -122,6 +123,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.InvalidToken })
         {
             token = await provider(arg1: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             login = await LoginCoreAsync(fingerprint.Sha, token, AppStore.GooglePlay, requestOwnHome: true, allowAnonymous: false, credentials: null, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
@@ -184,10 +186,14 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             if (allowAnonymous)
             {
                 string deviceId = Guid.NewGuid().ToString(format: "D");
+
+                // A fresh anonymous device reports the same random id in every device-id field.
                 loginMessage.UniqueDeviceId = deviceId;
                 loginMessage.OpenUniqueDeviceId = deviceId;
                 loginMessage.AndroidId = deviceId;
                 loginMessage.IdForVendor = deviceId;
+
+                // Token logins leave the language empty, but anonymous ones name one.
                 loginMessage.PreferredLanguage = "en";
 
                 if (credentials is not null)
@@ -239,8 +245,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             return await LoginAttemptAsync(fingerprintSha1, sessionToken, appStore, requestOwnHome, allowAnonymous, credentials, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
-        catch (LoginException exception)
-            when (exception.LoginFailedMessage?.ErrorCode == LoginFailureType.OutdatedVersion && client.CanUpdateVersion)
+        catch (LoginException exception) when (exception.LoginFailedMessage?.ErrorCode == LoginFailureType.OutdatedVersion && client.CanUpdateVersion)
         {
             await client.RefreshVersionAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 

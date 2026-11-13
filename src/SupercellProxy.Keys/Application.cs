@@ -20,6 +20,7 @@ internal static partial class Application
         ConsoleCancelEventHandler cancellationHandler = new((unusedParameter0, eventArguments) =>
         {
             eventArguments.Cancel = true;
+
             cancellationTokenSource.CancelAfter(millisecondsDelay: 0);
         });
 
@@ -48,8 +49,7 @@ internal static partial class Application
                         _ => throw new ArgumentException($"Unknown command: {arguments[0]}", nameof(arguments)),
                     };
             }
-            catch (OperationCanceledException)
-                when (cancellationTokenSource.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
             {
                 await Console.Error.WriteLineAsync(value: "Operation cancelled.").ConfigureAwait(continueOnCapturedContext: false);
 
@@ -165,8 +165,7 @@ internal static partial class Application
 
                 return appStoreId;
             }
-            catch (Exception exception)
-                when (exception is HttpRequestException or InvalidDataException)
+            catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
             {
                 await Console.Error.WriteLineAsync($"Skipping {result.Name}: {exception.Message}")
                     .ConfigureAwait(continueOnCapturedContext: false);

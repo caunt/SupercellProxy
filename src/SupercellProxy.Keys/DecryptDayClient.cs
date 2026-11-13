@@ -28,6 +28,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         await Console
             .Error.WriteLineAsync(value: "Solving decrypt.day verification in headless CloakBrowser...")
             .ConfigureAwait(continueOnCapturedContext: false);
+
         await EnsureMacCloakBrowserAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         await Console
@@ -86,7 +87,9 @@ internal sealed class DecryptDayClient(HttpClient client)
     public async Task<IpaDownload?> TryAuthorizeAsync(string appStoreId, AppVersion version, CancellationToken cancellationToken)
     {
         string id = NormalizeAppStoreId(appStoreId);
+
         DecryptDayAppDetail detail = await GetDetailAsync(id, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         string? fileId = null;
 
         foreach (string sourceName in version.SourceNames)
@@ -134,6 +137,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         // Run the overlay handlers and actionability checks without sending the actual click.
         await Humanize.Unwrap(control).ClickAsync(new LocatorClickOptions { Trial = true, Timeout = 30_000 })
             .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         await control.ClickAsync(new LocatorClickOptions { Timeout = 30_000 })
             .WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -147,12 +151,15 @@ internal sealed class DecryptDayClient(HttpClient client)
         // The Turnstile component renders its errors next to its .turnstile mount, outside .form-error.
         ILocator verificationError = page.Locator(selector: ".form-error:visible, .turnstile-container > div:not(.turnstile):visible").First;
         ILocator enabledButton = verificationButton.And(page.Locator(selector: "button:enabled:visible"));
+
         await WaitForVerificationAsync(enabledButton, verificationError, timeout: 60_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
         await ClickDownloadAsync(verificationButton, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         ILocator downloadButton = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Download", Exact = true });
+
         await WaitForVerificationAsync(downloadButton, verificationError, timeout: 90_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -180,6 +187,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         ByteArrayContent content = new(Encoding.UTF8.GetBytes(body));
 
         content.Headers.ContentType = new MediaTypeHeaderValue(mediaType: "multipart/form-data");
+
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
         HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
@@ -188,7 +196,9 @@ internal sealed class DecryptDayClient(HttpClient client)
         };
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
+
         request.Headers.Referrer = new Uri($"https://decrypt.day/app/id{appStoreId}");
+
         request.Headers.Add(name: "Origin", value: "https://decrypt.day");
 
         return request;
@@ -284,7 +294,6 @@ internal sealed class DecryptDayClient(HttpClient client)
             return;
 
         string binaryDirectory = Config.GetBinaryDir(version, pro: false);
-
         string archivePath = Path.Combine(Path.GetTempPath(), $"cloakbrowser-{Guid.NewGuid():N}.tar.gz");
 
         try
@@ -292,9 +301,12 @@ internal sealed class DecryptDayClient(HttpClient client)
             await Console
                 .Error.WriteLineAsync(value: "Preparing CloakBrowser Chromium with the macOS system extractor...")
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             await DownloadBrowserArchiveAsync(version, archivePath, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             new DirectoryInfo(binaryDirectory).Create();
+
             await ExtractBrowserArchiveAsync(archivePath, binaryDirectory, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -417,11 +429,14 @@ internal sealed class DecryptDayClient(HttpClient client)
             string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
+
         string reportPath = Path.Combine(directory, path2: "error.txt");
+
         await File.WriteAllTextAsync(reportPath, exception.ToString() + Environment.NewLine, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IBrowserContext context = Humanize.Unwrap(page.Context);
+
         await CaptureAsync(description: "browser trace",
             () => context.Tracing.StopAsync(new TracingStopOptions { Path = Path.Combine(directory, path2: "trace.zip") })
                 .WaitAsync(TimeSpan.FromSeconds(seconds: 15), cancellationToken))
@@ -433,6 +448,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         {
             IPage diagnosticPage = pages[index];
             string pageName = string.Create(CultureInfo.InvariantCulture, $"page-{index + 1}");
+
             await File.AppendAllTextAsync(reportPath, $"{Environment.NewLine}{pageName}: {diagnosticPage.Url}{Environment.NewLine}", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -475,10 +491,15 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task<IDownload> WaitForBrowserDownloadAsync(IPage page, ILocator downloadButton, CancellationToken cancellationToken)
     {
+        // The browser context and site origin tell which new pages and responses belong to this download.
         IBrowserContext context = Humanize.Unwrap(page.Context);
         Uri origin = new(page.Url);
+
+        // Whichever comes first, a started download or a failed response, ends the wait.
         TaskCompletionSource<IDownload> completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
         TaskCompletionSource<Exception> responseFailure = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        // Each page is watched once, and the handlers stop watching as soon as the wait ends.
         ConcurrentDictionary<IPage, byte> observedPages = new();
         int observing = 1;
 
@@ -554,6 +575,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         finally
         {
             Volatile.Write(ref observing, value: 0);
+
             context.Page -= observePage;
             context.Response -= onResponse;
 
@@ -586,7 +608,6 @@ internal sealed class DecryptDayClient(HttpClient client)
         using HttpResponseMessage response = await _client
             .SendWithRetryAsync(() => CreateMetadataRequest(appStoreId), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
-
 
         Stream content = await response.EnsureSuccessStatusCode()
             .Content.ReadAsStreamAsync(cancellationToken)

@@ -206,6 +206,7 @@ public sealed class SessionTokenData
         using MemoryStream output = new();
 
         Span<byte> length = stackalloc byte[sizeof(int)];
+
         BinaryPrimitives.WriteInt32LittleEndian(length, decoded.Length);
         output.Write(length);
 

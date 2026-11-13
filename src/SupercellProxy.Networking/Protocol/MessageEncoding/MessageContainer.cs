@@ -30,7 +30,6 @@ public sealed record MessageContainer([property: JsonPropertyName("Id")] ushort 
         ArgumentNullException.ThrowIfNull(message);
 
         ushort headerVersion = version ?? (message is PassthroughMessage passthrough ? passthrough.Version : (ushort)0);
-
         ushort id = MessageRegistry.GetId(message, gameVersion);
 
         using MessageStream payload = MessageStream.Create();

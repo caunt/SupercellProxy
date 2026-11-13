@@ -51,6 +51,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         try
         {
             await File.WriteAllBytesAsync(temporary, JsonSerializer.SerializeToUtf8Bytes(fingerprint), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             File.Move(temporary, path, overwrite: true);
         }
         finally
@@ -90,7 +91,6 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     {
         CancellationToken cancellationToken = CancellationToken.None;
         DirectoryInfo assetsDirectory = Directory.CreateDirectory(directory);
-
         GameAsset?[] resources = new GameAsset?[fingerprint.Files.Count];
         bool[] downloadedAssets = new bool[fingerprint.Files.Count];
 
@@ -160,8 +160,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
             throw;
         }
-        catch (Exception exception)
-            when (exception is HttpRequestException or IOException)
+        catch (Exception exception) when (exception is HttpRequestException or IOException)
         {
             File.Delete(filePath);
             Console.WriteLine($"Failed to download {file.File} from {downloadAddress}: {exception.Message}");

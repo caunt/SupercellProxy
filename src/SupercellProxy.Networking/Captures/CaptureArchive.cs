@@ -26,6 +26,7 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
     public async Task<string> RetainAssetsAsync(CaptureIdentity identity, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(identity);
+
         identity.Validate();
 
         bool available = _retained.TryGetValue(identity, out string? retained)
@@ -43,7 +44,9 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
 
         string destination = Path.Combine(VersionDirectory(identity), AssetsDirectoryName, identity.AssetFingerprint);
         string source = Directory.Exists(destination) ? destination : GameAssetSnapshot.FindSource(assetCache ?? UserDataPaths.AssetDirectoryPath, identity.AssetFingerprint);
+
         await GameAssetSnapshot.RetainAsync(source, destination, identity.AssetFingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         _retained[identity] = destination;
 
         return destination;
@@ -57,6 +60,7 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
     public string VersionDirectory(CaptureIdentity identity)
     {
         ArgumentNullException.ThrowIfNull(identity);
+
         identity.Validate();
 
         return Path.GetFullPath(Path.Combine(root, identity.GameVersion));

@@ -37,10 +37,13 @@ internal sealed class CompositeCodec7<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public TValue Read(MessageStream stream)
     {
+        // The first four fields, each consuming exactly its own bytes.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The last three; the composite itself adds no count or length to the record.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
@@ -50,10 +53,13 @@ internal sealed class CompositeCodec7<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // Call order here fixes the byte order on the wire.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // Then the final three fields, still matching Read.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));

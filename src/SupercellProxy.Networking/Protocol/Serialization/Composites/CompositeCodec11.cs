@@ -53,14 +53,19 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
 
     public TValue Read(MessageStream stream)
     {
+        // The leading fields of the record.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The middle four, still in registration order.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
         TEighth eighthValue = _eighth.Read(stream);
+
+        // The trailing three, completing the eleven values the factory needs.
         TNinth ninthValue = _ninth.Read(stream);
         TTenth tenthValue = _tenth.Read(stream);
         TEleventh eleventhValue = _eleventh.Read(stream);
@@ -80,14 +85,19 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The leading fields, so a reader decodes them first.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // The middle four go out with no padding or markers between them.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));
         _eighth.Write(encoder, _getEighth(value));
+
+        // The trailing three finish the record.
         _ninth.Write(encoder, _getNinth(value));
         _tenth.Write(encoder, _getTenth(value));
         _eleventh.Write(encoder, _getEleventh(value));

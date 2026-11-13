@@ -67,14 +67,13 @@ internal sealed class KeysDocument
         if (renderedSections.Length is 0)
             return _content;
 
+        // Each rendered section is looked up by the line where its header, separator or first data row sits.
         Dictionary<int, RenderedKeysSection> headers = renderedSections.ToDictionary(static rendered => rendered.Section.HeaderIndex);
-
         Dictionary<int, RenderedKeysSection> separators = renderedSections.ToDictionary(static rendered => rendered.Section.SeparatorIndex);
-
         Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section.DataStartIndex);
 
+        // The new document is built line by line, with room reserved for the keys being added.
         List<string> result = new(_lines.Length + updates.Values.Sum(static update => update.NewKeys.Count));
-
         int index = 0;
 
         while (index <= _lines.Length)
@@ -118,6 +117,7 @@ internal sealed class KeysDocument
     private static string[] CreateGeneratedCells(KeysSection section, string version, string key, int? keyVersion)
     {
         string[] cells = [.. Enumerable.Repeat(string.Empty, section.Headers.Count)];
+
         cells[section.VersionColumnIndex] = version;
         cells[section.KeyVersionColumnIndex] = keyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—";
         cells[section.KeyColumnIndex] = $"`{key}`";
@@ -228,6 +228,7 @@ internal sealed class KeysDocument
             versions[version] = entries.Count;
 
             entries.Add(new ExistingKeyEntry(version, key, keyVersion, dataEndIndex, normalizedCells));
+
             dataEndIndex++;
         }
 
@@ -279,6 +280,7 @@ internal sealed class KeysDocument
             throw new InvalidDataException($"The {name} table has an invalid separator row.");
 
         int dataStartIndex = separatorIndex + 1;
+
         (IReadOnlyList<ExistingKeyEntry>? entries, int dataEndIndex) = ParseEntries(parsedLines, dataStartIndex, headers.Length, versionColumnIndex, keyColumnIndex, keyVersionColumnIndex, name);
 
         int[] extraColumns = [.. Enumerable.Range(start: 0, headers.Length)

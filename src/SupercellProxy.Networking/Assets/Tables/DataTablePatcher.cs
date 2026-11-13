@@ -30,7 +30,6 @@ public static class DataTablePatcher
         ArgumentNullException.ThrowIfNull(changes);
 
         Dictionary<string, GameAsset> resources = assets.ToDictionary(static asset => asset.Fingerprint.File, StringComparer.Ordinal);
-
         ImmutableDictionary<string, List<List<string>>> editedRows = ImmutableDictionary.Create<string, List<List<string>>>(StringComparer.Ordinal);
 
         foreach (DataTableChange change in changes)
@@ -44,6 +43,7 @@ public static class DataTablePatcher
                 {
                     Content = Encoding.UTF8.GetBytes(replacement.Content),
                 };
+
                 editedRows = editedRows.Remove(change.File);
 
                 continue;

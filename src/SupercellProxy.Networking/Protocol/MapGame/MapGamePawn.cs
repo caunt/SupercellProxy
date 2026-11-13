@@ -36,15 +36,22 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
         int derbyTaskGlobalId,
         ReadOnlyMemory<CommandDataReferenceVarIntPair> pendingNotifications)
     {
+        // Whose car this is.
         AvatarId = avatarId;
         NeighborhoodId = neighborhoodId;
         ExperienceLevel = experienceLevel;
+
+        // Where the car stands and its empty-node counters.
         CurrentNodeId = currentNodeId;
         EmptyNodesTravelled = emptyNodesTravelled;
         EmptyNodesTravelledDeliveringAnimalsImmunity = emptyNodesTravelledDeliveringAnimalsImmunity;
         EmptyNodesTravelledDeliveringAnimals = emptyNodesTravelledDeliveringAnimals;
+
+        // Revealed nodes and profile options are copied so the record owns its arrays.
         VisitedNodeIds = visitedNodeIds.ToArray();
         SelectedOptions = selectedOptions.ToArray();
+
+        // How the player is shown, then the derby task and queued notifications.
         Name = name;
         Emblem = emblem;
         DerbyTaskGlobalId = derbyTaskGlobalId;

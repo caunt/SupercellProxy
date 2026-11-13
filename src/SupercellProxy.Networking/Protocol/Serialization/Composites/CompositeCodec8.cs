@@ -41,10 +41,13 @@ internal sealed class CompositeCodec8<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public TValue Read(MessageStream stream)
     {
+        // The front half of the record, each field picking up after the one before.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The back half; values wait in locals until the factory can take all eight.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
@@ -55,10 +58,13 @@ internal sealed class CompositeCodec8<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The first four fields, taken from the value by their getters.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // The other four follow directly, so Read sees them in the same order.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));

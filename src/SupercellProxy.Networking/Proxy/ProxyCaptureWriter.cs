@@ -114,6 +114,7 @@ public sealed class ProxyCaptureWriter
 
         _pendingFrames.Clear();
         _pendingArtifacts.Clear();
+
         _pendingBytes = 0;
 
         if (!IsPersisted)
@@ -137,6 +138,7 @@ public sealed class ProxyCaptureWriter
         using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         _publicationApproved = true;
+
         await PublishPendingCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -167,7 +169,9 @@ public sealed class ProxyCaptureWriter
         }
 
         int previous = _pendingArtifacts.TryGetValue(artifact, out byte[]? existing) ? existing.Length : 0;
+
         RequirePendingCapacity(contents.Length - previous);
+
         _pendingArtifacts[artifact] = contents.ToArray();
         _pendingBytes += contents.Length - previous;
     }
@@ -210,6 +214,7 @@ public sealed class ProxyCaptureWriter
             using MessageStream stream = MessageStream.Create(payload);
 
             CaptureIdentity identity = CaptureIdentity.From(ClientHelloMessage.Codec.Read(stream));
+
             Configure(identity);
         }
 
@@ -222,9 +227,11 @@ public sealed class ProxyCaptureWriter
         byte[] frame = new byte[7 + payload.Length];
 
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 0, length: 2), container.Id);
+
         frame[2] = byte.CreateTruncating(payload.Length >> 16);
         frame[3] = byte.CreateTruncating(payload.Length >> 8);
         frame[4] = byte.CreateTruncating(payload.Length);
+
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 5, length: 2), container.Version);
         payload.CopyTo(frame, index: 7);
 
@@ -245,9 +252,12 @@ public sealed class ProxyCaptureWriter
         else
         {
             long size = frame.Length + (annotation is null ? 0 : Encoding.UTF8.GetByteCount(annotation.Text));
+
             RequirePendingCapacity(size);
             _pendingFrames.Add(pending);
+
             _pendingBytes += size;
+
             await PublishPendingCoreAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -296,6 +306,7 @@ public sealed class ProxyCaptureWriter
         await using (stream.ConfigureAwait(continueOnCapturedContext: false))
         {
             TrySetFilePermissions(path);
+
             await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -316,6 +327,7 @@ public sealed class ProxyCaptureWriter
             throw new InvalidOperationException(message: "The capture was published before its version was selected.");
 
         string name = Path.GetFileName(_directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled."));
+
         _directoryPath = Path.Combine(archive.VersionDirectory(identity), name);
         _identity = identity;
     }
@@ -323,7 +335,9 @@ public sealed class ProxyCaptureWriter
     private async Task PrepareCoreAsync(CaptureIdentity identity, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(identity);
+
         CaptureArchive archive = Archive ?? throw new InvalidOperationException(message: "The capture archive is unavailable.");
+
         Configure(identity);
 
         if (_assetsRetained)
@@ -349,6 +363,7 @@ public sealed class ProxyCaptureWriter
 
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         DirectoryInfo directory = Directory.CreateDirectory(path);
+
         TrySetDirectoryPermissions(directory.FullName);
 
         if (_identity is not null)
@@ -364,6 +379,7 @@ public sealed class ProxyCaptureWriter
 
         _pendingFrames.Clear();
         _pendingArtifacts.Clear();
+
         _pendingBytes = 0;
     }
 
@@ -381,21 +397,28 @@ public sealed class ProxyCaptureWriter
     {
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
         DirectoryInfo directory = Directory.CreateDirectory(Path.Combine(path, artifact.Directory));
+
         TrySetDirectoryPermissions(directory.FullName);
+
         await WriteFileAsync(Path.Combine(directory.FullName, artifact.File), bytes, overwrite, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     private async Task WriteAsync(PendingFrame frame, CancellationToken cancellationToken)
     {
         string path = _directoryPath ?? throw new InvalidOperationException(message: "Capture persistence is disabled.");
+
         await WriteFileAsync(Path.Combine(path, frame.Name), frame.Bytes, overwrite: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         if (frame.Annotation is not null)
         {
             DirectoryInfo directory = Directory.CreateDirectory(Path.Combine(path, frame.Annotation.Directory));
+
             TrySetDirectoryPermissions(directory.FullName);
+
             string index = Path.Combine(directory.FullName, frame.Annotation.File);
+
             await File.AppendAllTextAsync(index, frame.Annotation.Text, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             TrySetFilePermissions(index);
         }
     }

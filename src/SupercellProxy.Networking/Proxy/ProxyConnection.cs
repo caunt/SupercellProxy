@@ -36,13 +36,20 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         AnonymousAccountLease? anonymousAccount,
         CancellationToken cancellationToken)
     {
+        // Keep the accepted game-client socket and the helpers that act on its traffic.
         SocketClient = socketClient;
         _logger = logger ?? NullLogger.Instance;
         _homeVisitor = new ProxyHomeVisitor(this);
+
+        // The upstream socket connects later, while the already connected game client is wrapped as a message stream now.
         SocketUpstream = new TcpClient();
         ClientStream = new MessageStream(socketClient.GetStream());
+
+        // Events and cancellation belong to this connection, while the caller's token can still end it.
         EventBus = new EventBus();
         CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        // Record where traffic is captured, who the peer is, and how the upstream login gets its credentials.
         TrafficCapture = trafficCapture;
         RemoteEndPoint = socketClient.GetRemoteEndPoint();
         _handshake = new ProxyHandshake(sessionTokenProvider, anonymousAccount);
@@ -171,6 +178,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(socketClient);
+
         ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, anonymousAccount, cancellationToken);
 
         try
@@ -178,7 +186,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             await client
                 .SocketUpstream.ConnectAsync(upstreamHost, upstreamPort, client.CancellationTokenSource.Token)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             client.ClientStream.CommandDataResolver = commandDataResolver;
+
             client._serverStream = new MessageStream(client.SocketUpstream.GetStream())
             {
                 ServerKeySource = serverKeys,
@@ -207,9 +217,11 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             throw new InvalidOperationException(message: "The proxy client is already running.");
 
         _started = true;
+
         await EventBus
             .SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
         await EventBus
             .SubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -218,6 +230,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         {
             // Handshake handlers must be subscribed before either pump can observe ServerHello or Login.
             CompletionTask = RunPumpsAsync(CancellationTokenSource.Token);
+
             await CompletionTask.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
@@ -225,6 +238,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             await EventBus
                 .UnsubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             await EventBus
                 .UnsubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -257,15 +271,16 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
         MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
-
         MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion, destination.GameVersion);
 
         await TrafficCapture
             .SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
         await destination
             .WriteContainerAsync(outgoingContainer, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
+
         await EventBus
             .PublishAsync(new MessageSentEvent(message, direction, source, destination), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -293,11 +308,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// </summary>
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
+        // Close both message streams and their sockets so the forwarding loops stop.
         ClientStream.Dispose();
         _serverStream?.Dispose();
-
         SocketClient.Dispose();
         SocketUpstream.Dispose();
+
+        // Unlink from the caller's token so the connection no longer listens for its cancellation.
         CancellationTokenSource.Dispose();
 
         await CompletionTask.ConfigureAwait(continueOnCapturedContext: false);
@@ -309,8 +326,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         switch (@event.Message)
         {
-            case VisitHomeTargetMessage visitHomeTargetMessage
-                when visitHomeTargetMessage.Target == LongId.Empty:
+            case VisitHomeTargetMessage visitHomeTargetMessage when visitHomeTargetMessage.Target == LongId.Empty:
                 {
                     @event.IsCancelled = true;
 
@@ -371,6 +387,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             MessageReceivedEvent @event = new(message, direction, source, destination);
+
             await EventBus
                 .PublishAsync(@event, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -425,7 +442,6 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         Task serverboundPumpTask = PumpAsync(MessageDirection.Serverbound, cancellationToken);
         Task clientboundPumpTask = PumpAsync(MessageDirection.Clientbound, cancellationToken);
-
         string remoteEndPoint = SocketClient.GetRemoteEndPoint();
 
         Task completedTask = await Task.WhenAny(serverboundPumpTask, clientboundPumpTask)
@@ -448,8 +464,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         {
             Console.WriteLine($"{remoteEndPoint} proxy connection stopped.");
         }
-        catch (Exception exception)
-            when (ProxyFailureClassifier.IsRecoverable(exception))
+        catch (Exception exception) when (ProxyFailureClassifier.IsRecoverable(exception))
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
         }

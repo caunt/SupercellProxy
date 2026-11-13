@@ -40,13 +40,13 @@ public sealed class Nonce
             else
             {
                 RandomNumberGenerator.Fill(_bytes);
+
                 _bytes[0] &= 0xFE;
             }
         }
         else
         {
             const int digestLength = 24;
-
             Blake2bHashState blake2bHasher = Blake2b.CreateIncrementalHasher(digestLength);
             bool isNonceProvided = !Unsafe.IsNullRef(ref MemoryMarshal.GetReference(nonceBytes));
 
@@ -82,6 +82,7 @@ public sealed class Nonce
         for (int currentIndex = 0; currentIndex < span.Length; currentIndex++)
         {
             int currentSum = span[currentIndex] + carryValue;
+
             span[currentIndex] = byte.CreateTruncating(currentSum);
             carryValue = currentSum >> 8;
 

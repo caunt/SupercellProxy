@@ -16,19 +16,20 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
 
     internal ConnectionTrafficSnapshot Read()
     {
-        using (IDisposable lease = _gate.Lock())
-        {
-            long now = timeProvider.GetTimestamp();
-            RemoveExpired(now);
-            double seconds = Math.Clamp(timeProvider.GetElapsedTime(_started, now).TotalSeconds, min: 0, ConnectionTrafficSnapshot.AveragingWindow.TotalSeconds);
+        using IDisposable lease = _gate.Lock();
 
-            return new(_connectedAt,
-                TimeSpan.FromSeconds(seconds),
-                _received,
-                _sent,
-                seconds > 0 ? _recentReceived / seconds : 0,
-                seconds > 0 ? _recentSent / seconds : 0);
-        }
+        long now = timeProvider.GetTimestamp();
+
+        RemoveExpired(now);
+
+        double seconds = Math.Clamp(timeProvider.GetElapsedTime(_started, now).TotalSeconds, min: 0, ConnectionTrafficSnapshot.AveragingWindow.TotalSeconds);
+
+        return new(_connectedAt,
+            TimeSpan.FromSeconds(seconds),
+            _received,
+            _sent,
+            seconds > 0 ? _recentReceived / seconds : 0,
+            seconds > 0 ? _recentSent / seconds : 0);
     }
 
     internal void Receive(int bytes)
@@ -46,16 +47,18 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
         if (received == 0 && sent == 0)
             return;
 
-        using (IDisposable lease = _gate.Lock())
-        {
-            long now = timeProvider.GetTimestamp();
-            RemoveExpired(now);
-            _received += received;
-            _sent += sent;
-            _recentReceived += received;
-            _recentSent += sent;
-            _samples.Enqueue(new(now, received, sent));
-        }
+        using IDisposable lease = _gate.Lock();
+
+        long now = timeProvider.GetTimestamp();
+
+        RemoveExpired(now);
+
+        _received += received;
+        _sent += sent;
+        _recentReceived += received;
+        _recentSent += sent;
+
+        _samples.Enqueue(new(now, received, sent));
     }
 
     private void RemoveExpired(long now)
@@ -66,6 +69,7 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
                 break;
 
             Sample removed = _samples.Dequeue();
+
             _recentReceived -= removed.Received;
             _recentSent -= removed.Sent;
         }

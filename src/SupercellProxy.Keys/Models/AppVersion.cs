@@ -29,6 +29,7 @@ internal sealed class AppVersion
             {
                 aliases = [];
                 aliasesByValue[normalized] = aliases;
+
                 values.Add(normalized);
             }
 

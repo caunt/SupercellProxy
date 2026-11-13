@@ -33,9 +33,12 @@ internal sealed class CompositeCodec6<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public TValue Read(MessageStream stream)
     {
+        // The leading half of the record, read with no separators between fields.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
+
+        // The trailing half; the factory runs only after it is read, so a failed read builds nothing.
         TFourth fourthValue = _fourth.Read(stream);
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
@@ -45,9 +48,12 @@ internal sealed class CompositeCodec6<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // Getters project each field so the encoder appends them in wire order.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
+
+        // The remaining three fields, mirroring the order Read expects.
         _fourth.Write(encoder, _getFourth(value));
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));

@@ -96,6 +96,7 @@ public sealed record DerbyRaceEntry : ICodecProvider<DerbyRaceEntry>
     public DerbyRaceEntry With(int rank)
     {
         int[] values = [.. Values];
+
         values[RankFieldIndex] = rank;
 
         return this with { Values = values };

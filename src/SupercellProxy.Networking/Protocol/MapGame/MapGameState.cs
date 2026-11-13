@@ -20,8 +20,11 @@ public sealed record MapGameState : ICodecProvider<MapGameState>
         ReadOnlyMemory<MapGameNodeEmoji> emojis,
         int mapGlobalId)
     {
+        // Cars and task groups are copied so the record keeps no reference to the caller's buffers.
         Pawns = pawns.ToArray();
         TaskGroups = taskGroups.ToArray();
+
+        // Then the board-wide counters, the node emojis and the map the board uses.
         Configuration = configuration;
         Emojis = emojis.ToArray();
         MapGlobalId = mapGlobalId;

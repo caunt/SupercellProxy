@@ -110,6 +110,7 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
             throw new InvalidDataException(message: "Development byte arrays are only encoded in the development environment.");
 
         CommandEnvironment streamEnvironment = encoder.CommandEnvironment;
+
         encoder.CommandEnvironment = message.Environment;
 
         try

@@ -24,6 +24,7 @@ internal sealed class SvelteDataConverter : JsonConverter<SvelteData>
     public override void Write(Utf8JsonWriter writer, SvelteData value, JsonSerializerOptions options)
     {
         ArgumentNullException.ThrowIfNull(value);
+
         value.Encode(writer, options);
     }
 }

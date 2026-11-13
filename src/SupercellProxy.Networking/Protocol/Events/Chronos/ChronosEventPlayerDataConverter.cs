@@ -36,6 +36,7 @@ public sealed class ChronosEventPlayerDataConverter : JsonConverter<ChronosEvent
     {
         ArgumentNullException.ThrowIfNull(writer);
         ArgumentNullException.ThrowIfNull(value);
+
         writer.WriteStartArray();
 
         foreach (ChronosEventPlayerData entry in value)

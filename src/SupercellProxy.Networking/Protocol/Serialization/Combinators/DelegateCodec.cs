@@ -15,6 +15,7 @@ internal sealed class DelegateCodec<TValue>(Func<MessageStream, TValue> read, Ac
     public void Write(ProtocolEncoder encoder, TValue value)
     {
         ArgumentNullException.ThrowIfNull(encoder);
+
         write(encoder, value);
     }
 }

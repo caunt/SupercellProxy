@@ -121,7 +121,6 @@ internal static partial class Application
         else
         {
             string normalizedVersion = AppVersion.Normalize(requestedVersion);
-
             AppVersion? candidateVersion = app.Versions.SingleOrDefault(version => string.Equals(version.Value, normalizedVersion, StringComparison.Ordinal));
 
             candidateVersions = candidateVersion is null
@@ -148,6 +147,7 @@ internal static partial class Application
             return PrintDownloadHelp();
 
         (List<string>? positionalArguments, string? outputOption) = ParseDownload(arguments);
+
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 
@@ -170,6 +170,7 @@ internal static partial class Application
         {
             await DownloadAsync(decryptDayClient, download, outputPath, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             Console.WriteLine($"Downloaded: {outputPath}");
         }
 
