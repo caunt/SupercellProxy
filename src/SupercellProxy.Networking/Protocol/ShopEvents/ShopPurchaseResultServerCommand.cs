@@ -31,7 +31,8 @@ public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, i
     {
         public static ICodec<Outcome> Codec { get; } = Codecs.Dispatch(Codecs.Boolean,
             static outcome => outcome.Succeeded,
-            cases: [
+            cases:
+            [
                 new KeyValuePair<bool, ICodec<Outcome>>(key: true, Codecs.Unit(static () => new Outcome(Succeeded: true, ErrorCode: 0, ErrorText: null))),
                 new KeyValuePair<bool, ICodec<Outcome>>(key: false,
                     Codecs.Composite(Codecs.BigEndianInt32,

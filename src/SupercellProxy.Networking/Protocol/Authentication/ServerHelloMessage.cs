@@ -10,7 +10,12 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record ServerHelloMessage : CodecMessage<ServerHelloMessage>, ICodecProvider<ServerHelloMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ServerHelloMessage> Codec { get; } = Codecs.Composite(Codecs.ByteArray, static message => message.SessionKey, static sessionKey => new ServerHelloMessage { SessionKey = sessionKey });
+    public static ICodec<ServerHelloMessage> Codec { get; } = Codecs.Composite(Codecs.ByteArray,
+        static message => message.SessionKey,
+        static sessionKey => new ServerHelloMessage
+        {
+            SessionKey = sessionKey
+        });
 
     /// <summary>
     /// Gets or sets the random bytes the server picked for this connection; the client returns them in the encrypted login so the server can tie the

@@ -18,7 +18,7 @@ internal static class StringExtensions
             {
                 using HttpClient webClient = new();
 
-                if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
+                if (parsedAddress.Host is "temp.sh")
                 {
                     HttpResponseMessage response = await webClient.PostAsync(parsedAddress, content: null, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
@@ -36,7 +36,7 @@ internal static class StringExtensions
             {
                 using HttpClient webClient = new();
 
-                if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
+                if (parsedAddress.Host is "temp.sh")
                 {
                     HttpResponseMessage response = await webClient.PostAsync(parsedAddress, content: null, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);

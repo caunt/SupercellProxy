@@ -101,18 +101,19 @@ public sealed record AvatarDerbyProgress : ICodecProvider<AvatarDerbyProgress>
     /// <returns>A new eleven-element array in wire order, from <see cref="CurrentNeighborhoodPoints"/> to <see cref="NextLeagueIndex"/>.</returns>
     public int[] ToValues()
     {
-        return [
-        CurrentNeighborhoodPoints,
-        PreviousPlayerPoints,
-        PreviousNeighborhoodPoints,
-        PreviousRank,
-        CurrentSeasonId,
-        PreviousSeasonId,
-        CurrentLeagueIndex,
-        CurrentParticipantCount,
-        PreviousLeagueIndex,
-        PreviousParticipantCount,
-        NextLeagueIndex,
-    ];
+        return
+        [
+            CurrentNeighborhoodPoints,
+            PreviousPlayerPoints,
+            PreviousNeighborhoodPoints,
+            PreviousRank,
+            CurrentSeasonId,
+            PreviousSeasonId,
+            CurrentLeagueIndex,
+            CurrentParticipantCount,
+            PreviousLeagueIndex,
+            PreviousParticipantCount,
+            NextLeagueIndex,
+        ];
     }
 }

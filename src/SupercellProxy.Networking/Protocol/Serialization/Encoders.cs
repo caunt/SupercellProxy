@@ -63,7 +63,7 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(second);
         ArgumentNullException.ThrowIfNull(getSecond);
 
-        return new SequenceEncoder<TValue>(parts: [new FieldEncoder<TValue, TFirst>(first, getFirst), new FieldEncoder<TValue, TSecond>(second, getSecond),]);
+        return new SequenceEncoder<TValue>(parts: [new FieldEncoder<TValue, TFirst>(first, getFirst), new FieldEncoder<TValue, TSecond>(second, getSecond)]);
     }
 
     /// <summary>Gets an encoder that writes 3 fields of a value in order.</summary>
@@ -93,11 +93,12 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(third);
         ArgumentNullException.ThrowIfNull(getThird);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 4 fields of a value in order.</summary>
@@ -134,12 +135,13 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(fourth);
         ArgumentNullException.ThrowIfNull(getFourth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 5 fields of a value in order.</summary>
@@ -183,13 +185,14 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(fifth);
         ArgumentNullException.ThrowIfNull(getFifth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 6 fields of a value in order.</summary>
@@ -240,14 +243,15 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(sixth);
         ArgumentNullException.ThrowIfNull(getSixth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 7 fields of a value in order.</summary>
@@ -305,15 +309,16 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(seventh);
         ArgumentNullException.ThrowIfNull(getSeventh);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 8 fields of a value in order.</summary>
@@ -378,16 +383,17 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(eighth);
         ArgumentNullException.ThrowIfNull(getEighth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 9 fields of a value in order.</summary>
@@ -459,17 +465,18 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(ninth);
         ArgumentNullException.ThrowIfNull(getNinth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 10 fields of a value in order.</summary>
@@ -548,18 +555,19 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(tenth);
         ArgumentNullException.ThrowIfNull(getTenth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 11 fields of a value in order.</summary>
@@ -645,19 +653,20 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(eleventh);
         ArgumentNullException.ThrowIfNull(getEleventh);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 12 fields of a value in order.</summary>
@@ -750,20 +759,21 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(twelfth);
         ArgumentNullException.ThrowIfNull(getTwelfth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-                new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+            new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 13 fields of a value in order.</summary>
@@ -863,21 +873,22 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(thirteenth);
         ArgumentNullException.ThrowIfNull(getThirteenth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-                new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
-                new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+            new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
+            new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 14 fields of a value in order.</summary>
@@ -984,22 +995,23 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(fourteenth);
         ArgumentNullException.ThrowIfNull(getFourteenth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-                new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
-                new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
-                new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+            new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
+            new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
+            new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 15 fields of a value in order.</summary>
@@ -1113,23 +1125,24 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(fifteenth);
         ArgumentNullException.ThrowIfNull(getFifteenth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-                new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
-                new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
-                new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
-                new FieldEncoder<TValue, TFifteenth>(fifteenth, getFifteenth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+            new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
+            new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
+            new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
+            new FieldEncoder<TValue, TFifteenth>(fifteenth, getFifteenth),
+        ]);
     }
 
     /// <summary>Gets an encoder that writes 16 fields of a value in order.</summary>
@@ -1250,24 +1263,25 @@ public static class Encoders
         ArgumentNullException.ThrowIfNull(sixteenth);
         ArgumentNullException.ThrowIfNull(getSixteenth);
 
-        return new SequenceEncoder<TValue>(parts: [
-                new FieldEncoder<TValue, TFirst>(first, getFirst),
-                new FieldEncoder<TValue, TSecond>(second, getSecond),
-                new FieldEncoder<TValue, TThird>(third, getThird),
-                new FieldEncoder<TValue, TFourth>(fourth, getFourth),
-                new FieldEncoder<TValue, TFifth>(fifth, getFifth),
-                new FieldEncoder<TValue, TSixth>(sixth, getSixth),
-                new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
-                new FieldEncoder<TValue, TEighth>(eighth, getEighth),
-                new FieldEncoder<TValue, TNinth>(ninth, getNinth),
-                new FieldEncoder<TValue, TTenth>(tenth, getTenth),
-                new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
-                new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
-                new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
-                new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
-                new FieldEncoder<TValue, TFifteenth>(fifteenth, getFifteenth),
-                new FieldEncoder<TValue, TSixteenth>(sixteenth, getSixteenth),
-            ]);
+        return new SequenceEncoder<TValue>(parts:
+        [
+            new FieldEncoder<TValue, TFirst>(first, getFirst),
+            new FieldEncoder<TValue, TSecond>(second, getSecond),
+            new FieldEncoder<TValue, TThird>(third, getThird),
+            new FieldEncoder<TValue, TFourth>(fourth, getFourth),
+            new FieldEncoder<TValue, TFifth>(fifth, getFifth),
+            new FieldEncoder<TValue, TSixth>(sixth, getSixth),
+            new FieldEncoder<TValue, TSeventh>(seventh, getSeventh),
+            new FieldEncoder<TValue, TEighth>(eighth, getEighth),
+            new FieldEncoder<TValue, TNinth>(ninth, getNinth),
+            new FieldEncoder<TValue, TTenth>(tenth, getTenth),
+            new FieldEncoder<TValue, TEleventh>(eleventh, getEleventh),
+            new FieldEncoder<TValue, TTwelfth>(twelfth, getTwelfth),
+            new FieldEncoder<TValue, TThirteenth>(thirteenth, getThirteenth),
+            new FieldEncoder<TValue, TFourteenth>(fourteenth, getFourteenth),
+            new FieldEncoder<TValue, TFifteenth>(fifteenth, getFifteenth),
+            new FieldEncoder<TValue, TSixteenth>(sixteenth, getSixteenth),
+        ]);
     }
 
     /// <summary>Gets an encoder from an explicit write function, for layouts that branch on the value.</summary>

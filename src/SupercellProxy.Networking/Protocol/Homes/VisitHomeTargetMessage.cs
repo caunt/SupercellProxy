@@ -13,7 +13,11 @@ public sealed record VisitHomeTargetMessage : CodecMessage<VisitHomeTargetMessag
         static message => message.Unknown0,
         Codecs.LongId,
         static message => message.Target,
-        static (unknown0, target) => new VisitHomeTargetMessage { Unknown0 = unknown0, Target = target });
+        static (unknown0, target) => new VisitHomeTargetMessage
+        {
+            Unknown0 = unknown0,
+            Target = target
+        });
 
     /// <summary>
     /// Gets or sets the home id of the farm to visit.

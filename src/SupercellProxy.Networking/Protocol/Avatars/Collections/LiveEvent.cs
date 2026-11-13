@@ -227,7 +227,8 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
     {
         public static ICodec<EventDocument> Codec { get; } = Codecs.Dispatch(Codecs.Boolean,
             static document => document.UsesCompressedData,
-            cases: [
+            cases:
+            [
                 new KeyValuePair<bool, ICodec<EventDocument>>(key: true,
                     Codecs.Map(Codecs.OptionalByteArray,
                         static compressedData => new EventDocument(UsesCompressedData: true, Text: null, compressedData),

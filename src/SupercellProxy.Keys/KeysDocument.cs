@@ -193,10 +193,15 @@ internal sealed class KeysDocument
                 keyVersion = parsed;
             }
 
-            string[] normalizedCells = [version, keyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—", $"`{key}`",
+            string[] normalizedCells =
+            [
+                version,
+                keyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—",
+                $"`{key}`",
                 .. Enumerable.Range(start: 0, cells.Length)
                     .Where(index => index != versionColumnIndex && index != keyColumnIndex && index != keyVersionColumnIndex)
-                    .Select(index => cells[index])];
+                    .Select(index => cells[index]),
+            ];
 
             if (versions.TryGetValue(version, out int existingIndex))
             {
@@ -284,8 +289,13 @@ internal sealed class KeysDocument
             dataStartIndex,
             dataEndIndex,
             Headers: ["Game version", "Key version", "Key", .. extraColumns.Select(index => headers[index])],
-            Separators: [separators[versionColumnIndex], keyVersionColumnIndex < 0 ? "---" : separators[keyVersionColumnIndex],
-                separators[keyColumnIndex], .. extraColumns.Select(index => separators[index])],
+            Separators:
+            [
+                separators[versionColumnIndex],
+                keyVersionColumnIndex < 0 ? "---" : separators[keyVersionColumnIndex],
+                separators[keyColumnIndex],
+                .. extraColumns.Select(index => separators[index]),
+            ],
             VersionColumnIndex: 0,
             KeyVersionColumnIndex: 1,
             KeyColumnIndex: 2,

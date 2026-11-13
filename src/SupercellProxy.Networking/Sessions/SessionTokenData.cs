@@ -251,7 +251,7 @@ public sealed class SessionTokenData
 
         return signature.Length is not 64
             ? throw new InvalidDataException(message: "Session token has an invalid ES256 signature.")
-            : !string.Equals(header.Alg, b: "ES256", StringComparison.Ordinal)
+            : header.Alg is not "ES256"
             ? throw new InvalidDataException(message: "Session token does not use ES256.")
             : payload.Exp <= payload.Iat
             ? throw new InvalidDataException(message: "Session token expiration does not follow its issue time.")

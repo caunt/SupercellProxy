@@ -21,7 +21,7 @@ internal static partial class Application
 
         foreach (string argument in arguments)
         {
-            if (string.Equals(argument, b: "--json", StringComparison.Ordinal))
+            if (argument is "--json")
             {
                 if (outputDocument)
                     throw new ArgumentException(message: "--json may only be specified once.", nameof(arguments));
@@ -50,7 +50,12 @@ internal static partial class Application
 
         if (outputDocument)
         {
-            Console.WriteLine(JsonSerializer.Serialize(document.Sections.Select(static section => new { app_id = section.AppStoreId, app_name = section.Name, })));
+            Console.WriteLine(JsonSerializer.Serialize(document.Sections
+                .Select(static section => new
+                {
+                    app_id = section.AppStoreId,
+                    app_name = section.Name,
+                })));
         }
         else
         {

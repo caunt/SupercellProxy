@@ -20,7 +20,16 @@ public sealed record FeaturingDesignEntry : ICodecProvider<FeaturingDesignEntry>
         static value => value.AvatarId,
         Codecs.VarInt,
         static value => value.FeaturingGroup,
-        static (farmName, design, challengesComplete, rnfLikes, league, avatarId, featuringGroup) => new FeaturingDesignEntry { FarmName = farmName, EncodedDesign = design, ChallengesComplete = challengesComplete, RnfLikes = rnfLikes, League = league, AvatarId = avatarId, FeaturingGroup = featuringGroup });
+        static (farmName, design, challengesComplete, rnfLikes, league, avatarId, featuringGroup) => new FeaturingDesignEntry
+        {
+            FarmName = farmName,
+            EncodedDesign = design,
+            ChallengesComplete = challengesComplete,
+            RnfLikes = rnfLikes,
+            League = league,
+            AvatarId = avatarId,
+            FeaturingGroup = featuringGroup
+        });
 
     /// <summary>Gets or sets the candidate's avatar identity, when supplied.</summary>
     /// <value>The designer's avatar id, written as an optional long id after the league; <see langword="null"/> when the server leaves it out.</value>

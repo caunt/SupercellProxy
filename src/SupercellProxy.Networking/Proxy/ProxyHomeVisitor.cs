@@ -19,7 +19,13 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
 
         try
         {
-            await connection.WriteAsync(new VisitHomeTargetMessage { Unknown0 = 0x00, Target = target }, MessageDirection.Serverbound, cancellationToken)
+            await connection.WriteAsync(new VisitHomeTargetMessage
+            {
+                Unknown0 = 0x00,
+                Target = target
+            },
+                MessageDirection.Serverbound,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             OtherHomeDataMessage otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(TimeSpan.FromSeconds(seconds: 15), cancellationToken)

@@ -49,7 +49,12 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
             using HttpRequestMessage request = new(HttpMethod.Get, KeysAddress);
 
             if (refresh)
-                request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            {
+                request.Headers.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true
+                };
+            }
 
             using HttpResponseMessage response = await webClient.SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);

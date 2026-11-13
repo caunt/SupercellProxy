@@ -39,7 +39,12 @@ public sealed record PassthroughMessage : IMessage
     {
         ArgumentNullException.ThrowIfNull(container);
 
-        return new PassthroughMessage { Id = container.Id, Version = container.Version, Data = container.Payload.ReadToEnd(), };
+        return new PassthroughMessage
+        {
+            Id = container.Id,
+            Version = container.Version,
+            Data = container.Payload.ReadToEnd(),
+        };
     }
 
     /// <summary>

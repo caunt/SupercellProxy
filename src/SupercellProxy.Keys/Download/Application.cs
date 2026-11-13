@@ -80,7 +80,7 @@ internal static partial class Application
         {
             string argument = arguments[index];
 
-            if (string.Equals(argument, b: "-o", StringComparison.Ordinal) || string.Equals(argument, b: "--output", StringComparison.Ordinal))
+            if (argument is "-o" || argument is "--output")
             {
                 if (outputOption is not null)
                     throw new ArgumentException(message: "--output may only be specified once.", nameof(arguments));

@@ -103,7 +103,11 @@ public static class ConnectionAddressResolver
     {
         try
         {
-            LookupClient lookupClient = new(new LookupClientOptions(IPAddress.Parse(ipString: "1.1.1.1")) { Timeout = TimeSpan.FromSeconds(seconds: 2), Retries = 0, });
+            LookupClient lookupClient = new(new LookupClientOptions(IPAddress.Parse(ipString: "1.1.1.1"))
+            {
+                Timeout = TimeSpan.FromSeconds(seconds: 2),
+                Retries = 0,
+            });
 
             IDnsQueryResponse response = await lookupClient.QueryAsync(host, QueryType.A, cancellationToken: cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);

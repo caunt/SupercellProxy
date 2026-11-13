@@ -170,7 +170,8 @@ public sealed record MapGameEventProfileData : ICodecProvider<MapGameEventProfil
     {
         public static ICodec<ProfileDocument> Codec { get; } = Codecs.Dispatch(Codecs.Boolean,
             static document => document.UsesBinaryData,
-            cases: [
+            cases:
+            [
                 new KeyValuePair<bool, ICodec<ProfileDocument>>(key: true,
                     Codecs.Map(Codecs.OptionalByteArray,
                         static binaryData => new ProfileDocument(UsesBinaryData: true, binaryData, OptionalTextData: null),

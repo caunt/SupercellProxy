@@ -11,7 +11,12 @@ namespace SupercellProxy.Networking.Protocol.Rankings;
 public sealed record PlayerRankingsMessage : CodecMessage<PlayerRankingsMessage>, ICodecProvider<PlayerRankingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<PlayerRankingsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(RankingEntry.ListCodec, static message => message.Entries, static entries => new PlayerRankingsMessage { Entries = entries, }),
+    public static ICodec<PlayerRankingsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(RankingEntry.ListCodec,
+            static message => message.Entries,
+            static entries => new PlayerRankingsMessage
+            {
+                Entries = entries,
+            }),
         trailingDataMessage: "The player-ranking response has trailing data.");
 
     /// <summary>

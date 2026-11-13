@@ -132,12 +132,7 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
         Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span, serverPublicKey: encryption.RemotePublicKey.Span);
 
-        byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [
-                .. encryption.SessionKey.Span,
-                .. encryption.SendNonce.Span,
-                .. payload,
-                .. stackalloc byte[PromonPadSize],
-            ],
+        byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [.. encryption.SessionKey.Span, .. encryption.SendNonce.Span, .. payload, .. stackalloc byte[PromonPadSize]],
             temporaryNonce.Span,
             encryption.RemotePublicKey.Span,
             encryption.LocalPrivateKey.Span);

@@ -192,7 +192,8 @@ internal static class Release17286
 
     /// <summary>Gets the release and its id table.</summary>
     internal static GameRelease Release => field ??= new GameRelease(Version,
-        Commands: [
+        Commands:
+        [
             Command(MoveGameObjectByOffsetCommand.Codec, id: 3),
             Command(ScareLivestockCommand.Codec, id: 6),
             Command(ApplyFieldBoosterCommand.Codec, id: 7),
@@ -671,7 +672,8 @@ internal static class Release17286
             Command(BuyMapGameFuelSpinCommand.Codec, id: 668),
             Command(RefreshBoatOrdersCommand.Codec, id: 683),
         ],
-        Messages: [
+        Messages:
+        [
             Message<AcceptFriendRequestMessage>(id: 17654),
             Message<AccountCandidatesMessage>(id: 24843, captureName: "Clientbound24843Message"),
             Message<AddFriendMessage>(id: 11539),

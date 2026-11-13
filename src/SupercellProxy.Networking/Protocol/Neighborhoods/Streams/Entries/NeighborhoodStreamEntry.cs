@@ -15,7 +15,8 @@ public abstract record NeighborhoodStreamEntry(StreamEntryHeader Header) : ICode
     /// </value>
     public static ICodec<NeighborhoodStreamEntry> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static entry => entry.EntryType,
-        cases: [
+        cases:
+        [
             Case(ChatStreamEntry.Type, ChatStreamEntry.Codec),
             Case(JoinRequestNeighborhoodStreamEntry.Type, JoinRequestNeighborhoodStreamEntry.Codec),
             Case(NeighborhoodEventStreamEntry.Type, NeighborhoodEventStreamEntry.Codec),

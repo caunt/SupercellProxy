@@ -416,7 +416,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             {
                 LogUndecoded(_logger, container.Id, container.Version, exception.Message);
 
-                return new DecodedMessageFrame(new PassthroughMessage { Id = container.Id, Version = container.Version, Data = container.Payload.ToArray() }, container);
+                return new DecodedMessageFrame(new PassthroughMessage
+                {
+                    Id = container.Id,
+                    Version = container.Version,
+                    Data = container.Payload.ToArray()
+                },
+                    container);
             }
         }
         catch (StreamClosedException exception)
