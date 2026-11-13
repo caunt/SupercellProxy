@@ -77,12 +77,11 @@ public static class NetworkingServiceCollectionExtensions
     /// <returns>The same <paramref name="services"/> instance, so further registrations can be chained.</returns>
     public static IServiceCollection AddSupercellNetworking(this IServiceCollection services)
     {
-        services = services
-            .AddLogging(static logging =>
-            {
-                if (logging.AddFilter(category: "System.Net.Http.HttpClient", LogLevel.Warning) is null)
-                    throw new InvalidOperationException(message: "Failed to configure HTTP client logging.");
-            })
+        services = services.AddLogging(static logging =>
+        {
+            if (logging.AddFilter(category: "System.Net.Http.HttpClient", LogLevel.Warning) is null)
+                throw new InvalidOperationException(message: "Failed to configure HTTP client logging.");
+        })
             .AddHttpClient()
             .AddHttpClient(name: "ServerKeys")
             .AddTypedClient<IServerPublicKeySource>(static web => new HayDayServerPublicKeySource(web))

@@ -20,17 +20,15 @@ internal static class StringExtensions
 
                 if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
                 {
-                    HttpResponseMessage response = await webClient
-                        .PostAsync(parsedAddress, content: null, cancellationToken)
+                    HttpResponseMessage response = await webClient.PostAsync(parsedAddress, content: null, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
-                    return await response
-                        .Content.ReadAsByteArrayAsync(cancellationToken)
+                    return await response.Content
+                        .ReadAsByteArrayAsync(cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
                 }
 
-                return await webClient
-                    .GetByteArrayAsync(parsedAddress, cancellationToken)
+                return await webClient.GetByteArrayAsync(parsedAddress, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 
@@ -40,17 +38,15 @@ internal static class StringExtensions
 
                 if (string.Equals(parsedAddress.Host, b: "temp.sh", StringComparison.Ordinal))
                 {
-                    HttpResponseMessage response = await webClient
-                        .PostAsync(parsedAddress, content: null, cancellationToken)
+                    HttpResponseMessage response = await webClient.PostAsync(parsedAddress, content: null, cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
-                    return await response
-                        .Content.ReadAsByteArrayAsync(cancellationToken)
+                    return await response.Content
+                        .ReadAsByteArrayAsync(cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
                 }
 
-                return await webClient
-                    .GetByteArrayAsync(parsedAddress, cancellationToken)
+                return await webClient.GetByteArrayAsync(parsedAddress, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 

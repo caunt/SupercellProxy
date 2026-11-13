@@ -13,8 +13,7 @@ internal static class WebClientExtensions
         {
             using HttpRequestMessage request = requestFactory();
 
-            HttpResponseMessage response = await client
-                .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (!IsTransient(response.StatusCode) || attempt == MaximumAttempts)
@@ -31,7 +30,6 @@ internal static class WebClientExtensions
 
     private static bool IsTransient(HttpStatusCode statusCode)
     {
-        return statusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests
-            || (int)statusCode >= 500;
+        return statusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests || (int)statusCode >= 500;
     }
 }

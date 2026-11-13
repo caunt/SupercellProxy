@@ -59,8 +59,8 @@ internal static partial class Application
                 if (retry == MaximumDownloadRetries)
                     throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message), exception);
 
-                await Console
-                    .Error.WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
+                await Console.Error
+                    .WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
                             + "Retrying from the beginning with a fresh browser session "
                             + string.Create(CultureInfo.InvariantCulture, $"(retry {retry + 1}/{MaximumDownloadRetries})..."))
                     .ConfigureAwait(continueOnCapturedContext: false);
@@ -73,8 +73,7 @@ internal static partial class Application
 
     private static string EscapeWorkflowCommand(string value)
     {
-        return value
-            .Replace(oldValue: "%", newValue: "%25", StringComparison.Ordinal)
+        return value.Replace(oldValue: "%", newValue: "%25", StringComparison.Ordinal)
             .Replace(oldValue: "\r", newValue: "%0D", StringComparison.Ordinal)
             .Replace(oldValue: "\n", newValue: "%0A", StringComparison.Ordinal);
     }
@@ -211,7 +210,8 @@ internal static partial class Application
         else
         {
             KeysSection section =
-                document.Sections.SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
+                document.Sections
+                    .SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
                 ?? throw new InvalidOperationException($"KEYS.md does not contain an app section for ID {appStoreId}.");
 
             sections = [section];
@@ -226,8 +226,7 @@ internal static partial class Application
 
             try
             {
-                app = await decryptDayClient
-                    .GetAppAsync(section.AppStoreId, cancellationToken)
+                app = await decryptDayClient.GetAppAsync(section.AppStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
@@ -245,7 +244,9 @@ internal static partial class Application
                 .Concat(AppVersion.CreateMany(section.Entries.Where(static entry => entry.KeyVersion is null).Select(static entry => entry.Version)))
                 .DistinctBy(static version => version.Value)];
 
-            Dictionary<string, ExistingKeyEntry> existing = section.Entries.ToDictionary(static entry => entry.Version, StringComparer.Ordinal);
+            Dictionary<string, ExistingKeyEntry> existing = section.Entries
+                .ToDictionary(static entry => entry.Version, StringComparer.Ordinal);
+
             List<GeneratedKeyEntry> generated = [];
 
             if (sourceVersions.Length is 0)
@@ -304,8 +305,7 @@ internal static partial class Application
                 {
                     try
                     {
-                        IpaDownload? authorized = await decryptDayClient
-                            .TryAuthorizeAsync(section.AppStoreId, version, cancellationToken)
+                        IpaDownload? authorized = await decryptDayClient.TryAuthorizeAsync(section.AppStoreId, version, cancellationToken)
                             .ConfigureAwait(continueOnCapturedContext: false);
 
                         if (authorized is null)
@@ -341,8 +341,7 @@ internal static partial class Application
 
                         try
                         {
-                            return await ServerPublicKeyExtractor
-                                .ExtractKeyFileAsync(temporaryPath, cancellationToken)
+                            return await ServerPublicKeyExtractor.ExtractKeyFileAsync(temporaryPath, cancellationToken)
                                 .ConfigureAwait(continueOnCapturedContext: false);
                         }
                         catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))

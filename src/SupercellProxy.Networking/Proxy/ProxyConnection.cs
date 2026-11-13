@@ -184,8 +184,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         try
         {
-            await client
-                .SocketUpstream.ConnectAsync(upstreamHost, upstreamPort, client.CancellationTokenSource.Token)
+            await client.SocketUpstream
+                .ConnectAsync(upstreamHost, upstreamPort, client.CancellationTokenSource.Token)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             client.ClientStream.CommandDataResolver = commandDataResolver;
@@ -219,12 +219,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         _started = true;
 
-        await EventBus
-            .SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
+        await EventBus.SubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        await EventBus
-            .SubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
+        await EventBus.SubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         try
@@ -236,12 +234,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         finally
         {
-            await EventBus
-                .UnsubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
+            await EventBus.UnsubscribeAsync<MessageReceivedEvent>(OnMessageReceivedAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await EventBus
-                .UnsubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
+            await EventBus.UnsubscribeAsync<MessageSentEvent>(OnMessageSentAsync, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -274,16 +270,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         MessageChannel destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
         MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion, destination.GameVersion);
 
-        await TrafficCapture
-            .SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
+        await TrafficCapture.SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        await destination
-            .WriteContainerAsync(outgoingContainer, cancellationToken)
+        await destination.WriteContainerAsync(outgoingContainer, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        await EventBus
-            .PublishAsync(new MessageSentEvent(message, direction, source, destination), cancellationToken)
+        await EventBus.PublishAsync(new MessageSentEvent(message, direction, source, destination), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -389,9 +382,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
             MessageReceivedEvent @event = new(message, direction, source, destination);
 
-            await EventBus
-                .PublishAsync(@event, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            await EventBus.PublishAsync(@event, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             if (@event.IsCancelled)
                 continue;
@@ -399,8 +390,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             await WriteForwardAsync(message, original, destination, direction, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await EventBus
-                .PublishAsync(new MessageSentEvent(message, direction, source, destination), cancellationToken)
+            await EventBus.PublishAsync(new MessageSentEvent(message, direction, source, destination), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -409,15 +399,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         try
         {
-            MessageContainer container = await source
-                .ReadContainerAsync(cancellationToken)
+            MessageContainer container = await source.ReadContainerAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (direction is MessageDirection.Serverbound && container.Id == MessageRegistry.GetId<LoginMessage>(gameVersion: null))
                 ServerStream.OutboundMessageVersion = container.Version;
 
-            await TrafficCapture
-                .SaveAsync(stage: "incoming", direction, container, messageName: "frame", cancellationToken)
+            await TrafficCapture.SaveAsync(stage: "incoming", direction, container, messageName: "frame", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             try
@@ -506,15 +494,12 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
         MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message, original.Version, destination.GameVersion);
 
-        await TrafficCapture
-            .SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)
+        await TrafficCapture.SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         try
         {
-            await destination
-                .WriteContainerAsync(container, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            await destination.WriteContainerAsync(container, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (StreamClosedException exception)
         {

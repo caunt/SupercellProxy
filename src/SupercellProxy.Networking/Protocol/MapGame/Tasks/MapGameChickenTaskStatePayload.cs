@@ -25,14 +25,13 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
         ReadOnlyMemory<CommandDataReferenceVarIntPair>? rewardData,
         ReadOnlyMemory<LongId> collectorAvatarIds)
     {
+        // The task's counts and helper are kept as decoded.
         RequiredCollectorCount = requiredCollectorCount;
         HelpRequestSent = helpRequestSent;
         HelperAvatarId = helperAvatarId;
 
-        RewardData = rewardData is null
-            ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
-
+        // The reward and collector lists are copied, so later writes to the caller's memory cannot change this state.
+        RewardData = rewardData is null ? null : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
         CollectorAvatarIds = collectorAvatarIds.ToArray();
     }
 

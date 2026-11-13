@@ -229,8 +229,7 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
     /// <returns>The same <paramref name="buffer"/>, now filled; the bytes are counted as received traffic for the connection.</returns>
     public async ValueTask<Memory<byte>> ReadExactlyAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        await BaseStream
-            .ReadExactlyAsync(buffer, cancellationToken)
+        await BaseStream.ReadExactlyAsync(buffer, cancellationToken)
             .AsTask()
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -578,8 +577,7 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
     {
         FlushWriteBoolean();
 
-        await BaseStream
-            .WriteAsync(source, cancellationToken)
+        await BaseStream.WriteAsync(source, cancellationToken)
             .AsTask()
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -826,9 +824,7 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         int temporarySignByte = (valueToWrite >> 25) & 0x40;
-
-        long boundariesTracker =
-            valueToWrite < 0 ? -long.CreateTruncating(valueToWrite) : valueToWrite;
+        long boundariesTracker = valueToWrite < 0 ? -long.CreateTruncating(valueToWrite) : valueToWrite;
 
         temporarySignByte |= valueToWrite & 0x3F;
         valueToWrite >>= 6;

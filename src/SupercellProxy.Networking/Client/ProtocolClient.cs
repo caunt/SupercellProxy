@@ -158,7 +158,8 @@ public sealed partial class ProtocolClient : IAsyncDisposable
 
         using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
 
-        using IDisposable gate = await _authenticationGate.LockAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _authenticationGate.LockAsync(request.Token)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         return _login is { Resources.Length: > 0 } login
             ? DataTableResolver.Shared(login.Fingerprint, login.Resources)
@@ -286,14 +287,16 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         if (_supercellStream is null)
         {
             if (CanUpdateVersion && _serverKeys is HayDayServerPublicKeySource source)
-                _clientVersion = await source.GetLatestAsync(refresh: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            {
+                _clientVersion = await source.GetLatestAsync(refresh: false, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
+            }
 
             ProtocolConfiguration protocol = Protocol;
 
             _socketClient = new TcpClient();
 
-            await _socketClient
-                .ConnectAsync(Configuration.UpstreamHost, Configuration.UpstreamPort, cancellationToken)
+            await _socketClient.ConnectAsync(Configuration.UpstreamHost, Configuration.UpstreamPort, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             _networkStream = _socketClient.GetStream();
@@ -314,7 +317,10 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     internal async Task RefreshVersionAsync(CancellationToken cancellationToken)
     {
         if (_serverKeys is HayDayServerPublicKeySource source)
-            _clientVersion = await source.GetLatestAsync(refresh: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        {
+            _clientVersion = await source.GetLatestAsync(refresh: true, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Authenticating protocol connection")]

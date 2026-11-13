@@ -30,13 +30,13 @@ internal static class SvelteDataDecoder
 
             active[index] = true;
 
-            JsonNode? result = Expand(values[index]);
+            JsonNode? expanded = Expand(values[index]);
 
             active[index] = false;
-            cache[index] = result;
+            cache[index] = expanded;
             cached[index] = true;
 
-            return result?.DeepClone();
+            return expanded?.DeepClone();
         }
 
         JsonNode? Expand(JsonNode? value)
@@ -49,12 +49,12 @@ internal static class SvelteDataDecoder
 
             if (value is JsonObject source)
             {
-                JsonObject result = [];
+                JsonObject expandedObject = [];
 
                 foreach (KeyValuePair<string, JsonNode?> property in source)
-                    result[property.Key] = Expand(property.Value);
+                    expandedObject[property.Key] = Expand(property.Value);
 
-                return result;
+                return expandedObject;
             }
 
             return value?.DeepClone();

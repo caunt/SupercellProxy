@@ -15,7 +15,7 @@ internal static class SpanOfBytesExtensions
         if (pattern.Length is 0)
             return [];
 
-        List<int> result = new(capacity: 2);
+        List<int> indexes = new(capacity: 2);
         int start = 0;
 
         while (start <= source.Length - pattern.Length)
@@ -28,10 +28,10 @@ internal static class SpanOfBytesExtensions
             index += start;
             start = index + 1;
 
-            result.Add(index);
+            indexes.Add(index);
         }
 
-        return result;
+        return indexes;
     }
 
     /// <summary>

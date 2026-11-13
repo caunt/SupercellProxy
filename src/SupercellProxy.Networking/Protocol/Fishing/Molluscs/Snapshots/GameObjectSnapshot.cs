@@ -19,7 +19,7 @@ public sealed partial record GameObjectSnapshot
     public MolluscBedLocationSnapshot MolluscBedLocation(int index)
     {
         string suffix = index.ToString(CultureInfo.InvariantCulture);
-        bool unlocked = ExtensionData.TryGetValue("LocationUnlocked" + suffix, out JsonElement flag) && flag.ValueKind == JsonValueKind.True;
+        bool unlocked = ExtensionData.TryGetValue("LocationUnlocked" + suffix, out JsonElement unlockedValue) && unlockedValue.ValueKind == JsonValueKind.True;
         bool linked = ExtensionData.TryGetValue("LocationMolluscGlobalId" + suffix, out JsonElement mollusc) && mollusc.ValueKind == JsonValueKind.Number;
 
         return new(unlocked, linked && mollusc.TryGetInt32(out int globalId) ? globalId : 0);

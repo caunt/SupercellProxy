@@ -51,7 +51,8 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
             if (refresh)
                 request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
 
-            using HttpResponseMessage response = await webClient.SendAsync(request, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            using HttpResponseMessage response = await webClient.SendAsync(request, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             if (!response.IsSuccessStatusCode)
                 throw new HttpRequestException($"KEYS.md request failed: {response.StatusCode}.", inner: null, response.StatusCode);

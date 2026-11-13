@@ -25,7 +25,8 @@ internal sealed class MessageTransport(MessageChannel stream)
     /// </summary>
     internal async ValueTask<MessageContainer> ReadContainerAsync(CancellationToken cancellationToken = default)
     {
-        using IDisposable disposable = await _readLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable disposable = await _readLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         try
         {
@@ -171,8 +172,7 @@ internal sealed class MessageTransport(MessageChannel stream)
                 ? await (
                     stream.ServerKeySource
                     ?? throw new InvalidOperationException(message: "Configure a server key source before connecting upstream.")
-                )
-                    .GetServerPublicKeyAsync(cancellationToken)
+                ).GetServerPublicKeyAsync(cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false)
                 : default(Memory<byte>));
     }
@@ -216,7 +216,8 @@ internal sealed class MessageTransport(MessageChannel stream)
 
         ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MessageChannel.MaximumPayloadLength, nameof(messageContainer));
 
-        using IDisposable disposable = await _writeLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable disposable = await _writeLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         try
         {
@@ -246,7 +247,9 @@ internal sealed class MessageTransport(MessageChannel stream)
                 await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);
 
             await stream.WriteAsync(headerMemory, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
+            await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             stream.Traffic?.Send(length);
         }

@@ -171,16 +171,15 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
         try
         {
-            MessageChannel stream = await client.GetStreamAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            MessageChannel stream = await client.GetStreamAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
-            await stream
-                .WriteAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)
+            await stream.WriteAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             ServerHelloMessage serverHello = Require<ServerHelloMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
 
-            await stream
-                .SetupEncryptionAsync(RemotePeerRole.Server, serverHello.SessionKey, cancellationToken)
+            await stream.SetupEncryptionAsync(RemotePeerRole.Server, serverHello.SessionKey, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             LoginMessage loginMessage = CreateLoginMessage(fingerprintSha1, sessionToken, appStore, client.Protocol);
@@ -205,9 +204,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
                 }
             }
 
-            await stream
-                .WriteAsync(loginMessage, cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            await stream.WriteAsync(loginMessage, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             LoginOkMessage loginOkMessage = Require<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
 
@@ -219,8 +216,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
             if (requestOwnHome)
             {
-                await stream
-                    .WriteAsync(new RequestOwnHomeMessage(), cancellationToken)
+                await stream.WriteAsync(new RequestOwnHomeMessage(), cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 

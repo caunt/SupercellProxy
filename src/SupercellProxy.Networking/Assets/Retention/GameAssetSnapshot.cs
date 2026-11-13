@@ -25,11 +25,14 @@ public static class GameAssetSnapshot
         if (!Directory.Exists(root))
             throw new DirectoryNotFoundException($"The asset cache {root} is unavailable.");
 
-        IEnumerable<string> candidates = Directory.EnumerateDirectories(root, fingerprint, SearchOption.AllDirectories).Prepend(root);
+        IEnumerable<string> candidates = Directory.EnumerateDirectories(root, fingerprint, SearchOption.AllDirectories)
+            .Prepend(root);
 
         return candidates.Where(path => string.Equals(Path.GetFileName(path), fingerprint, StringComparison.OrdinalIgnoreCase))
             .Where(path => File.Exists(Path.Combine(path, GameAssetFiles.ProductionBuildingsGoods)))
-            .OrderBy(static path => path.Length).ThenBy(static path => path, StringComparer.Ordinal).FirstOrDefault()
+            .OrderBy(static path => path.Length)
+            .ThenBy(static path => path, StringComparer.Ordinal)
+            .FirstOrDefault()
             ?? throw new DirectoryNotFoundException($"Assets for fingerprint {fingerprint} are unavailable in {root}.");
     }
 
@@ -70,7 +73,8 @@ public static class GameAssetSnapshot
             if (!names.Add(file.File))
                 throw new InvalidDataException($"The retained asset manifest repeats {file.File}.");
 
-            byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             bool matches = bytes.LongLength == file.Length && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)), file.Sha256, StringComparison.OrdinalIgnoreCase);
 
@@ -127,7 +131,8 @@ public static class GameAssetSnapshot
 
         foreach (GameAssetFingerprintEntry entry in entries)
         {
-            byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(source, entry.File), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(source, entry.File), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             assets.Add(new GameAsset(entry, bytes));
         }
@@ -177,14 +182,16 @@ public static class GameAssetSnapshot
                 string file = ResolveFile(temporaryDirectory.FullName, asset.Fingerprint.File);
                 DirectoryInfo fileDirectory = Directory.CreateDirectory(Path.GetDirectoryName(file) ?? temporaryDirectory.FullName);
 
-                await File.WriteAllBytesAsync(Path.Combine(fileDirectory.FullName, Path.GetFileName(file)), asset.Content.ToArray(), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                await File.WriteAllBytesAsync(Path.Combine(fileDirectory.FullName, Path.GetFileName(file)), asset.Content.ToArray(), cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
                 files.Add(new RetainedAssetFile(asset.Fingerprint.File, asset.Content.Length, Convert.ToHexString(SHA256.HashData(asset.Content.Span)), asset.Fingerprint.Sha));
             }
 
             RetainedAssetManifest manifest = new(fingerprint, Files: [.. files]);
 
-            await File.WriteAllBytesAsync(Path.Combine(temporary, RetainedAssetManifest.FileName), JsonSerializer.SerializeToUtf8Bytes(manifest), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await File.WriteAllBytesAsync(Path.Combine(temporary, RetainedAssetManifest.FileName), JsonSerializer.SerializeToUtf8Bytes(manifest), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             try
             {
@@ -235,8 +242,6 @@ public static class GameAssetSnapshot
         string path = Path.GetFullPath(Path.Combine(root, relative));
         bool outside = Path.IsPathRooted(relative) || !path.StartsWith(root, StringComparison.Ordinal) || relative.Contains(value: '\\', StringComparison.Ordinal);
 
-        return outside
-            ? throw new InvalidDataException(message: "An asset path leaves its fingerprint directory.")
-            : path;
+        return outside ? throw new InvalidDataException(message: "An asset path leaves its fingerprint directory.") : path;
     }
 }

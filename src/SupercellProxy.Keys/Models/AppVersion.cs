@@ -104,9 +104,7 @@ internal sealed class AppVersion
 
         int ignoreCaseComparison = StringComparer.OrdinalIgnoreCase.Compare(left, right);
 
-        return ignoreCaseComparison is not 0
-            ? ignoreCaseComparison
-            : StringComparer.Ordinal.Compare(left, right);
+        return ignoreCaseComparison is not 0 ? ignoreCaseComparison : StringComparer.Ordinal.Compare(left, right);
     }
 
     private static bool IsNumericVersion(ReadOnlySpan<char> value)

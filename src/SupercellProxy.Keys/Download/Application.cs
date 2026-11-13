@@ -31,8 +31,7 @@ internal static partial class Application
 
             await using (output.ConfigureAwait(continueOnCapturedContext: false))
             {
-                await DecryptDayClient
-                    .DownloadAsync(download, output, cancellationToken)
+                await DecryptDayClient.DownloadAsync(download, output, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 
@@ -54,13 +53,13 @@ internal static partial class Application
 
         try
         {
-            ZipArchive archive = await ZipFile
-                .OpenReadAsync(path, cancellationToken)
+            ZipArchive archive = await ZipFile.OpenReadAsync(path, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
-                return archive.Entries.Any(static entry =>
+                return archive.Entries
+                    .Any(static entry =>
                     !string.IsNullOrEmpty(entry.Name)
                     && entry.FullName.StartsWith(value: "Payload/", StringComparison.Ordinal)
                     && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal));
@@ -108,8 +107,7 @@ internal static partial class Application
 
     private static async Task<ResolvedIpaDownload> ResolveDownloadAsync(DecryptDayClient decryptDayClient, string appStoreId, string? requestedVersion, CancellationToken cancellationToken)
     {
-        IpaApp app = await decryptDayClient
-            .GetAppAsync(appStoreId, cancellationToken)
+        IpaApp app = await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         IReadOnlyList<AppVersion> candidateVersions;
@@ -121,7 +119,9 @@ internal static partial class Application
         else
         {
             string normalizedVersion = AppVersion.Normalize(requestedVersion);
-            AppVersion? candidateVersion = app.Versions.SingleOrDefault(version => string.Equals(version.Value, normalizedVersion, StringComparison.Ordinal));
+
+            AppVersion? candidateVersion = app.Versions
+                .SingleOrDefault(version => string.Equals(version.Value, normalizedVersion, StringComparison.Ordinal));
 
             candidateVersions = candidateVersion is null
                 ? throw new InvalidOperationException($"Version {requestedVersion} not found.")
@@ -130,8 +130,7 @@ internal static partial class Application
 
         foreach (AppVersion version in candidateVersions)
         {
-            IpaDownload? download = await decryptDayClient
-                .TryAuthorizeAsync(appStoreId, version, cancellationToken)
+            IpaDownload? download = await decryptDayClient.TryAuthorizeAsync(appStoreId, version, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (download is not null)

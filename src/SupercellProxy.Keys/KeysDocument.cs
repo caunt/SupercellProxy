@@ -57,8 +57,7 @@ internal sealed class KeysDocument
     {
         ArgumentNullException.ThrowIfNull(updates);
 
-        RenderedKeysSection[] renderedSections = [.. Sections
-            .Where(section => updates.ContainsKey(section.AppStoreId))
+        RenderedKeysSection[] renderedSections = [.. Sections.Where(section => updates.ContainsKey(section.AppStoreId))
             .Select(section => Render(section, updates[section.AppStoreId]))];
 
         if (renderedSections.Length is 0)
@@ -70,7 +69,7 @@ internal sealed class KeysDocument
         Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section.DataStartIndex);
 
         // The new document is built line by line, with room reserved for the keys being added.
-        List<string> result = new(_lines.Length + updates.Values.Sum(static update => update.NewKeys.Count));
+        List<string> documentLines = new(_lines.Length + updates.Values.Sum(static update => update.NewKeys.Count));
         int index = 0;
 
         while (index <= _lines.Length)
@@ -78,7 +77,7 @@ internal sealed class KeysDocument
             if (dataStarts.Remove(index, out RenderedKeysSection? dataSection))
             {
                 foreach (string[] row in dataSection.Rows)
-                    result.Add(FormatTableRow(row, dataSection.ColumnWidths));
+                    documentLines.Add(FormatTableRow(row, dataSection.ColumnWidths));
 
                 if (dataSection.Section.DataEndIndex > index)
                 {
@@ -91,18 +90,17 @@ internal sealed class KeysDocument
             if (index == _lines.Length)
                 break;
 
-            result.Add(FormatLine(index, headers, separators));
+            documentLines.Add(FormatLine(index, headers, separators));
 
             index++;
         }
 
-        return string.Join(_newLine, result);
+        return string.Join(_newLine, documentLines);
     }
 
     private static int[] CreateColumnWidths(KeysSection section, string[][] rows)
     {
-        return [.. Enumerable
-            .Range(start: 0, section.Headers.Count)
+        return [.. Enumerable.Range(start: 0, section.Headers.Count)
             .Select(columnIndex =>
             {
                 int rowWidth = rows.Length is 0 ? 0 : rows.Max(cells => cells[columnIndex].Length);
@@ -133,16 +131,12 @@ internal sealed class KeysDocument
         bool right = separator.EndsWith(value: ':');
         int colonCount = (left ? 1 : 0) + (right ? 1 : 0);
 
-        return (left ? ":" : string.Empty)
-            + new string(c: '-', width - colonCount)
-            + (right ? ":" : string.Empty);
+        return (left ? ":" : string.Empty) + new string(c: '-', width - colonCount) + (right ? ":" : string.Empty);
     }
 
     private static string FormatTableRow(IReadOnlyList<string> cells, int[] columnWidths)
     {
-        return "| "
-            + string.Join(separator: " | ", cells.Select((cell, index) => cell.PadRight(columnWidths[index])))
-            + " |";
+        return "| " + string.Join(separator: " | ", cells.Select((cell, index) => cell.PadRight(columnWidths[index]))) + " |";
     }
 
     private static int GetMinimumSeparatorWidth(string separator)
@@ -304,9 +298,7 @@ internal sealed class KeysDocument
 
         return trimmed.Length < 2 || trimmed[index: 0] != '|' || trimmed[new Index(value: 1, fromEnd: true)] != '|'
             ? null
-            : [.. trimmed[1..^1]
-            .Split(separator: '|', StringSplitOptions.None)
-            .Select(static cell => cell.Trim())];
+            : [.. trimmed[1..^1].Split(separator: '|', StringSplitOptions.None).Select(static cell => cell.Trim())];
     }
 
     private static RenderedKeysSection Render(KeysSection section, KeysSectionUpdate update)
@@ -340,8 +332,8 @@ internal sealed class KeysDocument
             rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
         }
 
-        string[][] rows = [.. rowsByVersion
-            .Values.Select(static value => value.Cells)
+        string[][] rows = [.. rowsByVersion.Values
+            .Select(static value => value.Cells)
             .OrderByDescending(cells => cells[section.VersionColumnIndex], AppVersion.ValueComparer)];
 
         return new RenderedKeysSection(section, rows, CreateColumnWidths(section, rows));
@@ -355,8 +347,9 @@ internal sealed class KeysDocument
         if (!separators.TryGetValue(lineIndex, out RenderedKeysSection? separatorSection))
             return _lines[lineIndex];
 
-        string[] cells = [.. separatorSection
-            .Section.Separators.Select((separator, columnIndex) => FormatSeparatorCell(separator, separatorSection.ColumnWidths[columnIndex]))];
+        string[] cells = [.. separatorSection.Section
+            .Separators
+            .Select((separator, columnIndex) => FormatSeparatorCell(separator, separatorSection.ColumnWidths[columnIndex]))];
 
         return FormatTableRow(cells, separatorSection.ColumnWidths);
     }

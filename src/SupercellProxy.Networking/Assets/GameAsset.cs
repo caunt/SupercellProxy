@@ -86,8 +86,7 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
 
         if (IsCsv)
         {
-            supercellCsvTable = ParsedTables
-                .GetValue(this, static asset => new Lazy<GameDataTable>(() => GameDataTableParser.Parse(asset.AsUnicodeTransformationFormat8)))
+            supercellCsvTable = ParsedTables.GetValue(this, static asset => new Lazy<GameDataTable>(() => GameDataTableParser.Parse(asset.AsUnicodeTransformationFormat8)))
                 .Value;
         }
 

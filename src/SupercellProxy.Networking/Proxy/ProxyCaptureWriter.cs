@@ -132,7 +132,8 @@ public sealed class ProxyCaptureWriter
     /// <param name="cancellationToken">Stops waiting for the writer's lock or for the assets to be retained.</param>
     public async Task PrepareAsync(CaptureIdentity identity, CancellationToken cancellationToken = default)
     {
-        using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _storageLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         await PrepareCoreAsync(identity, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -141,7 +142,8 @@ public sealed class ProxyCaptureWriter
     /// <param name="cancellationToken">Stops waiting for the writer's lock or for the pending frames to be written; the approval itself stays in effect.</param>
     public async Task PublishAsync(CancellationToken cancellationToken = default)
     {
-        using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _storageLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         _publicationApproved = true;
 
@@ -163,7 +165,8 @@ public sealed class ProxyCaptureWriter
 
         ValidateArtifactName(directoryName, name);
 
-        using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _storageLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         ArtifactName artifact = new(directoryName, name);
 
@@ -207,7 +210,8 @@ public sealed class ProxyCaptureWriter
 
         long timestamp = _timeProvider.GetTimestamp();
 
-        using IDisposable gate = await _storageLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _storageLock.LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         long sequence = ++_sequence;
         byte[] payload = container.Payload.ToArray();
@@ -349,7 +353,8 @@ public sealed class ProxyCaptureWriter
         if (_assetsRetained)
             return;
 
-        string retained = await archive.RetainAssetsAsync(identity, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        string retained = await archive.RetainAssetsAsync(identity, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         if (!Directory.Exists(retained))
             throw new DirectoryNotFoundException(message: "The recording's assets were not retained.");
@@ -423,7 +428,8 @@ public sealed class ProxyCaptureWriter
 
             string index = Path.Combine(directory.FullName, frame.Annotation.File);
 
-            await File.AppendAllTextAsync(index, frame.Annotation.Text, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await File.AppendAllTextAsync(index, frame.Annotation.Text, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             TrySetFilePermissions(index);
         }

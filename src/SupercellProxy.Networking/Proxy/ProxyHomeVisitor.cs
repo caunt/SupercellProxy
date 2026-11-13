@@ -86,17 +86,19 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
             await CompleteExpectedMessageAsync(@event, taskCompletionSource).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        await connection.EventBus.SubscribeAsync((Func<MessageSentEvent, CancellationToken, Task>)Handler, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await connection.EventBus
+            .SubscribeAsync((Func<MessageSentEvent, CancellationToken, Task>)Handler, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         try
         {
-            return await taskCompletionSource
-                .Task.WaitAsync(cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            return await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
         {
-            await connection.EventBus.UnsubscribeAsync((Func<MessageSentEvent, CancellationToken, Task>)Handler, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await connection.EventBus
+                .UnsubscribeAsync((Func<MessageSentEvent, CancellationToken, Task>)Handler, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }

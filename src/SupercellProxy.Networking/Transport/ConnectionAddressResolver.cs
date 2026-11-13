@@ -14,14 +14,14 @@ namespace SupercellProxy.Networking.Transport;
 public static class ConnectionAddressResolver
 {
     /// <summary>
-    /// Address the proxy listens on unless configured otherwise: every IPv4 interface.
-    /// </summary>
-    public const string DefaultListenHost = "0.0.0.0";
-
-    /// <summary>
     /// TCP port the game uses, for both the real server and the proxy's listener.
     /// </summary>
     public const int DefaultPort = 9339;
+
+    /// <summary>
+    /// Address the proxy listens on unless configured otherwise: every IPv4 interface.
+    /// </summary>
+    public const string DefaultListenHost = "0.0.0.0";
 
     /// <summary>
     /// Host name of the live Hay Day game server.
@@ -75,12 +75,12 @@ public static class ConnectionAddressResolver
 
         request.Headers.Accept.ParseAdd(input: "application/dns-json");
 
-        using HttpResponseMessage response = await webClient
-            .SendAsync(request, cancellationToken)
+        using HttpResponseMessage response = await webClient.SendAsync(request, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         Stream content = await response.EnsureSuccessStatusCode()
-            .Content.ReadAsStreamAsync(cancellationToken)
+            .Content
+            .ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         await using (content.ConfigureAwait(continueOnCapturedContext: false))
@@ -105,8 +105,7 @@ public static class ConnectionAddressResolver
         {
             LookupClient lookupClient = new(new LookupClientOptions(IPAddress.Parse(ipString: "1.1.1.1")) { Timeout = TimeSpan.FromSeconds(seconds: 2), Retries = 0, });
 
-            IDnsQueryResponse response = await lookupClient
-                .QueryAsync(host, QueryType.A, cancellationToken: cancellationToken)
+            IDnsQueryResponse response = await lookupClient.QueryAsync(host, QueryType.A, cancellationToken: cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             return response.Answers.ARecords().FirstOrDefault()?.Address.ToString();

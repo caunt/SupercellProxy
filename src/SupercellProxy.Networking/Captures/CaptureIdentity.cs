@@ -56,7 +56,8 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
 
         foreach (string file in Directory.EnumerateFiles(capture, pattern).Order(StringComparer.Ordinal))
         {
-            byte[] frame = await File.ReadAllBytesAsync(file, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            byte[] frame = await File.ReadAllBytesAsync(file, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             if (frame.Length < 7 || BinaryPrimitives.ReadUInt16BigEndian(frame) != helloId)
                 throw new InvalidDataException(message: "The retained client handshake is truncated or misidentified.");
@@ -98,7 +99,8 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
             return;
         }
 
-        await File.WriteAllBytesAsync(path, JsonSerializer.SerializeToUtf8Bytes(this), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await File.WriteAllBytesAsync(path, JsonSerializer.SerializeToUtf8Bytes(this), cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>Requires unambiguous metadata suitable for directory names.</summary>

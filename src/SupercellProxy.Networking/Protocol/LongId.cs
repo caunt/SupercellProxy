@@ -200,8 +200,7 @@ public readonly record struct LongId : IEquatable<LongId>
                 return false;
             }
 
-            ulong nextCalculatedValue =
-                (totalCalculatedValue * 14UL) + ulong.CreateTruncating(alphabetIndex);
+            ulong nextCalculatedValue = (totalCalculatedValue * 14UL) + ulong.CreateTruncating(alphabetIndex);
 
             if (nextCalculatedValue < totalCalculatedValue)
             {
