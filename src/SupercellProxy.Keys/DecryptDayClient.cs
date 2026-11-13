@@ -42,13 +42,20 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await using (browser.ConfigureAwait(continueOnCapturedContext: false))
         {
-            IPage page = await browser.NewPageAsync(new BrowserNewPageOptions { AcceptDownloads = true })
+            IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
+            {
+                AcceptDownloads = true
+            })
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             // DOM snapshots inject scripts and patch browser APIs in every frame, disrupting Turnstile.
             await page.Context
                 .Tracing
-                .StartAsync(new TracingStartOptions { Screenshots = true, Snapshots = false })
+                .StartAsync(new TracingStartOptions
+                {
+                    Screenshots = true,
+                    Snapshots = false
+                })
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             try
@@ -137,11 +144,18 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         // Run the overlay handlers and actionability checks without sending the actual click.
         await Humanize.Unwrap(control)
-            .ClickAsync(new LocatorClickOptions { Trial = true, Timeout = 30_000 })
+            .ClickAsync(new LocatorClickOptions
+            {
+                Trial = true,
+                Timeout = 30_000
+            })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        await control.ClickAsync(new LocatorClickOptions { Timeout = 30_000 })
+        await control.ClickAsync(new LocatorClickOptions
+        {
+            Timeout = 30_000
+        })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -163,7 +177,12 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await ClickDownloadAsync(verificationButton, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-        ILocator downloadButton = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Download", Exact = true });
+        ILocator downloadButton = page.GetByRole(AriaRole.Button,
+            new PageGetByRoleOptions
+            {
+                Name = "Download",
+                Exact = true
+            });
 
         await WaitForVerificationAsync(downloadButton, verificationError, timeout: 90_000, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -173,7 +192,12 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static LaunchOptions CreateBrowserLaunchOptions()
     {
-        return new LaunchOptions { Headless = true, Humanize = true, Locale = "en-US", };
+        return new LaunchOptions
+        {
+            Headless = true,
+            Humanize = true,
+            Locale = "en-US",
+        };
     }
 
     private static HttpRequestMessage CreateFileRequest(string appStoreId, string decryptDayId, string version)
@@ -215,7 +239,10 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task DownloadBrowserArchiveAsync(string version, string archivePath, CancellationToken cancellationToken)
     {
-        using HttpClient downloadClient = new() { Timeout = TimeSpan.FromMinutes(minutes: 10) };
+        using HttpClient downloadClient = new()
+        {
+            Timeout = TimeSpan.FromMinutes(minutes: 10)
+        };
 
         FileStream archive = new(archivePath,
             FileMode.CreateNew,
@@ -248,9 +275,16 @@ internal sealed class DecryptDayClient(HttpClient client)
             stage = "waiting for the verification controls";
 
             ILocator verificationButton = page.Locator(selector: "button.btn-download")
-                .Filter(new LocatorFilterOptions { HasText = "Get download link" });
+                .Filter(new LocatorFilterOptions
+                {
+                    HasText = "Get download link"
+                });
 
-            await verificationButton.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 60_000 })
+            await verificationButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = 60_000
+            })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -368,11 +402,19 @@ internal sealed class DecryptDayClient(HttpClient client)
         IPage rawPage = Humanize.Unwrap(page);
 
         ILocator closeAdvertisement = rawPage.FrameLocator(selector: "ins.adsbygoogle[data-vignette-loaded='true'] iframe[title='Advertisement']")
-            .GetByRole(AriaRole.Button, new FrameLocatorGetByRoleOptions { Name = "Close ad", Exact = true });
+            .GetByRole(AriaRole.Button,
+                new FrameLocatorGetByRoleOptions
+                {
+                    Name = "Close ad",
+                    Exact = true
+                });
 
         await rawPage.AddLocatorHandlerAsync(closeAdvertisement,
             async () =>
-            await closeAdvertisement.ClickAsync(new LocatorClickOptions { Timeout = 10_000 })
+            await closeAdvertisement.ClickAsync(new LocatorClickOptions
+            {
+                Timeout = 10_000
+            })
                 .ConfigureAwait(continueOnCapturedContext: false))
             .ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -385,7 +427,12 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task NavigateToDownloadAsync(IPage page, IpaDownload download, CancellationToken cancellationToken)
     {
-        IResponse? navigation = await page.GotoAsync(download.Address.AbsoluteUri, new PageGotoOptions { Timeout = 60_000, WaitUntil = WaitUntilState.DOMContentLoaded, })
+        IResponse? navigation = await page.GotoAsync(download.Address.AbsoluteUri,
+            new PageGotoOptions
+            {
+                Timeout = 60_000,
+                WaitUntil = WaitUntilState.DOMContentLoaded,
+            })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -441,7 +488,10 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await CaptureAsync(description: "browser trace",
             () => context.Tracing
-                .StopAsync(new TracingStopOptions { Path = Path.Combine(directory, path2: "trace.zip") })
+                .StopAsync(new TracingStopOptions
+                {
+                    Path = Path.Combine(directory, path2: "trace.zip")
+                })
                 .WaitAsync(TimeSpan.FromSeconds(seconds: 15), cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -469,7 +519,11 @@ internal sealed class DecryptDayClient(HttpClient client)
             await CaptureAsync(pageName + " screenshot",
                 async () =>
                 {
-                    byte[] screenshot = await diagnosticPage.ScreenshotAsync(new PageScreenshotOptions { FullPage = true, Timeout = 10_000 })
+                    byte[] screenshot = await diagnosticPage.ScreenshotAsync(new PageScreenshotOptions
+                    {
+                        FullPage = true,
+                        Timeout = 10_000
+                    })
                         .WaitAsync(cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -593,13 +647,19 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         // Assertions also run overlay handlers while waiting for verification to finish.
         await Assertions.Expect(Humanize.Unwrap(control.Or(verificationError).First))
-            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = timeout })
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions
+            {
+                Timeout = timeout
+            })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         if (await verificationError.IsVisibleAsync().WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
         {
-            string shown = await verificationError.InnerTextAsync(new LocatorInnerTextOptions { Timeout = 5_000 })
+            string shown = await verificationError.InnerTextAsync(new LocatorInnerTextOptions
+            {
+                Timeout = 5_000
+            })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 

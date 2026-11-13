@@ -187,7 +187,8 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
     {
         public static ICodec<EventDocument> Codec { get; } = Codecs.Dispatch(Codecs.Boolean,
             static document => document.BinaryData is not null,
-            cases: [
+            cases:
+            [
                 new KeyValuePair<bool, ICodec<EventDocument>>(key: true,
                     Codecs.Map(Codecs.ByteArray,
                         static binaryData => new EventDocument(binaryData, string.Empty),

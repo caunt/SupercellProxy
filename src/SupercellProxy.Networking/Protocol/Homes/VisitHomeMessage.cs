@@ -13,7 +13,11 @@ public sealed record VisitHomeMessage : CodecMessage<VisitHomeMessage>, ICodecPr
         static message => message.Unknown0,
         Codecs.Byte,
         static message => message.Unknown1,
-        static (unknown0, unknown1) => new VisitHomeMessage { Unknown0 = unknown0, Unknown1 = unknown1 });
+        static (unknown0, unknown1) => new VisitHomeMessage
+        {
+            Unknown0 = unknown0,
+            Unknown1 = unknown1
+        });
 
     /// <summary>
     /// Gets or sets the first of the two bytes the message carries; its meaning is not identified.

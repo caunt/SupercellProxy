@@ -203,7 +203,7 @@ public static class GameDataTableParser
     {
         string normalizedValue = cellText.Trim();
 
-        return normalizedValue.Equals(value: "true", StringComparison.OrdinalIgnoreCase) || (!normalizedValue.Equals(value: "false", StringComparison.OrdinalIgnoreCase) && (string.Equals(normalizedValue, b: "1", StringComparison.Ordinal) || (string.Equals(normalizedValue, b: "0", StringComparison.Ordinal)
+        return normalizedValue.Equals(value: "true", StringComparison.OrdinalIgnoreCase) || (!normalizedValue.Equals(value: "false", StringComparison.OrdinalIgnoreCase) && (normalizedValue is "1" || (normalizedValue is "0"
             ? false
             : throw new FormatException($"Cannot parse boolean value '{cellText}'."))));
     }

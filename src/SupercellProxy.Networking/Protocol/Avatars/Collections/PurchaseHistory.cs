@@ -15,7 +15,13 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     {
         int version = stream.ReadVarInt();
 
-        return version <= 0 ? new PurchaseHistory { Version = version } : Body.Read(stream) with { Version = version };
+        return version <= 0 ? new PurchaseHistory
+        {
+            Version = version
+        } : Body.Read(stream) with
+        {
+            Version = version
+        };
     },
         static (stream, history) =>
         {

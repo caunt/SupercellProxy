@@ -134,7 +134,8 @@ public abstract record MapGameEvent(int Type) : ICodecProvider<MapGameEvent>
     /// <value>A codec that reads the variable-length event type first and hands the rest to the matching event record's codec; a type with no listed record fails with <see cref="InvalidDataException"/> in either direction.</value>
     public static ICodec<MapGameEvent> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static mapGameEvent => mapGameEvent.Type,
-        cases: [
+        cases:
+        [
             Case(StateSynchronizationType, MapGameStateSynchronizationEvent.Codec),
             Case(PawnMovedType, MapGamePawnMovedEvent.Codec),
             Case(DumpTaskCompletedType, MapGamePawnTaskEvent.CodecFor(DumpTaskCompletedType)),

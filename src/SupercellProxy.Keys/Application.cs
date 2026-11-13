@@ -10,7 +10,10 @@ internal static partial class Application
 {
     private const string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
 
-    private static readonly HttpClient WebClient = new() { Timeout = TimeSpan.FromMinutes(minutes: 30) };
+    private static readonly HttpClient WebClient = new()
+    {
+        Timeout = TimeSpan.FromMinutes(minutes: 30)
+    };
 
     [GeneratedRegex(AppStoreIdPattern, RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture, matchTimeoutMilliseconds: 1_000)]
     private static partial Regex AppStoreIdRegex { get; }
@@ -19,54 +22,47 @@ internal static partial class Application
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        ConsoleCancelEventHandler cancellationHandler = new((unusedParameter0, eventArguments) =>
+        ConsoleCancelEventHandler cancellationHandler = (unusedParameter0, eventArguments) =>
         {
             eventArguments.Cancel = true;
 
             cancellationTokenSource.CancelAfter(millisecondsDelay: 0);
-        });
+        };
 
         Console.CancelKeyPress += cancellationHandler;
 
         try
         {
-            try
-            {
-                return arguments.Length is 0 || IsHelp(arguments[0])
-                    ? PrintRootHelp()
-                    : arguments[0] switch
-                    {
-                        "download" => await RunDownloadAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        "versions" => await RunVersionsAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        "search" => await RunSearchAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        "extract" => await RunExtractAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        "games" => await RunGamesAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        "update" => await RunUpdateAsync(arguments[1..], cancellationTokenSource.Token)
-                            .ConfigureAwait(continueOnCapturedContext: false),
-                        _ => throw new ArgumentException($"Unknown command: {arguments[0]}", nameof(arguments)),
-                    };
-            }
-            catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
-            {
-                await Console.Error
-                    .WriteLineAsync(value: "Operation cancelled.")
-                    .ConfigureAwait(continueOnCapturedContext: false);
+            return arguments.Length is 0 || IsHelp(arguments[0])
+                ? PrintRootHelp()
+                : arguments[0] switch
+                {
+                    "download" => await RunDownloadAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    "versions" => await RunVersionsAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    "search" => await RunSearchAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    "extract" => await RunExtractAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    "games" => await RunGamesAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    "update" => await RunUpdateAsync(arguments[1..], cancellationTokenSource.Token)
+                        .ConfigureAwait(continueOnCapturedContext: false),
+                    _ => throw new ArgumentException($"Unknown command: {arguments[0]}", nameof(arguments)),
+                };
+        }
+        catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
+        {
+            await Console.Error.WriteLineAsync(value: "Operation cancelled.").ConfigureAwait(continueOnCapturedContext: false);
 
-                return 130;
-            }
-            catch (Exception exception) when (exception is not OutOfMemoryException)
-            {
-                await Console.Error
-                    .WriteLineAsync($"Error: {exception.Message}")
-                    .ConfigureAwait(continueOnCapturedContext: false);
+            return 130;
+        }
+        catch (Exception exception) when (exception is not OutOfMemoryException)
+        {
+            await Console.Error.WriteLineAsync($"Error: {exception.Message}").ConfigureAwait(continueOnCapturedContext: false);
 
-                return 1;
-            }
+            return 1;
         }
         finally
         {
@@ -76,9 +72,7 @@ internal static partial class Application
 
     private static bool IsHelp(string value)
     {
-        return string.Equals(value, b: "-h", StringComparison.Ordinal)
-            || string.Equals(value, b: "--help", StringComparison.Ordinal)
-            || string.Equals(value, b: "help", StringComparison.Ordinal);
+        return value is "-h" || value is "--help" || value is "help";
     }
 
     private static string Normalize(string value)
@@ -95,7 +89,7 @@ internal static partial class Application
 
     private static int PrintCommandHelp(string usage, string description)
     {
-        return Print($"{description}{Environment.NewLine}{Environment.NewLine}" + $"Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}");
+        return Print($"{description}{Environment.NewLine}{Environment.NewLine}Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}");
     }
 
     private static int PrintDownloadHelp()
@@ -106,7 +100,18 @@ internal static partial class Application
     private static int PrintRootHelp()
     {
         return Print(string.Join(Environment.NewLine,
-            value: ["Download IPAs and extract or update Supercell server public keys.", string.Empty, "Usage:", "  SupercellProxy.Keys download APP [VERSION] [--output PATH]", "  SupercellProxy.Keys versions APP", "  SupercellProxy.Keys search QUERY", "  SupercellProxy.Keys extract INPUT [--key-version]", "  SupercellProxy.Keys games [FILE] [--json]", "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]"]));
+            value:
+            [
+                "Download IPAs and extract or update Supercell server public keys.",
+                string.Empty,
+                "Usage:",
+                "  SupercellProxy.Keys download APP [VERSION] [--output PATH]",
+                "  SupercellProxy.Keys versions APP",
+                "  SupercellProxy.Keys search QUERY",
+                "  SupercellProxy.Keys extract INPUT [--key-version]",
+                "  SupercellProxy.Keys games [FILE] [--json]",
+                "  SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]",
+            ]));
     }
 
     private static void RequireOneArgument(string[] arguments, string usage)

@@ -544,7 +544,10 @@ internal static class MachOKeyVersionExtractor
             long immediate = ((word >> 10) & 4095) << ((word & 0x400000) != 0 ? 12 : 0);
 
             registers[destination] = source is { Kind: ValueKind.Object or ValueKind.Address } value
-                ? value with { Offset = checked(value.Offset + immediate) } : null;
+                ? value with
+                {
+                    Offset = checked(value.Offset + immediate)
+                } : null;
 
             return true;
         }

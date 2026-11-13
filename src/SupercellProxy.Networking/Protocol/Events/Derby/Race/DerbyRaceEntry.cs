@@ -109,6 +109,9 @@ public sealed record DerbyRaceEntry : ICodecProvider<DerbyRaceEntry>
     /// <returns>A new entry equal to this one except that <see cref="Rank"/> is <paramref name="rank"/>; the values array is copied, so this entry is left unchanged.</returns>
     public DerbyRaceEntry With(int rank)
     {
-        return this with { Values = Values.SetItem(RankFieldIndex, rank) };
+        return this with
+        {
+            Values = Values.SetItem(RankFieldIndex, rank)
+        };
     }
 }

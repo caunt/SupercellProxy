@@ -12,7 +12,8 @@ public abstract record AvatarStreamEntry(AvatarStreamEntryHeader Header) : ICode
     /// <value>A codec that reads the VarInt entry type and then the matching neighborhood join response, invitation, kick-out, settings-change or derby opt entry; reading any other type throws an <see cref="InvalidDataException"/>.</value>
     public static ICodec<AvatarStreamEntry> Codec { get; } = Codecs.Dispatch(Codecs.VarInt,
         static entry => entry.EntryType,
-        cases: [
+        cases:
+        [
             new KeyValuePair<int, ICodec<AvatarStreamEntry>>(JoinNeighborhoodResponseAvatarStreamEntry.Type,
                 Codecs.Subtype<AvatarStreamEntry, JoinNeighborhoodResponseAvatarStreamEntry>(JoinNeighborhoodResponseAvatarStreamEntry.Codec)),
             new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodInvitationAvatarStreamEntry.Type,

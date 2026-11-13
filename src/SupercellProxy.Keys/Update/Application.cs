@@ -115,7 +115,7 @@ internal static partial class Application
         {
             string argument = arguments[index];
 
-            if (string.Equals(argument, b: "--summary", StringComparison.Ordinal))
+            if (argument is "--summary")
             {
                 if (summaryOption is not null)
                     throw new ArgumentException(message: "--summary may only be specified once.", nameof(arguments));
@@ -125,7 +125,7 @@ internal static partial class Application
 
                 summaryOption = arguments[index];
             }
-            else if (string.Equals(argument, b: "--app", StringComparison.Ordinal))
+            else if (argument is "--app")
             {
                 if (appOption is not null)
                     throw new ArgumentException(message: "--app may only be specified once.", nameof(arguments));

@@ -15,7 +15,10 @@ public sealed record AccountCandidatesMessage : CodecMessage<AccountCandidatesMe
     /// <inheritdoc />
     public static ICodec<AccountCandidatesMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(AccountCandidateEntry.Codec, CollectionCount.PerElement(minimumElementSize: 28).WithStrictAbsence()),
             static message => message.Entries,
-            static entries => new AccountCandidatesMessage { Entries = entries }),
+            static entries => new AccountCandidatesMessage
+            {
+                Entries = entries
+            }),
         trailingDataMessage: "The account-entry response has trailing data.");
 
     /// <summary>

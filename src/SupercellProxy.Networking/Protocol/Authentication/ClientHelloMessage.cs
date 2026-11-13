@@ -27,7 +27,18 @@ public sealed record ClientHelloMessage : CodecMessage<ClientHelloMessage>, ICod
         static message => message.AppStore,
         Codecs.BigEndianInt32,
         static message => message.Unknown1,
-        static (protocolVersion, keyVersion, majorVersion, minorVersion, patchVersion, fingerprintSha1, deviceType, appStore, unknown1) => new ClientHelloMessage { ProtocolVersion = protocolVersion, KeyVersion = keyVersion, MajorVersion = majorVersion, MinorVersion = minorVersion, PatchVersion = patchVersion, FingerprintSha1 = fingerprintSha1, DeviceType = deviceType, AppStore = appStore, Unknown1 = unknown1 });
+        static (protocolVersion, keyVersion, majorVersion, minorVersion, patchVersion, fingerprintSha1, deviceType, appStore, unknown1) => new ClientHelloMessage
+        {
+            ProtocolVersion = protocolVersion,
+            KeyVersion = keyVersion,
+            MajorVersion = majorVersion,
+            MinorVersion = minorVersion,
+            PatchVersion = patchVersion,
+            FingerprintSha1 = fingerprintSha1,
+            DeviceType = deviceType,
+            AppStore = appStore,
+            Unknown1 = unknown1
+        });
 
     /// <summary>
     /// Gets or sets the store the game was installed from; it decides which billing and store features the server enables.

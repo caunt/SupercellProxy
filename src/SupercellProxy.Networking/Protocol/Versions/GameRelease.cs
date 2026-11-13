@@ -33,7 +33,11 @@ internal sealed record GameRelease(Version Version, ImmutableArray<CommandIdAssi
     {
         MessageRegistryEntry entry = MessageRegistryEntry.Create<TMessage>();
 
-        return new MessageIdAssignment(captureName is null ? entry : entry with { CaptureName = captureName }, id);
+        return new MessageIdAssignment(captureName is null ? entry : entry with
+        {
+            CaptureName = captureName
+        },
+            id);
     }
 
     /// <summary>

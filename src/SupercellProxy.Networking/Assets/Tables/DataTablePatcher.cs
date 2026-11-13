@@ -39,7 +39,11 @@ public static class DataTablePatcher
 
             if (change.NewFullCommaSeparatedValues is { } replacement && string.IsNullOrEmpty(change.Column))
             {
-                resources[change.File] = original with { Content = Encoding.UTF8.GetBytes(replacement.Content), };
+                resources[change.File] = original with
+                {
+                    Content = Encoding.UTF8.GetBytes(replacement.Content),
+                };
+
                 editedRows = editedRows.Remove(change.File);
 
                 continue;
@@ -58,7 +62,12 @@ public static class DataTablePatcher
         }
 
         foreach ((string? file, List<List<string>>? rows) in editedRows)
-            resources[file] = resources[file] with { Content = Encoding.UTF8.GetBytes(Write(rows)), };
+        {
+            resources[file] = resources[file] with
+            {
+                Content = Encoding.UTF8.GetBytes(Write(rows)),
+            };
+        }
 
         foreach (string file in changes.Select(static change => change.File).Distinct(StringComparer.Ordinal))
             resources[file] = Share(resources[file]);
