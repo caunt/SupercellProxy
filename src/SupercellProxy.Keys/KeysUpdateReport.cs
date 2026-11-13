@@ -25,15 +25,13 @@ internal sealed class KeysUpdateReport
         int warnings = _results.Count(static result => result.IsWarning);
         StringBuilder markdown = new();
 
-        string[] appNames = [.. _results
-            .Where(static result => result.AppName is not "Updater")
+        string[] appNames = [.. _results.Where(static result => result.AppName is not "Updater")
             .Select(static result => result.AppName)
             .Distinct(StringComparer.Ordinal)];
 
         string title = appNames.Length is 1 ? appNames[0] : "Server public key update";
 
-        markdown = markdown
-            .Append(value: "## ")
+        markdown = markdown.Append(value: "## ")
             .AppendLine(EscapeMarkdown(title))
             .AppendLine()
             .Append(value: "Updated **")
@@ -47,21 +45,20 @@ internal sealed class KeysUpdateReport
             .AppendLine(value: "| App | Game version | Key version | Key | Outcome | Reason |")
             .AppendLine(value: "| --- | --- | --- | --- | --- | --- |");
 
-        foreach (KeysUpdateResult result in _results)
+        foreach (KeysUpdateResult appUpdate in _results)
         {
-            markdown = markdown
-                .Append(value: "| ")
-                .Append(EscapeMarkdown(result.AppName))
+            markdown = markdown.Append(value: "| ")
+                .Append(EscapeMarkdown(appUpdate.AppName))
                 .Append(value: " | ")
-                .Append(EscapeMarkdown(result.Version ?? "—"))
+                .Append(EscapeMarkdown(appUpdate.Version ?? "—"))
                 .Append(value: " | ")
-                .Append(result.KeyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—")
+                .Append(appUpdate.KeyVersion?.ToString(CultureInfo.InvariantCulture) ?? "—")
                 .Append(value: " | ")
-                .Append(result.Key is null ? "—" : $"`{result.Key}`")
+                .Append(appUpdate.Key is null ? "—" : $"`{appUpdate.Key}`")
                 .Append(value: " | ")
-                .Append(result.Outcome is KeysUpdateOutcome.Updated ? "Updated" : "Not updated")
+                .Append(appUpdate.Outcome is KeysUpdateOutcome.Updated ? "Updated" : "Not updated")
                 .Append(value: " | ")
-                .Append(EscapeMarkdown(result.Reason))
+                .Append(EscapeMarkdown(appUpdate.Reason))
                 .AppendLine(value: " |");
         }
 
@@ -73,8 +70,7 @@ internal sealed class KeysUpdateReport
 
     private static string EscapeMarkdown(string value)
     {
-        return value
-            .Replace(oldValue: "\\", newValue: "\\\\", StringComparison.Ordinal)
+        return value.Replace(oldValue: "\\", newValue: "\\\\", StringComparison.Ordinal)
             .Replace(oldValue: "|", newValue: "\\|", StringComparison.Ordinal)
             .Replace(oldChar: '\r', newChar: ' ')
             .Replace(oldChar: '\n', newChar: ' ');

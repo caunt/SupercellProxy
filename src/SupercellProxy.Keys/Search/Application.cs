@@ -17,21 +17,19 @@ internal static partial class Application
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 
-        AppStoreSearchResponse response = await appStoreClient
-            .SearchAsync(arguments[0], cancellationToken)
+        AppStoreSearchResponse response = await appStoreClient.SearchAsync(arguments[0], cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         int found = 0;
 
-        foreach (AppStoreSearchResult result in response.Results)
+        foreach (AppStoreSearchResult listing in response.Results)
         {
-            string appStoreId = result.TrackId.ToString(CultureInfo.InvariantCulture);
+            string appStoreId = listing.TrackId.ToString(CultureInfo.InvariantCulture);
             IpaApp app;
 
             try
             {
-                app = await decryptDayClient
-                    .GetAppAsync(appStoreId, cancellationToken)
+                app = await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
@@ -42,10 +40,10 @@ internal static partial class Application
             if (app.Versions.Count is 0)
                 continue;
 
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{++found}. {result.Name}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{++found}. {listing.Name}"));
 
-            if (!string.IsNullOrWhiteSpace(result.SellerName))
-                Console.WriteLine($"   Developer: {result.SellerName}");
+            if (!string.IsNullOrWhiteSpace(listing.SellerName))
+                Console.WriteLine($"   Developer: {listing.SellerName}");
 
             Console.WriteLine($"   Bundle ID: {app.BundleId}");
             Console.WriteLine($"   App ID: {appStoreId}");

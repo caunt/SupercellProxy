@@ -36,7 +36,9 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
         if (available)
             return retained ?? throw new InvalidDataException(message: "The retained asset path is missing.");
 
-        using IDisposable lease = await _gates.GetOrAdd(identity, static unused => new AsyncLock()).LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable lease = await _gates.GetOrAdd(identity, static unused => new AsyncLock())
+            .LockAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         available = _retained.TryGetValue(identity, out retained) && File.Exists(Path.Combine(retained, RetainedAssetManifest.FileName));
 
@@ -46,7 +48,8 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
         string destination = Path.Combine(VersionDirectory(identity), AssetsDirectoryName, identity.AssetFingerprint);
         string source = Directory.Exists(destination) ? destination : GameAssetSnapshot.FindSource(assetCache ?? UserDataPaths.AssetDirectoryPath, identity.AssetFingerprint);
 
-        await GameAssetSnapshot.RetainAsync(source, destination, identity.AssetFingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        await GameAssetSnapshot.RetainAsync(source, destination, identity.AssetFingerprint, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         _retained[identity] = destination;
 

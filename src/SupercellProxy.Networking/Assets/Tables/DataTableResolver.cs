@@ -47,8 +47,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         _resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
 
-        Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> resolvedDataTables =
-            [];
+        Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> resolvedDataTables = [];
 
         foreach ((int tableId, string? file) in DataTableRegistry.Create(_resourcesByFile.Values))
         {

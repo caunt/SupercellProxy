@@ -28,7 +28,8 @@ public sealed partial class ProtocolClient
 
         using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
 
-        using IDisposable gate = await _authenticationGate.LockAsync(request.Token).ConfigureAwait(continueOnCapturedContext: false);
+        using IDisposable gate = await _authenticationGate.LockAsync(request.Token)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
@@ -59,35 +60,40 @@ public sealed partial class ProtocolClient
     private async Task<ClientLoginResult> LoginAnonymousAccountAsync(bool requestOwnHome, CancellationToken cancellationToken)
     {
         // Bootstrap uses no account, and must finish before acquiring the account's lease.
-        GameAssetBundle assets = await _authenticator.DiscoverAssetsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        GameAssetBundle assets = await _authenticator.DiscoverAssetsAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
         if (_anonymousAccounts is null)
         {
             return Configuration.AnonymousAccountId is not null
                 ? throw new InvalidOperationException(message: "Saved anonymous accounts require the anonymous-account ledger.")
-                : await _authenticator.LoginAnonymousAsync(assets, credentials: null, requestOwnHome, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                : await _authenticator.LoginAnonymousAsync(assets, credentials: null, requestOwnHome, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         while (!cancellationToken.IsCancellationRequested)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            AnonymousAccountLease lease = await _anonymousAccounts.AcquireAsync(Configuration.AnonymousAccountId, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            AnonymousAccountLease lease = await _anonymousAccounts.AcquireAsync(Configuration.AnonymousAccountId, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             _anonymousLease = lease;
 
             try
             {
-                ClientLoginResult result = await _authenticator.LoginAnonymousAsync(assets, lease.Credentials, requestOwnHome, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                ClientLoginResult loggedIn = await _authenticator.LoginAnonymousAsync(assets, lease.Credentials, requestOwnHome, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
-                LoginOkMessage login = result.LoginOkMessage;
+                LoginOkMessage login = loggedIn.LoginOkMessage;
 
                 // A returned replacement pass token must survive cancellation immediately after login.
                 using CancellationTokenSource saving = new(TimeSpan.FromSeconds(seconds: 10));
 
-                await lease.SaveAsync(new(login.AccountId.AsInt64, login.PassToken), saving.Token).ConfigureAwait(continueOnCapturedContext: false);
+                await lease.SaveAsync(new(login.AccountId.AsInt64, login.PassToken), saving.Token)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
-                return result;
+                return loggedIn;
             }
             catch (LoginException error) when (RejectedCredentials(error) && lease.Credentials is not null)
             {

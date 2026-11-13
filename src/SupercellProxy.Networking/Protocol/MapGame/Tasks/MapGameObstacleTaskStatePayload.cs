@@ -23,10 +23,7 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, 
         Positive = positive;
         HelpRequestSent = helpRequestSent;
         HelperAvatarId = helperAvatarId;
-
-        RewardData = rewardData is null
-            ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
+        RewardData = rewardData is null ? null : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
     }
 
     /// <inheritdoc />

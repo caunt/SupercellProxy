@@ -54,8 +54,7 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
 
         if (configuration.AssetDirectory is { } directory)
         {
-            _commandDataResolver = await GameAssetDirectory
-                .LoadAsync(directory, cancellationToken)
+            _commandDataResolver = await GameAssetDirectory.LoadAsync(directory, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -146,17 +145,16 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
 
         try
         {
-            ProxyConnection client = await ProxyConnection
-                .ConnectAsync(socketClient,
-                    configuration.UpstreamHost,
-                    configuration.UpstreamPort,
-                    trafficCapture,
-                    configuration.SessionTokenProvider,
-                    serverKeys,
-                    _commandDataResolver,
-                    logger,
-                    configuration.AnonymousAccount,
-                    cancellationToken)
+            ProxyConnection client = await ProxyConnection.ConnectAsync(socketClient,
+                configuration.UpstreamHost,
+                configuration.UpstreamPort,
+                trafficCapture,
+                configuration.SessionTokenProvider,
+                serverKeys,
+                _commandDataResolver,
+                logger,
+                configuration.AnonymousAccount,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await using (client.ConfigureAwait(continueOnCapturedContext: false))
@@ -190,8 +188,7 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
         {
             while (!lifetime.IsCancellationRequested)
             {
-                TcpClient client = await listener
-                    .AcceptTcpClientAsync(lifetime.Token)
+                TcpClient client = await listener.AcceptTcpClientAsync(lifetime.Token)
                     .ConfigureAwait(continueOnCapturedContext: false);
 
                 for (int index = connections.Count - 1; index >= 0; index--)

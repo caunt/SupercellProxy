@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 
 using SupercellProxy.Keys.AppStore;
+using SupercellProxy.Keys.Models;
 
 namespace SupercellProxy.Keys;
 
@@ -52,14 +53,16 @@ internal static partial class Application
             }
             catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
             {
-                await Console.Error.WriteLineAsync(value: "Operation cancelled.").ConfigureAwait(continueOnCapturedContext: false);
+                await Console.Error
+                    .WriteLineAsync(value: "Operation cancelled.")
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
                 return 130;
             }
             catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                await Console
-                    .Error.WriteLineAsync($"Error: {exception.Message}")
+                await Console.Error
+                    .WriteLineAsync($"Error: {exception.Message}")
                     .ConfigureAwait(continueOnCapturedContext: false);
 
                 return 1;
@@ -133,42 +136,36 @@ internal static partial class Application
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? address))
             return ResolveAppStore(address, value);
 
-        AppStoreSearchResponse response = await appStoreClient
-            .SearchAsync(value, cancellationToken)
+        AppStoreSearchResponse response = await appStoreClient.SearchAsync(value, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         string normalizedValue = Normalize(value);
 
-        AppStoreSearchResult[] exactMatches = [.. response
-            .Results.Where(result =>
-                string.Equals(Normalize(result.Name), normalizedValue, StringComparison.Ordinal)
-                || result.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
+        AppStoreSearchResult[] exactMatches = [.. response.Results
+            .Where(listing =>
+                string.Equals(Normalize(listing.Name), normalizedValue, StringComparison.Ordinal)
+                || listing.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
 
-        foreach (AppStoreSearchResult result in exactMatches.Length > 0 ? exactMatches : response.Results)
+        foreach (AppStoreSearchResult listing in exactMatches.Length > 0 ? exactMatches : response.Results)
         {
-            string appStoreId = result.TrackId.ToString(CultureInfo.InvariantCulture);
+            string appStoreId = listing.TrackId.ToString(CultureInfo.InvariantCulture);
 
             try
             {
-                bool isConditionMet = (
-                                        await decryptDayClient
-                                            .GetAppAsync(appStoreId, cancellationToken)
-                                            .ConfigureAwait(continueOnCapturedContext: false)
-                                    )
-                                        .Versions
-                                        .Count
-                                    is 0;
+                IpaApp app = await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
-                if (isConditionMet)
+                if (app.Versions.Count is 0)
                     continue;
 
-                Console.WriteLine($"Selected search result: {result.Name} ({result.BundleId}, ID {appStoreId})");
+                Console.WriteLine($"Selected search listing: {listing.Name} ({listing.BundleId}, ID {appStoreId})");
 
                 return appStoreId;
             }
             catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
             {
-                await Console.Error.WriteLineAsync($"Skipping {result.Name}: {exception.Message}")
+                await Console.Error
+                    .WriteLineAsync($"Skipping {listing.Name}: {exception.Message}")
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
         }

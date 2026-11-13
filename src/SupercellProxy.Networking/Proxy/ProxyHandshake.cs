@@ -38,7 +38,9 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
         }
         else if (@event.Message is ServerHelloMessage hello)
         {
-            await @event.Source.SetupEncryptionAsync(RemotePeerRole.Server, hello.SessionKey, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await @event.Source
+                .SetupEncryptionAsync(RemotePeerRole.Server, hello.SessionKey, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
         else if (@event.Message is LoginOkMessage accepted && @event.Direction is MessageDirection.Clientbound && anonymousAccount is not null)
         {
@@ -47,7 +49,8 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
 
             using CancellationTokenSource saving = new(TimeSpan.FromSeconds(seconds: 10));
 
-            await anonymousAccount.SaveAsync(new(accepted.AccountId.AsInt64, accepted.PassToken), saving.Token).ConfigureAwait(continueOnCapturedContext: false);
+            await anonymousAccount.SaveAsync(new(accepted.AccountId.AsInt64, accepted.PassToken), saving.Token)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 
@@ -55,7 +58,9 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
     {
         if (@event.Message is ServerHelloMessage hello)
         {
-            await @event.Destination.SetupEncryptionAsync(RemotePeerRole.Client, hello.SessionKey, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await @event.Destination
+                .SetupEncryptionAsync(RemotePeerRole.Client, hello.SessionKey, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
         else if (@event.Message is LoginFailedMessage failure && @event.Direction is MessageDirection.Clientbound)
         {

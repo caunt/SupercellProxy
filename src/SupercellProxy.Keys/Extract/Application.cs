@@ -19,17 +19,13 @@ internal static partial class Application
 
         RequireOneArgument(keyVersion ? arguments[..1] : arguments, usage: "extract INPUT [--key-version]");
 
-        byte[] binary = await arguments[0]
-            .ReadContentAsync(cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+        byte[] binary = await arguments[0].ReadContentAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         if (binary.HasZipArchiveHeader())
         {
             ReadOnlyMemory<byte> archive = binary;
 
-            binary = await archive
-                .GetIpaAppEntryAsync(cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            binary = await archive.GetIpaAppEntryAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         Console.WriteLine(keyVersion

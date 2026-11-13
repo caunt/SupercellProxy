@@ -51,7 +51,8 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
         try
         {
-            await File.WriteAllBytesAsync(temporary, JsonSerializer.SerializeToUtf8Bytes(fingerprint), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await File.WriteAllBytesAsync(temporary, JsonSerializer.SerializeToUtf8Bytes(fingerprint), cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             File.Move(temporary, path, overwrite: true);
         }
@@ -95,26 +96,25 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         GameAsset?[] resources = new GameAsset?[fingerprint.Files.Count];
         bool[] downloadedAssets = new bool[fingerprint.Files.Count];
 
-        await Parallel
-            .ForAsync(fromInclusive: 0,
-                fingerprint.Files.Count,
-                new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = MaximumConcurrentDownloads,
-                    CancellationToken = cancellationToken,
-                },
-                async (index, token) =>
-                {
-                    GameAssetFingerprintEntry file = fingerprint.Files[index];
-                    string filePath = Path.Combine(assetsDirectory.FullName, file.File);
-                    bool alreadyCached = File.Exists(filePath);
+        await Parallel.ForAsync(fromInclusive: 0,
+            fingerprint.Files.Count,
+            new ParallelOptions
+            {
+                MaxDegreeOfParallelism = MaximumConcurrentDownloads,
+                CancellationToken = cancellationToken,
+            },
+            async (index, token) =>
+            {
+                GameAssetFingerprintEntry file = fingerprint.Files[index];
+                string filePath = Path.Combine(assetsDirectory.FullName, file.File);
+                bool alreadyCached = File.Exists(filePath);
 
-                    GameAsset? resource = await GetAssetAsync(fingerprint, file, filePath, addresses, token)
-                        .ConfigureAwait(continueOnCapturedContext: false);
+                GameAsset? resource = await GetAssetAsync(fingerprint, file, filePath, addresses, token)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
-                    resources[index] = resource;
-                    downloadedAssets[index] = !alreadyCached && resource is not null;
-                })
+                resources[index] = resource;
+                downloadedAssets[index] = !alreadyCached && resource is not null;
+            })
             .ConfigureAwait(continueOnCapturedContext: false);
 
         int downloadedAssetCount = downloadedAssets.Count(static downloaded => downloaded);
@@ -140,8 +140,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         {
             Uri assetAddress = new($"{downloadAddress.Trim(trimChar: '/')}/{fingerprint.Sha.Trim(trimChar: '/')}/{file.File.Trim(trimChar: '/')}");
 
-            using HttpResponseMessage response = await webClient
-                .GetAsync(assetAddress, cancellationToken)
+            using HttpResponseMessage response = await webClient.GetAsync(assetAddress, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             FileStream fileStream = File.Create(filePath);
@@ -149,7 +148,8 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
             await using (fileStream.ConfigureAwait(continueOnCapturedContext: false))
             {
                 await response.EnsureSuccessStatusCode()
-                    .Content.CopyToAsync(fileStream, cancellationToken)
+                    .Content
+                    .CopyToAsync(fileStream, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 

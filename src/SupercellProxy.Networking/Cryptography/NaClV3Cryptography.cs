@@ -13,6 +13,7 @@ public static class NaClV3Cryptography
 {
     private const int ChaChaIterationsCount = 8;
     private const int HChaChaIterationsCount = 17;
+
     private const uint LimbMask = 0x3ffffff;
 
     private static readonly BigInteger Curve25519PrimeModulus = BigInteger.Pow(value: 2, exponent: 255) - 19;
@@ -145,11 +146,11 @@ public static class NaClV3Cryptography
     /// <returns>The 32-byte public key to hand to the other side.</returns>
     public static byte[] CryptoScalarMultBase(ReadOnlySpan<byte> localPrivateKey)
     {
-        byte[] result = new byte[32];
+        byte[] publicKey = new byte[32];
 
-        CryptoScalarMult(localPrivateKey, Curve25519BasePoint, result);
+        CryptoScalarMult(localPrivateKey, Curve25519BasePoint, publicKey);
 
-        return result;
+        return publicKey;
     }
 
     /// <summary>
@@ -160,11 +161,11 @@ public static class NaClV3Cryptography
     /// <returns>The derived 32-byte key.</returns>
     public static byte[] HChaCha20(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce16)
     {
-        byte[] result = new byte[32];
+        byte[] subKey = new byte[32];
 
-        HChaCha20(key, nonce16, result);
+        HChaCha20(key, nonce16, subKey);
 
-        return result;
+        return subKey;
     }
 
     /// <summary>

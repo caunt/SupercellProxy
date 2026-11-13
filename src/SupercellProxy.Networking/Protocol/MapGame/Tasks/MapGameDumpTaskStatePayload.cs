@@ -27,12 +27,11 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
         int emojiGlobalId,
         int sanctuaryAnimalGlobalId)
     {
+        // The goods and reward lists are copied, so later writes to the caller's memory cannot change this state.
         RequiredGoods = requiredGoods.ToArray();
+        RewardData = rewardData is null ? null : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
 
-        RewardData = rewardData is null
-            ? null
-            : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)rewardData.Value.ToArray();
-
+        // The help state and the task's display ids are kept as decoded.
         HelpRequestSent = helpRequestSent;
         HelperAvatarId = helperAvatarId;
         EmojiGlobalId = emojiGlobalId;

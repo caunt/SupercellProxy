@@ -6,8 +6,9 @@ namespace SupercellProxy.Networking.Cryptography;
 
 internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localPrivateKey, Memory<byte> sessionKey, Memory<byte> remotePublicKey = default)
 {
-    private const string EncryptionNotSetMessage = "Encryption is not set up.";
     private const int PromonPadSize = 508;
+
+    private const string EncryptionNotSetMessage = "Encryption is not set up.";
     private const string ReceiveNonceNotSetMessage = "Receive nonce is not set.";
 
     private readonly Encryption _encryption = new(with, localPrivateKey, sessionKey, remotePublicKey);

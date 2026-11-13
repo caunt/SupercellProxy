@@ -91,7 +91,8 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
             Commands = commands,
             Environment = environment,
             DebugCommandData = environment is CommandEnvironment.Production ? [] : DebugCommandDataCodec.Read(stream).ToArray(),
-            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream).ToArray() : [],
+            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream)
+                .ToArray() : [],
         };
     }
 
@@ -117,11 +118,12 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
 
         try
         {
-            ClientTurnHeader.Codec.Write(encoder,
-                new ClientTurnHeader(message.Checksum,
-                    message.SubTick,
-                    ImmutableCollectionsMarshal.AsImmutableArray(message.SubChecksums.ToArray()),
-                    message.Commands.Length));
+            ClientTurnHeader.Codec
+                .Write(encoder,
+                    new ClientTurnHeader(message.Checksum,
+                        message.SubTick,
+                        ImmutableCollectionsMarshal.AsImmutableArray(message.SubChecksums.ToArray()),
+                        message.Commands.Length));
 
             foreach (Command command in message.Commands.Span)
                 CommandRegistry.Codec.Write(encoder, command);

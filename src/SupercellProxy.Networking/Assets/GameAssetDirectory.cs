@@ -21,8 +21,7 @@ public static class GameAssetDirectory
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
 
-        IOrderedEnumerable<string> files = Directory
-            .EnumerateFiles(directory, searchPattern: "*", SearchOption.AllDirectories)
+        IOrderedEnumerable<string> files = Directory.EnumerateFiles(directory, searchPattern: "*", SearchOption.AllDirectories)
             .Order(StringComparer.Ordinal);
 
         List<GameAsset> assets = [];

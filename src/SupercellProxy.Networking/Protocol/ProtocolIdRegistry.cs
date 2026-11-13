@@ -124,7 +124,8 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     /// </returns>
     public bool Is(int id, TContract contract, Version? gameVersion)
     {
-        return TryGetContract(id, gameVersion, out TContract? owner) && EqualityComparer<TContract>.Default.Equals(owner, contract);
+        return TryGetContract(id, gameVersion, out TContract? owner) && EqualityComparer<TContract>.Default
+            .Equals(owner, contract);
     }
 
     /// <summary>Resolves the contract that owns a wire id in a game release.</summary>

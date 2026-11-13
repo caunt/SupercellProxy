@@ -18,8 +18,7 @@ internal static partial class Application
         string appStoreId = await ResolveAppStoreIdAsync(arguments[0], appStoreClient, decryptDayClient, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        IpaApp app = await decryptDayClient
-            .GetAppAsync(appStoreId, cancellationToken)
+        IpaApp app = await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         Console.WriteLine($"Bundle ID: {app.BundleId}");

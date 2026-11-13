@@ -38,7 +38,8 @@ public sealed record MapGameTaskCommand : Command
     /// Gets the contract of each native command that carries the task structure.
     /// </summary>
     /// <value>One codec per <see cref="MapGameTaskKind"/> member, each named after its kind and reading the optional task, plus the optional value array for the three kinds that carry one.</value>
-    public static FrozenDictionary<MapGameTaskKind, CommandCodec<MapGameTaskCommand>> ContractCodecs { get; } = Enum.GetValues<MapGameTaskKind>().ToFrozenDictionary(static kind => kind, Create);
+    public static FrozenDictionary<MapGameTaskKind, CommandCodec<MapGameTaskCommand>> ContractCodecs { get; } = Enum.GetValues<MapGameTaskKind>()
+        .ToFrozenDictionary(static kind => kind, Create);
 
     /// <inheritdoc />
     public override CommandContract Contract => ContractCodecs[Kind];

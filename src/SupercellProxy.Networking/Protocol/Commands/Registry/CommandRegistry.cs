@@ -17,8 +17,9 @@ public static class CommandRegistry
 
     /// <summary>Gets the wire id history of every native command contract.</summary>
     /// <value>A registry built from <see cref="GameReleases.All"/>, oldest release first, in which each release overrides only the command ids it changes.</value>
-    public static ProtocolIdRegistry<CommandContract> Ids { get; } = new(GameReleases.All.Select(static release => new ReleaseIds<CommandContract>(release.Version,
-        Changes: [.. release.Commands.Select(static assignment => KeyValuePair.Create(assignment.Contract, assignment.Id))])));
+    public static ProtocolIdRegistry<CommandContract> Ids { get; } = new(GameReleases.All
+        .Select(static release => new ReleaseIds<CommandContract>(release.Version,
+            Changes: [.. release.Commands.Select(static assignment => KeyValuePair.Create(assignment.Contract, assignment.Id))])));
 
     /// <summary>
     /// Gets the codec of a command preceded by its wire id, using the stream's command environment and data resolver.

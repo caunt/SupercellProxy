@@ -48,8 +48,7 @@ public sealed class EventBus
     {
         int eventIndex = EventTypeCache<TEvent>.Index;
 
-        using IDisposable disposable = await _subscriptionLock
-            .LockAsync(cancellationToken)
+        using IDisposable disposable = await _subscriptionLock.LockAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         Delegate?[] currentDelegatesArray = Volatile.Read(ref _eventDelegates);
@@ -84,8 +83,7 @@ public sealed class EventBus
     {
         int eventIndex = EventTypeCache<TEvent>.Index;
 
-        using IDisposable disposable = await _subscriptionLock
-            .LockAsync(cancellationToken)
+        using IDisposable disposable = await _subscriptionLock.LockAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         Delegate?[] currentDelegatesArray = Volatile.Read(ref _eventDelegates);

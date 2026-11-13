@@ -17,8 +17,9 @@ public static class MessageRegistry
     /// A registry keyed by message record type, built once from every supported game release, oldest first; each release overrides only
     /// the ids it changes.
     /// </value>
-    public static ProtocolIdRegistry<Type> Ids { get; } = new(GameReleases.All.Select(static release => new ReleaseIds<Type>(release.Version,
-        Changes: [.. release.Messages.Select(static assignment => KeyValuePair.Create(assignment.Entry.Type, assignment.Id))])));
+    public static ProtocolIdRegistry<Type> Ids { get; } = new(GameReleases.All
+        .Select(static release => new ReleaseIds<Type>(release.Version,
+            Changes: [.. release.Messages.Select(static assignment => KeyValuePair.Create(assignment.Entry.Type, assignment.Id))])));
 
     /// <summary>Gets the name captures use for a message.</summary>
     /// <param name="message">A decoded message of a registered type, or a <see cref="PassthroughMessage"/>.</param>
