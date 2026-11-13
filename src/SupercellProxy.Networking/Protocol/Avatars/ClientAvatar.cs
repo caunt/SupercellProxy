@@ -226,7 +226,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// Exactly <see cref="AvatarInventoryLayout.MapCount"/> lists (3 for 1.72, 4 for 1.73), read after <see cref="InventoryValues"/>.
     /// The first list holds the amounts of money-table resources, such as diamonds, experience level and experience points.
     /// </value>
-    public ImmutableArray<ImmutableArray<DataReferenceValue>> InventoryMaps { get; init; } = [];
+    public ImmutableArray<ImmutableArray<DataReferenceValue>> InventoryMaps { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the farm's roadside shop crates in slot order: what each offers, at what price, and whether it was bought.
