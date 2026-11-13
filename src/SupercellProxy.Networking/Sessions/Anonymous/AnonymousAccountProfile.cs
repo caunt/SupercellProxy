@@ -9,9 +9,11 @@ public sealed record AnonymousAccountProfile(string? Name, int Level, int Experi
     /// <summary>Gets or sets the most recently observed coin balance.</summary>
     /// <value>Amount of the <c>Cash</c> resource in the avatar's inventory, or <see langword="null"/> when it was not reported.</value>
     public int? Coins { get; init; }
+
     /// <summary>Gets or sets the most recently observed diamond balance.</summary>
     /// <value>Amount of the <c>Diamonds</c> resource in the avatar's inventory, or <see langword="null"/> when it was not reported.</value>
     public int? Diamonds { get; init; }
+
     /// <summary>Gets or sets the farm identity reported by the server.</summary>
     /// <value>The avatar's home id as one 64-bit number, or <see langword="null"/> when unknown, in which case the account id stands in for it.</value>
     public long? HomeId { get; init; }

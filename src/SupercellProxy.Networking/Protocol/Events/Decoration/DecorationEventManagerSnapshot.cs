@@ -70,6 +70,7 @@ public sealed record DecorationEventManagerSnapshot
     /// <value>Seconds since the Unix epoch of the submission.</value>
     [JsonPropertyName("submissionTime")]
     public int SubmissionTime { get; init; }
+
     /// <summary>
     /// Gets or sets the progress through the decoration event's intro tutorial.
     /// </summary>

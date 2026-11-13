@@ -12,7 +12,7 @@ public sealed record NeighborhoodMutedMembersMessage(ReadOnlyMemory<LongId> Memb
     /// <inheritdoc />
     public static ICodec<NeighborhoodMutedMembersMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(Codecs.LongId),
         static message => message.MemberIds,
-        Codecs.Memory(Codecs.OptionalString),
+        Codecs.Memory(Codecs.OptionalUtf8String),
         static message => message.MemberNames,
         Codecs.VarInt,
         static message => message.Value,

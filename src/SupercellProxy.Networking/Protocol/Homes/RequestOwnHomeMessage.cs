@@ -11,7 +11,7 @@ public sealed record RequestOwnHomeMessage : CodecMessage<RequestOwnHomeMessage>
     /// <inheritdoc />
     public static ICodec<RequestOwnHomeMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.Unknown0,
-            Codecs.String,
+            Codecs.Utf8String,
             static message => message.UnknownString0,
             static (unknown0, unknownString0) => new RequestOwnHomeMessage
             {

@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record FeaturingDesignEntry : ICodecProvider<FeaturingDesignEntry>
 {
     /// <inheritdoc />
-    public static ICodec<FeaturingDesignEntry> Codec { get; } = Codecs.Composite(Codecs.String,
+    public static ICodec<FeaturingDesignEntry> Codec { get; } = Codecs.Composite(Codecs.Utf8String,
         static value => value.FarmName,
         Codecs.OptionalValue(Codecs.ByteArray),
         static value => value.EncodedDesign,

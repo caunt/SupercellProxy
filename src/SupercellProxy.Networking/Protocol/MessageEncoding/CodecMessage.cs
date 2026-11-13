@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 public abstract record CodecMessage<TSelf> : IMessage where TSelf : CodecMessage<TSelf>, ICodecProvider<TSelf>
 {
     /// <inheritdoc />
-    public void Encode(MessageStream stream)
+    public void Encode(MessageChannel stream)
     {
         TSelf.Codec.Write(stream, (TSelf)this);
     }

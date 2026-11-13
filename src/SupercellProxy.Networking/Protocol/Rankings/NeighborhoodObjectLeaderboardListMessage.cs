@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -30,7 +32,8 @@ public sealed record NeighborhoodObjectLeaderboardListMessage : CodecMessage<Nei
     /// Gets or sets the board's lines in rank order; <see langword="null"/> when the list is absent.
     /// </summary>
     /// <value>The entries that follow the three leading numbers, each with rank, score, account, farm name, level and farm; <see langword="null"/> when native wrote a count of -1, and empty when it wrote 0.</value>
-    public RankingEntry[]? Entries { get; init; }
+    public ImmutableArray<RankingEntry>? Entries { get; init; }
+
     /// <summary>
     /// Gets or sets the first of three numbers sent before the lines; its meaning is not identified.
     /// </summary>

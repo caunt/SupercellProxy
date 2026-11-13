@@ -14,6 +14,7 @@ public sealed class ClientOptions
     /// <summary>Gets or sets the optional stale bootstrap fingerprint.</summary>
     /// <value>The asset hash sent on the first login to provoke the out-of-date-content failure that carries the current manifest; <see langword="null"/> (the default) sends an empty hash.</value>
     public string? BootstrapFingerprintSha { get; set; }
+
     /// <summary>Gets or sets an explicit version override; <see langword="null"/> uses the latest version from KEYS.md.</summary>
     /// <value>The client version and server key to log in with, or <see langword="null"/> (the default) to pick the newest configured one.</value>
     public ProtocolConfiguration? Protocol { get; set; }

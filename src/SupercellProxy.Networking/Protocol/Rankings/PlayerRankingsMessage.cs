@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -16,7 +18,7 @@ public sealed record PlayerRankingsMessage : CodecMessage<PlayerRankingsMessage>
     /// Gets or sets the ranking's lines in rank order; <see langword="null"/> when the list is absent.
     /// </summary>
     /// <value>The whole payload: entries with rank, score, account, farm name, level and farm; <see langword="null"/> when native wrote a count of -1, and empty when it wrote 0.</value>
-    public RankingEntry[]? Entries { get; init; }
+    public ImmutableArray<RankingEntry>? Entries { get; init; }
 
     /// <summary>
     /// Returns only the type name, keeping player names out of logs.

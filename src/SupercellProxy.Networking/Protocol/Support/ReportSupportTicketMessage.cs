@@ -12,15 +12,15 @@ namespace SupercellProxy.Networking.Protocol.Support;
 public sealed record ReportSupportTicketMessage(int Category, int Issue, string? Email, string? Subject, string? Description) : CodecMessage<ReportSupportTicketMessage>, ICodecProvider<ReportSupportTicketMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportSupportTicketMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<ReportSupportTicketMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.Category,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Issue,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Email,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Subject,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Description,
         static (category, issue, email, subject, description) => new ReportSupportTicketMessage(category, issue, email, subject, description));
 }

@@ -26,7 +26,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     private readonly ProxyHandshake _handshake;
     private readonly ProxyHomeVisitor _homeVisitor;
     private readonly ILogger _logger;
-    private MessageStream? _serverStream;
+
+    private MessageChannel? _serverStream;
     private bool _started;
 
     private ProxyConnection(TcpClient socketClient,
@@ -41,9 +42,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         _logger = logger ?? NullLogger.Instance;
         _homeVisitor = new ProxyHomeVisitor(this);
 
-        // The upstream socket connects later, while the already connected game client is wrapped as a message stream now.
+        // The upstream socket connects later, while the already connected game client is wrapped as a message channel now.
         SocketUpstream = new TcpClient();
-        ClientStream = new MessageStream(socketClient.GetStream());
+        ClientStream = new MessageChannel(socketClient.GetStream());
 
         // Events and cancellation belong to this connection, while the caller's token can still end it.
         EventBus = new EventBus();
@@ -63,10 +64,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     public CancellationTokenSource CancellationTokenSource { get; }
 
     /// <summary>
-    /// Gets the encrypted message stream to the game client on the local side.
+    /// Gets the encrypted message channel to the game client on the local side.
     /// </summary>
     /// <value>Stream over the accepted client socket, created with the connection; encryption is set up on it when the server hello is forwarded.</value>
-    public MessageStream ClientStream { get; }
+    public MessageChannel ClientStream { get; }
 
     /// <summary>
     /// Gets a task that finishes when both forwarding loops have stopped; already complete before <see cref="RunAsync"/> starts them.
@@ -87,11 +88,11 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     public string RemoteEndPoint { get; }
 
     /// <summary>
-    /// Gets the encrypted message stream to the real game server.
+    /// Gets the encrypted message channel to the real game server.
     /// </summary>
     /// <value>Stream over the upstream socket, created once the connection to the server succeeds and set up with the server key source and command tables.</value>
     /// <exception cref="InvalidOperationException">The upstream socket is not connected yet.</exception>
-    public MessageStream ServerStream =>
+    public MessageChannel ServerStream =>
         _serverStream ?? throw new InvalidOperationException(message: "The upstream stream is unavailable.");
 
     /// <summary>
@@ -189,7 +190,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
             client.ClientStream.CommandDataResolver = commandDataResolver;
 
-            client._serverStream = new MessageStream(client.SocketUpstream.GetStream())
+            client._serverStream = new MessageChannel(client.SocketUpstream.GetStream())
             {
                 ServerKeySource = serverKeys,
                 CommandDataResolver = commandDataResolver,
@@ -269,8 +270,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
     internal async Task WriteAsync(IMessage message, MessageDirection direction, CancellationToken cancellationToken = default)
     {
-        MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
-        MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
+        MessageChannel source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
+        MessageChannel destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
         MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion, destination.GameVersion);
 
         await TrafficCapture
@@ -308,7 +309,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     /// </summary>
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        // Close both message streams and their sockets so the forwarding loops stop.
+        // Close both message channels and their sockets so the forwarding loops stop.
         ClientStream.Dispose();
         _serverStream?.Dispose();
         SocketClient.Dispose();
@@ -378,8 +379,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
     private async Task PumpAsync(MessageDirection direction, CancellationToken cancellationToken)
     {
-        MessageStream source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
-        MessageStream destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
+        MessageChannel source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
+        MessageChannel destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -404,7 +405,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
     }
 
-    private async Task<DecodedMessageFrame> ReadForwardMessageAsync(MessageStream source, MessageDirection direction, CancellationToken cancellationToken)
+    private async Task<DecodedMessageFrame> ReadForwardMessageAsync(MessageChannel source, MessageDirection direction, CancellationToken cancellationToken)
     {
         try
         {
@@ -493,7 +494,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
 
     private async Task WriteForwardAsync(IMessage message,
         MessageContainer original,
-        MessageStream destination,
+        MessageChannel destination,
         MessageDirection direction,
         CancellationToken cancellationToken)
     {

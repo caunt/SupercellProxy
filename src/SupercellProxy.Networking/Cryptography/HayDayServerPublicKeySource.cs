@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Cryptography;
 internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServerPublicKeySource
 {
     private static readonly Uri KeysAddress = new(uriString: "https://raw.githubusercontent.com/caunt/SupercellProxy/refs/heads/main/KEYS.md");
+
     private readonly AsyncLock _refresh = new();
+
     private DateTimeOffset _expiresAt;
     private HayDayServerKey? _latest;
 

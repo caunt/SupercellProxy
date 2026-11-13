@@ -11,38 +11,44 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 namespace SupercellProxy.Networking.Transport;
 
 /// <summary>Reads and writes protocol values and delegates framed message exchange to its connection transport.</summary>
-public sealed class MessageStream : ProtocolEncoder, IDisposable
+public sealed class MessageChannel : ProtocolEncoder, IDisposable
 {
     /// <summary>
     /// Defines the <c language="csharp">MaxPayloadLength</c> value.
     /// </summary>
     public const int MaximumPayloadLength = 0x1000000;
+
     private const int RentBufferLength = 65536;
+
     private readonly bool _leaveOpen;
     private readonly MessageTransport _transport;
+
+    // Booleans are packed eight to a byte: the byte being read or filled, and the next bit within it.
     private byte _booleanReadAdditionalValue;
     private int _booleanReadOffset;
-
     private byte _booleanWriteAccumulator;
     private int _booleanWriteOffset;
 
+    // A reusable buffer that payload reads borrow, allocated on first use.
     private byte[]? _buffer;
 
-    /// <summary>Initializes a new instance of the <see cref="MessageStream"/> class. Wraps a binary protocol stream, optionally retaining ownership of the underlying stream.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MessageChannel"/> class. Wraps a binary protocol stream, optionally retaining ownership of the underlying stream.</summary>
     /// <param name="stream">Stream the protocol bytes are read from and written to: a socket's network stream for a live connection, or a memory stream holding one message payload.</param>
     /// <param name="leaveOpen"><see langword="true"/> (the default) to leave <paramref name="stream"/> open when this instance is disposed; <see langword="false"/> to dispose it as well.</param>
-    public MessageStream(Stream stream, bool leaveOpen = true)
+    public MessageChannel(Stream stream, bool leaveOpen = true)
     {
         BaseStream = stream;
         _leaveOpen = leaveOpen;
         _transport = new MessageTransport(this);
     }
+
     /// <summary>
     /// Gets whether the wrapped stream can still be read, for a socket stream that is whether the connection is open for reading.
     /// </summary>
     /// <value><see langword="true"/> if the wrapped stream's own <see cref="Stream.CanRead"/> reports that it can be read; otherwise, <see langword="false"/>.</value>
     /// <remarks>The wrapped stream's property is read live on every call.</remarks>
     public bool CanRead => BaseStream.CanRead;
+
     /// <summary>
     /// Gets whether the wrapped stream accepts writes.
     /// </summary>
@@ -51,18 +57,18 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public bool CanWrite => BaseStream.CanWrite;
 
     /// <summary>
-    /// Gets or sets the game tables used while decoding commands whose payload layout depends on the data entry they refer to; without them such
-    /// commands cannot be decoded.
-    /// </summary>
-    /// <value>Resolver handed to the message registry for every message this stream decodes; <see langword="null"/> by default.</value>
-    public ICommandDataResolver? CommandDataResolver { get; set; }
-
-    /// <summary>
     /// Gets the size in bytes of an in-memory payload being decoded or built.
     /// </summary>
     /// <value>Length of the wrapped memory stream; a boolean still waiting in the packing byte is not counted until it is flushed.</value>
     /// <exception cref="NotSupportedException">The stream wraps a network connection, which has no fixed length.</exception>
     public long Length => GetMemoryStream().Length;
+
+    /// <summary>
+    /// Gets or sets the game tables used while decoding commands whose payload layout depends on the data entry they refer to; without them such
+    /// commands cannot be decoded.
+    /// </summary>
+    /// <value>Resolver handed to the message registry for every message this stream decodes; <see langword="null"/> by default.</value>
+    public ICommandDataResolver? CommandDataResolver { get; set; }
 
     /// <summary>
     /// Gets or sets an optional callback that observes received messages and plaintext frames right before they are written; payloads are borrowed for the callback only.
@@ -100,12 +106,12 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     internal ConnectionTraffic? Traffic { get; init; }
 
     /// <summary>
-    /// Creates a <c language="csharp">MessageStream</c> from the supplied data.
+    /// Creates a <c language="csharp">MessageChannel</c> from the supplied data.
     /// </summary>
     /// <returns>A stream over a new, empty, growable memory buffer, ready for encoding a payload and reading it back with <see cref="ToArray"/>.</returns>
-    public static MessageStream Create()
+    public static MessageChannel Create()
     {
-        return new MessageStream(new MemoryStream());
+        return new MessageChannel(new MemoryStream());
     }
 
     /// <summary>
@@ -113,11 +119,11 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     /// </summary>
     /// <param name="memory">Payload bytes to decode; an array-backed segment is wrapped without copying, and other memory is copied first.</param>
     /// <returns>A read-only stream positioned at the start of <paramref name="memory"/>.</returns>
-    public static MessageStream Create(ReadOnlyMemory<byte> memory)
+    public static MessageChannel Create(ReadOnlyMemory<byte> memory)
     {
         return MemoryMarshal.TryGetArray(memory, out ArraySegment<byte> segment) && segment.Array is not null
-            ? new MessageStream(new MemoryStream(segment.Array, segment.Offset, segment.Count))
-            : new MessageStream(new MemoryStream(memory.ToArray()));
+            ? new MessageChannel(new MemoryStream(segment.Array, segment.Offset, segment.Count))
+            : new MessageChannel(new MemoryStream(memory.ToArray()));
     }
 
     /// <summary>

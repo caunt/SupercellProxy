@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Avatars.Collections;
@@ -24,10 +26,22 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
         });
 
     /// <summary>
+    /// Gets or sets the totals keyed by the bought money resource's global id.
+    /// </summary>
+    /// <value>One entry per money resource (such as diamonds or coins) that was bought, each with its own count and spending; empty by default.</value>
+    public ImmutableArray<PurchaseTotalsEntry> MoneyTotals { get; init; } = [];
+
+    /// <summary>
     /// Gets or sets the purchase receipts ordered by time.
     /// </summary>
     /// <value>One receipt per shop purchase, oldest first; empty by default and always empty when <see cref="Version"/> is 0 or less.</value>
-    public PurchaseReceipt[] Receipts { get; init; } = [];
+    public ImmutableArray<PurchaseReceipt> Receipts { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the totals keyed by the bought goods' data table id.
+    /// </summary>
+    /// <value>One entry per data table that purchased goods came from, each with its own count and spending; empty by default.</value>
+    public ImmutableArray<PurchaseTotalsEntry> TableTotals { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the totals over all purchases.
@@ -36,22 +50,11 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     public PurchaseTotals Totals { get; init; } = new(TransactionCount: 0, SpentCents: 0, SupercellStoreSpentCents: 0, LastPurchaseTime: 0);
 
     /// <summary>
-    /// Gets or sets the totals keyed by the bought goods' data table id.
-    /// </summary>
-    /// <value>One entry per data table that purchased goods came from, each with its own count and spending; empty by default.</value>
-    public PurchaseTotalsEntry[] TableTotals { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the totals keyed by the bought money resource's global id.
-    /// </summary>
-    /// <value>One entry per money resource (such as diamonds or coins) that was bought, each with its own count and spending; empty by default.</value>
-    public PurchaseTotalsEntry[] MoneyTotals { get; init; } = [];
-
-    /// <summary>
     /// Gets or sets the layout revision written first; 0 or less means the history is sent empty, with no receipts or totals following.
     /// </summary>
     /// <value>The VarInt revision read before the body; 0 by default, in which case only this number is written and the other properties keep their empty defaults.</value>
     public int Version { get; init; }
+
     private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(Codecs.Array(PurchaseReceipt.Codec, CollectionCount.Bounded),
         static history => history.Receipts,
         PurchaseTotals.Codec,

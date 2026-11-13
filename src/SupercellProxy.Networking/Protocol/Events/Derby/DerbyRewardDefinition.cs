@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby;
@@ -13,7 +14,7 @@ public sealed record DerbyRewardDefinition
     /// <summary>Gets or sets the optional weighted choices replacing a reward set.</summary>
     /// <value>The <c>rewardItems</c> array of weighted item choices; <see langword="null"/> when the event names a <see cref="RewardSetName"/> instead, and an individual element is <see langword="null"/> wherever the JSON array holds an empty entry.</value>
     [JsonPropertyName("rewardItems")]
-    public DerbyRewardItemDefinition?[]? Items { get; init; }
+    public ImmutableArray<DerbyRewardItemDefinition?>? Items { get; init; }
 
     /// <summary>Gets or sets the native league asset name.</summary>
     /// <value>The <c>leagueType</c> row name of the league whose rewards this entry replaces, or <see langword="null"/> when the event omits it.</value>

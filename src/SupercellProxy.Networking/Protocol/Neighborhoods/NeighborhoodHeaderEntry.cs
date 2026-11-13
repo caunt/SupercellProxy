@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -11,10 +13,10 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeaderEntry>
 {
     private const int AdditionalValueCount = 4;
-
     private const int BadgeCount = 3;
     private const int HeaderCount = 3;
     private const int StatisticCount = 24;
+
     /// <inheritdoc />
     public static ICodec<NeighborhoodHeaderEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, HeaderCount),
         static entry => entry.HeaderValues,
@@ -22,13 +24,13 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
         static entry => entry.Flag0,
         Codecs.Boolean,
         static entry => entry.Flag1,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.Name,
         Codecs.LongId,
         static entry => entry.Id,
         Codecs.FixedArray(Codecs.VarInt, BadgeCount),
         static entry => entry.BadgeValues,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.Description,
         Codecs.VarInt,
         static entry => entry.Value,
@@ -91,11 +93,11 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
     /// like the required level (10 to 70 in the captures).
     /// </summary>
     /// <value>Exactly three VarInts, the first fields of the profile; defaults to three zeros and must keep that length to encode.</value>
-    public int[] HeaderValues { get; init; } = new int[HeaderCount];
+    public ImmutableArray<int> HeaderValues { get; init; } = ImmutableCollectionsMarshal.AsImmutableArray(new int[HeaderCount]);
 
     /// <summary>Gets or sets the global ids of the three parts of the neighbourhood's emblem.</summary>
     /// <value>Exactly three VarInts, read right after <see cref="Id"/>; defaults to three zeros and must keep that length to encode.</value>
-    public int[] BadgeValues { get; init; } = new int[BadgeCount];
+    public ImmutableArray<int> BadgeValues { get; init; } = ImmutableCollectionsMarshal.AsImmutableArray(new int[BadgeCount]);
 
     /// <summary>Gets or sets the description the neighbourhood wrote about itself.</summary>
     /// <value>Free text chosen by the neighbourhood, or <see langword="null"/> when the server writes it as absent.</value>
@@ -111,7 +113,7 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
 
     /// <summary>Gets or sets 24 small counters, the second-to-last always -1 in the captures; their meanings are not identified.</summary>
     /// <value>Exactly 24 VarInts read after <see cref="OptionalId0"/>; defaults to zeros and must keep that length to encode.</value>
-    public int[] Statistics { get; init; } = new int[StatisticCount];
+    public ImmutableArray<int> Statistics { get; init; } = ImmutableCollectionsMarshal.AsImmutableArray(new int[StatisticCount]);
 
     /// <summary>Gets or sets the weekly history records of the neighbourhood; <see langword="null"/> when the profile carries none.</summary>
     /// <value>An optional block read after <see cref="Metadata"/>, holding one record per week.</value>
@@ -149,7 +151,7 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
     /// Gets or sets four numbers: the third looks like points and the fourth is 0 or a Unix time in seconds; the first two are not identified.
     /// </summary>
     /// <value>Exactly four VarInts read after <see cref="History"/>; defaults to zeros and must keep that length to encode.</value>
-    public int[] AdditionalValues { get; init; } = new int[AdditionalValueCount];
+    public ImmutableArray<int> AdditionalValues { get; init; } = ImmutableCollectionsMarshal.AsImmutableArray(new int[AdditionalValueCount]);
 
     /// <summary>Gets or sets a number that is 3 or 4 in the captures; its meaning is not identified.</summary>
     /// <value>The VarInt read after <see cref="AdditionalText"/>.</value>
@@ -171,11 +173,11 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
     }
 
     // The values native reads after the history, as one group to keep the field list within a composite.
-    private readonly record struct TrailingBlock(int[] AdditionalValues, string? AdditionalText, int TrailingValue0, int TrailingValue1)
+    private readonly record struct TrailingBlock(ImmutableArray<int> AdditionalValues, string? AdditionalText, int TrailingValue0, int TrailingValue1)
     {
         public static ICodec<TrailingBlock> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, AdditionalValueCount),
             static segment => segment.AdditionalValues,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static segment => segment.AdditionalText,
             Codecs.VarInt,
             static segment => segment.TrailingValue0,

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats;
@@ -12,7 +13,7 @@ public sealed record BoatOrderSnapshot
     /// </summary>
     /// <value>The crates saved as <c>crate_array</c>; empty by default.</value>
     [JsonPropertyName("crate_array")]
-    public BoatCargoSnapshot[] CargoEntries { get; init; } = [];
+    public ImmutableArray<BoatCargoSnapshot> CargoEntries { get; init; } = [];
 
     /// <summary>Gets or sets the daily reward's data id.</summary>
     /// <value>The global id of the daily bonus reward, saved as <c>DailyRewardID</c>; 0 or less when the order pays no daily reward.</value>
@@ -76,10 +77,12 @@ public sealed record BoatOrderSnapshot
     /// <value>The summed value saved as <c>total_value</c>.</value>
     [JsonPropertyName("total_value")]
     public int TotalValue { get; init; }
+
     /// <summary>Gets or sets the completion points credited to the boat reward track.</summary>
     /// <value>The nautical miles the order adds to the boat track when sent, saved as <c>trackProgressValue</c>.</value>
     [JsonPropertyName("trackProgressValue")]
     public int TrackProgressValue { get; init; }
+
     /// <summary>Gets or sets the separately selected voucher reward.</summary>
     /// <value>The global id of one voucher granted on completion, saved as <c>VoucherRewardGlobalID</c>; 0 when the order pays no voucher.</value>
     [JsonPropertyName("VoucherRewardGlobalID")]

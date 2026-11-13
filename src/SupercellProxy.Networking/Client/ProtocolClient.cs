@@ -18,22 +18,33 @@ namespace SupercellProxy.Networking.Client;
 /// <summary>Authenticates and exchanges protocol messages without executing game actions.</summary>
 public sealed partial class ProtocolClient : IAsyncDisposable
 {
+    // Services the caller supplies for reaching the server.
+    private readonly IServerPublicKeySource _serverKeys;
+    private readonly HttpClient _webClient;
+
+    // The clock, the logging, and the pool that anonymous logins lease accounts from.
     private readonly IAnonymousAccountPool? _anonymousAccounts;
+    private readonly ILogger<ProtocolClient> _logger;
+    private readonly TimeProvider _timeProvider;
+
+    // Lets one login run at a time and cancels pending requests when the client is disposed.
     private readonly AsyncLock _authenticationGate = new();
     private readonly ClientAuthenticator _authenticator;
     private readonly CancellationTokenSource _lifetime = new();
-    private readonly ILogger<ProtocolClient> _logger;
-    private readonly IServerPublicKeySource _serverKeys;
-    private readonly TimeProvider _timeProvider;
-    private readonly HttpClient _webClient;
-    private AnonymousAccountLease? _anonymousLease;
-    private HayDayServerKey? _clientVersion;
-    private int _disposed;
-    private ClientLoginResult? _login;
+
+    // The open connection, replaced on every reconnect.
     private NetworkStream? _networkStream;
     private TcpClient? _socketClient;
-    private MessageStream? _supercellStream;
+    private MessageChannel? _supercellStream;
     private ConnectionTraffic? _traffic;
+
+    // What the last login chose and received, reused by the next reconnect.
+    private AnonymousAccountLease? _anonymousLease;
+    private HayDayServerKey? _clientVersion;
+    private ClientLoginResult? _login;
+
+    // Set once disposal starts, so later calls fail and disposal runs only once.
+    private int _disposed;
 
     /// <summary>Initializes a new instance of the <see cref="ProtocolClient"/> class. Creates an online connection using injected infrastructure.</summary>
     /// <param name="configuration">The server address, protocol version, session token source and asset directory the client logs in with.</param>
@@ -65,14 +76,14 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     }
 
     /// <summary>Initializes a new instance of the <see cref="ProtocolClient"/> class. Creates a protocol client over an existing stream, including offline streams.</summary>
-    /// <param name="stream">The message stream to read and write, such as a replayed capture; it gets <paramref name="serverKeys"/> as its key source when it has none.</param>
+    /// <param name="stream">The message channel to read and write, such as a replayed capture; it gets <paramref name="serverKeys"/> as its key source when it has none.</param>
     /// <param name="webClient">HTTP client for asset downloads; the protocol client disposes it when it is disposed.</param>
     /// <param name="timeProvider">Clock for the keep-alive timer and traffic averaging.</param>
     /// <param name="logger">Receives the client's debug logging.</param>
     /// <param name="serverKeys">Supplies the server's public key for the encrypted handshake.</param>
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     /// <remarks>A client built this way has no <see cref="ClientConfiguration"/>, so it cannot connect or log in; it only sends and receives on the given stream.</remarks>
-    public ProtocolClient(MessageStream stream,
+    public ProtocolClient(MessageChannel stream,
         HttpClient webClient,
         TimeProvider timeProvider,
         ILogger<ProtocolClient> logger,
@@ -98,15 +109,16 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <value>Five seconds; <see cref="RunAsync"/> sends one keep-alive message per interval.</value>
     public static TimeSpan KeepAliveInterval { get; } = TimeSpan.FromSeconds(seconds: 5);
 
-    /// <summary>Gets the authenticated or externally supplied message stream.</summary>
+    /// <summary>Gets the authenticated or externally supplied message channel.</summary>
     /// <value>The stream given to the stream constructor, or the one opened by the current connection; it is cleared when the client disconnects.</value>
     /// <exception cref="InvalidOperationException">The client has no stream: it has not connected yet, or it has disconnected.</exception>
-    public MessageStream Stream =>
+    public MessageChannel Stream =>
         _supercellStream ?? throw new InvalidOperationException(message: "The client is not connected.");
 
     /// <summary>Gets traffic for the current or most recently closed socket, reset when a new socket connects.</summary>
     /// <value>Byte counts and connection time of the last socket this client opened, or <see langword="null"/> before it has opened one, including for a client built over an existing stream.</value>
     public ConnectionTrafficSnapshot? Traffic => _traffic?.Read();
+
     internal bool CanUpdateVersion => Configuration.Protocol is null && _serverKeys is HayDayServerPublicKeySource;
 
     internal ClientConfiguration Configuration =>
@@ -158,7 +170,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <returns>The next clientbound message, decoded with the session's data tables; a <see cref="TitanDisconnectedMessage"/> is still returned, but the client has already disconnected when it is.</returns>
     public async Task<IMessage> ReceiveAsync(CancellationToken cancellationToken = default)
     {
-        MessageStream stream = Stream;
+        MessageChannel stream = Stream;
 
         try
         {
@@ -219,7 +231,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     /// <param name="cancellationToken">Cancels the write; a cancelled or failed write disconnects the client before the error is rethrown.</param>
     public async Task SendAsync(IMessage message, CancellationToken cancellationToken = default)
     {
-        MessageStream stream = Stream;
+        MessageChannel stream = Stream;
 
         try
         {
@@ -269,7 +281,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         }
     }
 
-    internal async Task<MessageStream> GetStreamAsync(CancellationToken cancellationToken = default)
+    internal async Task<MessageChannel> GetStreamAsync(CancellationToken cancellationToken = default)
     {
         if (_supercellStream is null)
         {
@@ -287,7 +299,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
             _networkStream = _socketClient.GetStream();
             _traffic = new ConnectionTraffic(_timeProvider);
 
-            _supercellStream = new MessageStream(_networkStream)
+            _supercellStream = new MessageChannel(_networkStream)
             {
                 Traffic = _traffic,
                 ServerKeySource = (IServerPublicKeySource?)_clientVersion ?? _serverKeys,
@@ -311,7 +323,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     [LoggerMessage(Level = LogLevel.Debug, Message = "Client heartbeat and receive loop stopped.")]
     private static partial void LogLoopsStopped(ILogger logger);
 
-    private async Task CloseFailedAsync(MessageStream stream)
+    private async Task CloseFailedAsync(MessageChannel stream)
     {
         using IDisposable gate = await _authenticationGate.LockAsync().ConfigureAwait(continueOnCapturedContext: false);
 

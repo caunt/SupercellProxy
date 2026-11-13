@@ -15,11 +15,11 @@ public sealed record AmazonAccountAlreadyBoundMessage(int SecondsSinceLastPlayed
     /// <inheritdoc />
     public static ICodec<AmazonAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.AmazonId,
         Codecs.OptionalLongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PassToken,
         ClientAvatar.Codec,
         static message => message.Avatar,

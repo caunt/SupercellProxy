@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
@@ -30,14 +31,14 @@ public sealed record TruckOrderEventDefinition
     /// <summary>Gets or sets the event's custom reward pool.</summary>
     /// <value>Saved as <c>bonusCustomRewards</c>; weighted entries, and <see cref="RewardSet"/> is used only when it is empty.</value>
     [JsonPropertyName("bonusCustomRewards")]
-    public TruckOrderEventRewardDefinition[] CustomRewards { get; init; } = [];
+    public ImmutableArray<TruckOrderEventRewardDefinition> CustomRewards { get; init; } = [];
 
     /// <summary>Gets or sets the goods eligible for seasonal currency; an empty list accepts every order.</summary>
     /// <value>
     /// Saved as <c>eligibleSeasonalGoods</c>; seasonal goods row names. Empty by default.
     /// </value>
     [JsonPropertyName("eligibleSeasonalGoods")]
-    public string[] EligibleSeasonalGoods { get; init; } = [];
+    public ImmutableArray<string> EligibleSeasonalGoods { get; init; } = [];
 
     /// <summary>Gets or sets the minimum difficulty percentage eligible for an item bonus.</summary>
     /// <value>

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
@@ -18,7 +19,7 @@ public sealed record FarmPassEventDefinition
     /// <summary>Gets or sets the season's levels in order, each with the points that reach it and its free and premium rewards.</summary>
     /// <value>One entry per level, first level first; empty when the event lists no tiers.</value>
     [JsonPropertyName("rewardTiers")]
-    public FarmPassRewardTierDefinition[] RewardTiers { get; init; } = [];
+    public ImmutableArray<FarmPassRewardTierDefinition> RewardTiers { get; init; } = [];
 
     /// <summary>Gets or sets the name of the season's Farm Pass road table entry.</summary>
     /// <value>A row name of the Farm Pass road table, read from <c>farmPassRoad</c>.</value>
@@ -28,5 +29,5 @@ public sealed record FarmPassEventDefinition
     /// <summary>Gets or sets the season point marks that split the season into stages.</summary>
     /// <value>Ascending season-point totals read from <c>farmPassThresholds</c>; empty when the event defines no stages.</value>
     [JsonPropertyName("farmPassThresholds")]
-    public int[] Thresholds { get; init; } = [];
+    public ImmutableArray<int> Thresholds { get; init; } = [];
 }

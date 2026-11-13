@@ -12,9 +12,9 @@ public sealed record RequestJoinNeighborhoodMessage(LongId NeighborhoodId, strin
     /// <inheritdoc />
     public static ICodec<RequestJoinNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.NeighborhoodId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.NeighborhoodName,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Message,
         static (neighborhoodId, neighborhoodName, message) => new RequestJoinNeighborhoodMessage(neighborhoodId, neighborhoodName, message));
 }

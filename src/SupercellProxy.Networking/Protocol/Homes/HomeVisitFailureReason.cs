@@ -6,6 +6,11 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public enum HomeVisitFailureReason
 {
     /// <summary>
+    /// No reason given: the value 0, which neither failure below uses.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// The player's own farm could not be loaded to return to.
     /// </summary>
     CannotReturnHome = 1,

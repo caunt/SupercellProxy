@@ -15,9 +15,9 @@ public sealed record NeighborhoodNotificationStreamEntry(StreamEntryHeader Heade
     /// <inheritdoc />
     public static new ICodec<NeighborhoodNotificationStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.Message,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.NeighborhoodName,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,

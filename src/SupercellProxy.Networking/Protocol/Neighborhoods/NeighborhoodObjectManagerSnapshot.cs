@@ -8,6 +8,7 @@ public sealed record NeighborhoodObjectManagerSnapshot
     /// <value>The id of the neighbourhood live event (type 55) the player joined, or 0 when no event has started for them.</value>
     [JsonPropertyName("ActiveEventId")]
     public int ActiveEventId { get; init; }
+
     /// <summary>Gets or sets the last neighborhood used by this event manager.</summary>
     /// <value>The neighbourhood id as a 64-bit number, or 0 when the player is in none.</value>
     public long LastKnownNeighborhoodId { get; init; }

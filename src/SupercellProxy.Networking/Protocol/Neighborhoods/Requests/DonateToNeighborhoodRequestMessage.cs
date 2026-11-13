@@ -24,7 +24,7 @@ public sealed record DonateToNeighborhoodRequestMessage(int ItemGlobalId, int Am
         static message => message.RequestId,
         Codecs.LongId,
         static message => message.DonorHomeId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.RequesterName,
         Codecs.Boolean,
         static message => message.Premium,

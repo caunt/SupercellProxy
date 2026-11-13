@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SupercellProxy.Networking.Protocol.MiniPass;
 
 /// <summary>Saved current Mini Pass and its active tasks.</summary>
@@ -9,5 +11,5 @@ public sealed record MiniPassManagerSnapshot
 
     /// <summary>Gets or sets the saved task slots belonging to the current pass.</summary>
     /// <value>One entry per task that earns pass points; empty by default. Task progress itself is not saved here.</value>
-    public MiniPassTaskSnapshot[] Tasks { get; init; } = [];
+    public ImmutableArray<MiniPassTaskSnapshot> Tasks { get; init; } = [];
 }

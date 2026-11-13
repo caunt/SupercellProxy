@@ -11,10 +11,10 @@ public sealed class ProtocolFlagConverter : JsonConverter<ProtocolFlag>
     {
         return reader.TokenType switch
         {
-            JsonTokenType.Null => new ProtocolFlag(ProtocolFlagKind.Null, integer: 0),
-            JsonTokenType.True => new ProtocolFlag(ProtocolFlagKind.Boolean, integer: 1),
-            JsonTokenType.False => new ProtocolFlag(ProtocolFlagKind.Boolean, integer: 0),
-            JsonTokenType.Number => new ProtocolFlag(ProtocolFlagKind.Integer, reader.GetInt32()),
+            JsonTokenType.Null => new ProtocolFlag(ProtocolFlagKind.Null, number: 0),
+            JsonTokenType.True => new ProtocolFlag(ProtocolFlagKind.Boolean, number: 1),
+            JsonTokenType.False => new ProtocolFlag(ProtocolFlagKind.Boolean, number: 0),
+            JsonTokenType.Number => new ProtocolFlag(ProtocolFlagKind.Number, reader.GetInt32()),
             JsonTokenType.None => throw new JsonException(message: "Unsupported JSON literal for this contract."),
             JsonTokenType.StartObject => throw new JsonException(message: "Unsupported JSON literal for this contract."),
             JsonTokenType.EndObject => throw new JsonException(message: "Unsupported JSON literal for this contract."),
@@ -40,9 +40,9 @@ public sealed class ProtocolFlagConverter : JsonConverter<ProtocolFlag>
 
                     break;
                 }
-            case ProtocolFlagKind.Integer:
+            case ProtocolFlagKind.Number:
                 {
-                    writer.WriteNumberValue(value.Integer);
+                    writer.WriteNumberValue(value.Number);
 
                     break;
                 }

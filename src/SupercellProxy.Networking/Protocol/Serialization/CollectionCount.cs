@@ -9,11 +9,14 @@ public sealed class CollectionCount
 {
     private const int CollectionLimit = 0x10000;
 
+    // How the count is written, and the largest count it allows.
     private readonly int _maximum;
+    private readonly CountWidth _width;
+
+    // How a read count is checked against the unread payload, and what a negative count means.
     private readonly int _minimumElementSize;
     private readonly bool _negativeAsEmpty;
     private readonly bool _strictAbsence;
-    private readonly CountWidth _width;
 
     private CollectionCount(CountWidth width, int maximum, int minimumElementSize, bool strictAbsence, bool negativeAsEmpty = false)
     {
@@ -27,7 +30,7 @@ public sealed class CollectionCount
     private enum CountWidth
     {
         VarInt,
-        Int32,
+        BigEndianInt32,
         SignedByte,
     }
 
@@ -37,7 +40,7 @@ public sealed class CollectionCount
 
     /// <summary>Gets a full 32-bit count no larger than the remaining payload.</summary>
     /// <value>A shared instance that writes the count as a 4-byte integer; a read count larger than the number of unread bytes is rejected, as if every element took at least one byte.</value>
-    public static CollectionCount Int32 { get; } = new(CountWidth.Int32, int.MaxValue, minimumElementSize: 1, strictAbsence: false);
+    public static CollectionCount BigEndianInt32 { get; } = new(CountWidth.BigEndianInt32, int.MaxValue, minimumElementSize: 1, strictAbsence: false);
 
     /// <summary>Gets a one-byte signed count of at most 127 elements, no larger than the remaining payload.</summary>
     /// <value>A shared instance that writes the count as a single byte; reading sign-extends that byte, so 0x80 to 0xFF come back negative, and writing more than 127 elements throws <see cref="InvalidDataException"/>.</value>
@@ -98,14 +101,14 @@ public sealed class CollectionCount
         return new(_width, _maximum, _minimumElementSize, strictAbsence: true, _negativeAsEmpty);
     }
 
-    internal int Read(MessageStream stream)
+    internal int Read(MessageChannel stream)
     {
         int count = ReadRaw(stream);
 
         return count >= 0 ? Validate(stream, count) : _negativeAsEmpty ? 0 : throw Invalid(count);
     }
 
-    internal int ReadNullable(MessageStream stream)
+    internal int ReadNullable(MessageChannel stream)
     {
         int count = ReadRaw(stream);
 
@@ -121,7 +124,7 @@ public sealed class CollectionCount
 
         switch (_width)
         {
-            case CountWidth.Int32:
+            case CountWidth.BigEndianInt32:
                 {
                     encoder.WriteInt32(value);
 
@@ -149,20 +152,20 @@ public sealed class CollectionCount
         return new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid collection count: {count}."));
     }
 
-    private int ReadRaw(MessageStream stream)
+    private int ReadRaw(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
         return _width switch
         {
-            CountWidth.Int32 => stream.ReadInt32(),
+            CountWidth.BigEndianInt32 => stream.ReadInt32(),
             CountWidth.SignedByte => unchecked(sbyte.CreateTruncating(stream.ReadByte())),
             CountWidth.VarInt => stream.ReadVarInt(),
             _ => throw new InvalidOperationException(message: "Unknown collection count width."),
         };
     }
 
-    private int Validate(MessageStream stream, int count)
+    private int Validate(MessageChannel stream, int count)
     {
         long remaining = stream.Length - stream.Position;
         bool overPayload = _minimumElementSize > 0 && count > remaining / _minimumElementSize;

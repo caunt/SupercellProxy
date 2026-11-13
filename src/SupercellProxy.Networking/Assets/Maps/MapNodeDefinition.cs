@@ -18,6 +18,7 @@ public sealed record MapNodeDefinition
     /// <see cref="MapEdgeDefinition.Start"/>, <see cref="MapEdgeDefinition.End"/> and <see cref="MapNodeDistances.Id"/>.</value>
     [JsonPropertyName("Id")]
     public int Id { get; init; }
+
     /// <summary>Gets or sets whether the node is a starting location for newly introduced Valley pawns.</summary>
     /// <value><see langword="true"/> if the JSON <c>Start</c> field is present and marks this node as a pawn start point; otherwise,
     /// <see langword="false"/>.</value>

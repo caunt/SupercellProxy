@@ -3,7 +3,7 @@ using SupercellProxy.Networking.Protocol.Commands;
 
 namespace SupercellProxy.Networking.Transport;
 
-/// <summary>The target every encoder writes protocol values to; <see cref="MessageStream"/> writes them as wire bytes.</summary>
+/// <summary>The target every encoder writes protocol values to; <see cref="MessageChannel"/> writes them as wire bytes.</summary>
 public abstract class ProtocolEncoder
 {
     /// <summary>Gets or sets the runtime environment whose command metadata layout is encoded.</summary>
@@ -11,7 +11,7 @@ public abstract class ProtocolEncoder
     public CommandEnvironment CommandEnvironment { get; set; } = CommandEnvironment.Production;
 
     /// <summary>Gets or sets the full client release governing versioned layouts.</summary>
-    /// <value>Major, minor and patch version of the game client whose message ids and field layouts are used; a <see cref="MessageStream"/> sets it from the client hello or login it handles. <see langword="null"/> until known, in which case codecs fall back to their default layouts.</value>
+    /// <value>Major, minor and patch version of the game client whose message ids and field layouts are used; a <see cref="MessageChannel"/> sets it from the client hello or login it handles. <see langword="null"/> until known, in which case codecs fall back to their default layouts.</value>
     public Version? GameVersion { get; set; }
 
     /// <summary>Writes raw bytes without a length.</summary>

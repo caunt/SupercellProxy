@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.FarmPass;
@@ -9,24 +10,28 @@ public sealed record NeighborhoodObjectStateSnapshot
 {
     /// <summary>Gets or sets the zero-based visual milestones whose decorations were claimed.</summary>
     /// <value>Indices into the event's visual levels in claim order. Empty by default.</value>
-    public int[] ClaimedVisualTiers { get; init; } = [];
+    public ImmutableArray<int> ClaimedVisualTiers { get; init; } = [];
+
     /// <summary>Gets or sets the perks collected during this event.</summary>
     /// <value>One entry per perk the event granted, such as a bonus production output chance.</value>
-    public FarmPassPerkSnapshot[] Perks { get; init; } = [];
+    public ImmutableArray<FarmPassPerkSnapshot> Perks { get; init; } = [];
+
     /// <summary>Gets or sets the collected reward-tier indices.</summary>
     /// <value>Zero-based indices into the event's distinct point thresholds, in claim order.</value>
-    public int[] ClaimedRewardsTiers { get; init; } = [];
+    public ImmutableArray<int> ClaimedRewardsTiers { get; init; } = [];
+
     /// <summary>Gets or sets the reward groups corresponding to the collected tier indices.</summary>
     /// <value>One group per entry of <see cref="ClaimedRewardsTiers"/>, at the same position, listing the items and amounts that claim granted.</value>
-    public FarmPassRewardGroup[] ClaimedRewards { get; init; } = [];
+    public ImmutableArray<FarmPassRewardGroup> ClaimedRewards { get; init; } = [];
+
     /// <summary>Gets or sets the saved leaderboard score ids.</summary>
     /// <value>64-bit ids in ascending order, paired by position with <see cref="LeaderboardScores"/>. What the ids name is not identified.</value>
     [JsonPropertyName("LeaderboardScoreIds")]
-    public long[] LeaderboardScoreIds { get; init; } = [];
+    public ImmutableArray<long> LeaderboardScoreIds { get; init; } = [];
 
     /// <summary>Gets or sets the scores corresponding to the saved leaderboard ids.</summary>
     /// <value>One score per entry of <see cref="LeaderboardScoreIds"/>, at the same position.</value>
-    public int[] LeaderboardScores { get; init; } = [];
+    public ImmutableArray<int> LeaderboardScores { get; init; } = [];
 
     /// <summary>Gets or sets the neighborhood-wide event points.</summary>
     /// <value>The neighbourhood's combined points as last sent by the server.</value>
@@ -34,7 +39,7 @@ public sealed record NeighborhoodObjectStateSnapshot
 
     /// <summary>Gets or sets the task slots of the event; <see langword="null"/> marks an empty slot.</summary>
     /// <value>One entry per task slot of the event, in slot order.</value>
-    public NeighborhoodObjectTaskSnapshot?[] Tasks { get; init; } = [];
+    public ImmutableArray<NeighborhoodObjectTaskSnapshot?> Tasks { get; init; } = [];
 
     /// <summary>Gets or sets the saved number of triggered neighborhood perks.</summary>
     /// <value>How many times a perk paid out, such as an extra production output.</value>
@@ -42,7 +47,7 @@ public sealed record NeighborhoodObjectStateSnapshot
 
     /// <summary>Gets or sets the tasks the player finished in this event.</summary>
     /// <value>Turned-in tasks in completion order; empty by default.</value>
-    public CompletedNeighborhoodTaskSnapshot[] CompletedTasks { get; init; } = [];
+    public ImmutableArray<CompletedNeighborhoodTaskSnapshot> CompletedTasks { get; init; } = [];
 
     /// <summary>Gets or sets the task sets the player may still draw.</summary>
     /// <value>A count of the task sets still available to the player.</value>
@@ -50,7 +55,7 @@ public sealed record NeighborhoodObjectStateSnapshot
 
     /// <summary>Gets or sets the task groups of the current set still waiting to fill a slot.</summary>
     /// <value>Task group names from the event's task set; empty by default.</value>
-    public string[] PendingTaskGroups { get; init; } = [];
+    public ImmutableArray<string> PendingTaskGroups { get; init; } = [];
 
     /// <summary>Gets or sets the points earned from completed personal tasks.</summary>
     /// <value>The sum of the task points of every task the player turned in.</value>

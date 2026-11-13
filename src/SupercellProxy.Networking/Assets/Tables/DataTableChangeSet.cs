@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Assets.Tables;
@@ -9,5 +10,5 @@ public sealed record DataTableChangeSet
     /// <value>The event's <c>Changes</c> array, where later edits see the result of earlier ones; <see langword="null"/> when the event
     /// carries none.</value>
     [JsonPropertyName("Changes")]
-    public DataTableChange[]? Changes { get; init; }
+    public ImmutableArray<DataTableChange>? Changes { get; init; }
 }

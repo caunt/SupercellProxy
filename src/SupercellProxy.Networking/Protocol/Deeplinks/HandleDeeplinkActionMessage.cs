@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Deeplinks;
 public sealed record HandleDeeplinkActionMessage(string? Action) : CodecMessage<HandleDeeplinkActionMessage>, ICodecProvider<HandleDeeplinkActionMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HandleDeeplinkActionMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString, static message => message.Action, static action => new HandleDeeplinkActionMessage(action));
+    public static ICodec<HandleDeeplinkActionMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String, static message => message.Action, static action => new HandleDeeplinkActionMessage(action));
 }

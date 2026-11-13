@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Gifts;
@@ -8,7 +9,7 @@ public sealed record PendingDecisionBoxSnapshot
     /// <summary>Gets or sets the source's saved reward metadata.</summary>
     /// <value>Key and value pairs saved with the box under <c>details</c>; empty by default and for sources that attach none.</value>
     [JsonPropertyName("details")]
-    public DecisionBoxSourceDetail[] Details { get; init; } = [];
+    public ImmutableArray<DecisionBoxSourceDetail> Details { get; init; } = [];
 
     /// <summary>Gets or sets the decision-box data id.</summary>
     /// <value>The global id of the box's row in the decision boxes table, which lists its reward options.</value>

@@ -13,7 +13,7 @@ public sealed partial class ProtocolClient
     private static int? ProfileValue(DataTableResolver resolver, ClientAvatar avatar, string resource)
     {
         return resolver.TryResolve(GameAssetFiles.Money, resource, out DataTableReference? data)
-            ? avatar.InventoryMaps[0].FirstOrDefault(item => item.GlobalDataId == data.GlobalId)?.Value
+            ? avatar.InventoryMaps[index: 0].FirstOrDefault(item => item.GlobalDataId == data.GlobalId)?.Value
             : null;
     }
 

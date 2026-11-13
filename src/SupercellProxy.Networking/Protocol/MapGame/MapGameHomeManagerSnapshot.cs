@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -11,7 +12,7 @@ public sealed record MapGameHomeManagerSnapshot : ExtensibleDocument
     /// <value>One entry per player car on the Valley board, saved under <c>Pawns</c> and left out of the JSON when <see langword="null"/>.</value>
     [JsonPropertyName("Pawns")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public MapGameHomePawnSnapshot[]? Pawns { get; init; }
+    public ImmutableArray<MapGameHomePawnSnapshot>? Pawns { get; init; }
 
     /// <summary>Gets or sets the themed task progress (saved as <c>ThemedTasksManager</c>); <see langword="null"/> when not saved.</summary>
     /// <value>The themed tasks manager's saved state, left out of the JSON when <see langword="null"/>.</value>

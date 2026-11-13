@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SupercellProxy.Networking.Protocol.MiniPass;
 
 /// <summary>Saved rewards of one Mini Pass track.</summary>
@@ -9,9 +11,9 @@ public sealed record MiniPassRewardTrackSnapshot
 
     /// <summary>Gets or sets the reward amounts by index.</summary>
     /// <value>How many of the item in <see cref="Ids"/> at the same index the reward grants.</value>
-    public int[] Counts { get; init; } = [];
+    public ImmutableArray<int> Counts { get; init; } = [];
 
     /// <summary>Gets or sets the reward data rows by index.</summary>
     /// <value>Global ids of the rewarded items, such as coins, goods or gacha currency, one per reward index on the track.</value>
-    public int[] Ids { get; init; } = [];
+    public ImmutableArray<int> Ids { get; init; } = [];
 }

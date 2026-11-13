@@ -13,13 +13,13 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Search;
 public sealed record SearchNeighborhoodMessage(string? Query, int MinimumMembers, int MaximumMembers, int RequiredLevel, LongId? NeighborhoodId, bool JoinableOnly) : CodecMessage<SearchNeighborhoodMessage>, ICodecProvider<SearchNeighborhoodMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SearchNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<SearchNeighborhoodMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Query,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.MinimumMembers,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.MaximumMembers,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.RequiredLevel,
         Codecs.OptionalLongId,
         static message => message.NeighborhoodId,

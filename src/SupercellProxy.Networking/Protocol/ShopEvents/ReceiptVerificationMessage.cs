@@ -15,7 +15,7 @@ public sealed record ReceiptVerificationMessage(int ResultCode, string? ReceiptI
     /// <inheritdoc />
     public static ICodec<ReceiptVerificationMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.ResultCode,
-            Codecs.Map(Codecs.OptionalString,
+            Codecs.Map(Codecs.OptionalUtf8String,
                 static receipt => receipt is not null && Encoding.UTF8.GetByteCount(receipt) > MaximumReceiptBytes
                     ? throw new InvalidDataException(message: "The receipt verification identifier exceeds the native limit.")
                     : receipt,

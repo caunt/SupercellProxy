@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Commands;
@@ -27,12 +29,12 @@ public sealed record CommandData : ICodecProvider<CommandData>
 
     /// <inheritdoc />
     public static ICodec<CommandData> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, ValueCount),
-        static data => data.Values.ToArray(),
-        Codecs.String,
+        static data => ImmutableCollectionsMarshal.AsImmutableArray(data.Values.ToArray()),
+        Codecs.Utf8String,
         static data => data.Text,
         Codecs.VarInt,
         static data => data.Unknown0,
-        static (values, text, unknown0) => new CommandData(values, text, unknown0));
+        static (values, text, unknown0) => new CommandData(values.AsMemory(), text, unknown0));
 
     /// <summary>Gets the diagnostic text.</summary>
     /// <value>The free-form text native writes after the <see cref="ValueCount"/> numbers; it can be empty.</value>

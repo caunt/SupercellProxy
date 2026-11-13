@@ -9,6 +9,7 @@ public sealed record BoatResourceRewardSnapshot
     /// <value>How many units of <see cref="DataGlobalId"/> the reward grants, saved as <c>Value</c>.</value>
     [JsonPropertyName("Value")]
     public int Amount { get; init; }
+
     /// <summary>Gets or sets the resource's global data id.</summary>
     /// <value>The data global id of the granted resource, saved as <c>ID</c>.</value>
     [JsonPropertyName("ID")]

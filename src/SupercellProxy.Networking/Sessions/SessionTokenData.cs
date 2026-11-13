@@ -12,6 +12,7 @@ namespace SupercellProxy.Networking.Sessions;
 public sealed class SessionTokenData
 {
     private const uint AdlerModulus = 65_521;
+
     private static readonly UTF8Encoding StrictUnicodeTransformationFormat8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
     private readonly byte[] _wireData;

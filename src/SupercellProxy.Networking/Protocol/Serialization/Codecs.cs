@@ -1,5 +1,7 @@
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization.Combinators;
@@ -25,15 +27,15 @@ public static class Codecs
 
     /// <summary>Gets a big-endian 32-bit integer.</summary>
     /// <value>A shared codec for a signed two's-complement integer stored in four bytes, most significant byte first.</value>
-    public static ICodec<int> Int32 { get; } = new DelegateCodec<int>(static stream => stream.ReadInt32(), static (stream, value) => stream.WriteInt32(value));
+    public static ICodec<int> BigEndianInt32 { get; } = new DelegateCodec<int>(static stream => stream.ReadInt32(), static (stream, value) => stream.WriteInt32(value));
 
     /// <summary>Gets a big-endian 64-bit integer.</summary>
     /// <value>A shared codec for a signed two's-complement integer stored in eight bytes, most significant byte first.</value>
-    public static ICodec<long> Int64 { get; } = new DelegateCodec<long>(static stream => stream.ReadInt64(), static (stream, value) => stream.WriteInt64(value));
+    public static ICodec<long> BigEndianInt64 { get; } = new DelegateCodec<long>(static stream => stream.ReadInt64(), static (stream, value) => stream.WriteInt64(value));
 
     /// <summary>Gets an IEEE single carried in the bits of a big-endian 32-bit integer.</summary>
     /// <value>A shared codec that reinterprets the four bytes bit for bit, so NaN payloads and negative zero survive a round trip unchanged.</value>
-    public static ICodec<float> Float { get; } = new DelegateCodec<float>(static stream => BitConverter.Int32BitsToSingle(stream.ReadInt32()),
+    public static ICodec<float> BigEndianFloat { get; } = new DelegateCodec<float>(static stream => BitConverter.Int32BitsToSingle(stream.ReadInt32()),
         static (stream, value) => stream.WriteInt32(BitConverter.SingleToInt32Bits(value)));
 
     /// <summary>Gets a high/low pair of 32-bit integers.</summary>
@@ -50,30 +52,30 @@ public static class Codecs
 
     /// <summary>Gets a string that native writes with a -1 length when it is absent.</summary>
     /// <value>A shared codec with a big-endian 32-bit UTF-8 byte length: any negative length reads as <see langword="null"/>, zero reads as an empty string, and <see langword="null"/> is written as -1.</value>
-    public static ICodec<string?> OptionalString { get; } = new DelegateCodec<string?>(static stream => stream.ReadOptionalString(), static (stream, value) => stream.WriteOptionalString(value));
+    public static ICodec<string?> OptionalUtf8String { get; } = new DelegateCodec<string?>(static stream => stream.ReadOptionalString(), static (stream, value) => stream.WriteOptionalString(value));
 
     /// <summary>Gets a length-prefixed UTF-8 string.</summary>
     /// <value>A shared codec whose big-endian 32-bit prefix counts UTF-8 bytes, not characters; a zero length reads as an empty string and a negative one fails with <see cref="InvalidDataException"/>.</value>
-    public static ICodec<string> String { get; } = new DelegateCodec<string>(static stream => stream.ReadString(), static (stream, value) => stream.WriteString(value));
+    public static ICodec<string> Utf8String { get; } = new DelegateCodec<string>(static stream => stream.ReadString(), static (stream, value) => stream.WriteString(value));
 
     /// <summary>Gets a big-endian 16-bit unsigned integer.</summary>
     /// <value>A shared codec for a value from 0 to 65535 stored in two bytes, most significant byte first.</value>
-    public static ICodec<ushort> UInt16 { get; } = new DelegateCodec<ushort>(static stream => stream.ReadUInt16(), static (stream, value) => stream.WriteUInt16(value));
+    public static ICodec<ushort> BigEndianUInt16 { get; } = new DelegateCodec<ushort>(static stream => stream.ReadUInt16(), static (stream, value) => stream.WriteUInt16(value));
 
     /// <summary>Gets a big-endian 32-bit unsigned integer.</summary>
     /// <value>A shared codec for an unsigned value stored in four bytes, most significant byte first, with no sign handling.</value>
-    public static ICodec<uint> UInt32 { get; } = new DelegateCodec<uint>(static stream => stream.ReadUInt32(), static (stream, value) => stream.WriteUInt32(value));
+    public static ICodec<uint> BigEndianUInt32 { get; } = new DelegateCodec<uint>(static stream => stream.ReadUInt32(), static (stream, value) => stream.WriteUInt32(value));
 
     /// <summary>Gets a big-endian 64-bit unsigned integer.</summary>
     /// <value>A shared codec for an unsigned value stored in eight bytes, most significant byte first, with no sign handling.</value>
-    public static ICodec<ulong> UInt64 { get; } = new DelegateCodec<ulong>(static stream => stream.ReadUInt64(), static (stream, value) => stream.WriteUInt64(value));
+    public static ICodec<ulong> BigEndianUInt64 { get; } = new DelegateCodec<ulong>(static stream => stream.ReadUInt64(), static (stream, value) => stream.WriteUInt64(value));
 
     /// <summary>Gets a native variable-length 32-bit integer.</summary>
     /// <value>A shared codec of one to five bytes: the first holds the low 6 bits, a sign flag (0x40) and a continuation flag (0x80), each later byte adds 7 bits, and negative values are sign-extended on read.</value>
     public static ICodec<int> VarInt { get; } = new DelegateCodec<int>(static stream => stream.ReadVarInt(), static (stream, value) => stream.WriteVarInt(value));
 
     /// <summary>Gets a var-int length followed by that many bytes.</summary>
-    /// <value>A shared codec whose <see cref="VarInt"/> prefix counts the bytes that follow; zero reads as empty memory, and a negative length or one above <see cref="MessageStream.MaximumPayloadLength"/> fails with <see cref="InvalidDataException"/>.</value>
+    /// <value>A shared codec whose <see cref="VarInt"/> prefix counts the bytes that follow; zero reads as empty memory, and a negative length or one above <see cref="MessageChannel.MaximumPayloadLength"/> fails with <see cref="InvalidDataException"/>.</value>
     public static ICodec<ReadOnlyMemory<byte>> VarIntByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>>(static stream => stream.ReadVarIntByteArray(), static (stream, value) => stream.WriteVarIntByteArray(value.Span));
 
     /// <summary>Gets a native variable-length 64-bit integer.</summary>
@@ -86,7 +88,7 @@ public static class Codecs
     /// <param name="count">The width and bounds of the count prefix, or <see langword="null"/> for <see cref="CollectionCount.VarInt"/>, which rejects a count larger than the bytes left in the payload.</param>
     /// <returns>A codec that reads the count and then that many items, and writes the array's length followed by each item; a count outside the bounds of <paramref name="count"/> fails with <see cref="InvalidDataException"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="null"/>.</exception>
-    public static ICodec<TElement[]> Array<TElement>(ICodec<TElement> element, CollectionCount? count = null)
+    public static ICodec<ImmutableArray<TElement>> Array<TElement>(ICodec<TElement> element, CollectionCount? count = null)
     {
         ArgumentNullException.ThrowIfNull(element);
 
@@ -1209,7 +1211,7 @@ public static class Codecs
     /// <param name="write">Writes a value to the encoder in the layout <paramref name="read"/> expects.</param>
     /// <returns>A codec that calls <paramref name="read"/> and <paramref name="write"/> directly, after rejecting a <see langword="null"/> stream or encoder with <see cref="ArgumentNullException"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="read"/> or <paramref name="write"/> is <see langword="null"/>.</exception>
-    public static ICodec<TValue> Create<TValue>(Func<MessageStream, TValue> read, Action<ProtocolEncoder, TValue> write)
+    public static ICodec<TValue> Create<TValue>(Func<MessageChannel, TValue> read, Action<ProtocolEncoder, TValue> write)
     {
         ArgumentNullException.ThrowIfNull(read);
         ArgumentNullException.ThrowIfNull(write);
@@ -1250,7 +1252,7 @@ public static class Codecs
     /// <param name="length">The number of items the layout always holds; native writes no count for them.</param>
     /// <returns>A codec that reads <paramref name="length"/> items into a new array, and writes an array only when it has exactly that many items, failing with <see cref="InvalidDataException"/> otherwise.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="null"/>.</exception>
-    public static ICodec<TElement[]> FixedArray<TElement>(ICodec<TElement> element, int length)
+    public static ICodec<ImmutableArray<TElement>> FixedArray<TElement>(ICodec<TElement> element, int length)
     {
         ArgumentNullException.ThrowIfNull(element);
 
@@ -1317,7 +1319,9 @@ public static class Codecs
     /// <returns>A codec with the same layout and count checks as the counted array codec, that reads into memory over a new array and copies the memory to an array before writing it.</returns>
     public static ICodec<ReadOnlyMemory<TElement>> Memory<TElement>(ICodec<TElement> element, CollectionCount? count = null)
     {
-        return Map(Array(element, count), static values => (ReadOnlyMemory<TElement>)values, static values => values.ToArray());
+        return Map(Array(element, count),
+            static values => values.AsMemory(),
+            static values => ImmutableCollectionsMarshal.AsImmutableArray(values.ToArray()));
     }
 
     /// <summary>Gets a counted array that native writes with a negative count when it is absent.</summary>
@@ -1326,7 +1330,7 @@ public static class Codecs
     /// <param name="count">The width and bounds of the count prefix, or <see langword="null"/> for <see cref="CollectionCount.VarInt"/>; with <see cref="CollectionCount.WithStrictAbsence"/> only -1 is accepted as the absent marker.</param>
     /// <returns>A codec that reads a negative count as a <see langword="null"/> array and any other count as that many items, and writes <see langword="null"/> as a count of -1.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="null"/>.</exception>
-    public static ICodec<TElement[]?> NullableArray<TElement>(ICodec<TElement> element, CollectionCount? count = null)
+    public static ICodec<ImmutableArray<TElement>?> NullableArray<TElement>(ICodec<TElement> element, CollectionCount? count = null)
     {
         ArgumentNullException.ThrowIfNull(element);
 
@@ -1341,8 +1345,8 @@ public static class Codecs
     public static ICodec<ReadOnlyMemory<TElement>?> NullableMemory<TElement>(ICodec<TElement> element, CollectionCount? count = null)
     {
         return Map(NullableArray(element, count),
-            static values => values is null ? null : (ReadOnlyMemory<TElement>?)values,
-            static values => values?.ToArray());
+            static values => values?.AsMemory(),
+            static values => values is { } memory ? ImmutableCollectionsMarshal.AsImmutableArray(memory.ToArray()) : null);
     }
 
     /// <summary>Gets a reference value preceded by a presence flag.</summary>

@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record UploadClientLogMessage(int Index, ReadOnlyMemory<byte>? Data) : CodecMessage<UploadClientLogMessage>, ICodecProvider<UploadClientLogMessage>
 {
     /// <inheritdoc />
-    public static ICodec<UploadClientLogMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<UploadClientLogMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.Index,
         Codecs.OptionalByteArray,
         static message => message.Data,

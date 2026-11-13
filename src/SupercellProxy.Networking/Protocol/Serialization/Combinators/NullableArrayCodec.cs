@@ -1,11 +1,14 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 
 /// <summary>A counted array that native writes as a negative count when it is absent.</summary>
-internal sealed class NullableArrayCodec<TElement>(ICodec<TElement> element, CollectionCount count) : ICodec<TElement[]?>
+internal sealed class NullableArrayCodec<TElement>(ICodec<TElement> element, CollectionCount count) : ICodec<ImmutableArray<TElement>?>
 {
-    public TElement[]? Read(MessageStream stream)
+    public ImmutableArray<TElement>? Read(MessageChannel stream)
     {
         int length = count.ReadNullable(stream);
 
@@ -17,21 +20,21 @@ internal sealed class NullableArrayCodec<TElement>(ICodec<TElement> element, Col
         for (int index = 0; index < values.Length; index++)
             values[index] = element.Read(stream);
 
-        return values;
+        return ImmutableCollectionsMarshal.AsImmutableArray(values);
     }
 
-    public void Write(ProtocolEncoder encoder, TElement[]? value)
+    public void Write(ProtocolEncoder encoder, ImmutableArray<TElement>? value)
     {
-        if (value is null)
+        if (value is not { IsDefault: false } items)
         {
             count.Write(encoder, value: -1);
 
             return;
         }
 
-        count.Write(encoder, value.Length);
+        count.Write(encoder, items.Length);
 
-        foreach (TElement item in value)
+        foreach (TElement item in items)
             element.Write(encoder, item);
     }
 }

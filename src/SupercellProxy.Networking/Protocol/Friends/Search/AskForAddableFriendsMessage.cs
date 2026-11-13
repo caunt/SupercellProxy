@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Friends.Search;
 public sealed record AskForAddableFriendsMessage(ReadOnlyMemory<string?>? FacebookIds, ReadOnlyMemory<string?>? GamecenterIds) : CodecMessage<AskForAddableFriendsMessage>, ICodecProvider<AskForAddableFriendsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AskForAddableFriendsMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalString),
+    public static ICodec<AskForAddableFriendsMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalUtf8String),
         static message => message.FacebookIds,
-        Codecs.NullableMemory(Codecs.OptionalString),
+        Codecs.NullableMemory(Codecs.OptionalUtf8String),
         static message => message.GamecenterIds,
         static (facebookIds, gamecenterIds) => new AskForAddableFriendsMessage(facebookIds, gamecenterIds));
 }

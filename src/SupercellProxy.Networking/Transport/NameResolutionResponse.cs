@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Transport;
@@ -8,5 +9,5 @@ public sealed record NameResolutionResponse
     /// <summary>Gets or sets the returned address answers.</summary>
     /// <value>The JSON <c>Answer</c> array in the order the DNS-over-HTTPS server returned it; the resolver takes the first entry that parses as an IPv4 address.</value>
     [JsonPropertyName("Answer")]
-    public required NameResolutionAnswer[] Answers { get; init; }
+    public required ImmutableArray<NameResolutionAnswer> Answers { get; init; }
 }

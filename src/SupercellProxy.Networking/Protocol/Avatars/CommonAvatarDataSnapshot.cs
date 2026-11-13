@@ -43,12 +43,15 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets or sets the retained boat difficulty pool.</summary>
     /// <value>The difficulty pool and its daily reset time read from the <c>BoatOrderManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public BoatOrderManagerSnapshot? BoatOrderManager { get; init; }
+
     /// <summary>Gets or sets the saved boat delivery track: milestones completed, points still pending and when the track resets.</summary>
     /// <value>The boat track read from the <c>BoatTrackManager</c> object, or <see langword="null"/> when the home has no boat track saved yet.</value>
     public OrderTrackSnapshot? BoatTrackManager { get; init; }
+
     /// <summary>Gets or sets the retained booster manager state.</summary>
     /// <value>The active, stored and pending boosters read from the <c>BoosterManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public BoosterManagerSnapshot? BoosterManager { get; init; }
+
     /// <summary>Gets or sets the retained calendar-gift collection flags.</summary>
     /// <value>The per-event gift collection state read from the <c>CalendarGiftBoxEventManager</c> object, or <see langword="null"/> when no calendar-gift event was ever saved.</value>
     [JsonPropertyName("CalendarGiftBoxEventManager")]
@@ -57,6 +60,7 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets or sets the saved chain-offer requirements and claims.</summary>
     /// <value>The per-offer progress and claimed rewards read from the <c>ChainOfferManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public ChainOfferManagerSnapshot? ChainOfferManager { get; init; }
+
     /// <summary>Gets or sets the saved scheduled events: per-event player data, events already seen, and the event board.</summary>
     /// <value>The scheduled-event state read from the <c>ChronosEvents</c> object, or <see langword="null"/> when the save has no such object.</value>
     public ChronosEventsSnapshot? ChronosEvents { get; init; }
@@ -95,6 +99,7 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets or sets the saved active derby task and its progress.</summary>
     /// <value>The derby task flags, goal counters and limits read from the <c>DerbyManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public DerbyManagerSnapshot? DerbyManager { get; init; }
+
     /// <summary>Gets or sets the retained emote state.</summary>
     /// <value>The newest emote ids read from the <c>EmoteManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public EmoteManagerSnapshot? EmoteManager { get; init; }
@@ -153,6 +158,7 @@ public sealed record CommonAvatarDataSnapshot
     /// <value>The nonempty and completed animal puzzles read from the <c>SanctuaryManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     [JsonPropertyName("SanctuaryManager")]
     public SanctuaryManagerSnapshot? SanctuaryManager { get; init; }
+
     /// <summary>Gets or sets the truck-generation daily progression.</summary>
     /// <value>The orders dispatched since the daily reset and the reset time, read from the <c>TruckOrderManager</c> object, or <see langword="null"/> when the save has no such object.</value>
     public TruckOrderManagerSnapshot? TruckOrderManager { get; init; }
@@ -160,6 +166,7 @@ public sealed record CommonAvatarDataSnapshot
     /// <summary>Gets or sets the saved truck delivery track: milestones completed, points still pending and when the track resets.</summary>
     /// <value>The truck track read from the <c>TruckTrackManager</c> object, or <see langword="null"/> when the home has no truck track saved yet.</value>
     public OrderTrackSnapshot? TruckTrackManager { get; init; }
+
     /// <summary>Gets or sets the saved tutorial group and the flags of the tutorial steps completed.</summary>
     /// <value>The tutorial state read from the <c>TutorialMgr</c> object, or <see langword="null"/> when the save has no such object.</value>
     [JsonPropertyName("TutorialMgr")]

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Avatars.Collections;
 using SupercellProxy.Networking.Protocol.Avatars.Derby;
 using SupercellProxy.Networking.Protocol.MapGame;
@@ -19,7 +21,7 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
     LongId? MapGameId,
     LongId? UnknownOptionalId3,
     int Unknown4,
-    MapGameParticipant[]? MapGameParticipants,
+    ImmutableArray<MapGameParticipant>? MapGameParticipants,
     int BirthTimestamp,
     string? AgeCountryCode,
     bool StorePromotionAllowed,
@@ -55,7 +57,7 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
         static section => new MapGameBlock(section.MapGameId, section.UnknownOptionalId3, section.Unknown4, section.MapGameParticipants),
         AgeBlock.Codec,
         static section => new AgeBlock(section.BirthTimestamp, section.AgeCountryCode, section.StorePromotionAllowed),
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static section => section.UnknownString1,
         Codecs.Boolean,
         static section => section.UnknownBoolean1,
@@ -105,7 +107,7 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
     {
         public static ICodec<AgeBlock> Codec { get; } = Codecs.Composite(Codecs.VarInt,
             static block => block.BirthTimestamp,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static block => block.AgeCountryCode,
             Codecs.Boolean,
             static block => block.StorePromotionAllowed,
@@ -113,7 +115,7 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
     }
 
     // Native reads the map game participants only when the avatar has a map game.
-    private readonly record struct MapGameBlock(LongId? MapGameId, LongId? UnknownOptionalId3, int Unknown4, MapGameParticipant[]? Participants)
+    private readonly record struct MapGameBlock(LongId? MapGameId, LongId? UnknownOptionalId3, int Unknown4, ImmutableArray<MapGameParticipant>? Participants)
     {
         public static ICodec<MapGameBlock> Codec { get; } = Codecs.Create(static stream =>
         {
@@ -133,6 +135,6 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
                     ParticipantsCodec.Write(stream, block.Participants);
             });
 
-        private static ICodec<MapGameParticipant[]?> ParticipantsCodec => field ??= Codecs.Optional(Codecs.Array(MapGameParticipant.Codec, CollectionCount.Bounded));
+        private static ICodec<ImmutableArray<MapGameParticipant>?> ParticipantsCodec => field ??= Codecs.OptionalValue(Codecs.Array(MapGameParticipant.Codec, CollectionCount.Bounded));
     }
 }

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
@@ -11,7 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 /// <param name="Value5">The sixth var-int of the group; its meaning is not yet identified.</param>
 /// <param name="Value6">The seventh var-int of the group, written just before <paramref name="PlayerIds"/>; its meaning is not yet identified.</param>
 /// <param name="PlayerIds">The account identifiers listed for the group, in wire order; an empty array when the group names nobody, and at most 65536 entries.</param>
-public sealed record DerbyBoardGroupEntry(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5, int Value6, LongId[] PlayerIds) : ICodecProvider<DerbyBoardGroupEntry>
+public sealed record DerbyBoardGroupEntry(int Value0, int Value1, int Value2, int Value3, int Value4, int Value5, int Value6, ImmutableArray<LongId> PlayerIds) : ICodecProvider<DerbyBoardGroupEntry>
 {
     /// <inheritdoc />
     public static ICodec<DerbyBoardGroupEntry> Codec { get; } = Codecs.Composite(Codecs.VarInt,

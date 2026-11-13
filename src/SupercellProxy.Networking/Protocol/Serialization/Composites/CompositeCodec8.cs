@@ -39,7 +39,7 @@ internal sealed class CompositeCodec8<TValue, TFirst, TSecond, TThird, TFourth, 
     private readonly ICodec<TEighth> _eighth = eighth ?? throw new ArgumentNullException(nameof(eighth));
     private readonly Func<TValue, TEighth> _getEighth = getEighth ?? throw new ArgumentNullException(nameof(getEighth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The front half of the record, each field picking up after the one before.
         TFirst firstValue = _first.Read(stream);

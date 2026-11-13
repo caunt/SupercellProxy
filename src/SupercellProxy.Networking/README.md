@@ -36,7 +36,7 @@ Namespaces follow directories. The two `GameAssetFiles.cs` parts share `Supercel
 - `Hosting.NetworkingServiceCollectionExtensions.AddSupercellNetworking` registers shared HTTP, logging, replaceable time, public-key discovery, and `Client.ProtocolClientFactory`.
 - `AddProtocolClient(onMessage)` registers a hosted authenticated client and returns an `OptionsBuilder<ClientOptions>`.
 - `AddProtocolProxy()` registers the proxy and returns an `OptionsBuilder<ProxyOptions>`.
-- `ProtocolClientFactory.Create` creates a caller-owned client from an immutable `ClientConfiguration` or an existing `MessageStream`.
+- `ProtocolClientFactory.Create` creates a caller-owned client from an immutable `ClientConfiguration` or an existing `MessageChannel`.
 - `Sessions.ClientSessionLedger` validates, lists, selects, and atomically saves multiple typed `ClientSession` records keyed by account ID.
 
 Authenticated clients require `SessionAccountIdentifier` and load that account from the ledger at `SessionLedgerPath`, which defaults to the shared per-user local application-data directory. `ClientSessionSelector` provides case-insensitive farm-name matching and numbered console selection without exposing credentials. Account IDs and session tokens remain typed in memory and serialize as tag and JWT strings; protocol compression exists only at the `LoginMessage` wire boundary. The client authenticates, configures asset-dependent codecs, exchanges messages, sends keep-alives, and saves refreshed session-token material after successful authentication. Its internal authenticator and asset cache share the connection's dependencies and lifetime. Consuming a message does not apply its commands or calculate game checksums.
@@ -45,7 +45,9 @@ Authenticated clients require `SessionAccountIdentifier` and load that account f
 
 ## Encoding and direction
 
-`MessageStream` reads and writes binary protocol values. Its internal `MessageTransport` owns framing and read/write coordination; `MessageEncryption` owns handshake and nonce state. Public stream operations work with online and memory-backed streams.
+`MessageChannel` reads and writes binary protocol values. Its internal `MessageTransport` owns framing and read/write coordination; `MessageEncryption` owns handshake and nonce state. Its public operations work over online and memory-backed streams.
+
+Repeated fields of wire contracts are `ImmutableArray<T>`, so a decoded message cannot be changed through a property it exposes; the array codecs wrap the elements they read without copying them, and an edit produces a new contract through `with` and `SetItem` or a collection expression.
 
 `MessageRegistry.Resolve` decodes a `MessageContainer`; `IMessage.ToContainer` encodes a contract. `MessageRegistry` is the sole packet-ID mapping owner. Asset-dependent command fields accept the public `ICommandDataResolver`, implemented by `Assets.Tables.DataTableResolver` without simulation.
 

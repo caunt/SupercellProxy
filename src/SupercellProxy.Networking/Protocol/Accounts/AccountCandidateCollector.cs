@@ -14,6 +14,7 @@ public sealed class AccountCandidateCollector
     /// </summary>
     /// <value>The <see cref="AccountCandidatesMessage"/> passed to the last <see cref="Apply(AccountCandidatesMessage)"/> call, replaced by each newer list.</value>
     public AccountCandidatesMessage? EntriesResponse { get; private set; }
+
     /// <summary>
     /// Gets the most recent notice that the Google Play account is already bound to another farm; <see langword="null"/> until one arrives.
     /// </summary>

@@ -10,6 +10,7 @@ public abstract record ExtensibleDocument
     /// <value>A snapshot of the JSON property names that had no matching member when the document was read; empty when every member is known. These members are written back unchanged on serialization.</value>
     [JsonIgnore]
     public IReadOnlyCollection<string> UnknownFields => [.. ExtensionData.Keys];
+
     [JsonExtensionData]
     [JsonInclude]
     internal IDictionary<string, JsonElement> ExtensionData { get; init; } = new Dictionary<string, JsonElement>(StringComparer.Ordinal);

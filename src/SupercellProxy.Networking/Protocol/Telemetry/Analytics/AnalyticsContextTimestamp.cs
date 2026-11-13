@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsContextTimestamp(int Value, long Time) : ICodecProvider<AnalyticsContextTimestamp>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsContextTimestamp> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<AnalyticsContextTimestamp> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static value => value.Value,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static value => value.Time,
         static (@value, time) => new AnalyticsContextTimestamp(value, time));
 }

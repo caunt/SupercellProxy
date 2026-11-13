@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record ChatToNeighborhoodStreamMessage(string? Text) : CodecMessage<ChatToNeighborhoodStreamMessage>, ICodecProvider<ChatToNeighborhoodStreamMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChatToNeighborhoodStreamMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString, static message => message.Text, static text => new ChatToNeighborhoodStreamMessage(text));
+    public static ICodec<ChatToNeighborhoodStreamMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String, static message => message.Text, static text => new ChatToNeighborhoodStreamMessage(text));
 }

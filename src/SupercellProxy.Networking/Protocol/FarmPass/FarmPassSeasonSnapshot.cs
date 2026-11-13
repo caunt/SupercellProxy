@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.FarmPass;
@@ -18,7 +19,7 @@ public sealed record FarmPassSeasonSnapshot
     /// <summary>Gets or sets the season point marks copied from the event, which split the season into stages.</summary>
     /// <value>Rising season-point totals, one per stage boundary; empty by default.</value>
     [JsonPropertyName("farmPassThresholds")]
-    public int[] FarmPassThresholds { get; init; } = [];
+    public ImmutableArray<int> FarmPassThresholds { get; init; } = [];
 
     /// <summary>Gets or sets the season points the player earned so far.</summary>
     /// <value>A running season-point total, saved as <c>farmPoints</c>.</value>
@@ -28,7 +29,7 @@ public sealed record FarmPassSeasonSnapshot
     /// <summary>Gets or sets the season's levels in order.</summary>
     /// <value>One saved level per reward tier of the event, first level at index 0; level claim commands address levels by this index.</value>
     [JsonPropertyName("levels")]
-    public FarmPassLevelSnapshot[] Levels { get; init; } = [];
+    public ImmutableArray<FarmPassLevelSnapshot> Levels { get; init; } = [];
 
     /// <summary>Gets or sets which passes the player bought, as bits; bit 0 is the premium pass.</summary>
     /// <value>A bit mask that is 0 for a player who bought no pass.</value>

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Mail;
 using SupercellProxy.Networking.Protocol.Neighborhoods;
 using SupercellProxy.Networking.Protocol.RoadsideShops;
@@ -7,18 +9,18 @@ using SupercellProxy.Networking.Protocol.Town;
 namespace SupercellProxy.Networking.Protocol.Avatars;
 
 /// <summary>The avatar social block: roadside shop, neighborhood, mail and help entries.</summary>
-internal readonly record struct AvatarSocialSection(RoadsideShopEntry[] RoadsideShop,
+internal readonly record struct AvatarSocialSection(ImmutableArray<RoadsideShopEntry> RoadsideShop,
     NeighborhoodData? Neighborhood,
-    MailEntry[] MailEntries,
-    int[] UnknownValues0,
-    BoatCrateHelpEntry[] BoatCrateHelpEntries,
+    ImmutableArray<MailEntry> MailEntries,
+    ImmutableArray<int> UnknownValues0,
+    ImmutableArray<BoatCrateHelpEntry> BoatCrateHelpEntries,
     bool TrainStationReady,
     bool IsMuted,
     bool CanEditFarm,
-    PassengerReservation[] PassengerReservations,
-    PickedPassenger[] PickedPassengers,
-    ServiceHelpRequest[] ServiceHelpRequests,
-    ServiceHelpRequest[] TruckOrderHelpRequests) : ICodecProvider<AvatarSocialSection>
+    ImmutableArray<PassengerReservation> PassengerReservations,
+    ImmutableArray<PickedPassenger> PickedPassengers,
+    ImmutableArray<ServiceHelpRequest> ServiceHelpRequests,
+    ImmutableArray<ServiceHelpRequest> TruckOrderHelpRequests) : ICodecProvider<AvatarSocialSection>
 {
     /// <inheritdoc />
     public static ICodec<AvatarSocialSection> Codec { get; } = Codecs.Composite(Codecs.Array(RoadsideShopEntry.Codec, CollectionCount.Bounded),

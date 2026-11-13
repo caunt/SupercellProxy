@@ -11,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// <param name="Id">Wire id that tells which message type the payload holds; ids differ between game releases.</param>
 /// <param name="Version">Version field from the frame header, echoed back unchanged when the frame is forwarded.</param>
 /// <param name="Payload">The decrypted payload, positioned at its start.</param>
-public sealed record MessageContainer([property: JsonPropertyName("Id")] ushort Id, ushort Version, MessageStream Payload)
+public sealed record MessageContainer([property: JsonPropertyName("Id")] ushort Id, ushort Version, MessageChannel Payload)
 {
     /// <summary>Frames an encoded message with its registered id and resolved or recorded header version.</summary>
     /// <param name="message">The message to encode; a <see cref="PassthroughMessage"/> keeps its own id and raw bytes.</param>
@@ -32,7 +32,7 @@ public sealed record MessageContainer([property: JsonPropertyName("Id")] ushort 
         ushort headerVersion = version ?? (message is PassthroughMessage passthrough ? passthrough.Version : (ushort)0);
         ushort id = MessageRegistry.GetId(message, gameVersion);
 
-        using MessageStream payload = MessageStream.Create();
+        using MessageChannel payload = MessageChannel.Create();
 
         payload.GameVersion = gameVersion;
 

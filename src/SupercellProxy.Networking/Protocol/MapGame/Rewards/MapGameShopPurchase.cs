@@ -27,7 +27,7 @@ public sealed record MapGameShopPurchase(int RewardGlobalId,
         static value => value.Costs,
         Codecs.Memory(MapGameShopGood.Codec),
         static value => value.Rewards,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.RewardSetName,
         static (rewardGlobalId, price, amount, costs, rewards, rewardSetName) => new MapGameShopPurchase(rewardGlobalId, price, amount, costs, rewards, rewardSetName));
 }

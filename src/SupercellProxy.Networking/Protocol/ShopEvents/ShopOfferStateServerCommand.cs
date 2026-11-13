@@ -10,7 +10,7 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents;
 public sealed record ShopOfferStateServerCommand(string? OfferId, bool Active, int Timestamp) : CodecServerCommand<ShopOfferStateServerCommand>, ICommandCodecProvider<ShopOfferStateServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ShopOfferStateServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString,
+    public static CommandCodec<ShopOfferStateServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalUtf8String,
             static command => command.OfferId,
             Codecs.Boolean,
             static command => command.Active,

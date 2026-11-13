@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>Selects a whole wire layout by game version.</summary>
 internal sealed class VersionSwitchCodec<TValue>(Version version, ICodec<TValue> current, ICodec<TValue> legacy) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         return Select(stream).Read(stream);
     }

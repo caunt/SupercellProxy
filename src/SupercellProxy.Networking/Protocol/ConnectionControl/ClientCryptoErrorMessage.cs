@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ClientCryptoErrorMessage(int ErrorCode) : CodecMessage<ClientCryptoErrorMessage>, ICodecProvider<ClientCryptoErrorMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClientCryptoErrorMessage> Codec { get; } = Codecs.Composite(Codecs.Int32, static message => message.ErrorCode, static errorCode => new ClientCryptoErrorMessage(errorCode));
+    public static ICodec<ClientCryptoErrorMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32, static message => message.ErrorCode, static errorCode => new ClientCryptoErrorMessage(errorCode));
 }

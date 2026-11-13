@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>Uses a derived type's codec where its base type is expected.</summary>
 internal sealed class SubtypeCodec<TBase, TDerived>(ICodec<TDerived> codec) : ICodec<TBase> where TBase : class where TDerived : class, TBase
 {
-    public TBase Read(MessageStream stream)
+    public TBase Read(MessageChannel stream)
     {
         return codec.Read(stream);
     }

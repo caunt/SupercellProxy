@@ -15,7 +15,7 @@ public sealed record MapGameTaskGroup : ICodecProvider<MapGameTaskGroup>
     }
 
     /// <inheritdoc />
-    public static ICodec<MapGameTaskGroup> Codec { get; } = Codecs.Composite(Codecs.Int64,
+    public static ICodec<MapGameTaskGroup> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt64,
         static group => group.OwnerKey,
         Codecs.Memory(MapGameTask.Codec),
         static group => group.Tasks,

@@ -47,7 +47,7 @@ internal sealed class CompositeCodec10<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TTenth> _tenth = tenth ?? throw new ArgumentNullException(nameof(tenth));
     private readonly Func<TValue, TTenth> _getTenth = getTenth ?? throw new ArgumentNullException(nameof(getTenth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The first four fields, read back to back.
         TFirst firstValue = _first.Read(stream);

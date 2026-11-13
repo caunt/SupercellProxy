@@ -25,7 +25,7 @@ public sealed record MapGameTaskState([property: JsonPropertyName("TaskGlobalId"
     private const string TaskTypeFieldName = "TaskType";
 
     /// <inheritdoc />
-    /// <remarks>The payload layout follows the task data's <c>TaskType</c>, resolved through <see cref="MessageStream.CommandDataResolver"/>.</remarks>
+    /// <remarks>The payload layout follows the task data's <c>TaskType</c>, resolved through <see cref="MessageChannel.CommandDataResolver"/>.</remarks>
     public static ICodec<MapGameTaskState> Codec { get; } = Codecs.Create(static stream =>
     {
         int taskGlobalId = stream.ReadVarInt();

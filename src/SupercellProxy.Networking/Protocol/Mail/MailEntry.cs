@@ -16,7 +16,7 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
         static entry => entry.RewardState,
         Codecs.VarInt,
         static entry => entry.Category,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static entry => entry.Id,
         Sender.Codec,
         static entry => new Sender(entry.SenderAvatarName, entry.SenderAvatarIdHigh, entry.SenderAvatarIdLow),
@@ -36,9 +36,9 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
         static entry => new CustomText(entry.CustomSubject, entry.CustomBody),
         Reward.Codec,
         static entry => new Reward(entry.RewardGlobalId, entry.RewardCount),
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.UnknownString0,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.UnknownString1,
         static (rewardState,
             category,
@@ -244,9 +244,9 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     // The custom subject and body.
     private readonly record struct CustomText(string? CustomSubject, string? CustomBody)
     {
-        public static ICodec<CustomText> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+        public static ICodec<CustomText> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
             static segment => segment.CustomSubject,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static segment => segment.CustomBody,
             static (customSubject, customBody) => new CustomText(customSubject, customBody));
     }
@@ -254,9 +254,9 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     // The sender linked account ids.
     private readonly record struct LinkedAccounts(string? FacebookId, string? GameCenterId)
     {
-        public static ICodec<LinkedAccounts> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+        public static ICodec<LinkedAccounts> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
             static segment => segment.FacebookId,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static segment => segment.GameCenterId,
             static (facebookId, gameCenterId) => new LinkedAccounts(facebookId, gameCenterId));
     }
@@ -284,7 +284,7 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     // The sender name and avatar id.
     private readonly record struct Sender(string? SenderAvatarName, int SenderAvatarIdHigh, int SenderAvatarIdLow)
     {
-        public static ICodec<Sender> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+        public static ICodec<Sender> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
             static segment => segment.SenderAvatarName,
             Codecs.VarInt,
             static segment => segment.SenderAvatarIdHigh,
@@ -296,9 +296,9 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
     // The letter subject and body.
     private readonly record struct Text(string? Subject, string? Body)
     {
-        public static ICodec<Text> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+        public static ICodec<Text> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
             static segment => segment.Subject,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static segment => segment.Body,
             static (subject, body) => new Text(subject, body));
     }

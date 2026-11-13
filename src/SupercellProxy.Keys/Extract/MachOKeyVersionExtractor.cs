@@ -4,12 +4,17 @@ namespace SupercellProxy.Keys.Extract;
 
 internal static class MachOKeyVersionExtractor
 {
+    // The Mach-O CPU type of a 64-bit ARM binary, and the most setters or callers the search accepts before it gives up as ambiguous.
     private const uint Arm64 = 0x0100000C;
+    private const int MaximumCandidates = 1024;
+
+    // ARM64 encodings that end or skip over code: a direct call and the mask of its opcode bits, a no-op, and a return.
     private const uint Call = 0x94000000;
     private const uint CallMask = 0xFC000000;
-    private const int MaximumCandidates = 1024;
     private const uint NoOperation = 0xD503201F;
     private const uint Return = 0xD65F03C0;
+
+    // ARM64 stores to the stack, which a constructor's prologue may contain: the mask of their fixed bits and the three forms that match it.
     private const uint StackStoreMask = 0xFFC003E0;
     private const uint StackStorePairOffset = 0xA90003E0;
     private const uint StackStorePairPreindexed = 0xA98003E0;

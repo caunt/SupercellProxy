@@ -15,7 +15,7 @@ public sealed record NeighborhoodFullEntry(string? Text,
     bool Flag) : ICodecProvider<NeighborhoodFullEntry>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodFullEntry> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<NeighborhoodFullEntry> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static entry => entry.Text,
         NeighborhoodHeaderEntry.Codec,
         static entry => entry.Header,

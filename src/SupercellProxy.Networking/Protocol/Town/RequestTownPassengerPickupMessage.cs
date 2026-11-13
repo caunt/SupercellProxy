@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -5,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town;
 
 /// <summary>Requests the selected waiting passengers from the currently visited Town.</summary>
 /// <param name="HelpIds">Help ids of the visited town's waiting passengers to pick up, or <see langword="null"/> for no list, which is written as a count of -1.</param>
-public sealed record RequestTownPassengerPickupMessage(int[]? HelpIds) : CodecMessage<RequestTownPassengerPickupMessage>, ICodecProvider<RequestTownPassengerPickupMessage>
+public sealed record RequestTownPassengerPickupMessage(ImmutableArray<int>? HelpIds) : CodecMessage<RequestTownPassengerPickupMessage>, ICodecProvider<RequestTownPassengerPickupMessage>
 {
     private const int MaximumHelpIdCount = 10_000;
 
@@ -23,9 +26,9 @@ public sealed record RequestTownPassengerPickupMessage(int[]? HelpIds) : CodecMe
         for (int index = 0; index < helpIds.Length; index++)
             helpIds[index] = stream.ReadVarInt();
 
-        return new RequestTownPassengerPickupMessage(helpIds);
+        return new RequestTownPassengerPickupMessage(ImmutableCollectionsMarshal.AsImmutableArray(helpIds));
     },
         static (stream, message) => HelpIdsCodec.Write(stream, message.HelpIds));
 
-    private static ICodec<int[]?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt, CollectionCount.Unbounded);
+    private static ICodec<ImmutableArray<int>?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt, CollectionCount.Unbounded);
 }

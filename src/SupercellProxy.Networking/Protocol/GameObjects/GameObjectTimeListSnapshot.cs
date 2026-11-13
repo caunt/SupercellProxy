@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Json;
 
 
@@ -12,5 +14,5 @@ public sealed record GameObjectTimeListSnapshot
 
     /// <summary>Gets or sets the saved entries of the list, kept as they were received.</summary>
     /// <value>Each entry as raw JSON, not decoded, so it is written back unchanged; empty when the list has no entries.</value>
-    public EncodedDocumentValue[] List { get; init; } = [];
+    public ImmutableArray<EncodedDocumentValue> List { get; init; } = [];
 }

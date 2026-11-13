@@ -35,7 +35,7 @@ internal sealed class CompositeCodec7<TValue, TFirst, TSecond, TThird, TFourth, 
     private readonly ICodec<TSeventh> _seventh = seventh ?? throw new ArgumentNullException(nameof(seventh));
     private readonly Func<TValue, TSeventh> _getSeventh = getSeventh ?? throw new ArgumentNullException(nameof(getSeventh));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The first four fields, each consuming exactly its own bytes.
         TFirst firstValue = _first.Read(stream);

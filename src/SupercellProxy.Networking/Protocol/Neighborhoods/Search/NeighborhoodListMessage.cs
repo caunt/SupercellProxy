@@ -11,7 +11,7 @@ public sealed record NeighborhoodListMessage(ReadOnlyMemory<NeighborhoodHeaderEn
     /// <inheritdoc />
     public static ICodec<NeighborhoodListMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(NeighborhoodHeaderEntry.Codec),
         static message => message.Neighborhoods,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.SearchText,
         static (neighborhoods, searchText) => new NeighborhoodListMessage(neighborhoods, searchText));
 }

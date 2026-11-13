@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>A value without wire fields.</summary>
 internal sealed class UnitCodec<TValue>(Func<TValue> factory) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Customization;
@@ -26,12 +27,12 @@ public sealed record RenovatorEventDefinition
     /// <summary>Gets or sets the category-specific purchase discounts.</summary>
     /// <value>One discount per named category, read from <c>discounts</c>; <see langword="null"/> when the event discounts nothing.</value>
     [JsonPropertyName("discounts")]
-    public RenovatorDiscountDefinition[]? Discounts { get; init; }
+    public ImmutableArray<RenovatorDiscountDefinition>? Discounts { get; init; }
 
     /// <summary>Gets or sets the ordered, asset-qualified parts to offer instead of random stock.</summary>
     /// <value>Names such as <c>Truck.Name</c>, <c>Home.Name</c> or <c>RoadsideShop.Name</c>, read from <c>forcedStock</c>; <see langword="null"/> when absent.</value>
     [JsonPropertyName("forcedStock")]
-    public string[]? ForcedStock { get; init; }
+    public ImmutableArray<string>? ForcedStock { get; init; }
 
     /// <summary>Gets or sets a value indicating whether this event permits rerolling stock.</summary>
     /// <value><see langword="true"/> if the event document's <c>rerollAllowed</c> is set; otherwise, <see langword="false"/>.</value>
@@ -42,7 +43,7 @@ public sealed record RenovatorEventDefinition
     /// <summary>Gets or sets the diamond prices for successive rerolls of a category.</summary>
     /// <value>The price of the first, second and later rerolls, read from <c>rerollPrices</c>; used only when <see cref="AllowedRerolls"/> is not -1.</value>
     [JsonPropertyName("rerollPrices")]
-    public int[]? RerollPrices { get; init; }
+    public ImmutableArray<int>? RerollPrices { get; init; }
 
     /// <summary>Gets or sets the stock reset hour; minus one keeps the normal hour.</summary>
     /// <value>The UTC hour of the stock day the renovator arrives, read from <c>resetHour</c>; -1 by default, which uses the configured spawn hour.</value>

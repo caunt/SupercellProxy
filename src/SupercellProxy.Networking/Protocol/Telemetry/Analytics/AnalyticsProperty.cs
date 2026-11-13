@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsProperty(string? Key, string? Value) : ICodecProvider<AnalyticsProperty>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<AnalyticsProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static value => value.Key,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.Value,
         static (key, @value) => new AnalyticsProperty(key, value));
 

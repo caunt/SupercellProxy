@@ -34,9 +34,9 @@ public sealed class ProtocolClientFactory(IHttpClientFactory webClients,
     }
 
     /// <summary>Creates a client over an existing stream; the caller owns its lifetime.</summary>
-    /// <param name="stream">The already open or replayed message stream the client sends and receives on; it must not be <see langword="null"/>.</param>
+    /// <param name="stream">The already open or replayed message channel the client sends and receives on; it must not be <see langword="null"/>.</param>
     /// <returns>A new <see cref="ProtocolClient"/> bound to <paramref name="stream"/> that has no login configuration, so it cannot connect on its own.</returns>
-    public ProtocolClient Create(MessageStream stream)
+    public ProtocolClient Create(MessageChannel stream)
     {
         return new(stream, webClients.CreateClient(ClientWebClientName), timeProvider, loggerFactory.CreateLogger<ProtocolClient>(), serverKeys);
     }

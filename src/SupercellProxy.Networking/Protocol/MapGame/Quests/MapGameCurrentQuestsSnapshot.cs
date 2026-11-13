@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -10,5 +11,5 @@ public sealed record MapGameCurrentQuestsSnapshot : ExtensibleDocument
     /// <summary>Gets or sets each of today's daily quests with its progress.</summary>
     /// <value>One entry per quest in saved order; empty by default.</value>
     [JsonPropertyName("Quests")]
-    public MapGameDailyQuestSnapshot[] Quests { get; init; } = [];
+    public ImmutableArray<MapGameDailyQuestSnapshot> Quests { get; init; } = [];
 }

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Json;
 
 namespace SupercellProxy.Networking.Protocol.Town;
@@ -14,13 +16,13 @@ public sealed record TownPassengerServiceSnapshot : ExtensibleDocument
     /// <remarks>A fresh request starts as <see langword="false"/>.</remarks>
     public bool Completed { get; init; }
 
-    /// <summary>Gets or sets the required goods by data id.</summary>
-    /// <value>Data global ids of the goods the service needs, in the same order as <see cref="RequiredGoodAmounts"/>; empty by default.</value>
-    public int[] RequiredGoods { get; init; } = [];
-
     /// <summary>Gets or sets the quantity of each required good.</summary>
     /// <value>Amount of the good at the same index in <see cref="RequiredGoods"/>; empty by default.</value>
-    public int[] RequiredGoodAmounts { get; init; } = [];
+    public ImmutableArray<int> RequiredGoodAmounts { get; init; } = [];
+
+    /// <summary>Gets or sets the required goods by data id.</summary>
+    /// <value>Data global ids of the goods the service needs, in the same order as <see cref="RequiredGoodAmounts"/>; empty by default.</value>
+    public ImmutableArray<int> RequiredGoods { get; init; } = [];
 
     /// <summary>Gets or sets the service building's data id.</summary>
     /// <value>Data global id of the service building type that performs this request; 0 is the default.</value>

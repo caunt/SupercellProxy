@@ -27,7 +27,7 @@ internal sealed class CompositeCodec5<TValue, TFirst, TSecond, TThird, TFourth, 
     private readonly ICodec<TFifth> _fifth = fifth ?? throw new ArgumentNullException(nameof(fifth));
     private readonly Func<TValue, TFifth> _getFifth = getFifth ?? throw new ArgumentNullException(nameof(getFifth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // Each field codec starts where the previous one stopped, so this order is the wire order.
         TFirst firstValue = _first.Read(stream);

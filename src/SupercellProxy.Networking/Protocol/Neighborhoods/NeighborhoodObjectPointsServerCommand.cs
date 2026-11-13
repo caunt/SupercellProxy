@@ -10,11 +10,11 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodObjectPointsServerCommand(int NeighborhoodPoints, int ActiveEventId, int EventStateValue) : CodecServerCommand<NeighborhoodObjectPointsServerCommand>, ICommandCodecProvider<NeighborhoodObjectPointsServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<NeighborhoodObjectPointsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+    public static CommandCodec<NeighborhoodObjectPointsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianInt32,
         static command => command.NeighborhoodPoints,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.ActiveEventId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.EventStateValue,
         static (points, eventId, stateValue) => new NeighborhoodObjectPointsServerCommand(points, eventId, stateValue)));
 }

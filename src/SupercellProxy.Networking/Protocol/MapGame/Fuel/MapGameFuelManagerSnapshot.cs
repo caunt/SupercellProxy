@@ -1,15 +1,17 @@
+using System.Collections.Immutable;
+
 namespace SupercellProxy.Networking.Protocol.MapGame.Fuel;
 
 /// <summary>Represents retained Valley fuel-generator state.</summary>
 public sealed record MapGameFuelManagerSnapshot
 {
-    /// <summary>Gets or sets the active Valley sun-point task ids.</summary>
-    /// <value>Global ids of today's sun-point task rows, paired by index with <see cref="Counters"/>. Empty by default.</value>
-    public int[] CurrentTasks { get; init; } = [];
-
     /// <summary>Gets or sets the active Valley sun-point task counters.</summary>
     /// <value>Non-negative progress per task in <see cref="CurrentTasks"/>, in the same order and of the same length.</value>
-    public int[] Counters { get; init; } = [];
+    public ImmutableArray<int> Counters { get; init; } = [];
+
+    /// <summary>Gets or sets the active Valley sun-point task ids.</summary>
+    /// <value>Global ids of today's sun-point task rows, paired by index with <see cref="Counters"/>. Empty by default.</value>
+    public ImmutableArray<int> CurrentTasks { get; init; } = [];
 
     /// <summary>Gets or sets a value indicating whether a Farm Pass fuel spin is available.</summary>
     /// <value><see langword="true"/> if the Farm Pass <c>ExtraFuelSpin</c> perk gave a spin today that is still unused; otherwise, <see langword="false"/>.</value>
@@ -29,7 +31,7 @@ public sealed record MapGameFuelManagerSnapshot
 
     /// <summary>Gets or sets the next Valley sun-point task ids.</summary>
     /// <value>Task row global ids prepared for the day in <see cref="NextValidTasksDayIndex"/>. Empty by default.</value>
-    public int[] NextTasks { get; init; } = [];
+    public ImmutableArray<int> NextTasks { get; init; } = [];
 
     /// <summary>Gets or sets the next day index at which Valley sun-point tasks may refresh.</summary>
     /// <value>A UTC day number (days since 1970-01-01) one past the day of the last reset.</value>
@@ -49,7 +51,7 @@ public sealed record MapGameFuelManagerSnapshot
 
     /// <summary>Gets or sets the retained randomized fuel prizes.</summary>
     /// <value>The fuel amounts on the wheel, normally four, sorted without repeats.</value>
-    public int[] RandomizedFuelPrizes { get; init; } = [];
+    public ImmutableArray<int> RandomizedFuelPrizes { get; init; } = [];
 
     /// <summary>Gets or sets the retained Valley sun-point level.</summary>
     /// <value>The sun-point progression level whose <c>RequiredSunPointsToFillBar</c> the next bar needs.</value>

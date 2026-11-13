@@ -11,10 +11,12 @@ public sealed record PendingProductionSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the extra products awarded by the neighborhood perk when production started.</summary>
     /// <value>How many additional copies of the product the perk added, on top of the one ordered; 0 by default.</value>
     public int BonusProductAmount { get; init; }
+
     /// <summary>Gets or sets whether this production is an additional perk output.</summary>
     /// <value><see langword="true"/> if this entry is an extra output of the neighborhood perk; otherwise, <see langword="false"/>.</value>
     /// <remarks>The flag defaults to <see langword="false"/>.</remarks>
     public bool CreatedFromBonusProduct { get; init; }
+
     /// <summary>Gets or sets the product's native data id.</summary>
     /// <value>The global id of the product's table row, saved under the <c>ID</c> key.</value>
     [JsonPropertyName("ID")]

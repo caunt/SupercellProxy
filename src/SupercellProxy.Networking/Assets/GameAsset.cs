@@ -19,8 +19,7 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
 {
     // Identity keys keep record copies with changed CSV content separate. Weak keys
     // let session-specific assets and their parsed tables be collected together.
-    private static readonly ConditionalWeakTable<GameAsset, Lazy<GameDataTable>> ParsedTables =
-        [];
+    private static readonly ConditionalWeakTable<GameAsset, Lazy<GameDataTable>> ParsedTables = [];
 
     /// <summary>
     /// Gets the file's bytes decoded as 7-bit text; bytes outside the ASCII range become question marks.
@@ -41,8 +40,7 @@ public sealed record GameAsset(GameAssetFingerprintEntry Fingerprint, Memory<byt
     /// </summary>
     /// <value><see langword="true"/> if the extension of <see cref="GameAssetFingerprintEntry.File"/> is <c>.csv</c> in any letter case;
     /// otherwise, <see langword="false"/>.</value>
-    public bool IsCsv =>
-        Path.GetExtension(Fingerprint.File).Equals(value: ".csv", StringComparison.OrdinalIgnoreCase);
+    public bool IsCsv => Path.GetExtension(Fingerprint.File).Equals(value: ".csv", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Gets whether the file is a CSV game data table: a column-name row and a column-type row followed by entries.

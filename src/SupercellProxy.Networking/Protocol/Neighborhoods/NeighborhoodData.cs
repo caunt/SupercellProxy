@@ -27,7 +27,7 @@ public sealed record NeighborhoodData([property: JsonPropertyName("NeighborhoodI
     /// <inheritdoc />
     public static ICodec<NeighborhoodData> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.NeighborhoodId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.NeighborhoodName,
         Codecs.VarInt,
         static value => value.NeighborhoodRole,

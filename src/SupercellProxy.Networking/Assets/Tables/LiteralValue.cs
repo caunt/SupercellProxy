@@ -14,7 +14,7 @@ public readonly record struct LiteralValue
     /// <param name="value">The cell's number, as parsed from a column declared <c>int</c>; any <see cref="int"/> is accepted.</param>
     public LiteralValue(int value)
     {
-        Kind = LiteralKind.Integer;
+        Kind = LiteralKind.Integer32;
         _integer = value;
     }
 
@@ -23,7 +23,7 @@ public readonly record struct LiteralValue
     /// <see cref="TryGetInt32"/> refuses it even when it fits.</param>
     public LiteralValue(long value)
     {
-        Kind = LiteralKind.LongInteger;
+        Kind = LiteralKind.Integer64;
         _integer = value;
     }
 
@@ -32,7 +32,7 @@ public readonly record struct LiteralValue
     /// <see cref="double"/> and read back unchanged by <see cref="TryGetSingle"/>.</param>
     public LiteralValue(float value)
     {
-        Kind = LiteralKind.Single;
+        Kind = LiteralKind.SinglePrecision;
         _floatingPoint = value;
     }
 
@@ -41,7 +41,7 @@ public readonly record struct LiteralValue
     /// back.</param>
     public LiteralValue(double value)
     {
-        Kind = LiteralKind.Double;
+        Kind = LiteralKind.DoublePrecision;
         _floatingPoint = value;
     }
 
@@ -62,7 +62,7 @@ public readonly record struct LiteralValue
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        Kind = LiteralKind.String;
+        Kind = LiteralKind.Text;
         _text = value;
     }
 
@@ -77,11 +77,11 @@ public readonly record struct LiteralValue
         return Kind switch
         {
             LiteralKind.Null => string.Empty,
-            LiteralKind.Integer or LiteralKind.LongInteger => _integer.ToString(CultureInfo.InvariantCulture),
-            LiteralKind.Single => float.CreateChecked(_floatingPoint).ToString(CultureInfo.InvariantCulture),
-            LiteralKind.Double => _floatingPoint.ToString(CultureInfo.InvariantCulture),
+            LiteralKind.Integer32 or LiteralKind.Integer64 => _integer.ToString(CultureInfo.InvariantCulture),
+            LiteralKind.SinglePrecision => float.CreateChecked(_floatingPoint).ToString(CultureInfo.InvariantCulture),
+            LiteralKind.DoublePrecision => _floatingPoint.ToString(CultureInfo.InvariantCulture),
             LiteralKind.Boolean => (_integer != 0).ToString(),
-            LiteralKind.String => _text ?? string.Empty,
+            LiteralKind.Text => _text ?? string.Empty,
             _ => string.Empty,
         };
     }
@@ -99,52 +99,52 @@ public readonly record struct LiteralValue
 
     /// <summary>Reads a cell declared as a double-precision floating-point number.</summary>
     /// <param name="value">Receives the number, or 0 when the cell is of another kind.</param>
-    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.Double"/>, so a
-    /// <see cref="LiteralKind.Single"/> or integer cell does not qualify; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.DoublePrecision"/>, so a
+    /// <see cref="LiteralKind.SinglePrecision"/> or integer cell does not qualify; otherwise, <see langword="false"/>.</returns>
     public bool TryGetDouble(out double value)
     {
-        value = Kind == LiteralKind.Double ? _floatingPoint : default;
+        value = Kind == LiteralKind.DoublePrecision ? _floatingPoint : default;
 
-        return Kind == LiteralKind.Double;
+        return Kind == LiteralKind.DoublePrecision;
     }
 
     /// <summary>Reads a cell declared as a 32-bit integer.</summary>
     /// <param name="value">Receives the number, or 0 when the cell is of another kind.</param>
-    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.Integer"/>, so a
-    /// <see cref="LiteralKind.LongInteger"/> cell does not qualify even when its value would fit; otherwise,
+    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.Integer32"/>, so a
+    /// <see cref="LiteralKind.Integer64"/> cell does not qualify even when its value would fit; otherwise,
     /// <see langword="false"/>.</returns>
     public bool TryGetInt32(out int value)
     {
-        value = Kind == LiteralKind.Integer ? int.CreateChecked(_integer) : default;
+        value = Kind == LiteralKind.Integer32 ? int.CreateChecked(_integer) : default;
 
-        return Kind == LiteralKind.Integer;
+        return Kind == LiteralKind.Integer32;
     }
 
     /// <summary>Reads a cell declared as a 64-bit integer.</summary>
     /// <param name="value">Receives the number, or 0 when the cell is of another kind.</param>
-    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.LongInteger"/>, so a 32-bit
-    /// <see cref="LiteralKind.Integer"/> cell does not qualify; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.Integer64"/>, so a 32-bit
+    /// <see cref="LiteralKind.Integer32"/> cell does not qualify; otherwise, <see langword="false"/>.</returns>
     public bool TryGetInt64(out long value)
     {
-        value = Kind == LiteralKind.LongInteger ? _integer : default;
+        value = Kind == LiteralKind.Integer64 ? _integer : default;
 
-        return Kind == LiteralKind.LongInteger;
+        return Kind == LiteralKind.Integer64;
     }
 
     /// <summary>Reads a cell declared as a single-precision floating-point number.</summary>
     /// <param name="value">Receives the number, or 0 when the cell is of another kind.</param>
-    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.Single"/>, so a
-    /// <see cref="LiteralKind.Double"/> cell does not qualify; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if <see cref="Kind"/> is exactly <see cref="LiteralKind.SinglePrecision"/>, so a
+    /// <see cref="LiteralKind.DoublePrecision"/> cell does not qualify; otherwise, <see langword="false"/>.</returns>
     public bool TryGetSingle(out float value)
     {
-        value = Kind == LiteralKind.Single ? float.CreateChecked(_floatingPoint) : default;
+        value = Kind == LiteralKind.SinglePrecision ? float.CreateChecked(_floatingPoint) : default;
 
-        return Kind == LiteralKind.Single;
+        return Kind == LiteralKind.SinglePrecision;
     }
 
     /// <summary>Reads a cell declared as text.</summary>
     /// <param name="value">Receives the text, or <see langword="null"/> when the cell is not text.</param>
-    /// <returns><see langword="true"/> if <see cref="Kind"/> is <see cref="LiteralKind.String"/>, which also covers columns of an
+    /// <returns><see langword="true"/> if <see cref="Kind"/> is <see cref="LiteralKind.Text"/>, which also covers columns of an
     /// undeclared type; otherwise, <see langword="false"/>.</returns>
     public bool TryGetString([NotNullWhen(true)] out string? value)
     {

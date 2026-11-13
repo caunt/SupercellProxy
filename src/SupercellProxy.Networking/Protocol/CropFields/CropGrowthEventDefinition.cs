@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.CropFields;
@@ -8,7 +9,7 @@ public sealed record CropGrowthEventDefinition
     /// <summary>Gets or sets the affected crop data names.</summary>
     /// <value>Names of rows in the fields table, read from <c>crops</c>; with a positive <see cref="PerPlayerCropLimit"/> only a per-player selection of them is affected. Empty by default.</value>
     [JsonPropertyName("crops")]
-    public string[] Crops { get; init; } = [];
+    public ImmutableArray<string> Crops { get; init; } = [];
 
     /// <summary>Gets or sets the retained per-player crop limit.</summary>
     /// <value>How many of <see cref="Crops"/> each player gets the bonus for, read from <c>perPlayerCropsLimit</c>; 0 or less applies the bonus to every listed crop.</value>

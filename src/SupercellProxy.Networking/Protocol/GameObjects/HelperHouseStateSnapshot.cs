@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -24,7 +25,7 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     /// <value>One flag per net and then per bait, in table order, where any non-zero entry marks that tackle as one Angus keeps stocked automatically; <see langword="null"/> means none is.</value>
     [JsonPropertyName("LureAutoTargets")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? LureAutoTargets { get; init; }
+    public ImmutableArray<int>? LureAutoTargets { get; init; }
 
     /// <summary>
     /// Gets or sets the caretaker's feeding mode, when retained: 0 also feeds every hungry animal, 1 also keeps spare feed, and 2 works for the
@@ -44,7 +45,7 @@ public sealed record HelperHouseStateSnapshot : ExtensibleDocument
     /// <value>One amount per good the helper handles, in that helper's table order (for Angus, nets then baits); <see langword="null"/> is read as no orders.</value>
     [JsonPropertyName("Orders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? Orders { get; init; }
+    public ImmutableArray<int>? Orders { get; init; }
 
     /// <summary>
     /// Gets or sets where the helper is: 1 waiting for the free offer, 2 hired and working, 3 showing a paid offer for a while, 4 offering a

@@ -9,6 +9,6 @@ public enum ProtocolFlagKind
     Null,
     /// <summary>The property contained a JSON boolean.</summary>
     Boolean,
-    /// <summary>The property contained an integer flag.</summary>
-    Integer,
+    /// <summary>The property contained a JSON number.</summary>
+    Number,
 }

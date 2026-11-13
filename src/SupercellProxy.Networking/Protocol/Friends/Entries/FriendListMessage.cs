@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -6,13 +8,14 @@ namespace SupercellProxy.Networking.Protocol.Friends.Entries;
 /// <summary>Carries a nullable, mode-specific list of friend entries.</summary>
 /// <param name="Mode">Which list the entries belong to: <see cref="RelationshipMode"/> (3) for friends and pending requests, <see cref="RecipientMode"/> (4) for the recipient list; other modes are not yet identified.</param>
 /// <param name="Entries">The list's entries, at most 100,000, or <see langword="null"/> when the server sends no list.</param>
-public sealed record FriendListMessage(int Mode, FriendEntry[]? Entries) : CodecMessage<FriendListMessage>, ICodecProvider<FriendListMessage>
+public sealed record FriendListMessage(int Mode, ImmutableArray<FriendEntry>? Entries) : CodecMessage<FriendListMessage>, ICodecProvider<FriendListMessage>
 {
     /// <summary>Selects the separate recipient-list consumer.</summary>
     public const int RecipientMode = 4;
 
     /// <summary>Selects the native in-game friend and pending-request list.</summary>
     public const int RelationshipMode = 3;
+
     private const int MaximumEntryCount = 100_000;
 
     /// <inheritdoc />

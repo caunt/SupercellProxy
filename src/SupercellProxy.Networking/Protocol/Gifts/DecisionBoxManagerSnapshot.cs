@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Gifts;
@@ -12,7 +13,8 @@ public sealed record DecisionBoxManagerSnapshot
     /// </summary>
     /// <value>Boxes in the order they were received. Empty by default.</value>
     [JsonPropertyName("PendingBoxes")]
-    public PendingDecisionBoxSnapshot[] PendingBoxes { get; init; } = [];
+    public ImmutableArray<PendingDecisionBoxSnapshot> PendingBoxes { get; init; } = [];
+
     /// <summary>
     /// Gets or sets the saved random seed of the decision boxes.
     /// </summary>

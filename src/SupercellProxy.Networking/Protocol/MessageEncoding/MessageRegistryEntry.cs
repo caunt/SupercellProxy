@@ -6,7 +6,7 @@ namespace SupercellProxy.Networking.Protocol.MessageEncoding;
 /// <summary>A registered message type and the codec function that reads its payload.</summary>
 /// <param name="Type">The message record type.</param>
 /// <param name="Factory">Reads the message payload.</param>
-public sealed record MessageRegistryEntry(Type Type, Func<MessageStream, IMessage> Factory)
+public sealed record MessageRegistryEntry(Type Type, Func<MessageChannel, IMessage> Factory)
 {
     /// <summary>Gets or sets the name captures use for the message.</summary>
     /// <value>

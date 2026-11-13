@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Visitors;
@@ -7,7 +8,7 @@ public sealed record FarmVisitorSpecialOffersEventDefinition
 {
     /// <summary>Gets or sets the event's ordered visitor trades.</summary>
     /// <value>Trades the event can offer, in event order. Empty by default.</value>
-    public FarmVisitorSpecialOffer[] Deliverables { get; init; } = [];
+    public ImmutableArray<FarmVisitorSpecialOffer> Deliverables { get; init; } = [];
 
     /// <summary>Gets or sets the percentage chance of choosing a special trade.</summary>
     /// <value>Percent from 0 to 100, read from <c>probabilityOfRequestingSpecialItems</c>. 0 by default.</value>

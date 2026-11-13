@@ -12,14 +12,14 @@ public sealed record ShopEventsServerCommand : CodecServerCommand<ShopEventsServ
     /// Initializes a new instance of the <see cref="ShopEventsServerCommand"/> record. Wraps a delivery of live event definitions for the shop-event manager.
     /// </summary>
     /// <param name="shopEvents">The definitions; <see langword="null"/> when the server sent none.</param>
-    public ShopEventsServerCommand(ShopEventCollection? shopEvents)
+    public ShopEventsServerCommand(ShopEventList? shopEvents)
     {
-        ShopEventCollection = shopEvents;
+        ShopEventList = shopEvents;
     }
 
     /// <inheritdoc />
-    public static CommandCodec<ShopEventsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Optional(ShopEventCollection.Codec),
-        static command => command.ShopEventCollection,
+    public static CommandCodec<ShopEventsServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Optional(ShopEventList.Codec),
+        static command => command.ShopEventList,
         static shopEvents => new ShopEventsServerCommand(shopEvents)));
 
     /// <summary>
@@ -27,5 +27,5 @@ public sealed record ShopEventsServerCommand : CodecServerCommand<ShopEventsServ
     /// The server sends a large copy on every home load and visit.
     /// </summary>
     /// <value>The collection that follows a <see langword="true"/> presence flag on the wire, fixed when the command is constructed; <see langword="null"/> when the flag is <see langword="false"/>.</value>
-    public ShopEventCollection? ShopEventCollection { get; }
+    public ShopEventList? ShopEventList { get; }
 }

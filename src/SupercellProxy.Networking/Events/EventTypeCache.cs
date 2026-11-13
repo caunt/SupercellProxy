@@ -5,7 +5,6 @@ namespace SupercellProxy.Networking.Events;
 /// a dictionary lookup.
 /// </summary>
 internal static class EventTypeCache<TEvent>
-    where TEvent : IEvent
 {
     /// <summary>
     /// Slot of <typeparamref name="TEvent"/> in the event bus's handler array; stays the same for the life of the process.

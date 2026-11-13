@@ -13,15 +13,15 @@ namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 public sealed record LogicDeviceLinkResponseMessage(int ErrorCode, string? Text, string? SecondText, int Value, string? ThirdText, LongId AccountId) : CodecMessage<LogicDeviceLinkResponseMessage>, ICodecProvider<LogicDeviceLinkResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LogicDeviceLinkResponseMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<LogicDeviceLinkResponseMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.ErrorCode,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Text,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.SecondText,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Value,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.ThirdText,
         Codecs.LongId,
         static message => message.AccountId,

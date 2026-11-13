@@ -19,6 +19,7 @@ public readonly record struct LongId : IEquatable<LongId>
     /// The all-zero id, which the protocol uses for "no id".
     /// </summary>
     public static readonly LongId Empty;
+
     /// <summary>Initializes a new instance of the <see cref="LongId"/> struct. Creates an id from its two 32-bit words.</summary>
     /// <param name="highInt32">The shard word, sent first on the wire; any value is accepted, but only 0 to 255 leaves the id a player tag form.</param>
     /// <param name="lowInt32">The row word within the shard, sent second; any value is accepted and is read as unsigned when the id is combined into 64 bits.</param>

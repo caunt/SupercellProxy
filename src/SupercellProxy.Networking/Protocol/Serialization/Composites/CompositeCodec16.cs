@@ -71,7 +71,7 @@ internal sealed class CompositeCodec16<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TSixteenth> _sixteenth = sixteenth ?? throw new ArgumentNullException(nameof(sixteenth));
     private readonly Func<TValue, TSixteenth> _getSixteenth = getSixteenth ?? throw new ArgumentNullException(nameof(getSixteenth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The opening fields of the record in wire order.
         TFirst firstValue = _first.Read(stream);

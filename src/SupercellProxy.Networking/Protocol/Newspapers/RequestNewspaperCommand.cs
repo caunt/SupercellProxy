@@ -16,7 +16,7 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
 {
     /// <inheritdoc />
     public static CommandCodec<RequestNewspaperCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
-            Codecs.Composite(Codecs.String,
+            Codecs.Composite(Codecs.Utf8String,
                 static command => command.CountryCode,
                 Codecs.Boolean,
                 static command => command.SpendDiamonds,
@@ -25,7 +25,7 @@ public sealed record RequestNewspaperCommand(bool SpendDiamonds, string CountryC
                 static (countryCode, spendDiamonds, alternate) => new RequestNewspaperCommand(spendDiamonds, countryCode, alternate)),
             Codecs.Composite(Codecs.Boolean,
                 static command => command.SpendDiamonds,
-                Codecs.String,
+                Codecs.Utf8String,
                 static command => command.CountryCode,
                 Codecs.Boolean,
                 static command => command.Alternate,

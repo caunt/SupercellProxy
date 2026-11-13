@@ -15,7 +15,7 @@ internal sealed class CompositeCodec2<TValue, TFirst, TSecond>(ICodec<TFirst> fi
     private readonly ICodec<TSecond> _second = second ?? throw new ArgumentNullException(nameof(second));
     private readonly Func<TValue, TSecond> _getSecond = getSecond ?? throw new ArgumentNullException(nameof(getSecond));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);

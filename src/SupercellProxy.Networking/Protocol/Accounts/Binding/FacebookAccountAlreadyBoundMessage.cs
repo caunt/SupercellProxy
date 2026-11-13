@@ -16,11 +16,11 @@ public sealed record FacebookAccountAlreadyBoundMessage(int SecondsSinceLastPlay
     /// <inheritdoc />
     public static ICodec<FacebookAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.FacebookId,
         Codecs.OptionalLongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PassToken,
         Codecs.Boolean,
         static message => message.IsSupercellId,

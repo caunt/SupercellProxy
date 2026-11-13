@@ -24,7 +24,7 @@ public sealed record NeighborhoodGiftStreamEntry(StreamEntryHeader Header, int V
         static entry => entry.Value2,
         Codecs.VarInt,
         static entry => entry.Value3,
-        Codecs.NullableMemory(Codecs.LongId, CollectionCount.Int32),
+        Codecs.NullableMemory(Codecs.LongId, CollectionCount.BigEndianInt32),
         static entry => entry.ClaimedAvatarIds,
         static (header, value0, value1, value2, value3, claimedAvatarIds) => new NeighborhoodGiftStreamEntry(header, value0, value1, value2, value3, claimedAvatarIds));
 

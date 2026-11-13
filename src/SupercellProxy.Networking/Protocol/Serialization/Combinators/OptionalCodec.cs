@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>A reference value preceded by a presence flag.</summary>
 internal sealed class OptionalCodec<TValue>(ICodec<TValue> codec) : ICodec<TValue?> where TValue : class
 {
-    public TValue? Read(MessageStream stream)
+    public TValue? Read(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

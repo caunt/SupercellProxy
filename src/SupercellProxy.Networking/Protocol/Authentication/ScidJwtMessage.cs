@@ -13,9 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record ScidJwtMessage(string Token, long ExpiresAtUnixTimeSeconds) : CodecMessage<ScidJwtMessage>, ICodecProvider<ScidJwtMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ScidJwtMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.String,
+    public static ICodec<ScidJwtMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Utf8String,
             static message => message.Token,
-            Codecs.Int64,
+            Codecs.BigEndianInt64,
             static message => message.ExpiresAtUnixTimeSeconds,
             static (token, expiresAtUnixTimeSeconds) => new ScidJwtMessage(token, expiresAtUnixTimeSeconds)),
         trailingDataMessage: "The Supercell ID JWT message has trailing data.");

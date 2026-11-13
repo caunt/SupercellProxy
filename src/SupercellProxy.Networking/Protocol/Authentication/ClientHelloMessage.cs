@@ -9,23 +9,23 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record ClientHelloMessage : CodecMessage<ClientHelloMessage>, ICodecProvider<ClientHelloMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClientHelloMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<ClientHelloMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.ProtocolVersion,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.KeyVersion,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.MajorVersion,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.MinorVersion,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.PatchVersion,
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.FingerprintSha1,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.DeviceType,
-        Codecs.Enum<AppStore>(Codecs.Int32),
+        Codecs.Enum<AppStore>(Codecs.BigEndianInt32),
         static message => message.AppStore,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Unknown1,
         static (protocolVersion, keyVersion, majorVersion, minorVersion, patchVersion, fingerprintSha1, deviceType, appStore, unknown1) => new ClientHelloMessage { ProtocolVersion = protocolVersion, KeyVersion = keyVersion, MajorVersion = majorVersion, MinorVersion = minorVersion, PatchVersion = patchVersion, FingerprintSha1 = fingerprintSha1, DeviceType = deviceType, AppStore = appStore, Unknown1 = unknown1 });
 

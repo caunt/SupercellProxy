@@ -14,13 +14,13 @@ public sealed record AvatarProfileMessage(LongId AvatarId, string? FacebookId, s
     /// <inheritdoc />
     public static ICodec<AvatarProfileMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.AvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.FacebookId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.GamecenterId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.SupercellId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.FarmName,
         static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarProfileMessage(avatarId, facebookId, gamecenterId, supercellId, farmName));
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby;
@@ -13,7 +14,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the ordered bingo-line reward sets.</summary>
     /// <value>Reward sets named after rows of the derby rewards table, one per bingo line in order (saved as <c>bingoReward</c>); individual entries may be <see langword="null"/>, and <see langword="null"/> means no bingo rewards.</value>
     [JsonPropertyName("bingoReward")]
-    public DerbyRewardSetDefinition?[]? BingoRewards { get; init; }
+    public ImmutableArray<DerbyRewardSetDefinition?>? BingoRewards { get; init; }
 
     /// <summary>Gets or sets the percentage of tasks relevant to a bingo board.</summary>
     /// <value>The share, in percent, of offered tasks that count toward the bingo board (saved as <c>bingoRelevantTaskPercentage</c>); 0 when the definition omits it.</value>
@@ -23,7 +24,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the task names excluded from the board.</summary>
     /// <value>Neighbourhood-task names that never appear on this league's board (saved as <c>blackListedTaskNames</c>), or <see langword="null"/> when none are blocked.</value>
     [JsonPropertyName("blackListedTaskNames")]
-    public string[]? BlockedTaskNames { get; init; }
+    public ImmutableArray<string>? BlockedTaskNames { get; init; }
 
     /// <summary>Gets or sets the placement-reward quantity percentage.</summary>
     /// <value>Percent added to the quantity of a boosted placement reward (saved as <c>boostedTopRewardQuantityPercentage</c>).</value>
@@ -33,7 +34,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the boosted reward item names.</summary>
     /// <value>Names of the reward items the boost percentages apply to, or <see langword="null"/> when none are boosted.</value>
     [JsonPropertyName("boostedRewardNames")]
-    public string[]? BoostedRewardNames { get; init; }
+    public ImmutableArray<string>? BoostedRewardNames { get; init; }
 
     /// <summary>Gets or sets the extra spawn percentage for the selected rewards.</summary>
     /// <value>Percent by which each boosted reward is made more likely to be offered (saved as <c>boostedRewardExtraSpawnPercentage</c>).</value>
@@ -48,12 +49,12 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the ordered bunny reward sets.</summary>
     /// <value>Reward sets named after rows of the derby rewards table, in order (saved as <c>bunnyReward</c>); individual entries may be <see langword="null"/>, and <see langword="null"/> means no bunny rewards.</value>
     [JsonPropertyName("bunnyReward")]
-    public DerbyRewardSetDefinition?[]? BunnyRewards { get; init; }
+    public ImmutableArray<DerbyRewardSetDefinition?>? BunnyRewards { get; init; }
 
     /// <summary>Gets or sets the bunny task bundle names.</summary>
     /// <value>Names of <c>BunnyDerby</c> neighbourhood-task rows (saved as <c>bunnyDerbyTaskNames</c>), or <see langword="null"/> when the league offers none.</value>
     [JsonPropertyName("bunnyDerbyTaskNames")]
-    public string[]? BunnyTaskNames { get; init; }
+    public ImmutableArray<string>? BunnyTaskNames { get; init; }
 
     /// <summary>Gets or sets the extra bunny-task spawn percentage.</summary>
     /// <value>Percent by which bunny tasks are made more likely to appear on the board; 0 when the definition omits it.</value>
@@ -68,12 +69,12 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the ordered bunny appearances and catch windows.</summary>
     /// <value>One timing entry per bunny in order (saved as <c>bunnyTimeConfiguration</c>); individual entries may be <see langword="null"/>, and <see langword="null"/> means no bunnies.</value>
     [JsonPropertyName("bunnyTimeConfiguration")]
-    public DerbyBunnyTimeDefinition?[]? BunnyTimes { get; init; }
+    public ImmutableArray<DerbyBunnyTimeDefinition?>? BunnyTimes { get; init; }
 
     /// <summary>Gets or sets the chill task bundle names.</summary>
     /// <value>Names of <c>ChillDerby</c> neighbourhood-task rows (saved as <c>chillDerbyTaskNames</c>), or <see langword="null"/> when the league offers none.</value>
     [JsonPropertyName("chillDerbyTaskNames")]
-    public string[]? ChillTaskNames { get; init; }
+    public ImmutableArray<string>? ChillTaskNames { get; init; }
 
     /// <summary>Gets or sets the extra chill-task spawn percentage.</summary>
     /// <value>Percent by which chill tasks are made more likely to appear on the board; 0 when the definition omits it.</value>
@@ -83,7 +84,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets task tags excluded from the board.</summary>
     /// <value>Task tags whose tasks are left off the board (saved as <c>excludeTasksWithTags</c>), or <see langword="null"/> when the definition omits them.</value>
     [JsonPropertyName("excludeTasksWithTags")]
-    public string[]? ExcludedTaskTags { get; init; }
+    public ImmutableArray<string>? ExcludedTaskTags { get; init; }
 
     /// <summary>Gets or sets the extra tasks available to purchase.</summary>
     /// <value>How many additional tasks a player can buy beyond the allowance in this league; 0 when the definition omits it.</value>
@@ -98,7 +99,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the hot-potato task bundle names.</summary>
     /// <value>Names of <c>HotPotato</c> neighbourhood-task rows, or <see langword="null"/> when the league offers none.</value>
     [JsonPropertyName("hotPotatoTaskNames")]
-    public string[]? HotPotatoTaskNames { get; init; }
+    public ImmutableArray<string>? HotPotatoTaskNames { get; init; }
 
     /// <summary>Gets or sets the extra hot-potato-task spawn percentage.</summary>
     /// <value>Percent by which hot-potato tasks are made more likely to appear on the board; 0 when the definition omits it.</value>
@@ -108,7 +109,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets task tags included on the board.</summary>
     /// <value>Task tags whose tasks the board draws from (saved as <c>includeTasksWithTags</c>), or <see langword="null"/> when the definition omits them.</value>
     [JsonPropertyName("includeTasksWithTags")]
-    public string[]? IncludedTaskTags { get; init; }
+    public ImmutableArray<string>? IncludedTaskTags { get; init; }
 
     /// <summary>Gets or sets optional promotion and demotion overrides.</summary>
     /// <value>The league-change override saved as <c>derbyLeagueConfig</c>, or <see langword="null"/> when the definition omits it.</value>
@@ -158,7 +159,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the mystery task bundle names.</summary>
     /// <value>Names of <c>Mystery</c> neighbourhood-task rows, or <see langword="null"/> when the league offers none.</value>
     [JsonPropertyName("mysteryTaskNames")]
-    public string[]? MysteryTaskNames { get; init; }
+    public ImmutableArray<string>? MysteryTaskNames { get; init; }
 
     /// <summary>Gets or sets the points awarded for a mystery task.</summary>
     /// <value>Derby points a completed mystery task is worth (saved as <c>mysteryTaskPoints</c>).</value>
@@ -173,7 +174,7 @@ public sealed record DerbyLeagueDefinition
     /// <summary>Gets or sets the names of the themed tasks a derby in this league offers; <see langword="null"/> when the league has none.</summary>
     /// <value>Neighbourhood-task row names (saved as <c>themedTaskNames</c>).</value>
     [JsonPropertyName("themedTaskNames")]
-    public string[]? ThemedTaskNames { get; init; }
+    public ImmutableArray<string>? ThemedTaskNames { get; init; }
 
     /// <summary>Gets or sets the point increase percentage of themed tasks.</summary>
     /// <value>Extra points, in percent, that themed tasks are worth (saved as <c>themedTaskExtraPointsPercentage</c>).</value>

@@ -14,7 +14,7 @@ namespace SupercellProxy.Networking.Protocol.Offers.Promotions;
 public sealed record RecordPromotionPopupStateCommand(string? PromotionId, int EventId, int VariantId, int State, int Timestamp, bool Accepted, int Placement) : CodecCommand<RecordPromotionPopupStateCommand>, ICommandCodecProvider<RecordPromotionPopupStateCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RecordPromotionPopupStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString,
+    public static CommandCodec<RecordPromotionPopupStateCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalUtf8String,
         static command => command.PromotionId,
         Codecs.VarInt,
         static command => command.EventId,

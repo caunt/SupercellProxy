@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Unlock;
 public sealed record UnlockAccountOkMessage(string? PassToken, LongId AccountId) : CodecMessage<UnlockAccountOkMessage>, ICodecProvider<UnlockAccountOkMessage>
 {
     /// <inheritdoc />
-    public static ICodec<UnlockAccountOkMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<UnlockAccountOkMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.PassToken,
         Codecs.LongId,
         static message => message.AccountId,

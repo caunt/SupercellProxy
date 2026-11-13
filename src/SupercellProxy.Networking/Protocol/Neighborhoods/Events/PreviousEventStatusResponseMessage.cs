@@ -20,7 +20,7 @@ public sealed record PreviousEventStatusResponseMessage(ReadOnlyMemory<PreviousE
         static message => message.Neighborhoods,
         Codecs.VarInt,
         static message => message.Status,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.EventName,
         static (memberScores, neighborhoods, status, eventName) => new PreviousEventStatusResponseMessage(memberScores, neighborhoods, status, eventName));
 }

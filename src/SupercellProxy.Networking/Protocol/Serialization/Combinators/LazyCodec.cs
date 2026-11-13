@@ -7,7 +7,7 @@ internal sealed class LazyCodec<TValue>(Func<ICodec<TValue>> factory) : ICodec<T
 {
     private readonly Lazy<ICodec<TValue>> _codec = new(factory);
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         return _codec.Value.Read(stream);
     }

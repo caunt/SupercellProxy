@@ -66,7 +66,7 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
             if (length != frame.Length - 7)
                 throw new InvalidDataException(message: "The retained client handshake has an invalid length.");
 
-            using MessageStream stream = MessageStream.Create(frame.AsMemory(start: 7));
+            using MessageChannel stream = MessageChannel.Create(frame.AsMemory(start: 7));
 
             CaptureIdentity candidate = From(ClientHelloMessage.Codec.Read(stream));
 

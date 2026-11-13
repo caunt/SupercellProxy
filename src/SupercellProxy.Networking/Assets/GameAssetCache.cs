@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Text.Json;
 
 namespace SupercellProxy.Networking.Assets;
@@ -8,15 +9,15 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     private const int MaximumConcurrentDownloads = 4;
 
     // Asset files are immutable per fingerprint, so every connection in the process shares one loaded copy instead of reading them again at each login.
-    private static readonly ConcurrentDictionary<string, Task<GameAsset[]>> Loaded = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, Task<ImmutableArray<GameAsset>>> Loaded = new(StringComparer.Ordinal);
 
-    internal async Task<GameAsset[]> GetAssetsAsync(GameAssetFingerprint fingerprint, IEnumerable<string> downloadUrls, CancellationToken cancellationToken = default)
+    internal async Task<ImmutableArray<GameAsset>> GetAssetsAsync(GameAssetFingerprint fingerprint, IEnumerable<string> downloadUrls, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(fingerprint);
 
         string directory = Path.Combine(assetDirectory() ?? UserDataPaths.AssetDirectoryPath, fingerprint.Version, fingerprint.Sha);
         string[] addresses = [.. downloadUrls];
-        Task<GameAsset[]> loading = Loaded.GetOrAdd(directory, path => LoadAssetsAsync(path, fingerprint, addresses));
+        Task<ImmutableArray<GameAsset>> loading = Loaded.GetOrAdd(directory, path => LoadAssetsAsync(path, fingerprint, addresses));
 
         try
         {
@@ -30,9 +31,9 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         }
     }
 
-    private static void Forget(string directory, Task<GameAsset[]> loading)
+    private static void Forget(string directory, Task<ImmutableArray<GameAsset>> loading)
     {
-        bool removed = Loaded.TryRemove(new KeyValuePair<string, Task<GameAsset[]>>(directory, loading));
+        bool removed = Loaded.TryRemove(new KeyValuePair<string, Task<ImmutableArray<GameAsset>>>(directory, loading));
 
         if (!removed)
             return;
@@ -87,7 +88,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         return null;
     }
 
-    private async Task<GameAsset[]> LoadAssetsAsync(string directory, GameAssetFingerprint fingerprint, string[] addresses)
+    private async Task<ImmutableArray<GameAsset>> LoadAssetsAsync(string directory, GameAssetFingerprint fingerprint, string[] addresses)
     {
         CancellationToken cancellationToken = CancellationToken.None;
         DirectoryInfo assetsDirectory = Directory.CreateDirectory(directory);

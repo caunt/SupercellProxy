@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -6,6 +8,9 @@ namespace SupercellProxy.Networking.Assets.Retention;
 /// <summary>Retains independent copies of game assets and verifies them before replay.</summary>
 public static class GameAssetSnapshot
 {
+    /// <summary>Orders assets by their bundle file path, compared ordinally, so a retained snapshot lists its files in the same order every time.</summary>
+    private static Comparer<GameAsset> FileOrder { get; } = Comparer<GameAsset>.Create(static (left, right) => string.CompareOrdinal(left.Fingerprint.File, right.Fingerprint.File));
+
     /// <summary>Finds a cached fingerprint without selecting assets by release ordering or modification time.</summary>
     /// <param name="root">Asset cache folder to search, such as the per-version download folder; it is searched itself and in every
     /// subfolder.</param>
@@ -40,7 +45,7 @@ public static class GameAssetSnapshot
     /// <exception cref="InvalidDataException">The manifest is empty, names another fingerprint or no files, repeats a path, lists a path
     /// outside <paramref name="directory"/>, or has no production goods table, or a file's length or SHA-256 no longer matches the
     /// manifest.</exception>
-    public static async Task<GameAsset[]> LoadAsync(string directory, string fingerprint, CancellationToken cancellationToken = default)
+    public static async Task<ImmutableArray<GameAsset>> LoadAsync(string directory, string fingerprint, CancellationToken cancellationToken = default)
     {
         string manifestPath = Path.Combine(directory, RetainedAssetManifest.FileName);
 
@@ -77,7 +82,7 @@ public static class GameAssetSnapshot
 
         return !names.Contains(GameAssetFiles.ProductionBuildingsGoods)
             ? throw new InvalidDataException(message: "The retained asset snapshot has no production tables.")
-            : assets;
+            : ImmutableCollectionsMarshal.AsImmutableArray(assets);
     }
 
     /// <summary>Loads the exact fingerprint's cached files, including pre-manifest legacy caches.</summary>
@@ -91,7 +96,7 @@ public static class GameAssetSnapshot
     /// legacy files carry an empty one.</returns>
     /// <exception cref="InvalidDataException">The catalog is empty or names another fingerprint, the file list has no production goods
     /// table, a listed path leaves <paramref name="source"/>, or a retained manifest fails the checks of <see cref="LoadAsync"/>.</exception>
-    public static async Task<GameAsset[]> LoadCachedAsync(string source, string fingerprint, CancellationToken cancellationToken = default)
+    public static async Task<ImmutableArray<GameAsset>> LoadCachedAsync(string source, string fingerprint, CancellationToken cancellationToken = default)
     {
         if (File.Exists(Path.Combine(source, RetainedAssetManifest.FileName)))
             return await LoadAsync(source, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -145,7 +150,7 @@ public static class GameAssetSnapshot
     {
         if (Directory.Exists(destination))
         {
-            GameAsset[] existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            ImmutableArray<GameAsset> existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             if (existing.Length == 0)
                 throw new InvalidDataException(message: "The retained asset snapshot is empty.");
@@ -153,7 +158,7 @@ public static class GameAssetSnapshot
             return;
         }
 
-        GameAsset[] assets = await LoadCachedAsync(source, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        ImmutableArray<GameAsset> assets = await LoadCachedAsync(source, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         if (!assets.Any(static asset => asset.Fingerprint.File == GameAssetFiles.ProductionBuildingsGoods))
             throw new InvalidDataException(message: "The source does not contain the game's production tables.");
@@ -167,7 +172,7 @@ public static class GameAssetSnapshot
         {
             List<RetainedAssetFile> files = [];
 
-            foreach (GameAsset asset in assets.OrderBy(static asset => asset.Fingerprint.File, StringComparer.Ordinal))
+            foreach (GameAsset asset in assets.Sort(FileOrder))
             {
                 string file = ResolveFile(temporaryDirectory.FullName, asset.Fingerprint.File);
                 DirectoryInfo fileDirectory = Directory.CreateDirectory(Path.GetDirectoryName(file) ?? temporaryDirectory.FullName);
@@ -187,7 +192,7 @@ public static class GameAssetSnapshot
             }
             catch (IOException) when (Directory.Exists(destination))
             {
-                GameAsset[] existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                ImmutableArray<GameAsset> existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
                 bool identical = existing.Length == files.Count && existing.All(asset => files.Any(file => file.File == asset.Fingerprint.File && file.Sha256 == Convert.ToHexString(SHA256.HashData(asset.Content.Span))));
 

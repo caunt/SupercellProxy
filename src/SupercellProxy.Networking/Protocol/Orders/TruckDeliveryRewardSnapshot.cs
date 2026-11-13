@@ -41,6 +41,7 @@ public sealed record TruckDeliveryRewardSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the coins the order pays; 0 when another player filled it.</summary>
     /// <value>The order's coin reward, granted when the player collects from the truck.</value>
     public int Cash { get; init; }
+
     /// <summary>Gets or sets the experience the order gives; 0 when another player filled it.</summary>
     /// <value>Saved as <c>Exp</c>; the order's experience reward, granted when the player collects from the truck.</value>
     [JsonPropertyName("Exp")]

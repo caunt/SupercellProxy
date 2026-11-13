@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Events.Derby.Messages;
 using SupercellProxy.Networking.Protocol.Events.Derby.Race;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -34,7 +36,7 @@ public sealed record LeagueMemberListMessage : CodecMessage<LeagueMemberListMess
     /// One entry per neighbourhood in the derby race the request named, in the order the server sent them, or <see langword="null"/> when
     /// the server writes the list as absent.
     /// </value>
-    public DerbyRaceEntry[]? Entries { get; init; }
+    public ImmutableArray<DerbyRaceEntry>? Entries { get; init; }
 
     /// <summary>Gets the optional entry count, including existing empty-page callers.</summary>
     /// <value>The length of <see cref="Entries"/>, or <see langword="null"/> when the list is absent.</value>

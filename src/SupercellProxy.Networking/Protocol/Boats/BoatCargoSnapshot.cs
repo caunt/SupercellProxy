@@ -27,6 +27,7 @@ public sealed record BoatCargoSnapshot
     /// <value>The data global id of the requested product, saved as <c>data_global_id</c>.</value>
     [JsonPropertyName("data_global_id")]
     public int DataGlobalId { get; init; }
+
     /// <summary>
     /// Gets or sets a value indicating whether a booster filled the crate instead of goods from the barn (saved as <c>boosted</c>).
     /// </summary>

@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 public sealed record RecoverLostFarmMessage(string? RecoveryCode) : CodecMessage<RecoverLostFarmMessage>, ICodecProvider<RecoverLostFarmMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RecoverLostFarmMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString, static message => message.RecoveryCode, static recoveryCode => new RecoverLostFarmMessage(recoveryCode));
+    public static ICodec<RecoverLostFarmMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
+        static message => message.RecoveryCode,
+        static recoveryCode => new RecoverLostFarmMessage(recoveryCode));
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -22,17 +23,17 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     /// A composite codec that reads and writes the fields in wire order: the error code, manifest, reason, maintenance time, the unidentified
     /// fields, the asset addresses and finally the redirect host.
     /// </value>
-    public static ICodec<LoginFailedMessage> Codec { get; } = Codecs.Composite(Codecs.Enum<LoginFailureType>(Codecs.Int32),
+    public static ICodec<LoginFailedMessage> Codec { get; } = Codecs.Composite(Codecs.Enum<LoginFailureType>(Codecs.BigEndianInt32),
         static message => message.ErrorCode,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.GameAssetFingerprintData,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Reason,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.EstimatedMaintenanceSeconds,
         Codecs.Boolean,
         static message => message.Unknown2,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.UpdateAddress,
         Codecs.VarInt,
         static message => message.Unknown3,
@@ -48,9 +49,9 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
         static message => message.Unknown8,
         FlaggedString(),
         static message => message.Unknown9,
-        Codecs.Array(Codecs.OptionalString, CollectionCount.Int32.WithNegativeAsEmpty()),
+        Codecs.Array(Codecs.OptionalUtf8String, CollectionCount.BigEndianInt32.WithNegativeAsEmpty()),
         static message => message.AssetsUrls,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.RedirectHost,
         static (errorCode,
             gameAssetFingerprintData,
@@ -96,7 +97,7 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
     /// <value>
     /// The base addresses from an Int32-counted array of optional strings; empty by default and when the server writes a negative count.
     /// </value>
-    public string?[] AssetsUrls { get; init; } = [];
+    public ImmutableArray<string?> AssetsUrls { get; init; } = [];
 
     /// <summary>
     /// Gets the asset server addresses with <see langword="null"/> and blank entries removed, ready to try one after another.
@@ -255,6 +256,6 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
 
     private static ICodec<string?> FlaggedString()
     {
-        return Codecs.Flagged(Codecs.OptionalString, string.Empty, static value => !string.IsNullOrWhiteSpace(value));
+        return Codecs.Flagged(Codecs.OptionalUtf8String, string.Empty, static value => !string.IsNullOrWhiteSpace(value));
     }
 }

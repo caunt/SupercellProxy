@@ -12,13 +12,13 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record TrackingMessage(string? Category, string? Action, string? Label, string? Data, int Value) : CodecMessage<TrackingMessage>, ICodecProvider<TrackingMessage>
 {
     /// <inheritdoc />
-    public static ICodec<TrackingMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<TrackingMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Category,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Action,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Label,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Data,
         Codecs.VarInt,
         static message => message.Value,

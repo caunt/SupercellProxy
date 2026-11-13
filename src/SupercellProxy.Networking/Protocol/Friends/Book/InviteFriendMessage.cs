@@ -11,7 +11,7 @@ public sealed record InviteFriendMessage(LongId AvatarId, string? Message) : Cod
     /// <inheritdoc />
     public static ICodec<InviteFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.AvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Message,
         static (avatarId, message) => new InviteFriendMessage(avatarId, message));
 }

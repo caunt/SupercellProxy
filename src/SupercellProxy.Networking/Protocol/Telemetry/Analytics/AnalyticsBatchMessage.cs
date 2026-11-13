@@ -18,11 +18,11 @@ public sealed record AnalyticsBatchMessage(long Time0,
     ReadOnlyMemory<AnalyticsEvent> Events) : CodecMessage<AnalyticsBatchMessage>, ICodecProvider<AnalyticsBatchMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsBatchMessage> Codec { get; } = Codecs.Composite(Codecs.Int64,
+    public static ICodec<AnalyticsBatchMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt64,
         static message => message.Time0,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static message => message.Time1,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static message => message.Time2,
         AnalyticsProperty.ListCodec,
         static message => message.Properties,

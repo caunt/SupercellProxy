@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SupercellProxy.Networking.Protocol.Boats;
 using System.Text.Json.Serialization;
 
@@ -28,10 +29,12 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the wheel spins earned by watching videos and not used yet.</summary>
     /// <value>A spin count.</value>
     public int AdsSpins { get; init; }
+
     /// <summary>Gets or sets the per-stand roadside advertisement timers, in native timer ticks.</summary>
     /// <value>One countdown per roadside stand slot, at 15 ticks per second, saved as <c>AdTimers</c>, of the time left on the stand's advertisement; <see langword="null"/> when not saved.</value>
     [JsonPropertyName("AdTimers")]
-    public int[]? AdvertisementTimers { get; init; }
+    public ImmutableArray<int>? AdvertisementTimers { get; init; }
+
     /// <summary>Gets or sets the fishing helper's saved activity and orders.</summary>
     /// <value>Angus's hire state, offers and tackle orders, saved as <c>Helper</c> on his object; <see langword="null"/> loads as a helper that was never hired.</value>
     [JsonPropertyName("Helper")]
@@ -48,6 +51,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <value>Global id of the bonus row a town passenger earns by visiting a sanctuary animal, saved as <c>AnimalBonusID</c>; 0 or <see langword="null"/> when the passenger has none.</value>
     [JsonPropertyName("AnimalBonusID")]
     public int? AnimalBonusId { get; init; }
+
     /// <summary>Gets or sets the position of a livestock animal's habitat among all animal habitats of the home.</summary>
     /// <value>A zero-based index counted over every animal habitat in home order; <see langword="null"/> is read as 0.</value>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -61,14 +65,13 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the per-stand automatic-buyer timers for a roadside shop.</summary>
     /// <value>One countdown per stand slot, at 15 ticks per second, for the stand's automatic buyer; -1 when no automatic buyer is scheduled, and empty for objects other than the roadside shop.</value>
     [JsonPropertyName("AITimer")]
-    public int[] AutomaticBuyerTimers { get; init; } = [];
+    public ImmutableArray<int> AutomaticBuyerTimers { get; init; } = [];
+
     /// <summary>Gets or sets the saved Balloon height counter.</summary>
     /// <value>The floating balloon's current height, saved as <c>Height</c>; <see langword="null"/> is read as 0.</value>
     [JsonPropertyName("Height")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? BalloonHeight { get; init; }
-
-
 
     /// <summary>Gets or sets the Balloon reward row selected when it was popped.</summary>
     /// <value>A zero-based index into the balloon's reward rows, saved as <c>rewardIndex</c>; <see langword="null"/> is read as 0.</value>
@@ -79,10 +82,11 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the production seconds of the product a processing-building booster sped up; <see langword="null"/> or 0 when none did.</summary>
     /// <value>A number of seconds.</value>
     public int? BeatsTimer { get; init; }
+
     /// <summary>Gets or sets the retained boat-order groups.</summary>
     /// <value>The boat's crate orders in slot order, saved as <c>boat_orders</c>; empty for objects other than the boat.</value>
     [JsonPropertyName("boat_orders")]
-    public BoatOrderSnapshot[] BoatOrders { get; init; } = [];
+    public ImmutableArray<BoatOrderSnapshot> BoatOrders { get; init; } = [];
 
     /// <summary>Gets or sets whether the current boat has been seen.</summary>
     /// <value><see langword="true"/> if the player has looked at the boat now docked, saved as <c>boat_seen</c>; otherwise, <see langword="false"/>, or <see langword="null"/> (read as <see langword="false"/>) when not saved.</value>
@@ -106,7 +110,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <value>One entry per bowl of a pet or sanctuary habitat, in bowl order, saved as <c>Bowls</c>; pet habitats store each as a food count, sanctuary habitats as filled or empty. <see langword="null"/> when the object has no bowls.</value>
     [JsonPropertyName("Bowls")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public BowlValueSnapshot[]? BowlValues { get; init; }
+    public ImmutableArray<BowlValueSnapshot>? BowlValues { get; init; }
 
     /// <summary>Gets or sets the Boy's pending interval-offer state.</summary>
     /// <value>A Boy state code remembered from before he was hired, such as 2 (standing available) or 14 (showing a re-hire offer); 0 when nothing is pending.</value>
@@ -114,7 +118,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets which parts of the object are broken, one flag per part; <see langword="null"/> for objects without parts.</summary>
     /// <value>One flag per part in the object's part order, where <see langword="true"/> marks a part that is still broken.</value>
-    public bool[]? BrokenParts { get; init; }
+    public ImmutableArray<bool>? BrokenParts { get; init; }
 
     /// <summary>Gets or sets the caretaker's saved hire state, offers and feeding orders.</summary>
     /// <value>The caretaker part of the helper house, or <see langword="null"/> when the save does not carry it and the caretaker is absent.</value>
@@ -178,7 +182,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <value>The pending rewards in delivery order, saved as <c>rewards</c>; <see langword="null"/> when the truck brings none.</value>
     [JsonPropertyName("rewards")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public TruckDeliveryRewardSnapshot[]? DeliveryRewards { get; init; }
+    public ImmutableArray<TruckDeliveryRewardSnapshot>? DeliveryRewards { get; init; }
 
     /// <summary>Gets or sets the sanctuary animal requested by the passenger.</summary>
     /// <value>Global id of the sanctuary animal row the town passenger wants to see, saved as <c>DesiredAnimalID</c>; 0 or <see langword="null"/> when none.</value>
@@ -244,7 +248,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the quantities generated for the Boy's current offers.</summary>
     /// <value>One amount per offer, pairing with <see cref="FoundItemPrices"/> by position; empty when the Boy has no offer.</value>
-    public int[] FoundItemAmounts { get; init; } = [];
+    public ImmutableArray<int> FoundItemAmounts { get; init; } = [];
 
     /// <summary>Gets or sets the good selected for the Boy's current search.</summary>
     /// <value>Global id of the good the Boy offers to find, saved as <c>FoundItemID</c>; 0 when he holds no offer.</value>
@@ -253,7 +257,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the prices generated for the Boy's current offers.</summary>
     /// <value>One price per offer, pairing with <see cref="FoundItemAmounts"/> by position; empty when the Boy has no offer.</value>
-    public int[] FoundItemPrices { get; init; } = [];
+    public ImmutableArray<int> FoundItemPrices { get; init; } = [];
 
     /// <summary>Gets or sets the roadside free-advertisement cooldown.</summary>
     /// <value>The countdown, at 15 ticks per second and saved as <c>FreeAdTimer</c>, until the next free newspaper advertisement; <see langword="null"/> loads as elapsed.</value>
@@ -285,7 +289,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets or sets which fruit slots of a fruit tree, bush or gatherer source are already taken.</summary>
     /// <value>One flag per fruit slot, where <see langword="true"/> marks a fruit already picked or harvested.</value>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool[]? Fruits { get; init; }
+    public ImmutableArray<bool>? Fruits { get; init; }
 
     /// <summary>Gets or sets the goods the gatherers brought back to the nest and the player has not collected yet.</summary>
     /// <value>A resource count.</value>
@@ -347,7 +351,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the amounts of the rewards a gift holds.</summary>
     /// <value>One amount per entry of <see cref="GoodGlobalIds"/>, in the same order; the two lists must have the same length. <see langword="null"/> when the gift uses the single-reward form.</value>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? GoodAmounts { get; init; }
+    public ImmutableArray<int>? GoodAmounts { get; init; }
 
     /// <summary>Gets or sets the global id of the goods the visitor asks for.</summary>
     /// <value>A good row the visitor wants, or -1 once a served or sent-away visitor's order is closed; a closed mystery box keeps its reward row here.</value>
@@ -363,7 +367,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <value>Global ids of the rewards, paired by position with <see cref="GoodAmounts"/>; <see langword="null"/> when the gift uses the single-reward form.</value>
     [JsonPropertyName("GoodGlobalIds")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int[]? GoodGlobalIds { get; init; }
+    public ImmutableArray<int>? GoodGlobalIds { get; init; }
 
     /// <summary>Gets or sets the growth countdown of a fruit tree, bush, gatherer source or mollusc.</summary>
     /// <value>A countdown at 15 ticks per second until the current growth phase is ready; <see langword="null"/> loads as elapsed.</value>
@@ -474,6 +478,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
     /// <value><see langword="true"/> if taking the reward costs <see cref="DiamondCost"/> diamonds; otherwise, <see langword="false"/>, or <see langword="null"/> (read as <see langword="false"/>).</value>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Locked { get; init; }
+
     /// <summary>Gets or sets whether the mystery box's lock state has been set.</summary>
     /// <value><see langword="true"/> if <see cref="Locked"/> already holds the box's lock state; otherwise, <see langword="false"/>, or <see langword="null"/> (read as <see langword="false"/>).</value>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -578,7 +583,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the saved town-passenger service requests.</summary>
     /// <value>The services the passenger asks for, each with its goods and progress; <see langword="null"/> when the passenger has no requests yet.</value>
-    public TownPassengerServiceSnapshot[]? PassengerServices { get; init; }
+    public ImmutableArray<TownPassengerServiceSnapshot>? PassengerServices { get; init; }
 
     /// <summary>Gets or sets how much the visitor pays for the goods.</summary>
     /// <value>An amount of <see cref="PaymentObjectGlobalId"/>, paid when the visitor's order is completed.</value>
@@ -647,13 +652,14 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
             HasRandomSeed = true;
         }
     }
+
     /// <summary>Gets or sets the fishing spot's saved random-seed migration version.</summary>
     /// <value>A version number saved with the spot's <see cref="RandomSeed"/>.</value>
     public int RandomSeedFix { get; init; }
 
     /// <summary>Gets or sets the slots of a visitor spawner, one per visitor it can have.</summary>
     /// <value>Each slot's spawn time and visitor, in slot order; empty for objects other than the visitor spawner.</value>
-    public PeopleSpawnerSlotSnapshot[] SlotStates { get; init; } = [];
+    public ImmutableArray<PeopleSpawnerSlotSnapshot> SlotStates { get; init; } = [];
 
     /// <summary>Gets or sets the seed of the truck order board's order generation.</summary>
     /// <value>The state of the board's random stream; <see langword="null"/> when not saved.</value>
@@ -688,7 +694,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the truck orders on the order board.</summary>
     /// <value>The board's orders in slot order; empty for objects other than the truck order board.</value>
-    public OrderSnapshot[] Orders { get; init; } = [];
+    public ImmutableArray<OrderSnapshot> Orders { get; init; } = [];
 
     /// <summary>Gets or sets how many mystery boxes the spawner has placed on the player's own farm.</summary>
     /// <value>A box count; <see langword="null"/> is read as 0.</value>
@@ -779,7 +785,7 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the upgrade materials already paid for the current building rank.</summary>
     /// <value>Global ids of the collection tools already handed in toward the next rank of a town building, fishing spot or mussel bed; empty means nothing was paid.</value>
-    public int[] UpgradeCollectionToolReadyDatas { get; init; } = [];
+    public ImmutableArray<int> UpgradeCollectionToolReadyDatas { get; init; } = [];
 
     /// <summary>Gets or sets whether the building's upgrade is ready.</summary>
     /// <value><see langword="true"/> if the save marks the upgrade as ready; otherwise, <see langword="false"/>.</value>
@@ -807,9 +813,9 @@ public sealed partial record GameObjectSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets the global ids of the prizes on the wheel's slots, matching <see cref="WheelAmounts"/> by position.</summary>
     /// <value>Prize rows, each with one entry per wheel slot (the wheel's <c>WheelNumSlots</c>); 0 or -1 marks a slot without an item.</value>
-    public int[][] WheelPrizes { get; init; } = [];
+    public ImmutableArray<ImmutableArray<int>> WheelPrizes { get; init; } = [];
 
     /// <summary>Gets or sets the amounts of the prizes on the wheel's slots, matching <see cref="WheelPrizes"/> by position.</summary>
     /// <value>Amount rows shaped exactly like <see cref="WheelPrizes"/>.</value>
-    public int[][] WheelAmounts { get; init; } = [];
+    public ImmutableArray<ImmutableArray<int>> WheelAmounts { get; init; } = [];
 }

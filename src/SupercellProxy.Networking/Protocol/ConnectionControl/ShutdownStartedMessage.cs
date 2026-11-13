@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ShutdownStartedMessage(int SecondsUntilShutdown) : CodecMessage<ShutdownStartedMessage>, ICodecProvider<ShutdownStartedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ShutdownStartedMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<ShutdownStartedMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.SecondsUntilShutdown,
         static secondsUntilShutdown => new ShutdownStartedMessage(secondsUntilShutdown));
 }

@@ -29,6 +29,7 @@ public sealed record NewspaperSnapshot
     /// <value>Saved as <c>boughtFromBotToday</c>; a daily count that starts at 0.</value>
     [JsonPropertyName("boughtFromBotToday")]
     public int BoughtFromBotToday { get; init; }
+
     /// <summary>
     /// Gets or sets the countdown until the next free newspaper refresh.
     /// </summary>

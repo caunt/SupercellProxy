@@ -15,7 +15,7 @@ public sealed record DerbyMemberTaskLogEntry(LongId PlayerId, string? PlayerName
     /// <inheritdoc />
     public static ICodec<DerbyMemberTaskLogEntry> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.PlayerId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.PlayerName,
         Codecs.VarInt,
         static value => value.PlayerLevel,

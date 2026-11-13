@@ -1,23 +1,27 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 
 /// <summary>A counted array whose count prefix and bound come from <see cref="CollectionCount"/>.</summary>
-internal sealed class ArrayCodec<TElement>(ICodec<TElement> element, CollectionCount count) : ICodec<TElement[]>
+internal sealed class ArrayCodec<TElement>(ICodec<TElement> element, CollectionCount count) : ICodec<ImmutableArray<TElement>>
 {
-    public TElement[] Read(MessageStream stream)
+    public ImmutableArray<TElement> Read(MessageChannel stream)
     {
         TElement[] values = new TElement[count.Read(stream)];
 
         for (int index = 0; index < values.Length; index++)
             values[index] = element.Read(stream);
 
-        return values;
+        return ImmutableCollectionsMarshal.AsImmutableArray(values);
     }
 
-    public void Write(ProtocolEncoder encoder, TElement[] value)
+    public void Write(ProtocolEncoder encoder, ImmutableArray<TElement> value)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        if (value.IsDefault)
+            throw new ArgumentException(message: "An uninitialized array cannot be written.", nameof(value));
 
         count.Write(encoder, value.Length);
 

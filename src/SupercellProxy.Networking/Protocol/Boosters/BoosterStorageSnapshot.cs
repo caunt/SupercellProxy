@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boosters;
@@ -8,5 +9,5 @@ public sealed record BoosterStorageSnapshot
     /// <summary>Gets or sets the retained booster storage slots.</summary>
     /// <value>The stored boosters saved as <c>BoosterSlotsV3</c>, one entry per booster in saved order; empty by default.</value>
     [JsonPropertyName("BoosterSlotsV3")]
-    public BoosterSlotSnapshot[] BoosterSlots { get; init; } = [];
+    public ImmutableArray<BoosterSlotSnapshot> BoosterSlots { get; init; } = [];
 }

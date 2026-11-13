@@ -1,25 +1,28 @@
+using System.Collections.Immutable;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 using SupercellProxy.Networking.Transport;
 
 namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 
 /// <summary>A fixed number of elements without a count prefix.</summary>
-internal sealed class FixedArrayCodec<TElement>(ICodec<TElement> element, int length) : ICodec<TElement[]>
+internal sealed class FixedArrayCodec<TElement>(ICodec<TElement> element, int length) : ICodec<ImmutableArray<TElement>>
 {
-    public TElement[] Read(MessageStream stream)
+    public ImmutableArray<TElement> Read(MessageChannel stream)
     {
         TElement[] values = new TElement[length];
 
         for (int index = 0; index < values.Length; index++)
             values[index] = element.Read(stream);
 
-        return values;
+        return ImmutableCollectionsMarshal.AsImmutableArray(values);
     }
 
-    public void Write(ProtocolEncoder encoder, TElement[] value)
+    public void Write(ProtocolEncoder encoder, ImmutableArray<TElement> value)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        if (value.IsDefault)
+            throw new ArgumentException(message: "An uninitialized array cannot be written.", nameof(value));
 
         if (value.Length != length)
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Expected exactly {length} elements, got {value.Length}."));

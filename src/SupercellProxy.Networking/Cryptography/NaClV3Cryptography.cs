@@ -20,6 +20,7 @@ public static class NaClV3Cryptography
 
     // A static array: a uint span literal is materialized per access on this runtime and showed up as a per-block allocation.
     private static readonly uint[] SigmaConstants = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574];
+
     private static ReadOnlySpan<byte> Curve25519BasePoint =>
         [
             9,

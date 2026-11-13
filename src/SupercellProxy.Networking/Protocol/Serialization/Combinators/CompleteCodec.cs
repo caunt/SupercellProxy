@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>A payload native rejects when bytes remain after its last field.</summary>
 internal sealed class CompleteCodec<TValue>(ICodec<TValue> codec, string trailingDataMessage) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

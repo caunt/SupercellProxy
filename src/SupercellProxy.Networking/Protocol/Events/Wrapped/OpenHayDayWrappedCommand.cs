@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Wrapped;
 public sealed record OpenHayDayWrappedCommand(string? Link) : CodecCommand<OpenHayDayWrappedCommand>, ICommandCodecProvider<OpenHayDayWrappedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<OpenHayDayWrappedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString, static command => command.Link, static link => new OpenHayDayWrappedCommand(link)));
+    public static CommandCodec<OpenHayDayWrappedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalUtf8String, static command => command.Link, static link => new OpenHayDayWrappedCommand(link)));
 }

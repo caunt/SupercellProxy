@@ -8,18 +8,18 @@ namespace SupercellProxy.Networking.Events;
 /// </summary>
 public sealed class EventBus
 {
-    private Delegate?[] _eventDelegates = new Delegate?[16];
     private readonly AsyncLock _subscriptionLock = new();
+
+    private Delegate?[] _eventDelegates = new Delegate?[16];
 
     /// <summary>
     /// Runs every handler subscribed to the event's type at the same time and waits for all of them, so a handler can change the
     /// event (for example cancel a message) before the publisher continues.
     /// </summary>
-    /// <typeparam name="TEvent">The event type whose subscribers run, taken from the static type of <paramref name="eventItem"/>; an <see cref="IEvent"/> such as <see cref="MessageReceivedEvent"/> or <see cref="MessageSentEvent"/>.</typeparam>
+    /// <typeparam name="TEvent">The event type whose subscribers run, taken from the static type of <paramref name="eventItem"/>, such as <see cref="MessageReceivedEvent"/> or <see cref="MessageSentEvent"/>.</typeparam>
     /// <param name="eventItem">The event handed to each handler.</param>
     /// <param name="cancellationToken">Passed on to every handler.</param>
     public async Task PublishAsync<TEvent>(TEvent eventItem, CancellationToken cancellationToken = default)
-        where TEvent : IEvent
     {
         int eventIndex = EventTypeCache<TEvent>.Index;
         Delegate?[] currentDelegatesArray = Volatile.Read(ref _eventDelegates);
@@ -45,7 +45,6 @@ public sealed class EventBus
     /// <param name="asynchronouslyEventHandler">Handler to run; the same delegate is needed to unsubscribe it.</param>
     /// <param name="cancellationToken">Stops waiting for the subscription lock.</param>
     public async Task SubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asynchronouslyEventHandler, CancellationToken cancellationToken = default)
-        where TEvent : IEvent
     {
         int eventIndex = EventTypeCache<TEvent>.Index;
 
@@ -82,7 +81,6 @@ public sealed class EventBus
     /// <param name="asynchronouslyEventHandler">The same delegate that was subscribed.</param>
     /// <param name="cancellationToken">Stops waiting for the subscription lock.</param>
     public async Task UnsubscribeAsync<TEvent>(Func<TEvent, CancellationToken, Task> asynchronouslyEventHandler, CancellationToken cancellationToken = default)
-        where TEvent : IEvent
     {
         int eventIndex = EventTypeCache<TEvent>.Index;
 
@@ -106,7 +104,6 @@ public sealed class EventBus
     }
 
     private static IEnumerable<Task> GetExecutionTasks<TEvent>(Delegate[] invocationList, TEvent eventItem, CancellationToken cancellationToken = default)
-        where TEvent : IEvent
     {
         foreach (Delegate individualDelegate in invocationList)
         {

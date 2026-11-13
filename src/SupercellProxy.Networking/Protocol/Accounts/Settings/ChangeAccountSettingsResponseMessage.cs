@@ -11,7 +11,7 @@ public sealed record ChangeAccountSettingsResponseMessage(int Setting, long Time
     /// <inheritdoc />
     public static ICodec<ChangeAccountSettingsResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Setting,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static message => message.Timestamp,
         static (setting, timestamp) => new ChangeAccountSettingsResponseMessage(setting, timestamp));
 }

@@ -20,6 +20,7 @@ public sealed record SeenEventSnapshot
     /// <value>The end time of the event the record names; 0 when unset.</value>
     [JsonPropertyName("et")]
     public int EndTime { get; init; }
+
     /// <summary>
     /// Gets or sets the targeted event that was looked at (saved as <c>id</c>).
     /// </summary>

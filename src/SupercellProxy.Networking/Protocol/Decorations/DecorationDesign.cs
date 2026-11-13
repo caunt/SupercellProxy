@@ -15,7 +15,7 @@ public sealed record DecorationDesign(ReadOnlyMemory<byte>? Image, string? Autho
     /// <inheritdoc />
     public static ICodec<DecorationDesign> Codec { get; } = Codecs.Composite(Codecs.Flagged(Codecs.OptionalByteArray, absent: null, static image => image is not null),
         static value => value.Image,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.Author,
         Codecs.VarInt,
         static value => value.Value0,

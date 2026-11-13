@@ -27,7 +27,7 @@ public sealed record NeighborhoodMemberSummary(LongId HomeId,
     /// <inheritdoc />
     public static ICodec<NeighborhoodMemberSummary> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.HomeId,
-        Codecs.String,
+        Codecs.Utf8String,
         static value => value.FarmName,
         Codecs.VarInt,
         static value => value.Level,

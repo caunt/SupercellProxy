@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Avatars;
@@ -9,7 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars;
 /// <param name="Version">Revision number of the block's layout (0 in captures).</param>
 /// <param name="Entries">The switches in native order.</param>
 /// <param name="Unknown0">Flag that ends the block; its meaning is not identified.</param>
-public sealed record AvatarSettings(int Version, AvatarSetting[] Entries, bool Unknown0) : ICodecProvider<AvatarSettings>
+public sealed record AvatarSettings(int Version, ImmutableArray<AvatarSetting> Entries, bool Unknown0) : ICodecProvider<AvatarSettings>
 {
     /// <inheritdoc />
     public static ICodec<AvatarSettings> Codec { get; } = Codecs.Composite(Codecs.VarInt,

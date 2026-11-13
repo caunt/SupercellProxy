@@ -9,6 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Commands;
 public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> where TCommand : Command
 {
     private static readonly bool IsServerCommand = typeof(ServerCommand).IsAssignableFrom(typeof(TCommand));
+
     private readonly ICodec<TCommand> _fields;
 
     internal CommandCodec(string name, ICodec<TCommand> fields, CommandLayout layout, bool productionAllowed) : base(name, layout, productionAllowed)
@@ -24,9 +25,8 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
 
     private static ICodec<CommandMetadata> MetadataCodec => IsServerCommand ? CommandMetadata.ServerCodec : CommandMetadata.ClientCodec;
 
-
     /// <inheritdoc />
-    public TCommand Read(MessageStream stream)
+    public TCommand Read(MessageChannel stream)
     {
         CommandMetadata? leading = Layout is CommandLayout.MetadataFirst ? MetadataCodec.Read(stream) : null;
         TCommand command = _fields.Read(stream);
@@ -53,7 +53,7 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
             MetadataCodec.Write(encoder, metadata);
     }
 
-    internal override Command ReadCommand(MessageStream stream)
+    internal override Command ReadCommand(MessageChannel stream)
     {
         return Read(stream);
     }

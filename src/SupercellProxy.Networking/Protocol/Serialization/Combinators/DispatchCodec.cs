@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 internal sealed class DispatchCodec<TKey, TValue>(ICodec<TKey> key, Func<TValue, TKey> keyOf, FrozenDictionary<TKey, ICodec<TValue>> cases) : ICodec<TValue>
     where TKey : notnull
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         return Select(key.Read(stream)).Read(stream);
     }

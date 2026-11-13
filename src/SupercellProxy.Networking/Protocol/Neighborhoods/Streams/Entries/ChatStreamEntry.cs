@@ -12,7 +12,7 @@ public sealed record ChatStreamEntry(StreamEntryHeader Header, string? Message) 
     /// <inheritdoc />
     public static new ICodec<ChatStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.Message,
         static (header, message) => new ChatStreamEntry(header, message));
 

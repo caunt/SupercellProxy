@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -16,5 +17,5 @@ public sealed record FarmPassBabyPetRewardGroup : ExtensibleDocument
     /// <summary>Gets or sets the baby pet rewards in the set.</summary>
     /// <value>The baby pets of the set, each with its count; empty when the set holds none.</value>
     [JsonPropertyName("rewards")]
-    public FarmPassBabyPetReward[] Rewards { get; init; } = [];
+    public ImmutableArray<FarmPassBabyPetReward> Rewards { get; init; } = [];
 }

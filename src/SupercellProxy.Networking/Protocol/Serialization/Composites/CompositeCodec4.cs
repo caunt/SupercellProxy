@@ -23,7 +23,7 @@ internal sealed class CompositeCodec4<TValue, TFirst, TSecond, TThird, TFourth>(
     private readonly ICodec<TFourth> _fourth = fourth ?? throw new ArgumentNullException(nameof(fourth));
     private readonly Func<TValue, TFourth> _getFourth = getFourth ?? throw new ArgumentNullException(nameof(getFourth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);

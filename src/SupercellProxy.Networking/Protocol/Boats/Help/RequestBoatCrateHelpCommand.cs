@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Boats.Help;
 public sealed record RequestBoatCrateHelpCommand(int CrateIndex, int RequestKind) : CodecCommand<RequestBoatCrateHelpCommand>, ICommandCodecProvider<RequestBoatCrateHelpCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestBoatCrateHelpCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.UInt16,
+    public static CommandCodec<RequestBoatCrateHelpCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianUInt16,
         static command => ushort.CreateTruncating(command.CrateIndex),
-        Codecs.UInt16,
+        Codecs.BigEndianUInt16,
         static command => ushort.CreateTruncating(command.RequestKind),
         static (crateIndex, requestKind) => new RequestBoatCrateHelpCommand(crateIndex, requestKind)));
 }

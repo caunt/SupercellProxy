@@ -10,13 +10,13 @@ namespace SupercellProxy.Networking.Protocol.Serialization;
 public static class Encoders
 {
     /// <summary>Gets a 16-bit integer encoder.</summary>
-    /// <value>A shared encoder that writes a <see cref="short"/> through <see cref="ProtocolEncoder.WriteInt16"/>, two big-endian bytes on a <see cref="MessageStream"/>; <see cref="Codecs"/> has no signed 16-bit counterpart.</value>
-    public static IEncoder<short> Int16 { get; } = new DelegateEncoder<short>(static (encoder, value) => encoder.WriteInt16(value));
+    /// <value>A shared encoder that writes a <see cref="short"/> through <see cref="ProtocolEncoder.WriteInt16"/>, two big-endian bytes on a <see cref="MessageChannel"/>; <see cref="Codecs"/> has no signed 16-bit counterpart.</value>
+    public static IEncoder<short> BigEndianInt16 { get; } = new DelegateEncoder<short>(static (encoder, value) => encoder.WriteInt16(value));
 
     /// <summary>Gets an encoder that writes a count followed by every element; the count defaults to a var-int.</summary>
     /// <typeparam name="TElement">The type of one collection element; <paramref name="element"/> must be able to write it.</typeparam>
     /// <param name="element">Writes each element in turn, after the count, in the order the collection enumerates them.</param>
-    /// <param name="count">How the element count is written and capped, such as <see cref="CollectionCount.Int32"/> or <see cref="CollectionCount.AtMost"/>; <see langword="null"/> means <see cref="CollectionCount.Unbounded"/>, a var-int with no cap.</param>
+    /// <param name="count">How the element count is written and capped, such as <see cref="CollectionCount.BigEndianInt32"/> or <see cref="CollectionCount.AtMost"/>; <see langword="null"/> means <see cref="CollectionCount.Unbounded"/>, a var-int with no cap.</param>
     /// <returns>An encoder that writes <see cref="IReadOnlyCollection{T}.Count"/> in the chosen width and then every element; an empty collection writes only a zero count, and writing more elements than the count allows throws <see cref="InvalidDataException"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="null"/>.</exception>
     public static IEncoder<IReadOnlyCollection<TElement>> Collection<TElement>(IEncoder<TElement> element, CollectionCount? count = null)

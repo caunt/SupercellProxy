@@ -59,7 +59,7 @@ internal sealed class CompositeCodec13<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TThirteenth> _thirteenth = thirteenth ?? throw new ArgumentNullException(nameof(thirteenth));
     private readonly Func<TValue, TThirteenth> _getThirteenth = getThirteenth ?? throw new ArgumentNullException(nameof(getThirteenth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The opening four fields, each read from where the last one ended.
         TFirst firstValue = _first.Read(stream);

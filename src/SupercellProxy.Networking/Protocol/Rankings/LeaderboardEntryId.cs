@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Rankings;
 public sealed record LeaderboardEntryId(int High, int Low) : ICodecProvider<LeaderboardEntryId>
 {
     /// <inheritdoc />
-    public static ICodec<LeaderboardEntryId> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<LeaderboardEntryId> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static value => value.High,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static value => value.Low,
         static (high, low) => new LeaderboardEntryId(high, low));
 }

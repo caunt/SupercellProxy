@@ -51,7 +51,7 @@ internal sealed class CompositeCodec11<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TEleventh> _eleventh = eleventh ?? throw new ArgumentNullException(nameof(eleventh));
     private readonly Func<TValue, TEleventh> _getEleventh = getEleventh ?? throw new ArgumentNullException(nameof(getEleventh));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The leading fields of the record.
         TFirst firstValue = _first.Read(stream);

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Events;
@@ -10,7 +11,7 @@ public sealed record FruitGrowthEventDefinition
     /// <summary>Gets or sets the affected source names; an empty list covers every fruit source.</summary>
     /// <value>Row names of the fruit trees table, read from <c>fruitTrees</c>.</value>
     [JsonPropertyName("fruitTrees")]
-    public string[] FruitTrees { get; init; } = [];
+    public ImmutableArray<string> FruitTrees { get; init; } = [];
 
     /// <summary>Gets or sets the participation level requirement.</summary>
     /// <value>The event's minimum level, read from <c>requirements</c>; <see langword="null"/> when the event sets no level.</value>

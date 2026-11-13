@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Billing;
 public sealed record ProductListMessage(ReadOnlyMemory<string?>? ProductIds) : CodecMessage<ProductListMessage>, ICodecProvider<ProductListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ProductListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalString),
+    public static ICodec<ProductListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalUtf8String),
         static message => message.ProductIds,
         static productIds => new ProductListMessage(productIds));
 }

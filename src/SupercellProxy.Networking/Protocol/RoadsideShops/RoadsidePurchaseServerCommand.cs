@@ -34,13 +34,13 @@ public sealed record RoadsidePurchaseServerCommand([property: JsonPropertyName("
         static command => command.ShopOwnerId,
         Codecs.LongId,
         static command => command.ContextId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.ItemGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.SlotIndex,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Quantity,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Price,
         static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer, owner, context, item, slot, quantity, price)));
 }
