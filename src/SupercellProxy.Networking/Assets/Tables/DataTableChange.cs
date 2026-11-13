@@ -22,6 +22,7 @@ public sealed record DataTableChange
     /// <value>Names as written in the table's first header row; names the table lacks are skipped. <see langword="null"/> or empty
     /// together with a replacement CSV means the whole file is swapped, and without one the change is refused.</value>
     public string? Column { get; init; }
+
     /// <summary>
     /// Gets or sets the path of the edited table inside the asset bundle, such as <c>data/animals.csv</c>.
     /// </summary>

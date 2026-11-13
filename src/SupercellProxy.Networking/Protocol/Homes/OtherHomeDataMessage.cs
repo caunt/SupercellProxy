@@ -20,6 +20,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     /// </summary>
     /// <value>A codec that reads the rest of the message payload and writes back either the decoded parts in wire order or the <see cref="Fallback"/> bytes unchanged.</value>
     public static ICodec<OtherHomeDataMessage> Codec { get; } = Codecs.Create(static stream => FromPayload(stream.ReadToEnd(), stream.GameVersion), static (stream, message) => message.WritePayload(stream));
+
     /// <summary>
     /// Gets or sets the visiting player's own avatar, sent along with the visited farm.
     /// </summary>
@@ -39,6 +40,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     /// <value>The visited farm's home document as raw bytes in the same length-plus-zlib form, the last field on the wire; it is kept compressed here and decoded by the caller.</value>
     [JsonPropertyName("CompressedHomeDataJson")]
     public ReadOnlyMemory<byte>? CompressedHomeDataDocument { get; init; }
+
     /// <summary>
     /// Gets or sets the visited home owner's compressed avatar data document; own homes send none.
     /// </summary>
@@ -77,7 +79,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     {
         get
         {
-            MessageStream stream = MessageStream.Create();
+            MessageChannel stream = MessageChannel.Create();
 
             try
             {
@@ -125,7 +127,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     /// </summary>
     internal static OtherHomeDataMessage FromPayload(ReadOnlyMemory<byte> data, Version? gameVersion)
     {
-        MessageStream stream = MessageStream.Create(data);
+        MessageChannel stream = MessageChannel.Create(data);
 
         try
         {

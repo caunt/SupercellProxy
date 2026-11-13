@@ -32,13 +32,13 @@ public sealed record RoadsideSaleServerCommand : CodecServerCommand<RoadsideSale
         static command => command.BuyerAvatarId,
         Codecs.LongId,
         static command => command.RoadsideOwnerAvatarId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.ItemGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.SlotIndex,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Price,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Quantity,
         static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity)));
 

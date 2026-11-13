@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Sanctuary;
@@ -8,5 +9,5 @@ public sealed record SanctuaryManagerSnapshot
     /// <summary>Gets or sets the saved nonempty and completed animal puzzles.</summary>
     /// <value>One entry per animal saved under <c>SanctuaryAnimalPuzzles</c>; puzzles without any received piece are not saved, and the array is empty by default when the key is missing.</value>
     [JsonPropertyName("SanctuaryAnimalPuzzles")]
-    public SanctuaryPuzzleSnapshot[] Puzzles { get; init; } = [];
+    public ImmutableArray<SanctuaryPuzzleSnapshot> Puzzles { get; init; } = [];
 }

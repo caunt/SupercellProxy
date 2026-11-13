@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MiniPass;
@@ -11,5 +12,5 @@ public sealed record MiniPassClaimedRewardsSnapshot
     /// missing word means none of its rewards are claimed.
     /// </value>
     [JsonPropertyName("bits")]
-    public int[] Bits { get; init; } = [];
+    public ImmutableArray<int> Bits { get; init; } = [];
 }

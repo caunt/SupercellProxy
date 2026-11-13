@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record CompleteDecorationEventChallengeChainCommand(int ChallengeId, int ChainIndex) : CodecCommand<CompleteDecorationEventChallengeChainCommand>, ICommandCodecProvider<CompleteDecorationEventChallengeChainCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CompleteDecorationEventChallengeChainCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+    public static CommandCodec<CompleteDecorationEventChallengeChainCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianInt32,
             static command => command.ChallengeId,
-            Codecs.Int32,
+            Codecs.BigEndianInt32,
             static command => command.ChainIndex,
             static (challengeId, chainIndex) => new CompleteDecorationEventChallengeChainCommand(challengeId, chainIndex)),
         CommandLayout.MetadataFirst);

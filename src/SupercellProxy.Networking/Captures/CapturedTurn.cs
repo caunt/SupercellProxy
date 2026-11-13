@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SupercellProxy.Networking.Captures;
 
 /// <summary>The native client turn recorded with a captured frame.</summary>
@@ -7,4 +9,9 @@ namespace SupercellProxy.Networking.Captures;
 /// <param name="Commands">The commands' wire ids in the capture's game version, in execution order.</param>
 /// <param name="ExecutionPhases">The execution phase of each command.</param>
 /// <param name="UndecodedCommandCount">The number of commands that could not be decoded, when any were missing.</param>
-public sealed record CapturedTurn(int SubTick, int Checksum, int[] SubChecksums, int[] Commands, int[] ExecutionPhases, int? UndecodedCommandCount = null);
+public sealed record CapturedTurn(int SubTick,
+    int Checksum,
+    ImmutableArray<int> SubChecksums,
+    ImmutableArray<int> Commands,
+    ImmutableArray<int> ExecutionPhases,
+    int? UndecodedCommandCount = null);

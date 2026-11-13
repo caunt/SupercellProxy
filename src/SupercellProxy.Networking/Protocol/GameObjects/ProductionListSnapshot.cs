@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -10,11 +11,11 @@ public sealed record ProductionListSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the finished products waiting to be collected, oldest first.</summary>
     /// <value>One entry per finished product; empty by default and when nothing is ready.</value>
     [JsonPropertyName("FinishedProductions")]
-    public FinishedProductionSnapshot[] FinishedProductions { get; init; } = [];
+    public ImmutableArray<FinishedProductionSnapshot> FinishedProductions { get; init; } = [];
 
     /// <summary>Gets or sets the queued productions still being made, when present.</summary>
     /// <value>The queue in order; <see langword="null"/> when the key is absent, which is read as an empty queue.</value>
     [JsonPropertyName("Productions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public PendingProductionSnapshot[]? Productions { get; init; }
+    public ImmutableArray<PendingProductionSnapshot>? Productions { get; init; }
 }

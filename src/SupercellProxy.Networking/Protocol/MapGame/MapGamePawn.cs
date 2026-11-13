@@ -77,7 +77,7 @@ public sealed record MapGamePawn : ICodecProvider<MapGamePawn>
         static pawn => pawn.VisitedNodeIds,
         Codecs.Memory(Codecs.VarInt),
         static pawn => pawn.SelectedOptions,
-        Codecs.Optional(Codecs.String),
+        Codecs.Optional(Codecs.Utf8String),
         static pawn => pawn.Name,
         Codecs.Optional(MapGamePawnEmblem.Codec),
         static pawn => pawn.Emblem,

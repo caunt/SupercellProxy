@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Tasks;
@@ -47,7 +48,7 @@ public sealed record TaskEventSnapshot
     /// </summary>
     /// <value>The saved event-completed rewards with their claim markers, in document order; an empty array when the event has none.</value>
     [JsonPropertyName("eventCompletedRewards")]
-    public TaskEventRewardSnapshot[] EventCompletedRewards { get; init; } = [];
+    public ImmutableArray<TaskEventRewardSnapshot> EventCompletedRewards { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the number of new tasks still allowed today; it may be negative.
@@ -83,14 +84,14 @@ public sealed record TaskEventSnapshot
     /// </summary>
     /// <value>The saved track rewards in document order, each with its points threshold and claim markers; an empty array when none are saved.</value>
     [JsonPropertyName("rewards")]
-    public TaskEventRewardSnapshot[] Rewards { get; init; } = [];
+    public ImmutableArray<TaskEventRewardSnapshot> Rewards { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the tasks replaced today.
     /// </summary>
     /// <value>Copies of the tasks that left the list today; empty by default.</value>
     [JsonPropertyName("taskHistory")]
-    public TaskEventEntrySnapshot[] TaskHistory { get; init; } = [];
+    public ImmutableArray<TaskEventEntrySnapshot> TaskHistory { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the points of the tasks created today.
@@ -125,5 +126,5 @@ public sealed record TaskEventSnapshot
     /// </summary>
     /// <value>One entry per visible slot, where an empty slot is <see langword="null"/>; an empty array before the list is first filled.</value>
     [JsonPropertyName("visibleTasks")]
-    public TaskEventEntrySnapshot?[] VisibleTasks { get; init; } = [];
+    public ImmutableArray<TaskEventEntrySnapshot?> VisibleTasks { get; init; } = [];
 }

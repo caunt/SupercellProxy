@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.MapGame.Rewards;
@@ -15,17 +16,17 @@ public sealed record MapGameEventDefinition
     /// <summary>Gets or sets the ordered alternatives for the first exclusive reward.</summary>
     /// <value>Candidates for the first slot, in definition order; empty by default.</value>
     [JsonPropertyName("shopExclusiveRewardSlot1")]
-    public MapGameExclusiveRewardDefinition[] ExclusiveRewardSlot1 { get; init; } = [];
+    public ImmutableArray<MapGameExclusiveRewardDefinition> ExclusiveRewardSlot1 { get; init; } = [];
 
     /// <summary>Gets or sets the ordered alternatives for the second exclusive reward.</summary>
     /// <value>Candidates for the second slot, in definition order like <see cref="ExclusiveRewardSlot1"/>; empty by default.</value>
     [JsonPropertyName("shopExclusiveRewardSlot2")]
-    public MapGameExclusiveRewardDefinition[] ExclusiveRewardSlot2 { get; init; } = [];
+    public ImmutableArray<MapGameExclusiveRewardDefinition> ExclusiveRewardSlot2 { get; init; } = [];
 
     /// <summary>Gets or sets the ordered alternatives for the third exclusive reward.</summary>
     /// <value>Candidates for the third slot, in definition order like <see cref="ExclusiveRewardSlot1"/>; empty by default.</value>
     [JsonPropertyName("shopExclusiveRewardSlot3")]
-    public MapGameExclusiveRewardDefinition[] ExclusiveRewardSlot3 { get; init; } = [];
+    public ImmutableArray<MapGameExclusiveRewardDefinition> ExclusiveRewardSlot3 { get; init; } = [];
 
     /// <summary>Gets or sets the map selected by this season.</summary>
     /// <value>The map's name as written in <c>mapGameMap</c>; <see langword="null"/> when the definition names none.</value>

@@ -11,7 +11,7 @@ public sealed record LogicDeviceLinkDoneMessage(LongId AccountId, string? PassTo
     /// <inheritdoc />
     public static ICodec<LogicDeviceLinkDoneMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PassToken,
         static (accountId, passToken) => new LogicDeviceLinkDoneMessage(accountId, passToken));
 }

@@ -16,7 +16,7 @@ public sealed record MapGameNodeEmojiAddedEvent(LongId? AvatarId, int NodeId, in
         static mapGameEvent => mapGameEvent.NodeId,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.EmojiGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static mapGameEvent => mapGameEvent.Duration,
         static (avatarId, nodeId, emojiGlobalId, duration) => new MapGameNodeEmojiAddedEvent(avatarId, nodeId, emojiGlobalId, duration));
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -11,7 +12,8 @@ public sealed record OrderSnapshot : ExtensibleDocument
 {
     /// <summary>Gets or sets the global ids of the goods the order asks for, matching <see cref="Amounts"/> by position; empty for an empty slot.</summary>
     /// <value>Global ids of crop, product or other goods rows, one per entry of <see cref="Amounts"/>.</value>
-    public int[] Datas { get; init; } = [];
+    public ImmutableArray<int> Datas { get; init; } = [];
+
     /// <summary>Gets or sets the optional bonus reward amount.</summary>
     /// <value>How many of <see cref="BonusReward"/> the delivery adds, such as an event's seasonal currency; <see langword="null"/> or 0 when the order has no bonus.</value>
     public int? BonusCount { get; init; }
@@ -44,7 +46,7 @@ public sealed record OrderSnapshot : ExtensibleDocument
 
     /// <summary>Gets or sets how many of each good the order asks for, matching <see cref="Datas"/> by position.</summary>
     /// <value>Positive counts, one per entry of <see cref="Datas"/>; empty for an empty slot.</value>
-    public int[] Amounts { get; init; } = [];
+    public ImmutableArray<int> Amounts { get; init; } = [];
 
     /// <summary>Gets or sets the experience the order gives when delivered.</summary>
     /// <value>The experience reward fixed when the order was generated; 0 for an empty slot.</value>
@@ -54,7 +56,6 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// <value>A flag of the order's help request whose exact meaning is not identified.</value>
     [JsonPropertyName("HC")]
     public ProtocolFlag HelperCompleted { get; init; }
-
 
     /// <summary>Gets or sets the helper grant flag, saved under the key HG.</summary>
     /// <value>A second flag of the order's help request whose exact meaning is not identified.</value>
@@ -78,6 +79,7 @@ public sealed record OrderSnapshot : ExtensibleDocument
     /// <summary>Gets or sets whether the order still shows its "new" badge because the player has not opened the board since it arrived.</summary>
     /// <value><see langword="true"/> if the order arrived after the board was last opened; otherwise, <see langword="false"/>.</value>
     public bool New { get; init; }
+
     /// <summary>Gets or sets the native order-source data reference retained with a generated order.</summary>
     /// <value>Saved as <c>OSI</c>; a global id kept with the order, or 0 when there is none. What the row names is not identified.</value>
     [JsonPropertyName("OSI")]

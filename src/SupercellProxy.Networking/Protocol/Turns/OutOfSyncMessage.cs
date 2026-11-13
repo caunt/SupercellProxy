@@ -11,13 +11,13 @@ public sealed record OutOfSyncMessage : CodecMessage<OutOfSyncMessage>, ICodecPr
     /// <inheritdoc />
     public static ICodec<OutOfSyncMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Boolean,
             static message => message.HasDiagnostics,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static message => message.ServerChecksum,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static message => message.ClientChecksum,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static message => message.ServerState,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static message => message.ClientState,
             static (hasDiagnostics, serverChecksum, clientChecksum, serverState, clientState) => new OutOfSyncMessage
             {
@@ -40,6 +40,7 @@ public sealed record OutOfSyncMessage : CodecMessage<OutOfSyncMessage>, ICodecPr
     /// </summary>
     /// <value>Optional string, the last wire field, with the client-side state text the server attaches for comparison against <see cref="ServerState"/>.</value>
     public string? ClientState { get; init; }
+
     /// <summary>
     /// Gets or sets whether the server attached its and the client's checksums and state dumps to the message.
     /// </summary>

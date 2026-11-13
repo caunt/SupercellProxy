@@ -22,13 +22,13 @@ public sealed record RoadsideStockServerCommand([property: JsonPropertyName("Hom
     /// <inheritdoc />
     public static CommandCodec<RoadsideStockServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
         static command => command.HomeOwnerId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.ItemGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.SlotIndex,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Price,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Quantity,
         static (owner, item, slot, price, quantity) => new RoadsideStockServerCommand(owner, item, slot, price, quantity)));
 }

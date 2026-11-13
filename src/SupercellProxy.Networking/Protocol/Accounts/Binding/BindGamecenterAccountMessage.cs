@@ -20,11 +20,11 @@ public sealed record BindGamecenterAccountMessage(string? PlayerId,
     bool Force) : CodecMessage<BindGamecenterAccountMessage>, ICodecProvider<BindGamecenterAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<BindGamecenterAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<BindGamecenterAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.PlayerId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.BundleId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PublicKeyLink,
         Codecs.OptionalByteArray,
         static message => message.Signature,

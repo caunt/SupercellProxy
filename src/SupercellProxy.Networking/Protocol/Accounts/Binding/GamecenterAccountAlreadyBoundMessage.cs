@@ -23,11 +23,11 @@ public sealed record GamecenterAccountAlreadyBoundMessage(int SecondsSinceLastPl
     /// <inheritdoc />
     public static ICodec<GamecenterAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.GamecenterId,
         Codecs.OptionalLongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PassToken,
         Codecs.Boolean,
         static message => message.IsSupercellId,

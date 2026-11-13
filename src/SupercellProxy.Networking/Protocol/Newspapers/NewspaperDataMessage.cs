@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -24,10 +26,11 @@ public sealed record NewspaperDataMessage : CodecMessage<NewspaperDataMessage>, 
     /// Gets or sets the farms advertising their roadside shops in this edition, each with up to four advertised items; <see langword="null"/> when absent.
     /// </summary>
     /// <value>The second list of the message, in the order the server sent it; its count is checked against the remaining payload before reading.</value>
-    public NewspaperPlacement[]? Placements { get; init; }
+    public ImmutableArray<NewspaperPlacement>? Placements { get; init; }
+
     /// <summary>
     /// Gets or sets the stories printed in this edition; <see langword="null"/> when absent.
     /// </summary>
     /// <value>The first list of the message, in the order the server sent it; its count is checked against the remaining payload before reading.</value>
-    public NewspaperStoryEntry[]? Stories { get; init; }
+    public ImmutableArray<NewspaperStoryEntry>? Stories { get; init; }
 }

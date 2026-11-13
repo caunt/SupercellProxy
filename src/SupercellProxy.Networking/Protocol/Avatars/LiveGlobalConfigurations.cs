@@ -17,11 +17,11 @@ public sealed record LiveGlobalConfigurations(string? General, string? SpinWheel
         : this(General: null, SpinWheel: null, Renovator: null) { }
 
     /// <inheritdoc />
-    public static ICodec<LiveGlobalConfigurations> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<LiveGlobalConfigurations> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static value => value.General,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.SpinWheel,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.Renovator,
         static (general, spinWheel, renovator) => new LiveGlobalConfigurations(general, spinWheel, renovator));
 }

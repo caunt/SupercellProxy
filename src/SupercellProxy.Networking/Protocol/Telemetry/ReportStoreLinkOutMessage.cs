@@ -12,13 +12,13 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record ReportStoreLinkOutMessage(int Placement, int ProductId, int Price, int Amount, int Source) : CodecMessage<ReportStoreLinkOutMessage>, ICodecProvider<ReportStoreLinkOutMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportStoreLinkOutMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<ReportStoreLinkOutMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.Placement,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.ProductId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Price,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Amount,
         Codecs.VarInt,
         static message => message.Source,

@@ -12,13 +12,13 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Analytics;
 public sealed record AnalyticsEvent(string? Name, long Time0, long Time1, long Time2, ReadOnlyMemory<AnalyticsProperty> Properties, AnalyticsContext? Context) : ICodecProvider<AnalyticsEvent>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticsEvent> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<AnalyticsEvent> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static analyticsEvent => analyticsEvent.Name,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static analyticsEvent => analyticsEvent.Time0,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static analyticsEvent => analyticsEvent.Time1,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static analyticsEvent => analyticsEvent.Time2,
         AnalyticsProperty.ListCodec,
         static analyticsEvent => analyticsEvent.Properties,

@@ -71,6 +71,7 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
     /// </summary>
     /// <value>The owner's raw document bytes in the length-plus-zlib form, kept undecoded; <see langword="null"/> when the wire length is -1, as it is for the player's own home.</value>
     public ReadOnlyMemory<byte>? CompressedHomeOwnerAvatarDataDocument { get; init; }
+
     /// <summary>
     /// Gets or sets the decoded home data document: the farm's objects, tile size and running product counts.
     /// </summary>
@@ -88,7 +89,7 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
         return Codecs.Create(ReadByteArray, WriteByteArray);
     }
 
-    private static ReadOnlyMemory<byte>? ReadByteArray(MessageStream stream)
+    private static ReadOnlyMemory<byte>? ReadByteArray(MessageChannel stream)
     {
         int length = stream.ReadInt32();
 

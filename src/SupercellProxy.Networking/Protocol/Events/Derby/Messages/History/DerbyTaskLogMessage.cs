@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -26,13 +28,16 @@ public sealed record DerbyTaskLogMessage : CodecMessage<DerbyTaskLogMessage>, IC
 
     /// <summary>Gets or sets the first optional collection in native order.</summary>
     /// <value>The member rows of the first list in the reply, or <see langword="null"/> when native wrote the -1 absent count; which tab of the log it fills is not yet identified.</value>
-    public DerbyMemberTaskLogEntry[]? FirstEntries { get; init; }
+    public ImmutableArray<DerbyMemberTaskLogEntry>? FirstEntries { get; init; }
+
     /// <summary>Gets or sets the second optional collection in native order.</summary>
     /// <value>The member rows of the second list, read right after <see cref="FirstEntries"/>, or <see langword="null"/> when native wrote the -1 absent count.</value>
-    public DerbyMemberTaskLogEntry[]? SecondEntries { get; init; }
+    public ImmutableArray<DerbyMemberTaskLogEntry>? SecondEntries { get; init; }
+
     /// <summary>Gets or sets the first value following the two collections.</summary>
     /// <value>The var-int written after <see cref="SecondEntries"/>; its meaning is not yet identified, so it is carried through unchanged.</value>
     public int Value0 { get; init; }
+
     /// <summary>Gets or sets the second value following the two collections.</summary>
     /// <value>The var-int that ends the reply, written after <see cref="Value0"/>; its meaning is not yet identified.</value>
     public int Value1 { get; init; }

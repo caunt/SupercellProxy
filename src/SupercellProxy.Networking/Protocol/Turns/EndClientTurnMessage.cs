@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Commands.Registry;
 using SupercellProxy.Networking.Protocol.MessageEncoding;
@@ -50,16 +53,16 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     public Memory<ReadOnlyMemory<byte>> DevelopmentByteArrays { get; init; }
 
     /// <summary>
-    /// Gets or sets the <see cref="SubChecksumCount"/> sub-checksums the turn header sends after the sub-tick.
-    /// </summary>
-    /// <value>Exactly <see cref="SubChecksumCount"/> variable-length integers with no count prefix; all zeros by default, and any other length fails when the message is written.</value>
-    public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
-
-    /// <summary>
     /// Gets or sets the build environment whose layout the turn is written in; it decides whether the debug and development blocks are present.
     /// </summary>
     /// <value>Taken from the stream's command environment when the message is read, and swapped in for the encoder's environment while it is written; <see cref="CommandEnvironment.Production"/> by default.</value>
     public CommandEnvironment Environment { get; init; } = CommandEnvironment.Production;
+
+    /// <summary>
+    /// Gets or sets the <see cref="SubChecksumCount"/> sub-checksums the turn header sends after the sub-tick.
+    /// </summary>
+    /// <value>Exactly <see cref="SubChecksumCount"/> variable-length integers with no count prefix; all zeros by default, and any other length fails when the message is written.</value>
+    public Memory<int> SubChecksums { get; init; } = new int[SubChecksumCount];
 
     /// <summary>
     /// Gets or sets the game sub-tick the turn ends at, sent in the turn header after the checksum.
@@ -67,11 +70,10 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     /// <value>Sub-tick counter of the client's game clock at the end of the turn, written as a variable-length integer; 0 by default.</value>
     public int SubTick { get; init; }
 
-    private static ICodec<CommandData[]> DebugCommandDataCodec => field ??= Codecs.Array(CommandData.Codec);
+    private static ICodec<ImmutableArray<CommandData>> DebugCommandDataCodec => field ??= Codecs.Array(CommandData.Codec);
+    private static ICodec<ImmutableArray<ReadOnlyMemory<byte>>> DevelopmentByteArraysCodec => field ??= Codecs.Array(Codecs.VarIntByteArray);
 
-    private static ICodec<ReadOnlyMemory<byte>[]> DevelopmentByteArraysCodec => field ??= Codecs.Array(Codecs.VarIntByteArray);
-
-    private static EndClientTurnMessage Read(MessageStream stream)
+    private static EndClientTurnMessage Read(MessageChannel stream)
     {
         ClientTurnHeader header = ClientTurnHeader.Codec.Read(stream);
         Command[] commands = new Command[header.CommandCount];
@@ -85,11 +87,11 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
         {
             Checksum = header.Checksum,
             SubTick = header.SubTick,
-            SubChecksums = header.SubChecksums,
+            SubChecksums = header.SubChecksums.ToArray(),
             Commands = commands,
             Environment = environment,
-            DebugCommandData = environment is CommandEnvironment.Production ? [] : DebugCommandDataCodec.Read(stream),
-            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream) : [],
+            DebugCommandData = environment is CommandEnvironment.Production ? [] : DebugCommandDataCodec.Read(stream).ToArray(),
+            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream).ToArray() : [],
         };
     }
 
@@ -115,16 +117,20 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
 
         try
         {
-            ClientTurnHeader.Codec.Write(encoder, new ClientTurnHeader(message.Checksum, message.SubTick, message.SubChecksums.ToArray(), message.Commands.Length));
+            ClientTurnHeader.Codec.Write(encoder,
+                new ClientTurnHeader(message.Checksum,
+                    message.SubTick,
+                    ImmutableCollectionsMarshal.AsImmutableArray(message.SubChecksums.ToArray()),
+                    message.Commands.Length));
 
             foreach (Command command in message.Commands.Span)
                 CommandRegistry.Codec.Write(encoder, command);
 
             if (message.Environment is not CommandEnvironment.Production)
-                DebugCommandDataCodec.Write(encoder, message.DebugCommandData.ToArray());
+                DebugCommandDataCodec.Write(encoder, ImmutableCollectionsMarshal.AsImmutableArray(message.DebugCommandData.ToArray()));
 
             if (message.Environment is CommandEnvironment.Development)
-                DevelopmentByteArraysCodec.Write(encoder, message.DevelopmentByteArrays.ToArray());
+                DevelopmentByteArraysCodec.Write(encoder, ImmutableCollectionsMarshal.AsImmutableArray(message.DevelopmentByteArrays.ToArray()));
         }
         finally
         {

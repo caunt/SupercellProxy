@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 public sealed record SupercellIdAccountBoundMessage(int ResultCode, ReadOnlyMemory<byte>? Token) : CodecMessage<SupercellIdAccountBoundMessage>, ICodecProvider<SupercellIdAccountBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<SupercellIdAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static message => message.ResultCode,
         Codecs.OptionalByteArray,
         static message => message.Token,

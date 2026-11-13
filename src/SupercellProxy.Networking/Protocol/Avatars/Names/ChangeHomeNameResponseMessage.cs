@@ -14,7 +14,7 @@ public sealed record ChangeHomeNameResponseMessage(int Result, string? Name) : C
     /// <inheritdoc />
     public static ICodec<ChangeHomeNameResponseMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.Result,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Name,
         static (result, name) => new ChangeHomeNameResponseMessage(result, name));
 }

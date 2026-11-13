@@ -31,6 +31,7 @@ public sealed record FriendEntry(LongId HomeId,
     internal const int MinimumEncodedSize = 28;
 
     private const int MaximumStringByteLength = 900_000;
+
     /// <inheritdoc />
     public static ICodec<FriendEntry> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static entry => entry.HomeId,
@@ -59,7 +60,7 @@ public sealed record FriendEntry(LongId HomeId,
         return nameof(FriendEntry);
     }
 
-    private static string? ReadText(MessageStream stream)
+    private static string? ReadText(MessageChannel stream)
     {
         int length = stream.ReadInt32();
 

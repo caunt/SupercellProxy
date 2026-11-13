@@ -11,7 +11,6 @@ internal sealed class AppVersion
     public static IComparer<string> ValueComparer { get; } = Comparer<string>.Create(CompareValues);
 
     public IReadOnlyList<string> SourceNames { get; }
-
     public string Value { get; }
 
     public static IReadOnlyList<AppVersion> CreateMany(IEnumerable<string> sourceNames)

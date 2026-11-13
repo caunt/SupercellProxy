@@ -6,6 +6,7 @@ public abstract class AnonymousAccountLease : IAsyncDisposable
     /// <summary>Gets saved credentials, or <see langword="null"/> while creating a new account.</summary>
     /// <value>The account id and pass token the next login should send; <see langword="null"/> for a new-account reservation until <see cref="SaveAsync"/> records the account the server created.</value>
     public abstract AnonymousAccountCredentials? Credentials { get; }
+
     /// <summary>Returns the account to the pool after its transport has closed.</summary>
     public abstract ValueTask DisposeAsync();
 

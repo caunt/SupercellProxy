@@ -12,9 +12,9 @@ public sealed record ChangeAccountSettingsMessage(string? Setting, int Value, bo
     : CodecMessage<ChangeAccountSettingsMessage>, ICodecProvider<ChangeAccountSettingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeAccountSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<ChangeAccountSettingsMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Setting,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Value,
         Codecs.TrailingValue(Codecs.Boolean),
         static message => message.Flag,

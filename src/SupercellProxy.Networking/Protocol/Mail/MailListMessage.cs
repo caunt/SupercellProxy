@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -19,7 +21,7 @@ public sealed record MailListMessage : CodecMessage<MailListMessage>, ICodecProv
 
     /// <summary>Gets or sets the decoded mail entries, or <see langword="null"/> for the native absent-list marker.</summary>
     /// <value>The whole mailbox in wire order, at most 1024 letters.</value>
-    public MailEntry[]? Entries { get; init; }
+    public ImmutableArray<MailEntry>? Entries { get; init; }
 
     /// <summary>Gets the decoded entry count.</summary>
     /// <value>The number of letters in <see cref="Entries"/>, or -1 when the message carries the absent-list marker.</value>

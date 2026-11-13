@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
 
@@ -10,10 +11,10 @@ public sealed record ChronosEventBoardSnapshot
     /// Gets or sets the events currently on the player's event board, each with its schedule and the player's progress in it.
     /// </summary>
     /// <value>One snapshot per board event in saved order; empty when the board holds no events.</value>
-    public ChronosEventSnapshot[] Events { get; init; } = [];
+    public ImmutableArray<ChronosEventSnapshot> Events { get; init; } = [];
 
     /// <summary>Gets or sets the native integer flags indexed by event type; nonzero means liked.</summary>
     /// <value>Element <c>n</c> is 1 when the player liked event type <c>n</c> and 0 otherwise; empty by default.</value>
     [JsonPropertyName("likedEventTypes")]
-    public int[] LikedEventTypes { get; init; } = [];
+    public ImmutableArray<int> LikedEventTypes { get; init; } = [];
 }

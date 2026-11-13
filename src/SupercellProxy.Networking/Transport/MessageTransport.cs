@@ -11,11 +11,13 @@ using SupercellProxy.Networking.Protocol.MessageEncoding;
 
 namespace SupercellProxy.Networking.Transport;
 
-internal sealed class MessageTransport(MessageStream stream)
+internal sealed class MessageTransport(MessageChannel stream)
 {
     private const int HeaderLength = 7;
+
     private readonly AsyncLock _readLock = new();
     private readonly AsyncLock _writeLock = new();
+
     private MessageEncryption? _encryption;
 
     /// <summary>
@@ -58,15 +60,15 @@ internal sealed class MessageTransport(MessageStream stream)
                 }
             }
 
-            MessageStream messageStream = MessageStream.Create(payload);
+            MessageChannel messageChannel = MessageChannel.Create(payload);
 
             try
             {
-                return new MessageContainer(id, version, messageStream);
+                return new MessageContainer(id, version, messageChannel);
             }
             finally
             {
-                messageStream.Dispose();
+                messageChannel.Dispose();
             }
         }
         catch (EndOfStreamException exception)
@@ -212,7 +214,7 @@ internal sealed class MessageTransport(MessageStream stream)
 
         messageContainer.Payload.FlushWriteBoolean();
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MessageStream.MaximumPayloadLength, nameof(messageContainer));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MessageChannel.MaximumPayloadLength, nameof(messageContainer));
 
         using IDisposable disposable = await _writeLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 

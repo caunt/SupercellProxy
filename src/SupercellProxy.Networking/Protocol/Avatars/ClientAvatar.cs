@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Avatars.Collections;
@@ -27,7 +28,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
         static avatar => avatar.AvatarVersion,
         Codecs.VarInt,
         static avatar => avatar.SecondsWithoutSpending,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static avatar => avatar.FarmName,
         Codecs.LongId,
         static avatar => avatar.HomeId,
@@ -215,7 +216,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// per table of the layout, in ascending table id order, then the data ids that show a new-item shop badge. Encoding throws
     /// <see cref="InvalidOperationException"/> when the count does not match the layout.
     /// </value>
-    public int[][] InventoryValues { get; init; } = [];
+    public ImmutableArray<ImmutableArray<int>> InventoryValues { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the inventory's keyed lists, one per map slot of <see cref="InventoryLayout"/>: each entry pairs a game data
@@ -225,7 +226,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// Exactly <see cref="AvatarInventoryLayout.MapCount"/> lists (3 for 1.72, 4 for 1.73), read after <see cref="InventoryValues"/>.
     /// The first list holds the amounts of money-table resources, such as diamonds, experience level and experience points.
     /// </value>
-    public DataReferenceValue[][] InventoryMaps { get; init; } = [];
+    public ImmutableArray<ImmutableArray<DataReferenceValue>> InventoryMaps { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the farm's roadside shop crates in slot order: what each offers, at what price, and whether it was bought.
@@ -233,7 +234,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// <value>
     /// One entry per unlocked stand, the first list of the social section; an empty stand has item id 0.
     /// </value>
-    public RoadsideShopEntry[] RoadsideShop { get; set; } = [];
+    public ImmutableArray<RoadsideShopEntry> RoadsideShop { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the in-game farm name.
@@ -257,7 +258,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// <value>
     /// The letters in mailbox order, read after <see cref="Neighborhood"/>.
     /// </value>
-    public MailEntry[] MailEntries { get; set; } = [];
+    public ImmutableArray<MailEntry> MailEntries { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the number list sent after the mail; its meaning is not identified and captures leave it empty.
@@ -265,7 +266,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// <value>
     /// A list of variable-length integers read after <see cref="MailEntries"/>, kept only so the avatar re-encodes unchanged.
     /// </value>
-    public int[] UnknownValues0 { get; init; } = [];
+    public ImmutableArray<int> UnknownValues0 { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the number that closes the inventory section; its meaning is not identified and captures carry 0.
@@ -280,7 +281,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// One entry per crate with its expiry time, help kind, crate index and helper account, read after
     /// <see cref="UnknownValues0"/>.
     /// </value>
-    public BoatCrateHelpEntry[] BoatCrateHelpEntries { get; set; } = [];
+    public ImmutableArray<BoatCrateHelpEntry> BoatCrateHelpEntries { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the mute flag from the social section (<see langword="false"/> in captures).
@@ -312,7 +313,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// One entry per reserved passenger, read after <see cref="CanEditFarm"/>; each names the home that picks the passenger up, or
     /// <see langword="null"/> until a helper claims it.
     /// </value>
-    public PassengerReservation[] PassengerReservations { get; init; } = [];
+    public ImmutableArray<PassengerReservation> PassengerReservations { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the passengers the player picked up in other players' towns and has not yet brought home on the personal train.
@@ -321,7 +322,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// One entry per passenger, read after <see cref="PassengerReservations"/>: its passenger table id, the home whose train picked
     /// it up and its saved object state.
     /// </value>
-    public PickedPassenger[] PickedPassengers { get; init; } = [];
+    public ImmutableArray<PickedPassenger> PickedPassengers { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the Valley game the player is in; <see langword="null"/> when not playing one.
@@ -339,7 +340,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// Read after <see cref="Unknown4"/> only when <see cref="MapGameId"/> is set, as an optional list; it can also be
     /// <see langword="null"/> with a game when the server omits the list.
     /// </value>
-    public MapGameParticipant[]? MapGameParticipants { get; init; }
+    public ImmutableArray<MapGameParticipant>? MapGameParticipants { get; init; }
 
     /// <summary>
     /// Gets or sets the player's neighbourhood: its id, name and the player's role in it; <see langword="null"/> when the player is
@@ -358,7 +359,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// One entry per help id, read after <see cref="PickedPassengers"/>; the helper home stays <see langword="null"/> until someone
     /// completes the service.
     /// </value>
-    public ServiceHelpRequest[] ServiceHelpRequests { get; init; } = [];
+    public ImmutableArray<ServiceHelpRequest> ServiceHelpRequests { get; init; } = [];
 
     /// <summary>
     /// Gets or sets a second help request list with the service request layout; captures never carry entries.
@@ -366,7 +367,7 @@ public sealed record ClientAvatar : ICodecProvider<ClientAvatar>
     /// <value>
     /// The last list of the social section, read after <see cref="ServiceHelpRequests"/>; truck order help is tracked from it.
     /// </value>
-    public ServiceHelpRequest[] TruckOrderHelpRequests { get; init; } = [];
+    public ImmutableArray<ServiceHelpRequest> TruckOrderHelpRequests { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the id of the derby the player's neighbourhood raced in before the current one, kept so that derby's results can still be shown.

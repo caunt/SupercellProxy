@@ -16,11 +16,11 @@ public sealed record DerbyTaskProgressServerCommand(LongId HomeId, LongId Neighb
         static command => command.HomeId,
         Codecs.LongId,
         static command => command.NeighborhoodId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.TaskGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.RewardPoints,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.TaskStatus,
         static (homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus) => new DerbyTaskProgressServerCommand(homeId, neighborhoodId, taskGlobalId, rewardPoints, taskStatus)));
 }

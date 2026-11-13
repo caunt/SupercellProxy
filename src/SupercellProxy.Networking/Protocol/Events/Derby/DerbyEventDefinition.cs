@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Derby;
@@ -66,7 +67,7 @@ public sealed record DerbyEventDefinition
     /// <summary>Gets or sets the ordered, league-specific placement and threshold reward overrides.</summary>
     /// <value>Reward overrides saved as <c>DerbyRewards</c>, each naming a league and a reward category; individual entries may be <see langword="null"/>, and <see langword="null"/> means no overrides.</value>
     [JsonPropertyName("DerbyRewards")]
-    public DerbyRewardDefinition?[]? Rewards { get; init; }
+    public ImmutableArray<DerbyRewardDefinition?>? Rewards { get; init; }
 
     /// <summary>Gets or sets the rookie league overrides.</summary>
     /// <value>The rules for the first league (index 0), or <see langword="null"/> when the event omits the section.</value>

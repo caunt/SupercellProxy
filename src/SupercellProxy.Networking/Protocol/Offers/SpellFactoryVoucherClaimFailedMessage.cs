@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record SpellFactoryVoucherClaimFailedMessage(string? Code, int Reason) : CodecMessage<SpellFactoryVoucherClaimFailedMessage>, ICodecProvider<SpellFactoryVoucherClaimFailedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SpellFactoryVoucherClaimFailedMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<SpellFactoryVoucherClaimFailedMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Code,
         Codecs.VarInt,
         static message => message.Reason,

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -31,7 +32,7 @@ public sealed record RankingEntry(int Rank,
         static value => value.RankValue,
         Codecs.LongId,
         static value => value.AvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.Name,
         Codecs.VarInt,
         static value => value.Level,
@@ -42,5 +43,5 @@ public sealed record RankingEntry(int Rank,
     /// <summary>
     /// Gets the ranking list codec: native writes -1 for an absent list and rejects counts the payload cannot hold.
     /// </summary>
-    internal static ICodec<RankingEntry[]?> ListCodec => field ??= Codecs.NullableArray(Codec, CollectionCount.PerElement(minimumElementSize: 24).WithStrictAbsence());
+    internal static ICodec<ImmutableArray<RankingEntry>?> ListCodec => field ??= Codecs.NullableArray(Codec, CollectionCount.PerElement(minimumElementSize: 24).WithStrictAbsence());
 }

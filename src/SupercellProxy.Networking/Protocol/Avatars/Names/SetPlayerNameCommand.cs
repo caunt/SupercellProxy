@@ -8,6 +8,6 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Names;
 public sealed record SetPlayerNameCommand(string? Name) : CodecCommand<SetPlayerNameCommand>, ICommandCodecProvider<SetPlayerNameCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetPlayerNameCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalString, static command => command.Name, static name => new SetPlayerNameCommand(name)),
+    public static CommandCodec<SetPlayerNameCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalUtf8String, static command => command.Name, static name => new SetPlayerNameCommand(name)),
         CommandLayout.MetadataFirst);
 }

@@ -17,7 +17,7 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
 {
     /// <inheritdoc />
     public static ICodec<ReportGameModeEnteredMessage> Codec { get; } = Codecs.Versioned(Release17381.Version,
-        Codecs.Composite(Codecs.OptionalString,
+        Codecs.Composite(Codecs.OptionalUtf8String,
             static message => message.GameMode,
             Codecs.Memory(Codecs.VarLong),
             static message => message.CounterIds,
@@ -28,7 +28,7 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
             static (gameMode, counterIds, counters, timestamps) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)),
         Codecs.Composite(Codecs.Memory(Codecs.VarLong),
             static message => message.Timestamps,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static message => message.GameMode,
             Codecs.Memory(Codecs.VarInt),
             static message => message.Counters,

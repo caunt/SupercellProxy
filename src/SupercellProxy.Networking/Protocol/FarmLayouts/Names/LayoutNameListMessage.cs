@@ -9,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 public sealed record LayoutNameListMessage(ReadOnlyMemory<string?>? Names, int ActiveLayout) : CodecMessage<LayoutNameListMessage>, ICodecProvider<LayoutNameListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LayoutNameListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalString),
+    public static ICodec<LayoutNameListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(Codecs.OptionalUtf8String),
         static message => message.Names,
         Codecs.VarInt,
         static message => message.ActiveLayout,

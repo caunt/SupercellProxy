@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Chronos;
@@ -8,5 +9,5 @@ public sealed record ChronosEventBonuses
     /// <summary>Gets or sets the selected data names in their native order.</summary>
     /// <value>Row names from the event's bonus table picked for this player; empty by default.</value>
     [JsonPropertyName("bonuses")]
-    public string[] Bonuses { get; init; } = [];
+    public ImmutableArray<string> Bonuses { get; init; } = [];
 }

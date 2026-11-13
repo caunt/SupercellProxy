@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record TitanDisconnectedMessage(DisconnectReason Reason) : CodecMessage<TitanDisconnectedMessage>, ICodecProvider<TitanDisconnectedMessage>
 {
     /// <inheritdoc />
-    public static ICodec<TitanDisconnectedMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Enum<DisconnectReason>(Codecs.Int32),
+    public static ICodec<TitanDisconnectedMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Enum<DisconnectReason>(Codecs.BigEndianInt32),
             static message => message.Reason,
             static reason => new TitanDisconnectedMessage(reason)),
         trailingDataMessage: "The disconnect notification has trailing data.");

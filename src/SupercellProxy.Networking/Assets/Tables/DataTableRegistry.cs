@@ -10,8 +10,10 @@ public static class DataTableRegistry
 {
     /// <summary>The native table id for Angus's fishing-area objects.</summary>
     public const int AngusDockTableId = 363;
+
     /// <summary>The native table id of the supply shed.</summary>
     public const int SupplyShedTableId = 371;
+
     private static readonly IReadOnlyDictionary<int, string> NativeDataTableFiles = new Dictionary<
         int,
         string

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Calendar;
@@ -8,5 +9,5 @@ public sealed record CalendarGiftManagerSnapshot
     /// <summary>Gets or sets the saved calendar event states.</summary>
     /// <value>The states saved as <c>eventStates</c>, in saved order; empty by default.</value>
     [JsonPropertyName("eventStates")]
-    public CalendarGiftEventSnapshot[] Events { get; init; } = [];
+    public ImmutableArray<CalendarGiftEventSnapshot> Events { get; init; } = [];
 }

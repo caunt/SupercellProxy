@@ -27,7 +27,7 @@ public sealed record NeighborhoodRequestDonation(LongId DonorHomeId,
     /// <inheritdoc />
     public static ICodec<NeighborhoodRequestDonation> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.DonorHomeId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.DonorName,
         Codecs.VarInt,
         static value => value.Amount,

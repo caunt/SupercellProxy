@@ -1,4 +1,6 @@
 
+using System.Collections.Immutable;
+
 namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 
 /// <summary>Saved Valley quest state: today's daily quests, the season's quest progression and the daily chicken.</summary>
@@ -14,7 +16,7 @@ public sealed record MapGameQuestManagerSnapshot
 
     /// <summary>Gets or sets the progression-prize data ids already claimed, in claim order.</summary>
     /// <value>Global ids of daily quests progression rows. Empty by default.</value>
-    public int[] ClaimedProgressionPrizes { get; init; } = [];
+    public ImmutableArray<int> ClaimedProgressionPrizes { get; init; } = [];
 
     /// <summary>Gets or sets the number of completed quests in the active Valley progression.</summary>
     /// <value>A running count.</value>

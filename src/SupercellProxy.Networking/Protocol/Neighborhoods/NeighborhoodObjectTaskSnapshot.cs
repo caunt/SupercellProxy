@@ -24,6 +24,7 @@ public sealed record NeighborhoodObjectTaskSnapshot
     /// <value>A global id in the neighbourhood object task table, which holds the task type, the goods it asks for, the amounts and the points it awards.</value>
     [JsonPropertyName("TaskDataId")]
     public int TaskDataId { get; init; }
+
     /// <summary>Gets or sets a state number that is 0 for a task that occupies its slot; other values are not identified.</summary>
     /// <value>The saved state number; 0 for every task drawn into a slot.</value>
     public int TaskState { get; init; }

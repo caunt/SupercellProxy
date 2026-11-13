@@ -11,6 +11,7 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
     private readonly Dictionary<string, LiteralValue> _currentValues = CreateInitialState(headers);
     private readonly List<IReadOnlyDictionary<string, LiteralValue>> _continuationRows = [];
     private readonly List<IReadOnlyDictionary<string, LiteralValue>> _snapshots = [];
+
     private ReadOnlyDictionary<string, LiteralValue>? _baseRow;
 
     /// <summary>

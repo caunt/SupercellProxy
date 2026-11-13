@@ -11,26 +11,26 @@ namespace SupercellProxy.Networking.Protocol.Commands.Registry;
 /// <summary>Maps native command wire ids to command contracts and reads and writes commands with their codecs.</summary>
 public static class CommandRegistry
 {
+    /// <summary>Gets every modelled command contract.</summary>
+    /// <value>Each contract that at least one release assigns a wire id, including contracts later releases removed.</value>
+    public static ImmutableArray<CommandContract> Contracts => Ids.Contracts;
+
     /// <summary>Gets the wire id history of every native command contract.</summary>
     /// <value>A registry built from <see cref="GameReleases.All"/>, oldest release first, in which each release overrides only the command ids it changes.</value>
     public static ProtocolIdRegistry<CommandContract> Ids { get; } = new(GameReleases.All.Select(static release => new ReleaseIds<CommandContract>(release.Version,
         Changes: [.. release.Commands.Select(static assignment => KeyValuePair.Create(assignment.Contract, assignment.Id))])));
 
-    /// <summary>Gets every modelled command contract.</summary>
-    /// <value>Each contract that at least one release assigns a wire id, including contracts later releases removed.</value>
-    public static ImmutableArray<CommandContract> Contracts => Ids.Contracts;
-
     /// <summary>
     /// Gets the codec of a command preceded by its wire id, using the stream's command environment and data resolver.
     /// </summary>
-    /// <value>A codec whose read is <see cref="Decode(MessageStream)"/> and whose write is <see cref="Encode"/>, for embedding commands in message payloads.</value>
+    /// <value>A codec whose read is <see cref="Decode(MessageChannel)"/> and whose write is <see cref="Encode"/>, for embedding commands in message payloads.</value>
     public static ICodec<Command> Codec { get; } = Codecs.Create(Decode, Encode);
 
     /// <summary>Reads one command, wire id first, in the stream's game version and command environment.</summary>
     /// <param name="stream">The payload positioned at the command's VarInt wire id; it is advanced past the whole command.</param>
     /// <returns>The decoded command record with its metadata applied; the concrete type is the record of the contract the id names.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
-    public static Command Decode(MessageStream stream)
+    public static Command Decode(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
@@ -44,7 +44,7 @@ public static class CommandRegistry
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     /// <exception cref="NotSupportedException"><paramref name="id"/> names no command in the stream's game version, or the command is not allowed in the stream's production environment.</exception>
     /// <exception cref="InvalidDataException">The command's bytes are malformed; the message names the contract, the id and the byte position where decoding failed, and the original error is the inner exception.</exception>
-    public static Command Decode(int id, MessageStream stream)
+    public static Command Decode(int id, MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

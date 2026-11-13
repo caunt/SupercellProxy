@@ -18,7 +18,7 @@ public sealed record NeighborhoodInvitationAvatarStreamEntry(AvatarStreamEntryHe
         static entry => entry.Header,
         Codecs.LongId,
         static entry => entry.NeighborhoodId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.NeighborhoodName,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,

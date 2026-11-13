@@ -15,7 +15,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Membership;
 public sealed record RequestAutomaticNeighborhoodCreationCommand(string Name, int EventId, int Unknown1, int EventStartTime, int Unknown3) : CodecCommand<RequestAutomaticNeighborhoodCreationCommand>, ICommandCodecProvider<RequestAutomaticNeighborhoodCreationCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RequestAutomaticNeighborhoodCreationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.String,
+    public static CommandCodec<RequestAutomaticNeighborhoodCreationCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Utf8String,
         static command => command.Name,
         Codecs.VarInt,
         static command => command.EventId,

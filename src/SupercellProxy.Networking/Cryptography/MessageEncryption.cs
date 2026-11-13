@@ -9,6 +9,7 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
     private const string EncryptionNotSetMessage = "Encryption is not set up.";
     private const int PromonPadSize = 508;
     private const string ReceiveNonceNotSetMessage = "Receive nonce is not set.";
+
     private readonly Encryption _encryption = new(with, localPrivateKey, sessionKey, remotePublicKey);
 
     internal MemoryStream Decrypt(MemoryStream memoryStream)
@@ -155,17 +156,14 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
     private sealed class Encryption(RemotePeerRole with, Memory<byte> localPrivateKey, Memory<byte> sessionKey, Memory<byte> remotePublicKey = default)
     {
+        public Memory<byte> LocalPrivateKey { get; init; } = localPrivateKey;
+        public Memory<byte> LocalPublicKey { get; init; } = NaClV3Cryptography.CryptoScalarMultBase(localPrivateKey.Span);
+        public Memory<byte> SessionKey { get; init; } = sessionKey;
         public RemotePeerRole With { get; init; } = with;
 
-        public Memory<byte> LocalPrivateKey { get; init; } = localPrivateKey;
-
         public Nonce? ReceiveNonce { get; set; }
-        public Memory<byte> LocalPublicKey { get; init; } =
-            NaClV3Cryptography.CryptoScalarMultBase(localPrivateKey.Span);
-        public Nonce? SendNonce { get; set; }
         public Memory<byte> RemotePublicKey { get; set; } = remotePublicKey;
+        public Nonce? SendNonce { get; set; }
         public Memory<byte> SharedKey { get; set; }
-
-        public Memory<byte> SessionKey { get; init; } = sessionKey;
     }
 }

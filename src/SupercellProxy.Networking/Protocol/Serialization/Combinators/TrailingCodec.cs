@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>A tail field native reads only while payload bytes remain.</summary>
 internal sealed class TrailingCodec<TValue>(ICodec<TValue> codec, TValue absent, Func<TValue, bool> isPresent) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

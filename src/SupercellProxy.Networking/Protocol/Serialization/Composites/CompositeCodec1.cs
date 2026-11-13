@@ -9,7 +9,7 @@ internal sealed class CompositeCodec1<TValue, TFirst>(ICodec<TFirst> first, Func
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
     private readonly Func<TValue, TFirst> _getFirst = getFirst ?? throw new ArgumentNullException(nameof(getFirst));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         TFirst firstValue = _first.Read(stream);
 

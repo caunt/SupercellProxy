@@ -63,7 +63,7 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TFourteenth> _fourteenth = fourteenth ?? throw new ArgumentNullException(nameof(fourteenth));
     private readonly Func<TValue, TFourteenth> _getFourteenth = getFourteenth ?? throw new ArgumentNullException(nameof(getFourteenth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The first four fields of the record in wire order.
         TFirst firstValue = _first.Read(stream);

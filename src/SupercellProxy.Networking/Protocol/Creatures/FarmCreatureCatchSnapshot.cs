@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Creatures;
@@ -18,10 +19,10 @@ public sealed record FarmCreatureCatchSnapshot
     /// <summary>Gets or sets the catch counts paired with the spawn rule ids.</summary>
     /// <value>Creatures caught on this farm today per entry of <see cref="SpawnRuleIds"/>, matched by index.</value>
     [JsonPropertyName("dailyVisitingCatchCounts")]
-    public int[] CatchCounts { get; init; } = [];
+    public ImmutableArray<int> CatchCounts { get; init; } = [];
 
     /// <summary>Gets or sets the spawn rules whose creatures were caught on this farm.</summary>
     /// <value>Spawn rule global ids paired by index with <see cref="CatchCounts"/>, saved as <c>dailyVisitingCatchGlobalIds</c>.</value>
     [JsonPropertyName("dailyVisitingCatchGlobalIds")]
-    public int[] SpawnRuleIds { get; init; } = [];
+    public ImmutableArray<int> SpawnRuleIds { get; init; } = [];
 }

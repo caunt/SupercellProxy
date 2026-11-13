@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -17,7 +19,7 @@ public sealed record NeighborhoodFullListMessage : CodecMessage<NeighborhoodFull
 
     /// <summary>Gets or sets the optional ordered list of full profiles.</summary>
     /// <value>Up to 1024 neighbourhood profiles in the order the server sent them, or <see langword="null"/> when the server wrote the list as absent.</value>
-    public NeighborhoodHeaderEntry[]? Profiles { get; init; }
+    public ImmutableArray<NeighborhoodHeaderEntry>? Profiles { get; init; }
 
     /// <summary>Omits neighborhood names and ids from diagnostic text.</summary>
     /// <returns>Always the type name <c>NeighborhoodFullListMessage</c>, so logs never show the profiles.</returns>

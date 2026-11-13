@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Tasks.Definitions;
@@ -19,5 +20,5 @@ public sealed record TaskEventLimitedTasks
     /// </summary>
     /// <value>The <c>TaskQueuePurchaseCosts</c> list, where the first entry is the price of the day's first extra slot; an empty array by default.</value>
     [JsonPropertyName("TaskQueuePurchaseCosts")]
-    public int[] TaskQueuePurchaseCosts { get; init; } = [];
+    public ImmutableArray<int> TaskQueuePurchaseCosts { get; init; } = [];
 }

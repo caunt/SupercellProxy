@@ -43,7 +43,7 @@ internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, 
     private readonly ICodec<TNinth> _ninth = ninth ?? throw new ArgumentNullException(nameof(ninth));
     private readonly Func<TValue, TNinth> _getNinth = getNinth ?? throw new ArgumentNullException(nameof(getNinth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The opening fields of the record in wire order.
         TFirst firstValue = _first.Read(stream);

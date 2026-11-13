@@ -26,7 +26,7 @@ public sealed record ActivateMovieTicketCommand([property: JsonPropertyName("Req
 {
     /// <inheritdoc />
     public static CommandCodec<ActivateMovieTicketCommand> Codec { get; } = Codecs.Command(Codecs.Versioned(Release17381.Version,
-            Codecs.Composite(Codecs.String,
+            Codecs.Composite(Codecs.Utf8String,
                 static command => command.RequestId,
                 Codecs.VarInt,
                 static command => command.DataGlobalId,
@@ -39,7 +39,7 @@ public sealed record ActivateMovieTicketCommand([property: JsonPropertyName("Req
                 Codecs.VarInt,
                 static command => command.TicketIndex,
                 static (requestId, dataGlobalId, orderIndex, slotIndex, objectGlobalId, ticketIndex) => new ActivateMovieTicketCommand(requestId, orderIndex, ticketIndex, objectGlobalId, dataGlobalId, slotIndex)),
-            Codecs.Composite(Codecs.String,
+            Codecs.Composite(Codecs.Utf8String,
                 static command => command.RequestId,
                 Codecs.VarInt,
                 static command => command.OrderIndex,

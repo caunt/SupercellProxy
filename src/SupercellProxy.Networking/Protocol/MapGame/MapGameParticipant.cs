@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Inventory;
@@ -24,14 +25,14 @@ namespace SupercellProxy.Networking.Protocol.MapGame;
 /// <param name="Entries">Table entries with values, at the position of <see cref="MapGamePawn.PendingNotifications"/>.</param>
 public sealed record MapGameParticipant([property: JsonPropertyName("Id0")] LongId? Id0,
     [property: JsonPropertyName("Id1")] LongId? Id1,
-    int[] Values,
-    int[] RouteValues,
-    [property: JsonPropertyName("TaskDataIds")] int[] TaskDataIds,
+    ImmutableArray<int> Values,
+    ImmutableArray<int> RouteValues,
+    [property: JsonPropertyName("TaskDataIds")] ImmutableArray<int> TaskDataIds,
     bool NamePresent,
     string? Name,
-    int[]? OptionalValues,
+    ImmutableArray<int>? OptionalValues,
     [property: JsonPropertyName("DataId")] int DataId,
-    DataReferenceValue[] Entries) : ICodecProvider<MapGameParticipant>
+    ImmutableArray<DataReferenceValue> Entries) : ICodecProvider<MapGameParticipant>
 {
     /// <inheritdoc />
     public static ICodec<MapGameParticipant> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
@@ -44,9 +45,9 @@ public sealed record MapGameParticipant([property: JsonPropertyName("Id0")] Long
         static participant => participant.RouteValues,
         Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
         static participant => participant.TaskDataIds,
-        Codecs.Flagged(Codecs.Present(Codecs.OptionalString), absent: default, static name => name.IsPresent),
+        Codecs.Flagged(Codecs.Present(Codecs.OptionalUtf8String), absent: default, static name => name.IsPresent),
         static participant => new Presence<string?>(participant.NamePresent, participant.Name),
-        Codecs.Optional(Codecs.FixedArray(Codecs.VarInt, length: 3)),
+        Codecs.OptionalValue(Codecs.FixedArray(Codecs.VarInt, length: 3)),
         static participant => participant.OptionalValues,
         Codecs.VarInt,
         static participant => participant.DataId,

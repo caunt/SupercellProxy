@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SupercellProxy.Networking.Protocol.FarmPass.Rewards;
 
 using System.Text.Json.Serialization;
@@ -15,12 +16,12 @@ public sealed record FarmPassLevelSnapshot
     /// <summary>Gets or sets the rewards every player gets at this level.</summary>
     /// <value>The reward groups saved for the free track; it can be empty.</value>
     [JsonPropertyName("freeRewards")]
-    public FarmPassRewardGroup[] FreeRewards { get; init; } = [];
+    public ImmutableArray<FarmPassRewardGroup> FreeRewards { get; init; } = [];
 
     /// <summary>Gets or sets the rewards only players who bought the premium pass get at this level.</summary>
     /// <value>The reward groups saved for the premium track; it can be empty.</value>
     [JsonPropertyName("premiumRewards")]
-    public FarmPassRewardGroup[] PremiumRewards { get; init; } = [];
+    public ImmutableArray<FarmPassRewardGroup> PremiumRewards { get; init; } = [];
 
     /// <summary>Gets or sets the position of the level in the season, starting at 0.</summary>
     /// <value>The level's index in the season's level list, which is also the index the baby pet claim command sends.</value>
@@ -40,10 +41,10 @@ public sealed record FarmPassLevelSnapshot
     /// <summary>Gets or sets the baby pets every player gets at this level.</summary>
     /// <value>The free baby pet reward groups as the event names them; empty when the level gives no free baby pet.</value>
     [JsonPropertyName("freeBabyPetRewards")]
-    public FarmPassBabyPetRewardGroup[] FreeBabyPetRewards { get; init; } = [];
+    public ImmutableArray<FarmPassBabyPetRewardGroup> FreeBabyPetRewards { get; init; } = [];
 
     /// <summary>Gets or sets the baby pets only players who bought the premium pass get at this level.</summary>
     /// <value>The premium baby pet reward groups as the event names them; empty when the level gives no premium baby pet.</value>
     [JsonPropertyName("premiumBabyPetRewards")]
-    public FarmPassBabyPetRewardGroup[] PremiumBabyPetRewards { get; init; } = [];
+    public ImmutableArray<FarmPassBabyPetRewardGroup> PremiumBabyPetRewards { get; init; } = [];
 }

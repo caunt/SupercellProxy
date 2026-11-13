@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Neighborhoods;
@@ -27,5 +30,5 @@ public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHisto
     /// points, and their exact meanings are not identified.
     /// </summary>
     /// <value>Exactly eight VarInts in wire order; the array defaults to eight zeros and must keep that length to encode.</value>
-    public int[] Values { get; init; } = new int[ValueCount];
+    public ImmutableArray<int> Values { get; init; } = ImmutableCollectionsMarshal.AsImmutableArray(new int[ValueCount]);
 }

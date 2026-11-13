@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Assets.Maps;
@@ -12,7 +13,7 @@ public sealed record MapNodeDistances
     /// <value>Node ids from the JSON <c>Dist</c> array, where the group at index <c>n</c> lists the nodes <c>n + 1</c> roads away; nodes
     /// missing from every group are out of the precomputed range.</value>
     [JsonPropertyName("Dist")]
-    public int[][] Groups { get; init; } = [];
+    public ImmutableArray<ImmutableArray<int>> Groups { get; init; } = [];
 
     /// <summary>Gets or sets the node id the distances are measured from.</summary>
     /// <value>The <see cref="MapNodeDefinition.Id"/> of the source node, read from the JSON <c>Id</c> field; the

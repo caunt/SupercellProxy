@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>Carries a value through another codec's wire form.</summary>
 internal sealed class MappedCodec<TSource, TValue>(ICodec<TSource> codec, Func<TSource, TValue> fromWire, Func<TValue, TSource> toWire) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         return fromWire(codec.Read(stream));
     }

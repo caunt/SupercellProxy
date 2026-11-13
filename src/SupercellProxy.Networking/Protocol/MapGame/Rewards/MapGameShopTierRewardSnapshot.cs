@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MapGame.Rewards;
@@ -13,7 +14,7 @@ public sealed record MapGameShopTierRewardSnapshot
     /// <summary>Gets or sets the ordered reward contents.</summary>
     /// <value>Resource ids and amounts the offer grants, in definition order; empty by default.</value>
     [JsonPropertyName("rewards")]
-    public MapGameRewardAmountSnapshot[] Rewards { get; init; } = [];
+    public ImmutableArray<MapGameRewardAmountSnapshot> Rewards { get; init; } = [];
 
     /// <summary>Gets or sets the shop reward tier.</summary>
     /// <value>The tier number; 2 for exclusive offers.</value>
@@ -28,5 +29,5 @@ public sealed record MapGameShopTierRewardSnapshot
     /// <summary>Gets or sets the ordered token prices.</summary>
     /// <value>Valley coin ids and amounts the offer costs, in definition order; empty by default.</value>
     [JsonPropertyName("prices")]
-    public MapGameRewardAmountSnapshot[] Prices { get; init; } = [];
+    public ImmutableArray<MapGameRewardAmountSnapshot> Prices { get; init; } = [];
 }

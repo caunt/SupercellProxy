@@ -33,19 +33,19 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
         static message => message.AccountId,
         Codecs.LongId,
         static message => message.HomeId,
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.ServerTime,
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.AccountCreatedDate,
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.PassToken,
         LinkedAccountIds.Codec,
         static message => new LinkedAccountIds(message.FacebookId, message.GamecenterId, message.GoogleServiceId, message.AmazonId),
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.LoginCountry,
-        Codecs.String,
+        Codecs.Utf8String,
         static message => message.EventAssetsAddress,
-        Codecs.NullableMemory(Codecs.OptionalString),
+        Codecs.NullableMemory(Codecs.OptionalUtf8String),
         static message => message.ContentUrls,
         TrailingBlocks.Codec,
         static message => new TrailingBlocks(message.SessionData,
@@ -139,6 +139,7 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     /// The first of the linked account ids, written as an optional string right after <see cref="PassToken"/>.
     /// </value>
     public required string? FacebookId { get; init; }
+
     /// <summary>Gets or sets the Game Center id ("gamecenter id").</summary>
     /// <value>
     /// The second of the linked account ids, as an optional string; <see langword="null"/> when no Game Center player is linked.
@@ -181,7 +182,6 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     /// An uppercase country code written after the linked account ids, derived by the server rather than sent by the client.
     /// </value>
     public required string LoginCountry { get; init; }
-
 
     /// <summary>
     /// Gets or sets the game release the server accepted, packed as major &lt;&lt; 20 | minor &lt;&lt; 10 | patch (1122390 is 1.72.86).
@@ -270,13 +270,13 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     // The linked third-party account ids, read as one group to keep the field list within a composite.
     private readonly record struct LinkedAccountIds(string? FacebookId, string? GamecenterId, string? GoogleServiceId, string? AmazonId)
     {
-        public static ICodec<LinkedAccountIds> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+        public static ICodec<LinkedAccountIds> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
             static ids => ids.FacebookId,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static ids => ids.GamecenterId,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static ids => ids.GoogleServiceId,
-            Codecs.OptionalString,
+            Codecs.OptionalUtf8String,
             static ids => ids.AmazonId,
             static (facebookId, gamecenterId, googleServiceId, amazonId) => new LinkedAccountIds(facebookId, gamecenterId, googleServiceId, amazonId));
     }
@@ -289,7 +289,7 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
     {
         public static ICodec<TrailingBlocks> Codec { get; } = Codecs.Composite(Codecs.Trailing(LoginOkSessionData.Codec),
             static blocks => blocks.SessionData,
-            Codecs.Trailing(Codecs.Present(Codecs.OptionalString), absent: default, static text => text.IsPresent),
+            Codecs.Trailing(Codecs.Present(Codecs.OptionalUtf8String), absent: default, static text => text.IsPresent),
             static blocks => blocks.Text,
             Codecs.Trailing(LoginOkOptionalTexts.Codec),
             static blocks => blocks.OptionalTexts,

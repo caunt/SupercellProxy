@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Assets.Tables;
@@ -30,7 +31,7 @@ public sealed record TaskEventDefinition
     /// </summary>
     /// <value>The <c>eventCompletedRewards</c> entries, each with its points and fallback; an empty array when the event has none. <see cref="ClaimEventTaskRewardCommand"/> claims from this list instead of <see cref="Rewards"/> when its <see cref="ClaimEventTaskRewardCommand.EventCompletedReward"/> flag is set.</value>
     [JsonPropertyName("eventCompletedRewards")]
-    public TaskEventRewardDefinition[] EventCompletedRewards { get; init; } = [];
+    public ImmutableArray<TaskEventRewardDefinition> EventCompletedRewards { get; init; } = [];
 
     /// <summary>
     /// Gets or sets a value indicating whether a task whose timer ran out may be renewed.
@@ -45,7 +46,7 @@ public sealed record TaskEventDefinition
     /// </summary>
     /// <value>One cap per listed building from <c>machineLimits</c>; buildings that are not listed are not capped, and the array is empty by default.</value>
     [JsonPropertyName("machineLimits")]
-    public TaskEventMachineLimit[] MachineLimits { get; init; } = [];
+    public ImmutableArray<TaskEventMachineLimit> MachineLimits { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the points the tasks created in one day add up to at least.
@@ -66,7 +67,7 @@ public sealed record TaskEventDefinition
     /// </summary>
     /// <value>The <c>rewards</c> entries in track order, each unlocked by its event points; an empty array when the event defines none.</value>
     [JsonPropertyName("rewards")]
-    public TaskEventRewardDefinition[] Rewards { get; init; } = [];
+    public ImmutableArray<TaskEventRewardDefinition> Rewards { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the table edits the event makes while it runs; it brings its own task table this way.

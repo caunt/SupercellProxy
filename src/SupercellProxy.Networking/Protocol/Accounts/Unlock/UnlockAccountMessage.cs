@@ -11,13 +11,13 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Unlock;
 public sealed record UnlockAccountMessage(string? PassToken, string? UnlockCode, LongId AccountId, string? Email) : CodecMessage<UnlockAccountMessage>, ICodecProvider<UnlockAccountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<UnlockAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<UnlockAccountMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.PassToken,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.UnlockCode,
         Codecs.LongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Email,
         static (passToken, unlockCode, accountId, email) => new UnlockAccountMessage(passToken, unlockCode, accountId, email));
 }

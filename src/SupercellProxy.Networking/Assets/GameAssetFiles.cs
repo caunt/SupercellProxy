@@ -8,6 +8,7 @@ public static partial class GameAssetFiles
 {
     /// <summary>Path of the About Layout asset.</summary>
     public const string AboutLayout = "data/about_layout.csv";
+
     /// <summary>Path of the Achievements asset.</summary>
     public const string Achievements = "data/achievements.csv";
 
@@ -69,23 +70,19 @@ public static partial class GameAssetFiles
     public const string BirthdayEventBonusRound = "data/birthday_event_bonus_round.csv";
 
     /// <summary>Path of the Birthday Event Bonus Round Config asset.</summary>
-    public const string BirthdayEventBonusRoundConfiguration =
-        "data/birthday_event_bonus_round_config.csv";
+    public const string BirthdayEventBonusRoundConfiguration = "data/birthday_event_bonus_round_config.csv";
 
     /// <summary>Path of the Birthday Event Bonus Round Reward Rules asset.</summary>
-    public const string BirthdayEventBonusRoundRewardRules =
-        "data/birthday_event_bonus_round_reward_rules.csv";
+    public const string BirthdayEventBonusRoundRewardRules = "data/birthday_event_bonus_round_reward_rules.csv";
 
     /// <summary>Path of the Birthday Event Bonus Round Reward Sets asset.</summary>
-    public const string BirthdayEventBonusRoundRewardSets =
-        "data/birthday_event_bonus_round_reward_sets.csv";
+    public const string BirthdayEventBonusRoundRewardSets = "data/birthday_event_bonus_round_reward_sets.csv";
 
     /// <summary>Path of the Birthday Event Tasks asset.</summary>
     public const string BirthdayEventTasks = "data/birthday_event_tasks.csv";
 
     /// <summary>Path of the Birthday Event Tasks Spawning Rules asset.</summary>
-    public const string BirthdayEventTasksSpawningRules =
-        "data/birthday_event_tasks_spawning_rules.csv";
+    public const string BirthdayEventTasksSpawningRules = "data/birthday_event_tasks_spawning_rules.csv";
 
     /// <summary>Path of the Blacklists asset.</summary>
     public const string Blacklists = "data/blacklists.csv";
@@ -184,12 +181,10 @@ public static partial class GameAssetFiles
     public const string CountyFairBonusRoundConfiguration = "data/countyfair_bonus_round_config.csv";
 
     /// <summary>Path of the County Fair Bonus Round Reward Rules asset.</summary>
-    public const string CountyFairBonusRoundRewardRules =
-        "data/countyfair_bonus_round_reward_rules.csv";
+    public const string CountyFairBonusRoundRewardRules = "data/countyfair_bonus_round_reward_rules.csv";
 
     /// <summary>Path of the County Fair Bonus Round Reward Sets asset.</summary>
-    public const string CountyFairBonusRoundRewardSets =
-        "data/countyfair_bonus_round_reward_sets.csv";
+    public const string CountyFairBonusRoundRewardSets = "data/countyfair_bonus_round_reward_sets.csv";
 
     /// <summary>Path of the County Fair Reward Sets asset.</summary>
     public const string CountyFairRewardSets = "data/countyfair_reward_sets.csv";
@@ -363,12 +358,10 @@ public static partial class GameAssetFiles
     public const string FarmPassTasks = "data/farm_pass_tasks.csv";
 
     /// <summary>Path of the Farm Pass Tasks Daily Spawning Rules asset.</summary>
-    public const string FarmPassTasksDailySpawningRules =
-        "data/farm_pass_tasks_daily_spawning_rules.csv";
+    public const string FarmPassTasksDailySpawningRules = "data/farm_pass_tasks_daily_spawning_rules.csv";
 
     /// <summary>Path of the Farm Pass Tasks Weekly Spawning Rules asset.</summary>
-    public const string FarmPassTasksWeeklySpawningRules =
-        "data/farm_pass_tasks_weekly_spawning_rules.csv";
+    public const string FarmPassTasksWeeklySpawningRules = "data/farm_pass_tasks_weekly_spawning_rules.csv";
 
     /// <summary>Path of the Features asset.</summary>
     public const string Features = "data/features.csv";
@@ -524,8 +517,7 @@ public static partial class GameAssetFiles
     public const string MapGameSunpointsTasks = "data/mapgame_sunpoints_tasks.csv";
 
     /// <summary>Path of the Map Game Sunpoints Tasks Spawning Rules asset.</summary>
-    public const string MapGameSunpointsTasksSpawningRules =
-        "data/mapgame_sunpoints_tasks_spawning_rules.csv";
+    public const string MapGameSunpointsTasksSpawningRules = "data/mapgame_sunpoints_tasks_spawning_rules.csv";
 
     /// <summary>Path of the Map Game Tasks asset.</summary>
     public const string MapGameTasks = "data/mapgame_tasks.csv";
@@ -589,6 +581,7 @@ public static partial class GameAssetFiles
 
     /// <summary>Path of the Neighborhood Object Perks asset.</summary>
     public const string NeighborhoodObjectPerks = "data/neighborhood_object_perks.csv";
+
     /// <summary>Path of the Neighborhood Object Tasks asset.</summary>
     public const string NeighborhoodObjectTasks = "data/neighborhood_object_tasks.csv";
 

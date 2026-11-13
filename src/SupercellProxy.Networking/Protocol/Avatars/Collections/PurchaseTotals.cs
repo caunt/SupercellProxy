@@ -18,7 +18,7 @@ public sealed record PurchaseTotals(int TransactionCount, int SpentCents, int Su
         static value => value.SpentCents,
         Codecs.VarInt,
         static value => value.SupercellStoreSpentCents,
-        Codecs.Int64,
+        Codecs.BigEndianInt64,
         static value => value.LastPurchaseTime,
         static (transactionCount, spentCents, supercellStoreSpentCents, lastPurchaseTime) => new PurchaseTotals(transactionCount, spentCents, supercellStoreSpentCents, lastPurchaseTime));
 }

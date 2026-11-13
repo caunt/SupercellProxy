@@ -8,6 +8,7 @@ namespace SupercellProxy.Keys;
 internal static partial class Application
 {
     private const string AppStoreIdPattern = @"(?:^|/)id(\d+)(?:/|$)";
+
     private static readonly HttpClient WebClient = new() { Timeout = TimeSpan.FromMinutes(minutes: 30) };
 
     [GeneratedRegex(AppStoreIdPattern, RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture, matchTimeoutMilliseconds: 1_000)]

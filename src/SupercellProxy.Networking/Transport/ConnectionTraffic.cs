@@ -9,6 +9,7 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
     private readonly Queue<Sample> _samples = new();
     private readonly long _started = timeProvider.GetTimestamp();
     private readonly DateTimeOffset _connectedAt = timeProvider.GetUtcNow();
+
     private long _received;
     private long _recentReceived;
     private long _recentSent;

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Events.Decoration;
@@ -8,5 +9,5 @@ public sealed record DecorationCanvasLayoutSnapshot
 {
     /// <summary>Gets or sets the placed canvas objects.</summary>
     /// <value>Each decoration placed on the canvas with its data id and tile position, in saved order; empty for a blank canvas.</value>
-    public DecorationCanvasObjectSnapshot[] Objects { get; init; } = [];
+    public ImmutableArray<DecorationCanvasObjectSnapshot> Objects { get; init; } = [];
 }

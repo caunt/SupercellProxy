@@ -12,19 +12,19 @@ public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskComman
 {
     /// <summary>Initializes a new instance of the <see cref="MapGamePawnTaskCommand"/> record. Creates the command from its decoded fields.</summary>
     /// <param name="pawn">The car the command is about; <see langword="null"/> when not sent.</param>
-    /// <param name="taskCollection">Valley tasks sent with the car; <see langword="null"/> when not sent.</param>
-    public MapGamePawnTaskCommand(MapGamePawn? pawn, MapGameTaskCollection? taskCollection)
+    /// <param name="taskList">Valley tasks sent with the car; <see langword="null"/> when not sent.</param>
+    public MapGamePawnTaskCommand(MapGamePawn? pawn, MapGameTaskList? taskList)
     {
         Pawn = pawn;
-        TaskCollection = taskCollection;
+        TaskList = taskList;
     }
 
     /// <inheritdoc />
     public static CommandCodec<MapGamePawnTaskCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Optional(MapGamePawn.Codec),
             static command => command.Pawn,
-            Codecs.Optional(MapGameTaskCollection.Codec),
-            static command => command.TaskCollection,
-            static (pawn, taskCollection) => new MapGamePawnTaskCommand(pawn, taskCollection)),
+            Codecs.Optional(MapGameTaskList.Codec),
+            static command => command.TaskList,
+            static (pawn, taskList) => new MapGamePawnTaskCommand(pawn, taskList)),
         CommandLayout.MetadataFirst);
 
     /// <summary>Gets the Valley car the command is about; <see langword="null"/> when not sent.</summary>
@@ -33,5 +33,5 @@ public sealed record MapGamePawnTaskCommand : CodecCommand<MapGamePawnTaskComman
 
     /// <summary>Gets the Valley tasks sent with the car; <see langword="null"/> when not sent.</summary>
     /// <value>The task collection that follows <see cref="Pawn"/> on the wire, kept as received for re-encoding.</value>
-    public MapGameTaskCollection? TaskCollection { get; }
+    public MapGameTaskList? TaskList { get; }
 }

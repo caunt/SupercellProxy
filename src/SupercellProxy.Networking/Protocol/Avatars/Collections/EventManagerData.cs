@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Avatars.Collections;
@@ -12,7 +14,7 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
         static data => data.PreviousTime,
         Codecs.Optional(LiveEvents.Codec),
         static data => data.LiveEvents,
-        Codecs.Array(Codecs.Pair(Codecs.VarInt, Codecs.Int32), CollectionCount.Bounded),
+        Codecs.Array(Codecs.Pair(Codecs.VarInt, Codecs.BigEndianInt32), CollectionCount.Bounded),
         static data => data.FixedValues,
         Codecs.Array(Codecs.Pair(Codecs.VarInt, Codecs.VarInt), CollectionCount.Bounded),
         static data => data.Pairs,
@@ -20,7 +22,7 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
         static data => data.PurchasedShopIds,
         Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
         static data => data.SeenShopIds,
-        Codecs.Array(Codecs.Pair(Codecs.VarInt, Codecs.OptionalString), CollectionCount.Bounded),
+        Codecs.Array(Codecs.Pair(Codecs.VarInt, Codecs.OptionalUtf8String), CollectionCount.Bounded),
         static data => data.AvatarData,
         Codecs.Array(LiveEventRecord.Codec, CollectionCount.Bounded),
         static data => data.PurchasedEvents,
@@ -59,21 +61,21 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
             });
 
     /// <summary>
+    /// Gets or sets the per-event avatar JSON keyed by live event id, saved natively as <c>av_datas</c>.
+    /// </summary>
+    /// <value>
+    /// Pairs of a live event id and that event's optional JSON state for this player, read after <see cref="SeenShopIds"/>; the text
+    /// is <see langword="null"/> when the entry was sent without one.
+    /// </value>
+    public ImmutableArray<KeyValuePair<int, string?>> AvatarData { get; init; } = [];
+
+    /// <summary>
     /// Gets or sets the per-event flags keyed by live event id.
     /// </summary>
     /// <value>
     /// Pairs of a live event id and a fixed-width 32-bit flag, read after <see cref="LiveEvents"/>; empty by default.
     /// </value>
-    public KeyValuePair<int, int>[] FixedValues { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the paired values native saves as <c>es_i</c> and <c>es_r</c>.
-    /// </summary>
-    /// <value>
-    /// Pairs of variable-length integers read after <see cref="FixedValues"/>; what the two numbers mean beyond those save keys is
-    /// not identified. Empty by default.
-    /// </value>
-    public KeyValuePair<int, int>[] Pairs { get; init; } = [];
+    public ImmutableArray<KeyValuePair<int, int>> FixedValues { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the scheduled live events.
@@ -84,13 +86,13 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
     public LiveEvents? LiveEvents { get; init; }
 
     /// <summary>
-    /// Gets or sets the purchased shop offer ids, saved natively as <c>purchased_shop_ids</c>.
+    /// Gets or sets the paired values native saves as <c>es_i</c> and <c>es_r</c>.
     /// </summary>
     /// <value>
-    /// One live event id per purchase from an offer that is not targeted (scheduling type other than 1), so an id repeats once for
-    /// each time the offer was bought. Empty by default.
+    /// Pairs of variable-length integers read after <see cref="FixedValues"/>; what the two numbers mean beyond those save keys is
+    /// not identified. Empty by default.
     /// </value>
-    public int[] PurchasedShopIds { get; init; } = [];
+    public ImmutableArray<KeyValuePair<int, int>> Pairs { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the previous update time, saved natively as <c>prev_time</c>.
@@ -101,31 +103,22 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
     public int PreviousTime { get; init; }
 
     /// <summary>
-    /// Gets or sets the seen shop offer ids, saved natively as <c>seen_shop_ids</c>.
-    /// </summary>
-    /// <value>
-    /// Live event ids of shop offers the player has seen, read after <see cref="PurchasedShopIds"/>; carried for re-encoding. Empty by
-    /// default.
-    /// </value>
-    public int[] SeenShopIds { get; init; } = [];
-
-    /// <summary>
-    /// Gets or sets the per-event avatar JSON keyed by live event id, saved natively as <c>av_datas</c>.
-    /// </summary>
-    /// <value>
-    /// Pairs of a live event id and that event's optional JSON state for this player, read after <see cref="SeenShopIds"/>; the text
-    /// is <see langword="null"/> when the entry was sent without one.
-    /// </value>
-    public KeyValuePair<int, string?>[] AvatarData { get; init; } = [];
-
-    /// <summary>
     /// Gets or sets the purchased events, saved natively as <c>purchased_events</c>.
     /// </summary>
     /// <value>
     /// One record per showing of a targeted (scheduling type 1) event the player bought from, identified by event id and impression
     /// id, with <see cref="LiveEventRecord.Count"/> as the number of purchases in that showing. Empty by default.
     /// </value>
-    public LiveEventRecord[] PurchasedEvents { get; init; } = [];
+    public ImmutableArray<LiveEventRecord> PurchasedEvents { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the purchased shop offer ids, saved natively as <c>purchased_shop_ids</c>.
+    /// </summary>
+    /// <value>
+    /// One live event id per purchase from an offer that is not targeted (scheduling type other than 1), so an id repeats once for
+    /// each time the offer was bought. Empty by default.
+    /// </value>
+    public ImmutableArray<int> PurchasedShopIds { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the seen events, saved natively as <c>seen_events</c>.
@@ -134,7 +127,17 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
     /// Records in the layout of <see cref="PurchasedEvents"/>, read after it, whose <see cref="LiveEventRecord.Count"/> says how often
     /// each event was seen; carried for re-encoding.
     /// </value>
-    public LiveEventRecord[] SeenEvents { get; init; } = [];
+    public ImmutableArray<LiveEventRecord> SeenEvents { get; init; } = [];
+
+    /// <summary>
+    /// Gets or sets the seen shop offer ids, saved natively as <c>seen_shop_ids</c>.
+    /// </summary>
+    /// <value>
+    /// Live event ids of shop offers the player has seen, read after <see cref="PurchasedShopIds"/>; carried for re-encoding. Empty by
+    /// default.
+    /// </value>
+    public ImmutableArray<int> SeenShopIds { get; init; } = [];
+
     /// <summary>
     /// Gets or sets the survey event states, saved natively as <c>survey_event_states_v2</c>.
     /// </summary>
@@ -142,5 +145,5 @@ public sealed record EventManagerData : ICodecProvider<EventManagerData>
     /// One entry per survey showing with its event id, impression id and progress state; the last list of the block, empty by
     /// default.
     /// </value>
-    public SurveyEventState[] SurveyEventStates { get; init; } = [];
+    public ImmutableArray<SurveyEventState> SurveyEventStates { get; init; } = [];
 }

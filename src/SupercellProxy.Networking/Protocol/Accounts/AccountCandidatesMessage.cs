@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -20,7 +22,7 @@ public sealed record AccountCandidatesMessage : CodecMessage<AccountCandidatesMe
     /// Gets or sets the listed farms; <see langword="null"/> when the server sent the list as absent rather than empty.
     /// </summary>
     /// <value>The entries in wire order, each at least 28 bytes on the wire; an empty array by default. A <see langword="null"/> value is written back as an absent list.</value>
-    public AccountCandidateEntry[]? Entries { get; init; } = [];
+    public ImmutableArray<AccountCandidateEntry>? Entries { get; init; } = [];
 
     /// <summary>
     /// Gets the number of listed farms, or -1 when the list was sent as absent.

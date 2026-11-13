@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -31,15 +33,15 @@ public sealed record NeighborhoodListsMessage : CodecMessage<NeighborhoodListsMe
     /// Gets or sets ids with a score each, sent second and sorted from the highest score in the captures; likely a player ranking, not confirmed.
     /// </summary>
     /// <value>The second list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
-    public NeighborhoodIdValue[]? FirstEntries { get; init; }
+    public ImmutableArray<NeighborhoodIdValue>? FirstEntries { get; init; }
 
     /// <summary>Gets or sets the neighbourhood profiles with a score each, sorted from the highest score in the captures.</summary>
     /// <value>The third list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
-    public NeighborhoodHeaderEntryValue[]? Profiles { get; init; }
+    public ImmutableArray<NeighborhoodHeaderEntryValue>? Profiles { get; init; }
 
     /// <summary>Gets or sets ids with a number each, sent first and not sorted in the captures; their meaning is not identified.</summary>
     /// <value>The first list on the wire, with a VarInt count; <see langword="null"/> when the server writes it as absent.</value>
-    public NeighborhoodIdValue[]? SecondEntries { get; init; }
+    public ImmutableArray<NeighborhoodIdValue>? SecondEntries { get; init; }
 
     /// <summary>Gets or sets the number sent last, 0 when the lists are empty; its meaning is not identified.</summary>
     /// <value>The VarInt that ends the message; any bytes after it fail the decode.</value>

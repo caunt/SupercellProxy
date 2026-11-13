@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Events;
 /// </summary>
 /// <param name="Message">The decoded message.</param>
 /// <param name="Direction">Whether it travels from the game client to the server or back.</param>
-/// <param name="Source">Stream the message was read from.</param>
-/// <param name="Destination">Stream the message will be written to unless a handler cancels it.</param>
-public sealed record MessageReceivedEvent(IMessage Message, MessageDirection Direction, MessageStream Source, MessageStream Destination) : IEvent
+/// <param name="Source">Channel the message was read from.</param>
+/// <param name="Destination">Channel the message will be written to unless a handler cancels it.</param>
+public sealed record MessageReceivedEvent(IMessage Message, MessageDirection Direction, MessageChannel Source, MessageChannel Destination)
 {
     /// <summary>
     /// Gets or sets whether a handler dropped the message, in which case the proxy does not forward it to the other side.

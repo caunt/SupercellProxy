@@ -10,9 +10,9 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 public sealed record SaveEditModeLayoutMessage(string? Name, string? Layout, int SlotIndex) : CodecMessage<SaveEditModeLayoutMessage>, ICodecProvider<SaveEditModeLayoutMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SaveEditModeLayoutMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<SaveEditModeLayoutMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Name,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Layout,
         Codecs.VarInt,
         static message => message.SlotIndex,

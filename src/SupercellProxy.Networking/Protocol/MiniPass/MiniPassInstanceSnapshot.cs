@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.MiniPass;
@@ -42,7 +43,7 @@ public sealed record MiniPassInstanceSnapshot
 
     /// <summary>Gets or sets the points each reward index requires.</summary>
     /// <value>The cumulative points needed for reward index <c>i</c> at position <c>i</c>; the last entry is the points that complete the pass.</value>
-    public int[] PointsRequired { get; init; } = [];
+    public ImmutableArray<int> PointsRequired { get; init; } = [];
 
     /// <summary>Gets or sets the premium reward track.</summary>
     /// <value>The rewards of the premium track, with which of them are claimed; <see langword="null"/> means no premium rewards.</value>

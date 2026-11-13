@@ -20,19 +20,25 @@ public sealed class ProxyCaptureWriter
 {
     private const long MaximumPendingBytes = 64L * 1024 * 1024;
 
-    private readonly AsyncLock _storageLock = new();
-    private readonly List<PendingFrame> _pendingFrames = [];
     private readonly Dictionary<ArtifactName, byte[]> _pendingArtifacts = [];
+    private readonly List<PendingFrame> _pendingFrames = [];
+    private readonly AsyncLock _storageLock = new();
     private readonly TimeProvider _timeProvider;
-    private bool _abandoned;
+
+    // Where the capture is written and which game build and assets it belongs to.
     private bool _assetsRetained;
     private string? _directoryPath;
     private CaptureIdentity? _identity;
+
+    // Frames held in memory before publication: their total size, the next sequence number, and whether forwarded frames are kept.
     private long _pendingBytes;
-    private int _persisted;
     private int _preserveForwardedFrames;
-    private bool _publicationApproved;
     private long _sequence;
+
+    // Whether the capture is published, abandoned for exceeding the memory limit, or already written to disk.
+    private bool _abandoned;
+    private int _persisted;
+    private bool _publicationApproved;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProxyCaptureWriter"/> class. Picks the connection's capture folder, named by the current UTC time, the peer address and a random suffix; nothing is
@@ -57,18 +63,9 @@ public sealed class ProxyCaptureWriter
         _directoryPath = Path.GetFullPath(Path.Combine(rootDirectoryPath, connectionName));
     }
 
-    /// <summary>Gets or sets an optional callback that attaches metadata to each captured frame.</summary>
-    /// <value>Called once per saved frame with its sequence, file name and bytes; a returned annotation is appended beside the frame and <see langword="null"/> adds nothing. <see langword="null"/> by default.</value>
-    public Func<ProxyCapturedFrame, ProxyCaptureAnnotation?>? AnnotateFrame { get; set; }
-
     /// <summary>Gets or sets the archive that optionally retains recording assets and groups captures by their handshake version.</summary>
     /// <value>When set, the client hello moves the capture folder under its version, a login acceptance retains the game assets, and nothing is published before that; <see langword="null"/> keeps the plain folder and publishes without assets.</value>
     public CaptureArchive? Archive { get; init; }
-
-    /// <summary>Gets or sets whether capture publication waits for an explicit call to <see cref="PublishAsync"/>.</summary>
-    /// <value><see langword="true"/> if frames stay in memory until <see cref="PublishAsync"/> approves them; otherwise, <see langword="false"/>.</value>
-    /// <remarks>The flag defaults to <see langword="false"/>, under which the first saved frame publishes the capture.</remarks>
-    public bool DeferPublication { get; set; }
 
     /// <summary>
     /// Gets the full path of this connection's capture folder; empty when capturing is off. The folder may not exist until the capture is
@@ -81,6 +78,15 @@ public sealed class ProxyCaptureWriter
     /// <value><see langword="true"/> if publication created the folder, after which every frame and artifact is written immediately; otherwise, <see langword="false"/>.</value>
     /// <remarks>While the value is <see langword="false"/>, data is still held in memory.</remarks>
     public bool IsPersisted => Volatile.Read(ref _persisted) != 0;
+
+    /// <summary>Gets or sets an optional callback that attaches metadata to each captured frame.</summary>
+    /// <value>Called once per saved frame with its sequence, file name and bytes; a returned annotation is appended beside the frame and <see langword="null"/> adds nothing. <see langword="null"/> by default.</value>
+    public Func<ProxyCapturedFrame, ProxyCaptureAnnotation?>? AnnotateFrame { get; set; }
+
+    /// <summary>Gets or sets whether capture publication waits for an explicit call to <see cref="PublishAsync"/>.</summary>
+    /// <value><see langword="true"/> if frames stay in memory until <see cref="PublishAsync"/> approves them; otherwise, <see langword="false"/>.</value>
+    /// <remarks>The flag defaults to <see langword="false"/>, under which the first saved frame publishes the capture.</remarks>
+    public bool DeferPublication { get; set; }
 
     /// <summary>Gets or sets whether the proxy should preserve received frame bytes while forwarding.</summary>
     /// <value><see langword="true"/> if forwarded frames keep their original bytes instead of being re-encoded, except the login the proxy rewrites, and messages that fail to decode (other than the hello and login exchange) are passed through undecoded; otherwise, <see langword="false"/>.</value>
@@ -211,7 +217,7 @@ public sealed class ProxyCaptureWriter
 
         if (clientHello)
         {
-            using MessageStream stream = MessageStream.Create(payload);
+            using MessageChannel stream = MessageChannel.Create(payload);
 
             CaptureIdentity identity = CaptureIdentity.From(ClientHelloMessage.Codec.Read(stream));
 
@@ -424,5 +430,6 @@ public sealed class ProxyCaptureWriter
     }
 
     private readonly record struct ArtifactName(string Directory, string File);
+
     private sealed record PendingFrame(string Name, byte[] Bytes, ProxyCaptureAnnotation? Annotation);
 }

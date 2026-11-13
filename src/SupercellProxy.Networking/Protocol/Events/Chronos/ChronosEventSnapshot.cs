@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Events.CountyFair;
@@ -17,6 +18,7 @@ public sealed record ChronosEventSnapshot
     /// <value>The saved task list and per-task progress of the event's task board.</value>
     [JsonPropertyName("birthdayTasks")]
     public TaskEventSnapshot? BirthdayTasks { get; init; }
+
     /// <summary>Gets or sets whether home-farm completion has already run for the event.</summary>
     /// <value><see langword="true"/> if the client already ran the event's end handling on the player's own farm (saved as <c>finishedAtHomeFarm</c>); otherwise, <see langword="false"/>.</value>
     [JsonPropertyName("finishedAtHomeFarm")]
@@ -61,7 +63,7 @@ public sealed record ChronosEventSnapshot
     /// </summary>
     /// <value>The catalogue entries in their saved order; their positions are the gift indexes used by purchases and by <see cref="SeasonalGiftPurchaseCounts"/>.</value>
     [JsonPropertyName("seasonalCataloguePlayerGifts")]
-    public SeasonalCatalogueGiftSnapshot[] SeasonalCatalogueGifts { get; init; } = [];
+    public ImmutableArray<SeasonalCatalogueGiftSnapshot> SeasonalCatalogueGifts { get; init; } = [];
 
     /// <summary>Gets or sets the event's retained seasonal-currency data id.</summary>
     /// <value>The global id of the seasonal currency row the event uses, or 0 when the event has none.</value>
@@ -73,7 +75,7 @@ public sealed record ChronosEventSnapshot
     /// </summary>
     /// <value>One purchase count per catalogue item; empty by default.</value>
     [JsonPropertyName("seasonalGiftPurchaseCounts")]
-    public int[] SeasonalGiftPurchaseCounts { get; init; } = [];
+    public ImmutableArray<int> SeasonalGiftPurchaseCounts { get; init; } = [];
 
     /// <summary>Gets or sets whether this event has been marked seen.</summary>
     /// <value><see langword="true"/> if the event has been marked seen; otherwise, <see langword="false"/>.</value>

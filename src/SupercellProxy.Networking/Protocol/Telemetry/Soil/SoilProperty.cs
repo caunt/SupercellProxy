@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry.Soil;
 public sealed record SoilProperty(string? Key, string? Value) : ICodecProvider<SoilProperty>
 {
     /// <inheritdoc />
-    public static ICodec<SoilProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<SoilProperty> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static value => value.Key,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.Value,
         static (key, @value) => new SoilProperty(key, value));
 }

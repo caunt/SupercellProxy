@@ -5,6 +5,7 @@ namespace SupercellProxy.Keys.AppStore;
 internal sealed class AppStoreClient(HttpClient client)
 {
     private const string Country = "us";
+
     private readonly HttpClient _client = client;
 
     public async Task<AppStoreSearchResponse> SearchAsync(string query, CancellationToken cancellationToken)

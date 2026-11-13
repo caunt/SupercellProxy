@@ -12,13 +12,13 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record ReportEventSeenMessage(string? EventName, int EventId, int VariantId, string? Source, int Value) : CodecMessage<ReportEventSeenMessage>, ICodecProvider<ReportEventSeenMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportEventSeenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<ReportEventSeenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.EventName,
         Codecs.VarInt,
         static message => message.EventId,
         Codecs.VarInt,
         static message => message.VariantId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Source,
         Codecs.VarInt,
         static message => message.Value,

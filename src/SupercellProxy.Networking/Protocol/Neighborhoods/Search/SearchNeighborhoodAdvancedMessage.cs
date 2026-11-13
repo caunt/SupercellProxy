@@ -26,7 +26,7 @@ public sealed record SearchNeighborhoodAdvancedMessage(ReadOnlyMemory<Neighborho
     /// <inheritdoc />
     public static ICodec<SearchNeighborhoodAdvancedMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(NeighborhoodTag.Codec),
         static message => message.Tags,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Query,
         Codecs.OptionalLongId,
         static message => message.NeighborhoodId,
@@ -36,7 +36,7 @@ public sealed record SearchNeighborhoodAdvancedMessage(ReadOnlyMemory<Neighborho
         static message => message.FamilyFriendly,
         Codecs.Boolean,
         static message => message.DerbyEnabled,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static message => message.Language,
         Codecs.OptionalLongId,
         static message => message.LeagueId,

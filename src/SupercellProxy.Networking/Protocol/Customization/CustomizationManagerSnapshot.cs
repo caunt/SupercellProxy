@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Timing;
@@ -16,31 +17,31 @@ public sealed record CustomizationManagerSnapshot
 
     /// <summary>Gets or sets the three offered-tag acknowledgement flags.</summary>
     /// <value>Three flags, or <see langword="null"/> when the save omits them; which tag each flag stands for is not identified.</value>
-    public bool[]? InitialCustomizationTagsOfferedSeen { get; init; }
+    public ImmutableArray<bool>? InitialCustomizationTagsOfferedSeen { get; init; }
 
     /// <summary>Gets or sets the history of offered customization parts.</summary>
     /// <value>Part data global ids the renovator ever offered, each listed once; <see langword="null"/> when the save omits the list.</value>
-    public int[]? PartsSeen { get; init; }
+    public ImmutableArray<int>? PartsSeen { get; init; }
 
     /// <summary>Gets or sets the parts sold from the current issue.</summary>
     /// <value>Part data global ids bought from the current stock; <see langword="null"/> when the save omits the list.</value>
-    public int[]? PartsSoldFromCurrentStock { get; init; }
+    public ImmutableArray<int>? PartsSoldFromCurrentStock { get; init; }
 
     /// <summary>Gets or sets the retained used customization parts.</summary>
     /// <value>Part data global ids the player has owned before; <see langword="null"/> when the save omits the list.</value>
-    public int[]? PartsUsed { get; init; }
+    public ImmutableArray<int>? PartsUsed { get; init; }
 
     /// <summary>Gets or sets the current free renovator parts.</summary>
     /// <value>Part data global ids the current stock offers at no coin, diamond or voucher cost; <see langword="null"/> when the save omits the list.</value>
-    public int[]? RenovatorFreeStock { get; init; }
+    public ImmutableArray<int>? RenovatorFreeStock { get; init; }
 
     /// <summary>Gets or sets the retained reroll state.</summary>
     /// <value>One category number per reroll made on the current stock, so a category's entry count is its rerolls so far.</value>
-    public int[]? RenovatorRerolls { get; init; }
+    public ImmutableArray<int>? RenovatorRerolls { get; init; }
 
     /// <summary>Gets or sets the current offered renovator parts, in category order.</summary>
     /// <value>One part data global id per category, from truck body to shop base; <see langword="null"/> when the save omits the list.</value>
-    public int[]? RenovatorStock { get; init; }
+    public ImmutableArray<int>? RenovatorStock { get; init; }
 
     /// <summary>
     /// Gets or sets the retained customization random state.
@@ -50,7 +51,7 @@ public sealed record CustomizationManagerSnapshot
 
     /// <summary>Gets or sets the explicitly selected customization parts.</summary>
     /// <value>Part data global ids the player has applied; <see langword="null"/> when the save omits the list.</value>
-    public int[]? SelectedOptions { get; init; }
+    public ImmutableArray<int>? SelectedOptions { get; init; }
 
     /// <summary>
     /// Gets or sets the saved time value of the renovator's regular stock, in seconds, next to the separate tutorial stock countdown.

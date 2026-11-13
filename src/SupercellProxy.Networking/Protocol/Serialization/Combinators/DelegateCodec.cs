@@ -3,9 +3,9 @@ using SupercellProxy.Networking.Transport;
 namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 
 /// <summary>A codec defined by a read and a write function.</summary>
-internal sealed class DelegateCodec<TValue>(Func<MessageStream, TValue> read, Action<ProtocolEncoder, TValue> write) : ICodec<TValue>
+internal sealed class DelegateCodec<TValue>(Func<MessageChannel, TValue> read, Action<ProtocolEncoder, TValue> write) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

@@ -20,6 +20,7 @@ public sealed record ReengagementFlowSnapshot
     /// <value>The diamond amount saved under <c>diamondReward</c>; 0 when the save omits the key.</value>
     [JsonPropertyName("diamondReward")]
     public int DiamondReward { get; init; }
+
     /// <summary>
     /// Gets or sets how far the player has got through the welcome-back screens.
     /// </summary>

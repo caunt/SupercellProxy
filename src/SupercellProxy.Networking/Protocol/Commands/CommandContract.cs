@@ -43,7 +43,7 @@ public abstract class CommandContract
         return Name;
     }
 
-    internal abstract Command ReadCommand(MessageStream stream);
+    internal abstract Command ReadCommand(MessageChannel stream);
 
     internal abstract void WriteCommand(ProtocolEncoder encoder, Command command);
 }

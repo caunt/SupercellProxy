@@ -11,7 +11,7 @@ public sealed record ConfirmAccountActionMessage(LongId? AvatarId, string? Actio
     /// <inheritdoc />
     public static ICodec<ConfirmAccountActionMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalLongId,
         static message => message.AvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Action,
         static (avatarId, action) => new ConfirmAccountActionMessage(avatarId, action));
 }

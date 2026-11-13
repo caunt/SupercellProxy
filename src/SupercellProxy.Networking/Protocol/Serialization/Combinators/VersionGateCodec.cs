@@ -5,7 +5,7 @@ namespace SupercellProxy.Networking.Protocol.Serialization.Combinators;
 /// <summary>A field native sends only from (or only before) a game version; otherwise it takes a fixed value.</summary>
 internal sealed class VersionGateCodec<TValue>(Version version, bool fromVersion, ICodec<TValue> codec, TValue absent) : ICodec<TValue>
 {
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         return IsPresent(stream) ? codec.Read(stream) : absent;
     }

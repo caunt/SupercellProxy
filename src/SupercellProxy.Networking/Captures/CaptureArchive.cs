@@ -13,6 +13,7 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
 {
     /// <summary>The directory shared by all asset snapshots for one recorded game release.</summary>
     public const string AssetsDirectoryName = "assets";
+
     private readonly ConcurrentDictionary<CaptureIdentity, AsyncLock> _gates = [];
     private readonly ConcurrentDictionary<CaptureIdentity, string> _retained = [];
 

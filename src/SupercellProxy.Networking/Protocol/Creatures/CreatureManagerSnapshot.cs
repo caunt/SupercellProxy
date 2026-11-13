@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Creatures;
@@ -15,12 +16,12 @@ public sealed record CreatureManagerSnapshot
     /// <summary>Gets or sets the spawn rules with retained consecutive failed spawn attempts.</summary>
     /// <value>Spawn rule global ids, saved as <c>failstreakGlobalIds</c>, paired by index with <see cref="FailedSpawnCounts"/>.</value>
     [JsonPropertyName("failstreakGlobalIds")]
-    public int[] FailedSpawnRuleIds { get; init; } = [];
+    public ImmutableArray<int> FailedSpawnRuleIds { get; init; } = [];
 
     /// <summary>Gets or sets the consecutive failed spawn attempts of each retained rule.</summary>
     /// <value>One fail streak per entry of <see cref="FailedSpawnRuleIds"/>, saved as <c>failstreakCounts</c>.</value>
     [JsonPropertyName("failstreakCounts")]
-    public int[] FailedSpawnCounts { get; init; } = [];
+    public ImmutableArray<int> FailedSpawnCounts { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the <c language="csharp">DailyMaxSpawnResetTime</c> value.
@@ -32,67 +33,67 @@ public sealed record CreatureManagerSnapshot
     /// <summary>Gets or sets the rules with retained daily spawn counts.</summary>
     /// <value>Spawn rule global ids, saved as <c>dailySpawnGlobalIds</c>, paired by index with <see cref="DailySpawnCounts"/>.</value>
     [JsonPropertyName("dailySpawnGlobalIds")]
-    public int[] DailySpawnRuleIds { get; init; } = [];
+    public ImmutableArray<int> DailySpawnRuleIds { get; init; } = [];
 
     /// <summary>Gets or sets the daily counts paired with the retained rule ids.</summary>
     /// <value>Creatures spawned today per entry of <see cref="DailySpawnRuleIds"/>, saved as <c>dailySpawnCount</c>.</value>
     [JsonPropertyName("dailySpawnCount")]
-    public int[] DailySpawnCounts { get; init; } = [];
+    public ImmutableArray<int> DailySpawnCounts { get; init; } = [];
 
     /// <summary>Gets or sets the rules with retained event spawn counts.</summary>
     /// <value>Spawn rule global ids, saved as <c>eventSpawnGlobalIds</c>, paired by index with <see cref="EventSpawnCounts"/>.</value>
     [JsonPropertyName("eventSpawnGlobalIds")]
-    public int[] EventSpawnRuleIds { get; init; } = [];
+    public ImmutableArray<int> EventSpawnRuleIds { get; init; } = [];
 
     /// <summary>Gets or sets the event counts paired with the retained rule ids.</summary>
     /// <value>Creatures spawned during the current event per entry of <see cref="EventSpawnRuleIds"/>, saved as <c>eventSpawnCount</c>.</value>
     [JsonPropertyName("eventSpawnCount")]
-    public int[] EventSpawnCounts { get; init; } = [];
+    public ImmutableArray<int> EventSpawnCounts { get; init; } = [];
 
     /// <summary>Gets or sets the daily catch counts retained separately for each farm avatar.</summary>
     /// <value>One entry per visited farm the player caught creatures on today, saved as <c>farmVisitingCatchList</c>; it can contain <see langword="null"/> entries.</value>
     [JsonPropertyName("farmVisitingCatchList")]
-    public FarmCreatureCatchSnapshot?[] FarmVisitingCatchList { get; init; } = [];
+    public ImmutableArray<FarmCreatureCatchSnapshot?> FarmVisitingCatchList { get; init; } = [];
 
     /// <summary>Gets or sets the creature definitions with daily bonus-reward catch counts.</summary>
     /// <value>Creature data global ids, saved as <c>dailyRewardedCatchesGlobalIds</c>, paired by index with <see cref="DailyRewardedCatchCounts"/>.</value>
     [JsonPropertyName("dailyRewardedCatchesGlobalIds")]
-    public int[] DailyRewardedCreatureIds { get; init; } = [];
+    public ImmutableArray<int> DailyRewardedCreatureIds { get; init; } = [];
 
     /// <summary>Gets or sets the daily bonus-reward counts paired with creature definitions.</summary>
     /// <value>Catches that paid a bonus reward today per entry of <see cref="DailyRewardedCreatureIds"/>, saved as <c>dailyRewardedCatchesCount</c>.</value>
     [JsonPropertyName("dailyRewardedCatchesCount")]
-    public int[] DailyRewardedCatchCounts { get; init; } = [];
+    public ImmutableArray<int> DailyRewardedCatchCounts { get; init; } = [];
 
     /// <summary>Gets or sets the creature definitions with event bonus-reward catch counts.</summary>
     /// <value>Creature data global ids, saved as <c>eventRewardedCatchesGlobalIds</c>, paired by index with <see cref="EventRewardedCatchCounts"/>.</value>
     [JsonPropertyName("eventRewardedCatchesGlobalIds")]
-    public int[] EventRewardedCreatureIds { get; init; } = [];
+    public ImmutableArray<int> EventRewardedCreatureIds { get; init; } = [];
 
     /// <summary>Gets or sets the event bonus-reward counts paired with creature definitions.</summary>
     /// <value>Catches that paid a bonus reward during the current event per entry of <see cref="EventRewardedCreatureIds"/>, saved as <c>eventRewardedCatchesCount</c>.</value>
     [JsonPropertyName("eventRewardedCatchesCount")]
-    public int[] EventRewardedCatchCounts { get; init; } = [];
+    public ImmutableArray<int> EventRewardedCatchCounts { get; init; } = [];
 
     /// <summary>Gets or sets the spawn rules with daily catch counts across farms.</summary>
     /// <value>Spawn rule global ids, saved as <c>dailyVisitingCatchGlobalIds</c>, paired by index with <see cref="DailyCatchCounts"/>.</value>
     [JsonPropertyName("dailyVisitingCatchGlobalIds")]
-    public int[] DailyCatchRuleIds { get; init; } = [];
+    public ImmutableArray<int> DailyCatchRuleIds { get; init; } = [];
 
     /// <summary>Gets or sets the daily catches paired with spawn rule ids.</summary>
     /// <value>Creatures caught today on any farm per entry of <see cref="DailyCatchRuleIds"/>, saved as <c>dailyVisitingCatchCounts</c>.</value>
     [JsonPropertyName("dailyVisitingCatchCounts")]
-    public int[] DailyCatchCounts { get; init; } = [];
+    public ImmutableArray<int> DailyCatchCounts { get; init; } = [];
 
     /// <summary>Gets or sets the spawn rules with event catch counts across farms.</summary>
     /// <value>Spawn rule global ids, saved as <c>eventVisitingCatchGlobalIds</c>, paired by index with <see cref="EventCatchCounts"/>.</value>
     [JsonPropertyName("eventVisitingCatchGlobalIds")]
-    public int[] EventCatchRuleIds { get; init; } = [];
+    public ImmutableArray<int> EventCatchRuleIds { get; init; } = [];
 
     /// <summary>Gets or sets the event catches paired with spawn rule ids.</summary>
     /// <value>Creatures caught during the current event on any farm per entry of <see cref="EventCatchRuleIds"/>, saved as <c>eventVisitingCatchCounts</c>.</value>
     [JsonPropertyName("eventVisitingCatchCounts")]
-    public int[] EventCatchCounts { get; init; } = [];
+    public ImmutableArray<int> EventCatchCounts { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the creature event the per-event spawn counters were counted for.

@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -20,7 +22,7 @@ public sealed record NeighborhoodMembersMessage : CodecMessage<NeighborhoodMembe
 
     /// <summary>Gets or sets the optional ordered list of members.</summary>
     /// <value>Up to 1000 members of the requested neighbourhood in the order the server sent them, or <see langword="null"/> when the server wrote the list as absent.</value>
-    public NeighborhoodMemberSummary[]? Members { get; init; }
+    public ImmutableArray<NeighborhoodMemberSummary>? Members { get; init; }
 
     /// <summary>Gets or sets the trailing native value whose purpose is not yet established.</summary>
     /// <value>The VarInt that ends the message, after the member list; any bytes after it fail the decode.</value>

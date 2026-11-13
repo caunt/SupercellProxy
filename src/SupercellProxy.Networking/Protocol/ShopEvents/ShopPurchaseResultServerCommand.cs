@@ -14,11 +14,11 @@ namespace SupercellProxy.Networking.Protocol.ShopEvents;
 public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, int PackageGlobalId, int Index, bool Succeeded, int ErrorCode, string? ErrorText) : CodecServerCommand<ShopPurchaseResultServerCommand>, ICommandCodecProvider<ShopPurchaseResultServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ShopPurchaseResultServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+    public static CommandCodec<ShopPurchaseResultServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianInt32,
         static command => command.EventId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Variant,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.PackageGlobalId,
         Codecs.VarInt,
         static command => command.Index,
@@ -34,9 +34,9 @@ public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, i
             cases: [
                 new KeyValuePair<bool, ICodec<Outcome>>(key: true, Codecs.Unit(static () => new Outcome(Succeeded: true, ErrorCode: 0, ErrorText: null))),
                 new KeyValuePair<bool, ICodec<Outcome>>(key: false,
-                    Codecs.Composite(Codecs.Int32,
+                    Codecs.Composite(Codecs.BigEndianInt32,
                         static outcome => outcome.ErrorCode,
-                        Codecs.String,
+                        Codecs.Utf8String,
                         static outcome => outcome.ErrorText ?? string.Empty,
                         static (errorCode, errorText) => new Outcome(Succeeded: false, errorCode, errorText))),
             ]);

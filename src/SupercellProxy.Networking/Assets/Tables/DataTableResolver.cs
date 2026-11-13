@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -32,6 +33,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     private static readonly ConditionalWeakTable<GameDataTable, IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>>> TablePhysicalRows = [];
     private static readonly ConditionalWeakTable<GameDataTable, DataTableReference?[]> TableReferences = [];
     private static readonly ConditionalWeakTable<GameDataTable, FrozenDictionary<string, int>> TableRowNames = [];
+
     private readonly Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> _dataTables;
     private readonly Dictionary<string, GameAsset> _resourcesByFile;
     private readonly Dictionary<string, int> _tableIdsByFile;
@@ -41,14 +43,14 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// </summary>
     /// <param name="resources">Every file of the bundle. The tables the game numbers must all be present.</param>
     /// <exception cref="InvalidOperationException">A numbered table's file is missing from the bundle.</exception>
-    public DataTableResolver(IEnumerable<GameAsset> resources)
+    public DataTableResolver(ImmutableArray<GameAsset> resources)
     {
         _resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
 
         Dictionary<int, (GameAsset GameAsset, Lazy<GameDataTable> Table)> resolvedDataTables =
             [];
 
-        foreach ((int tableId, string? file) in DataTableRegistry.Create(resources))
+        foreach ((int tableId, string? file) in DataTableRegistry.Create(_resourcesByFile.Values))
         {
             if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource))
                 throw new InvalidOperationException($"GameAsset {file} was not downloaded.");
@@ -82,12 +84,12 @@ public sealed class DataTableResolver : ICommandDataResolver
     /// calls with the same fingerprint get the first call's tables.</param>
     /// <returns>The cached resolver for the fingerprint, built from <paramref name="resources"/> on first use; a new unshared resolver
     /// on every call when <paramref name="fingerprint"/> is <see langword="null"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="resources"/> is <see langword="null"/>.</exception>
-    public static DataTableResolver Shared(GameAssetFingerprint? fingerprint, GameAsset[] resources)
+    /// <exception cref="ArgumentException"><paramref name="resources"/> is uninitialized.</exception>
+    public static DataTableResolver Shared(GameAssetFingerprint? fingerprint, ImmutableArray<GameAsset> resources)
     {
-        ArgumentNullException.ThrowIfNull(resources);
-
-        return fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha, static (sha, assets) => new DataTableResolver(assets), resources);
+        return resources.IsDefault
+            ? throw new ArgumentException(message: "The asset bundle is uninitialized.", nameof(resources))
+            : fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha, static (sha, assets) => new DataTableResolver(assets), resources);
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -59,5 +60,5 @@ public sealed record MapGameHomePawnSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the Valley profile options the player picked.</summary>
     /// <value>The option numbers; empty by default.</value>
     [JsonPropertyName("SelectedOptions")]
-    public int[] SelectedOptions { get; init; } = [];
+    public ImmutableArray<int> SelectedOptions { get; init; } = [];
 }

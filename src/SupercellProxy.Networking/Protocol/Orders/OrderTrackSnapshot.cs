@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Orders;
@@ -67,12 +68,12 @@ public sealed record OrderTrackSnapshot
     /// <summary>Gets or sets the rewards of each milestone; one list per milestone.</summary>
     /// <value>Saved as <c>rewards</c>; one array per milestone, as many as the track has point requirements.</value>
     [JsonPropertyName("rewards")]
-    public OrderTrackReward[][] Rewards { get; init; } = [];
+    public ImmutableArray<ImmutableArray<OrderTrackReward>> Rewards { get; init; } = [];
 
     /// <summary>Gets or sets the milestone rewards awaiting delivery after the previous track expired.</summary>
     /// <value>Saved as <c>savedUnclaimedRewards</c>; milestone rewards waiting to be sent by the postman. Empty by default.</value>
     [JsonPropertyName("savedUnclaimedRewards")]
-    public OrderTrackReward[][] SavedUnclaimedRewards { get; init; } = [];
+    public ImmutableArray<ImmutableArray<OrderTrackReward>> SavedUnclaimedRewards { get; init; } = [];
 
     /// <summary>Gets or sets the points the current milestone needs; 0 when the track has no further milestone.</summary>
     /// <value>Saved as <c>target</c>; the track row's required points for milestone <see cref="Index"/>.</value>

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -10,11 +11,11 @@ public sealed record MapGameWalletSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the coin balances held in this wallet, one entry per Valley coin kind.</summary>
     /// <value>Saved as <c>CoinsList</c>; empty by default.</value>
     [JsonPropertyName("CoinsList")]
-    public MapGameCoinBalanceSnapshot[] Coins { get; init; } = [];
+    public ImmutableArray<MapGameCoinBalanceSnapshot> Coins { get; init; } = [];
 
     /// <summary>Gets or sets the coins that count toward the season's collection goal, such as chickens or sanctuary animals.</summary>
     /// <value>Global ids of rows in the Valley coin table; empty by default.</value>
-    public int[] GlobalCollectGoalData { get; init; } = [];
+    public ImmutableArray<int> GlobalCollectGoalData { get; init; } = [];
 
     /// <summary>Gets or sets whether this wallet is the piggy bank rather than a normal per-game wallet (saved as <c>PiggyBank</c>).</summary>
     /// <value><see langword="true"/> if this is <see cref="MapGameWalletManagerSnapshot.PiggyBank"/>; otherwise, <see langword="false"/>.</value>

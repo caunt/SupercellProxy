@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Neighborhoods.Rewards;
@@ -48,7 +49,7 @@ public sealed record NeighborhoodEventDefinition
     /// <summary>Gets or sets the task group names one task set queues, one task per group.</summary>
     /// <value>Group names from the neighbourhood object task table, read from <c>taskSet</c>; empty by default.</value>
     [JsonPropertyName("taskSet")]
-    public string[] TaskSet { get; init; } = [];
+    public ImmutableArray<string> TaskSet { get; init; } = [];
 
     /// <summary>Gets or sets how many task sets each event week grants.</summary>
     /// <value>A task-set count per event week, read from <c>taskSetsPerWeek</c>.</value>
@@ -66,10 +67,10 @@ public sealed record NeighborhoodEventDefinition
     /// tier indices.
     /// </value>
     [JsonPropertyName("tiers")]
-    public NeighborhoodRewardTierDefinition[] Tiers { get; init; } = [];
+    public ImmutableArray<NeighborhoodRewardTierDefinition> Tiers { get; init; } = [];
 
     /// <summary>Gets or sets the neighborhood object's visual milestones.</summary>
     /// <value>One entry per milestone, first milestone first; each names the decoration granted and the neighbourhood points needed.</value>
     [JsonPropertyName("visualLevels")]
-    public NeighborhoodRewardTierDefinition[] VisualLevels { get; init; } = [];
+    public ImmutableArray<NeighborhoodRewardTierDefinition> VisualLevels { get; init; } = [];
 }

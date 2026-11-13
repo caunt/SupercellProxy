@@ -8,5 +8,5 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Names;
 public sealed record ChangeHomeNameMessage(string Name) : CodecMessage<ChangeHomeNameMessage>, ICodecProvider<ChangeHomeNameMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ChangeHomeNameMessage> Codec { get; } = Codecs.Composite(Codecs.String, static message => message.Name, static name => new ChangeHomeNameMessage(name));
+    public static ICodec<ChangeHomeNameMessage> Codec { get; } = Codecs.Composite(Codecs.Utf8String, static message => message.Name, static name => new ChangeHomeNameMessage(name));
 }

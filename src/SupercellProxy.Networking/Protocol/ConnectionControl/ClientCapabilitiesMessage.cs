@@ -11,13 +11,13 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ClientCapabilitiesMessage(string? DeviceModel, ushort Width, ushort Height, ushort MemoryMegabytes) : CodecMessage<ClientCapabilitiesMessage>, ICodecProvider<ClientCapabilitiesMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClientCapabilitiesMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<ClientCapabilitiesMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.DeviceModel,
-        Codecs.UInt16,
+        Codecs.BigEndianUInt16,
         static message => message.Width,
-        Codecs.UInt16,
+        Codecs.BigEndianUInt16,
         static message => message.Height,
-        Codecs.UInt16,
+        Codecs.BigEndianUInt16,
         static message => message.MemoryMegabytes,
         static (deviceModel, width, height, memoryMegabytes) => new ClientCapabilitiesMessage(deviceModel, width, height, memoryMegabytes));
 }

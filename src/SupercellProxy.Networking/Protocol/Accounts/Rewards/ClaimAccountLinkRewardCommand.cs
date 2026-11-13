@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Rewards;
 public sealed record ClaimAccountLinkRewardCommand(AccountLinkRewardKind Kind) : CodecCommand<ClaimAccountLinkRewardCommand>, ICommandCodecProvider<ClaimAccountLinkRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimAccountLinkRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Enum<AccountLinkRewardKind>(Codecs.Int32),
+    public static CommandCodec<ClaimAccountLinkRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Enum<AccountLinkRewardKind>(Codecs.BigEndianInt32),
         static command => command.Kind,
         static kind => new ClaimAccountLinkRewardCommand(kind)));
 }

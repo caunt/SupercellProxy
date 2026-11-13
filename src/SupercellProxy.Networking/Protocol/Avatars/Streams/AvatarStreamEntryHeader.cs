@@ -17,7 +17,7 @@ public sealed record AvatarStreamEntryHeader(LongId EntryId, LongId SenderAvatar
         static value => value.EntryId,
         Codecs.LongId,
         static value => value.SenderAvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.SenderName,
         Codecs.VarInt,
         static value => value.SenderExpLevel,

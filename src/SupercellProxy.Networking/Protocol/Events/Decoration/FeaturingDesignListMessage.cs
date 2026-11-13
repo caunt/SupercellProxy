@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Protocol.MessageEncoding;
 using SupercellProxy.Networking.Protocol.Serialization;
 
@@ -7,7 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record FeaturingDesignListMessage : CodecMessage<FeaturingDesignListMessage>, ICodecProvider<FeaturingDesignListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FeaturingDesignListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Optional(Codecs.Array(Codecs.Optional(FeaturingDesignEntry.Codec), CollectionCount.AtMost(maximum: 1024))),
+    public static ICodec<FeaturingDesignListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalValue(Codecs.Array(Codecs.Optional(FeaturingDesignEntry.Codec), CollectionCount.AtMost(maximum: 1024))),
             static message => message.Entries,
             Codecs.VarLong,
             static message => message.BatchTimestampMilliseconds,
@@ -33,7 +35,7 @@ public sealed record FeaturingDesignListMessage : CodecMessage<FeaturingDesignLi
 
     /// <summary>Gets or sets the optional featured-design list.</summary>
     /// <value>Up to 1024 entries, any of which may be <see langword="null"/>; the whole list is <see langword="null"/> when the server sends none.</value>
-    public FeaturingDesignEntry?[]? Entries { get; init; }
+    public ImmutableArray<FeaturingDesignEntry?>? Entries { get; init; }
 
     /// <summary>Gets or sets the decoration event id.</summary>
     /// <value>The live event id of the decoration event the featured designs belong to.</value>

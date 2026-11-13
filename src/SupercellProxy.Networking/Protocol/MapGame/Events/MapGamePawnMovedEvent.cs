@@ -21,7 +21,7 @@ public sealed record MapGamePawnMovedEvent(int SourceNodeId,
     ReadOnlyMemory<int>? ContinuationRoute,
     MapGameTask? EmptyNodeTask,
     MapGameTask? DestinationTask,
-    MapGameTaskCollection? EscapedAnimals) : MapGameEvent(MapGameEvent.PawnMovedType), ICodecProvider<MapGamePawnMovedEvent>
+    MapGameTaskList? EscapedAnimals) : MapGameEvent(MapGameEvent.PawnMovedType), ICodecProvider<MapGamePawnMovedEvent>
 {
     /// <inheritdoc />
     public static new ICodec<MapGamePawnMovedEvent> Codec { get; } = Codecs.Composite(Codecs.VarInt,
@@ -40,7 +40,7 @@ public sealed record MapGamePawnMovedEvent(int SourceNodeId,
         static mapGameEvent => mapGameEvent.EmptyNodeTask,
         Codecs.Optional(MapGameTask.Codec),
         static mapGameEvent => mapGameEvent.DestinationTask,
-        Codecs.Optional(MapGameTaskCollection.Codec),
+        Codecs.Optional(MapGameTaskList.Codec),
         static mapGameEvent => mapGameEvent.EscapedAnimals,
         static (sourceNodeId, reachedNodeId, fuelSpent, pawn, visitedNodeIds, continuationRoute, emptyNodeTask, destinationTask, escapedAnimals) => new MapGamePawnMovedEvent(sourceNodeId, reachedNodeId, fuelSpent, pawn, visitedNodeIds, continuationRoute, emptyNodeTask, destinationTask, escapedAnimals));
 }

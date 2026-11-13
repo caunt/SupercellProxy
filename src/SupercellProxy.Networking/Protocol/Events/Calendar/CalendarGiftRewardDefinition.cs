@@ -9,6 +9,7 @@ public sealed record CalendarGiftRewardDefinition
     /// <value>How many units of <see cref="Name"/> the gift grants, read from <c>amount</c>.</value>
     [JsonPropertyName("amount")]
     public int Amount { get; init; }
+
     /// <summary>Gets or sets the resource's asset name.</summary>
     /// <value>The data-table name of the rewarded resource, read from <c>gift</c>.</value>
     [JsonPropertyName("gift")]

@@ -17,13 +17,13 @@ public sealed record RoadsideShopSaleServerCommand(LongId OwnerHomeId, LongId Bu
         static command => command.OwnerHomeId,
         Codecs.LongId,
         static command => command.BuyerHomeId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.StandIndex,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.ItemGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Amount,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Price,
         static (ownerHomeId, buyerHomeId, standIndex, itemGlobalId, amount, price) => new RoadsideShopSaleServerCommand(ownerHomeId, buyerHomeId, standIndex, itemGlobalId, amount, price)));
 }

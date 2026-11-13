@@ -15,13 +15,13 @@ public sealed record JoinRequestNeighborhoodStreamEntry(StreamEntryHeader Header
     /// <inheritdoc />
     public static new ICodec<JoinRequestNeighborhoodStreamEntry> Codec { get; } = Codecs.Composite(StreamEntryHeader.Codec,
         static entry => entry.Header,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.Message,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.ResponderName,
         Codecs.VarInt,
         static entry => entry.State,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.SourceId,
         static (header, message, responderName, state, sourceId) => new JoinRequestNeighborhoodStreamEntry(header, message, responderName, state, sourceId));
 

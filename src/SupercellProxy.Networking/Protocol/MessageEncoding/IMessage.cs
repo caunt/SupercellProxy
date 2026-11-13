@@ -15,5 +15,5 @@ public interface IMessage
     /// The payload stream to write into, positioned where the payload starts; its game version, when set, selects the release layout. The
     /// frame header is not written here.
     /// </param>
-    void Encode(MessageStream stream);
+    void Encode(MessageChannel stream);
 }

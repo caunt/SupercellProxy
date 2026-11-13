@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace SupercellProxy.Networking.Protocol.Boats.Snapshots;
@@ -13,5 +14,5 @@ public sealed record BoatOrderManagerSnapshot
     /// <summary>Gets or sets the ordered pool of difficulty data ids, including remaining duplicates.</summary>
     /// <value>The difficulty global ids still to be handed out, saved as <c>pool</c>; empty by default.</value>
     [JsonPropertyName("pool")]
-    public int[] Pool { get; init; } = [];
+    public ImmutableArray<int> Pool { get; init; } = [];
 }

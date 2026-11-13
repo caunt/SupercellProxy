@@ -31,7 +31,7 @@ internal sealed class CompositeCodec6<TValue, TFirst, TSecond, TThird, TFourth, 
     private readonly ICodec<TSixth> _sixth = sixth ?? throw new ArgumentNullException(nameof(sixth));
     private readonly Func<TValue, TSixth> _getSixth = getSixth ?? throw new ArgumentNullException(nameof(getSixth));
 
-    public TValue Read(MessageStream stream)
+    public TValue Read(MessageChannel stream)
     {
         // The leading half of the record, read with no separators between fields.
         TFirst firstValue = _first.Read(stream);

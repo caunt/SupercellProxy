@@ -8,7 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.SupercellId;
 public sealed record SetSupercellIdFriendsMessage(ReadOnlyMemory<string?> FriendIds) : CodecMessage<SetSupercellIdFriendsMessage>, ICodecProvider<SetSupercellIdFriendsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SetSupercellIdFriendsMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(Codecs.OptionalString, CollectionCount.Int32),
+    public static ICodec<SetSupercellIdFriendsMessage> Codec { get; } = Codecs.Composite(Codecs.Memory(Codecs.OptionalUtf8String, CollectionCount.BigEndianInt32),
         static message => message.FriendIds,
         static friendIds => new SetSupercellIdFriendsMessage(friendIds));
 }

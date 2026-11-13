@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Events.ChainOffers;
@@ -9,12 +10,13 @@ public sealed record ShopOfferDefinition
 {
     /// <summary>The native shop-event type of shop offers.</summary>
     public const int EventType = 1;
+
     /// <summary>The package of offers bought with in-game currency instead of real money.</summary>
     public const string InGameCurrencyPackage = "com.supercell.soil.ingamecurrency";
 
     /// <summary>Gets or sets the goods the offer gives, in native order.</summary>
     /// <value>One reward entry per deliverable in the definition's <c>Deliverables</c> array, each naming its category in <see cref="ChainOfferRewardDefinition.Type"/>; empty when the definition lists none.</value>
-    public ChainOfferRewardDefinition[] Deliverables { get; init; } = [];
+    public ImmutableArray<ChainOfferRewardDefinition> Deliverables { get; init; } = [];
 
     /// <summary>Gets or sets the offer's title as the player sees it.</summary>
     /// <value>The JSON <c>displayName</c> text, or <see langword="null"/> when the definition leaves it out.</value>

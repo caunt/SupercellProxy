@@ -17,7 +17,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
         static shopEvent => shopEvent.EventId,
         Codecs.VarInt,
         static shopEvent => shopEvent.Version,
-        Codecs.String,
+        Codecs.Utf8String,
         static shopEvent => shopEvent.Name,
         Codecs.VarInt,
         static shopEvent => shopEvent.EventType,
@@ -41,7 +41,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
         static shopEvent => shopEvent.EventTopGroupId,
         Codecs.VarInt,
         static shopEvent => shopEvent.ImpressionId,
-        Codecs.String,
+        Codecs.Utf8String,
         static shopEvent => shopEvent.Category,
         static (eventDocument,
             eventId,
@@ -193,7 +193,7 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
                         static binaryData => new EventDocument(binaryData, string.Empty),
                         static document => document.BinaryData.GetValueOrDefault())),
                 new KeyValuePair<bool, ICodec<EventDocument>>(key: false,
-                    Codecs.Map(Codecs.String, static textData => new EventDocument(BinaryData: null, textData), static document => document.TextData)),
+                    Codecs.Map(Codecs.Utf8String, static textData => new EventDocument(BinaryData: null, textData), static document => document.TextData)),
             ]);
     }
 }

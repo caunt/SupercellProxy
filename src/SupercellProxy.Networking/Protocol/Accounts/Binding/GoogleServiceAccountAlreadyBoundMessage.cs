@@ -21,11 +21,11 @@ public sealed record GoogleServiceAccountAlreadyBoundMessage(int SecondsSinceLas
     /// <inheritdoc />
     public static ICodec<GoogleServiceAccountAlreadyBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
         static message => message.SecondsSinceLastPlayed,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.GoogleServiceId,
         Codecs.OptionalLongId,
         static message => message.AccountId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.PassToken,
         Codecs.Boolean,
         static message => message.IsSupercellId,

@@ -15,11 +15,11 @@ namespace SupercellProxy.Networking.Protocol.Events;
 public sealed record RecordEventSeenCommand([property: JsonPropertyName("EventId")] int EventId, int Context0, int Context1) : CodecCommand<RecordEventSeenCommand>, ICommandCodecProvider<RecordEventSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RecordEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+    public static CommandCodec<RecordEventSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianInt32,
         static command => command.EventId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Context0,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.Context1,
         static (id, context0, context1) => new RecordEventSeenCommand(id, context0, context1)));
 }

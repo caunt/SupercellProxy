@@ -19,7 +19,7 @@ public sealed record NeighborhoodEventStreamEntry(StreamEntryHeader Header, int 
         static entry => entry.EventType,
         Codecs.LongId,
         static entry => entry.TargetAvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.TargetName,
         Codecs.VarLong,
         static entry => entry.Value,

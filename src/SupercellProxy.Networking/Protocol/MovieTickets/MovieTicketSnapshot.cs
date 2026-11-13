@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Protocol.Timing;
@@ -49,9 +50,9 @@ public sealed record MovieTicketSnapshot
 
     /// <summary>Gets or sets the videos watched so far in each play-limit window, one count per window.</summary>
     /// <value>Counts in the same order as <see cref="Timers"/>, the daily window last.</value>
-    public int[] VideosPlayed { get; init; } = [];
+    public ImmutableArray<int> VideosPlayed { get; init; } = [];
 
     /// <summary>Gets or sets the countdown of each play-limit window, one timer per window.</summary>
     /// <value>Timers in the same order as <see cref="VideosPlayed"/>, counted in timer ticks.</value>
-    public TimerSnapshot[] Timers { get; init; } = [];
+    public ImmutableArray<TimerSnapshot> Timers { get; init; } = [];
 }

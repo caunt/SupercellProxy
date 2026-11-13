@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 using SupercellProxy.Networking.Json;
@@ -15,5 +16,5 @@ public sealed record MapGameWalletManagerSnapshot : ExtensibleDocument
     /// <summary>Gets or sets the normal wallets, one per Valley game, that hold the coins earned in that game.</summary>
     /// <value>Saved as <c>MapGameWallets</c>; each entry carries a <see cref="MapGameWalletSnapshot.MapInstanceId"/> and is not a piggy bank. Empty by default.</value>
     [JsonPropertyName("MapGameWallets")]
-    public MapGameWalletSnapshot[] Wallets { get; init; } = [];
+    public ImmutableArray<MapGameWalletSnapshot> Wallets { get; init; } = [];
 }

@@ -103,7 +103,7 @@ public static class MessageRegistry
     {
         ArgumentNullException.ThrowIfNull(container);
 
-        MessageStream payload = container.Payload;
+        MessageChannel payload = container.Payload;
 
         if (dataResolver is not null)
             payload.CommandDataResolver = dataResolver;
@@ -120,7 +120,6 @@ public static class MessageRegistry
     {
         return Ids.TryGetContract(id, gameVersion, out messageType);
     }
-
 
     // A message keeps the registration, and capture name, of the first release that assigns it.
     private static FrozenDictionary<Type, MessageRegistryEntry> CreateEntries()

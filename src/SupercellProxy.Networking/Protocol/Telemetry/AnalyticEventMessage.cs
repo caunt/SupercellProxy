@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record AnalyticEventMessage(string? Type, string? Json) : CodecMessage<AnalyticEventMessage>, ICodecProvider<AnalyticEventMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AnalyticEventMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<AnalyticEventMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Type,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Json,
         static (type, json) => new AnalyticEventMessage(type, json));
 }

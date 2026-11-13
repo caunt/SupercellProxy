@@ -20,10 +20,10 @@ public static class UserDataPaths
     /// <summary>Gets the shared directory for retained proxy captures.</summary>
     /// <value>The <c>captures</c> subfolder of <see cref="RootDirectoryPath"/>.</value>
     public static string CaptureDirectoryPath { get; } = Path.Combine(RootDirectoryPath, CaptureDirectoryName);
+
     /// <summary>Gets managed connection failure recordings, separate from retained real-device replay captures.</summary>
     /// <value>The <c>out-of-sync</c> subfolder of <see cref="RootDirectoryPath"/>, the default home of the replay windows that managed connections save only when a session fails.</value>
     public static string OutOfSyncDirectoryPath { get; } = Path.Combine(RootDirectoryPath, OutOfSyncDirectoryName);
-
 
     private static string CreateRootDirectoryPath()
     {

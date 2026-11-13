@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Assets.Tables;
 using SupercellProxy.Networking.Protocol;
@@ -60,7 +62,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         {
             GameAssetFingerprint fingerprint = content.GameAssetFingerprint;
 
-            GameAsset[] resources = await assets.GetAssetsAsync(fingerprint, content.AssetsUrlsFiltered, cancellationToken)
+            ImmutableArray<GameAsset> resources = await assets.GetAssetsAsync(fingerprint, content.AssetsUrlsFiltered, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             return new GameAssetBundle(fingerprint, resources);
@@ -84,7 +86,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         }
         catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent } content)
         {
-            GameAsset[] resources = await assets.GetAssetsAsync(content.GameAssetFingerprint, content.AssetsUrlsFiltered, cancellationToken)
+            ImmutableArray<GameAsset> resources = await assets.GetAssetsAsync(content.GameAssetFingerprint, content.AssetsUrlsFiltered, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             return new DataTableResolver(resources);
@@ -109,7 +111,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         Func<bool, CancellationToken, Task<SessionTokenData>> provider = client.Configuration.SessionTokenProvider
             ?? throw new InvalidOperationException(message: "A session-token provider is required.");
 
-        (GameAssetFingerprint fingerprint, GameAsset[] resources) = await DiscoverAssetsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        (GameAssetFingerprint fingerprint, ImmutableArray<GameAsset> resources) = await DiscoverAssetsAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         SessionTokenData token = await provider(arg1: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
@@ -169,7 +171,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
         try
         {
-            MessageStream stream = await client.GetStreamAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            MessageChannel stream = await client.GetStreamAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             await stream
                 .WriteAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)

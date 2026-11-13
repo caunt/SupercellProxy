@@ -9,9 +9,9 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record SecureConnectionOkMessage(string? ServerVersion, string? Nonce) : CodecMessage<SecureConnectionOkMessage>, ICodecProvider<SecureConnectionOkMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SecureConnectionOkMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<SecureConnectionOkMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.ServerVersion,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Nonce,
         static (serverVersion, nonce) => new SecureConnectionOkMessage(serverVersion, nonce));
 }

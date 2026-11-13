@@ -35,6 +35,6 @@ public static class GameAssetDirectory
                 await File.ReadAllBytesAsync(file, cancellationToken).ConfigureAwait(continueOnCapturedContext: false)));
         }
 
-        return new DataTableResolver(assets);
+        return new DataTableResolver(resources: [.. assets]);
     }
 }

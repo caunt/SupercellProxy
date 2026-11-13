@@ -13,13 +13,13 @@ public sealed record AvatarInformation(LongId AvatarId, string? FacebookId, stri
     /// <inheritdoc />
     public static ICodec<AvatarInformation> Codec { get; } = Codecs.Composite(Codecs.LongId,
         static value => value.AvatarId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.FacebookId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.GamecenterId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.SupercellId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static value => value.FarmName,
         static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarInformation(avatarId, facebookId, gamecenterId, supercellId, farmName));
 }

@@ -14,7 +14,7 @@ public sealed record OpenDeeplinkServerCommand(LongId HomeId, int DeeplinkGlobal
         static command => command.HomeId,
         Codecs.VarInt,
         static command => command.DeeplinkGlobalId,
-        Codecs.Memory(Codecs.OptionalString),
+        Codecs.Memory(Codecs.OptionalUtf8String),
         static command => command.Parameters,
         static (homeId, deeplinkGlobalId, parameters) => new OpenDeeplinkServerCommand(homeId, deeplinkGlobalId, parameters)));
 }

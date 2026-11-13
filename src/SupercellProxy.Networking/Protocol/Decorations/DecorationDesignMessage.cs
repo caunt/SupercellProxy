@@ -13,7 +13,7 @@ namespace SupercellProxy.Networking.Protocol.Decorations;
 public sealed record DecorationDesignMessage(string? Name, DecorationDesign? Design, int Value0, int Value1, string? Text, int Value2) : CodecMessage<DecorationDesignMessage>, ICodecProvider<DecorationDesignMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DecorationDesignMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalString,
+    public static ICodec<DecorationDesignMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
         static message => message.Name,
         Codecs.Optional(DecorationDesign.Codec),
         static message => message.Design,
@@ -21,7 +21,7 @@ public sealed record DecorationDesignMessage(string? Name, DecorationDesign? Des
         static message => message.Value0,
         Codecs.VarInt,
         static message => message.Value1,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static message => message.Text,
         Codecs.VarInt,
         static message => message.Value2,

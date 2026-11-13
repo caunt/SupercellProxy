@@ -7,8 +7,7 @@ namespace SupercellProxy.Keys;
 
 internal sealed class KeysDocument
 {
-    private const string HeadingPatternText =
-        @"^## \[(?<name>[^\]]+)\]\(https://decrypt\.day/app/id(?<id>\d+)\)\s*$";
+    private const string HeadingPatternText = @"^## \[(?<name>[^\]]+)\]\(https://decrypt\.day/app/id(?<id>\d+)\)\s*$";
     private const string KeyCellPatternText = @"^`(?<key>[0-9A-Fa-f]{64})`$";
     private const string TableSeparatorCellPatternText = @"^:?-{3,}:?$";
 
@@ -27,9 +26,7 @@ internal sealed class KeysDocument
     public IReadOnlyList<KeysSection> Sections { get; }
 
     private static Regex HeadingRegex { get; } = new(HeadingPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
-
     private static Regex KeyCellRegex { get; } = new(KeyCellPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
-
     private static Regex TableSeparatorCellRegex { get; } = new(TableSeparatorCellPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
 
     public static KeysDocument Parse(string content)

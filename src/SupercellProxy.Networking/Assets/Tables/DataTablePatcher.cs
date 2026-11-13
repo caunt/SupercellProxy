@@ -25,7 +25,7 @@ public static class DataTablePatcher
     /// An edit names a missing table, a cell edit has no row or column, or a column replacement is not a table.
     /// </exception>
     /// <exception cref="ArgumentNullException"><paramref name="changes"/> or <paramref name="assets"/> is <see langword="null"/>.</exception>
-    public static GameAsset[] Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
+    public static ImmutableArray<GameAsset> Apply(IEnumerable<GameAsset> assets, IReadOnlyList<DataTableChange> changes)
     {
         ArgumentNullException.ThrowIfNull(changes);
 

@@ -32,7 +32,7 @@ public sealed record JoinNeighborhoodServerCommand(LongId NeighborhoodId,
     /// <inheritdoc />
     public static CommandCodec<JoinNeighborhoodServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
         static command => command.NeighborhoodId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static command => command.NeighborhoodName,
         Codecs.Boolean,
         static command => command.Created,

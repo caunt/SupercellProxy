@@ -22,11 +22,11 @@ public sealed record NeighborhoodSettingsChangedStreamEntry(AvatarStreamEntryHea
     /// <inheritdoc />
     public static new ICodec<NeighborhoodSettingsChangedStreamEntry> Codec { get; } = Codecs.Composite(AvatarStreamEntryHeader.Codec,
         static entry => entry.Header,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.MessageText,
         Codecs.LongId,
         static entry => entry.NeighborhoodId,
-        Codecs.OptionalString,
+        Codecs.OptionalUtf8String,
         static entry => entry.NeighborhoodName,
         Codecs.VarInt,
         static entry => entry.Setting,

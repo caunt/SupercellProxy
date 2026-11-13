@@ -32,7 +32,7 @@ public sealed record PassengerPickedFromNeighborhoodServerCommand(int Action,
         static command => command.Services,
         Codecs.VarInt,
         static command => command.BonusGlobalId,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static command => command.BonusAmount,
         static (action, pickingHomeId, passengerIds, helpIds, services, bonusGlobalId, bonusAmount) => new PassengerPickedFromNeighborhoodServerCommand(action, pickingHomeId, passengerIds, helpIds, services, bonusGlobalId, bonusAmount)));
 }

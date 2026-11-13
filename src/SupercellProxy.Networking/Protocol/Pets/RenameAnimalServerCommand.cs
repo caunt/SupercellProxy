@@ -13,9 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Pets;
 public sealed record RenameAnimalServerCommand(int AnimalGlobalId, string Name, bool Approved) : CodecServerCommand<RenameAnimalServerCommand>, ICommandCodecProvider<RenameAnimalServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RenameAnimalServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Int32,
+    public static CommandCodec<RenameAnimalServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.BigEndianInt32,
         static command => command.AnimalGlobalId,
-        Codecs.String,
+        Codecs.Utf8String,
         static command => command.Name,
         Codecs.Boolean,
         static command => command.Approved,

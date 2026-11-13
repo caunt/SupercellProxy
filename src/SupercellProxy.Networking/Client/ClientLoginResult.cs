@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using SupercellProxy.Networking.Assets;
 using SupercellProxy.Networking.Protocol.Authentication;
 
@@ -10,7 +12,7 @@ namespace SupercellProxy.Networking.Client;
 /// <param name="LoginOkMessage">The server's login confirmation: account and home ids, pass token, server build and time, content URLs.</param>
 /// <param name="Fingerprint">Manifest of the asset bundle used for the login; <see langword="null"/> when the login did not involve assets.</param>
 /// <param name="Resources">The bundle's downloaded files; empty when the login did not involve assets.</param>
-public sealed record ClientLoginResult(LoginOkMessage LoginOkMessage, GameAssetFingerprint? Fingerprint, GameAsset[] Resources)
+public sealed record ClientLoginResult(LoginOkMessage LoginOkMessage, GameAssetFingerprint? Fingerprint, ImmutableArray<GameAsset> Resources)
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientLoginResult"/> record. Wraps a login confirmation that came without asset information.

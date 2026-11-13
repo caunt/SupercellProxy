@@ -52,7 +52,7 @@ public sealed record PassthroughMessage : IMessage
     /// </summary>
     /// <param name="stream">Payload stream of the outgoing frame.</param>
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
-    public void Encode(MessageStream stream)
+    public void Encode(MessageChannel stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

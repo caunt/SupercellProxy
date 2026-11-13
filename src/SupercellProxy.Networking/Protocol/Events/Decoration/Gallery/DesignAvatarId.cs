@@ -8,9 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.Gallery;
 public sealed record DesignAvatarId(int High, int Low) : ICodecProvider<DesignAvatarId>
 {
     /// <inheritdoc />
-    public static ICodec<DesignAvatarId> Codec { get; } = Codecs.Composite(Codecs.Int32,
+    public static ICodec<DesignAvatarId> Codec { get; } = Codecs.Composite(Codecs.BigEndianInt32,
         static value => value.High,
-        Codecs.Int32,
+        Codecs.BigEndianInt32,
         static value => value.Low,
         static (high, low) => new DesignAvatarId(high, low));
 }

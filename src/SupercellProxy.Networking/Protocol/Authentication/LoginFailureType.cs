@@ -6,6 +6,11 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public enum LoginFailureType
 {
     /// <summary>
+    /// No failure reason: the value 0, which none of the failure codes below uses.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// Identifies the <c language="csharp">InvalidCredentials</c> option.
     /// </summary>
     InvalidCredentials = 2,

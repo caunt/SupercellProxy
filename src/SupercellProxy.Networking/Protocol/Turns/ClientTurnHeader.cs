@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -9,7 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Turns;
 /// <param name="SubTick">The sub-tick the turn ends on.</param>
 /// <param name="SubChecksums">The eight sub-checksums.</param>
 /// <param name="CommandCount">The number of commands that follow.</param>
-public readonly record struct ClientTurnHeader(int Checksum, int SubTick, int[] SubChecksums, int CommandCount) : ICodecProvider<ClientTurnHeader>
+public readonly record struct ClientTurnHeader(int Checksum, int SubTick, ImmutableArray<int> SubChecksums, int CommandCount) : ICodecProvider<ClientTurnHeader>
 {
     /// <inheritdoc />
     public static ICodec<ClientTurnHeader> Codec { get; } = Codecs.Composite(Codecs.VarInt,
