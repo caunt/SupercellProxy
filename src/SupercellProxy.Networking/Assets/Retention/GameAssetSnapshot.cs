@@ -66,6 +66,7 @@ public static class GameAssetSnapshot
                 throw new InvalidDataException($"The retained asset manifest repeats {file.File}.");
 
             byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             bool matches = bytes.LongLength == file.Length && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)), file.Sha256, StringComparison.OrdinalIgnoreCase);
 
             if (!matches)
@@ -170,11 +171,14 @@ public static class GameAssetSnapshot
             {
                 string file = ResolveFile(temporaryDirectory.FullName, asset.Fingerprint.File);
                 DirectoryInfo fileDirectory = Directory.CreateDirectory(Path.GetDirectoryName(file) ?? temporaryDirectory.FullName);
+
                 await File.WriteAllBytesAsync(Path.Combine(fileDirectory.FullName, Path.GetFileName(file)), asset.Content.ToArray(), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
                 files.Add(new RetainedAssetFile(asset.Fingerprint.File, asset.Content.Length, Convert.ToHexString(SHA256.HashData(asset.Content.Span)), asset.Fingerprint.Sha));
             }
 
             RetainedAssetManifest manifest = new(fingerprint, Files: [.. files]);
+
             await File.WriteAllBytesAsync(Path.Combine(temporary, RetainedAssetManifest.FileName), JsonSerializer.SerializeToUtf8Bytes(manifest), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             try
@@ -224,7 +228,6 @@ public static class GameAssetSnapshot
     {
         string root = Path.GetFullPath(directory) + Path.DirectorySeparatorChar.ToString();
         string path = Path.GetFullPath(Path.Combine(root, relative));
-
         bool outside = Path.IsPathRooted(relative) || !path.StartsWith(root, StringComparison.Ordinal) || relative.Contains(value: '\\', StringComparison.Ordinal);
 
         return outside

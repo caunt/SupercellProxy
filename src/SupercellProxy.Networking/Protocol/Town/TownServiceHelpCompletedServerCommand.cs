@@ -24,9 +24,12 @@ public sealed record TownServiceHelpCompletedServerCommand : CodecServerCommand<
         ReadOnlyMemory<CommandDataReferenceVarIntPair> requiredItems,
         ReadOnlyMemory<CommandDataReferenceVarIntPair> grantedRewards)
     {
+        // Which help request was fulfilled, and by which farm.
         OwnerHomeId = ownerHomeId;
         HelperHomeId = helperHomeId;
         HelpId = helpId;
+
+        // Goods handed over and rewards earned, copied so the command owns them.
         RequiredItems = requiredItems.ToArray();
         GrantedRewards = grantedRewards.ToArray();
     }

@@ -15,6 +15,7 @@ internal sealed class OptionalCodec<TValue>(ICodec<TValue> codec) : ICodec<TValu
     public void Write(ProtocolEncoder encoder, TValue? value)
     {
         ArgumentNullException.ThrowIfNull(encoder);
+
         encoder.WriteBoolean(value is not null);
 
         if (value is not null)

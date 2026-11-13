@@ -29,9 +29,12 @@ internal sealed class CompositeCodec5<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public TValue Read(MessageStream stream)
     {
+        // Each field codec starts where the previous one stopped, so this order is the wire order.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
+
+        // The last two fields; the value is built only once all five are in.
         TFourth fourthValue = _fourth.Read(stream);
         TFifth fifthValue = _fifth.Read(stream);
 
@@ -40,9 +43,12 @@ internal sealed class CompositeCodec5<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // Fields go out in the same order Read takes them back, with nothing between them.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
+
+        // The fourth and fifth fields close the record.
         _fourth.Write(encoder, _getFourth(value));
         _fifth.Write(encoder, _getFifth(value));
     }

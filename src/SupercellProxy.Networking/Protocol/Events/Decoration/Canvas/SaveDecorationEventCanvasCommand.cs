@@ -27,10 +27,13 @@ public sealed record SaveDecorationEventCanvasCommand(int EventId, int EventVari
     },
             static (stream, command) =>
             {
+                // The length goes out before the optional replaced-design id, as native writes it.
                 stream.WriteInt32(command.EventId);
                 stream.WriteInt32(command.EventVariantId);
                 stream.WriteInt32(command.Design.Length);
                 stream.WriteOptionalLongId(command.DesignId);
+
+                // The design bytes themselves come last, after that id.
                 stream.Write(command.Design.Span);
             }),
         CommandLayout.MetadataFirst);

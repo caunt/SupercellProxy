@@ -26,7 +26,9 @@ internal sealed class GameDataTableEntryBuilder(IReadOnlyList<string> headers, s
             throw new InvalidOperationException(message: "Base row has already been applied.");
 
         Apply(values);
+
         _baseRow = CreateReadOnlyCopy(values);
+
         _snapshots.Add(CreateReadOnlyCopy(_currentValues));
     }
 

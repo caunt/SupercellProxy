@@ -45,12 +45,17 @@ internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public TValue Read(MessageStream stream)
     {
+        // The opening fields of the record in wire order.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
+
+        // The middle fields; optional or list fields are handled by their own codecs, not here.
         TFourth fourthValue = _fourth.Read(stream);
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
+
+        // The closing three fields, after which the whole value can be built.
         TSeventh seventhValue = _seventh.Read(stream);
         TEighth eighthValue = _eighth.Read(stream);
         TNinth ninthValue = _ninth.Read(stream);
@@ -60,12 +65,17 @@ internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, 
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The opening fields, written in the order Read consumes them.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
+
+        // The middle three follow without any separator.
         _fourth.Write(encoder, _getFourth(value));
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
+
+        // The final fields end the record; the next value on the stream starts right after.
         _seventh.Write(encoder, _getSeventh(value));
         _eighth.Write(encoder, _getEighth(value));
         _ninth.Write(encoder, _getNinth(value));

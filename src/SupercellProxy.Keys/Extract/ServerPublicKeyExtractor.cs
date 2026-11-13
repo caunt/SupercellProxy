@@ -62,7 +62,9 @@ internal static class ServerPublicKeyExtractor
     private static async ValueTask<byte[]> ReadBinaryFileAsync(string path, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
         byte[] content = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
         ReadOnlyMemory<byte> contentMemory = content;
 
         return content.HasZipArchiveHeader()

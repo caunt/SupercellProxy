@@ -49,13 +49,18 @@ internal sealed class CompositeCodec10<TValue, TFirst, TSecond, TThird, TFourth,
 
     public TValue Read(MessageStream stream)
     {
+        // The first four fields, read back to back.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The next three, each starting at the byte the previous field left off.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
+
+        // The last three; a throwing field codec stops here before any value is built.
         TEighth eighthValue = _eighth.Read(stream);
         TNinth ninthValue = _ninth.Read(stream);
         TTenth tenthValue = _tenth.Read(stream);
@@ -65,13 +70,18 @@ internal sealed class CompositeCodec10<TValue, TFirst, TSecond, TThird, TFourth,
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The first four fields, in the order the getters were registered.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // The next three, appended directly after.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));
+
+        // The final three close the record exactly as Read expects.
         _eighth.Write(encoder, _getEighth(value));
         _ninth.Write(encoder, _getNinth(value));
         _tenth.Write(encoder, _getTenth(value));

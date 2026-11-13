@@ -8,6 +8,7 @@ internal sealed class CompleteCodec<TValue>(ICodec<TValue> codec, string trailin
     public TValue Read(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
+
         TValue value = codec.Read(stream);
 
         return stream.Position != stream.Length ? throw new InvalidDataException(trailingDataMessage) : value;

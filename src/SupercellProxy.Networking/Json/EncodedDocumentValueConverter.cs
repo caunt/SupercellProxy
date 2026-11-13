@@ -20,6 +20,7 @@ public sealed class EncodedDocumentValueConverter : JsonConverter<EncodedDocumen
     {
         ArgumentNullException.ThrowIfNull(writer);
         ArgumentNullException.ThrowIfNull(value);
+
         writer.WriteRawValue(value.Encode());
     }
 }

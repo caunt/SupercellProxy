@@ -20,11 +20,16 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     {
         ArgumentNullException.ThrowIfNull(releases);
 
+        // The live id table that each release patches with its own changes.
         Dictionary<TContract, int> current = [];
+
+        // What the registry keeps from every release for its listings and lookups.
         List<TContract> contracts = [];
         List<Version> versions = [];
         List<FrozenDictionary<TContract, int>> idsByRelease = [];
         List<FrozenDictionary<int, TContract>> contractsByRelease = [];
+
+        // The last release seen, so an out-of-order one is rejected.
         Version? previous = null;
 
         foreach (ReleaseIds<TContract> release in releases)
@@ -43,7 +48,9 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
             }
 
             versions.Add(release.Version);
+
             previous = release.Version;
+
             idsByRelease.Add(current.ToFrozenDictionary());
             contractsByRelease.Add(IndexContracts(release.Version, current));
         }
@@ -136,6 +143,7 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         if (gameVersion is not null)
         {
             int release = FindRelease(gameVersion);
+
             contract = default;
 
             return release >= 0 && _contractsByRelease[release].TryGetValue(id, out contract);
@@ -174,6 +182,7 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         if (gameVersion is not null)
         {
             int release = FindRelease(gameVersion);
+
             id = 0;
 
             return release >= 0 && _idsByRelease[release].TryGetValue(contract, out id);

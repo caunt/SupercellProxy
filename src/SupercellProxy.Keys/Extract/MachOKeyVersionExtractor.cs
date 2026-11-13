@@ -25,20 +25,25 @@ internal static class MachOKeyVersionExtractor
         if (BinaryPrimitives.ReadUInt32BigEndian(binary) == 0xCAFEBABE)
         {
             Require(binary, offset: 0, length: 8);
+
             uint count = BinaryPrimitives.ReadUInt32BigEndian(binary[4..]);
 
             if (count is 0 or > 32)
                 throw Malformed(message: "Invalid FAT architecture count.");
 
             Require(binary, offset: 8, count * 20L);
+
             List<(long Offset, long Length)> ranges = [];
             List<(long Offset, long Length)> selected = [];
 
             for (int index = 0; index < count; index++)
             {
+                // Each FAT entry is 20 big-endian bytes that start with the CPU type the slice is built for.
                 ReadOnlySpan<byte> architecture = binary.Slice(8 + (index * 20), length: 20);
                 uint cpu = BinaryPrimitives.ReadUInt32BigEndian(architecture);
                 uint subtype = BinaryPrimitives.ReadUInt32BigEndian(architecture[4..]) & 0x00FFFFFF;
+
+                // The rest of the entry says where that slice is stored in the file.
                 long offset = BinaryPrimitives.ReadUInt32BigEndian(architecture[8..]);
                 long length = BinaryPrimitives.ReadUInt32BigEndian(architecture[12..]);
 
@@ -68,6 +73,7 @@ internal static class MachOKeyVersionExtractor
                 throw new InvalidOperationException(message: "Multiple supported ARM64 Mach-O slices found.");
 
             (long Offset, long Length) slice = selected[index: 0];
+
             binary = binary.Slice(int.CreateTruncating(slice.Offset), int.CreateTruncating(slice.Length));
         }
 
@@ -89,9 +95,13 @@ internal static class MachOKeyVersionExtractor
             throw Malformed(message: "Mach-O load command count exceeds limit.");
 
         Require(binary, offset: 32, commandBytes);
+
+        // The load commands are walked from just after the 64-bit header to the end the header declares; an encrypted binary is noted on the way.
         long end = 32L + commandBytes;
         long cursor = 32;
         bool unsupported = false;
+
+        // The walk collects the segments to search, every mapped segment for rebasing, and the chained-fixup tables.
         List<Segment> segments = [];
         List<Segment> allSegments = [];
         List<(long Offset, long Length)> chainedFixups = [];
@@ -113,8 +123,11 @@ internal static class MachOKeyVersionExtractor
                 if (size < 72)
                     throw Malformed(message: "Truncated Mach-O segment.");
 
+                // Where the segment is mapped in memory and how much memory it takes.
                 long address = ReadAddress(command[24..]);
                 long memory = ReadAddress(command[32..]);
+
+                // Where its bytes are stored in the file, how it may be accessed, and how many section headers follow.
                 long offset = ReadAddress(command[40..]);
                 long length = ReadAddress(command[48..]);
                 uint protection = BinaryPrimitives.ReadUInt32LittleEndian(command[60..]);
@@ -124,7 +137,6 @@ internal static class MachOKeyVersionExtractor
                     throw Malformed(message: "Invalid Mach-O segment extent.");
 
                 Require(binary, offset, length);
-
                 allSegments.Add(new Segment(address, offset, length, (protection & 4) != 0));
 
                 if (length != 0)
@@ -148,7 +160,9 @@ internal static class MachOKeyVersionExtractor
 
                 long offset = BinaryPrimitives.ReadUInt32LittleEndian(command[8..]);
                 long length = BinaryPrimitives.ReadUInt32LittleEndian(command[12..]);
+
                 Require(binary, offset, length);
+
                 unsupported |= BinaryPrimitives.ReadUInt32LittleEndian(command[16..]) != 0;
             }
             else if (kind == 0x80000034)
@@ -158,6 +172,7 @@ internal static class MachOKeyVersionExtractor
 
                 long offset = BinaryPrimitives.ReadUInt32LittleEndian(command[8..]);
                 long length = BinaryPrimitives.ReadUInt32LittleEndian(command[12..]);
+
                 Require(binary, offset, length);
                 chainedFixups.Add((offset, length));
             }
@@ -176,6 +191,7 @@ internal static class MachOKeyVersionExtractor
         if (chainedFixups.Count == 1)
         {
             (long Offset, long Length) fixups = chainedFixups[index: 0];
+
             pointers = ReadChainedPointers(binary, allSegments, fixups.Offset, fixups.Length);
 
             if (pointers is null)
@@ -320,7 +336,9 @@ internal static class MachOKeyVersionExtractor
     private static int? FindKeyField(Image image, long encoder)
     {
         RegisterValue?[] registers = new RegisterValue?[32];
+
         registers[0] = new RegisterValue(ValueKind.Object, Offset: 0);
+
         List<long> fields = [];
         long? writer = null;
         long? streamOffset = null;
@@ -363,6 +381,7 @@ internal static class MachOKeyVersionExtractor
 
                     writer = target;
                     streamOffset = stream.Offset;
+
                     fields.Add(field.Offset);
 
                     if (fields.Count == 5)
@@ -385,6 +404,7 @@ internal static class MachOKeyVersionExtractor
             else if ((word & 0xFFC00000) == 0xB9400000)
             {
                 RegisterValue? source = registers[(word >> 5) & 31];
+
                 registers[word & 31] = source is { Kind: ValueKind.Object } owner
                     ? new RegisterValue(ValueKind.Field, owner.Offset + (((word >> 10) & 4095) * 4)) : null;
             }
@@ -414,6 +434,7 @@ internal static class MachOKeyVersionExtractor
             if ((word & 0x9F000000) == 0x90000000)
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
+
                 registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
@@ -422,6 +443,7 @@ internal static class MachOKeyVersionExtractor
             else if ((word & 0xFFC00000) == 0xB9400000)
             {
                 RegisterValue? source = registers[(word >> 5) & 31];
+
                 registers[word & 31] = source is { Kind: ValueKind.Address } pointer
                     ? new RegisterValue(ValueKind.LoadedInteger, pointer.Offset + (((word >> 10) & 4095) * 4)) : null;
             }
@@ -514,6 +536,7 @@ internal static class MachOKeyVersionExtractor
         {
             RegisterValue? source = registers[(word >> 5) & 31];
             long immediate = ((word >> 10) & 4095) << ((word & 0x400000) != 0 ? 12 : 0);
+
             registers[destination] = source is { Kind: ValueKind.Object or ValueKind.Address } value
                 ? value with { Offset = checked(value.Offset + immediate) } : null;
 
@@ -539,6 +562,7 @@ internal static class MachOKeyVersionExtractor
             if ((word & 0x9F000000) == 0x90000000)
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
+
                 registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
@@ -583,19 +607,23 @@ internal static class MachOKeyVersionExtractor
     private static Dictionary<long, long>? ReadChainedPointers(ReadOnlySpan<byte> binary, List<Segment> segments, long offset, long length)
     {
         ReadOnlySpan<byte> data = binary.Slice(int.CreateTruncating(offset), int.CreateTruncating(length));
+
         Require(data, offset: 0, length: 28);
 
         if (BinaryPrimitives.ReadUInt32LittleEndian(data) != 0)
             return null;
 
         long starts = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
+
         Require(data, starts, length: 4);
+
         uint count = BinaryPrimitives.ReadUInt32LittleEndian(data[int.CreateTruncating(starts)..]);
 
         if (count != segments.Count)
             throw Malformed(message: "Chained-fixups segment count differs.");
 
         Require(data, starts + 4, count * 4L);
+
         Segment[] bases = [.. segments.Where(static segment => segment.Offset == 0 && segment.Length >= 32)];
 
         if (bases.Length != 1)
@@ -613,11 +641,16 @@ internal static class MachOKeyVersionExtractor
                 continue;
 
             long segmentInformation = starts + relative;
+
             Require(data, segmentInformation, length: 22);
+
+            // The segment's chained-fixup header gives its own size, the page size and the pointer format.
             ReadOnlySpan<byte> header = data[int.CreateTruncating(segmentInformation)..];
             uint size = BinaryPrimitives.ReadUInt32LittleEndian(header);
             ushort pageSize = BinaryPrimitives.ReadUInt16LittleEndian(header[4..]);
             ushort format = BinaryPrimitives.ReadUInt16LittleEndian(header[6..]);
+
+            // Then where the segment starts and how many of its pages carry fixup chains.
             long segmentOffset = ReadAddress(header[8..]);
             ushort pages = BinaryPrimitives.ReadUInt16LittleEndian(header[20..]);
 
@@ -628,6 +661,7 @@ internal static class MachOKeyVersionExtractor
                 throw Malformed(message: "Invalid chained-fixups page table.");
 
             Require(data, segmentInformation, size);
+
             Segment segment = segments[index];
 
             bool invalidMapping = segment.Address < imageBase || segmentOffset != segment.Address - imageBase
@@ -648,7 +682,6 @@ internal static class MachOKeyVersionExtractor
 
                 long position = (page * long.CreateChecked(pageSize)) + first;
                 long pageEnd = Math.Min((page + 1L) * pageSize, segment.Length);
-
                 bool hasNext = true;
 
                 while (hasNext)

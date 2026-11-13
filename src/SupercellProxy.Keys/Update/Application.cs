@@ -30,6 +30,7 @@ internal static partial class Application
             ?? throw new InvalidOperationException(message: "Invalid summary path.");
 
         new DirectoryInfo(directory).Create();
+
         await File.AppendAllTextAsync(summaryPath, report.ToMarkdown(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -50,8 +51,7 @@ internal static partial class Application
 
                 return;
             }
-            catch (Exception exception)
-                when (IsRecoverableUpdateFailure(exception, cancellationToken))
+            catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
             {
                 File.Delete(temporaryPath);
                 File.Delete(temporaryPath + ".part");
@@ -64,6 +64,7 @@ internal static partial class Application
                             + "Retrying from the beginning with a fresh browser session "
                             + string.Create(CultureInfo.InvariantCulture, $"(retry {retry + 1}/{MaximumDownloadRetries})..."))
                     .ConfigureAwait(continueOnCapturedContext: false);
+
                 await Task.Delay(TimeSpan.FromSeconds((retry + 1) * 2), TimeProvider.System, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
@@ -164,6 +165,7 @@ internal static partial class Application
             return PrintUpdateHelp();
 
         (string? keysPath, string? summaryPath, string? appOption) = ParseUpdate(arguments);
+
         KeysUpdateReport report = new();
 
         try
@@ -228,11 +230,12 @@ internal static partial class Application
                     .GetAppAsync(section.AppStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
-            catch (Exception exception)
-                when (IsRecoverableUpdateFailure(exception, cancellationToken))
+            catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
             {
                 string reason = $"Metadata request failed: {NormalizeReason(exception.Message)}";
+
                 AddWarning(report, section.Name, version: null, reason);
+
                 updates[section.AppStoreId] = new KeysSectionUpdate(NewKeys: []);
 
                 return;
@@ -243,12 +246,12 @@ internal static partial class Application
                 .DistinctBy(static version => version.Value)];
 
             Dictionary<string, ExistingKeyEntry> existing = section.Entries.ToDictionary(static entry => entry.Version, StringComparer.Ordinal);
-
             List<GeneratedKeyEntry> generated = [];
 
             if (sourceVersions.Length is 0)
             {
                 AddWarning(report, section.Name, version: null, reason: "decrypt.day returned no versions.");
+
                 updates[section.AppStoreId] = new KeysSectionUpdate(generated);
 
                 return;
@@ -284,6 +287,7 @@ internal static partial class Application
                     return;
 
                 generated.Add(new GeneratedKeyEntry(version.Value, key.Key, key.KeyVersion));
+
                 bool changed = existingEntry is null || key.KeyVersion is not null;
 
                 string reason = existingEntry is null ? "Added to KEYS.md"
@@ -309,8 +313,7 @@ internal static partial class Application
 
                         return authorized;
                     }
-                    catch (Exception exception)
-                        when (IsRecoverableUpdateFailure(exception, cancellationToken))
+                    catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                     {
                         AddWarning(report, section.Name, version.Value, $"Authorization failed: {NormalizeReason(exception.Message)}");
 
@@ -329,8 +332,7 @@ internal static partial class Application
                             await DownloadWithRetryAsync(decryptDayClient, authorizedDownload, temporaryPath, section.Name, version.Value, cancellationToken)
                                 .ConfigureAwait(continueOnCapturedContext: false);
                         }
-                        catch (Exception exception)
-                            when (IsRecoverableUpdateFailure(exception, cancellationToken))
+                        catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                         {
                             AddWarning(report, section.Name, version.Value, $"Download failed {NormalizeReason(exception.Message)}");
 
@@ -343,8 +345,7 @@ internal static partial class Application
                                 .ExtractKeyFileAsync(temporaryPath, cancellationToken)
                                 .ConfigureAwait(continueOnCapturedContext: false);
                         }
-                        catch (Exception exception)
-                            when (IsRecoverableUpdateFailure(exception, cancellationToken))
+                        catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                         {
                             AddWarning(report, section.Name, version.Value, $"Extraction failed: {NormalizeReason(exception.Message)}");
 
@@ -390,6 +391,7 @@ internal static partial class Application
         {
             await File.WriteAllTextAsync(temporaryPath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+
             File.Move(temporaryPath, path, overwrite: true);
         }
         finally

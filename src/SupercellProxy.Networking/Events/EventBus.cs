@@ -31,6 +31,7 @@ public sealed class EventBus
             if (currentDelegates is not null)
             {
                 Delegate[] invocationList = currentDelegates.GetInvocationList();
+
                 await Task.WhenAll(GetExecutionTasks(invocationList, eventItem, cancellationToken))
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
@@ -58,6 +59,7 @@ public sealed class EventBus
         {
             int newArraySize = Math.Max(currentDelegatesArray.Length * 2, eventIndex + 1);
             Delegate?[] newDelegatesArray = new Delegate?[newArraySize];
+
             Array.Copy(currentDelegatesArray, newDelegatesArray, currentDelegatesArray.Length);
 
             newDelegatesArray[eventIndex] = asynchronouslyEventHandler;
@@ -97,6 +99,7 @@ public sealed class EventBus
             if (existingDelegate is not null)
             {
                 Delegate? updatedDelegate = Delegate.Remove(existingDelegate, asynchronouslyEventHandler);
+
                 Volatile.Write(ref currentDelegatesArray[eventIndex], updatedDelegate);
             }
         }

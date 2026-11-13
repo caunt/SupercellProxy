@@ -45,9 +45,12 @@ public sealed record MapGameTaskState([property: JsonPropertyName("TaskGlobalId"
     },
         static (stream, state) =>
         {
+            // The fixed part every task state starts with.
             stream.WriteVarInt(state.TaskGlobalId);
             stream.WriteOptionalLongId(state.AvatarId);
             stream.WriteBoolean(state.Completed);
+
+            // The payload layout depends on the task type, and the social reward flag closes the record.
             MapGameTaskStatePayload.For(state.Payload.TaskType).Write(stream, state.Payload);
             stream.WriteBoolean(state.SocialRewardCollected);
         });

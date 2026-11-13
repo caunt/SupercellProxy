@@ -40,17 +40,26 @@ public sealed record MapGameTask : ICodecProvider<MapGameTask>
         ReadOnlyMemory<CommandVarIntPair> piggyBankRewards,
         ReadOnlyMemory<MapGameTaskState> states)
     {
+        // Which task this is, the node it sits on and its current stage.
         TaskGlobalId = taskGlobalId;
         NodeId = nodeId;
         State = state;
+
+        // Its configured duration and the absolute expiry and respawn times.
         InitialDurationSeconds = initialDurationSeconds;
         ExpirationTime = expirationTime;
         RespawnTime = respawnTime;
+
+        // The two countdowns as they currently run.
         Timer = timer;
         CooldownTimer = cooldownTimer;
+
+        // Switches for expiry and the two cooldowns.
         ExpireEnabled = expireEnabled;
         ExpireCooldownEnabled = expireCooldownEnabled;
         CompleteCooldownEnabled = completeCooldownEnabled;
+
+        // Reward lists and per-player progress are copied so the record owns them.
         Rewards = rewards.ToArray();
         PiggyBankRewards = piggyBankRewards.ToArray();
         States = states.ToArray();

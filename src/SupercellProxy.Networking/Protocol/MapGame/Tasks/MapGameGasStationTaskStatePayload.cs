@@ -23,6 +23,7 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
         FreeFuel = freeFuel;
         FuelCollected = fuelCollected;
         DiamondPrice = diamondPrice;
+
         FuelData = fuelData is null
             ? null
             : (ReadOnlyMemory<CommandDataReferenceVarIntPair>?)fuelData.Value.ToArray();

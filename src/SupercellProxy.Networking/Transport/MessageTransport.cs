@@ -32,11 +32,13 @@ internal sealed class MessageTransport(MessageStream stream)
             Memory<byte> headerMemory = await stream.ReadExactlyAsync(new byte[HeaderLength], cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
+            // The seven-byte header is a big-endian id, a 24-bit payload length and a version.
             Span<byte> headerSpan = headerMemory.Span;
             ushort id = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[0..2]);
             int length = (headerSpan[index: 2] << 16) | (headerSpan[index: 3] << 8) | headerSpan[index: 4];
             ushort version = BinaryPrimitives.ReadUInt16BigEndian(headerSpan[5..HeaderLength]);
 
+            // Each read gets its own payload array, which decryption below reads in place.
             byte[] buffer = new byte[length];
 
             Memory<byte> payload = await stream.ReadExactlyAsync(buffer, cancellationToken)
@@ -129,8 +131,11 @@ internal sealed class MessageTransport(MessageStream stream)
     internal IMessage ResolveMessage(MessageContainer container)
     {
         ArgumentNullException.ThrowIfNull(container);
+
         container.Payload.GameVersion ??= stream.GameVersion;
+
         IMessage message = MessageRegistry.Resolve(container, stream.CommandDataResolver);
+
         ObserveGameVersion(message);
 
         if (container.Payload.Position != container.Payload.Length)
@@ -177,6 +182,7 @@ internal sealed class MessageTransport(MessageStream stream)
         where TValue : class, IMessage
     {
         ObserveGameVersion(message);
+
         ushort? version = _encryption is not null ? stream.OutboundMessageVersion : null;
 
         await WriteContainerAsync(MessageContainer.Create(message, version, stream.GameVersion), message, cancellationToken)
@@ -203,7 +209,9 @@ internal sealed class MessageTransport(MessageStream stream)
     {
         ArgumentNullException.ThrowIfNull(messageContainer);
         ArgumentNullException.ThrowIfNull(messageContainer);
+
         messageContainer.Payload.FlushWriteBoolean();
+
         ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MessageStream.MaximumPayloadLength, nameof(messageContainer));
 
         using IDisposable disposable = await _writeLock.LockAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -211,6 +219,7 @@ internal sealed class MessageTransport(MessageStream stream)
         try
         {
             MemoryStream memoryStream = messageContainer.Payload.GetMemoryStream();
+
             memoryStream.Position = 0;
 
             if (_encryption is not null)
@@ -235,12 +244,11 @@ internal sealed class MessageTransport(MessageStream stream)
                 await observe(MessageDirection.Serverbound, messageContainer, message).ConfigureAwait(continueOnCapturedContext: false);
 
             await stream.WriteAsync(headerMemory, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
             await memoryStream.CopyToAsync(stream.BaseStream, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             stream.Traffic?.Send(length);
         }
-        catch (Exception exception)
-            when (exception is EndOfStreamException or IOException { InnerException: SocketException })
+        catch (Exception exception) when (exception is EndOfStreamException or IOException { InnerException: SocketException })
         {
             throw new StreamClosedException(StreamClosedException.DefaultMessage, exception);
         }

@@ -13,6 +13,7 @@ internal sealed class BindCodec<TKey, TValue>(ICodec<TKey> key, Func<TValue, TKe
     public void Write(ProtocolEncoder encoder, TValue value)
     {
         TKey tag = keyOf(value);
+
         key.Write(encoder, tag);
         rest(tag).Write(encoder, value);
     }

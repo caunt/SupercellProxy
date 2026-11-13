@@ -50,12 +50,17 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         IServerPublicKeySource serverKeys,
         IAnonymousAccountPool? anonymousAccounts = null)
     {
+        // Keep the online settings and the services used to reach the server.
         Configuration = configuration;
         _webClient = webClient;
         _serverKeys = serverKeys;
+
+        // Keep the clock, logging and the pool that anonymous logins lease accounts from.
         _timeProvider = timeProvider;
         _logger = logger;
         _anonymousAccounts = anonymousAccounts;
+
+        // The asset directory is read on each lookup, not captured here.
         _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
@@ -74,12 +79,18 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         IServerPublicKeySource serverKeys)
     {
         ArgumentNullException.ThrowIfNull(stream);
+
+        // Adopt the given stream, lending it this client's key source only when it has none of its own.
         _supercellStream = stream;
         stream.ServerKeySource ??= serverKeys;
+
+        // Keep the services for downloads, the handshake key, timing and logging.
         _webClient = webClient;
         _serverKeys = serverKeys;
         _timeProvider = timeProvider;
         _logger = logger;
+
+        // A stream-only client has no configuration, so the asset directory is looked up only when assets are needed.
         _authenticator = new ClientAuthenticator(this, new GameAssetCache(webClient, () => Configuration.AssetDirectory));
     }
 
@@ -174,6 +185,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     public async Task RunAsync(Func<IMessage, CancellationToken, Task> onMessage, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(onMessage);
+
         _login = await ConnectAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         using CancellationTokenSource lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -184,6 +196,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         try
         {
             Task completed = await Task.WhenAny(heartbeat, receive).ConfigureAwait(continueOnCapturedContext: false);
+
             await completed.ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
@@ -234,6 +247,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
         finally
         {
             _socketClient?.Dispose();
+
             _supercellStream = null;
             _networkStream = null;
             _socketClient = null;
@@ -263,13 +277,16 @@ public sealed partial class ProtocolClient : IAsyncDisposable
                 _clientVersion = await source.GetLatestAsync(refresh: false, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
             ProtocolConfiguration protocol = Protocol;
+
             _socketClient = new TcpClient();
+
             await _socketClient
                 .ConnectAsync(Configuration.UpstreamHost, Configuration.UpstreamPort, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             _networkStream = _socketClient.GetStream();
             _traffic = new ConnectionTraffic(_timeProvider);
+
             _supercellStream = new MessageStream(_networkStream)
             {
                 Traffic = _traffic,

@@ -102,6 +102,7 @@ public static class MessageRegistry
     public static IMessage Resolve(MessageContainer container, ICommandDataResolver? dataResolver)
     {
         ArgumentNullException.ThrowIfNull(container);
+
         MessageStream payload = container.Payload;
 
         if (dataResolver is not null)

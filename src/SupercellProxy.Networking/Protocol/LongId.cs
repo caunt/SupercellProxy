@@ -189,6 +189,7 @@ public readonly record struct LongId : IEquatable<LongId>
                 continue;
 
             foundAnyValidDigits = true;
+
             char normalizedCharacter = NormalizeTagCharacter(currentCharacter);
 
             if (!TryGetAlphabetIndex(normalizedCharacter, out int alphabetIndex))
@@ -329,6 +330,7 @@ public readonly record struct LongId : IEquatable<LongId>
                 )
                 {
                     int remainderValue = int.CreateTruncating(currentValueToFormat % 14UL);
+
                     currentValueToFormat /= 14UL;
                     destinationSpan[currentDestinationIndex + reverseWriteIndex] = ValidAlphabet[remainderValue];
                 }
@@ -371,8 +373,8 @@ public readonly record struct LongId : IEquatable<LongId>
         while (totalCalculatedValue > 0)
         {
             int remainderValue = int.CreateTruncating(totalCalculatedValue % 14UL);
-            totalCalculatedValue /= 14UL;
 
+            totalCalculatedValue /= 14UL;
             temporaryDigitsSpan[currentDigitCount] = ValidAlphabet[remainderValue];
             currentDigitCount++;
         }

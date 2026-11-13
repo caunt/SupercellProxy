@@ -18,6 +18,7 @@ internal sealed class ArrayCodec<TElement>(ICodec<TElement> element, CollectionC
     public void Write(ProtocolEncoder encoder, TElement[] value)
     {
         ArgumentNullException.ThrowIfNull(value);
+
         count.Write(encoder, value.Length);
 
         foreach (TElement item in value)

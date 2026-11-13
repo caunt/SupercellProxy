@@ -87,6 +87,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         {
             FlushWriteBoolean();
             ResetReadBoolean();
+
             GetMemoryStream().Position = value;
         }
     }
@@ -125,7 +126,6 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-
         FlushWriteBoolean();
 
         if (_leaveOpen)
@@ -145,6 +145,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
             _booleanReadAdditionalValue = ReadByte();
 
         bool value = ((_booleanReadAdditionalValue >> _booleanReadOffset) & 1) is not 0;
+
         _booleanReadOffset = (_booleanReadOffset + 1) & 7;
 
         return value;
@@ -184,6 +185,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public byte[] ReadBytes(int length)
     {
         byte[] buffer = new byte[length];
+
         ResetReadBoolean();
         BaseStream.ReadExactly(buffer);
 
@@ -397,11 +399,13 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     /// <returns>The 32-bit value of a one- to five-byte variable-length integer whose first byte holds a continuation bit, a sign bit and the six lowest bits, and whose later bytes add seven bits each.</returns>
     public int ReadVarInt()
     {
+        // The first byte carries the sign flag and only six value bits.
         byte firstByte = ReadByte();
         bool isNegative = (firstByte & 0x40) is not 0;
         int accumulator = firstByte & 0x3F;
-        int consumedBitWidth = 6;
 
+        // Later bytes add seven bits each while the continuation bit stays set.
+        int consumedBitWidth = 6;
         byte currentByte = firstByte;
 
         while ((currentByte & 0x80) is not 0 && consumedBitWidth < 35)
@@ -445,18 +449,22 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     /// <exception cref="InvalidDataException">The last byte the format allows still has its continuation bit set.</exception>
     public long ReadVarLong()
     {
+        // As in the 32-bit form, the first byte holds the sign flag and six value bits.
         byte firstByte = ReadByte();
         bool isNegative = (firstByte & 0x40) is not 0;
         ulong accumulator = firstByte & 0x3Fu;
-        int consumedBitWidth = 6;
 
+        // Continuation bytes then fill the remaining bits, at most seven at a time.
+        int consumedBitWidth = 6;
         byte currentByte = firstByte;
 
         while ((currentByte & 0x80) is not 0 && consumedBitWidth < 64)
         {
             currentByte = ReadByte();
+
             int availableBitWidth = Math.Min(val1: 7, 64 - consumedBitWidth);
             int valueMask = (1 << availableBitWidth) - 1;
+
             accumulator |= ulong.CreateTruncating(currentByte & valueMask) << consumedBitWidth;
             consumedBitWidth += availableBitWidth;
         }
@@ -563,6 +571,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public async ValueTask WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
     {
         FlushWriteBoolean();
+
         await BaseStream
             .WriteAsync(source, cancellationToken)
             .AsTask()
@@ -644,6 +653,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(short)];
+
         BinaryPrimitives.WriteInt16BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -657,6 +667,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(int)];
+
         BinaryPrimitives.WriteInt32BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -670,6 +681,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(long)];
+
         BinaryPrimitives.WriteInt64BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -726,6 +738,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         }
 
         int length = Encoding.UTF8.GetByteCount(value);
+
         WriteInt32(length);
 
         if (length is 0)
@@ -733,6 +746,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
 
         Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         int written = Encoding.UTF8.GetBytes(value, span);
+
         BaseStream.Write(span[..written]);
     }
 
@@ -743,6 +757,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
     public override void WriteString(string value)
     {
         int length = Encoding.UTF8.GetByteCount(value);
+
         WriteInt32(length);
 
         if (length is 0)
@@ -750,6 +765,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
 
         Span<byte> span = length <= 1024 ? stackalloc byte[length] : new byte[length];
         int written = Encoding.UTF8.GetBytes(value, span);
+
         BaseStream.Write(span[..written]);
     }
 
@@ -762,6 +778,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(ushort)];
+
         BinaryPrimitives.WriteUInt16BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -775,6 +792,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(uint)];
+
         BinaryPrimitives.WriteUInt32BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -788,6 +806,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         FlushWriteBoolean();
 
         Span<byte> span = stackalloc byte[sizeof(ulong)];
+
         BinaryPrimitives.WriteUInt64BigEndian(span, value);
         BaseStream.Write(span);
     }
@@ -814,6 +833,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         if ((boundariesTracker >>= 6) == 0)
         {
             byteBuffer[currentIndex++] = byte.CreateTruncating(temporarySignByte);
+
             BaseStream.Write(byteBuffer[..currentIndex]);
 
             return;
@@ -824,6 +844,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         do
         {
             byte dataByte = byte.CreateTruncating(valueToWrite & 0x7F);
+
             valueToWrite >>= 7;
 
             if ((boundariesTracker >>= 7) != 0)
@@ -876,6 +897,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         if ((boundariesTracker >>= 6) == 0)
         {
             byteBuffer[currentIndex++] = byte.CreateTruncating(temporarySignByte);
+
             BaseStream.Write(byteBuffer[..currentIndex]);
 
             return;
@@ -886,6 +908,7 @@ public sealed class MessageStream : ProtocolEncoder, IDisposable
         do
         {
             byte dataByte = byte.CreateTruncating(valueToWrite & 0x7F);
+
             valueToWrite >>= 7;
 
             if ((boundariesTracker >>= 7) != 0)

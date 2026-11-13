@@ -14,6 +14,7 @@ internal sealed class KeysUpdateReport
     public void Add(KeysUpdateResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
+
         _results.Add(result);
     }
 

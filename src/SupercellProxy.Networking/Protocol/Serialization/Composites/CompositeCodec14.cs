@@ -65,17 +65,24 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
 
     public TValue Read(MessageStream stream)
     {
+        // The first four fields of the record in wire order.
         TFirst firstValue = _first.Read(stream);
         TSecond secondValue = _second.Read(stream);
         TThird thirdValue = _third.Read(stream);
         TFourth fourthValue = _fourth.Read(stream);
+
+        // The fifth to eighth fields, decoded back to back.
         TFifth fifthValue = _fifth.Read(stream);
         TSixth sixthValue = _sixth.Read(stream);
         TSeventh seventhValue = _seventh.Read(stream);
         TEighth eighthValue = _eighth.Read(stream);
+
+        // The ninth to eleventh fields; each nested codec consumes only its own bytes.
         TNinth ninthValue = _ninth.Read(stream);
         TTenth tenthValue = _tenth.Read(stream);
         TEleventh eleventhValue = _eleventh.Read(stream);
+
+        // The last three, after which all fourteen values go to the factory.
         TTwelfth twelfthValue = _twelfth.Read(stream);
         TThirteenth thirteenthValue = _thirteenth.Read(stream);
         TFourteenth fourteenthValue = _fourteenth.Read(stream);
@@ -98,17 +105,24 @@ internal sealed class CompositeCodec14<TValue, TFirst, TSecond, TThird, TFourth,
 
     public void Write(ProtocolEncoder encoder, TValue value)
     {
+        // The first four fields, projected from the value by their getters.
         _first.Write(encoder, _getFirst(value));
         _second.Write(encoder, _getSecond(value));
         _third.Write(encoder, _getThird(value));
         _fourth.Write(encoder, _getFourth(value));
+
+        // The fifth to eighth fields follow without separators.
         _fifth.Write(encoder, _getFifth(value));
         _sixth.Write(encoder, _getSixth(value));
         _seventh.Write(encoder, _getSeventh(value));
         _eighth.Write(encoder, _getEighth(value));
+
+        // The ninth to eleventh fields, mirroring the read order.
         _ninth.Write(encoder, _getNinth(value));
         _tenth.Write(encoder, _getTenth(value));
         _eleventh.Write(encoder, _getEleventh(value));
+
+        // The last three close the record.
         _twelfth.Write(encoder, _getTwelfth(value));
         _thirteenth.Write(encoder, _getThirteenth(value));
         _fourteenth.Write(encoder, _getFourteenth(value));

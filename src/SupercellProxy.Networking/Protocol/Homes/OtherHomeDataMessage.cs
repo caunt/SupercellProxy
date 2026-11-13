@@ -133,8 +133,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
 
             return Payload.Read(stream);
         }
-        catch (Exception exception)
-            when (exception is EndOfStreamException or InvalidDataException or ArgumentException or OverflowException)
+        catch (Exception exception) when (exception is EndOfStreamException or InvalidDataException or ArgumentException or OverflowException)
         {
             return new OtherHomeDataMessage { DecodeError = exception, Fallback = data };
         }

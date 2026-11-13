@@ -34,8 +34,7 @@ internal static partial class Application
                     .GetAppAsync(appStoreId, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
-            catch (Exception exception)
-                when (exception is HttpRequestException or InvalidDataException)
+            catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
             {
                 continue;
             }
@@ -50,6 +49,7 @@ internal static partial class Application
 
             Console.WriteLine($"   Bundle ID: {app.BundleId}");
             Console.WriteLine($"   App ID: {appStoreId}");
+
             Console.WriteLine($"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
                     + (
                         app.Versions.Count > 10

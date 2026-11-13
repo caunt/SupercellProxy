@@ -38,6 +38,7 @@ public static class NetworkingServiceCollectionExtensions
             options = options.Configure(configure);
 
         services.Add(ServiceDescriptor.Singleton(onMessage));
+
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, ClientHostedService>(provider => new ClientHostedService(provider.GetRequiredService<ProtocolClientFactory>(),
             provider.GetRequiredService<IOptions<ClientOptions>>(),
             onMessage,
@@ -86,6 +87,7 @@ public static class NetworkingServiceCollectionExtensions
             .AddHttpClient(name: "ServerKeys")
             .AddTypedClient<IServerPublicKeySource>(static web => new HayDayServerPublicKeySource(web))
             .Services;
+
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<ProtocolClientFactory>();
 

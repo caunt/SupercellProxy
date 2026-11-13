@@ -8,6 +8,7 @@ internal sealed class CollectionEncoder<TElement>(IEncoder<TElement> element, Co
     public void Write(ProtocolEncoder encoder, IReadOnlyCollection<TElement> value)
     {
         ArgumentNullException.ThrowIfNull(value);
+
         count.Write(encoder, value.Count);
 
         foreach (TElement item in value)

@@ -19,7 +19,6 @@ internal sealed class AppStoreClient(HttpClient client)
             .SendWithRetryAsync(() => new HttpRequestMessage(HttpMethod.Get, address), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-
         Stream content = await response.EnsureSuccessStatusCode()
             .Content.ReadAsStreamAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);

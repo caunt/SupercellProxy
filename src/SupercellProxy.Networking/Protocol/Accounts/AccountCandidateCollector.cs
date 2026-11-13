@@ -34,6 +34,7 @@ public sealed class AccountCandidateCollector
     public void Apply(AccountCandidatesMessage response)
     {
         ArgumentNullException.ThrowIfNull(response);
+
         ResponseEntryCount = response.EntryCount;
         EntriesResponse = response;
     }
@@ -46,6 +47,7 @@ public sealed class AccountCandidateCollector
     public void Apply(GoogleServiceAccountAlreadyBoundMessage response)
     {
         ArgumentNullException.ThrowIfNull(response);
+
         Response = response;
     }
 }

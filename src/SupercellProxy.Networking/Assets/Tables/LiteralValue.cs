@@ -61,6 +61,7 @@ public readonly record struct LiteralValue
     public LiteralValue(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
+
         Kind = LiteralKind.String;
         _text = value;
     }

@@ -304,6 +304,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     public bool TryResolveEntryRowCount(int globalId, out int count)
     {
         GameDataTableEntry? entry = ResolveEntry(globalId);
+
         count = entry?.Snapshots.Count ?? 0;
 
         return entry is not null;
@@ -697,6 +698,7 @@ public sealed class DataTableResolver : ICommandDataResolver
             return false;
 
         IReadOnlyDictionary<string, LiteralValue> row = valueIndex is 0 ? entry.BaseRow : entry.ContinuationRows[valueIndex - 1];
+
         value = row.GetValueOrDefault(fieldName);
 
         return true;

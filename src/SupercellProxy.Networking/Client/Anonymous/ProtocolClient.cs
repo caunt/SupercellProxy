@@ -71,7 +71,9 @@ public sealed partial class ProtocolClient
         while (!cancellationToken.IsCancellationRequested)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
             AnonymousAccountLease lease = await _anonymousAccounts.AcquireAsync(Configuration.AnonymousAccountId, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+
             _anonymousLease = lease;
 
             try
