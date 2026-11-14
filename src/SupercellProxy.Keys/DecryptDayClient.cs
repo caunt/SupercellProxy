@@ -42,10 +42,11 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await using (browser.ConfigureAwait(continueOnCapturedContext: false))
         {
-            IPage page = await browser.NewPageAsync(new BrowserNewPageOptions
-            {
-                AcceptDownloads = true
-            })
+            IPage page = await browser
+                .NewPageAsync(new BrowserNewPageOptions
+                {
+                    AcceptDownloads = true
+                })
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             // DOM snapshots inject scripts and patch browser APIs in every frame, disrupting Turnstile.
@@ -152,10 +153,11 @@ internal sealed class DecryptDayClient(HttpClient client)
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        await control.ClickAsync(new LocatorClickOptions
-        {
-            Timeout = 30_000
-        })
+        await control
+            .ClickAsync(new LocatorClickOptions
+            {
+                Timeout = 30_000
+            })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
@@ -280,11 +282,12 @@ internal sealed class DecryptDayClient(HttpClient client)
                     HasText = "Get download link"
                 });
 
-            await verificationButton.WaitForAsync(new LocatorWaitForOptions
-            {
-                State = WaitForSelectorState.Visible,
-                Timeout = 60_000
-            })
+            await verificationButton
+                .WaitForAsync(new LocatorWaitForOptions
+                {
+                    State = WaitForSelectorState.Visible,
+                    Timeout = 60_000
+                })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -409,13 +412,14 @@ internal sealed class DecryptDayClient(HttpClient client)
                     Exact = true
                 });
 
-        await rawPage.AddLocatorHandlerAsync(closeAdvertisement,
-            async () =>
-            await closeAdvertisement.ClickAsync(new LocatorClickOptions
-            {
-                Timeout = 10_000
-            })
-                .ConfigureAwait(continueOnCapturedContext: false))
+        await rawPage
+            .AddLocatorHandlerAsync(closeAdvertisement,
+                async () => await closeAdvertisement
+                    .ClickAsync(new LocatorClickOptions
+                    {
+                        Timeout = 10_000
+                    })
+                    .ConfigureAwait(continueOnCapturedContext: false))
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -427,12 +431,13 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task NavigateToDownloadAsync(IPage page, IpaDownload download, CancellationToken cancellationToken)
     {
-        IResponse? navigation = await page.GotoAsync(download.Address.AbsoluteUri,
-            new PageGotoOptions
-            {
-                Timeout = 60_000,
-                WaitUntil = WaitUntilState.DOMContentLoaded,
-            })
+        IResponse? navigation = await page
+            .GotoAsync(download.Address.AbsoluteUri,
+                new PageGotoOptions
+                {
+                    Timeout = 60_000,
+                    WaitUntil = WaitUntilState.DOMContentLoaded,
+                })
             .WaitAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -442,13 +447,14 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .WriteLineAsync(value: "decrypt.day initialized the app page; reopening the file in the same browser session...")
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            navigation = await page.GotoAsync(download.Address.AbsoluteUri,
-                new PageGotoOptions
-                {
-                    Timeout = 60_000,
-                    WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Referer = page.Url,
-                })
+            navigation = await page
+                .GotoAsync(download.Address.AbsoluteUri,
+                    new PageGotoOptions
+                    {
+                        Timeout = 60_000,
+                        WaitUntil = WaitUntilState.DOMContentLoaded,
+                        Referer = page.Url,
+                    })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
@@ -519,11 +525,12 @@ internal sealed class DecryptDayClient(HttpClient client)
             await CaptureAsync(pageName + " screenshot",
                 async () =>
                 {
-                    byte[] screenshot = await diagnosticPage.ScreenshotAsync(new PageScreenshotOptions
-                    {
-                        FullPage = true,
-                        Timeout = 10_000
-                    })
+                    byte[] screenshot = await diagnosticPage
+                        .ScreenshotAsync(new PageScreenshotOptions
+                        {
+                            FullPage = true,
+                            Timeout = 10_000
+                        })
                         .WaitAsync(cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
@@ -656,10 +663,11 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         if (await verificationError.IsVisibleAsync().WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
         {
-            string shown = await verificationError.InnerTextAsync(new LocatorInnerTextOptions
-            {
-                Timeout = 5_000
-            })
+            string shown = await verificationError
+                .InnerTextAsync(new LocatorInnerTextOptions
+                {
+                    Timeout = 5_000
+                })
                 .WaitAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 

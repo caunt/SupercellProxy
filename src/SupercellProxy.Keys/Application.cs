@@ -147,8 +147,7 @@ internal static partial class Application
         string normalizedValue = Normalize(value);
 
         AppStoreSearchResult[] exactMatches = [.. response.Results
-            .Where(listing =>
-                string.Equals(Normalize(listing.Name), normalizedValue, StringComparison.Ordinal)
+            .Where(listing => string.Equals(Normalize(listing.Name), normalizedValue, StringComparison.Ordinal)
                 || listing.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
 
         foreach (AppStoreSearchResult listing in exactMatches.Length > 0 ? exactMatches : response.Results)
