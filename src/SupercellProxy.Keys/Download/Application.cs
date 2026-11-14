@@ -59,8 +59,7 @@ internal static partial class Application
             await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
                 return archive.Entries
-                    .Any(static entry =>
-                    !string.IsNullOrEmpty(entry.Name)
+                    .Any(static entry => !string.IsNullOrEmpty(entry.Name)
                     && entry.FullName.StartsWith(value: "Payload/", StringComparison.Ordinal)
                     && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal));
             }

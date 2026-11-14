@@ -74,7 +74,7 @@ jobs:
           docker run --rm \
             --volume "${{ github.workspace }}:/workspace" \
             --workdir /workspace \
-            mcr.microsoft.com/dotnet/sdk:10.0-alpine \
+            mcr.microsoft.com/dotnet/sdk:11.0-alpine \
             sh -c "apk add --no-cache clang build-base zlib-dev && \
                    dotnet publish src/SupercellProxy.Keys/SupercellProxy.Keys.csproj \
                    -c Release \
