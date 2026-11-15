@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.Bar;
 public sealed record MuteFriendMessage(LongId AvatarId) : CodecMessage<MuteFriendMessage>, ICodecProvider<MuteFriendMessage>
 {
     /// <inheritdoc />
-    public static ICodec<MuteFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new MuteFriendMessage(avatarId));
+    public static ICodec<MuteFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new MuteFriendMessage(avatarId));
 }

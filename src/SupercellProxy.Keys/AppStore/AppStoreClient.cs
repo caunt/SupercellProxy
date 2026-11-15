@@ -12,8 +12,7 @@ internal sealed class AppStoreClient(HttpClient client)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(query);
 
-        string address =
-            $"https://itunes.apple.com/search?entity=software,iPadSoftware&country={Country}&limit=20"
+        string address = $"https://itunes.apple.com/search?entity=software,iPadSoftware&country={Country}&limit=20"
             + $"&term={Uri.EscapeDataString(query)}";
 
         using HttpResponseMessage response = await _client.SendWithRetryAsync(() => new HttpRequestMessage(HttpMethod.Get, address), cancellationToken)

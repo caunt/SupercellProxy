@@ -22,5 +22,9 @@ public sealed record ReportEventSeenMessage(string? EventName, int EventId, int 
         static message => message.Source,
         Codecs.VarInt,
         static message => message.Value,
-        static (eventName, eventId, variantId, source, @value) => new ReportEventSeenMessage(eventName, eventId, variantId, source, value));
+        static (eventName, eventId, variantId, source, @value) => new ReportEventSeenMessage(eventName,
+            eventId,
+            variantId,
+            source,
+            value));
 }

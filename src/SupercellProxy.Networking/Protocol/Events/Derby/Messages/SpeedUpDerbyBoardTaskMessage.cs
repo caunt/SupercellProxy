@@ -19,7 +19,10 @@ public sealed record SpeedUpDerbyBoardTaskMessage(int TaskBoardIndex, int Diamon
             static message => message.NeighborhoodId,
             Codecs.LongId,
             static message => message.PlayerId,
-            static (taskBoardIndex, diamondCost, neighborhoodId, playerId) => new SpeedUpDerbyBoardTaskMessage(taskBoardIndex, diamondCost, neighborhoodId, playerId)),
+            static (taskBoardIndex, diamondCost, neighborhoodId, playerId) => new SpeedUpDerbyBoardTaskMessage(taskBoardIndex,
+                diamondCost,
+                neighborhoodId,
+                playerId)),
         trailingDataMessage: "The derby message has trailing data.");
 
     /// <summary>Omits identifiers from diagnostic text.</summary>

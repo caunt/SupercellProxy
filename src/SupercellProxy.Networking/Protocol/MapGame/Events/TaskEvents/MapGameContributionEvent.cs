@@ -26,6 +26,11 @@ public sealed record MapGameContributionEvent(int Type, LongId? AvatarId, MapGam
             static mapGameEvent => mapGameEvent.Amount,
             Codecs.VarInt,
             static mapGameEvent => mapGameEvent.Value,
-            (avatarId, pawn, dataGlobalId, amount, value) => new MapGameContributionEvent(type, avatarId, pawn, dataGlobalId, amount, value));
+            (avatarId, pawn, dataGlobalId, amount, value) => new MapGameContributionEvent(type,
+                avatarId,
+                pawn,
+                dataGlobalId,
+                amount,
+                value));
     }
 }

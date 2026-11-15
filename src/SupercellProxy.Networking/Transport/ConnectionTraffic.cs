@@ -23,7 +23,9 @@ internal sealed class ConnectionTraffic(TimeProvider timeProvider)
 
         RemoveExpired(now);
 
-        double seconds = Math.Clamp(timeProvider.GetElapsedTime(_started, now).TotalSeconds, min: 0, ConnectionTrafficSnapshot.AveragingWindow.TotalSeconds);
+        double seconds = Math.Clamp(timeProvider.GetElapsedTime(_started, now).TotalSeconds,
+            min: 0,
+            ConnectionTrafficSnapshot.AveragingWindow.TotalSeconds);
 
         return new(_connectedAt,
             TimeSpan.FromSeconds(seconds),

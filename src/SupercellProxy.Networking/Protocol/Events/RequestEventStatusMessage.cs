@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events;
 public sealed record RequestEventStatusMessage(int EventId) : CodecMessage<RequestEventStatusMessage>, ICodecProvider<RequestEventStatusMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestEventStatusMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.EventId, static eventId => new RequestEventStatusMessage(eventId));
+    public static ICodec<RequestEventStatusMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.EventId,
+        static eventId => new RequestEventStatusMessage(eventId));
 }

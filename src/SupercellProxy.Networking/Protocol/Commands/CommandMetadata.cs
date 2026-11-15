@@ -19,12 +19,17 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
         static metadata => metadata.DebugData0,
         DebugDataCodec(),
         static metadata => metadata.DebugData1,
-        static (executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(ServerCommandId: null, executionPhaseCounter, debugData0, debugData1));
+        static (executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(ServerCommandId: null,
+            executionPhaseCounter,
+            debugData0,
+            debugData1));
 
     /// <summary>
     /// Gets the metadata codec of clientbound commands, which lead with the server command id.
     /// </summary>
-    internal static ICodec<CommandMetadata> ServerCodec { get; } = Codecs.Composite(Codecs.Map(Codecs.VarInt, static id => Validate(id), static id => Validate(id)),
+    internal static ICodec<CommandMetadata> ServerCodec { get; } = Codecs.Composite(Codecs.Map(Codecs.VarInt,
+            static id => Validate(id),
+            static id => Validate(id)),
         static metadata => metadata.ServerCommandId ?? throw new InvalidDataException(MissingServerCommandIdMessage),
         Codecs.VarInt,
         static metadata => metadata.ExecutionPhaseCounter,
@@ -32,14 +37,20 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
         static metadata => metadata.DebugData0,
         DebugDataCodec(),
         static metadata => metadata.DebugData1,
-        static (serverCommandId, executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(serverCommandId, executionPhaseCounter, debugData0, debugData1));
+        static (serverCommandId, executionPhaseCounter, debugData0, debugData1) => new CommandMetadata(serverCommandId,
+            executionPhaseCounter,
+            debugData0,
+            debugData1));
 
     /// <summary>
     /// Gets the metadata a command carries.
     /// </summary>
     internal static CommandMetadata Of(Command command)
     {
-        return new CommandMetadata((command as ServerCommand)?.ServerCommandId, command.ExecutionPhaseCounter, command.DebugData0, command.DebugData1);
+        return new CommandMetadata((command as ServerCommand)?.ServerCommandId,
+            command.ExecutionPhaseCounter,
+            command.DebugData0,
+            command.DebugData1);
     }
 
     /// <summary>

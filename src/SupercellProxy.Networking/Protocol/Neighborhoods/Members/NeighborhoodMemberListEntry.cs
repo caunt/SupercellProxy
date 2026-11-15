@@ -41,5 +41,13 @@ public sealed record NeighborhoodMemberListEntry(LongId Id,
         static entry => entry.Members,
         Codecs.OptionalLongId,
         static entry => entry.OwnerId,
-        static (id, value0, value1, value2, value3, flag, name, members, ownerId) => new NeighborhoodMemberListEntry(id, value0, value1, value2, value3, flag, name, members, ownerId));
+        static (id, value0, value1, value2, value3, flag, name, members, ownerId) => new NeighborhoodMemberListEntry(id,
+            value0,
+            value1,
+            value2,
+            value3,
+            flag,
+            name,
+            members,
+            ownerId));
 }

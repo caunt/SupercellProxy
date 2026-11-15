@@ -25,5 +25,10 @@ public sealed record SearchNeighborhoodMessage(string? Query, int MinimumMembers
         static message => message.NeighborhoodId,
         Codecs.Boolean,
         static message => message.JoinableOnly,
-        static (query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly) => new SearchNeighborhoodMessage(query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly));
+        static (query, minimumMembers, maximumMembers, requiredLevel, neighborhoodId, joinableOnly) => new SearchNeighborhoodMessage(query,
+            minimumMembers,
+            maximumMembers,
+            requiredLevel,
+            neighborhoodId,
+            joinableOnly));
 }

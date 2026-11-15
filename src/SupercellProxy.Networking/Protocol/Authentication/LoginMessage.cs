@@ -302,6 +302,12 @@ public sealed record LoginMessage : CodecMessage<LoginMessage>, ICodecProvider<L
             static device => device.IsAndroid,
             Codecs.OptionalUtf8String,
             static device => device.OsVersion,
-            static (uniqueDeviceId, openUniqueDeviceId, macAddress, deviceModel, advertisingId, isAndroid, osVersion) => new DeviceIdentity(uniqueDeviceId, openUniqueDeviceId, macAddress, deviceModel, advertisingId, isAndroid, osVersion));
+            static (uniqueDeviceId, openUniqueDeviceId, macAddress, deviceModel, advertisingId, isAndroid, osVersion) => new DeviceIdentity(uniqueDeviceId,
+                openUniqueDeviceId,
+                macAddress,
+                deviceModel,
+                advertisingId,
+                isAndroid,
+                osVersion));
     }
 }

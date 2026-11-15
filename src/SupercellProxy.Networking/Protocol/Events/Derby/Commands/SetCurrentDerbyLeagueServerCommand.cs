@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands;
 public sealed record SetCurrentDerbyLeagueServerCommand(int LeagueIndex) : CodecServerCommand<SetCurrentDerbyLeagueServerCommand>, ICommandCodecProvider<SetCurrentDerbyLeagueServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetCurrentDerbyLeagueServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.LeagueIndex, static leagueIndex => new SetCurrentDerbyLeagueServerCommand(leagueIndex)));
+    public static CommandCodec<SetCurrentDerbyLeagueServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.LeagueIndex,
+        static leagueIndex => new SetCurrentDerbyLeagueServerCommand(leagueIndex)));
 }

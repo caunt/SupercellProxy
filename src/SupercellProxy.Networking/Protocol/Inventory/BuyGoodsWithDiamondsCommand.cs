@@ -19,5 +19,8 @@ public sealed record BuyGoodsWithDiamondsCommand(ReadOnlyMemory<DiamondGoodsPurc
         static command => command.ReasonDataGlobalId,
         Codecs.VarInt,
         static command => command.ReasonValue,
-        static (goods, reason, reasonDataGlobalId, reasonValue) => new BuyGoodsWithDiamondsCommand(goods, reason, reasonDataGlobalId, reasonValue)));
+        static (goods, reason, reasonDataGlobalId, reasonValue) => new BuyGoodsWithDiamondsCommand(goods,
+            reason,
+            reasonDataGlobalId,
+            reasonValue)));
 }

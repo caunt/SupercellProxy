@@ -25,5 +25,8 @@ public readonly record struct ClientTurnHeader(int Checksum, int SubTick, Immuta
                 : count,
             static count => count),
         static header => header.CommandCount,
-        static (checksum, subTick, subChecksums, commandCount) => new ClientTurnHeader(checksum, subTick, subChecksums, commandCount));
+        static (checksum, subTick, subChecksums, commandCount) => new ClientTurnHeader(checksum,
+            subTick,
+            subChecksums,
+            commandCount));
 }

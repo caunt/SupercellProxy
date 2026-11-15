@@ -441,7 +441,8 @@ internal static class MachOKeyVersionExtractor
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
 
-                registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
+                registers[word & 31] = new RegisterValue(ValueKind.Address,
+                    (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
             {
@@ -506,7 +507,10 @@ internal static class MachOKeyVersionExtractor
 
             uint constructorCall = image.Word(address + 4);
 
-            return (constructorCall & CallMask) == Call && PublishesHello(image, Branch(address + 4, constructorCall), encoder, typeSlot);
+            return (constructorCall & CallMask) == Call && PublishesHello(image,
+                Branch(address + 4, constructorCall),
+                encoder,
+                typeSlot);
         }
 
         return false;
@@ -572,7 +576,8 @@ internal static class MachOKeyVersionExtractor
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
 
-                registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
+                registers[word & 31] = new RegisterValue(ValueKind.Address,
+                    (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
             {

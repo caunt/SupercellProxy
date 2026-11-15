@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Surveys;
 public sealed record SurveyEventMessage(ReadOnlyMemory<byte>? Payload) : CodecMessage<SurveyEventMessage>, ICodecProvider<SurveyEventMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SurveyEventMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray, static message => message.Payload, static payload => new SurveyEventMessage(payload));
+    public static ICodec<SurveyEventMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray,
+        static message => message.Payload,
+        static payload => new SurveyEventMessage(payload));
 }

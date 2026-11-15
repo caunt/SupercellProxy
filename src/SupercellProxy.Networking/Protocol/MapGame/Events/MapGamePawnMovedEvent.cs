@@ -42,5 +42,13 @@ public sealed record MapGamePawnMovedEvent(int SourceNodeId,
         static mapGameEvent => mapGameEvent.DestinationTask,
         Codecs.Optional(MapGameTaskList.Codec),
         static mapGameEvent => mapGameEvent.EscapedAnimals,
-        static (sourceNodeId, reachedNodeId, fuelSpent, pawn, visitedNodeIds, continuationRoute, emptyNodeTask, destinationTask, escapedAnimals) => new MapGamePawnMovedEvent(sourceNodeId, reachedNodeId, fuelSpent, pawn, visitedNodeIds, continuationRoute, emptyNodeTask, destinationTask, escapedAnimals));
+        static (sourceNodeId, reachedNodeId, fuelSpent, pawn, visitedNodeIds, continuationRoute, emptyNodeTask, destinationTask, escapedAnimals) => new MapGamePawnMovedEvent(sourceNodeId,
+            reachedNodeId,
+            fuelSpent,
+            pawn,
+            visitedNodeIds,
+            continuationRoute,
+            emptyNodeTask,
+            destinationTask,
+            escapedAnimals));
 }

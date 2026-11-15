@@ -25,5 +25,10 @@ public sealed record NeighborhoodItemReceivedServerCommand(LongId RequesterHomeI
         static command => command.Request,
         Codecs.VarInt,
         static command => command.DonationIndex,
-        static (requesterHomeId, donorHomeId, requestId, amount, request, donationIndex) => new NeighborhoodItemReceivedServerCommand(requesterHomeId, donorHomeId, requestId, amount, request, donationIndex)));
+        static (requesterHomeId, donorHomeId, requestId, amount, request, donationIndex) => new NeighborhoodItemReceivedServerCommand(requesterHomeId,
+            donorHomeId,
+            requestId,
+            amount,
+            request,
+            donationIndex)));
 }

@@ -35,5 +35,13 @@ public sealed record NewspaperStoryEntry(int Value0, int Value1, int Value2, boo
         static value => value.Text3,
         Codecs.OptionalUtf8String,
         static value => value.Text4,
-        static (value0, value1, value2, flag, text0, text1, text2, text3, text4) => new NewspaperStoryEntry(value0, value1, value2, flag, text0, text1, text2, text3, text4));
+        static (value0, value1, value2, flag, text0, text1, text2, text3, text4) => new NewspaperStoryEntry(value0,
+            value1,
+            value2,
+            flag,
+            text0,
+            text1,
+            text2,
+            text3,
+            text4));
 }

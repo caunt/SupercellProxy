@@ -20,7 +20,9 @@ public sealed record StartTutorialCommand : CodecCommand<StartTutorialCommand>, 
     }
 
     /// <inheritdoc />
-    public static CommandCodec<StartTutorialCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TutorialGlobalId, static tutorialGlobalId => new StartTutorialCommand(tutorialGlobalId)));
+    public static CommandCodec<StartTutorialCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.TutorialGlobalId,
+        static tutorialGlobalId => new StartTutorialCommand(tutorialGlobalId)));
 
     /// <summary>
     /// Gets the global id of the started step in the tutorials table.

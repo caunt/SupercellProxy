@@ -27,5 +27,10 @@ public sealed record PickedPassenger(int Unknown0, int Unknown1, int PassengerGl
         static value => value.UnknownId1,
         Codecs.OptionalUtf8String,
         static value => value.PassengerDocument,
-        static (unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument) => new PickedPassenger(unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument));
+        static (unknown0, unknown1, passengerGlobalId, pickupHomeId, unknownId1, passengerDocument) => new PickedPassenger(unknown0,
+            unknown1,
+            passengerGlobalId,
+            pickupHomeId,
+            unknownId1,
+            passengerDocument));
 }

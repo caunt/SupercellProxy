@@ -16,6 +16,8 @@ public sealed record StartWorkbenchPerkBuildCommand(int WorkbenchObjectGlobalId,
             static command => command.PerkGlobalId,
             Codecs.VarInt,
             static command => command.Price,
-            static (workbenchObjectGlobalId, perkGlobalId, price) => new StartWorkbenchPerkBuildCommand(workbenchObjectGlobalId, perkGlobalId, price)),
+            static (workbenchObjectGlobalId, perkGlobalId, price) => new StartWorkbenchPerkBuildCommand(workbenchObjectGlobalId,
+                perkGlobalId,
+                price)),
         CommandLayout.MetadataFirst);
 }

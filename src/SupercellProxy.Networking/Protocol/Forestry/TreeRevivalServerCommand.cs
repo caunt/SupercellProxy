@@ -19,5 +19,8 @@ public sealed record TreeRevivalServerCommand(LongId OwnerHomeId, LongId HelperH
         static command => command.PlantHelpId,
         Codecs.Memory(RevivalReward.Codec),
         static command => command.HelperRewards,
-        static (ownerHomeId, helperHomeId, plantHelpId, helperRewards) => new TreeRevivalServerCommand(ownerHomeId, helperHomeId, plantHelpId, helperRewards)));
+        static (ownerHomeId, helperHomeId, plantHelpId, helperRewards) => new TreeRevivalServerCommand(ownerHomeId,
+            helperHomeId,
+            plantHelpId,
+            helperRewards)));
 }

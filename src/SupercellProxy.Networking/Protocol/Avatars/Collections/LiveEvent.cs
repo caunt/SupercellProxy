@@ -216,7 +216,8 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
                 ?? throw new InvalidDataException(message: "The event document is null.");
         }
 
-        byte[] document = InflatedDocuments.GetValue(this, static liveEvent => liveEvent.CompressedData is { } bytes ? CompressedDocument.Decompress(bytes) : []);
+        byte[] document = InflatedDocuments.GetValue(this,
+            static liveEvent => liveEvent.CompressedData is { } bytes ? CompressedDocument.Decompress(bytes) : []);
 
         return JsonSerializer.Deserialize<TValue>(document)
             ?? throw new InvalidDataException($"Compressed JSON did not contain a {typeof(TValue).Name} value.");

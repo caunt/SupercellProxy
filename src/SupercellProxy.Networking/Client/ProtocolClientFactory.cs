@@ -38,6 +38,10 @@ public sealed class ProtocolClientFactory(IHttpClientFactory webClients,
     /// <returns>A new <see cref="ProtocolClient"/> bound to <paramref name="stream"/> that has no login configuration, so it cannot connect on its own.</returns>
     public ProtocolClient Create(MessageChannel stream)
     {
-        return new(stream, webClients.CreateClient(ClientWebClientName), timeProvider, loggerFactory.CreateLogger<ProtocolClient>(), serverKeys);
+        return new(stream,
+            webClients.CreateClient(ClientWebClientName),
+            timeProvider,
+            loggerFactory.CreateLogger<ProtocolClient>(),
+            serverKeys);
     }
 }

@@ -19,7 +19,10 @@ public sealed record TakeDerbyTaskMessage(int TaskBoardIndex, bool RestoreActive
             static message => message.NeighborhoodId,
             Codecs.LongId,
             static message => message.PlayerId,
-            static (taskBoardIndex, restoreActiveTask, neighborhoodId, playerId) => new TakeDerbyTaskMessage(taskBoardIndex, restoreActiveTask, neighborhoodId, playerId)),
+            static (taskBoardIndex, restoreActiveTask, neighborhoodId, playerId) => new TakeDerbyTaskMessage(taskBoardIndex,
+                restoreActiveTask,
+                neighborhoodId,
+                playerId)),
         trailingDataMessage: "The derby message has trailing data.");
 
     /// <summary>Omits identifiers from diagnostic text.</summary>

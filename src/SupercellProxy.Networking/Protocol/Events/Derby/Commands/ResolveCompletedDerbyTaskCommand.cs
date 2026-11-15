@@ -16,5 +16,7 @@ public sealed record ResolveCompletedDerbyTaskCommand(int TaskBoardIndex, int Ta
         static command => command.TaskGlobalId,
         Codecs.Enum<DerbyTaskCompletionAction>(Codecs.VarInt),
         static command => command.Action,
-        static (taskBoardIndex, taskGlobalId, action) => new ResolveCompletedDerbyTaskCommand(taskBoardIndex, taskGlobalId, action)));
+        static (taskBoardIndex, taskGlobalId, action) => new ResolveCompletedDerbyTaskCommand(taskBoardIndex,
+            taskGlobalId,
+            action)));
 }

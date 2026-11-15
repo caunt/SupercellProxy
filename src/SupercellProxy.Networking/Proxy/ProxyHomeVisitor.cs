@@ -29,14 +29,16 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
                     cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            OtherHomeDataMessage otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(TimeSpan.FromSeconds(seconds: 15), cancellationToken)
+            OtherHomeDataMessage otherHomeDataMessage = await ExpectMessageAsync<OtherHomeDataMessage>(TimeSpan.FromSeconds(seconds: 15),
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             do
             {
                 try
                 {
-                    EndClientTurnMessage endClientTurnMessage = await ExpectMessageAsync<EndClientTurnMessage>(TimeSpan.FromSeconds(seconds: 3), cancellationToken)
+                    EndClientTurnMessage endClientTurnMessage = await ExpectMessageAsync<EndClientTurnMessage>(TimeSpan.FromSeconds(seconds: 3),
+                        cancellationToken)
                         .ConfigureAwait(continueOnCapturedContext: false);
 
                     if (endClientTurnMessage.SubTick is 0)

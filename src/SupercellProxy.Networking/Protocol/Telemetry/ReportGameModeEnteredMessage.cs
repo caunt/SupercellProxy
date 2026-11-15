@@ -25,7 +25,10 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
             static message => message.Counters,
             Codecs.Memory(Codecs.VarLong),
             static message => message.Timestamps,
-            static (gameMode, counterIds, counters, timestamps) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)),
+            static (gameMode, counterIds, counters, timestamps) => new ReportGameModeEnteredMessage(gameMode,
+                counterIds,
+                counters,
+                timestamps)),
         Codecs.Composite(Codecs.Memory(Codecs.VarLong),
             static message => message.Timestamps,
             Codecs.OptionalUtf8String,
@@ -34,5 +37,8 @@ public sealed record ReportGameModeEnteredMessage(string? GameMode, ReadOnlyMemo
             static message => message.Counters,
             Codecs.Memory(Codecs.VarLong),
             static message => message.CounterIds,
-            static (timestamps, gameMode, counters, counterIds) => new ReportGameModeEnteredMessage(gameMode, counterIds, counters, timestamps)));
+            static (timestamps, gameMode, counters, counterIds) => new ReportGameModeEnteredMessage(gameMode,
+                counterIds,
+                counters,
+                timestamps)));
 }

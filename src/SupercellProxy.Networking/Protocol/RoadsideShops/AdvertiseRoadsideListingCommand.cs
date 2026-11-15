@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.RoadsideShops;
 public sealed record AdvertiseRoadsideListingCommand(int SlotIndex) : CodecCommand<AdvertiseRoadsideListingCommand>, ICommandCodecProvider<AdvertiseRoadsideListingCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AdvertiseRoadsideListingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new AdvertiseRoadsideListingCommand(slotIndex)),
+    public static CommandCodec<AdvertiseRoadsideListingCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.SlotIndex,
+            static slotIndex => new AdvertiseRoadsideListingCommand(slotIndex)),
         CommandLayout.MetadataFirst);
 }

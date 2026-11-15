@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record ReportLoginCountryMessage(ReadOnlyMemory<byte>? Data) : CodecMessage<ReportLoginCountryMessage>, ICodecProvider<ReportLoginCountryMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportLoginCountryMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray, static message => message.Data, static data => new ReportLoginCountryMessage(data));
+    public static ICodec<ReportLoginCountryMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray,
+        static message => message.Data,
+        static data => new ReportLoginCountryMessage(data));
 }

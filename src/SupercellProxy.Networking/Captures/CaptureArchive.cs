@@ -40,13 +40,16 @@ public sealed class CaptureArchive(string root, string? assetCache = null)
             .LockAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        available = _retained.TryGetValue(identity, out retained) && File.Exists(Path.Combine(retained, RetainedAssetManifest.FileName));
+        available = _retained.TryGetValue(identity, out retained) && File.Exists(Path.Combine(retained,
+            RetainedAssetManifest.FileName));
 
         if (available)
             return retained ?? throw new InvalidDataException(message: "The retained asset path is missing.");
 
         string destination = Path.Combine(VersionDirectory(identity), AssetsDirectoryName, identity.AssetFingerprint);
-        string source = Directory.Exists(destination) ? destination : GameAssetSnapshot.FindSource(assetCache ?? UserDataPaths.AssetDirectoryPath, identity.AssetFingerprint);
+
+        string source = Directory.Exists(destination) ? destination : GameAssetSnapshot.FindSource(assetCache ?? UserDataPaths.AssetDirectoryPath,
+            identity.AssetFingerprint);
 
         await GameAssetSnapshot.RetainAsync(source, destination, identity.AssetFingerprint, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);

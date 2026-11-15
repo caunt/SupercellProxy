@@ -23,7 +23,11 @@ public sealed record JoinRequestNeighborhoodStreamEntry(StreamEntryHeader Header
         static entry => entry.State,
         Codecs.OptionalUtf8String,
         static entry => entry.SourceId,
-        static (header, message, responderName, state, sourceId) => new JoinRequestNeighborhoodStreamEntry(header, message, responderName, state, sourceId));
+        static (header, message, responderName, state, sourceId) => new JoinRequestNeighborhoodStreamEntry(header,
+            message,
+            responderName,
+            state,
+            sourceId));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

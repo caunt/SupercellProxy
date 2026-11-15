@@ -16,5 +16,7 @@ public sealed record ReportAdvertisementStartedMessage(string? Network, string? 
         static message => message.Placement,
         Codecs.OptionalUtf8String,
         static message => message.AdvertisementId,
-        static (network, placement, advertisementId) => new ReportAdvertisementStartedMessage(network, placement, advertisementId));
+        static (network, placement, advertisementId) => new ReportAdvertisementStartedMessage(network,
+            placement,
+            advertisementId));
 }

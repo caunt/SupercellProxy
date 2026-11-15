@@ -13,7 +13,8 @@ public sealed class SessionTokenData
 {
     private const uint AdlerModulus = 65_521;
 
-    private static readonly UTF8Encoding StrictUnicodeTransformationFormat8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+    private static readonly UTF8Encoding StrictUnicodeTransformationFormat8 = new(encoderShouldEmitUTF8Identifier: false,
+        throwOnInvalidBytes: true);
 
     private readonly byte[] _wireData;
 
@@ -80,7 +81,10 @@ public sealed class SessionTokenData
         int decodedLength = BinaryPrimitives.ReadInt32LittleEndian(wireData.Span);
 
         if (decodedLength < 0)
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Compressed session token has invalid decoded length {decodedLength}."));
+        {
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                $"Compressed session token has invalid decoded length {decodedLength}."));
+        }
 
         using MemoryStream input = new(wireData[sizeof(int)..].ToArray(), writable: false);
 
@@ -94,7 +98,8 @@ public sealed class SessionTokenData
         }
         catch (EndOfStreamException exception)
         {
-            throw new InvalidDataException(message: "Compressed session token ended before its declared decoded length.", exception);
+            throw new InvalidDataException(message: "Compressed session token ended before its declared decoded length.",
+                exception);
         }
 
         if (zlib.ReadByte() is not -1)
@@ -223,7 +228,9 @@ public sealed class SessionTokenData
             throw new InvalidDataException($"Session token {name} is not valid unpadded Base64URL.");
 
         int padding = (4 - (value.Length % 4)) % 4;
-        string encoded = value.Replace(oldChar: '-', newChar: '+').Replace(oldChar: '_', newChar: '/') + new string(c: '=', padding);
+
+        string encoded = value.Replace(oldChar: '-', newChar: '+').Replace(oldChar: '_', newChar: '/') + new string(c: '=',
+            padding);
 
         try
         {

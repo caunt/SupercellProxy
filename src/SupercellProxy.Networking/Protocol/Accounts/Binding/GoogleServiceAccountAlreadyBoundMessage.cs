@@ -31,5 +31,10 @@ public sealed record GoogleServiceAccountAlreadyBoundMessage(int SecondsSinceLas
         static message => message.IsSupercellId,
         ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, googleServiceId, accountId, passToken, isSupercellId, avatar) => new GoogleServiceAccountAlreadyBoundMessage(secondsSinceLastPlayed, googleServiceId, accountId, passToken, isSupercellId, avatar));
+        static (secondsSinceLastPlayed, googleServiceId, accountId, passToken, isSupercellId, avatar) => new GoogleServiceAccountAlreadyBoundMessage(secondsSinceLastPlayed,
+            googleServiceId,
+            accountId,
+            passToken,
+            isSupercellId,
+            avatar));
 }

@@ -194,7 +194,9 @@ public sealed record ShopEvent : ICodecProvider<ShopEvent>
                         static binaryData => new EventDocument(binaryData, string.Empty),
                         static document => document.BinaryData.GetValueOrDefault())),
                 new KeyValuePair<bool, ICodec<EventDocument>>(key: false,
-                    Codecs.Map(Codecs.Utf8String, static textData => new EventDocument(BinaryData: null, textData), static document => document.TextData)),
+                    Codecs.Map(Codecs.Utf8String,
+                        static textData => new EventDocument(BinaryData: null, textData),
+                        static document => document.TextData)),
             ]);
     }
 }

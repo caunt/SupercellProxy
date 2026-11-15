@@ -23,5 +23,8 @@ public sealed record BoatCrateHelpEntry(int ExpirationTimestamp, int RequestKind
         static value => value.CrateIndex,
         Codecs.OptionalLongId,
         static value => value.HelperId,
-        static (expirationTimestamp, requestKind, crateIndex, helperId) => new BoatCrateHelpEntry(expirationTimestamp, requestKind, crateIndex, helperId));
+        static (expirationTimestamp, requestKind, crateIndex, helperId) => new BoatCrateHelpEntry(expirationTimestamp,
+            requestKind,
+            crateIndex,
+            helperId));
 }

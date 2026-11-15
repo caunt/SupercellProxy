@@ -16,6 +16,8 @@ public sealed record SelectCustomizationsCommand(int CustomizationGlobalId, Read
             static command => command.OptionGlobalIds,
             Codecs.VarInt,
             static command => command.ObjectGlobalId,
-            static (customizationGlobalId, optionGlobalIds, objectGlobalId) => new SelectCustomizationsCommand(customizationGlobalId, optionGlobalIds, objectGlobalId)),
+            static (customizationGlobalId, optionGlobalIds, objectGlobalId) => new SelectCustomizationsCommand(customizationGlobalId,
+                optionGlobalIds,
+                objectGlobalId)),
         CommandLayout.MetadataFirst);
 }

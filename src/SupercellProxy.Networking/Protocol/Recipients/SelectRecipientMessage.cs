@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Recipients;
 public sealed record SelectRecipientMessage(LongId RecipientId) : CodecMessage<SelectRecipientMessage>, ICodecProvider<SelectRecipientMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SelectRecipientMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId, static message => message.RecipientId, static recipientId => new SelectRecipientMessage(recipientId)),
+    public static ICodec<SelectRecipientMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId,
+            static message => message.RecipientId,
+            static recipientId => new SelectRecipientMessage(recipientId)),
         trailingDataMessage: "The recipient request has trailing data.");
 
     /// <summary>Omits the private recipient identifier from diagnostics.</summary>

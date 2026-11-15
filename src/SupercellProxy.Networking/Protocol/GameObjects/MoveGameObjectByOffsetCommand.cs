@@ -51,7 +51,13 @@ public sealed record MoveGameObjectByOffsetCommand : CodecCommand<MoveGameObject
         static command => command.ExpectedDataGlobalId,
         Codecs.Boolean,
         static command => command.Mirrored,
-        static (gameObjectGlobalId, logicOffsetX, logicOffsetY, expectedTileX, expectedTileY, expectedDataGlobalId, mirrored) => new MoveGameObjectByOffsetCommand(gameObjectGlobalId, logicOffsetX, logicOffsetY, expectedTileX, expectedTileY, expectedDataGlobalId, mirrored)));
+        static (gameObjectGlobalId, logicOffsetX, logicOffsetY, expectedTileX, expectedTileY, expectedDataGlobalId, mirrored) => new MoveGameObjectByOffsetCommand(gameObjectGlobalId,
+            logicOffsetX,
+            logicOffsetY,
+            expectedTileX,
+            expectedTileY,
+            expectedDataGlobalId,
+            mirrored)));
 
     /// <summary>Gets the global id of the object's table entry.</summary>
     /// <value>The data global id of the object's current table row.</value>

@@ -148,7 +148,10 @@ public sealed record RemoteOrder(ReadOnlyMemory<int> DataGlobalIds,
             static segment => segment.BonusRewardGlobalId,
             Codecs.VarInt,
             static segment => segment.BonusCount,
-            static (bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount) => new Bonus(bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount));
+            static (bonusRewardEnabled, bonusEventId, bonusRewardGlobalId, bonusCount) => new Bonus(bonusRewardEnabled,
+                bonusEventId,
+                bonusRewardGlobalId,
+                bonusCount));
     }
 
     // The helper state.
@@ -162,7 +165,10 @@ public sealed record RemoteOrder(ReadOnlyMemory<int> DataGlobalIds,
             static segment => segment.HelperCompleted,
             Codecs.Boolean,
             static segment => segment.HelperGranted,
-            static (helperId, helperRewardData, helperCompleted, helperGranted) => new Helper(helperId, helperRewardData, helperCompleted, helperGranted));
+            static (helperId, helperRewardData, helperCompleted, helperGranted) => new Helper(helperId,
+                helperRewardData,
+                helperCompleted,
+                helperGranted));
     }
 
     // The cash and experience rewards.

@@ -41,5 +41,13 @@ public sealed record NeighborhoodComparisonEntry(LongId? AvatarId,
         static value => value.Value1,
         Codecs.VarInt,
         static value => value.Value2,
-        static (avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2) => new NeighborhoodComparisonEntry(avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2));
+        static (avatarId, homeId, neighborhoodId, name, badge, id, value0, value1, value2) => new NeighborhoodComparisonEntry(avatarId,
+            homeId,
+            neighborhoodId,
+            name,
+            badge,
+            id,
+            value0,
+            value1,
+            value2));
 }

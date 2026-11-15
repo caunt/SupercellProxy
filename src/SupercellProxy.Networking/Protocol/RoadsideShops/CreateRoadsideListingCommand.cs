@@ -44,7 +44,12 @@ public sealed record CreateRoadsideListingCommand
                 static command => command.Price,
                 Codecs.VarInt,
                 static command => command.Quantity,
-                static (itemGlobalId, advertise, slotIndex, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity)),
+                static (itemGlobalId, advertise, slotIndex, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise,
+                    slotIndex,
+                    itemGlobalId,
+                    usePrimaryInventory,
+                    price,
+                    quantity)),
             Codecs.Composite(Codecs.Boolean,
                 static command => command.Advertise,
                 Codecs.VarInt,
@@ -57,7 +62,12 @@ public sealed record CreateRoadsideListingCommand
                 static command => command.Price,
                 Codecs.VarInt,
                 static command => command.Quantity,
-                static (advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity))),
+                static (advertise, slotIndex, itemGlobalId, usePrimaryInventory, price, quantity) => new CreateRoadsideListingCommand(advertise,
+                    slotIndex,
+                    itemGlobalId,
+                    usePrimaryInventory,
+                    price,
+                    quantity))),
         CommandLayout.MetadataFirst);
 
     /// <summary>

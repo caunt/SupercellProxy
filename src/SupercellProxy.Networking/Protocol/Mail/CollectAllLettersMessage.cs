@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Mail;
 public sealed record CollectAllLettersMessage(bool Shuffle) : CodecMessage<CollectAllLettersMessage>, ICodecProvider<CollectAllLettersMessage>
 {
     /// <inheritdoc />
-    public static ICodec<CollectAllLettersMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean, static message => message.Shuffle, static shuffle => new CollectAllLettersMessage(shuffle));
+    public static ICodec<CollectAllLettersMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
+        static message => message.Shuffle,
+        static shuffle => new CollectAllLettersMessage(shuffle));
 }

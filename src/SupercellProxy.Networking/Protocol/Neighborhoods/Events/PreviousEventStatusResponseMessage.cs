@@ -22,5 +22,8 @@ public sealed record PreviousEventStatusResponseMessage(ReadOnlyMemory<PreviousE
         static message => message.Status,
         Codecs.OptionalUtf8String,
         static message => message.EventName,
-        static (memberScores, neighborhoods, status, eventName) => new PreviousEventStatusResponseMessage(memberScores, neighborhoods, status, eventName));
+        static (memberScores, neighborhoods, status, eventName) => new PreviousEventStatusResponseMessage(memberScores,
+            neighborhoods,
+            status,
+            eventName));
 }

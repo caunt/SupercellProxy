@@ -43,7 +43,12 @@ public sealed record MapGameNodeEmoji : ICodecProvider<MapGameNodeEmoji>
         static value => value.TicksRemaining,
         Codecs.Memory(Codecs.LongId),
         static value => value.CollectorAvatarIds,
-        static (emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds) => new MapGameNodeEmoji(emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds));
+        static (emojiGlobalId, nodeId, avatarId, expirationTime, ticksRemaining, collectorAvatarIds) => new MapGameNodeEmoji(emojiGlobalId,
+            nodeId,
+            avatarId,
+            expirationTime,
+            ticksRemaining,
+            collectorAvatarIds));
 
     /// <summary>Gets the account of the player who left the emoji; <see langword="null"/> when not sent.</summary>
     /// <value>The placing player's account id, sent after <see cref="NodeId"/>; <see langword="null"/> when the wire marks it absent.</value>

@@ -22,5 +22,9 @@ public sealed record RequestShopPurchaseCommand(int EventId, int VariantId, int 
         static command => command.Origin,
         Codecs.VarInt,
         static command => command.FarmPassPurchase,
-        static (eventId, variantId, packageGlobalId, origin, farmPassPurchase) => new RequestShopPurchaseCommand(eventId, variantId, packageGlobalId, origin, farmPassPurchase)));
+        static (eventId, variantId, packageGlobalId, origin, farmPassPurchase) => new RequestShopPurchaseCommand(eventId,
+            variantId,
+            packageGlobalId,
+            origin,
+            farmPassPurchase)));
 }

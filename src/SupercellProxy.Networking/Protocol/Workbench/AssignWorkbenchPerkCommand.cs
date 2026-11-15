@@ -16,6 +16,8 @@ public sealed record AssignWorkbenchPerkCommand(int WorkbenchObjectGlobalId, int
             static command => command.MaterialGlobalId,
             Codecs.VarInt,
             static command => command.PerkGlobalId,
-            static (workbenchObjectGlobalId, materialGlobalId, perkGlobalId) => new AssignWorkbenchPerkCommand(workbenchObjectGlobalId, materialGlobalId, perkGlobalId)),
+            static (workbenchObjectGlobalId, materialGlobalId, perkGlobalId) => new AssignWorkbenchPerkCommand(workbenchObjectGlobalId,
+                materialGlobalId,
+                perkGlobalId)),
         CommandLayout.MetadataFirst);
 }

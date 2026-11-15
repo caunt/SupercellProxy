@@ -10,5 +10,7 @@ namespace SupercellProxy.Networking.Protocol.PrizeWheels;
 public sealed record CollectWheelRewardCommand(bool ClientPresentation) : CodecCommand<CollectWheelRewardCommand>, ICommandCodecProvider<CollectWheelRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectWheelRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.ClientPresentation, static presentation => new CollectWheelRewardCommand(presentation)));
+    public static CommandCodec<CollectWheelRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
+        static command => command.ClientPresentation,
+        static presentation => new CollectWheelRewardCommand(presentation)));
 }

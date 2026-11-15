@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Quests;
 public sealed record MarkMapGameDailyQuestSeenCommand(int QuestType) : CodecCommand<MarkMapGameDailyQuestSeenCommand>, ICommandCodecProvider<MarkMapGameDailyQuestSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkMapGameDailyQuestSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.QuestType, static questType => new MarkMapGameDailyQuestSeenCommand(questType)));
+    public static CommandCodec<MarkMapGameDailyQuestSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.QuestType,
+        static questType => new MarkMapGameDailyQuestSeenCommand(questType)));
 }

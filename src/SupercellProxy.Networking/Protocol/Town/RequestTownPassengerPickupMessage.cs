@@ -30,5 +30,6 @@ public sealed record RequestTownPassengerPickupMessage(ImmutableArray<int>? Help
     },
         static (stream, message) => HelpIdsCodec.Write(stream, message.HelpIds));
 
-    private static ICodec<ImmutableArray<int>?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt, CollectionCount.Unbounded);
+    private static ICodec<ImmutableArray<int>?> HelpIdsCodec => field ??= Codecs.NullableArray(Codecs.VarInt,
+        CollectionCount.Unbounded);
 }

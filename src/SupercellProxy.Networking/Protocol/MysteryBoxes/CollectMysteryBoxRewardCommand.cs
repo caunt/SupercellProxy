@@ -12,5 +12,7 @@ namespace SupercellProxy.Networking.Protocol.MysteryBoxes;
 public sealed record CollectMysteryBoxRewardCommand([property: JsonPropertyName("BoxGlobalId")] int BoxGlobalId) : CodecCommand<CollectMysteryBoxRewardCommand>, ICommandCodecProvider<CollectMysteryBoxRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectMysteryBoxRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.BoxGlobalId, static box => new CollectMysteryBoxRewardCommand(box)));
+    public static CommandCodec<CollectMysteryBoxRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.BoxGlobalId,
+        static box => new CollectMysteryBoxRewardCommand(box)));
 }

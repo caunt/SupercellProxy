@@ -18,5 +18,8 @@ public sealed record MapGamePawnNotificationEvent(LongId AvatarId, int Operation
         static mapGameEvent => mapGameEvent.Value,
         Codecs.VarInt,
         static mapGameEvent => mapGameEvent.DataGlobalId,
-        static (avatarId, operation, value, dataGlobalId) => new MapGamePawnNotificationEvent(avatarId, operation, value, dataGlobalId));
+        static (avatarId, operation, value, dataGlobalId) => new MapGamePawnNotificationEvent(avatarId,
+            operation,
+            value,
+            dataGlobalId));
 }

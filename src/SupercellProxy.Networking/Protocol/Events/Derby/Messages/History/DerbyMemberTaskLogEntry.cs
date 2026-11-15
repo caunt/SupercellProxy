@@ -27,7 +27,13 @@ public sealed record DerbyMemberTaskLogEntry(LongId PlayerId, string? PlayerName
         static value => value.TaskLimit,
         Codecs.VarInt,
         static value => value.TrashedTaskCount,
-        static (playerId, playerName, playerLevel, taskCount, points, taskLimit, trashedTaskCount) => new DerbyMemberTaskLogEntry(playerId, playerName, playerLevel, taskCount, points, taskLimit, trashedTaskCount));
+        static (playerId, playerName, playerLevel, taskCount, points, taskLimit, trashedTaskCount) => new DerbyMemberTaskLogEntry(playerId,
+            playerName,
+            playerLevel,
+            taskCount,
+            points,
+            taskLimit,
+            trashedTaskCount));
 
     /// <summary>Omits player details from diagnostic text.</summary>
     /// <returns>The type name <c>DerbyMemberTaskLogEntry</c> alone, so the member's identifier and name never reach logs.</returns>

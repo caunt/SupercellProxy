@@ -24,7 +24,11 @@ public sealed record JoinNeighborhoodResponseAvatarStreamEntry(AvatarStreamEntry
         static entry => entry.MessageText,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,
-        static (header, neighborhoodId, neighborhoodName, messageText, badge) => new JoinNeighborhoodResponseAvatarStreamEntry(header, neighborhoodId, neighborhoodName, messageText, badge));
+        static (header, neighborhoodId, neighborhoodName, messageText, badge) => new JoinNeighborhoodResponseAvatarStreamEntry(header,
+            neighborhoodId,
+            neighborhoodName,
+            messageText,
+            badge));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

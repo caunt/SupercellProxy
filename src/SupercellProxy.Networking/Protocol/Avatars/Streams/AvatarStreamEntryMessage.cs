@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 public sealed record AvatarStreamEntryMessage(AvatarStreamEntry Entry) : CodecMessage<AvatarStreamEntryMessage>, ICodecProvider<AvatarStreamEntryMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarStreamEntryMessage> Codec { get; } = Codecs.Composite(AvatarStreamEntry.Codec, static message => message.Entry, static entry => new AvatarStreamEntryMessage(entry));
+    public static ICodec<AvatarStreamEntryMessage> Codec { get; } = Codecs.Composite(AvatarStreamEntry.Codec,
+        static message => message.Entry,
+        static entry => new AvatarStreamEntryMessage(entry));
 }

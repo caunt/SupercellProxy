@@ -32,7 +32,12 @@ public sealed record ItemRequestStreamEntry(StreamEntryHeader Header,
         static entry => entry.Completed,
         Codecs.NullableMemory(NeighborhoodMemberSummary.Codec),
         static entry => entry.Donations,
-        static (header, expiresAtSeconds, itemGlobalId, quantity, completed, donations) => new ItemRequestStreamEntry(header, expiresAtSeconds, itemGlobalId, quantity, completed, donations));
+        static (header, expiresAtSeconds, itemGlobalId, quantity, completed, donations) => new ItemRequestStreamEntry(header,
+            expiresAtSeconds,
+            itemGlobalId,
+            quantity,
+            completed,
+            donations));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

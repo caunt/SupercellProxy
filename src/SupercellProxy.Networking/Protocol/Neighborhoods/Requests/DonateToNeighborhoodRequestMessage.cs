@@ -28,5 +28,11 @@ public sealed record DonateToNeighborhoodRequestMessage(int ItemGlobalId, int Am
         static message => message.RequesterName,
         Codecs.Boolean,
         static message => message.Premium,
-        static (itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium) => new DonateToNeighborhoodRequestMessage(itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium));
+        static (itemGlobalId, amount, requesterHomeId, requestId, donorHomeId, requesterName, premium) => new DonateToNeighborhoodRequestMessage(itemGlobalId,
+            amount,
+            requesterHomeId,
+            requestId,
+            donorHomeId,
+            requesterName,
+            premium));
 }

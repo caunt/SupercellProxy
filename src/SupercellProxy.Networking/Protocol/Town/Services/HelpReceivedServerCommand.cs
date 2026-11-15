@@ -33,5 +33,10 @@ public sealed record HelpReceivedServerCommand(LongId OwnerHomeId,
         static command => command.OwnerRewards,
         Codecs.Memory(HelpReward.Codec),
         static command => command.HelperRewards,
-        static (ownerHomeId, helperHomeId, helpId, helpKind, ownerRewards, helperRewards) => new HelpReceivedServerCommand(ownerHomeId, helperHomeId, helpId, helpKind, ownerRewards, helperRewards)));
+        static (ownerHomeId, helperHomeId, helpId, helpKind, ownerRewards, helperRewards) => new HelpReceivedServerCommand(ownerHomeId,
+            helperHomeId,
+            helpId,
+            helpKind,
+            ownerRewards,
+            helperRewards)));
 }

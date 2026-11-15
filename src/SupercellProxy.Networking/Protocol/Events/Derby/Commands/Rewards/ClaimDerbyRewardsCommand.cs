@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 public sealed record ClaimDerbyRewardsCommand(DerbyRewardSelection Selection) : CodecCommand<ClaimDerbyRewardsCommand>, ICommandCodecProvider<ClaimDerbyRewardsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDerbyRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(DerbyRewardSelection.Codec, static command => command.Selection, static selection => new ClaimDerbyRewardsCommand(selection)));
+    public static CommandCodec<ClaimDerbyRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(DerbyRewardSelection.Codec,
+        static command => command.Selection,
+        static selection => new ClaimDerbyRewardsCommand(selection)));
 }

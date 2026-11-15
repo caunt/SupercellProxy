@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts;
 public sealed record PurchaseLayoutSlotCommand(int SlotIndex) : CodecCommand<PurchaseLayoutSlotCommand>, ICommandCodecProvider<PurchaseLayoutSlotCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PurchaseLayoutSlotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SlotIndex, static slotIndex => new PurchaseLayoutSlotCommand(slotIndex)));
+    public static CommandCodec<PurchaseLayoutSlotCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.SlotIndex,
+        static slotIndex => new PurchaseLayoutSlotCommand(slotIndex)));
 }

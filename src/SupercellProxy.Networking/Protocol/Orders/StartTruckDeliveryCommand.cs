@@ -11,6 +11,8 @@ namespace SupercellProxy.Networking.Protocol.Orders;
 public sealed record StartTruckDeliveryCommand(int OrderIndex) : CodecCommand<StartTruckDeliveryCommand>, ICommandCodecProvider<StartTruckDeliveryCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<StartTruckDeliveryCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OrderIndex, static orderIndex => new StartTruckDeliveryCommand(orderIndex)),
+    public static CommandCodec<StartTruckDeliveryCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.OrderIndex,
+            static orderIndex => new StartTruckDeliveryCommand(orderIndex)),
         CommandLayout.MetadataFirst);
 }

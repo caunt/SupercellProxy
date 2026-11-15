@@ -32,12 +32,14 @@ public sealed record MapGameTaskState([property: JsonPropertyName("TaskGlobalId"
         LongId? avatarId = stream.ReadOptionalLongId();
         bool completed = stream.ReadBoolean();
 
-        ICommandDataResolver dataResolver =
-            stream.CommandDataResolver
+        ICommandDataResolver dataResolver = stream.CommandDataResolver
             ?? throw new NotSupportedException(message: "Map-game task-state decoding requires the live native data-table resolver.");
 
         if (!dataResolver.TryResolveString(taskGlobalId, TaskTypeFieldName, out string? taskType))
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Map-game task data reference {taskGlobalId} has no resolvable {TaskTypeFieldName} field."));
+        {
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                $"Map-game task data reference {taskGlobalId} has no resolvable {TaskTypeFieldName} field."));
+        }
 
         MapGameTaskStatePayload payload = MapGameTaskStatePayload.For(taskType).Read(stream);
 

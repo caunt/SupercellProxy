@@ -71,7 +71,8 @@ public static class ConnectionAddressResolver
     {
         using HttpClient webClient = new();
 
-        using HttpRequestMessage request = new(HttpMethod.Get, $"https://1.1.1.1/dns-query?name={Uri.EscapeDataString(host)}&type=A");
+        using HttpRequestMessage request = new(HttpMethod.Get,
+            $"https://1.1.1.1/dns-query?name={Uri.EscapeDataString(host)}&type=A");
 
         request.Headers.Accept.ParseAdd(input: "application/dns-json");
 

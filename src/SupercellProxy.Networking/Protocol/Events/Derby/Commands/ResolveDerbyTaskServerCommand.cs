@@ -28,5 +28,11 @@ public sealed record ResolveDerbyTaskServerCommand(LongId NeighborhoodId, LongId
         static command => command.ResultValue,
         Codecs.Boolean,
         static command => command.SeenExpiredTask,
-        static (neighborhoodId, playerId, taskBoardIndex, status, discarded, resultValue, seenExpiredTask) => new ResolveDerbyTaskServerCommand(neighborhoodId, playerId, taskBoardIndex, status, discarded, resultValue, seenExpiredTask)));
+        static (neighborhoodId, playerId, taskBoardIndex, status, discarded, resultValue, seenExpiredTask) => new ResolveDerbyTaskServerCommand(neighborhoodId,
+            playerId,
+            taskBoardIndex,
+            status,
+            discarded,
+            resultValue,
+            seenExpiredTask)));
 }

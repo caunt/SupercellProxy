@@ -49,5 +49,15 @@ public sealed record StreamEntryHeader(int PostedTimestamp,
         static header => header.Value,
         Codecs.OptionalValue(Codecs.Memory(StreamEntryReaction.Codec)),
         static header => header.Reactions,
-        static (postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions) => new StreamEntryHeader(postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions));
+        static (postedTimestamp, ageSeconds, isNew, removed, entryId, senderHomeId, senderFarmName, senderLevel, senderRole, value, reactions) => new StreamEntryHeader(postedTimestamp,
+            ageSeconds,
+            isNew,
+            removed,
+            entryId,
+            senderHomeId,
+            senderFarmName,
+            senderLevel,
+            senderRole,
+            value,
+            reactions));
 }

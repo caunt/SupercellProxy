@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.Book;
 public sealed record UnblockFriendMessage(LongId AvatarId) : CodecMessage<UnblockFriendMessage>, ICodecProvider<UnblockFriendMessage>
 {
     /// <inheritdoc />
-    public static ICodec<UnblockFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new UnblockFriendMessage(avatarId));
+    public static ICodec<UnblockFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new UnblockFriendMessage(avatarId));
 }

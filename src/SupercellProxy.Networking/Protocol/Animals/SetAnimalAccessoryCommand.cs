@@ -16,5 +16,7 @@ public sealed record SetAnimalAccessoryCommand(int AnimalGlobalId, int Accessory
         static command => command.AccessoryGlobalId,
         Codecs.VarInt,
         static command => command.ThemeGlobalId,
-        static (animalGlobalId, accessoryGlobalId, themeGlobalId) => new SetAnimalAccessoryCommand(animalGlobalId, accessoryGlobalId, themeGlobalId)));
+        static (animalGlobalId, accessoryGlobalId, themeGlobalId) => new SetAnimalAccessoryCommand(animalGlobalId,
+            accessoryGlobalId,
+            themeGlobalId)));
 }

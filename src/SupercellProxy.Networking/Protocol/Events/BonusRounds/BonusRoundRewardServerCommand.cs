@@ -25,6 +25,11 @@ public sealed record BonusRoundRewardServerCommand(int RewardAmount, int Round, 
             static command => command.BonusRoundId,
             Codecs.VarInt,
             static command => command.RewardGlobalId,
-            static (rewardAmount, round, maximumRewards, slotIndex, bonusRoundId, rewardGlobalId) => new BonusRoundRewardServerCommand(rewardAmount, round, maximumRewards, slotIndex, bonusRoundId, rewardGlobalId)),
+            static (rewardAmount, round, maximumRewards, slotIndex, bonusRoundId, rewardGlobalId) => new BonusRoundRewardServerCommand(rewardAmount,
+                round,
+                maximumRewards,
+                slotIndex,
+                bonusRoundId,
+                rewardGlobalId)),
         CommandLayout.MetadataFirst);
 }

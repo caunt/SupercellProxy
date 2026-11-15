@@ -9,5 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Helpers;
 public sealed record HelperListMessage(ReadOnlyMemory<SocialProfile>? Helpers) : CodecMessage<HelperListMessage>, ICodecProvider<HelperListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HelperListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(SocialProfile.Codec), static message => message.Helpers, static helpers => new HelperListMessage(helpers));
+    public static ICodec<HelperListMessage> Codec { get; } = Codecs.Composite(Codecs.NullableMemory(SocialProfile.Codec),
+        static message => message.Helpers,
+        static helpers => new HelperListMessage(helpers));
 }

@@ -25,5 +25,10 @@ public sealed record EndDerbyServerCommand(int Rank, int LeagueIndex, int Partic
         static command => command.InstanceId,
         Codecs.Optional(DerbyResultEntries.Codec),
         static command => command.Results,
-        static (rank, leagueIndex, participantCount, nextLeagueIndex, instanceId, results) => new EndDerbyServerCommand(rank, leagueIndex, participantCount, nextLeagueIndex, instanceId, results)));
+        static (rank, leagueIndex, participantCount, nextLeagueIndex, instanceId, results) => new EndDerbyServerCommand(rank,
+            leagueIndex,
+            participantCount,
+            nextLeagueIndex,
+            instanceId,
+            results)));
 }

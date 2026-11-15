@@ -119,14 +119,26 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
         try
         {
-            login = await LoginCoreAsync(fingerprint.Sha, token, AppStore.GooglePlay, requestOwnHome: true, allowAnonymous: false, credentials: null, cancellationToken)
+            login = await LoginCoreAsync(fingerprint.Sha,
+                token,
+                AppStore.GooglePlay,
+                requestOwnHome: true,
+                allowAnonymous: false,
+                credentials: null,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.InvalidToken })
         {
             token = await provider(arg1: true, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-            login = await LoginCoreAsync(fingerprint.Sha, token, AppStore.GooglePlay, requestOwnHome: true, allowAnonymous: false, credentials: null, cancellationToken)
+            login = await LoginCoreAsync(fingerprint.Sha,
+                token,
+                AppStore.GooglePlay,
+                requestOwnHome: true,
+                allowAnonymous: false,
+                credentials: null,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -177,7 +189,8 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
             await stream.WriteAsync(CreateClientHelloMessage(fingerprintSha1, appStore), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            ServerHelloMessage serverHello = Require<ServerHelloMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            ServerHelloMessage serverHello = Require<ServerHelloMessage>(await stream.ReadMessageAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false));
 
             await stream.SetupEncryptionAsync(RemotePeerRole.Server, serverHello.SessionKey, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -199,14 +212,17 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
                 if (credentials is not null)
                 {
-                    loginMessage.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32), int.CreateTruncating(credentials.AccountId));
+                    loginMessage.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32),
+                        int.CreateTruncating(credentials.AccountId));
+
                     loginMessage.PassToken = credentials.PassToken;
                 }
             }
 
             await stream.WriteAsync(loginMessage, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-            LoginOkMessage loginOkMessage = Require<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            LoginOkMessage loginOkMessage = Require<LoginOkMessage>(await stream.ReadMessageAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false));
 
             if (loginOkMessage.AccountId == LongId.Empty || (!allowAnonymous && (sessionToken is null || sessionToken.IsEmpty)))
                 throw new InvalidDataException(message: "Authentication did not establish an account.");
@@ -240,14 +256,26 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
     {
         try
         {
-            return await LoginAttemptAsync(fingerprintSha1, sessionToken, appStore, requestOwnHome, allowAnonymous, credentials, cancellationToken)
+            return await LoginAttemptAsync(fingerprintSha1,
+                sessionToken,
+                appStore,
+                requestOwnHome,
+                allowAnonymous,
+                credentials,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
         catch (LoginException exception) when (exception.LoginFailedMessage?.ErrorCode == LoginFailureType.OutdatedVersion && client.CanUpdateVersion)
         {
             await client.RefreshVersionAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-            return await LoginAttemptAsync(fingerprintSha1, sessionToken, appStore, requestOwnHome, allowAnonymous, credentials, cancellationToken)
+            return await LoginAttemptAsync(fingerprintSha1,
+                sessionToken,
+                appStore,
+                requestOwnHome,
+                allowAnonymous,
+                credentials,
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

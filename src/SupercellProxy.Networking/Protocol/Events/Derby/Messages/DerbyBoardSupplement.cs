@@ -24,5 +24,10 @@ public sealed record DerbyBoardSupplement(int Value0, int Value1, int Value2, in
         static value => value.Value4,
         Codecs.VarInt,
         static value => value.Value5,
-        static (value0, value1, value2, value3, value4, value5) => new DerbyBoardSupplement(value0, value1, value2, value3, value4, value5));
+        static (value0, value1, value2, value3, value4, value5) => new DerbyBoardSupplement(value0,
+            value1,
+            value2,
+            value3,
+            value4,
+            value5));
 }

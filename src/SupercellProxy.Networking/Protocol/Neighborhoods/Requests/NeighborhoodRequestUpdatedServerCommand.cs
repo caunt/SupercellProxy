@@ -19,5 +19,8 @@ public sealed record NeighborhoodRequestUpdatedServerCommand(LongId RequesterHom
         static command => command.State,
         Codecs.Optional(NeighborhoodRequest.Codec),
         static command => command.Request,
-        static (requesterHomeId, requestId, state, request) => new NeighborhoodRequestUpdatedServerCommand(requesterHomeId, requestId, state, request)));
+        static (requesterHomeId, requestId, state, request) => new NeighborhoodRequestUpdatedServerCommand(requesterHomeId,
+            requestId,
+            state,
+            request)));
 }

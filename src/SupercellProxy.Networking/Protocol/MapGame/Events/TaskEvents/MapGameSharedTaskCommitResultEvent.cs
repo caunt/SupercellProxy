@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 /// <param name="Pawn">The acting pawn.</param>
 /// <param name="Task">Shared Valley task the goods went to.</param>
 /// <param name="Submission">The submitted dump-task state.</param>
-public sealed record MapGameSharedTaskCommitResultEvent(int Status, MapGamePawn? Pawn, MapGameTask? Task, MapGameDumpTaskStatePayload? Submission) : MapGamePawnTaskEvent(MapGameEvent.SharedTaskCommitResultType, Pawn, Task), ICodecProvider<MapGameSharedTaskCommitResultEvent>
+public sealed record MapGameSharedTaskCommitResultEvent(int Status, MapGamePawn? Pawn, MapGameTask? Task, MapGameDumpTaskStatePayload? Submission) : MapGamePawnTaskEvent(MapGameEvent.SharedTaskCommitResultType,
+    Pawn,
+    Task), ICodecProvider<MapGameSharedTaskCommitResultEvent>
 {
     /// <inheritdoc />
     public static new ICodec<MapGameSharedTaskCommitResultEvent> Codec { get; } = Codecs.Composite(Codecs.VarInt,

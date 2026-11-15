@@ -20,7 +20,9 @@ public sealed record HarvestFieldGainCommand : CodecCommand<HarvestFieldGainComm
     }
 
     /// <inheritdoc />
-    public static CommandCodec<HarvestFieldGainCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.FieldGlobalId, static fieldGlobalId => new HarvestFieldGainCommand(fieldGlobalId)),
+    public static CommandCodec<HarvestFieldGainCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.FieldGlobalId,
+            static fieldGlobalId => new HarvestFieldGainCommand(fieldGlobalId)),
         CommandLayout.MetadataFirst);
 
     /// <summary>

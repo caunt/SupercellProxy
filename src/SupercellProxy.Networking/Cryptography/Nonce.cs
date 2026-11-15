@@ -60,7 +60,10 @@ public sealed class Nonce
                 throw new InvalidOperationException(message: "Failed to compute nonce hash.");
 
             if (length is not digestLength)
-                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Unexpected nonce hash length: {length}."));
+            {
+                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                    $"Unexpected nonce hash length: {length}."));
+            }
         }
     }
 

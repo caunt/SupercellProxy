@@ -19,12 +19,16 @@ public sealed record PerformanceProfilingSettingsMessage(bool UseDefaultJsonCall
             static message => message.Mode,
             Codecs.Boolean,
             static message => message.Enabled,
-            static (useDefaultJsonCallback, mode, enabled) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback, mode, enabled)),
+            static (useDefaultJsonCallback, mode, enabled) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback,
+                mode,
+                enabled)),
         Codecs.Composite(Codecs.VarInt,
             static message => message.Mode,
             Codecs.Boolean,
             static message => message.Enabled,
             Codecs.Boolean,
             static message => message.UseDefaultJsonCallback,
-            static (mode, enabled, useDefaultJsonCallback) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback, mode, enabled)));
+            static (mode, enabled, useDefaultJsonCallback) => new PerformanceProfilingSettingsMessage(useDefaultJsonCallback,
+                mode,
+                enabled)));
 }

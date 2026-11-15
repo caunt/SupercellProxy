@@ -25,5 +25,10 @@ public sealed record RoadsideShopSaleServerCommand(LongId OwnerHomeId, LongId Bu
         static command => command.Amount,
         Codecs.BigEndianInt32,
         static command => command.Price,
-        static (ownerHomeId, buyerHomeId, standIndex, itemGlobalId, amount, price) => new RoadsideShopSaleServerCommand(ownerHomeId, buyerHomeId, standIndex, itemGlobalId, amount, price)));
+        static (ownerHomeId, buyerHomeId, standIndex, itemGlobalId, amount, price) => new RoadsideShopSaleServerCommand(ownerHomeId,
+            buyerHomeId,
+            standIndex,
+            itemGlobalId,
+            amount,
+            price)));
 }

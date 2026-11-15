@@ -19,5 +19,8 @@ public sealed record NeighborhoodEmblemChangedServerCommand(LongId NeighborhoodI
         static command => command.EmblemPattern,
         Codecs.VarInt,
         static command => command.EmblemSymbol,
-        static (neighborhoodId, emblemBackground, emblemPattern, emblemSymbol) => new NeighborhoodEmblemChangedServerCommand(neighborhoodId, emblemBackground, emblemPattern, emblemSymbol)));
+        static (neighborhoodId, emblemBackground, emblemPattern, emblemSymbol) => new NeighborhoodEmblemChangedServerCommand(neighborhoodId,
+            emblemBackground,
+            emblemPattern,
+            emblemSymbol)));
 }

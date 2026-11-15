@@ -9,7 +9,8 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods;
 public sealed record NeighborhoodFullListMessage : CodecMessage<NeighborhoodFullListMessage>, ICodecProvider<NeighborhoodFullListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodFullListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(NeighborhoodHeaderEntry.Codec, CollectionCount.AtMost(maximum: 1024).WithStrictAbsence()),
+    public static ICodec<NeighborhoodFullListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(NeighborhoodHeaderEntry.Codec,
+                CollectionCount.AtMost(maximum: 1024).WithStrictAbsence()),
             static message => message.Profiles,
             static profiles => new NeighborhoodFullListMessage
             {

@@ -19,5 +19,8 @@ public sealed record BuyNextBonusRoundCommand(int RoundId, int Round, int Price,
         static command => command.Price,
         Codecs.VarInt,
         static command => command.CurrencyGlobalId,
-        static (roundId, round, price, currencyGlobalId) => new BuyNextBonusRoundCommand(roundId, round, price, currencyGlobalId)));
+        static (roundId, round, price, currencyGlobalId) => new BuyNextBonusRoundCommand(roundId,
+            round,
+            price,
+            currencyGlobalId)));
 }

@@ -42,5 +42,11 @@ public sealed record RoadsidePurchaseServerCommand([property: JsonPropertyName("
         static command => command.Quantity,
         Codecs.BigEndianInt32,
         static command => command.Price,
-        static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer, owner, context, item, slot, quantity, price)));
+        static (buyer, owner, context, item, slot, quantity, price) => new RoadsidePurchaseServerCommand(buyer,
+            owner,
+            context,
+            item,
+            slot,
+            quantity,
+            price)));
 }

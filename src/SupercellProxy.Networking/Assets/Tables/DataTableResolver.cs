@@ -59,7 +59,10 @@ public sealed class DataTableResolver : ICommandDataResolver
 
         _dataTables = resolvedDataTables;
         HighestTableId = resolvedDataTables.Keys.Max();
-        _tableIdsByFile = resolvedDataTables.ToDictionary(static entry => entry.Value.GameAsset.Fingerprint.File, static entry => entry.Key, StringComparer.Ordinal);
+
+        _tableIdsByFile = resolvedDataTables.ToDictionary(static entry => entry.Value.GameAsset.Fingerprint.File,
+            static entry => entry.Key,
+            StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -88,7 +91,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         return resources.IsDefault
             ? throw new ArgumentException(message: "The asset bundle is uninitialized.", nameof(resources))
-            : fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha, static (sha, assets) => new DataTableResolver(assets), resources);
+            : fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha,
+                static (sha, assets) => new DataTableResolver(assets),
+                resources);
     }
 
     /// <summary>
@@ -211,7 +216,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         reference = null;
 
-        return _tableIdsByFile.TryGetValue(file, out int tableId) && ResolveTable(tableId) is { } table && TryFindRow(file, table, name, out int rowIndex)
+        return _tableIdsByFile.TryGetValue(file, out int tableId) && ResolveTable(tableId) is { } table && TryFindRow(file,
+            table,
+            name,
+            out int rowIndex)
             && TryResolve((tableId * GlobalIdTableSize) + rowIndex, out reference);
     }
 
@@ -651,7 +659,14 @@ public sealed class DataTableResolver : ICommandDataResolver
             string name = table.Entries[rowIndex].Name;
 
             if (!string.IsNullOrWhiteSpace(name))
-                references[rowIndex] = new DataTableReference((tableId * GlobalIdTableSize) + rowIndex, tableId, rowIndex, name, fingerprint.File, fingerprint.Sha);
+            {
+                references[rowIndex] = new DataTableReference((tableId * GlobalIdTableSize) + rowIndex,
+                    tableId,
+                    rowIndex,
+                    name,
+                    fingerprint.File,
+                    fingerprint.Sha);
+            }
         }
 
         return references;
@@ -753,7 +768,8 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
             return false;
 
-        rows = TablePhysicalRows.GetValue(table, static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
+        rows = TablePhysicalRows.GetValue(table,
+            static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
 
         return true;
     }

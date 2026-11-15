@@ -29,34 +29,33 @@ internal static class ZipArchiveExtensions
 
         await using (archive.ConfigureAwait(continueOnCapturedContext: false))
         {
-            ZipArchiveEntry match =
-                archive.Entries
-                    .FirstOrDefault(static entry =>
-                    {
-                        string fullName = entry.FullName;
+            ZipArchiveEntry match = archive.Entries
+                .FirstOrDefault(static entry =>
+                {
+                    string fullName = entry.FullName;
 
-                        if (!fullName.StartsWith(value: "Payload/", StringComparison.OrdinalIgnoreCase))
-                            return false;
+                    if (!fullName.StartsWith(value: "Payload/", StringComparison.OrdinalIgnoreCase))
+                        return false;
 
-                        int lastSlashIndex = fullName.LastIndexOf(value: '/');
+                    int lastSlashIndex = fullName.LastIndexOf(value: '/');
 
-                        if (lastSlashIndex < 0)
-                            return false;
+                    if (lastSlashIndex < 0)
+                        return false;
 
-                        int appIndex = fullName.LastIndexOf(value: ".app/", lastSlashIndex, StringComparison.OrdinalIgnoreCase);
+                    int appIndex = fullName.LastIndexOf(value: ".app/", lastSlashIndex, StringComparison.OrdinalIgnoreCase);
 
-                        if (appIndex < 0)
-                            return false;
+                    if (appIndex < 0)
+                        return false;
 
-                        int parentSlashIndex = fullName.LastIndexOf(value: '/', appIndex - 1);
+                    int parentSlashIndex = fullName.LastIndexOf(value: '/', appIndex - 1);
 
-                        if (parentSlashIndex < 0)
-                            return false;
+                    if (parentSlashIndex < 0)
+                        return false;
 
-                        string expectedExecutableName = fullName[(parentSlashIndex + 1)..appIndex];
+                    string expectedExecutableName = fullName[(parentSlashIndex + 1)..appIndex];
 
-                        return string.Equals(entry.Name, expectedExecutableName, StringComparison.OrdinalIgnoreCase);
-                    })
+                    return string.Equals(entry.Name, expectedExecutableName, StringComparison.OrdinalIgnoreCase);
+                })
                 ?? throw new FileNotFoundException(message: "Main app executable was not found in the IPA file (expected Payload/<App>.app/<App>).");
 
             if (match.Length > int.MaxValue)
@@ -92,9 +91,8 @@ internal static class ZipArchiveExtensions
 
             await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
-                ZipArchiveEntry match =
-                    archive.Entries
-                        .FirstOrDefault(entry => !string.IsNullOrEmpty(entry.Name) && string.Equals(entry.Name, fileName, StringComparison.OrdinalIgnoreCase))
+                ZipArchiveEntry match = archive.Entries
+                    .FirstOrDefault(entry => !string.IsNullOrEmpty(entry.Name) && string.Equals(entry.Name, fileName, StringComparison.OrdinalIgnoreCase))
                     ?? throw new FileNotFoundException($"Entry named '{fileName}' was not found in the ZIP archive.");
 
                 if (match.Length > int.MaxValue)

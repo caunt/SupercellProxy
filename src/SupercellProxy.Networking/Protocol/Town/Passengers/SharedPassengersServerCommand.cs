@@ -22,5 +22,8 @@ public sealed record SharedPassengersServerCommand(int Action, LongId? SharingHo
         static command => command.PassengerIds,
         Codecs.Memory(Codecs.VarInt),
         static command => command.HelpIds,
-        static (action, sharingHomeId, passengerIds, helpIds) => new SharedPassengersServerCommand(action, sharingHomeId, passengerIds, helpIds)));
+        static (action, sharingHomeId, passengerIds, helpIds) => new SharedPassengersServerCommand(action,
+            sharingHomeId,
+            passengerIds,
+            helpIds)));
 }

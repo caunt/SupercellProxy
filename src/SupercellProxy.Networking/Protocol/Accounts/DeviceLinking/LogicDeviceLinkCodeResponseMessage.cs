@@ -22,5 +22,9 @@ public sealed record LogicDeviceLinkCodeResponseMessage(int Value0, string? Code
         static message => message.Value2,
         Codecs.BigEndianInt32,
         static message => message.Value3,
-        static (value0, code, value1, value2, value3) => new LogicDeviceLinkCodeResponseMessage(value0, code, value1, value2, value3));
+        static (value0, code, value1, value2, value3) => new LogicDeviceLinkCodeResponseMessage(value0,
+            code,
+            value1,
+            value2,
+            value3));
 }

@@ -30,7 +30,9 @@ public static class GameAssetDirectory
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            assets.Add(new GameAsset(new GameAssetFingerprintEntry(Path.GetRelativePath(directory, file).Replace(Path.DirectorySeparatorChar, newChar: '/'), string.Empty),
+            assets.Add(new GameAsset(new GameAssetFingerprintEntry(Path.GetRelativePath(directory, file)
+                .Replace(Path.DirectorySeparatorChar, newChar: '/'),
+                    string.Empty),
                 await File.ReadAllBytesAsync(file, cancellationToken).ConfigureAwait(continueOnCapturedContext: false)));
         }
 

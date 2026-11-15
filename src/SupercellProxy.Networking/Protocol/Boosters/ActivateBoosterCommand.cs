@@ -21,5 +21,8 @@ public sealed record ActivateBoosterCommand(int BoosterDataGlobalId, int Diamond
         static command => command.IsFree,
         Codecs.Boolean,
         static command => command.Unknown2,
-        static (boosterDataGlobalId, diamondCost, isFree, unknown2) => new ActivateBoosterCommand(boosterDataGlobalId, diamondCost, isFree, unknown2)));
+        static (boosterDataGlobalId, diamondCost, isFree, unknown2) => new ActivateBoosterCommand(boosterDataGlobalId,
+            diamondCost,
+            isFree,
+            unknown2)));
 }

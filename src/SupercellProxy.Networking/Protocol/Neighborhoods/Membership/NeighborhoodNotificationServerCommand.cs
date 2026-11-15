@@ -18,5 +18,7 @@ public sealed record NeighborhoodNotificationServerCommand(int Status, LongId Ne
         static command => command.NeighborhoodId,
         Codecs.OptionalLongId,
         static command => command.RelatedId,
-        static (status, neighborhoodId, relatedId) => new NeighborhoodNotificationServerCommand(status, neighborhoodId, relatedId)));
+        static (status, neighborhoodId, relatedId) => new NeighborhoodNotificationServerCommand(status,
+            neighborhoodId,
+            relatedId)));
 }

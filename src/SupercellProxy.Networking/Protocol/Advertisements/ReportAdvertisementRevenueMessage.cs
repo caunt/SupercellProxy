@@ -25,5 +25,10 @@ public sealed record ReportAdvertisementRevenueMessage(string? Network, float Re
         static message => message.AdvertisementId,
         Codecs.OptionalUtf8String,
         static message => message.Precision,
-        static (network, revenue, currency, placement, advertisementId, precision) => new ReportAdvertisementRevenueMessage(network, revenue, currency, placement, advertisementId, precision));
+        static (network, revenue, currency, placement, advertisementId, precision) => new ReportAdvertisementRevenueMessage(network,
+            revenue,
+            currency,
+            placement,
+            advertisementId,
+            precision));
 }

@@ -11,7 +11,9 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record FollowResponseMessage(FollowResultCode Result, FollowOperation Operation, FriendEntry? Entry) : CodecMessage<FollowResponseMessage>, ICodecProvider<FollowResponseMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FollowResponseMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Map(Codecs.VarInt, static value => new FollowResultCode(value), static code => code.Value),
+    public static ICodec<FollowResponseMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Map(Codecs.VarInt,
+                static value => new FollowResultCode(value),
+                static code => code.Value),
             static message => message.Result,
             Codecs.Map(Codecs.VarInt, static value => new FollowOperation(value), static operation => operation.Value),
             static message => message.Operation,

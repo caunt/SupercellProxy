@@ -34,5 +34,11 @@ public sealed record UpdateDerbyPointsServerCommand(int PlayerPoints,
         static command => command.BingoLinesGained,
         Codecs.OptionalLongId,
         static command => command.InstanceId,
-        static (playerPoints, neighborhoodPoints, bingoCount, bingoValue, bunnyCount, bingoLinesGained, instanceId) => new UpdateDerbyPointsServerCommand(playerPoints, neighborhoodPoints, bingoCount, bingoValue, bunnyCount, bingoLinesGained, instanceId)));
+        static (playerPoints, neighborhoodPoints, bingoCount, bingoValue, bunnyCount, bingoLinesGained, instanceId) => new UpdateDerbyPointsServerCommand(playerPoints,
+            neighborhoodPoints,
+            bingoCount,
+            bingoValue,
+            bunnyCount,
+            bingoLinesGained,
+            instanceId)));
 }

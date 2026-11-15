@@ -178,7 +178,9 @@ public sealed record MapGameEventProfileData : ICodecProvider<MapGameEventProfil
                         static document => document.BinaryData)),
                 new KeyValuePair<bool, ICodec<ProfileDocument>>(key: false,
                     Codecs.Map(Codecs.OptionalUtf8String,
-                        static optionalTextData => new ProfileDocument(UsesBinaryData: false, BinaryData: null, optionalTextData),
+                        static optionalTextData => new ProfileDocument(UsesBinaryData: false,
+                            BinaryData: null,
+                            optionalTextData),
                         static document => document.OptionalTextData)),
             ]);
     }

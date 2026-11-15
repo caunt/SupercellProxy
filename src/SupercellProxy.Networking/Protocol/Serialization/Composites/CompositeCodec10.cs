@@ -65,7 +65,16 @@ internal sealed class CompositeCodec10<TValue, TFirst, TSecond, TThird, TFourth,
         TNinth ninthValue = _ninth.Read(stream);
         TTenth tenthValue = _tenth.Read(stream);
 
-        return _factory(firstValue, secondValue, thirdValue, fourthValue, fifthValue, sixthValue, seventhValue, eighthValue, ninthValue, tenthValue);
+        return _factory(firstValue,
+            secondValue,
+            thirdValue,
+            fourthValue,
+            fifthValue,
+            sixthValue,
+            seventhValue,
+            eighthValue,
+            ninthValue,
+            tenthValue);
     }
 
     public void Write(ProtocolEncoder encoder, TValue value)

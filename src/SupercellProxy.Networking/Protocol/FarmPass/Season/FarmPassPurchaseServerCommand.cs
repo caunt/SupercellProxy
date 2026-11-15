@@ -22,5 +22,9 @@ public sealed record FarmPassPurchaseServerCommand(int PassType, string? Product
         static command => command.Receipt,
         Codecs.VarInt,
         static command => command.Timestamp,
-        static (passType, productId, transactionId, receipt, timestamp) => new FarmPassPurchaseServerCommand(passType, productId, transactionId, receipt, timestamp)));
+        static (passType, productId, transactionId, receipt, timestamp) => new FarmPassPurchaseServerCommand(passType,
+            productId,
+            transactionId,
+            receipt,
+            timestamp)));
 }

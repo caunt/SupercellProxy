@@ -22,5 +22,9 @@ public sealed record RoadsideShopSlotUpdatedMessage(int Quantity, int Slot, int 
         static message => message.ItemId,
         Codecs.LongId,
         static message => message.OwnerId,
-        static (quantity, slot, price, itemId, ownerId) => new RoadsideShopSlotUpdatedMessage(quantity, slot, price, itemId, ownerId));
+        static (quantity, slot, price, itemId, ownerId) => new RoadsideShopSlotUpdatedMessage(quantity,
+            slot,
+            price,
+            itemId,
+            ownerId));
 }

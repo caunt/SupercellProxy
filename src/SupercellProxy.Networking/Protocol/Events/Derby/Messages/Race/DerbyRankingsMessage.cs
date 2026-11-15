@@ -11,7 +11,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.Race;
 public sealed record DerbyRankingsMessage(ImmutableArray<DerbyRankingEntry>? Entries) : CodecMessage<DerbyRankingsMessage>, ICodecProvider<DerbyRankingsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DerbyRankingsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(DerbyRankingEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+    public static ICodec<DerbyRankingsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(DerbyRankingEntry.Codec,
+                CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.Entries,
             static entries => new DerbyRankingsMessage(entries)),
         trailingDataMessage: "The derby message has trailing data.");

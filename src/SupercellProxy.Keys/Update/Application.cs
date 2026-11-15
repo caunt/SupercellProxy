@@ -25,8 +25,7 @@ internal static partial class Application
 
     private static async Task AppendSummaryAsync(string summaryPath, KeysUpdateReport report, CancellationToken cancellationToken)
     {
-        string directory =
-            Path.GetDirectoryName(summaryPath)
+        string directory = Path.GetDirectoryName(summaryPath)
             ?? throw new InvalidOperationException(message: "Invalid summary path.");
 
         new DirectoryInfo(directory).Create();
@@ -57,7 +56,10 @@ internal static partial class Application
                 File.Delete(temporaryPath + ".part");
 
                 if (retry == MaximumDownloadRetries)
-                    throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message), exception);
+                {
+                    throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message),
+                        exception);
+                }
 
                 await Console.Error
                     .WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
@@ -100,7 +102,8 @@ internal static partial class Application
 
     private static string NormalizeReason(string value)
     {
-        string normalized = string.Join(separator: ' ', value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
+        string normalized = string.Join(separator: ' ',
+            value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
 
         return normalized.Length <= 500 ? normalized : normalized[..497] + "...";
     }
@@ -146,7 +149,10 @@ internal static partial class Application
         }
 
         if (positionalArguments.Count > 1)
-            throw new ArgumentException(message: "Usage: SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]", nameof(arguments));
+        {
+            throw new ArgumentException(message: "Usage: SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]",
+                nameof(arguments));
+        }
 
         string keysPath = Path.GetFullPath(positionalArguments.FirstOrDefault() ?? "KEYS.md");
 
@@ -155,7 +161,8 @@ internal static partial class Application
 
     private static int PrintUpdateHelp()
     {
-        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]", description: "Fill missing KEYS.md entries from decrypt.day IPAs");
+        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]",
+            description: "Fill missing KEYS.md entries from decrypt.day IPAs");
     }
 
     private static async Task<int> RunUpdateAsync(string[] arguments, CancellationToken cancellationToken)
@@ -176,7 +183,12 @@ internal static partial class Application
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            report.Add(new KeysUpdateResult(AppName: "Updater", Version: null, KeysUpdateOutcome.NotUpdated, Key: null, NormalizeReason(exception.Message), IsWarning: true));
+            report.Add(new KeysUpdateResult(AppName: "Updater",
+                Version: null,
+                KeysUpdateOutcome.NotUpdated,
+                Key: null,
+                NormalizeReason(exception.Message),
+                IsWarning: true));
 
             throw;
         }
@@ -209,9 +221,8 @@ internal static partial class Application
         }
         else
         {
-            KeysSection section =
-                document.Sections
-                    .SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
+            KeysSection section = document.Sections
+                .SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
                 ?? throw new InvalidOperationException($"KEYS.md does not contain an app section for ID {appStoreId}.");
 
             sections = [section];
@@ -315,7 +326,10 @@ internal static partial class Application
                     }
                     catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                     {
-                        AddWarning(report, section.Name, version.Value, $"Authorization failed: {NormalizeReason(exception.Message)}");
+                        AddWarning(report,
+                            section.Name,
+                            version.Value,
+                            $"Authorization failed: {NormalizeReason(exception.Message)}");
 
                         return null;
                     }
@@ -323,18 +337,27 @@ internal static partial class Application
 
                 async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
-                    string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
+                    string temporaryPath = Path.Combine(Path.GetTempPath(),
+                        $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
 
                     try
                     {
                         try
                         {
-                            await DownloadWithRetryAsync(decryptDayClient, authorizedDownload, temporaryPath, section.Name, version.Value, cancellationToken)
+                            await DownloadWithRetryAsync(decryptDayClient,
+                                authorizedDownload,
+                                temporaryPath,
+                                section.Name,
+                                version.Value,
+                                cancellationToken)
                                 .ConfigureAwait(continueOnCapturedContext: false);
                         }
                         catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                         {
-                            AddWarning(report, section.Name, version.Value, $"Download failed {NormalizeReason(exception.Message)}");
+                            AddWarning(report,
+                                section.Name,
+                                version.Value,
+                                $"Download failed {NormalizeReason(exception.Message)}");
 
                             return null;
                         }
@@ -346,7 +369,10 @@ internal static partial class Application
                         }
                         catch (Exception exception) when (IsRecoverableUpdateFailure(exception, cancellationToken))
                         {
-                            AddWarning(report, section.Name, version.Value, $"Extraction failed: {NormalizeReason(exception.Message)}");
+                            AddWarning(report,
+                                section.Name,
+                                version.Value,
+                                $"Extraction failed: {NormalizeReason(exception.Message)}");
 
                             return null;
                         }
@@ -375,13 +401,13 @@ internal static partial class Application
 
         int addedKeyCount = report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
 
-        Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
     }
 
     private static async Task WriteAtomicallyAsync(string path, string content, CancellationToken cancellationToken)
     {
-        string directory =
-            Path.GetDirectoryName(path)
+        string directory = Path.GetDirectoryName(path)
             ?? throw new InvalidOperationException(message: "Invalid keys document path.");
 
         string temporaryPath = Path.Combine(directory, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");

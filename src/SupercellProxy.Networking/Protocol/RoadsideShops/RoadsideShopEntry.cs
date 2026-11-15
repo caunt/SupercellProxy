@@ -27,7 +27,11 @@ public sealed record RoadsideShopEntry([property: JsonPropertyName("BuyerId")] L
         static value => value.Quantity,
         Codecs.VarInt,
         static value => value.ItemGlobalId,
-        static (buyerId, isAdvertised, price, quantity, itemGlobalId) => new RoadsideShopEntry(buyerId, isAdvertised, price, quantity, itemGlobalId));
+        static (buyerId, isAdvertised, price, quantity, itemGlobalId) => new RoadsideShopEntry(buyerId,
+            isAdvertised,
+            price,
+            quantity,
+            itemGlobalId));
 
     /// <summary>Gets a value indicating whether someone bought the stand, so its coins wait for the seller to collect them.</summary>
     /// <value><see langword="true"/> if <see cref="BuyerId"/> is neither <see langword="null"/> nor <see cref="LongId.Empty"/>; otherwise, <see langword="false"/>.</value>

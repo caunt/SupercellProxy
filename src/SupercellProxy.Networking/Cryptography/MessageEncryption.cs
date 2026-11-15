@@ -27,7 +27,9 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
             _encryption.ReceiveNonce.Increment();
 
-            byte[] plaintext = NaClV3Cryptography.SecretBoxOpen(payload, _encryption.ReceiveNonce.Span, _encryption.SharedKey.Span);
+            byte[] plaintext = NaClV3Cryptography.SecretBoxOpen(payload,
+                _encryption.ReceiveNonce.Span,
+                _encryption.SharedKey.Span);
 
             // The plaintext array is owned by this stream alone, so readers may take it without another copy.
             return new MemoryStream(plaintext, index: 0, plaintext.Length, writable: false, publiclyVisible: true);
@@ -52,7 +54,10 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
             _encryption.SendNonce.Increment();
 
-            return new MemoryStream(NaClV3Cryptography.SecretBox(payload, _encryption.SendNonce.Span, _encryption.SharedKey.Span), writable: false);
+            return new MemoryStream(NaClV3Cryptography.SecretBox(payload,
+                    _encryption.SendNonce.Span,
+                    _encryption.SharedKey.Span),
+                writable: false);
         }
 
         return _encryption.With is RemotePeerRole.Server
@@ -65,7 +70,11 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
         encryption.SendNonce ??= new Nonce();
 
         Nonce handshakeNonce = new(encryption.SendNonce.Span, encryption.LocalPublicKey.Span, encryption.RemotePublicKey.Span);
-        byte[] plaintext = NaClV3Cryptography.BoxOpen(payload, handshakeNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
+
+        byte[] plaintext = NaClV3Cryptography.BoxOpen(payload,
+            handshakeNonce.Span,
+            encryption.RemotePublicKey.Span,
+            encryption.LocalPrivateKey.Span);
 
         encryption.ReceiveNonce = new Nonce(plaintext.AsSpan(..24));
         encryption.SharedKey = plaintext.AsMemory(24..56);
@@ -81,8 +90,14 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
         // The rest is a box sealed under a nonce derived from both public keys.
         Memory<byte> ciphertext = payloadMemory[32..];
-        Nonce temporaryNonce = new(clientPublicKey: encryption.RemotePublicKey.Span, serverPublicKey: encryption.LocalPublicKey.Span);
-        byte[] plaintext = NaClV3Cryptography.BoxOpen(ciphertext.Span, temporaryNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPrivateKey.Span);
+
+        Nonce temporaryNonce = new(clientPublicKey: encryption.RemotePublicKey.Span,
+            serverPublicKey: encryption.LocalPublicKey.Span);
+
+        byte[] plaintext = NaClV3Cryptography.BoxOpen(ciphertext.Span,
+            temporaryNonce.Span,
+            encryption.RemotePublicKey.Span,
+            encryption.LocalPrivateKey.Span);
 
         // The plaintext must open with the session key from the server hello.
         Memory<byte> plaintextMemory = plaintext.AsMemory();
@@ -113,7 +128,9 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
         encryption.SharedKey = RandomNumberGenerator.GetBytes(count: 32);
         encryption.SendNonce = new Nonce(RandomNumberGenerator.GetBytes(count: 24));
 
-        Nonce handshakeNonce = new(encryption.ReceiveNonce.Span, encryption.RemotePublicKey.Span, encryption.LocalPublicKey.Span);
+        Nonce handshakeNonce = new(encryption.ReceiveNonce.Span,
+            encryption.RemotePublicKey.Span,
+            encryption.LocalPublicKey.Span);
 
         byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [.. encryption.SendNonce.Span, .. encryption.SharedKey.Span, .. payload],
             handshakeNonce.Span,
@@ -130,7 +147,8 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
         if (encryption.RemotePublicKey.IsEmpty)
             throw new InvalidOperationException(message: "Remote public key is not set.");
 
-        Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span, serverPublicKey: encryption.RemotePublicKey.Span);
+        Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span,
+            serverPublicKey: encryption.RemotePublicKey.Span);
 
         byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [.. encryption.SessionKey.Span, .. encryption.SendNonce.Span, .. payload, .. stackalloc byte[PromonPadSize]],
             temporaryNonce.Span,

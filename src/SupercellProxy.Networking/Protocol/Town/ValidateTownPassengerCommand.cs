@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Town;
 public sealed record ValidateTownPassengerCommand(int PassengerGlobalId) : CodecCommand<ValidateTownPassengerCommand>, ICommandCodecProvider<ValidateTownPassengerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PassengerGlobalId, static passenger => new ValidateTownPassengerCommand(passenger)));
+    public static CommandCodec<ValidateTownPassengerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PassengerGlobalId,
+        static passenger => new ValidateTownPassengerCommand(passenger)));
 }

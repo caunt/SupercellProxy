@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 public sealed record ConfirmLoginMessage(LongId AvatarId) : CodecMessage<ConfirmLoginMessage>, ICodecProvider<ConfirmLoginMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ConfirmLoginMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new ConfirmLoginMessage(avatarId));
+    public static ICodec<ConfirmLoginMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new ConfirmLoginMessage(avatarId));
 }

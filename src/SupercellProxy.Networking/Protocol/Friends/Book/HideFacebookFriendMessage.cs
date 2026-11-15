@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.Book;
 public sealed record HideFacebookFriendMessage(LongId AvatarId) : CodecMessage<HideFacebookFriendMessage>, ICodecProvider<HideFacebookFriendMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HideFacebookFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new HideFacebookFriendMessage(avatarId));
+    public static ICodec<HideFacebookFriendMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new HideFacebookFriendMessage(avatarId));
 }

@@ -13,6 +13,7 @@ public sealed record InstantCompleteProductionCommand(int BuildingObjectGlobalId
             static command => command.BuildingObjectGlobalId,
             Codecs.VarInt,
             static command => command.SlotIndex,
-            static (buildingObjectGlobalId, slotIndex) => new InstantCompleteProductionCommand(buildingObjectGlobalId, slotIndex)),
+            static (buildingObjectGlobalId, slotIndex) => new InstantCompleteProductionCommand(buildingObjectGlobalId,
+                slotIndex)),
         CommandLayout.MetadataFirst);
 }

@@ -12,7 +12,9 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
 
     private readonly ICodec<TCommand> _fields;
 
-    internal CommandCodec(string name, ICodec<TCommand> fields, CommandLayout layout, bool productionAllowed) : base(name, layout, productionAllowed)
+    internal CommandCodec(string name, ICodec<TCommand> fields, CommandLayout layout, bool productionAllowed) : base(name,
+        layout,
+        productionAllowed)
     {
         _fields = fields;
     }

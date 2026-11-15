@@ -9,7 +9,9 @@ namespace SupercellProxy.Networking.Assets.Retention;
 public static class GameAssetSnapshot
 {
     /// <summary>Orders assets by their bundle file path, compared ordinally, so a retained snapshot lists its files in the same order every time.</summary>
-    private static Comparer<GameAsset> FileOrder { get; } = Comparer<GameAsset>.Create(static (left, right) => string.CompareOrdinal(left.Fingerprint.File, right.Fingerprint.File));
+    private static Comparer<GameAsset> FileOrder { get; } = Comparer<GameAsset>.Create(static (left, right) => string.CompareOrdinal(left.Fingerprint
+        .File,
+        right.Fingerprint.File));
 
     /// <summary>Finds a cached fingerprint without selecting assets by release ordering or modification time.</summary>
     /// <param name="root">Asset cache folder to search, such as the per-version download folder; it is searched itself and in every
@@ -55,7 +57,8 @@ public static class GameAssetSnapshot
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException($"Retained assets {fingerprint} are unavailable.", manifestPath);
 
-        RetainedAssetManifest manifest = JsonSerializer.Deserialize<RetainedAssetManifest>(await File.ReadAllBytesAsync(manifestPath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+        RetainedAssetManifest manifest = JsonSerializer.Deserialize<RetainedAssetManifest>(await File.ReadAllBytesAsync(manifestPath, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false))
             ?? throw new InvalidDataException(message: "The retained asset manifest is empty.");
 
         bool valid = string.Equals(manifest.Fingerprint, fingerprint, StringComparison.OrdinalIgnoreCase) && manifest.Files is { Length: > 0 };
@@ -76,7 +79,9 @@ public static class GameAssetSnapshot
             byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            bool matches = bytes.LongLength == file.Length && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)), file.Sha256, StringComparison.OrdinalIgnoreCase);
+            bool matches = bytes.LongLength == file.Length && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)),
+                file.Sha256,
+                StringComparison.OrdinalIgnoreCase);
 
             if (!matches)
                 throw new InvalidDataException($"Retained asset {file.File} does not match its checksum for {fingerprint}.");
@@ -110,7 +115,8 @@ public static class GameAssetSnapshot
 
         if (File.Exists(catalogPath))
         {
-            GameAssetFingerprint catalog = JsonSerializer.Deserialize<GameAssetFingerprint>(await File.ReadAllBytesAsync(catalogPath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+            GameAssetFingerprint catalog = JsonSerializer.Deserialize<GameAssetFingerprint>(await File.ReadAllBytesAsync(catalogPath, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false))
                 ?? throw new InvalidDataException(message: "The cached asset catalog is empty.");
 
             if (!string.Equals(catalog.Sha, fingerprint, StringComparison.OrdinalIgnoreCase))
@@ -121,7 +127,9 @@ public static class GameAssetSnapshot
         else
         {
             // Legacy downloads predate retained catalogs; preserve their exact named fingerprint's files.
-            entries = [.. EnumerateSourceFiles(source, source).Select(file => new GameAssetFingerprintEntry(Path.GetRelativePath(source, file).Replace(Path.DirectorySeparatorChar, newChar: '/'), string.Empty))];
+            entries = [.. EnumerateSourceFiles(source, source).Select(file => new GameAssetFingerprintEntry(Path.GetRelativePath(source, file)
+                .Replace(Path.DirectorySeparatorChar, newChar: '/'),
+                string.Empty))];
         }
 
         if (!entries.Any(static entry => entry.File == GameAssetFiles.ProductionBuildingsGoods))
@@ -185,7 +193,10 @@ public static class GameAssetSnapshot
                 await File.WriteAllBytesAsync(Path.Combine(fileDirectory.FullName, Path.GetFileName(file)), asset.Content.ToArray(), cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
 
-                files.Add(new RetainedAssetFile(asset.Fingerprint.File, asset.Content.Length, Convert.ToHexString(SHA256.HashData(asset.Content.Span)), asset.Fingerprint.Sha));
+                files.Add(new RetainedAssetFile(asset.Fingerprint.File,
+                    asset.Content.Length,
+                    Convert.ToHexString(SHA256.HashData(asset.Content.Span)),
+                    asset.Fingerprint.Sha));
             }
 
             RetainedAssetManifest manifest = new(fingerprint, Files: [.. files]);
@@ -201,7 +212,8 @@ public static class GameAssetSnapshot
             {
                 ImmutableArray<GameAsset> existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-                bool identical = existing.Length == files.Count && existing.All(asset => files.Any(file => file.File == asset.Fingerprint.File && file.Sha256 == Convert.ToHexString(SHA256.HashData(asset.Content.Span))));
+                bool identical = existing.Length == files.Count && existing.All(asset => files.Any(file => file.File == asset.Fingerprint
+                    .File && file.Sha256 == Convert.ToHexString(SHA256.HashData(asset.Content.Span))));
 
                 if (!identical)
                     throw new InvalidDataException(message: "Concurrent asset snapshots differ for the same fingerprint.");
@@ -240,7 +252,9 @@ public static class GameAssetSnapshot
     {
         string root = Path.GetFullPath(directory) + Path.DirectorySeparatorChar.ToString();
         string path = Path.GetFullPath(Path.Combine(root, relative));
-        bool outside = Path.IsPathRooted(relative) || !path.StartsWith(root, StringComparison.Ordinal) || relative.Contains(value: '\\', StringComparison.Ordinal);
+
+        bool outside = Path.IsPathRooted(relative) || !path.StartsWith(root, StringComparison.Ordinal) || relative.Contains(value: '\\',
+            StringComparison.Ordinal);
 
         return outside ? throw new InvalidDataException(message: "An asset path leaves its fingerprint directory.") : path;
     }

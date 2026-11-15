@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.ConnectionControl;
 public sealed record ConnectionStatusMessage(int Status) : CodecMessage<ConnectionStatusMessage>, ICodecProvider<ConnectionStatusMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ConnectionStatusMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Status, static status => new ConnectionStatusMessage(status));
+    public static ICodec<ConnectionStatusMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.Status,
+        static status => new ConnectionStatusMessage(status));
 }

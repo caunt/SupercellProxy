@@ -14,7 +14,8 @@ public sealed record FollowerListPageMessage(bool HasMorePages, ImmutableArray<F
     /// <inheritdoc />
     public static ICodec<FollowerListPageMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.Boolean,
             static message => message.HasMorePages,
-            Codecs.NullableArray(FriendEntry.Codec, CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).WithStrictAbsence()),
+            Codecs.NullableArray(FriendEntry.Codec,
+                CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).WithStrictAbsence()),
             static message => message.Entries,
             static (hasMorePages, entries) => new FollowerListPageMessage(hasMorePages, entries)),
         trailingDataMessage: "The follower page has trailing data.");

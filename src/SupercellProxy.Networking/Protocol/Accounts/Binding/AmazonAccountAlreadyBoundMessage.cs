@@ -23,5 +23,9 @@ public sealed record AmazonAccountAlreadyBoundMessage(int SecondsSinceLastPlayed
         static message => message.PassToken,
         ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, amazonId, accountId, passToken, avatar) => new AmazonAccountAlreadyBoundMessage(secondsSinceLastPlayed, amazonId, accountId, passToken, avatar));
+        static (secondsSinceLastPlayed, amazonId, accountId, passToken, avatar) => new AmazonAccountAlreadyBoundMessage(secondsSinceLastPlayed,
+            amazonId,
+            accountId,
+            passToken,
+            avatar));
 }

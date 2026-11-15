@@ -7,5 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 public sealed record ClaimDerbyPlacementRewardsCommand : CodecCommand<ClaimDerbyPlacementRewardsCommand>, ICommandCodecProvider<ClaimDerbyPlacementRewardsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimDerbyPlacementRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimDerbyPlacementRewardsCommand()), CommandLayout.MetadataFirst);
+    public static CommandCodec<ClaimDerbyPlacementRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ClaimDerbyPlacementRewardsCommand()),
+        CommandLayout.MetadataFirst);
 }

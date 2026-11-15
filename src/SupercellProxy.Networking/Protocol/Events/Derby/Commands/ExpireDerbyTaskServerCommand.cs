@@ -38,5 +38,12 @@ public sealed record ExpireDerbyTaskServerCommand(LongId NeighborhoodId,
         static command => command.DurationMinutes,
         Codecs.VarInt,
         static command => command.TaskGlobalId,
-        static (neighborhoodId, playerId, taskBoardIndex, status, discarded, points, durationMinutes, taskGlobalId) => new ExpireDerbyTaskServerCommand(neighborhoodId, playerId, taskBoardIndex, status, discarded, points, durationMinutes, taskGlobalId)));
+        static (neighborhoodId, playerId, taskBoardIndex, status, discarded, points, durationMinutes, taskGlobalId) => new ExpireDerbyTaskServerCommand(neighborhoodId,
+            playerId,
+            taskBoardIndex,
+            status,
+            discarded,
+            points,
+            durationMinutes,
+            taskGlobalId)));
 }

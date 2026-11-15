@@ -31,7 +31,12 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
         LinkedAccounts.Codec,
         static entry => new LinkedAccounts(entry.FacebookId, entry.GameCenterId),
         UnknownValues.Codec,
-        static entry => new UnknownValues(entry.Unknown9, entry.Unknown10, entry.Unknown11, entry.Unknown12, entry.Unknown13, entry.Unknown14),
+        static entry => new UnknownValues(entry.Unknown9,
+            entry.Unknown10,
+            entry.Unknown11,
+            entry.Unknown12,
+            entry.Unknown13,
+            entry.Unknown14),
         CustomText.Codec,
         static entry => new CustomText(entry.CustomSubject, entry.CustomBody),
         Reward.Codec,
@@ -290,7 +295,9 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
             static segment => segment.SenderAvatarIdHigh,
             Codecs.VarInt,
             static segment => segment.SenderAvatarIdLow,
-            static (senderAvatarName, senderAvatarIdHigh, senderAvatarIdLow) => new Sender(senderAvatarName, senderAvatarIdHigh, senderAvatarIdLow));
+            static (senderAvatarName, senderAvatarIdHigh, senderAvatarIdLow) => new Sender(senderAvatarName,
+                senderAvatarIdHigh,
+                senderAvatarIdLow));
     }
 
     // The letter subject and body.
@@ -318,6 +325,11 @@ public sealed record MailEntry : ICodecProvider<MailEntry>
             static segment => segment.Unknown13,
             Codecs.VarInt,
             static segment => segment.Unknown14,
-            static (unknown9, unknown10, unknown11, unknown12, unknown13, unknown14) => new UnknownValues(unknown9, unknown10, unknown11, unknown12, unknown13, unknown14));
+            static (unknown9, unknown10, unknown11, unknown12, unknown13, unknown14) => new UnknownValues(unknown9,
+                unknown10,
+                unknown11,
+                unknown12,
+                unknown13,
+                unknown14));
     }
 }

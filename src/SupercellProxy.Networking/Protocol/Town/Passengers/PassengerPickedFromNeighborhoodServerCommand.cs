@@ -34,5 +34,11 @@ public sealed record PassengerPickedFromNeighborhoodServerCommand(int Action,
         static command => command.BonusGlobalId,
         Codecs.BigEndianInt32,
         static command => command.BonusAmount,
-        static (action, pickingHomeId, passengerIds, helpIds, services, bonusGlobalId, bonusAmount) => new PassengerPickedFromNeighborhoodServerCommand(action, pickingHomeId, passengerIds, helpIds, services, bonusGlobalId, bonusAmount)));
+        static (action, pickingHomeId, passengerIds, helpIds, services, bonusGlobalId, bonusAmount) => new PassengerPickedFromNeighborhoodServerCommand(action,
+            pickingHomeId,
+            passengerIds,
+            helpIds,
+            services,
+            bonusGlobalId,
+            bonusAmount)));
 }

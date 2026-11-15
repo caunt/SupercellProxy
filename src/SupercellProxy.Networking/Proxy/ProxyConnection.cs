@@ -180,7 +180,12 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(socketClient);
 
-        ProxyConnection client = new(socketClient, trafficCapture, sessionTokenProvider, logger, anonymousAccount, cancellationToken);
+        ProxyConnection client = new(socketClient,
+            trafficCapture,
+            sessionTokenProvider,
+            logger,
+            anonymousAccount,
+            cancellationToken);
 
         try
         {
@@ -268,7 +273,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
     {
         MessageChannel source = direction is MessageDirection.Clientbound ? ServerStream : ClientStream;
         MessageChannel destination = direction is MessageDirection.Clientbound ? ClientStream : ServerStream;
-        MessageContainer outgoingContainer = MessageContainer.Create(message, destination.OutboundMessageVersion, destination.GameVersion);
+
+        MessageContainer outgoingContainer = MessageContainer.Create(message,
+            destination.OutboundMessageVersion,
+            destination.GameVersion);
 
         await TrafficCapture.SaveAsync(stage: "outgoing", direction, outgoingContainer, MessageRegistry.GetCaptureName(message), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -362,7 +370,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         else if (@event.Message is PassthroughMessage)
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
         }
         else
         {
@@ -453,7 +462,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (StreamClosedException exception)
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -461,7 +471,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (Exception exception) when (ProxyFailureClassifier.IsRecoverable(exception))
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
         }
         finally
         {
@@ -498,7 +509,9 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         bool preserveOriginal = (direction is MessageDirection.Clientbound && message is LoginFailedMessage)
             || (TrafficCapture.PreserveForwardedFrames && message is not LoginMessage);
 
-        MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message, original.Version, destination.GameVersion);
+        MessageContainer container = preserveOriginal ? original : MessageContainer.Create(message,
+            original.Version,
+            destination.GameVersion);
 
         await TrafficCapture.SaveAsync(stage: "outgoing", direction, container, MessageRegistry.GetCaptureName(message), cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);

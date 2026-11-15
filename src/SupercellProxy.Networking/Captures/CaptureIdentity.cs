@@ -24,7 +24,8 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
     {
         ArgumentNullException.ThrowIfNull(hello);
 
-        CaptureIdentity identity = new(new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion).ToString(fieldCount: 3), hello.FingerprintSha1);
+        CaptureIdentity identity = new(new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion).ToString(fieldCount: 3),
+            hello.FingerprintSha1);
 
         identity.Validate();
 
@@ -42,7 +43,8 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
 
         if (File.Exists(metadata))
         {
-            CaptureIdentity retained = JsonSerializer.Deserialize<CaptureIdentity>(await File.ReadAllBytesAsync(metadata, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+            CaptureIdentity retained = JsonSerializer.Deserialize<CaptureIdentity>(await File.ReadAllBytesAsync(metadata, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false))
                 ?? throw new InvalidDataException(message: "The capture identity is empty.");
 
             retained.Validate();

@@ -13,7 +13,9 @@ namespace SupercellProxy.Networking.Protocol.Decorations;
 public sealed record DecorationDesign(ReadOnlyMemory<byte>? Image, string? Author, int Value0, int Value1, int Value2, LongId? AuthorId, int Value3) : ICodecProvider<DecorationDesign>
 {
     /// <inheritdoc />
-    public static ICodec<DecorationDesign> Codec { get; } = Codecs.Composite(Codecs.Flagged(Codecs.OptionalByteArray, absent: null, static image => image is not null),
+    public static ICodec<DecorationDesign> Codec { get; } = Codecs.Composite(Codecs.Flagged(Codecs.OptionalByteArray,
+            absent: null,
+            static image => image is not null),
         static value => value.Image,
         Codecs.OptionalUtf8String,
         static value => value.Author,
@@ -27,5 +29,11 @@ public sealed record DecorationDesign(ReadOnlyMemory<byte>? Image, string? Autho
         static value => value.AuthorId,
         Codecs.VarInt,
         static value => value.Value3,
-        static (image, author, value0, value1, value2, authorId, value3) => new DecorationDesign(image, author, value0, value1, value2, authorId, value3));
+        static (image, author, value0, value1, value2, authorId, value3) => new DecorationDesign(image,
+            author,
+            value0,
+            value1,
+            value2,
+            authorId,
+            value3));
 }

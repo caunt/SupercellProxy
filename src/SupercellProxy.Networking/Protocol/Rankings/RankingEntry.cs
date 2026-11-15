@@ -38,10 +38,17 @@ public sealed record RankingEntry(int Rank,
         static value => value.Level,
         Codecs.LongId,
         static value => value.HomeId,
-        static (rank, score, rankValue, avatarId, name, level, homeId) => new RankingEntry(rank, score, rankValue, avatarId, name, level, homeId));
+        static (rank, score, rankValue, avatarId, name, level, homeId) => new RankingEntry(rank,
+            score,
+            rankValue,
+            avatarId,
+            name,
+            level,
+            homeId));
 
     /// <summary>
     /// Gets the ranking list codec: native writes -1 for an absent list and rejects counts the payload cannot hold.
     /// </summary>
-    internal static ICodec<ImmutableArray<RankingEntry>?> ListCodec => field ??= Codecs.NullableArray(Codec, CollectionCount.PerElement(minimumElementSize: 24).WithStrictAbsence());
+    internal static ICodec<ImmutableArray<RankingEntry>?> ListCodec => field ??= Codecs.NullableArray(Codec,
+        CollectionCount.PerElement(minimumElementSize: 24).WithStrictAbsence());
 }

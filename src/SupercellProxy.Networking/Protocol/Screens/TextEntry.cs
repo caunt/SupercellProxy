@@ -30,5 +30,12 @@ public sealed record TextEntry(string? Text0, string? Text1, string? Text2, stri
         static value => value.Text6,
         Codecs.BigEndianInt32,
         static value => value.Value,
-        static (text0, text1, text2, text3, text4, text5, text6, @value) => new TextEntry(text0, text1, text2, text3, text4, text5, text6, value));
+        static (text0, text1, text2, text3, text4, text5, text6, @value) => new TextEntry(text0,
+            text1,
+            text2,
+            text3,
+            text4,
+            text5,
+            text6,
+            value));
 }

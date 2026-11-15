@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.DeviceLinking;
 public sealed record DeviceLinkTextMessage(string? Text) : CodecMessage<DeviceLinkTextMessage>, ICodecProvider<DeviceLinkTextMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DeviceLinkTextMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String, static message => message.Text, static text => new DeviceLinkTextMessage(text));
+    public static ICodec<DeviceLinkTextMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalUtf8String,
+        static message => message.Text,
+        static text => new DeviceLinkTextMessage(text));
 }

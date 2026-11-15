@@ -202,9 +202,15 @@ internal sealed class MessageTransport(MessageChannel stream)
     private void ObserveGameVersion(IMessage message)
     {
         if (message is ClientHelloMessage hello)
+        {
             stream.GameVersion = new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion);
+        }
         else if (message is LoginMessage login)
-            stream.GameVersion = new Version(login.LoginVersion >> 20, (login.LoginVersion >> 10) & 1023, login.LoginVersion & 1023);
+        {
+            stream.GameVersion = new Version(login.LoginVersion >> 20,
+                (login.LoginVersion >> 10) & 1023,
+                login.LoginVersion & 1023);
+        }
     }
 
     private async ValueTask WriteContainerAsync(MessageContainer messageContainer, IMessage? message, CancellationToken cancellationToken)
@@ -214,7 +220,9 @@ internal sealed class MessageTransport(MessageChannel stream)
 
         messageContainer.Payload.FlushWriteBoolean();
 
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length, MessageChannel.MaximumPayloadLength, nameof(messageContainer));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(messageContainer.Payload.Length,
+            MessageChannel.MaximumPayloadLength,
+            nameof(messageContainer));
 
         using IDisposable disposable = await _writeLock.LockAsync(cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);

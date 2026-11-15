@@ -18,7 +18,10 @@ public sealed record DerbyRaceUpdateMessage(int Value0, int Value1, int EntryDis
             static message => message.Value1,
             RaceEntry.Codec,
             static message => new RaceEntry(message.EntryDiscriminator, message.Entry),
-            static (value0, value1, raceEntry) => new DerbyRaceUpdateMessage(value0, value1, raceEntry.EntryDiscriminator, raceEntry.Entry)),
+            static (value0, value1, raceEntry) => new DerbyRaceUpdateMessage(value0,
+                value1,
+                raceEntry.EntryDiscriminator,
+                raceEntry.Entry)),
         trailingDataMessage: "The derby message has trailing data.");
 
     /// <summary>Omits neighborhood details from diagnostic text.</summary>

@@ -43,7 +43,12 @@ public sealed record SpawnAmbientAnimalCommand : CodecCommand<SpawnAmbientAnimal
         static command => command.DestinationY,
         Codecs.Boolean,
         static command => command.NotifyListener,
-        static (behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener) => new SpawnAmbientAnimalCommand(behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener)));
+        static (behavior, horizontalCoordinate, verticalCoordinate, destinationX, destinationY, notifyListener) => new SpawnAmbientAnimalCommand(behavior,
+            horizontalCoordinate,
+            verticalCoordinate,
+            destinationX,
+            destinationY,
+            notifyListener)));
 
     /// <summary>
     /// Gets the movement pattern the animal follows, 0 to 4. Pattern 4 is

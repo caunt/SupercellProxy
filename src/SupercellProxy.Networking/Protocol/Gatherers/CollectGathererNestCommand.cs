@@ -10,5 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Gatherers;
 public sealed record CollectGathererNestCommand([property: JsonPropertyName("GathererNestGlobalId")] int GathererNestGlobalId) : CodecCommand<CollectGathererNestCommand>, ICommandCodecProvider<CollectGathererNestCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectGathererNestCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.GathererNestGlobalId, static id => new CollectGathererNestCommand(id)));
+    public static CommandCodec<CollectGathererNestCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GathererNestGlobalId,
+        static id => new CollectGathererNestCommand(id)));
 }

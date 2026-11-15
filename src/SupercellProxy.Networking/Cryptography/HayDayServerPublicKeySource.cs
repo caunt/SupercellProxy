@@ -37,7 +37,8 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
             if (!File.Exists(path))
                 continue;
 
-            local = ReadLatest(await File.ReadAllTextAsync(path, cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            local = ReadLatest(await File.ReadAllTextAsync(path, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false));
 
             break;
         }
@@ -60,9 +61,15 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (!response.IsSuccessStatusCode)
-                throw new HttpRequestException($"KEYS.md request failed: {response.StatusCode}.", inner: null, response.StatusCode);
+            {
+                throw new HttpRequestException($"KEYS.md request failed: {response.StatusCode}.",
+                    inner: null,
+                    response.StatusCode);
+            }
 
-            published = ReadLatest(await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+            published = ReadLatest(await response.Content
+                .ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false));
         }
         catch (HttpRequestException) when (local is not null)
         {

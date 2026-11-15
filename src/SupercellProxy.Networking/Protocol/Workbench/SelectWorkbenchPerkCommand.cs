@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Workbench;
 public sealed record SelectWorkbenchPerkCommand(int PerkGlobalId) : CodecCommand<SelectWorkbenchPerkCommand>, ICommandCodecProvider<SelectWorkbenchPerkCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SelectWorkbenchPerkCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PerkGlobalId, static perkGlobalId => new SelectWorkbenchPerkCommand(perkGlobalId)),
+    public static CommandCodec<SelectWorkbenchPerkCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.PerkGlobalId,
+            static perkGlobalId => new SelectWorkbenchPerkCommand(perkGlobalId)),
         CommandLayout.MetadataFirst);
 }

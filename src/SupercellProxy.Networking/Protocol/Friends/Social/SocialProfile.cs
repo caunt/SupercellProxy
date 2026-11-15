@@ -41,5 +41,13 @@ public sealed record SocialProfile(LongId AvatarId,
         static value => value.Value2,
         Codecs.VarInt,
         static value => value.Value3,
-        static (avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3) => new SocialProfile(avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3));
+        static (avatarId, facebookId, gamecenterId, supercellId, farmName, value0, value1, value2, value3) => new SocialProfile(avatarId,
+            facebookId,
+            gamecenterId,
+            supercellId,
+            farmName,
+            value0,
+            value1,
+            value2,
+            value3));
 }

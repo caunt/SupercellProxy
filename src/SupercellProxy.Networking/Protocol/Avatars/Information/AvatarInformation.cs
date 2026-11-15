@@ -21,5 +21,9 @@ public sealed record AvatarInformation(LongId AvatarId, string? FacebookId, stri
         static value => value.SupercellId,
         Codecs.OptionalUtf8String,
         static value => value.FarmName,
-        static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarInformation(avatarId, facebookId, gamecenterId, supercellId, farmName));
+        static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarInformation(avatarId,
+            facebookId,
+            gamecenterId,
+            supercellId,
+            farmName));
 }

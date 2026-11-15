@@ -9,7 +9,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Messages.History;
 public sealed record DerbyTaskLogMessage : CodecMessage<DerbyTaskLogMessage>, ICodecProvider<DerbyTaskLogMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DerbyTaskLogMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
+    public static ICodec<DerbyTaskLogMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec,
+                CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.FirstEntries,
             Codecs.NullableArray(DerbyMemberTaskLogEntry.Codec, CollectionCount.VarInt.WithStrictAbsence()),
             static message => message.SecondEntries,

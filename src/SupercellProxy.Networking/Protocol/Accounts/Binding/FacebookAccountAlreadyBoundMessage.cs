@@ -26,5 +26,10 @@ public sealed record FacebookAccountAlreadyBoundMessage(int SecondsSinceLastPlay
         static message => message.IsSupercellId,
         ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar) => new FacebookAccountAlreadyBoundMessage(secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar));
+        static (secondsSinceLastPlayed, facebookId, accountId, passToken, isSupercellId, avatar) => new FacebookAccountAlreadyBoundMessage(secondsSinceLastPlayed,
+            facebookId,
+            accountId,
+            passToken,
+            isSupercellId,
+            avatar));
 }

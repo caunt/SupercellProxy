@@ -24,7 +24,13 @@ public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, i
         static command => command.Index,
         Outcome.Codec,
         static command => new Outcome(command.Succeeded, command.ErrorCode, command.ErrorText),
-        static (eventId, variant, packageGlobalId, index, outcome) => new ShopPurchaseResultServerCommand(eventId, variant, packageGlobalId, index, outcome.Succeeded, outcome.ErrorCode, outcome.ErrorText)));
+        static (eventId, variant, packageGlobalId, index, outcome) => new ShopPurchaseResultServerCommand(eventId,
+            variant,
+            packageGlobalId,
+            index,
+            outcome.Succeeded,
+            outcome.ErrorCode,
+            outcome.ErrorText)));
 
     // Native reads the error code and text only for a failed purchase.
     private readonly record struct Outcome(bool Succeeded, int ErrorCode, string? ErrorText)
@@ -33,7 +39,8 @@ public sealed record ShopPurchaseResultServerCommand(int EventId, int Variant, i
             static outcome => outcome.Succeeded,
             cases:
             [
-                new KeyValuePair<bool, ICodec<Outcome>>(key: true, Codecs.Unit(static () => new Outcome(Succeeded: true, ErrorCode: 0, ErrorText: null))),
+                new KeyValuePair<bool, ICodec<Outcome>>(key: true,
+                    Codecs.Unit(static () => new Outcome(Succeeded: true, ErrorCode: 0, ErrorText: null))),
                 new KeyValuePair<bool, ICodec<Outcome>>(key: false,
                     Codecs.Composite(Codecs.BigEndianInt32,
                         static outcome => outcome.ErrorCode,

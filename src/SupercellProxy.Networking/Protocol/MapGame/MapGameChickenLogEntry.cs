@@ -20,5 +20,8 @@ public sealed record MapGameChickenLogEntry(LongId? AvatarId, int ChickenCount, 
         static value => value.CollectTimeSeconds,
         Codecs.VarInt,
         static value => value.Type,
-        static (avatarId, chickenCount, collectTimeSeconds, type) => new MapGameChickenLogEntry(avatarId, chickenCount, collectTimeSeconds, type));
+        static (avatarId, chickenCount, collectTimeSeconds, type) => new MapGameChickenLogEntry(avatarId,
+            chickenCount,
+            collectTimeSeconds,
+            type));
 }

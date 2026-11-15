@@ -51,7 +51,15 @@ public sealed record FriendEntry(LongId HomeId,
         static entry => entry.RelationshipStatus,
         Codecs.VarInt,
         static entry => entry.BlockTimestamp,
-        static (homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp) => new FriendEntry(homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp));
+        static (homeId, name, facebookId, gameCenterId, profilePictureAddress, experienceLevel, sortValue, relationshipStatus, blockTimestamp) => new FriendEntry(homeId,
+            name,
+            facebookId,
+            gameCenterId,
+            profilePictureAddress,
+            experienceLevel,
+            sortValue,
+            relationshipStatus,
+            blockTimestamp));
 
     /// <summary>Omits private farm and social-provider data from diagnostics.</summary>
     /// <returns>Always the type name <c>FriendEntry</c>, whatever the entry holds.</returns>

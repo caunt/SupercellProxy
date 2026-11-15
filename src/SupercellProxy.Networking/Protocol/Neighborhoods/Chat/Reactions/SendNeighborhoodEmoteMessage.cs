@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat.Reactions;
 public sealed record SendNeighborhoodEmoteMessage(int Emote) : CodecMessage<SendNeighborhoodEmoteMessage>, ICodecProvider<SendNeighborhoodEmoteMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SendNeighborhoodEmoteMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Emote, static emote => new SendNeighborhoodEmoteMessage(emote));
+    public static ICodec<SendNeighborhoodEmoteMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.Emote,
+        static emote => new SendNeighborhoodEmoteMessage(emote));
 }

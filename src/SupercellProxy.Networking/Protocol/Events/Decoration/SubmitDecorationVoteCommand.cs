@@ -16,6 +16,8 @@ public sealed record SubmitDecorationVoteCommand(LongId? CandidateId, int EventI
             static command => command.EventId,
             Codecs.VarInt,
             static command => command.EventVariantId,
-            static (candidateId, eventId, eventVariantId) => new SubmitDecorationVoteCommand(candidateId, eventId, eventVariantId)),
+            static (candidateId, eventId, eventVariantId) => new SubmitDecorationVoteCommand(candidateId,
+                eventId,
+                eventVariantId)),
         CommandLayout.MetadataFirst);
 }

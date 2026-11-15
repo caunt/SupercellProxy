@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.FarmLayouts.Names;
 public sealed record SelectEditModeSlotMessage(int SlotIndex) : CodecMessage<SelectEditModeSlotMessage>, ICodecProvider<SelectEditModeSlotMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SelectEditModeSlotMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.SlotIndex, static slotIndex => new SelectEditModeSlotMessage(slotIndex));
+    public static ICodec<SelectEditModeSlotMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.SlotIndex,
+        static slotIndex => new SelectEditModeSlotMessage(slotIndex));
 }

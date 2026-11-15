@@ -15,9 +15,14 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     {
         ArgumentNullException.ThrowIfNull(fingerprint);
 
-        string directory = Path.Combine(assetDirectory() ?? UserDataPaths.AssetDirectoryPath, fingerprint.Version, fingerprint.Sha);
+        string directory = Path.Combine(assetDirectory() ?? UserDataPaths.AssetDirectoryPath,
+            fingerprint.Version,
+            fingerprint.Sha);
+
         string[] addresses = [.. downloadUrls];
-        Task<ImmutableArray<GameAsset>> loading = Loaded.GetOrAdd(directory, path => LoadAssetsAsync(path, fingerprint, addresses));
+
+        Task<ImmutableArray<GameAsset>> loading = Loaded.GetOrAdd(directory,
+            path => LoadAssetsAsync(path, fingerprint, addresses));
 
         try
         {
@@ -41,7 +46,8 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
 
     private static async Task<GameAsset> ReadAssetAsync(GameAssetFingerprintEntry file, string filePath, CancellationToken cancellationToken)
     {
-        return new GameAsset(file, await File.ReadAllBytesAsync(filePath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+        return new GameAsset(file,
+            await File.ReadAllBytesAsync(filePath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
     }
 
     private static async Task SaveCatalogAsync(string directory, GameAssetFingerprint fingerprint, CancellationToken cancellationToken)

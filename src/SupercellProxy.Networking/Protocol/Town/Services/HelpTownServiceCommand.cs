@@ -16,5 +16,7 @@ public sealed record HelpTownServiceCommand(int HelpId, int ServiceIndex, int Se
         static command => command.ServiceIndex,
         Codecs.VarInt,
         static command => command.ServiceBuildingGlobalId,
-        static (helpId, serviceIndex, serviceBuildingGlobalId) => new HelpTownServiceCommand(helpId, serviceIndex, serviceBuildingGlobalId)));
+        static (helpId, serviceIndex, serviceBuildingGlobalId) => new HelpTownServiceCommand(helpId,
+            serviceIndex,
+            serviceBuildingGlobalId)));
 }

@@ -16,5 +16,7 @@ public sealed record RequestJoinNeighborhoodMessage(LongId NeighborhoodId, strin
         static message => message.NeighborhoodName,
         Codecs.OptionalUtf8String,
         static message => message.Message,
-        static (neighborhoodId, neighborhoodName, message) => new RequestJoinNeighborhoodMessage(neighborhoodId, neighborhoodName, message));
+        static (neighborhoodId, neighborhoodName, message) => new RequestJoinNeighborhoodMessage(neighborhoodId,
+            neighborhoodName,
+            message));
 }

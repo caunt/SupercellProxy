@@ -32,7 +32,12 @@ public sealed record NeighborhoodDerbyOptStreamEntry(AvatarStreamEntryHeader Hea
         static entry => entry.Reason,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,
-        static (header, messageText, neighborhoodId, neighborhoodName, reason, badge) => new NeighborhoodDerbyOptStreamEntry(header, messageText, neighborhoodId, neighborhoodName, reason, badge));
+        static (header, messageText, neighborhoodId, neighborhoodName, reason, badge) => new NeighborhoodDerbyOptStreamEntry(header,
+            messageText,
+            neighborhoodId,
+            neighborhoodName,
+            reason,
+            badge));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

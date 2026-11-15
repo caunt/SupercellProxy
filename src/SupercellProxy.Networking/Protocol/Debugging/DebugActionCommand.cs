@@ -22,7 +22,11 @@ public sealed record DebugActionCommand(int Action, int AdditionalData, int Targ
             static command => command.Amount,
             Codecs.OptionalUtf8String,
             static command => command.Text,
-            static (action, additionalData, targetGlobalId, amount, text) => new DebugActionCommand(action, additionalData, targetGlobalId, amount, text)),
+            static (action, additionalData, targetGlobalId, amount, text) => new DebugActionCommand(action,
+                additionalData,
+                targetGlobalId,
+                amount,
+                text)),
         CommandLayout.FieldsFirst,
         productionAllowed: false);
 }

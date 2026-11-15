@@ -11,7 +11,8 @@ public sealed record MailListMessage : CodecMessage<MailListMessage>, ICodecProv
     private const int MaximumEntryCount = 1024;
 
     /// <inheritdoc />
-    public static ICodec<MailListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(MailEntry.Codec, CollectionCount.PerElement(MailEntry.MinimumEncodedSize).With(MaximumEntryCount).WithStrictAbsence()),
+    public static ICodec<MailListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(MailEntry.Codec,
+                CollectionCount.PerElement(MailEntry.MinimumEncodedSize).With(MaximumEntryCount).WithStrictAbsence()),
             static message => message.Entries,
             static entries => new MailListMessage
             {

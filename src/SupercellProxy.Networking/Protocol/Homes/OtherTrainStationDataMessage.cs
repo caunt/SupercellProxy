@@ -10,5 +10,7 @@ public sealed record OtherTrainStationDataMessage : OtherHomeDataMessage, ICodec
     }
 
     /// <inheritdoc />
-    public static new ICodec<OtherTrainStationDataMessage> Codec { get; } = Codecs.Map(OtherHomeDataMessage.Codec, static message => new OtherTrainStationDataMessage(message), static message => message);
+    public static new ICodec<OtherTrainStationDataMessage> Codec { get; } = Codecs.Map(OtherHomeDataMessage.Codec,
+        static message => new OtherTrainStationDataMessage(message),
+        static message => message);
 }

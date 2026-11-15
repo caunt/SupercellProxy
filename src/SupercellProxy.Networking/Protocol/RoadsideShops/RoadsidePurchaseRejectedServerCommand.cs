@@ -28,5 +28,11 @@ public sealed record RoadsidePurchaseRejectedServerCommand(LongId BuyerId, LongI
         static command => command.Price,
         Codecs.VarInt,
         static command => command.DailyCollectionToolLimit,
-        static (buyer, owner, item, slot, quantity, price, limit) => new RoadsidePurchaseRejectedServerCommand(buyer, owner, item, slot, quantity, price, limit)));
+        static (buyer, owner, item, slot, quantity, price, limit) => new RoadsidePurchaseRejectedServerCommand(buyer,
+            owner,
+            item,
+            slot,
+            quantity,
+            price,
+            limit)));
 }

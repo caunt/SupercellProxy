@@ -18,5 +18,8 @@ public sealed record PassengerService(int ServiceBuildingGlobalId, bool Complete
         static value => value.Canceled,
         Codecs.Memory(PassengerServiceGood.Codec),
         static value => value.RequiredGoods,
-        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new PassengerService(serviceBuildingGlobalId, completed, canceled, requiredGoods));
+        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new PassengerService(serviceBuildingGlobalId,
+            completed,
+            canceled,
+            requiredGoods));
 }

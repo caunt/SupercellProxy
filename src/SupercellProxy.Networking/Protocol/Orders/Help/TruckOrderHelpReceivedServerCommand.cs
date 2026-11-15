@@ -33,5 +33,10 @@ public sealed record TruckOrderHelpReceivedServerCommand(LongId OwnerHomeId,
         static command => command.HelperRewards,
         Codecs.VarInt,
         static command => command.ListenerValue,
-        static (ownerHomeId, helperHomeId, helpId, ownerRewards, helperRewards, listenerValue) => new TruckOrderHelpReceivedServerCommand(ownerHomeId, helperHomeId, helpId, ownerRewards, helperRewards, listenerValue)));
+        static (ownerHomeId, helperHomeId, helpId, ownerRewards, helperRewards, listenerValue) => new TruckOrderHelpReceivedServerCommand(ownerHomeId,
+            helperHomeId,
+            helpId,
+            ownerRewards,
+            helperRewards,
+            listenerValue)));
 }

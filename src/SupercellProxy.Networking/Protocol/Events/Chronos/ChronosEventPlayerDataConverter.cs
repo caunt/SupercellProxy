@@ -26,7 +26,8 @@ public sealed class ChronosEventPlayerDataConverter : JsonConverter<ImmutableArr
             if (!reader.Read() || reader.TokenType != JsonTokenType.String)
                 throw new JsonException(message: "Expected the saved event document string.");
 
-            entries.Add(new(eventId, reader.GetString() ?? throw new JsonException(message: "The saved event document is null.")));
+            entries.Add(new(eventId,
+                reader.GetString() ?? throw new JsonException(message: "The saved event document is null.")));
         }
 
         throw new JsonException(message: "The saved event-data array is incomplete.");

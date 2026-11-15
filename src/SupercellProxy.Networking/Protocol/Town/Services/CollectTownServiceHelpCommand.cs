@@ -13,5 +13,6 @@ public sealed record CollectTownServiceHelpCommand(int ServiceIndex, int Service
         static command => command.ServiceIndex,
         Codecs.VarInt,
         static command => command.ServiceBuildingGlobalId,
-        static (serviceIndex, serviceBuildingGlobalId) => new CollectTownServiceHelpCommand(serviceIndex, serviceBuildingGlobalId)));
+        static (serviceIndex, serviceBuildingGlobalId) => new CollectTownServiceHelpCommand(serviceIndex,
+            serviceBuildingGlobalId)));
 }

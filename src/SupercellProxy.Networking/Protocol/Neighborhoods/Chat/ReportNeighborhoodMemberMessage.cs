@@ -16,5 +16,7 @@ public sealed record ReportNeighborhoodMemberMessage(LongId ReporterId, LongId N
         static message => message.NeighborhoodId,
         Codecs.LongId,
         static message => message.AvatarId,
-        static (reporterId, neighborhoodId, avatarId) => new ReportNeighborhoodMemberMessage(reporterId, neighborhoodId, avatarId));
+        static (reporterId, neighborhoodId, avatarId) => new ReportNeighborhoodMemberMessage(reporterId,
+            neighborhoodId,
+            avatarId));
 }

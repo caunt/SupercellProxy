@@ -20,5 +20,7 @@ public sealed record ExchangeBoosterCommand(int RemovedBoosterDataGlobalId, int 
         static command => command.AddedBoosterDataGlobalId,
         Codecs.Boolean,
         static command => command.Unknown0,
-        static (removedBoosterDataGlobalId, addedBoosterDataGlobalId, unknown0) => new ExchangeBoosterCommand(removedBoosterDataGlobalId, addedBoosterDataGlobalId, unknown0)));
+        static (removedBoosterDataGlobalId, addedBoosterDataGlobalId, unknown0) => new ExchangeBoosterCommand(removedBoosterDataGlobalId,
+            addedBoosterDataGlobalId,
+            unknown0)));
 }

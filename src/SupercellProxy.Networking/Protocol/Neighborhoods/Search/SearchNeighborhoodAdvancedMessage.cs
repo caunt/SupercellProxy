@@ -42,5 +42,13 @@ public sealed record SearchNeighborhoodAdvancedMessage(ReadOnlyMemory<Neighborho
         static message => message.LeagueId,
         Codecs.VarInt,
         static message => message.Type,
-        static (tags, query, neighborhoodId, requiredLevel, familyFriendly, derbyEnabled, language, leagueId, type) => new SearchNeighborhoodAdvancedMessage(tags, query, neighborhoodId, requiredLevel, familyFriendly, derbyEnabled, language, leagueId, type));
+        static (tags, query, neighborhoodId, requiredLevel, familyFriendly, derbyEnabled, language, leagueId, type) => new SearchNeighborhoodAdvancedMessage(tags,
+            query,
+            neighborhoodId,
+            requiredLevel,
+            familyFriendly,
+            derbyEnabled,
+            language,
+            leagueId,
+            type));
 }

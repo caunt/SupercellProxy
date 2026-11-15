@@ -16,7 +16,9 @@ public sealed record TrashDerbyBoardTaskMessage(LongId NeighborhoodId, LongId Pl
             static message => message.PlayerId,
             Codecs.VarInt,
             static message => message.TaskBoardIndex,
-            static (neighborhoodId, playerId, taskBoardIndex) => new TrashDerbyBoardTaskMessage(neighborhoodId, playerId, taskBoardIndex)),
+            static (neighborhoodId, playerId, taskBoardIndex) => new TrashDerbyBoardTaskMessage(neighborhoodId,
+                playerId,
+                taskBoardIndex)),
         trailingDataMessage: "The derby message has trailing data.");
 
     /// <summary>Omits identifiers from diagnostic text.</summary>

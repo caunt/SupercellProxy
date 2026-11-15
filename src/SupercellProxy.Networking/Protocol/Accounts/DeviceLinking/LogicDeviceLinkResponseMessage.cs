@@ -25,5 +25,10 @@ public sealed record LogicDeviceLinkResponseMessage(int ErrorCode, string? Text,
         static message => message.ThirdText,
         Codecs.LongId,
         static message => message.AccountId,
-        static (errorCode, text, secondText, @value, thirdText, accountId) => new LogicDeviceLinkResponseMessage(errorCode, text, secondText, value, thirdText, accountId));
+        static (errorCode, text, secondText, @value, thirdText, accountId) => new LogicDeviceLinkResponseMessage(errorCode,
+            text,
+            secondText,
+            value,
+            thirdText,
+            accountId));
 }

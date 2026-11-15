@@ -46,7 +46,11 @@ public sealed record MapGameChickenTaskStatePayload : MapGameTaskStatePayload, I
         static value => value.RewardData,
         Codecs.Memory(Codecs.LongId),
         static value => value.CollectorAvatarIds,
-        static (requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds) => new MapGameChickenTaskStatePayload(requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds));
+        static (requiredCollectorCount, helpRequestSent, helperAvatarId, rewardData, collectorAvatarIds) => new MapGameChickenTaskStatePayload(requiredCollectorCount,
+            helpRequestSent,
+            helperAvatarId,
+            rewardData,
+            collectorAvatarIds));
 
     /// <summary>
     /// Gets or sets the avatars that collected (native JSON <c>CollectorAvatarIDs</c>).

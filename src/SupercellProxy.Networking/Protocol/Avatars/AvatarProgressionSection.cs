@@ -54,7 +54,10 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
         AvatarDerbyMinigameCounters.Codec,
         static section => section.DerbyMinigameCounters,
         MapGameBlock.Codec,
-        static section => new MapGameBlock(section.MapGameId, section.UnknownOptionalId3, section.Unknown4, section.MapGameParticipants),
+        static section => new MapGameBlock(section.MapGameId,
+            section.UnknownOptionalId3,
+            section.Unknown4,
+            section.MapGameParticipants),
         AgeBlock.Codec,
         static section => new AgeBlock(section.BirthTimestamp, section.AgeCountryCode, section.StorePromotionAllowed),
         Codecs.OptionalUtf8String,
@@ -111,7 +114,9 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
             static block => block.AgeCountryCode,
             Codecs.Boolean,
             static block => block.StorePromotionAllowed,
-            static (birthTimestamp, ageCountryCode, storePromotionAllowed) => new AgeBlock(birthTimestamp, ageCountryCode, storePromotionAllowed));
+            static (birthTimestamp, ageCountryCode, storePromotionAllowed) => new AgeBlock(birthTimestamp,
+                ageCountryCode,
+                storePromotionAllowed));
     }
 
     // Native reads the map game participants only when the avatar has a map game.
@@ -123,7 +128,10 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
             LongId? unknownOptionalId3 = stream.ReadOptionalLongId();
             int unknown4 = stream.ReadVarInt();
 
-            return new MapGameBlock(mapGameId, unknownOptionalId3, unknown4, mapGameId is null ? null : ParticipantsCodec.Read(stream));
+            return new MapGameBlock(mapGameId,
+                unknownOptionalId3,
+                unknown4,
+                mapGameId is null ? null : ParticipantsCodec.Read(stream));
         },
             static (stream, block) =>
             {
@@ -135,6 +143,7 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
                     ParticipantsCodec.Write(stream, block.Participants);
             });
 
-        private static ICodec<ImmutableArray<MapGameParticipant>?> ParticipantsCodec => field ??= Codecs.OptionalValue(Codecs.Array(MapGameParticipant.Codec, CollectionCount.Bounded));
+        private static ICodec<ImmutableArray<MapGameParticipant>?> ParticipantsCodec => field ??= Codecs.OptionalValue(Codecs.Array(MapGameParticipant.Codec,
+            CollectionCount.Bounded));
     }
 }

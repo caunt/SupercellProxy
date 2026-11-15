@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.TradingSeasons;
 public sealed record MarkTradingSeasonCheckedCommand(int TradingSeasonId) : CodecCommand<MarkTradingSeasonCheckedCommand>, ICommandCodecProvider<MarkTradingSeasonCheckedCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkTradingSeasonCheckedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.TradingSeasonId, static seasonId => new MarkTradingSeasonCheckedCommand(seasonId)));
+    public static CommandCodec<MarkTradingSeasonCheckedCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.TradingSeasonId,
+        static seasonId => new MarkTradingSeasonCheckedCommand(seasonId)));
 }

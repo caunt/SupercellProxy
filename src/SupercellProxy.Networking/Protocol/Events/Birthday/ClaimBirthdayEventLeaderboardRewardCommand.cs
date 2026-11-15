@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 public sealed record ClaimBirthdayEventLeaderboardRewardCommand(int EventId) : CodecCommand<ClaimBirthdayEventLeaderboardRewardCommand>, ICommandCodecProvider<ClaimBirthdayEventLeaderboardRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimBirthdayEventLeaderboardRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new ClaimBirthdayEventLeaderboardRewardCommand(eventId)));
+    public static CommandCodec<ClaimBirthdayEventLeaderboardRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.EventId,
+        static eventId => new ClaimBirthdayEventLeaderboardRewardCommand(eventId)));
 }

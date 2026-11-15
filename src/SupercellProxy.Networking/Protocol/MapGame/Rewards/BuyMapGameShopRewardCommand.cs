@@ -19,6 +19,9 @@ public sealed record BuyMapGameShopRewardCommand(LongId MapGameId, int RewardInd
             static command => command.Reward,
             Codecs.Optional(MapGameShopPromotion.Codec),
             static command => command.Promotion,
-            static (mapGameId, rewardIndex, reward, promotion) => new BuyMapGameShopRewardCommand(mapGameId, rewardIndex, reward, promotion)),
+            static (mapGameId, rewardIndex, reward, promotion) => new BuyMapGameShopRewardCommand(mapGameId,
+                rewardIndex,
+                reward,
+                promotion)),
         CommandLayout.MetadataFirst);
 }

@@ -7,5 +7,7 @@ namespace SupercellProxy.Networking.Protocol.Debugging;
 public sealed record DebugWheelCarsCommand : CodecCommand<DebugWheelCarsCommand>, ICommandCodecProvider<DebugWheelCarsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<DebugWheelCarsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new DebugWheelCarsCommand()), CommandLayout.FieldsFirst, productionAllowed: false);
+    public static CommandCodec<DebugWheelCarsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new DebugWheelCarsCommand()),
+        CommandLayout.FieldsFirst,
+        productionAllowed: false);
 }

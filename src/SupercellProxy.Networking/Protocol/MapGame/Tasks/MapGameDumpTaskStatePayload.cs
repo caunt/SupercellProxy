@@ -39,7 +39,8 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     }
 
     /// <inheritdoc />
-    public static ICodec<MapGameDumpTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount),
+    public static ICodec<MapGameDumpTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.Memory(CommandDataReferenceVarIntPair.Codec,
+            CommandVarIntPair.ArrayCount),
         static value => value.RequiredGoods,
         Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
         static value => value.RewardData,
@@ -51,7 +52,12 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
         static value => value.EmojiGlobalId,
         Codecs.VarInt,
         static value => value.SanctuaryAnimalGlobalId,
-        static (requiredGoods, rewardData, helpRequestSent, helperAvatarId, emojiGlobalId, sanctuaryAnimalGlobalId) => new MapGameDumpTaskStatePayload(requiredGoods, rewardData, helpRequestSent, helperAvatarId, emojiGlobalId, sanctuaryAnimalGlobalId));
+        static (requiredGoods, rewardData, helpRequestSent, helperAvatarId, emojiGlobalId, sanctuaryAnimalGlobalId) => new MapGameDumpTaskStatePayload(requiredGoods,
+            rewardData,
+            helpRequestSent,
+            helperAvatarId,
+            emojiGlobalId,
+            sanctuaryAnimalGlobalId));
 
     /// <summary>
     /// Gets the emoji shown on the task (native JSON <c>EmojiData</c>).

@@ -24,5 +24,7 @@ public sealed record PlaceFishingBaitCommand(int FishingSpotGlobalId, int BiteDe
         static command => command.BiteDelayMilliseconds,
         Codecs.VarInt,
         static command => command.BaitGlobalId,
-        static (fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId) => new PlaceFishingBaitCommand(fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId)));
+        static (fishingSpotGlobalId, biteDelayMilliseconds, baitGlobalId) => new PlaceFishingBaitCommand(fishingSpotGlobalId,
+            biteDelayMilliseconds,
+            baitGlobalId)));
 }

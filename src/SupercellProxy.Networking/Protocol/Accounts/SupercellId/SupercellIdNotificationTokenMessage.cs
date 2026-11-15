@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.SupercellId;
 public sealed record SupercellIdNotificationTokenMessage(ReadOnlyMemory<byte>? Token) : CodecMessage<SupercellIdNotificationTokenMessage>, ICodecProvider<SupercellIdNotificationTokenMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SupercellIdNotificationTokenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray, static message => message.Token, static token => new SupercellIdNotificationTokenMessage(token));
+    public static ICodec<SupercellIdNotificationTokenMessage> Codec { get; } = Codecs.Composite(Codecs.OptionalByteArray,
+        static message => message.Token,
+        static token => new SupercellIdNotificationTokenMessage(token));
 }

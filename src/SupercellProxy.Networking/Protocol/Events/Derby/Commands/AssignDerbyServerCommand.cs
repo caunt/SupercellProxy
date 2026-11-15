@@ -22,5 +22,9 @@ public sealed record AssignDerbyServerCommand(int LeagueType, int SeasonId, Long
         static command => command.LeagueIndex,
         Codecs.VarInt,
         static command => command.ParticipantCount,
-        static (leagueType, seasonId, instanceId, leagueIndex, participantCount) => new AssignDerbyServerCommand(leagueType, seasonId, instanceId, leagueIndex, participantCount)));
+        static (leagueType, seasonId, instanceId, leagueIndex, participantCount) => new AssignDerbyServerCommand(leagueType,
+            seasonId,
+            instanceId,
+            leagueIndex,
+            participantCount)));
 }

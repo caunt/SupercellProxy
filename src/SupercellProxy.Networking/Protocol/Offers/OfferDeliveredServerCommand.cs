@@ -22,5 +22,9 @@ public sealed record OfferDeliveredServerCommand(ReadOnlyMemory<OfferGood> Goods
         static command => command.Count,
         Codecs.OptionalUtf8String,
         static command => command.ProductId,
-        static (goods, offerId, rewardMode, count, productId) => new OfferDeliveredServerCommand(goods, offerId, rewardMode, count, productId)));
+        static (goods, offerId, rewardMode, count, productId) => new OfferDeliveredServerCommand(goods,
+            offerId,
+            rewardMode,
+            count,
+            productId)));
 }

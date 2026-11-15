@@ -19,5 +19,8 @@ public sealed record CancelShopPurchaseCommand(int EventId, int VariantId, int P
         static command => command.PackageGlobalId,
         Codecs.VarInt,
         static command => command.FarmPassPurchase,
-        static (eventId, variantId, packageGlobalId, farmPassPurchase) => new CancelShopPurchaseCommand(eventId, variantId, packageGlobalId, farmPassPurchase)));
+        static (eventId, variantId, packageGlobalId, farmPassPurchase) => new CancelShopPurchaseCommand(eventId,
+            variantId,
+            packageGlobalId,
+            farmPassPurchase)));
 }

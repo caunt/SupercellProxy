@@ -22,5 +22,9 @@ public sealed record ConfirmPopupActionMessage(int PopupId, int Choice, int Pric
         static message => message.Currency,
         Codecs.VarInt,
         static message => message.Context,
-        static (popupId, choice, price, currency, context) => new ConfirmPopupActionMessage(popupId, choice, price, currency, context));
+        static (popupId, choice, price, currency, context) => new ConfirmPopupActionMessage(popupId,
+            choice,
+            price,
+            currency,
+            context));
 }

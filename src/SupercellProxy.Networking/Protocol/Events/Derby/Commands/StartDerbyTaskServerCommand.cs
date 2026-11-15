@@ -28,7 +28,11 @@ public sealed record StartDerbyTaskServerCommand : CodecServerCommand<StartDerby
         Codecs.VarInt,
         static command => command.Status,
         TaskKinds.Codec,
-        static command => new TaskKinds(command.BingoTask, command.MysteryTask, command.BlossomTask, command.ChillDerbyTask, command.BunnyDerbyTask),
+        static command => new TaskKinds(command.BingoTask,
+            command.MysteryTask,
+            command.BlossomTask,
+            command.ChillDerbyTask,
+            command.BunnyDerbyTask),
         Codecs.VarInt,
         static command => command.HotPotatoTaskDataGlobalId,
         Codecs.VarInt,
@@ -173,6 +177,10 @@ public sealed record StartDerbyTaskServerCommand : CodecServerCommand<StartDerby
             static segment => segment.ChillDerbyTask,
             Codecs.Boolean,
             static segment => segment.BunnyDerbyTask,
-            static (bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask) => new TaskKinds(bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask));
+            static (bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask) => new TaskKinds(bingoTask,
+                mysteryTask,
+                blossomTask,
+                chillDerbyTask,
+                bunnyDerbyTask));
     }
 }

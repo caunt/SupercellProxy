@@ -46,7 +46,15 @@ public sealed record AccountCandidateEntry([property: JsonPropertyName("AccountI
         static value => value.Value2,
         Codecs.VarInt,
         static value => value.Value3,
-        static (accountId, text0, text1, text2, text3, value0, value1, value2, value3) => new AccountCandidateEntry(accountId, text0, text1, text2, text3, value0, value1, value2, value3));
+        static (accountId, text0, text1, text2, text3, value0, value1, value2, value3) => new AccountCandidateEntry(accountId,
+            text0,
+            text1,
+            text2,
+            text3,
+            value0,
+            value1,
+            value2,
+            value3));
 
     /// <summary>
     /// Returns only the type name, keeping farm names and linked social ids out of logs.

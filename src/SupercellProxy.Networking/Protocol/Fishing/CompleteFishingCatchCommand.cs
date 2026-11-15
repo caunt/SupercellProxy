@@ -27,5 +27,8 @@ public sealed record CompleteFishingCatchCommand(bool Caught, int FishingSpotGlo
         static command => command.FishGlobalId,
         Codecs.VarInt,
         static command => command.BaitGlobalId,
-        static (caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId) => new CompleteFishingCatchCommand(caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId)));
+        static (caught, fishingSpotGlobalId, fishGlobalId, baitGlobalId) => new CompleteFishingCatchCommand(caught,
+            fishingSpotGlobalId,
+            fishGlobalId,
+            baitGlobalId)));
 }

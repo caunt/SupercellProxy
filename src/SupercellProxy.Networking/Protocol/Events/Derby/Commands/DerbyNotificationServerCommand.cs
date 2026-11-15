@@ -25,5 +25,10 @@ public sealed record DerbyNotificationServerCommand(int Status, LongId Neighborh
         static command => command.Value1,
         Codecs.VarInt,
         static command => command.NotificationKind,
-        static (status, neighborhoodId, instanceId, value0, value1, notificationKind) => new DerbyNotificationServerCommand(status, neighborhoodId, instanceId, value0, value1, notificationKind)));
+        static (status, neighborhoodId, instanceId, value0, value1, notificationKind) => new DerbyNotificationServerCommand(status,
+            neighborhoodId,
+            instanceId,
+            value0,
+            value1,
+            notificationKind)));
 }

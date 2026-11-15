@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record FollowMessage(LongId HomeId) : CodecMessage<FollowMessage>, ICodecProvider<FollowMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FollowMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId, static message => message.HomeId, static homeId => new FollowMessage(homeId)),
+    public static ICodec<FollowMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId,
+            static message => message.HomeId,
+            static homeId => new FollowMessage(homeId)),
         trailingDataMessage: "The follow request has trailing data.");
 
     /// <summary>Omits the private farm id from diagnostic text.</summary>

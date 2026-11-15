@@ -19,5 +19,8 @@ public sealed record ClientCapabilitiesMessage(string? DeviceModel, ushort Width
         static message => message.Height,
         Codecs.BigEndianUInt16,
         static message => message.MemoryMegabytes,
-        static (deviceModel, width, height, memoryMegabytes) => new ClientCapabilitiesMessage(deviceModel, width, height, memoryMegabytes));
+        static (deviceModel, width, height, memoryMegabytes) => new ClientCapabilitiesMessage(deviceModel,
+            width,
+            height,
+            memoryMegabytes));
 }

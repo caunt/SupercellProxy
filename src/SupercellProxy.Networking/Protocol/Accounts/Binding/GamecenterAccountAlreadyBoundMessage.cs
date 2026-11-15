@@ -35,5 +35,11 @@ public sealed record GamecenterAccountAlreadyBoundMessage(int SecondsSinceLastPl
         static message => message.AdditionalValue,
         ClientAvatar.Codec,
         static message => message.Avatar,
-        static (secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar) => new GamecenterAccountAlreadyBoundMessage(secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar));
+        static (secondsSinceLastPlayed, gamecenterId, accountId, passToken, isSupercellId, additionalValue, avatar) => new GamecenterAccountAlreadyBoundMessage(secondsSinceLastPlayed,
+            gamecenterId,
+            accountId,
+            passToken,
+            isSupercellId,
+            additionalValue,
+            avatar));
 }

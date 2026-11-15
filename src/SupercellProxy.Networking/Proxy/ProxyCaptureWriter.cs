@@ -232,7 +232,10 @@ public sealed class ProxyCaptureWriter
             && container.Id == MessageRegistry.GetId<LoginOkMessage>(gameVersion: null);
 
         if (loginAccepted)
-            await PrepareCoreAsync(_identity ?? throw new InvalidDataException(message: "The accepted login has no captured client handshake."), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        {
+            await PrepareCoreAsync(_identity ?? throw new InvalidDataException(message: "The accepted login has no captured client handshake."),
+                cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        }
 
         byte[] frame = new byte[7 + payload.Length];
 
@@ -248,7 +251,15 @@ public sealed class ProxyCaptureWriter
         string fileName = string.Create(CultureInfo.InvariantCulture,
             $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
 
-        ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(new ProxyCapturedFrame(sequence, fileName, stage, direction, container.Id, container.Version, frame, timestamp, _timeProvider.TimestampFrequency));
+        ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(new ProxyCapturedFrame(sequence,
+            fileName,
+            stage,
+            direction,
+            container.Id,
+            container.Version,
+            frame,
+            timestamp,
+            _timeProvider.TimestampFrequency));
 
         if (annotation is not null)
             ValidateArtifactName(annotation.Directory, annotation.File);

@@ -45,7 +45,11 @@ public sealed record TownServiceHelpCompletedServerCommand : CodecServerCommand<
         static command => command.RequiredItems,
         Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount),
         static command => command.GrantedRewards,
-        static (ownerHomeId, helperHomeId, helpId, requiredItems, grantedRewards) => new TownServiceHelpCompletedServerCommand(ownerHomeId, helperHomeId, helpId, requiredItems, grantedRewards)));
+        static (ownerHomeId, helperHomeId, helpId, requiredItems, grantedRewards) => new TownServiceHelpCompletedServerCommand(ownerHomeId,
+            helperHomeId,
+            helpId,
+            requiredItems,
+            grantedRewards)));
 
     /// <summary>
     /// Gets the resource quantities granted for the completed service.

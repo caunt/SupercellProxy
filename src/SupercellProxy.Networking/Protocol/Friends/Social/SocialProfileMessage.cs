@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.Social;
 public sealed record SocialProfileMessage(SocialProfile? Profile) : CodecMessage<SocialProfileMessage>, ICodecProvider<SocialProfileMessage>
 {
     /// <inheritdoc />
-    public static ICodec<SocialProfileMessage> Codec { get; } = Codecs.Composite(Codecs.Optional(SocialProfile.Codec), static message => message.Profile, static profile => new SocialProfileMessage(profile));
+    public static ICodec<SocialProfileMessage> Codec { get; } = Codecs.Composite(Codecs.Optional(SocialProfile.Codec),
+        static message => message.Profile,
+        static profile => new SocialProfileMessage(profile));
 }

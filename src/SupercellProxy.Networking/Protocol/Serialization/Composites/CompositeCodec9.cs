@@ -60,7 +60,15 @@ internal sealed class CompositeCodec9<TValue, TFirst, TSecond, TThird, TFourth, 
         TEighth eighthValue = _eighth.Read(stream);
         TNinth ninthValue = _ninth.Read(stream);
 
-        return _factory(firstValue, secondValue, thirdValue, fourthValue, fifthValue, sixthValue, seventhValue, eighthValue, ninthValue);
+        return _factory(firstValue,
+            secondValue,
+            thirdValue,
+            fourthValue,
+            fifthValue,
+            sixthValue,
+            seventhValue,
+            eighthValue,
+            ninthValue);
     }
 
     public void Write(ProtocolEncoder encoder, TValue value)

@@ -218,7 +218,18 @@ public sealed record ClientDeviceInformationMessage(string? UserAgent,
             static segment => segment.Text10,
             Codecs.OptionalUtf8String,
             static segment => segment.Text11,
-            static (userAgent, osVersion, locale, appVersion, advertisingId, deviceModel, text6, text7, text8, installReferrer, text10, text11) => new DeviceTexts(userAgent, osVersion, locale, appVersion, advertisingId, deviceModel, text6, text7, text8, installReferrer, text10, text11));
+            static (userAgent, osVersion, locale, appVersion, advertisingId, deviceModel, text6, text7, text8, installReferrer, text10, text11) => new DeviceTexts(userAgent,
+                osVersion,
+                locale,
+                appVersion,
+                advertisingId,
+                deviceModel,
+                text6,
+                text7,
+                text8,
+                installReferrer,
+                text10,
+                text11));
     }
 
     // The first sixteen texts native reads after the flags.
@@ -271,7 +282,22 @@ public sealed record ClientDeviceInformationMessage(string? UserAgent,
             static segment => segment.Text26,
             Codecs.OptionalUtf8String,
             static segment => segment.Text27,
-            static (text12, text13, text14, text15, text16, text17, text18, text19, text20, text21, text22, text23, text24, text25, text26, text27) => new ExtendedTexts(text12, text13, text14, text15, text16, text17, text18, text19, text20, text21, text22, text23, text24, text25, text26, text27));
+            static (text12, text13, text14, text15, text16, text17, text18, text19, text20, text21, text22, text23, text24, text25, text26, text27) => new ExtendedTexts(text12,
+                text13,
+                text14,
+                text15,
+                text16,
+                text17,
+                text18,
+                text19,
+                text20,
+                text21,
+                text22,
+                text23,
+                text24,
+                text25,
+                text26,
+                text27));
     }
 
     // The four flags native reads together.
@@ -311,7 +337,13 @@ public sealed record ClientDeviceInformationMessage(string? UserAgent,
             static segment => segment.ConsentControllerId,
             Codecs.OptionalUtf8String,
             static segment => segment.Text34,
-            static (text28, text29, text30, instanceId, consentJson, consentControllerId, text34) => new IdentityTexts(text28, text29, text30, instanceId, consentJson, consentControllerId, text34));
+            static (text28, text29, text30, instanceId, consentJson, consentControllerId, text34) => new IdentityTexts(text28,
+                text29,
+                text30,
+                instanceId,
+                consentJson,
+                consentControllerId,
+                text34));
     }
 
     // The values native reads after the device texts.

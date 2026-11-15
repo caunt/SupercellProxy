@@ -27,5 +27,11 @@ public sealed record AvatarStreamEntryHeader(LongId EntryId, LongId SenderAvatar
         static value => value.Removed,
         Codecs.Boolean,
         static value => value.New,
-        static (entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew) => new AvatarStreamEntryHeader(entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew));
+        static (entryId, senderAvatarId, senderName, senderExpLevel, ageSeconds, removed, isNew) => new AvatarStreamEntryHeader(entryId,
+            senderAvatarId,
+            senderName,
+            senderExpLevel,
+            ageSeconds,
+            removed,
+            isNew));
 }

@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.MiniPass;
 public sealed record PlayMiniPassFinaleCommand(int SeenPoints) : CodecCommand<PlayMiniPassFinaleCommand>, ICommandCodecProvider<PlayMiniPassFinaleCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<PlayMiniPassFinaleCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.SeenPoints, static seenPoints => new PlayMiniPassFinaleCommand(seenPoints)),
+    public static CommandCodec<PlayMiniPassFinaleCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.SeenPoints,
+            static seenPoints => new PlayMiniPassFinaleCommand(seenPoints)),
         CommandLayout.MetadataFirst);
 }

@@ -35,7 +35,10 @@ public sealed record MapGameGasStationTaskStatePayload : MapGameTaskStatePayload
         static value => value.DiamondPrice,
         Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
         static value => value.FuelData,
-        static (freeFuel, fuelCollected, diamondPrice, fuelData) => new MapGameGasStationTaskStatePayload(freeFuel, fuelCollected, diamondPrice, fuelData));
+        static (freeFuel, fuelCollected, diamondPrice, fuelData) => new MapGameGasStationTaskStatePayload(freeFuel,
+            fuelCollected,
+            diamondPrice,
+            fuelData));
 
     /// <summary>
     /// Gets the diamond price of buying the fuel.

@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Forestry;
 public sealed record FinishPlantRevivalCommand(int PlantGlobalId) : CodecCommand<FinishPlantRevivalCommand>, ICommandCodecProvider<FinishPlantRevivalCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<FinishPlantRevivalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PlantGlobalId, static plantGlobalId => new FinishPlantRevivalCommand(plantGlobalId)));
+    public static CommandCodec<FinishPlantRevivalCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PlantGlobalId,
+        static plantGlobalId => new FinishPlantRevivalCommand(plantGlobalId)));
 }

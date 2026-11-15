@@ -13,7 +13,8 @@ namespace SupercellProxy.Networking.Protocol.Accounts;
 public sealed record AccountCandidatesMessage : CodecMessage<AccountCandidatesMessage>, ICodecProvider<AccountCandidatesMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AccountCandidatesMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(AccountCandidateEntry.Codec, CollectionCount.PerElement(minimumElementSize: 28).WithStrictAbsence()),
+    public static ICodec<AccountCandidatesMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(AccountCandidateEntry.Codec,
+                CollectionCount.PerElement(minimumElementSize: 28).WithStrictAbsence()),
             static message => message.Entries,
             static entries => new AccountCandidatesMessage
             {

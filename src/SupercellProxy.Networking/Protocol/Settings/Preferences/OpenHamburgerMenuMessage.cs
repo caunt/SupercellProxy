@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Settings.Preferences;
 public sealed record OpenHamburgerMenuMessage(int Action) : CodecMessage<OpenHamburgerMenuMessage>, ICodecProvider<OpenHamburgerMenuMessage>
 {
     /// <inheritdoc />
-    public static ICodec<OpenHamburgerMenuMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.Action, static action => new OpenHamburgerMenuMessage(action));
+    public static ICodec<OpenHamburgerMenuMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.Action,
+        static action => new OpenHamburgerMenuMessage(action));
 }

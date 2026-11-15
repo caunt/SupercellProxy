@@ -12,6 +12,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Boards;
 public sealed record ClaimEventBoardSeenRewardCommand([property: JsonPropertyName("EventId")] int EventId) : CodecCommand<ClaimEventBoardSeenRewardCommand>, ICommandCodecProvider<ClaimEventBoardSeenRewardCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimEventBoardSeenRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new ClaimEventBoardSeenRewardCommand(eventId)),
+    public static CommandCodec<ClaimEventBoardSeenRewardCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.EventId,
+            static eventId => new ClaimEventBoardSeenRewardCommand(eventId)),
         CommandLayout.MetadataFirst);
 }

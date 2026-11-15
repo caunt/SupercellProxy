@@ -29,7 +29,9 @@ public static class DataTablePatcher
     {
         ArgumentNullException.ThrowIfNull(changes);
 
-        Dictionary<string, GameAsset> resources = assets.ToDictionary(static asset => asset.Fingerprint.File, StringComparer.Ordinal);
+        Dictionary<string, GameAsset> resources = assets.ToDictionary(static asset => asset.Fingerprint.File,
+            StringComparer.Ordinal);
+
         ImmutableDictionary<string, List<List<string>>> editedRows = ImmutableDictionary.Create<string, List<List<string>>>(StringComparer.Ordinal);
 
         foreach (DataTableChange change in changes)
@@ -88,8 +90,7 @@ public static class DataTablePatcher
         int[] columns = [.. Split(change.Column).Select(name => rows[index: 0].IndexOf(name))
             .Where(static column => column >= 0)];
 
-        int[] starts =
-        [
+        int[] starts = [
             .. Enumerable.Range(start: 2, rows.Count - 2)
                 .Where(index => rows[index].Count > 0 && rows[index][index: 0] is { Length: > 0 } name && (everyEntry || names.Contains(name))),
         ];
@@ -172,7 +173,9 @@ public static class DataTablePatcher
         WeakReference<GameAsset> added = new(edited);
 
         // A live copy of the same content is kept and reused; a collected one is replaced by this asset.
-        WeakReference<GameAsset> stored = SharedEdits.AddOrUpdate(key, added, (unusedKey, known) => known.TryGetTarget(out _) ? known : added);
+        WeakReference<GameAsset> stored = SharedEdits.AddOrUpdate(key,
+            added,
+            (unusedKey, known) => known.TryGetTarget(out _) ? known : added);
 
         return stored.TryGetTarget(out GameAsset? shared) ? shared : edited;
     }

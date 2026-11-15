@@ -21,11 +21,9 @@ public abstract record MapGameTaskStatePayload
         [MapGameDeliveryTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameDeliveryTaskStatePayload>(MapGameDeliveryTaskStatePayload.Codec),
         [MapGameObstacleTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameObstacleTaskStatePayload>(MapGameObstacleTaskStatePayload.Codec),
         [MapGameChickenTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameChickenTaskStatePayload>(MapGameChickenTaskStatePayload.Codec),
-        [MapGameSanctuaryAnimalTaskStatePayload.NativeTaskType] =
-            Codecs.Subtype<MapGameTaskStatePayload, MapGameSanctuaryAnimalTaskStatePayload>(MapGameSanctuaryAnimalTaskStatePayload.Codec),
+        [MapGameSanctuaryAnimalTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameSanctuaryAnimalTaskStatePayload>(MapGameSanctuaryAnimalTaskStatePayload.Codec),
         [MapGameGasStationTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameGasStationTaskStatePayload>(MapGameGasStationTaskStatePayload.Codec),
-        [MapGameOffloadSanctuaryAnimalTaskStatePayload.NativeTaskType] =
-            Codecs.Subtype<MapGameTaskStatePayload, MapGameOffloadSanctuaryAnimalTaskStatePayload>(MapGameOffloadSanctuaryAnimalTaskStatePayload.Codec),
+        [MapGameOffloadSanctuaryAnimalTaskStatePayload.NativeTaskType] = Codecs.Subtype<MapGameTaskStatePayload, MapGameOffloadSanctuaryAnimalTaskStatePayload>(MapGameOffloadSanctuaryAnimalTaskStatePayload.Codec),
     }.ToFrozenDictionary(StringComparer.Ordinal);
 
     /// <summary>

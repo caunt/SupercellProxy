@@ -48,7 +48,15 @@ public sealed record MapGameSanctuaryAnimalTaskStatePayload(int Pickup,
         static value => value.EscapeCount,
         Codecs.OptionalLongId,
         static value => value.CollectorId,
-        static (pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId) => new MapGameSanctuaryAnimalTaskStatePayload(pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId));
+        static (pickup, deliveryNodeType, animalGlobalId, collected, emoteVisible, escaped, escapeNodeId, escapeCount, collectorId) => new MapGameSanctuaryAnimalTaskStatePayload(pickup,
+            deliveryNodeType,
+            animalGlobalId,
+            collected,
+            emoteVisible,
+            escaped,
+            escapeNodeId,
+            escapeCount,
+            collectorId));
 
     /// <inheritdoc />
     public override string TaskType => NativeTaskType;

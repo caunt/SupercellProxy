@@ -19,7 +19,9 @@ public sealed record MarkBoatSeenCommand : CodecCommand<MarkBoatSeenCommand>, IC
     }
 
     /// <inheritdoc />
-    public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.NextBoat, static nextBoat => new MarkBoatSeenCommand(nextBoat)),
+    public static CommandCodec<MarkBoatSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
+            static command => command.NextBoat,
+            static nextBoat => new MarkBoatSeenCommand(nextBoat)),
         CommandLayout.MetadataFirst);
 
     /// <summary>

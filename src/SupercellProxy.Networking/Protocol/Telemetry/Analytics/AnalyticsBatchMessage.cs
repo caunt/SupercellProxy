@@ -30,5 +30,10 @@ public sealed record AnalyticsBatchMessage(long Time0,
         static message => message.Context,
         Codecs.Memory(AnalyticsEvent.Codec),
         static message => message.Events,
-        static (time0, time1, time2, properties, context, events) => new AnalyticsBatchMessage(time0, time1, time2, properties, context, events));
+        static (time0, time1, time2, properties, context, events) => new AnalyticsBatchMessage(time0,
+            time1,
+            time2,
+            properties,
+            context,
+            events));
 }

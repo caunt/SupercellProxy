@@ -16,5 +16,7 @@ public sealed record BindFacebookAccountMessage(string? FacebookId, string? Auth
         static message => message.AuthenticationToken,
         Codecs.Boolean,
         static message => message.Force,
-        static (facebookId, authenticationToken, force) => new BindFacebookAccountMessage(facebookId, authenticationToken, force));
+        static (facebookId, authenticationToken, force) => new BindFacebookAccountMessage(facebookId,
+            authenticationToken,
+            force));
 }

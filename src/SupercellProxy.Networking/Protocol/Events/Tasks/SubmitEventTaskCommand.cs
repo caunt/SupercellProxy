@@ -25,5 +25,10 @@ public sealed record SubmitEventTaskCommand(int EventId, int TaskIndex, bool Use
         static command => command.TaskId,
         Codecs.VarInt,
         static command => command.Points,
-        static (eventId, taskIndex, useDiamonds, goodIds, taskId, points) => new SubmitEventTaskCommand(eventId, taskIndex, useDiamonds, goodIds, taskId, points)));
+        static (eventId, taskIndex, useDiamonds, goodIds, taskId, points) => new SubmitEventTaskCommand(eventId,
+            taskIndex,
+            useDiamonds,
+            goodIds,
+            taskId,
+            points)));
 }

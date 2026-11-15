@@ -53,7 +53,10 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     /// Gets or sets the totals over all purchases.
     /// </summary>
     /// <value>The transaction count, cents spent and last purchase time summed over every receipt; all zero by default and when <see cref="Version"/> is 0 or less.</value>
-    public PurchaseTotals Totals { get; init; } = new(TransactionCount: 0, SpentCents: 0, SupercellStoreSpentCents: 0, LastPurchaseTime: 0);
+    public PurchaseTotals Totals { get; init; } = new(TransactionCount: 0,
+        SpentCents: 0,
+        SupercellStoreSpentCents: 0,
+        LastPurchaseTime: 0);
 
     /// <summary>
     /// Gets or sets the layout revision written first; 0 or less means the history is sent empty, with no receipts or totals following.
@@ -61,7 +64,8 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     /// <value>The VarInt revision read before the body; 0 by default, in which case only this number is written and the other properties keep their empty defaults.</value>
     public int Version { get; init; }
 
-    private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(Codecs.Array(PurchaseReceipt.Codec, CollectionCount.Bounded),
+    private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(Codecs.Array(PurchaseReceipt.Codec,
+            CollectionCount.Bounded),
         static history => history.Receipts,
         PurchaseTotals.Codec,
         static history => history.Totals,

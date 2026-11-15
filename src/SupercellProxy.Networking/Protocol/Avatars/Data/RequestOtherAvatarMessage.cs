@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Data;
 public sealed record RequestOtherAvatarMessage(LongId AvatarId) : CodecMessage<RequestOtherAvatarMessage>, ICodecProvider<RequestOtherAvatarMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestOtherAvatarMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new RequestOtherAvatarMessage(avatarId));
+    public static ICodec<RequestOtherAvatarMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new RequestOtherAvatarMessage(avatarId));
 }

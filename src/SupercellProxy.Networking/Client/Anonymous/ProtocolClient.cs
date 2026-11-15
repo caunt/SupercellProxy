@@ -26,7 +26,8 @@ public sealed partial class ProtocolClient
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
-        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
+        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+            _lifetime.Token);
 
         using IDisposable gate = await _authenticationGate.LockAsync(request.Token)
             .ConfigureAwait(continueOnCapturedContext: false);

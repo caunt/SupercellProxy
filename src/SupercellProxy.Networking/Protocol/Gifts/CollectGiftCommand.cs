@@ -12,5 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Gifts;
 public sealed record CollectGiftCommand([property: JsonPropertyName("GiftGlobalId")] int GiftGlobalId) : CodecCommand<CollectGiftCommand>, ICommandCodecProvider<CollectGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.GiftGlobalId, static gift => new CollectGiftCommand(gift)));
+    public static CommandCodec<CollectGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.GiftGlobalId,
+        static gift => new CollectGiftCommand(gift)));
 }

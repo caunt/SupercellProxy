@@ -19,5 +19,8 @@ public sealed record DerbySeasonNotificationServerCommand(int Status, LongId Nei
         static command => command.InstanceId,
         Codecs.VarInt,
         static command => command.Value,
-        static (status, neighborhoodId, instanceId, @value) => new DerbySeasonNotificationServerCommand(status, neighborhoodId, instanceId, value)));
+        static (status, neighborhoodId, instanceId, @value) => new DerbySeasonNotificationServerCommand(status,
+            neighborhoodId,
+            instanceId,
+            value)));
 }

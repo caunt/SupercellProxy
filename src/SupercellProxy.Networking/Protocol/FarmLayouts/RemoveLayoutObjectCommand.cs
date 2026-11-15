@@ -19,5 +19,8 @@ public sealed record RemoveLayoutObjectCommand(int ObjectGlobalId, int PositionX
         static command => command.PositionY,
         Codecs.VarInt,
         static command => command.LayoutIndex,
-        static (objectGlobalId, positionX, positionY, layoutIndex) => new RemoveLayoutObjectCommand(objectGlobalId, positionX, positionY, layoutIndex)));
+        static (objectGlobalId, positionX, positionY, layoutIndex) => new RemoveLayoutObjectCommand(objectGlobalId,
+            positionX,
+            positionY,
+            layoutIndex)));
 }

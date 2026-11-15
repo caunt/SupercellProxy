@@ -16,6 +16,8 @@ public sealed record StartBuildingMasteryJobCommand(int JobKind, int BuildingGlo
             static command => command.BuildingGlobalId,
             Codecs.VarInt,
             static command => command.WorkbenchObjectGlobalId,
-            static (jobKind, buildingGlobalId, workbenchObjectGlobalId) => new StartBuildingMasteryJobCommand(jobKind, buildingGlobalId, workbenchObjectGlobalId)),
+            static (jobKind, buildingGlobalId, workbenchObjectGlobalId) => new StartBuildingMasteryJobCommand(jobKind,
+                buildingGlobalId,
+                workbenchObjectGlobalId)),
         CommandLayout.MetadataFirst);
 }

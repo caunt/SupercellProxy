@@ -26,5 +26,9 @@ public sealed record RemoteOrderCompletionServerCommand(LongId OwnerHomeId,
         static command => command.DeliveredGoods,
         Codecs.Memory(OrderReward.Codec),
         static command => command.HelperRewards,
-        static (ownerHomeId, helperHomeId, helpId, deliveredGoods, helperRewards) => new RemoteOrderCompletionServerCommand(ownerHomeId, helperHomeId, helpId, deliveredGoods, helperRewards)));
+        static (ownerHomeId, helperHomeId, helpId, deliveredGoods, helperRewards) => new RemoteOrderCompletionServerCommand(ownerHomeId,
+            helperHomeId,
+            helpId,
+            deliveredGoods,
+            helperRewards)));
 }

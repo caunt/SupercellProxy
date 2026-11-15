@@ -45,5 +45,14 @@ public sealed record NeighborhoodMemberSummary(LongId HomeId,
         static value => value.Unknown5,
         Codecs.VarInt,
         static value => value.Unknown6,
-        static (homeId, farmName, level, unknown0, unknown1, unknown2, unknown3, unknown4, unknown5, unknown6) => new NeighborhoodMemberSummary(homeId, farmName, level, unknown0, unknown1, unknown2, unknown3, unknown4, unknown5, unknown6));
+        static (homeId, farmName, level, unknown0, unknown1, unknown2, unknown3, unknown4, unknown5, unknown6) => new NeighborhoodMemberSummary(homeId,
+            farmName,
+            level,
+            unknown0,
+            unknown1,
+            unknown2,
+            unknown3,
+            unknown4,
+            unknown5,
+            unknown6));
 }

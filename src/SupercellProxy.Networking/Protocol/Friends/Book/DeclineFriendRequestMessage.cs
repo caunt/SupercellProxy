@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Friends.Book;
 public sealed record DeclineFriendRequestMessage(LongId AvatarId) : CodecMessage<DeclineFriendRequestMessage>, ICodecProvider<DeclineFriendRequestMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DeclineFriendRequestMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new DeclineFriendRequestMessage(avatarId));
+    public static ICodec<DeclineFriendRequestMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new DeclineFriendRequestMessage(avatarId));
 }

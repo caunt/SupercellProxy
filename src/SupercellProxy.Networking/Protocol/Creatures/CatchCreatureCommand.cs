@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Creatures;
 public sealed record CatchCreatureCommand(int CreatureGlobalId) : CodecCommand<CatchCreatureCommand>, ICommandCodecProvider<CatchCreatureCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CatchCreatureCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.CreatureGlobalId, static creatureGlobalId => new CatchCreatureCommand(creatureGlobalId)),
+    public static CommandCodec<CatchCreatureCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.CreatureGlobalId,
+            static creatureGlobalId => new CatchCreatureCommand(creatureGlobalId)),
         CommandLayout.MetadataFirst);
 }

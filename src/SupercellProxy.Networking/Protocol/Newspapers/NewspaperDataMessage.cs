@@ -11,7 +11,8 @@ namespace SupercellProxy.Networking.Protocol.Newspapers;
 public sealed record NewspaperDataMessage : CodecMessage<NewspaperDataMessage>, ICodecProvider<NewspaperDataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NewspaperDataMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(NewspaperStoryEntry.Codec, CollectionCount.PerElement(minimumElementSize: 24)),
+    public static ICodec<NewspaperDataMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.NullableArray(NewspaperStoryEntry.Codec,
+                CollectionCount.PerElement(minimumElementSize: 24)),
             static message => message.Stories,
             Codecs.NullableArray(NewspaperPlacement.Codec, CollectionCount.PerElement(minimumElementSize: 14)),
             static message => message.Placements,

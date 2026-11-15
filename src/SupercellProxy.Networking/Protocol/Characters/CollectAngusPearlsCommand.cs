@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Characters;
 public sealed record CollectAngusPearlsCommand(int BucketGlobalId) : CodecCommand<CollectAngusPearlsCommand>, ICommandCodecProvider<CollectAngusPearlsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<CollectAngusPearlsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.BucketGlobalId, static bucketGlobalId => new CollectAngusPearlsCommand(bucketGlobalId)),
+    public static CommandCodec<CollectAngusPearlsCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.BucketGlobalId,
+            static bucketGlobalId => new CollectAngusPearlsCommand(bucketGlobalId)),
         CommandLayout.MetadataFirst);
 }

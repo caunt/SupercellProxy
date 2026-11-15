@@ -29,7 +29,11 @@ public sealed record DerbyTaskEntry : ICodecProvider<DerbyTaskEntry>
         Codecs.VarInt,
         static entry => entry.Unknown4,
         TaskKinds.Codec,
-        static entry => new TaskKinds(entry.BingoTask, entry.MysteryTask, entry.BlossomTask, entry.ChillDerbyTask, entry.BunnyDerbyTask),
+        static entry => new TaskKinds(entry.BingoTask,
+            entry.MysteryTask,
+            entry.BlossomTask,
+            entry.ChillDerbyTask,
+            entry.BunnyDerbyTask),
         Codecs.VarInt,
         static entry => entry.HotPotatoTaskDataGlobalId,
         Codecs.VarInt,
@@ -37,7 +41,12 @@ public sealed record DerbyTaskEntry : ICodecProvider<DerbyTaskEntry>
         Codecs.Array(Codecs.LongId, CollectionCount.Bounded),
         static entry => entry.RelatedPlayerIds,
         TaskTail.Codec,
-        static entry => new TaskTail(entry.SeenExpiredTask, entry.Unknown7, entry.Unknown8, entry.Unknown9, entry.StackVisible, entry.ReactivateStatus),
+        static entry => new TaskTail(entry.SeenExpiredTask,
+            entry.Unknown7,
+            entry.Unknown8,
+            entry.Unknown9,
+            entry.StackVisible,
+            entry.ReactivateStatus),
         static (playerId,
             taskGlobalId,
             taskBoardIndex,
@@ -193,7 +202,11 @@ public sealed record DerbyTaskEntry : ICodecProvider<DerbyTaskEntry>
             static segment => segment.ChillDerbyTask,
             Codecs.Boolean,
             static segment => segment.BunnyDerbyTask,
-            static (bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask) => new TaskKinds(bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask));
+            static (bingoTask, mysteryTask, blossomTask, chillDerbyTask, bunnyDerbyTask) => new TaskKinds(bingoTask,
+                mysteryTask,
+                blossomTask,
+                chillDerbyTask,
+                bunnyDerbyTask));
     }
 
     // The trailing task state, read as one group to keep the field list within a composite.
@@ -211,6 +224,11 @@ public sealed record DerbyTaskEntry : ICodecProvider<DerbyTaskEntry>
             static segment => segment.StackVisible,
             Codecs.VarInt,
             static segment => segment.ReactivateStatus,
-            static (seenExpiredTask, unknown7, unknown8, unknown9, stackVisible, reactivateStatus) => new TaskTail(seenExpiredTask, unknown7, unknown8, unknown9, stackVisible, reactivateStatus));
+            static (seenExpiredTask, unknown7, unknown8, unknown9, stackVisible, reactivateStatus) => new TaskTail(seenExpiredTask,
+                unknown7,
+                unknown8,
+                unknown9,
+                stackVisible,
+                reactivateStatus));
     }
 }

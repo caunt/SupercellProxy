@@ -12,8 +12,7 @@ internal static partial class Application
     {
         const int bufferSize = 131_072;
 
-        string outputDirectory =
-            Path.GetDirectoryName(outputPath)
+        string outputDirectory = Path.GetDirectoryName(outputPath)
             ?? throw new InvalidOperationException(message: "Invalid output path.");
 
         string partialPath = outputPath + ".part";
@@ -100,7 +99,8 @@ internal static partial class Application
         }
 
         return positionalArguments.Count is < 1 or > 2 || positionalArguments.Exists(string.IsNullOrWhiteSpace)
-            ? throw new ArgumentException(message: "Usage: SupercellProxy.Keys download APP [VERSION] [--output PATH]", nameof(arguments))
+            ? throw new ArgumentException(message: "Usage: SupercellProxy.Keys download APP [VERSION] [--output PATH]",
+                nameof(arguments))
             : new DownloadArguments(positionalArguments, outputOption);
     }
 
@@ -149,10 +149,16 @@ internal static partial class Application
         AppStoreClient appStoreClient = new(WebClient);
         DecryptDayClient decryptDayClient = new(WebClient);
 
-        string appStoreId = await ResolveAppStoreIdAsync(positionalArguments[index: 0], appStoreClient, decryptDayClient, cancellationToken)
+        string appStoreId = await ResolveAppStoreIdAsync(positionalArguments[index: 0],
+            appStoreClient,
+            decryptDayClient,
+            cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        (IpaApp? app, IpaDownload? download) = await ResolveDownloadAsync(decryptDayClient, appStoreId, positionalArguments.Count is 2 ? positionalArguments[index: 1] : null, cancellationToken)
+        (IpaApp? app, IpaDownload? download) = await ResolveDownloadAsync(decryptDayClient,
+            appStoreId,
+            positionalArguments.Count is 2 ? positionalArguments[index: 1] : null,
+            cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
         string outputPath = Path.GetFullPath(outputOption ?? $"{app.BundleId}-{download.Version}.ipa");

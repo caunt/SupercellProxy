@@ -885,8 +885,7 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
 
         int temporarySignByte = int.CreateTruncating(valueToWrite >> 57) & 0x40;
 
-        ulong boundariesTracker =
-            valueToWrite < 0
+        ulong boundariesTracker = valueToWrite < 0
                 ? unchecked(ulong.CreateTruncating(-(valueToWrite + 1))) + 1
                 : ulong.CreateTruncating(valueToWrite);
 

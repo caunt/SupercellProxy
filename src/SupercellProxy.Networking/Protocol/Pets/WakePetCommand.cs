@@ -10,5 +10,7 @@ namespace SupercellProxy.Networking.Protocol.Pets;
 public sealed record WakePetCommand(int PetGlobalId) : CodecCommand<WakePetCommand>, ICommandCodecProvider<WakePetCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<WakePetCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PetGlobalId, static petGlobalId => new WakePetCommand(petGlobalId)));
+    public static CommandCodec<WakePetCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PetGlobalId,
+        static petGlobalId => new WakePetCommand(petGlobalId)));
 }

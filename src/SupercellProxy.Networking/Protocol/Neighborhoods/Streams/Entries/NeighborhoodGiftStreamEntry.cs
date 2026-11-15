@@ -26,7 +26,12 @@ public sealed record NeighborhoodGiftStreamEntry(StreamEntryHeader Header, int V
         static entry => entry.Value3,
         Codecs.NullableMemory(Codecs.LongId, CollectionCount.BigEndianInt32),
         static entry => entry.ClaimedAvatarIds,
-        static (header, value0, value1, value2, value3, claimedAvatarIds) => new NeighborhoodGiftStreamEntry(header, value0, value1, value2, value3, claimedAvatarIds));
+        static (header, value0, value1, value2, value3, claimedAvatarIds) => new NeighborhoodGiftStreamEntry(header,
+            value0,
+            value1,
+            value2,
+            value3,
+            claimedAvatarIds));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

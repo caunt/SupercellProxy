@@ -11,7 +11,8 @@ public sealed record NeighborhoodHistoryEntry : ICodecProvider<NeighborhoodHisto
     private const int ValueCount = 8;
 
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHistoryEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, ValueCount),
+    public static ICodec<NeighborhoodHistoryEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt,
+            ValueCount),
         static entry => entry.Values,
         Codecs.Boolean,
         static entry => entry.Flag,

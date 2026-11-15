@@ -10,7 +10,8 @@ namespace SupercellProxy.Networking.Protocol.Inventory.Shop;
 public sealed record RemoveShopBadgesCommand(ImmutableArray<int> DataIds) : CodecCommand<RemoveShopBadgesCommand>, ICommandCodecProvider<RemoveShopBadgesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RemoveShopBadgesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
+    public static CommandCodec<RemoveShopBadgesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Array(Codecs.VarInt,
+                CollectionCount.Bounded),
             static command => command.DataIds,
             static dataIds => new RemoveShopBadgesCommand(dataIds)),
         CommandLayout.MetadataFirst);

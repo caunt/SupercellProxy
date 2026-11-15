@@ -34,5 +34,11 @@ public sealed record BindGamecenterAccountMessage(string? PlayerId,
         static message => message.Timestamp,
         Codecs.Boolean,
         static message => message.Force,
-        static (playerId, bundleId, publicKeyLink, signature, salt, timestamp, force) => new BindGamecenterAccountMessage(playerId, bundleId, publicKeyLink, signature, salt, timestamp, force));
+        static (playerId, bundleId, publicKeyLink, signature, salt, timestamp, force) => new BindGamecenterAccountMessage(playerId,
+            bundleId,
+            publicKeyLink,
+            signature,
+            salt,
+            timestamp,
+            force));
 }

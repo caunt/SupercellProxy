@@ -11,7 +11,9 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.Chat;
 public sealed record NeighborhoodStreamEntryFlagMessage(LongId EntryId) : CodecMessage<NeighborhoodStreamEntryFlagMessage>, ICodecProvider<NeighborhoodStreamEntryFlagMessage>
 {
     /// <inheritdoc />
-    public static ICodec<NeighborhoodStreamEntryFlagMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId, static message => message.EntryId, static entryId => new NeighborhoodStreamEntryFlagMessage(entryId)),
+    public static ICodec<NeighborhoodStreamEntryFlagMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId,
+            static message => message.EntryId,
+            static entryId => new NeighborhoodStreamEntryFlagMessage(entryId)),
         trailingDataMessage: "The Neighborhood stream-entry flag message has trailing data.");
 
     /// <summary>Omits the stream-entry id from diagnostic text.</summary>

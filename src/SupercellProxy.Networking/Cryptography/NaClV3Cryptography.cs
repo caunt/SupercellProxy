@@ -215,7 +215,10 @@ public static class NaClV3Cryptography
         DoubleRounds(workingStateSpan, ChaChaIterationsCount);
 
         for (int blockIndex = 0; blockIndex < 16; blockIndex++)
-            BinaryPrimitives.WriteUInt32LittleEndian(output.Slice(blockIndex * 4, length: 4), unchecked(workingStateSpan[blockIndex] + initialStateSpan[blockIndex]));
+        {
+            BinaryPrimitives.WriteUInt32LittleEndian(output.Slice(blockIndex * 4, length: 4),
+                unchecked(workingStateSpan[blockIndex] + initialStateSpan[blockIndex]));
+        }
     }
 
     private static void ChaCha20XorPadded(ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce8, ReadOnlySpan<byte> input, Span<byte> output, Span<byte> polyKey)
@@ -313,7 +316,10 @@ public static class NaClV3Cryptography
             BinaryPrimitives.WriteUInt32LittleEndian(result.Slice(resultIndex * 4, length: 4), stateSpan[resultIndex]);
 
         for (int resultIndex = 0; resultIndex < 4; resultIndex++)
-            BinaryPrimitives.WriteUInt32LittleEndian(result.Slice(16 + (resultIndex * 4), length: 4), stateSpan[12 + resultIndex]);
+        {
+            BinaryPrimitives.WriteUInt32LittleEndian(result.Slice(16 + (resultIndex * 4), length: 4),
+                stateSpan[12 + resultIndex]);
+        }
     }
 
     private static BigInteger Modulo(BigInteger value, BigInteger modulus)
@@ -347,11 +353,14 @@ public static class NaClV3Cryptography
 
         BigInteger diffProducts = Modulo(productDiffX3Z3AndSumX2Z2 - productSumX3Z3AndDiffX2Z2, Curve25519PrimeModulus);
 
-        zCoordinate3 = Modulo(baseXCoordinate * Modulo(diffProducts * diffProducts, Curve25519PrimeModulus), Curve25519PrimeModulus);
+        zCoordinate3 = Modulo(baseXCoordinate * Modulo(diffProducts * diffProducts, Curve25519PrimeModulus),
+            Curve25519PrimeModulus);
+
         xCoordinate2 = Modulo(squaredSumX2Z2 * squaredDiffX2Z2, Curve25519PrimeModulus);
 
         zCoordinate2 = Modulo(diffSquaredSumAndDiff
-                * Modulo(squaredSumX2Z2 + Modulo(CurveConstantA24 * diffSquaredSumAndDiff, Curve25519PrimeModulus), Curve25519PrimeModulus),
+                * Modulo(squaredSumX2Z2 + Modulo(CurveConstantA24 * diffSquaredSumAndDiff, Curve25519PrimeModulus),
+                    Curve25519PrimeModulus),
             Curve25519PrimeModulus);
 
         return new MontgomeryStepResult(xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3);
@@ -581,7 +590,12 @@ public static class NaClV3Cryptography
             }
 
             swapFlag = currentBit;
-            (xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3) = MontgomeryStep(baseXCoordinate, xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3);
+
+            (xCoordinate2, zCoordinate2, xCoordinate3, zCoordinate3) = MontgomeryStep(baseXCoordinate,
+                xCoordinate2,
+                zCoordinate2,
+                xCoordinate3,
+                zCoordinate3);
         }
 
         if (swapFlag is not 0)

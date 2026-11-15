@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration.StickerBook;
 public sealed record MarkStickerBookSeenMessage(bool Seen) : CodecMessage<MarkStickerBookSeenMessage>, ICodecProvider<MarkStickerBookSeenMessage>
 {
     /// <inheritdoc />
-    public static ICodec<MarkStickerBookSeenMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean, static message => message.Seen, static seen => new MarkStickerBookSeenMessage(seen));
+    public static ICodec<MarkStickerBookSeenMessage> Codec { get; } = Codecs.Composite(Codecs.Boolean,
+        static message => message.Seen,
+        static seen => new MarkStickerBookSeenMessage(seen));
 }

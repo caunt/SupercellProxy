@@ -156,7 +156,8 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
-        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
+        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+            _lifetime.Token);
 
         using IDisposable gate = await _authenticationGate.LockAsync(request.Token)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -370,7 +371,8 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await onMessage(await ReceiveAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false), cancellationToken)
+            await onMessage(await ReceiveAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false),
+                cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

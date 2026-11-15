@@ -197,6 +197,11 @@ public sealed record DerbyBoardMessage : CodecMessage<DerbyBoardMessage>, ICodec
             static segment => segment.Unknown1,
             Codecs.VarInt,
             static segment => segment.ExtraTaskOfferValue,
-            static (taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue));
+            static (taskLimit, remainingTasks, dailyTasksRefillTime, unknown0, unknown1, extraTaskOfferValue) => new BoardCounters(taskLimit,
+                remainingTasks,
+                dailyTasksRefillTime,
+                unknown0,
+                unknown1,
+                extraTaskOfferValue));
     }
 }

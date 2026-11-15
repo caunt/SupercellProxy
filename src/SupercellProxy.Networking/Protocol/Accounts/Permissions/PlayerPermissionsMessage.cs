@@ -21,7 +21,10 @@ public sealed record PlayerPermissionsMessage(int State, ImmutableArray<PlayerPe
         static message => message.UnknownFlag,
         Codecs.OptionalByteArray,
         static message => message.CompressedPlayerToken,
-        static (state, permissions, unknownFlag, compressedPlayerToken) => new PlayerPermissionsMessage(state, permissions, unknownFlag, compressedPlayerToken));
+        static (state, permissions, unknownFlag, compressedPlayerToken) => new PlayerPermissionsMessage(state,
+            permissions,
+            unknownFlag,
+            compressedPlayerToken));
 
     /// <summary>Keeps the signed player token out of diagnostic text.</summary>
     /// <returns>Always the text <c>PlayerPermissionsMessage</c>, without any of the message's fields.</returns>

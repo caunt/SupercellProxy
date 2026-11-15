@@ -23,5 +23,9 @@ public sealed record SupercellIdAccountAlreadyBoundMessage(string? SupercellId, 
         static message => message.Avatar,
         Codecs.OptionalUtf8String,
         static message => message.Text,
-        static (supercellId, accountId, passToken, avatar, text) => new SupercellIdAccountAlreadyBoundMessage(supercellId, accountId, passToken, avatar, text));
+        static (supercellId, accountId, passToken, avatar, text) => new SupercellIdAccountAlreadyBoundMessage(supercellId,
+            accountId,
+            passToken,
+            avatar,
+            text));
 }

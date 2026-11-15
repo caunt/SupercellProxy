@@ -45,5 +45,14 @@ public sealed record NeighborhoodRequestDonation(LongId DonorHomeId,
         static value => value.ReputationReward,
         Codecs.VarInt,
         static value => value.Thanked,
-        static (donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked) => new NeighborhoodRequestDonation(donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked));
+        static (donorHomeId, donorName, amount, donatedAt, donorLevel, donorRole, experienceReward, coinReward, reputationReward, thanked) => new NeighborhoodRequestDonation(donorHomeId,
+            donorName,
+            amount,
+            donatedAt,
+            donorLevel,
+            donorRole,
+            experienceReward,
+            coinReward,
+            reputationReward,
+            thanked));
 }

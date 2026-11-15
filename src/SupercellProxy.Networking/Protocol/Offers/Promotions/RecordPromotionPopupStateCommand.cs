@@ -28,5 +28,11 @@ public sealed record RecordPromotionPopupStateCommand(string? PromotionId, int E
         static command => command.Accepted,
         Codecs.VarInt,
         static command => command.Placement,
-        static (promotionId, eventId, variantId, state, timestamp, accepted, placement) => new RecordPromotionPopupStateCommand(promotionId, eventId, variantId, state, timestamp, accepted, placement)));
+        static (promotionId, eventId, variantId, state, timestamp, accepted, placement) => new RecordPromotionPopupStateCommand(promotionId,
+            eventId,
+            variantId,
+            state,
+            timestamp,
+            accepted,
+            placement)));
 }

@@ -9,5 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record DecorationCanvasDataMessage(OwnHomeDataMessage Data) : CodecMessage<DecorationCanvasDataMessage>, ICodecProvider<DecorationCanvasDataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<DecorationCanvasDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec, static message => message.Data, static data => new DecorationCanvasDataMessage(data));
+    public static ICodec<DecorationCanvasDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec,
+        static message => message.Data,
+        static data => new DecorationCanvasDataMessage(data));
 }

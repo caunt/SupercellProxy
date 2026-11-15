@@ -13,5 +13,6 @@ public sealed record RequestNeighborhoodComparisonMessage(LongId? FirstNeighborh
         static message => message.FirstNeighborhoodId,
         Codecs.OptionalLongId,
         static message => message.SecondNeighborhoodId,
-        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodComparisonMessage(firstNeighborhoodId, secondNeighborhoodId));
+        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodComparisonMessage(firstNeighborhoodId,
+            secondNeighborhoodId));
 }

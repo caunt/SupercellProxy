@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Boats;
 public sealed record RespondToBoatTimeExtensionCommand(bool Extend) : CodecCommand<RespondToBoatTimeExtensionCommand>, ICommandCodecProvider<RespondToBoatTimeExtensionCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<RespondToBoatTimeExtensionCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Extend, static extend => new RespondToBoatTimeExtensionCommand(extend)),
+    public static CommandCodec<RespondToBoatTimeExtensionCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
+            static command => command.Extend,
+            static extend => new RespondToBoatTimeExtensionCommand(extend)),
         CommandLayout.MetadataFirst);
 }

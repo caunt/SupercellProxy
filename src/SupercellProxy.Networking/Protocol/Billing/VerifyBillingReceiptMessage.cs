@@ -22,5 +22,9 @@ public sealed record VerifyBillingReceiptMessage(string? PriceLocale, string? Lo
         static message => message.ProductId,
         Codecs.OptionalByteArray,
         static message => message.Receipt,
-        static (priceLocale, localPrice, transactionId, productId, receipt) => new VerifyBillingReceiptMessage(priceLocale, localPrice, transactionId, productId, receipt));
+        static (priceLocale, localPrice, transactionId, productId, receipt) => new VerifyBillingReceiptMessage(priceLocale,
+            localPrice,
+            transactionId,
+            productId,
+            receipt));
 }

@@ -22,5 +22,9 @@ public sealed record ScratchBonusRoundRewardMessage(int RoundId, int Round, int 
         static message => message.RewardGlobalId,
         Codecs.VarInt,
         static message => message.RewardAmount,
-        static (roundId, round, slotIndex, rewardGlobalId, rewardAmount) => new ScratchBonusRoundRewardMessage(roundId, round, slotIndex, rewardGlobalId, rewardAmount));
+        static (roundId, round, slotIndex, rewardGlobalId, rewardAmount) => new ScratchBonusRoundRewardMessage(roundId,
+            round,
+            slotIndex,
+            rewardGlobalId,
+            rewardAmount));
 }

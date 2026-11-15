@@ -38,7 +38,8 @@ public abstract record NeighborhoodStreamEntry(StreamEntryHeader Header) : ICode
 
     private static KeyValuePair<int, ICodec<NeighborhoodStreamEntry>> Case<TEntry>(int entryType, ICodec<TEntry> codec) where TEntry : NeighborhoodStreamEntry
     {
-        return new KeyValuePair<int, ICodec<NeighborhoodStreamEntry>>(entryType, Codecs.Subtype<NeighborhoodStreamEntry, TEntry>(codec));
+        return new KeyValuePair<int, ICodec<NeighborhoodStreamEntry>>(entryType,
+            Codecs.Subtype<NeighborhoodStreamEntry, TEntry>(codec));
     }
 
     private static KeyValuePair<int, ICodec<NeighborhoodStreamEntry>>[] HelpRequestCases()

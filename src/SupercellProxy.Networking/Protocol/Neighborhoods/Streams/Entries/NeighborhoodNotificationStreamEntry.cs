@@ -21,7 +21,10 @@ public sealed record NeighborhoodNotificationStreamEntry(StreamEntryHeader Heade
         static entry => entry.NeighborhoodName,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,
-        static (header, message, neighborhoodName, badge) => new NeighborhoodNotificationStreamEntry(header, message, neighborhoodName, badge));
+        static (header, message, neighborhoodName, badge) => new NeighborhoodNotificationStreamEntry(header,
+            message,
+            neighborhoodName,
+            badge));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

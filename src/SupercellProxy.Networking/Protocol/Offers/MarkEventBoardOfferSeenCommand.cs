@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Offers;
 public sealed record MarkEventBoardOfferSeenCommand(int OfferId) : CodecCommand<MarkEventBoardOfferSeenCommand>, ICommandCodecProvider<MarkEventBoardOfferSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkEventBoardOfferSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.OfferId, static offerId => new MarkEventBoardOfferSeenCommand(offerId)),
+    public static CommandCodec<MarkEventBoardOfferSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.OfferId,
+            static offerId => new MarkEventBoardOfferSeenCommand(offerId)),
         CommandLayout.MetadataFirst);
 }

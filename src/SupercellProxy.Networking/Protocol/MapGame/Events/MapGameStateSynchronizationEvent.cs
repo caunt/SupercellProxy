@@ -21,5 +21,9 @@ public sealed record MapGameStateSynchronizationEvent(LongId? MapGameId, int Eve
         static mapGameEvent => mapGameEvent.Pawn,
         Codecs.Boolean,
         static mapGameEvent => mapGameEvent.Value,
-        static (mapGameId, eventId, state, pawn, value) => new MapGameStateSynchronizationEvent(mapGameId, eventId, state, pawn, value));
+        static (mapGameId, eventId, state, pawn, value) => new MapGameStateSynchronizationEvent(mapGameId,
+            eventId,
+            state,
+            pawn,
+            value));
 }

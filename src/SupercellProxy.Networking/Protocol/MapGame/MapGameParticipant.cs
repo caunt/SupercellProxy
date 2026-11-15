@@ -53,5 +53,14 @@ public sealed record MapGameParticipant([property: JsonPropertyName("Id0")] Long
         static participant => participant.DataId,
         Codecs.Array(DataReferenceValue.Codec, CollectionCount.Bounded),
         static participant => participant.Entries,
-        static (id0, id1, values, routeValues, taskDataIds, name, optionalValues, dataId, entries) => new MapGameParticipant(id0, id1, values, routeValues, taskDataIds, name.IsPresent, name.Value, optionalValues, dataId, entries));
+        static (id0, id1, values, routeValues, taskDataIds, name, optionalValues, dataId, entries) => new MapGameParticipant(id0,
+            id1,
+            values,
+            routeValues,
+            taskDataIds,
+            name.IsPresent,
+            name.Value,
+            optionalValues,
+            dataId,
+            entries));
 }

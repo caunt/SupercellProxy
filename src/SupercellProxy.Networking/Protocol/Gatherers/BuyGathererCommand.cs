@@ -22,5 +22,9 @@ public sealed record BuyGathererCommand(int GathererGlobalId, int PositionX, int
         static command => command.NestObjectGlobalId,
         Codecs.Boolean,
         static command => command.UseDiamonds,
-        static (gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds) => new BuyGathererCommand(gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds)));
+        static (gathererGlobalId, positionX, positionY, nestObjectGlobalId, useDiamonds) => new BuyGathererCommand(gathererGlobalId,
+            positionX,
+            positionY,
+            nestObjectGlobalId,
+            useDiamonds)));
 }

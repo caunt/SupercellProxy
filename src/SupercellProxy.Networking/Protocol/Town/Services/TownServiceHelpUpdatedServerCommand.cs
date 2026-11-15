@@ -16,5 +16,7 @@ public sealed record TownServiceHelpUpdatedServerCommand(LongId OwnerHomeId, int
         static command => command.ServiceObjectGlobalId,
         Codecs.Memory(TownServicePassenger.Codec),
         static command => command.Passengers,
-        static (ownerHomeId, serviceObjectGlobalId, passengers) => new TownServiceHelpUpdatedServerCommand(ownerHomeId, serviceObjectGlobalId, passengers)));
+        static (ownerHomeId, serviceObjectGlobalId, passengers) => new TownServiceHelpUpdatedServerCommand(ownerHomeId,
+            serviceObjectGlobalId,
+            passengers)));
 }

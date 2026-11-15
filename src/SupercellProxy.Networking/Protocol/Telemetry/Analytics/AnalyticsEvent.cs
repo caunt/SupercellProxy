@@ -24,5 +24,10 @@ public sealed record AnalyticsEvent(string? Name, long Time0, long Time1, long T
         static analyticsEvent => analyticsEvent.Properties,
         Codecs.Optional(AnalyticsContext.Codec),
         static analyticsEvent => analyticsEvent.Context,
-        static (name, time0, time1, time2, properties, context) => new AnalyticsEvent(name, time0, time1, time2, properties, context));
+        static (name, time0, time1, time2, properties, context) => new AnalyticsEvent(name,
+            time0,
+            time1,
+            time2,
+            properties,
+            context));
 }

@@ -9,5 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record TrainStationDataMessage(OwnHomeDataMessage Data) : CodecMessage<TrainStationDataMessage>, ICodecProvider<TrainStationDataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<TrainStationDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec, static message => message.Data, static data => new TrainStationDataMessage(data));
+    public static ICodec<TrainStationDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec,
+        static message => message.Data,
+        static data => new TrainStationDataMessage(data));
 }

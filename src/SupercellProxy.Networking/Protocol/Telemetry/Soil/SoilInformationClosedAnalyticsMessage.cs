@@ -50,5 +50,15 @@ public sealed record SoilInformationClosedAnalyticsMessage(string? Timezone,
         static message => message.Properties,
         Codecs.VarInt,
         static message => message.Value4,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4) => new SoilInformationClosedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4));
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4) => new SoilInformationClosedAnalyticsMessage(timezone,
+            deviceId,
+            value0,
+            value1,
+            contentId,
+            timestampMilliseconds,
+            value2,
+            text,
+            value3,
+            properties,
+            value4));
 }

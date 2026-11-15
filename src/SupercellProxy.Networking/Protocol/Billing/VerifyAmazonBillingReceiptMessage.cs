@@ -42,5 +42,13 @@ public sealed record VerifyAmazonBillingReceiptMessage(string? TransactionId,
         static message => message.Value1,
         Codecs.TrailingValue(Codecs.VarInt),
         static message => message.Value2,
-        static (transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2) => new VerifyAmazonBillingReceiptMessage(transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2));
+        static (transactionId, productId, currencyCode, price, purchaseData, signature, value0, value1, value2) => new VerifyAmazonBillingReceiptMessage(transactionId,
+            productId,
+            currencyCode,
+            price,
+            purchaseData,
+            signature,
+            value0,
+            value1,
+            value2));
 }

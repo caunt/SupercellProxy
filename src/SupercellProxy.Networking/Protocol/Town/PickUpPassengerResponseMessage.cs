@@ -19,5 +19,8 @@ public sealed record PickUpPassengerResponseMessage(LongId? PickingHomeId, LongI
         static message => message.Unknown0,
         Codecs.VarInt,
         static message => message.Status,
-        static (pickingHome, visitedHome, unknown0, status) => new PickUpPassengerResponseMessage(pickingHome, visitedHome, unknown0, status));
+        static (pickingHome, visitedHome, unknown0, status) => new PickUpPassengerResponseMessage(pickingHome,
+            visitedHome,
+            unknown0,
+            status));
 }

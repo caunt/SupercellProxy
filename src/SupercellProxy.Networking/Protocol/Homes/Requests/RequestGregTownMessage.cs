@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestGregTownMessage(int LanguageIndex) : CodecMessage<RequestGregTownMessage>, ICodecProvider<RequestGregTownMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestGregTownMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.LanguageIndex, static languageIndex => new RequestGregTownMessage(languageIndex));
+    public static ICodec<RequestGregTownMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.LanguageIndex,
+        static languageIndex => new RequestGregTownMessage(languageIndex));
 }

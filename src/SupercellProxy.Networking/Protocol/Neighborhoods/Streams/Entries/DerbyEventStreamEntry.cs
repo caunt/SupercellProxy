@@ -23,7 +23,11 @@ public sealed record DerbyEventStreamEntry(StreamEntryHeader Header, int EventTy
         static entry => entry.Value0,
         Codecs.VarInt,
         static entry => entry.Value1,
-        static (header, eventType, avatarId, value0, value1) => new DerbyEventStreamEntry(header, eventType, avatarId, value0, value1));
+        static (header, eventType, avatarId, value0, value1) => new DerbyEventStreamEntry(header,
+            eventType,
+            avatarId,
+            value0,
+            value1));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

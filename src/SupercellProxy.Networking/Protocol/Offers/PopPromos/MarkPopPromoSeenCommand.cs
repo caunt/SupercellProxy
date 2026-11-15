@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Offers.PopPromos;
 public sealed record MarkPopPromoSeenCommand(int PromoId) : CodecCommand<MarkPopPromoSeenCommand>, ICommandCodecProvider<MarkPopPromoSeenCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<MarkPopPromoSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.PromoId, static promoId => new MarkPopPromoSeenCommand(promoId)));
+    public static CommandCodec<MarkPopPromoSeenCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+        static command => command.PromoId,
+        static promoId => new MarkPopPromoSeenCommand(promoId)));
 }

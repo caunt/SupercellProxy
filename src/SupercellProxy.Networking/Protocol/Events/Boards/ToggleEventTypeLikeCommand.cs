@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Boards;
 public sealed record ToggleEventTypeLikeCommand(int EventId) : CodecCommand<ToggleEventTypeLikeCommand>, ICommandCodecProvider<ToggleEventTypeLikeCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ToggleEventTypeLikeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.EventId, static eventId => new ToggleEventTypeLikeCommand(eventId)),
+    public static CommandCodec<ToggleEventTypeLikeCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.EventId,
+            static eventId => new ToggleEventTypeLikeCommand(eventId)),
         CommandLayout.MetadataFirst);
 }

@@ -33,7 +33,10 @@ public sealed record MoveGameObjectCommand : CodecCommand<MoveGameObjectCommand>
         static command => command.PositionX,
         Codecs.VarInt,
         static command => command.PositionY,
-        static (gameObjectGlobalId, objectTableId, logicX, logicY) => new MoveGameObjectCommand(gameObjectGlobalId, objectTableId, logicX, logicY)));
+        static (gameObjectGlobalId, objectTableId, logicX, logicY) => new MoveGameObjectCommand(gameObjectGlobalId,
+            objectTableId,
+            logicX,
+            logicY)));
 
     /// <summary>Gets the global id of the object to move.</summary>
     /// <value>The id of a placed object in the home.</value>

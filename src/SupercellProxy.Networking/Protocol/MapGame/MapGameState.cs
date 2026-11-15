@@ -41,7 +41,11 @@ public sealed record MapGameState : ICodecProvider<MapGameState>
         static state => state.Emojis,
         Codecs.VarInt,
         static state => state.MapGlobalId,
-        static (pawns, taskGroups, configuration, emojis, mapGlobalId) => new MapGameState(pawns, taskGroups, configuration, emojis, mapGlobalId));
+        static (pawns, taskGroups, configuration, emojis, mapGlobalId) => new MapGameState(pawns,
+            taskGroups,
+            configuration,
+            emojis,
+            mapGlobalId));
 
     /// <summary>Gets the board's daily spawn and delivery counters and its chicken log.</summary>
     /// <value>The board-wide configuration block, sent after <see cref="TaskGroups"/>.</value>

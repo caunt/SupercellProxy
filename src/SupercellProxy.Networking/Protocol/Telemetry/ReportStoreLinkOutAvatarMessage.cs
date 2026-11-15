@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Telemetry;
 public sealed record ReportStoreLinkOutAvatarMessage(LongId AvatarId) : CodecMessage<ReportStoreLinkOutAvatarMessage>, ICodecProvider<ReportStoreLinkOutAvatarMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ReportStoreLinkOutAvatarMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new ReportStoreLinkOutAvatarMessage(avatarId));
+    public static ICodec<ReportStoreLinkOutAvatarMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new ReportStoreLinkOutAvatarMessage(avatarId));
 }

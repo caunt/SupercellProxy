@@ -41,7 +41,15 @@ public sealed record DerbyRankingEntry(int Rank,
         static value => value.Badge2,
         Codecs.VarInt,
         static value => value.Value,
-        static (rank, score, rankValue, neighborhoodId, neighborhoodName, badge0, badge1, badge2, @value) => new DerbyRankingEntry(rank, score, rankValue, neighborhoodId, neighborhoodName, badge0, badge1, badge2, value));
+        static (rank, score, rankValue, neighborhoodId, neighborhoodName, badge0, badge1, badge2, @value) => new DerbyRankingEntry(rank,
+            score,
+            rankValue,
+            neighborhoodId,
+            neighborhoodName,
+            badge0,
+            badge1,
+            badge2,
+            value));
 
     /// <summary>Omits neighborhood details from diagnostic text.</summary>
     /// <returns>The type name <c>DerbyRankingEntry</c> alone, so the neighborhood name and identifier never reach logs.</returns>

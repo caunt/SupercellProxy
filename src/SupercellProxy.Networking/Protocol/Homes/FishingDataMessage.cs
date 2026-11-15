@@ -9,5 +9,7 @@ namespace SupercellProxy.Networking.Protocol.Homes;
 public sealed record FishingDataMessage(OwnHomeDataMessage Data) : CodecMessage<FishingDataMessage>, ICodecProvider<FishingDataMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FishingDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec, static message => message.Data, static data => new FishingDataMessage(data));
+    public static ICodec<FishingDataMessage> Codec { get; } = Codecs.Composite(OwnHomeDataMessage.Codec,
+        static message => message.Data,
+        static data => new FishingDataMessage(data));
 }

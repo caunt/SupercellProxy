@@ -16,6 +16,8 @@ public sealed record FeedAngusCommand(int GoodGlobalId, int AngusObjectGlobalId,
             static command => command.AngusObjectGlobalId,
             Codecs.VarInt,
             static command => command.Amount,
-            static (goodGlobalId, angusObjectGlobalId, amount) => new FeedAngusCommand(goodGlobalId, angusObjectGlobalId, amount)),
+            static (goodGlobalId, angusObjectGlobalId, amount) => new FeedAngusCommand(goodGlobalId,
+                angusObjectGlobalId,
+                amount)),
         CommandLayout.MetadataFirst);
 }

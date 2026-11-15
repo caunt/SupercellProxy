@@ -32,7 +32,14 @@ public sealed record DerbyBoardGroupEntry(int Value0, int Value1, int Value2, in
         static value => value.Value6,
         Codecs.Array(Codecs.LongId, CollectionCount.Bounded),
         static value => value.PlayerIds,
-        static (value0, value1, value2, value3, value4, value5, value6, playerIds) => new DerbyBoardGroupEntry(value0, value1, value2, value3, value4, value5, value6, playerIds));
+        static (value0, value1, value2, value3, value4, value5, value6, playerIds) => new DerbyBoardGroupEntry(value0,
+            value1,
+            value2,
+            value3,
+            value4,
+            value5,
+            value6,
+            playerIds));
 
     /// <summary>Omits identifiers from diagnostic text.</summary>
     /// <returns>The type name <c>DerbyBoardGroupEntry</c> alone, without any field values, so player identifiers never reach logs.</returns>

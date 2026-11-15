@@ -19,5 +19,8 @@ public sealed record ConfirmShopPurchaseServerCommand(int EventId, int VariantId
         static command => command.PackageGlobalId,
         Codecs.VarInt,
         static command => command.FarmPassPurchase,
-        static (eventId, variantId, packageGlobalId, farmPassPurchase) => new ConfirmShopPurchaseServerCommand(eventId, variantId, packageGlobalId, farmPassPurchase)));
+        static (eventId, variantId, packageGlobalId, farmPassPurchase) => new ConfirmShopPurchaseServerCommand(eventId,
+            variantId,
+            packageGlobalId,
+            farmPassPurchase)));
 }

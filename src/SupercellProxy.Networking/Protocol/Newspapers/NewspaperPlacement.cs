@@ -31,5 +31,11 @@ public sealed record NewspaperPlacement(int Index, [property: JsonPropertyName("
         static value => value.Value3,
         Codecs.Boolean,
         static value => value.Flag,
-        static (index, homeId, value0, value1, value2, value3, flag) => new NewspaperPlacement(index, homeId, value0, value1, value2, value3, flag));
+        static (index, homeId, value0, value1, value2, value3, flag) => new NewspaperPlacement(index,
+            homeId,
+            value0,
+            value1,
+            value2,
+            value3,
+            flag));
 }

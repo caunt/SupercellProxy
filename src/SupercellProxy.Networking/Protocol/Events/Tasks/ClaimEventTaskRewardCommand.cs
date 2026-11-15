@@ -16,5 +16,7 @@ public sealed record ClaimEventTaskRewardCommand(int EventId, int RewardIndex, b
         static command => command.RewardIndex,
         Codecs.Boolean,
         static command => command.EventCompletedReward,
-        static (eventId, rewardIndex, eventCompletedReward) => new ClaimEventTaskRewardCommand(eventId, rewardIndex, eventCompletedReward)));
+        static (eventId, rewardIndex, eventCompletedReward) => new ClaimEventTaskRewardCommand(eventId,
+            rewardIndex,
+            eventCompletedReward)));
 }

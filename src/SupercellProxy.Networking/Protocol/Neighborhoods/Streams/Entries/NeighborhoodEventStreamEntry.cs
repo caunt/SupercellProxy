@@ -23,7 +23,11 @@ public sealed record NeighborhoodEventStreamEntry(StreamEntryHeader Header, int 
         static entry => entry.TargetName,
         Codecs.VarLong,
         static entry => entry.Value,
-        static (header, eventType, targetAvatarId, targetName, value) => new NeighborhoodEventStreamEntry(header, eventType, targetAvatarId, targetName, value));
+        static (header, eventType, targetAvatarId, targetName, value) => new NeighborhoodEventStreamEntry(header,
+            eventType,
+            targetAvatarId,
+            targetName,
+            value));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

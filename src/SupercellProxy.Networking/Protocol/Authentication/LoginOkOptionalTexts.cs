@@ -10,7 +10,9 @@ namespace SupercellProxy.Networking.Protocol.Authentication;
 public sealed record LoginOkOptionalTexts(string? First, string? Second, string? Third, string? Fourth) : ICodecProvider<LoginOkOptionalTexts>
 {
     /// <inheritdoc />
-    public static ICodec<LoginOkOptionalTexts> Codec { get; } = Codecs.Composite(Codecs.Flagged(Codecs.OptionalUtf8String, absent: null, static text => text is not null),
+    public static ICodec<LoginOkOptionalTexts> Codec { get; } = Codecs.Composite(Codecs.Flagged(Codecs.OptionalUtf8String,
+            absent: null,
+            static text => text is not null),
         static value => value.First,
         Codecs.Flagged(Codecs.OptionalUtf8String, absent: null, static text => text is not null),
         static value => value.Second,

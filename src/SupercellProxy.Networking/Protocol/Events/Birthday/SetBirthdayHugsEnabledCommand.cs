@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Birthday;
 public sealed record SetBirthdayHugsEnabledCommand(bool Enabled) : CodecCommand<SetBirthdayHugsEnabledCommand>, ICommandCodecProvider<SetBirthdayHugsEnabledCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetBirthdayHugsEnabledCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean, static command => command.Enabled, static enabled => new SetBirthdayHugsEnabledCommand(enabled)));
+    public static CommandCodec<SetBirthdayHugsEnabledCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Boolean,
+        static command => command.Enabled,
+        static enabled => new SetBirthdayHugsEnabledCommand(enabled)));
 }

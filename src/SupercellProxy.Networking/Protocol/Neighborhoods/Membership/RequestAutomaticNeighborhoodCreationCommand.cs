@@ -25,5 +25,9 @@ public sealed record RequestAutomaticNeighborhoodCreationCommand(string Name, in
         static command => command.EventStartTime,
         Codecs.VarInt,
         static command => command.Unknown3,
-        static (name, eventId, unknown1, eventStartTime, unknown3) => new RequestAutomaticNeighborhoodCreationCommand(name, eventId, unknown1, eventStartTime, unknown3)));
+        static (name, eventId, unknown1, eventStartTime, unknown3) => new RequestAutomaticNeighborhoodCreationCommand(name,
+            eventId,
+            unknown1,
+            eventStartTime,
+            unknown3)));
 }

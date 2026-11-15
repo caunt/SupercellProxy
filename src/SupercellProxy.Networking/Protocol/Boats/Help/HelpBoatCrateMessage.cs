@@ -19,5 +19,8 @@ public sealed record HelpBoatCrateMessage(bool UseDiamonds, int ProductGlobalId,
         static message => message.Amount,
         Codecs.VarInt,
         static message => message.CrateIndex,
-        static (useDiamonds, productGlobalId, amount, crateIndex) => new HelpBoatCrateMessage(useDiamonds, productGlobalId, amount, crateIndex));
+        static (useDiamonds, productGlobalId, amount, crateIndex) => new HelpBoatCrateMessage(useDiamonds,
+            productGlobalId,
+            amount,
+            crateIndex));
 }

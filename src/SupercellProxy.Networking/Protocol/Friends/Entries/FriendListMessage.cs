@@ -21,7 +21,8 @@ public sealed record FriendListMessage(int Mode, ImmutableArray<FriendEntry>? En
     /// <inheritdoc />
     public static ICodec<FriendListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.VarInt,
             static message => message.Mode,
-            Codecs.NullableArray(FriendEntry.Codec, CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).With(MaximumEntryCount).WithStrictAbsence()),
+            Codecs.NullableArray(FriendEntry.Codec,
+                CollectionCount.PerElement(FriendEntry.MinimumEncodedSize).With(MaximumEntryCount).WithStrictAbsence()),
             static message => message.Entries,
             static (mode, entries) => new FriendListMessage(mode, entries)),
         trailingDataMessage: "The friend list has trailing data.");

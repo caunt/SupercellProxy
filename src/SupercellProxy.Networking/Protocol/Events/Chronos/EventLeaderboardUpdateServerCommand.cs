@@ -26,5 +26,10 @@ public sealed record EventLeaderboardUpdateServerCommand(int EventId, int Rank, 
         static command => command.Unknown4,
         Codecs.VarInt,
         static command => command.Unknown5,
-        static (eventId, rank, unknown2, completed, unknown4, unknown5) => new EventLeaderboardUpdateServerCommand(eventId, rank, unknown2, completed, unknown4, unknown5)));
+        static (eventId, rank, unknown2, completed, unknown4, unknown5) => new EventLeaderboardUpdateServerCommand(eventId,
+            rank,
+            unknown2,
+            completed,
+            unknown4,
+            unknown5)));
 }

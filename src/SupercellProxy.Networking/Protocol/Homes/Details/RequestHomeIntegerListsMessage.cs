@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Homes.Details;
 public sealed record RequestHomeIntegerListsMessage(LongId? HomeId) : CodecMessage<RequestHomeIntegerListsMessage>, ICodecProvider<RequestHomeIntegerListsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestHomeIntegerListsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalLongId, static message => message.HomeId, static homeId => new RequestHomeIntegerListsMessage(homeId)),
+    public static ICodec<RequestHomeIntegerListsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalLongId,
+            static message => message.HomeId,
+            static homeId => new RequestHomeIntegerListsMessage(homeId)),
         trailingDataMessage: "The home integer-list request has trailing data.");
 
     /// <summary>Omits the home identifier from routine diagnostics.</summary>

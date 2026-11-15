@@ -13,6 +13,7 @@ public sealed record UseConsumableCommand(int TargetObjectGlobalId, int Consumab
             static command => command.TargetObjectGlobalId,
             Codecs.VarInt,
             static command => command.ConsumableGlobalId,
-            static (targetObjectGlobalId, consumableGlobalId) => new UseConsumableCommand(targetObjectGlobalId, consumableGlobalId)),
+            static (targetObjectGlobalId, consumableGlobalId) => new UseConsumableCommand(targetObjectGlobalId,
+                consumableGlobalId)),
         CommandLayout.MetadataFirst);
 }

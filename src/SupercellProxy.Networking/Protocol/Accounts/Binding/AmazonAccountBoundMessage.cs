@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Accounts.Binding;
 public sealed record AmazonAccountBoundMessage(int ResultCode) : CodecMessage<AmazonAccountBoundMessage>, ICodecProvider<AmazonAccountBoundMessage>
 {
     /// <inheritdoc />
-    public static ICodec<AmazonAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.ResultCode, static resultCode => new AmazonAccountBoundMessage(resultCode));
+    public static ICodec<AmazonAccountBoundMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.ResultCode,
+        static resultCode => new AmazonAccountBoundMessage(resultCode));
 }

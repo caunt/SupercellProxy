@@ -40,7 +40,10 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
         Codecs.Utf8String,
         static message => message.PassToken,
         LinkedAccountIds.Codec,
-        static message => new LinkedAccountIds(message.FacebookId, message.GamecenterId, message.GoogleServiceId, message.AmazonId),
+        static message => new LinkedAccountIds(message.FacebookId,
+            message.GamecenterId,
+            message.GoogleServiceId,
+            message.AmazonId),
         Codecs.Utf8String,
         static message => message.LoginCountry,
         Codecs.Utf8String,
@@ -278,7 +281,10 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
             static ids => ids.GoogleServiceId,
             Codecs.OptionalUtf8String,
             static ids => ids.AmazonId,
-            static (facebookId, gamecenterId, googleServiceId, amazonId) => new LinkedAccountIds(facebookId, gamecenterId, googleServiceId, amazonId));
+            static (facebookId, gamecenterId, googleServiceId, amazonId) => new LinkedAccountIds(facebookId,
+                gamecenterId,
+                googleServiceId,
+                amazonId));
     }
 
     // Native reads each block only while payload bytes remain, so older servers end the message earlier.
@@ -293,8 +299,13 @@ public sealed record LoginOkMessage : CodecMessage<LoginOkMessage>, ICodecProvid
             static blocks => blocks.Text,
             Codecs.Trailing(LoginOkOptionalTexts.Codec),
             static blocks => blocks.OptionalTexts,
-            Codecs.Trailing(Codecs.Present(Codecs.Optional(PlayerPermissionSet.Codec)), absent: default, static permissions => permissions.IsPresent),
+            Codecs.Trailing(Codecs.Present(Codecs.Optional(PlayerPermissionSet.Codec)),
+                absent: default,
+                static permissions => permissions.IsPresent),
             static blocks => blocks.Permissions,
-            static (sessionData, text, optionalTexts, permissions) => new TrailingBlocks(sessionData, text, optionalTexts, permissions));
+            static (sessionData, text, optionalTexts, permissions) => new TrailingBlocks(sessionData,
+                text,
+                optionalTexts,
+                permissions));
     }
 }

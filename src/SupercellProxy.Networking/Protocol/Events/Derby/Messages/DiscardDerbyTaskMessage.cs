@@ -22,7 +22,11 @@ public sealed record DiscardDerbyTaskMessage(int TaskBoardIndex, int TaskStatus,
             static message => message.PlayerId,
             Codecs.Boolean,
             static message => message.Discarded,
-            static (taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded) => new DiscardDerbyTaskMessage(taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded)),
+            static (taskBoardIndex, taskStatus, neighborhoodId, playerId, discarded) => new DiscardDerbyTaskMessage(taskBoardIndex,
+                taskStatus,
+                neighborhoodId,
+                playerId,
+                discarded)),
         trailingDataMessage: "The derby message has trailing data.");
 
     /// <summary>Omits identifiers from diagnostic text.</summary>

@@ -31,5 +31,12 @@ public sealed record PopPromoUpdateServerCommand(LongId HomeId, int PromoId, int
         static command => command.Duration,
         Codecs.VarInt,
         static command => command.Probability,
-        static (homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability) => new PopPromoUpdateServerCommand(homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability)));
+        static (homeId, promoId, state, rewardGlobalId, amount, startTime, duration, probability) => new PopPromoUpdateServerCommand(homeId,
+            promoId,
+            state,
+            rewardGlobalId,
+            amount,
+            startTime,
+            duration,
+            probability)));
 }

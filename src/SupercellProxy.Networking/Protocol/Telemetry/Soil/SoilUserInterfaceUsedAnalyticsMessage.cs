@@ -46,5 +46,14 @@ public sealed record SoilUserInterfaceUsedAnalyticsMessage(string? Timezone,
         static message => message.Value3,
         Codecs.Memory(SoilProperty.Codec),
         static message => message.Properties,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties) => new SoilUserInterfaceUsedAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties));
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties) => new SoilUserInterfaceUsedAnalyticsMessage(timezone,
+            deviceId,
+            value0,
+            value1,
+            contentId,
+            timestampMilliseconds,
+            value2,
+            text,
+            value3,
+            properties));
 }

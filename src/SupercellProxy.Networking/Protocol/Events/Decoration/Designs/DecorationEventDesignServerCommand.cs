@@ -25,6 +25,11 @@ public sealed record DecorationEventDesignServerCommand(int Points, int EventId,
             static command => command.DesignName,
             Codecs.VarInt,
             static command => command.Votes,
-            static (points, eventId, designId, variantId, designName, votes) => new DecorationEventDesignServerCommand(points, eventId, designId, variantId, designName, votes)),
+            static (points, eventId, designId, variantId, designName, votes) => new DecorationEventDesignServerCommand(points,
+                eventId,
+                designId,
+                variantId,
+                designName,
+                votes)),
         CommandLayout.MetadataFirst);
 }

@@ -371,7 +371,9 @@ public static class DataTableRegistry
     /// <exception cref="InvalidDataException">One export number is claimed by two different files.</exception>
     public static IReadOnlyDictionary<int, string> Create(IEnumerable<GameAsset> resources)
     {
-        Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File, StringComparer.Ordinal);
+        Dictionary<string, GameAsset> resourcesByFile = resources.ToDictionary(static resource => resource.Fingerprint.File,
+            StringComparer.Ordinal);
+
         Dictionary<int, string> dataTableFiles = new(NativeDataTableFiles);
 
         if (resourcesByFile.ContainsKey(GameAssetFiles.ConsumableBoosters))
@@ -401,7 +403,10 @@ public static class DataTableRegistry
             int exportNumber = ReadNumber(entry, field: "ExportNum");
 
             if (dataTableFiles.TryGetValue(exportNumber, out string? existingFile) && !existingFile.Equals(csvName, StringComparison.Ordinal))
-                throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
+            {
+                throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                    $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
+            }
 
             dataTableFiles[exportNumber] = csvName;
         }

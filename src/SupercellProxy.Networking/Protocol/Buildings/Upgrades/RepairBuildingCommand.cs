@@ -22,5 +22,9 @@ public sealed record RepairBuildingCommand(int DataGlobalId, int ObjectGlobalId,
         static command => command.PositionY,
         Codecs.Boolean,
         static command => command.UseDiamonds,
-        static (dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds) => new RepairBuildingCommand(dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds)));
+        static (dataGlobalId, objectGlobalId, positionX, positionY, useDiamonds) => new RepairBuildingCommand(dataGlobalId,
+            objectGlobalId,
+            positionX,
+            positionY,
+            useDiamonds)));
 }

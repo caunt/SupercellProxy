@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Neighborhoods.FarmPassGifts;
 public sealed record ClaimNeighborhoodFarmPassGiftCommand(LongId GiftId) : CodecCommand<ClaimNeighborhoodFarmPassGiftCommand>, ICommandCodecProvider<ClaimNeighborhoodFarmPassGiftCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ClaimNeighborhoodFarmPassGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId, static command => command.GiftId, static giftId => new ClaimNeighborhoodFarmPassGiftCommand(giftId)));
+    public static CommandCodec<ClaimNeighborhoodFarmPassGiftCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.LongId,
+        static command => command.GiftId,
+        static giftId => new ClaimNeighborhoodFarmPassGiftCommand(giftId)));
 }

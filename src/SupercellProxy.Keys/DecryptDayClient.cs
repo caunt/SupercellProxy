@@ -206,8 +206,7 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         string boundary = $"----WebKitFormBoundary{Guid.NewGuid():N}";
 
-        string body =
-            $"--{boundary}\r\nContent-Disposition: form-data; name=\"data\"\r\n\r\n"
+        string body = $"--{boundary}\r\nContent-Disposition: form-data; name=\"data\"\r\n\r\n"
             + $"{BuildFilePayload(decryptDayId, version)}\r\n--{boundary}--\r\n";
 
         ByteArrayContent content = new(Encoding.UTF8.GetBytes(body));
@@ -216,7 +215,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
-        HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
+        HttpRequestMessage request = new(HttpMethod.Post,
+            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
         {
             Content = content,
         };
@@ -232,7 +232,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static HttpRequestMessage CreateMetadataRequest(string appStoreId)
     {
-        HttpRequestMessage request = new(HttpMethod.Get, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
+        HttpRequestMessage request = new(HttpMethod.Get,
+            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
@@ -371,14 +372,13 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task ExtractBrowserArchiveAsync(string archivePath, string binaryDirectory, CancellationToken cancellationToken)
     {
-        using Process process =
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "/usr/bin/tar",
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                ArgumentList = { "-xzf", archivePath, "-C", binaryDirectory },
-            }) ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
+        using Process process = Process.Start(new ProcessStartInfo
+        {
+            FileName = "/usr/bin/tar",
+            UseShellExecute = false,
+            RedirectStandardError = true,
+            ArgumentList = { "-xzf", archivePath, "-C", binaryDirectory },
+        }) ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
 
         Task<string> errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 
@@ -481,7 +481,8 @@ internal sealed class DecryptDayClient(HttpClient client)
     private static async Task<string> SaveDiagnosticsAsync(IPage page, Exception exception, CancellationToken cancellationToken)
     {
         string directory = Path.Combine(Environment.CurrentDirectory,
-            string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
+            string.Create(CultureInfo.InvariantCulture,
+                $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
 
@@ -636,7 +637,8 @@ internal sealed class DecryptDayClient(HttpClient client)
         {
             string locations = string.Join(separator: ", ", context.Pages.Select(static candidate => candidate.Url));
 
-            throw new TimeoutException($"No download started within 60 seconds of clicking Download. Open pages: {locations}", exception);
+            throw new TimeoutException($"No download started within 60 seconds of clicking Download. Open pages: {locations}",
+                exception);
         }
         finally
         {
@@ -694,15 +696,15 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await using (content.ConfigureAwait(continueOnCapturedContext: false))
         {
-            document =
-                await JsonSerializer.DeserializeAsync(content, DecryptDaySerializationContext.Default.DecryptDayPageResponse, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false)
+            document = await JsonSerializer.DeserializeAsync(content, DecryptDaySerializationContext.Default.DecryptDayPageResponse, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false)
                 ?? throw new InvalidDataException(message: "decrypt.day returned empty app metadata.");
         }
 
         foreach (DecryptDayPageNode? node in document.Nodes)
         {
-            DecryptDayApplicationPayload? payload = node?.Data?.Decode(DecryptDaySerializationContext.Default.DecryptDayApplicationPayload);
+            DecryptDayApplicationPayload? payload = node?.Data?.Decode(DecryptDaySerializationContext.Default
+                .DecryptDayApplicationPayload);
 
             if (payload?.Application?.BundleId is not { } bundleId)
                 continue;
@@ -737,7 +739,8 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture, $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
+            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture,
+                    $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
                 inner: null,
                 response.StatusCode);
         }
@@ -751,15 +754,16 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await using (responseContent.ConfigureAwait(continueOnCapturedContext: false))
         {
-            envelope =
-                await JsonSerializer.DeserializeAsync(responseContent, DecryptDaySerializationContext.Default.DecryptDayFileEnvelope, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
+            envelope = await JsonSerializer.DeserializeAsync(responseContent, DecryptDaySerializationContext.Default.DecryptDayFileEnvelope, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         string serialized = envelope?.Data
             ?? throw new InvalidDataException(message: "decrypt.day returned an unrecognized file list.");
 
-        DecryptDayFileMetadata?[] files = JsonSerializer.Deserialize(serialized, DecryptDaySerializationContext.Default.SvelteData)?.Decode(DecryptDaySerializationContext.Default.DecryptDayFilePayload)?.Data?.Files
+        DecryptDayFileMetadata?[] files = JsonSerializer.Deserialize(serialized,
+            DecryptDaySerializationContext.Default.SvelteData)?.Decode(DecryptDaySerializationContext.Default
+                .DecryptDayFilePayload)?.Data?.Files
             ?? throw new InvalidDataException(message: "decrypt.day returned an unrecognized file list.");
 
         return files.OfType<DecryptDayFileMetadata>()

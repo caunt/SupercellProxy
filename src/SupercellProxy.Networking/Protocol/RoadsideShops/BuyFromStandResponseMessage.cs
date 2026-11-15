@@ -52,6 +52,13 @@ public sealed record BuyFromStandResponseMessage([property: JsonPropertyName("Bu
             static message => message.ContextValue,
             Codecs.VarInt,
             static message => message.ItemGlobalId,
-            static (buyerId, homeOwnerId, status, quantity, price, slotIndex, contextValue, itemGlobalId) => new BuyFromStandResponseMessage(buyerId, homeOwnerId, status, quantity, price, slotIndex, contextValue, itemGlobalId)),
+            static (buyerId, homeOwnerId, status, quantity, price, slotIndex, contextValue, itemGlobalId) => new BuyFromStandResponseMessage(buyerId,
+                homeOwnerId,
+                status,
+                quantity,
+                price,
+                slotIndex,
+                contextValue,
+                itemGlobalId)),
         trailingDataMessage: "Roadside purchase result has trailing data.");
 }

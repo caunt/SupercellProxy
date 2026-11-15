@@ -15,23 +15,28 @@ public static class Codecs
 {
     /// <summary>Gets a bit-packed boolean.</summary>
     /// <value>A shared codec that stores each flag as one bit: consecutive booleans fill one byte from its lowest bit upward, and any other field starts a new byte.</value>
-    public static ICodec<bool> Boolean { get; } = new DelegateCodec<bool>(static stream => stream.ReadBoolean(), static (stream, value) => stream.WriteBoolean(value));
+    public static ICodec<bool> Boolean { get; } = new DelegateCodec<bool>(static stream => stream.ReadBoolean(),
+        static (stream, value) => stream.WriteBoolean(value));
 
     /// <summary>Gets one byte.</summary>
     /// <value>A shared codec for a single raw byte from 0 to 255; it also closes any partly filled byte of packed booleans.</value>
-    public static ICodec<byte> Byte { get; } = new DelegateCodec<byte>(static stream => stream.ReadByte(), static (stream, value) => stream.WriteByte(value));
+    public static ICodec<byte> Byte { get; } = new DelegateCodec<byte>(static stream => stream.ReadByte(),
+        static (stream, value) => stream.WriteByte(value));
 
     /// <summary>Gets a 32-bit length followed by that many bytes.</summary>
     /// <value>A shared codec whose big-endian length counts the bytes that follow; a zero length reads as empty memory, and a negative one fails with <see cref="InvalidDataException"/>.</value>
-    public static ICodec<ReadOnlyMemory<byte>> ByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>>(static stream => stream.ReadByteArray(), static (stream, value) => stream.WriteByteArray(value.Span));
+    public static ICodec<ReadOnlyMemory<byte>> ByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>>(static stream => stream.ReadByteArray(),
+        static (stream, value) => stream.WriteByteArray(value.Span));
 
     /// <summary>Gets a big-endian 32-bit integer.</summary>
     /// <value>A shared codec for a signed two's-complement integer stored in four bytes, most significant byte first.</value>
-    public static ICodec<int> BigEndianInt32 { get; } = new DelegateCodec<int>(static stream => stream.ReadInt32(), static (stream, value) => stream.WriteInt32(value));
+    public static ICodec<int> BigEndianInt32 { get; } = new DelegateCodec<int>(static stream => stream.ReadInt32(),
+        static (stream, value) => stream.WriteInt32(value));
 
     /// <summary>Gets a big-endian 64-bit integer.</summary>
     /// <value>A shared codec for a signed two's-complement integer stored in eight bytes, most significant byte first.</value>
-    public static ICodec<long> BigEndianInt64 { get; } = new DelegateCodec<long>(static stream => stream.ReadInt64(), static (stream, value) => stream.WriteInt64(value));
+    public static ICodec<long> BigEndianInt64 { get; } = new DelegateCodec<long>(static stream => stream.ReadInt64(),
+        static (stream, value) => stream.WriteInt64(value));
 
     /// <summary>Gets an IEEE single carried in the bits of a big-endian 32-bit integer.</summary>
     /// <value>A shared codec that reinterprets the four bytes bit for bit, so NaN payloads and negative zero survive a round trip unchanged.</value>
@@ -40,47 +45,58 @@ public static class Codecs
 
     /// <summary>Gets a high/low pair of 32-bit integers.</summary>
     /// <value>A shared codec that writes the high half and then the low half, each as a big-endian <see cref="Int32"/>, for eight bytes in all.</value>
-    public static ICodec<LongId> LongId { get; } = new DelegateCodec<LongId>(static stream => stream.ReadLongId(), static (stream, value) => stream.WriteLongId(value));
+    public static ICodec<LongId> LongId { get; } = new DelegateCodec<LongId>(static stream => stream.ReadLongId(),
+        static (stream, value) => stream.WriteLongId(value));
 
     /// <summary>Gets a byte array that native writes with a -1 length when it is absent.</summary>
     /// <value>A shared codec with a big-endian 32-bit length: any negative length reads as <see langword="null"/>, zero reads as empty memory, and <see langword="null"/> is written as -1.</value>
-    public static ICodec<ReadOnlyMemory<byte>?> OptionalByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>?>(static stream => stream.ReadOptionalByteArray(), static (stream, value) => stream.WriteOptionalByteArray(value));
+    public static ICodec<ReadOnlyMemory<byte>?> OptionalByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>?>(static stream => stream.ReadOptionalByteArray(),
+        static (stream, value) => stream.WriteOptionalByteArray(value));
 
     /// <summary>Gets a presence flag followed by a <see cref="Protocol.LongId"/>.</summary>
     /// <value>A shared codec whose flag is a bit-packed <see cref="Boolean"/>; the eight id bytes follow only when it is set, and a clear flag reads as <see langword="null"/>.</value>
-    public static ICodec<LongId?> OptionalLongId { get; } = new DelegateCodec<LongId?>(static stream => stream.ReadOptionalLongId(), static (stream, value) => stream.WriteOptionalLongId(value));
+    public static ICodec<LongId?> OptionalLongId { get; } = new DelegateCodec<LongId?>(static stream => stream.ReadOptionalLongId(),
+        static (stream, value) => stream.WriteOptionalLongId(value));
 
     /// <summary>Gets a string that native writes with a -1 length when it is absent.</summary>
     /// <value>A shared codec with a big-endian 32-bit UTF-8 byte length: any negative length reads as <see langword="null"/>, zero reads as an empty string, and <see langword="null"/> is written as -1.</value>
-    public static ICodec<string?> OptionalUtf8String { get; } = new DelegateCodec<string?>(static stream => stream.ReadOptionalString(), static (stream, value) => stream.WriteOptionalString(value));
+    public static ICodec<string?> OptionalUtf8String { get; } = new DelegateCodec<string?>(static stream => stream.ReadOptionalString(),
+        static (stream, value) => stream.WriteOptionalString(value));
 
     /// <summary>Gets a length-prefixed UTF-8 string.</summary>
     /// <value>A shared codec whose big-endian 32-bit prefix counts UTF-8 bytes, not characters; a zero length reads as an empty string and a negative one fails with <see cref="InvalidDataException"/>.</value>
-    public static ICodec<string> Utf8String { get; } = new DelegateCodec<string>(static stream => stream.ReadString(), static (stream, value) => stream.WriteString(value));
+    public static ICodec<string> Utf8String { get; } = new DelegateCodec<string>(static stream => stream.ReadString(),
+        static (stream, value) => stream.WriteString(value));
 
     /// <summary>Gets a big-endian 16-bit unsigned integer.</summary>
     /// <value>A shared codec for a value from 0 to 65535 stored in two bytes, most significant byte first.</value>
-    public static ICodec<ushort> BigEndianUInt16 { get; } = new DelegateCodec<ushort>(static stream => stream.ReadUInt16(), static (stream, value) => stream.WriteUInt16(value));
+    public static ICodec<ushort> BigEndianUInt16 { get; } = new DelegateCodec<ushort>(static stream => stream.ReadUInt16(),
+        static (stream, value) => stream.WriteUInt16(value));
 
     /// <summary>Gets a big-endian 32-bit unsigned integer.</summary>
     /// <value>A shared codec for an unsigned value stored in four bytes, most significant byte first, with no sign handling.</value>
-    public static ICodec<uint> BigEndianUInt32 { get; } = new DelegateCodec<uint>(static stream => stream.ReadUInt32(), static (stream, value) => stream.WriteUInt32(value));
+    public static ICodec<uint> BigEndianUInt32 { get; } = new DelegateCodec<uint>(static stream => stream.ReadUInt32(),
+        static (stream, value) => stream.WriteUInt32(value));
 
     /// <summary>Gets a big-endian 64-bit unsigned integer.</summary>
     /// <value>A shared codec for an unsigned value stored in eight bytes, most significant byte first, with no sign handling.</value>
-    public static ICodec<ulong> BigEndianUInt64 { get; } = new DelegateCodec<ulong>(static stream => stream.ReadUInt64(), static (stream, value) => stream.WriteUInt64(value));
+    public static ICodec<ulong> BigEndianUInt64 { get; } = new DelegateCodec<ulong>(static stream => stream.ReadUInt64(),
+        static (stream, value) => stream.WriteUInt64(value));
 
     /// <summary>Gets a native variable-length 32-bit integer.</summary>
     /// <value>A shared codec of one to five bytes: the first holds the low 6 bits, a sign flag (0x40) and a continuation flag (0x80), each later byte adds 7 bits, and negative values are sign-extended on read.</value>
-    public static ICodec<int> VarInt { get; } = new DelegateCodec<int>(static stream => stream.ReadVarInt(), static (stream, value) => stream.WriteVarInt(value));
+    public static ICodec<int> VarInt { get; } = new DelegateCodec<int>(static stream => stream.ReadVarInt(),
+        static (stream, value) => stream.WriteVarInt(value));
 
     /// <summary>Gets a var-int length followed by that many bytes.</summary>
     /// <value>A shared codec whose <see cref="VarInt"/> prefix counts the bytes that follow; zero reads as empty memory, and a negative length or one above <see cref="MessageChannel.MaximumPayloadLength"/> fails with <see cref="InvalidDataException"/>.</value>
-    public static ICodec<ReadOnlyMemory<byte>> VarIntByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>>(static stream => stream.ReadVarIntByteArray(), static (stream, value) => stream.WriteVarIntByteArray(value.Span));
+    public static ICodec<ReadOnlyMemory<byte>> VarIntByteArray { get; } = new DelegateCodec<ReadOnlyMemory<byte>>(static stream => stream.ReadVarIntByteArray(),
+        static (stream, value) => stream.WriteVarIntByteArray(value.Span));
 
     /// <summary>Gets a native variable-length 64-bit integer.</summary>
     /// <value>A shared codec that uses the <see cref="VarInt"/> scheme extended to 64 bits; a read whose last byte still carries the continuation flag fails with <see cref="InvalidDataException"/>.</value>
-    public static ICodec<long> VarLong { get; } = new DelegateCodec<long>(static stream => stream.ReadVarLong(), static (stream, value) => stream.WriteVarLong(value));
+    public static ICodec<long> VarLong { get; } = new DelegateCodec<long>(static stream => stream.ReadVarLong(),
+        static (stream, value) => stream.WriteVarLong(value));
 
     /// <summary>Gets a counted array of elements; the count defaults to a var-int bounded by the remaining payload.</summary>
     /// <typeparam name="TElement">The type of each array item, which <paramref name="element"/> reads and writes one at a time.</typeparam>
@@ -205,7 +221,13 @@ public static class Codecs
         Func<TValue, TThird> getThird,
         Func<TFirst, TSecond, TThird, TValue> factory)
     {
-        return new CompositeCodec3<TValue, TFirst, TSecond, TThird>(first, getFirst, second, getSecond, third, getThird, factory);
+        return new CompositeCodec3<TValue, TFirst, TSecond, TThird>(first,
+            getFirst,
+            second,
+            getSecond,
+            third,
+            getThird,
+            factory);
     }
 
     /// <summary>Composes 4 field codecs: each field is read in order and passed to <paramref name="factory"/>, and written from its getter.</summary>
@@ -234,7 +256,15 @@ public static class Codecs
         Func<TValue, TFourth> getFourth,
         Func<TFirst, TSecond, TThird, TFourth, TValue> factory)
     {
-        return new CompositeCodec4<TValue, TFirst, TSecond, TThird, TFourth>(first, getFirst, second, getSecond, third, getThird, fourth, getFourth, factory);
+        return new CompositeCodec4<TValue, TFirst, TSecond, TThird, TFourth>(first,
+            getFirst,
+            second,
+            getSecond,
+            third,
+            getThird,
+            fourth,
+            getFourth,
+            factory);
     }
 
     /// <summary>Composes 5 field codecs: each field is read in order and passed to <paramref name="factory"/>, and written from its getter.</summary>
@@ -268,7 +298,17 @@ public static class Codecs
         Func<TValue, TFifth> getFifth,
         Func<TFirst, TSecond, TThird, TFourth, TFifth, TValue> factory)
     {
-        return new CompositeCodec5<TValue, TFirst, TSecond, TThird, TFourth, TFifth>(first, getFirst, second, getSecond, third, getThird, fourth, getFourth, fifth, getFifth, factory);
+        return new CompositeCodec5<TValue, TFirst, TSecond, TThird, TFourth, TFifth>(first,
+            getFirst,
+            second,
+            getSecond,
+            third,
+            getThird,
+            fourth,
+            getFourth,
+            fifth,
+            getFifth,
+            factory);
     }
 
     /// <summary>Composes 6 field codecs: each field is read in order and passed to <paramref name="factory"/>, and written from its getter.</summary>
@@ -307,7 +347,19 @@ public static class Codecs
         Func<TValue, TSixth> getSixth,
         Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TValue> factory)
     {
-        return new CompositeCodec6<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth>(first, getFirst, second, getSecond, third, getThird, fourth, getFourth, fifth, getFifth, sixth, getSixth, factory);
+        return new CompositeCodec6<TValue, TFirst, TSecond, TThird, TFourth, TFifth, TSixth>(first,
+            getFirst,
+            second,
+            getSecond,
+            third,
+            getThird,
+            fourth,
+            getFourth,
+            fifth,
+            getFifth,
+            sixth,
+            getSixth,
+            factory);
     }
 
     /// <summary>Composes 7 field codecs: each field is read in order and passed to <paramref name="factory"/>, and written from its getter.</summary>
@@ -1243,7 +1295,9 @@ public static class Codecs
     /// <returns>A codec that reinterprets the integer as <typeparamref name="TEnum"/> bit for bit, so numbers without a named member pass through unchanged instead of failing.</returns>
     public static ICodec<TEnum> Enum<TEnum>(ICodec<int> underlying) where TEnum : struct, Enum
     {
-        return Map(underlying, static value => Unsafe.BitCast<int, TEnum>(value), static value => Unsafe.BitCast<TEnum, int>(value));
+        return Map(underlying,
+            static value => Unsafe.BitCast<int, TEnum>(value),
+            static value => Unsafe.BitCast<TEnum, int>(value));
     }
 
     /// <summary>Gets exactly <paramref name="length"/> elements without a count prefix.</summary>
@@ -1483,7 +1537,9 @@ public static class Codecs
     {
         ArgumentNullException.ThrowIfNull(codec);
 
-        return new TrailingCodec<TValue?>(Map<TValue, TValue?>(codec, static value => value, static value => value.GetValueOrDefault()),
+        return new TrailingCodec<TValue?>(Map<TValue, TValue?>(codec,
+                static value => value,
+                static value => value.GetValueOrDefault()),
             absent: null,
             static value => value is not null);
     }

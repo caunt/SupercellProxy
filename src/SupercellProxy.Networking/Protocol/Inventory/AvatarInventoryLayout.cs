@@ -118,7 +118,8 @@ public sealed class AvatarInventoryLayout
 
     /// <summary>Gets the 1.73 layout, which adds mollusc goods, mollusc beds, the supply shed, and Angus's store.</summary>
     /// <value>A shared instance with the <see cref="Legacy"/> unlock tables plus tables 353, 354 and the supply shed table, and four value maps.</value>
-    public static AvatarInventoryLayout WithAngus { get; } = new(unlockTableIds: [.. LegacyUnlockTableIds, 353, 354, DataTableRegistry.SupplyShedTableId], mapCount: 4);
+    public static AvatarInventoryLayout WithAngus { get; } = new(unlockTableIds: [.. LegacyUnlockTableIds, 353, 354, DataTableRegistry.SupplyShedTableId],
+        mapCount: 4);
 
     /// <summary>Gets the number of integer arrays in the inventory section, which includes the ordered unlock bitsets and the final shop-badge list.</summary>
     /// <value>One more than the number of <see cref="UnlockTableIds"/>; the decoder reads exactly this many arrays, and encoding a section with another count fails.</value>

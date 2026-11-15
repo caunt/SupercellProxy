@@ -51,7 +51,8 @@ public static class CommandRegistry
 
         CommandContract contract = TryGetContract(id, stream.GameVersion, out CommandContract? found)
             ? found
-            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command id {id} is not supported in game version {stream.GameVersion}."));
+            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
+                $"Logic command id {id} is not supported in game version {stream.GameVersion}."));
 
         EnsureAllowedEnvironment(contract, stream.CommandEnvironment);
 
@@ -61,7 +62,8 @@ public static class CommandRegistry
         }
         catch (InvalidDataException exception)
         {
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Command {contract} (id {id}) decoding failed at byte {stream.Position}: {exception.Message}"),
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                    $"Command {contract} (id {id}) decoding failed at byte {stream.Position}: {exception.Message}"),
                 exception);
         }
     }
@@ -79,7 +81,10 @@ public static class CommandRegistry
         CommandContract contract = command.Contract;
 
         if (!contract.CommandType.IsInstanceOfType(command))
-            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command {contract} does not read and write {command.GetType().Name}."));
+        {
+            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
+                $"Logic command {contract} does not read and write {command.GetType().Name}."));
+        }
 
         EnsureAllowedEnvironment(contract, encoder.CommandEnvironment);
         encoder.WriteVarInt(GetId(contract, encoder.GameVersion));
@@ -136,6 +141,9 @@ public static class CommandRegistry
     private static void EnsureAllowedEnvironment(CommandContract contract, CommandEnvironment environment)
     {
         if (environment is CommandEnvironment.Production && !contract.ProductionAllowed)
-            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Logic command {contract} is not allowed in the production environment."));
+        {
+            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
+                $"Logic command {contract} is not allowed in the production environment."));
+        }
     }
 }

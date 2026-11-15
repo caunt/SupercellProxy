@@ -25,5 +25,10 @@ public sealed record DecorationDesignMessage(string? Name, DecorationDesign? Des
         static message => message.Text,
         Codecs.VarInt,
         static message => message.Value2,
-        static (name, design, value0, value1, text, value2) => new DecorationDesignMessage(name, design, value0, value1, text, value2));
+        static (name, design, value0, value1, text, value2) => new DecorationDesignMessage(name,
+            design,
+            value0,
+            value1,
+            text,
+            value2));
 }

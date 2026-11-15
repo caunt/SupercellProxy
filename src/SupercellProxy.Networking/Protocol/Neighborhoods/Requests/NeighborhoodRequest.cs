@@ -41,5 +41,13 @@ public sealed record NeighborhoodRequest(LongId RequesterHomeId,
         static value => value.Donations,
         Codecs.OptionalLongId,
         static value => value.LastDonorHomeId,
-        static (requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId) => new NeighborhoodRequest(requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId));
+        static (requesterHomeId, itemGlobalId, requestedAmount, receivedAmount, createdAt, closed, requesterName, donations, lastDonorHomeId) => new NeighborhoodRequest(requesterHomeId,
+            itemGlobalId,
+            requestedAmount,
+            receivedAmount,
+            createdAt,
+            closed,
+            requesterName,
+            donations,
+            lastDonorHomeId));
 }

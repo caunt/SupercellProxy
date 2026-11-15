@@ -18,5 +18,8 @@ public sealed record TownServiceRequest(int ServiceBuildingGlobalId, bool Comple
         static value => value.Canceled,
         Codecs.Memory(TownServiceGood.Codec),
         static value => value.RequiredGoods,
-        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new TownServiceRequest(serviceBuildingGlobalId, completed, canceled, requiredGoods));
+        static (serviceBuildingGlobalId, completed, canceled, requiredGoods) => new TownServiceRequest(serviceBuildingGlobalId,
+            completed,
+            canceled,
+            requiredGoods));
 }

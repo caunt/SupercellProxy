@@ -25,7 +25,11 @@ public sealed record ClientScreenEventMessage(string Origin, string Action, stri
             static message => message.Value,
             Codecs.Utf8String,
             static message => message.Element,
-            static (origin, action, screen, value, element) => new ClientScreenEventMessage(origin, action, screen, value, element)),
+            static (origin, action, screen, value, element) => new ClientScreenEventMessage(origin,
+                action,
+                screen,
+                value,
+                element)),
         Codecs.Composite(Codecs.Utf8String,
             static message => message.Origin,
             Codecs.VarInt,
@@ -36,5 +40,9 @@ public sealed record ClientScreenEventMessage(string Origin, string Action, stri
             static message => message.Element,
             Codecs.Utf8String,
             static message => message.Action,
-            static (origin, value, screen, element, action) => new ClientScreenEventMessage(origin, action, screen, value, element)));
+            static (origin, value, screen, element, action) => new ClientScreenEventMessage(origin,
+                action,
+                screen,
+                value,
+                element)));
 }

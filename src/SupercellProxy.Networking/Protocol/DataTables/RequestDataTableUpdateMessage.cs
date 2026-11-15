@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.DataTables;
 public sealed record RequestDataTableUpdateMessage(int TableId) : CodecMessage<RequestDataTableUpdateMessage>, ICodecProvider<RequestDataTableUpdateMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestDataTableUpdateMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.TableId, static tableId => new RequestDataTableUpdateMessage(tableId));
+    public static ICodec<RequestDataTableUpdateMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.TableId,
+        static tableId => new RequestDataTableUpdateMessage(tableId));
 }

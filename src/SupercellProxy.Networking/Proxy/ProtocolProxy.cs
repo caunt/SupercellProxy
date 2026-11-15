@@ -50,7 +50,8 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
 
-        _archive = configuration.CaptureDirectory is { } captureRoot ? new CaptureArchive(captureRoot, configuration.AssetDirectory) : null;
+        _archive = configuration.CaptureDirectory is { } captureRoot ? new CaptureArchive(captureRoot,
+            configuration.AssetDirectory) : null;
 
         if (configuration.AssetDirectory is { } directory)
         {
@@ -65,7 +66,11 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
         if (!_listening.TrySetResult((IPEndPoint)listener.LocalEndpoint))
             LogListeningEndpointAlreadyReported(logger);
 
-        LogListening(logger, configuration.ListenAddress, configuration.ListenPort, configuration.UpstreamHost, configuration.UpstreamPort);
+        LogListening(logger,
+            configuration.ListenAddress,
+            configuration.ListenPort,
+            configuration.UpstreamHost,
+            configuration.UpstreamPort);
 
         using CancellationTokenSource lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 

@@ -25,5 +25,10 @@ public sealed record RoadsideAdvertisementServerCommand(LongId HomeId, int Stand
         static command => command.Amount,
         Codecs.BigEndianInt32,
         static command => command.Price,
-        static (homeId, standIndex, itemGlobalId, sold, amount, price) => new RoadsideAdvertisementServerCommand(homeId, standIndex, itemGlobalId, sold, amount, price)));
+        static (homeId, standIndex, itemGlobalId, sold, amount, price) => new RoadsideAdvertisementServerCommand(homeId,
+            standIndex,
+            itemGlobalId,
+            sold,
+            amount,
+            price)));
 }

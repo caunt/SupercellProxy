@@ -58,5 +58,17 @@ public sealed record SoilAdsInteractionAnalyticsMessage(string? Timezone,
         static message => message.Value5,
         Codecs.VarLong,
         static message => message.Value6,
-        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6) => new SoilAdsInteractionAnalyticsMessage(timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6));
+        static (timezone, deviceId, value0, value1, contentId, timestampMilliseconds, value2, text, value3, properties, value4, value5, value6) => new SoilAdsInteractionAnalyticsMessage(timezone,
+            deviceId,
+            value0,
+            value1,
+            contentId,
+            timestampMilliseconds,
+            value2,
+            text,
+            value3,
+            properties,
+            value4,
+            value5,
+            value6));
 }

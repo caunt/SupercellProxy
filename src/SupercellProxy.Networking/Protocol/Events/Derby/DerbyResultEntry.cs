@@ -33,5 +33,13 @@ public sealed record DerbyResultEntry(int Value0, int Value1, int Value2, int Va
         static value => value.Value7,
         Codecs.Boolean,
         static value => value.Flag,
-        static (value0, value1, value2, value3, value4, value5, value6, value7, flag) => new DerbyResultEntry(value0, value1, value2, value3, value4, value5, value6, value7, flag));
+        static (value0, value1, value2, value3, value4, value5, value6, value7, flag) => new DerbyResultEntry(value0,
+            value1,
+            value2,
+            value3,
+            value4,
+            value5,
+            value6,
+            value7,
+            flag));
 }

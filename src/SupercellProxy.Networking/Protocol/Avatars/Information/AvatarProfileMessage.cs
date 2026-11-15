@@ -22,5 +22,9 @@ public sealed record AvatarProfileMessage(LongId AvatarId, string? FacebookId, s
         static message => message.SupercellId,
         Codecs.OptionalUtf8String,
         static message => message.FarmName,
-        static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarProfileMessage(avatarId, facebookId, gamecenterId, supercellId, farmName));
+        static (avatarId, facebookId, gamecenterId, supercellId, farmName) => new AvatarProfileMessage(avatarId,
+            facebookId,
+            gamecenterId,
+            supercellId,
+            farmName));
 }

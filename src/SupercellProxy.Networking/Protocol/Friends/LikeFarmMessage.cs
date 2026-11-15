@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.Friends;
 public sealed record LikeFarmMessage(LongId HomeId) : CodecMessage<LikeFarmMessage>, ICodecProvider<LikeFarmMessage>
 {
     /// <inheritdoc />
-    public static ICodec<LikeFarmMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId, static message => message.HomeId, static homeId => new LikeFarmMessage(homeId)),
+    public static ICodec<LikeFarmMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.LongId,
+            static message => message.HomeId,
+            static homeId => new LikeFarmMessage(homeId)),
         trailingDataMessage: "The farm-like request has trailing data.");
 
     /// <summary>Omits the private farm identifier from diagnostics.</summary>

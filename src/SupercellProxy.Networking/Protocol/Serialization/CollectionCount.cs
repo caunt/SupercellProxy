@@ -36,23 +36,38 @@ public sealed class CollectionCount
 
     /// <summary>Gets a var-int count of at most 65536 elements, as native's generic collection reader.</summary>
     /// <value>A shared instance that reads and writes the count as a var-int and throws <see cref="InvalidDataException"/> for a count above 65536; it does not compare the count with the unread payload.</value>
-    public static CollectionCount Bounded { get; } = new(CountWidth.VarInt, CollectionLimit, minimumElementSize: 0, strictAbsence: false);
+    public static CollectionCount Bounded { get; } = new(CountWidth.VarInt,
+        CollectionLimit,
+        minimumElementSize: 0,
+        strictAbsence: false);
 
     /// <summary>Gets a full 32-bit count no larger than the remaining payload.</summary>
     /// <value>A shared instance that writes the count as a 4-byte integer; a read count larger than the number of unread bytes is rejected, as if every element took at least one byte.</value>
-    public static CollectionCount BigEndianInt32 { get; } = new(CountWidth.BigEndianInt32, int.MaxValue, minimumElementSize: 1, strictAbsence: false);
+    public static CollectionCount BigEndianInt32 { get; } = new(CountWidth.BigEndianInt32,
+        int.MaxValue,
+        minimumElementSize: 1,
+        strictAbsence: false);
 
     /// <summary>Gets a one-byte signed count of at most 127 elements, no larger than the remaining payload.</summary>
     /// <value>A shared instance that writes the count as a single byte; reading sign-extends that byte, so 0x80 to 0xFF come back negative, and writing more than 127 elements throws <see cref="InvalidDataException"/>.</value>
-    public static CollectionCount SignedByte { get; } = new(CountWidth.SignedByte, sbyte.MaxValue, minimumElementSize: 1, strictAbsence: false);
+    public static CollectionCount SignedByte { get; } = new(CountWidth.SignedByte,
+        sbyte.MaxValue,
+        minimumElementSize: 1,
+        strictAbsence: false);
 
     /// <summary>Gets a var-int count that is not bounded by the payload.</summary>
     /// <value>A shared instance that accepts any non-negative var-int count up to <see cref="int.MaxValue"/>; it is the count <see cref="Encoders.Collection{TElement}"/> uses when none is given.</value>
-    public static CollectionCount Unbounded { get; } = new(CountWidth.VarInt, int.MaxValue, minimumElementSize: 0, strictAbsence: false);
+    public static CollectionCount Unbounded { get; } = new(CountWidth.VarInt,
+        int.MaxValue,
+        minimumElementSize: 0,
+        strictAbsence: false);
 
     /// <summary>Gets a var-int count no larger than the remaining payload.</summary>
     /// <value>A shared instance that reads and writes a var-int and rejects a read count larger than the number of unread bytes, which stops a corrupt count from allocating a huge collection.</value>
-    public static CollectionCount VarInt { get; } = new(CountWidth.VarInt, int.MaxValue, minimumElementSize: 1, strictAbsence: false);
+    public static CollectionCount VarInt { get; } = new(CountWidth.VarInt,
+        int.MaxValue,
+        minimumElementSize: 1,
+        strictAbsence: false);
 
     /// <summary>Gets a var-int count of at most <paramref name="maximum"/> elements.</summary>
     /// <param name="maximum">The largest element count allowed, 0 or more; a larger count throws <see cref="InvalidDataException"/> on both read and write, and 0 allows only empty collections.</param>

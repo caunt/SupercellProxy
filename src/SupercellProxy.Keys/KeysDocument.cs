@@ -25,9 +25,17 @@ internal sealed class KeysDocument
 
     public IReadOnlyList<KeysSection> Sections { get; }
 
-    private static Regex HeadingRegex { get; } = new(HeadingPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
-    private static Regex KeyCellRegex { get; } = new(KeyCellPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
-    private static Regex TableSeparatorCellRegex { get; } = new(TableSeparatorCellPatternText, RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(milliseconds: 1_000));
+    private static Regex HeadingRegex { get; } = new(HeadingPatternText,
+        RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(milliseconds: 1_000));
+
+    private static Regex KeyCellRegex { get; } = new(KeyCellPatternText,
+        RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(milliseconds: 1_000));
+
+    private static Regex TableSeparatorCellRegex { get; } = new(TableSeparatorCellPatternText,
+        RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(milliseconds: 1_000));
 
     public static KeysDocument Parse(string content)
     {
@@ -64,9 +72,14 @@ internal sealed class KeysDocument
             return _content;
 
         // Each rendered section is looked up by the line where its header, separator or first data row sits.
-        Dictionary<int, RenderedKeysSection> headers = renderedSections.ToDictionary(static rendered => rendered.Section.HeaderIndex);
-        Dictionary<int, RenderedKeysSection> separators = renderedSections.ToDictionary(static rendered => rendered.Section.SeparatorIndex);
-        Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section.DataStartIndex);
+        Dictionary<int, RenderedKeysSection> headers = renderedSections.ToDictionary(static rendered => rendered.Section
+            .HeaderIndex);
+
+        Dictionary<int, RenderedKeysSection> separators = renderedSections.ToDictionary(static rendered => rendered.Section
+            .SeparatorIndex);
+
+        Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section
+            .DataStartIndex);
 
         // The new document is built line by line, with room reserved for the keys being added.
         List<string> documentLines = new(_lines.Length + updates.Values.Sum(static update => update.NewKeys.Count));
@@ -105,7 +118,8 @@ internal sealed class KeysDocument
             {
                 int rowWidth = rows.Length is 0 ? 0 : rows.Max(cells => cells[columnIndex].Length);
 
-                return Math.Max(GetMinimumSeparatorWidth(section.Separators[columnIndex]), Math.Max(section.Headers[columnIndex].Length, rowWidth));
+                return Math.Max(GetMinimumSeparatorWidth(section.Separators[columnIndex]),
+                    Math.Max(section.Headers[columnIndex].Length, rowWidth));
             })];
     }
 
@@ -122,7 +136,8 @@ internal sealed class KeysDocument
 
     private static InvalidDataException CreateInvalidRowException(string sectionName, int rowIndex)
     {
-        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture, $"{rowIndex + 1}."));
+        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture,
+            $"{rowIndex + 1}."));
     }
 
     private static string FormatSeparatorCell(string separator, int width)
@@ -277,7 +292,13 @@ internal sealed class KeysDocument
 
         int dataStartIndex = separatorIndex + 1;
 
-        (IReadOnlyList<ExistingKeyEntry>? entries, int dataEndIndex) = ParseEntries(parsedLines, dataStartIndex, headers.Length, versionColumnIndex, keyColumnIndex, keyVersionColumnIndex, name);
+        (IReadOnlyList<ExistingKeyEntry>? entries, int dataEndIndex) = ParseEntries(parsedLines,
+            dataStartIndex,
+            headers.Length,
+            versionColumnIndex,
+            keyColumnIndex,
+            keyVersionColumnIndex,
+            name);
 
         int[] extraColumns = [.. Enumerable.Range(start: 0, headers.Length)
             .Where(index => index != versionColumnIndex && index != keyColumnIndex && index != keyVersionColumnIndex)];
@@ -339,7 +360,8 @@ internal sealed class KeysDocument
                 continue;
             }
 
-            rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
+            rowsByVersion.Add(version,
+                (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
         }
 
         string[][] rows = [.. rowsByVersion.Values

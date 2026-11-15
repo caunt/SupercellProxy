@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.FarmPass.Rewards;
 public sealed record ClaimChickFarmPassAccessoryMessage(LongId AvatarId) : CodecMessage<ClaimChickFarmPassAccessoryMessage>, ICodecProvider<ClaimChickFarmPassAccessoryMessage>
 {
     /// <inheritdoc />
-    public static ICodec<ClaimChickFarmPassAccessoryMessage> Codec { get; } = Codecs.Composite(Codecs.LongId, static message => message.AvatarId, static avatarId => new ClaimChickFarmPassAccessoryMessage(avatarId));
+    public static ICodec<ClaimChickFarmPassAccessoryMessage> Codec { get; } = Codecs.Composite(Codecs.LongId,
+        static message => message.AvatarId,
+        static avatarId => new ClaimChickFarmPassAccessoryMessage(avatarId));
 }

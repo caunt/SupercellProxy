@@ -22,5 +22,9 @@ public sealed record ReportStoreLinkOutMessage(int Placement, int ProductId, int
         static message => message.Amount,
         Codecs.VarInt,
         static message => message.Source,
-        static (placement, productId, price, amount, source) => new ReportStoreLinkOutMessage(placement, productId, price, amount, source));
+        static (placement, productId, price, amount, source) => new ReportStoreLinkOutMessage(placement,
+            productId,
+            price,
+            amount,
+            source));
 }

@@ -8,6 +8,8 @@ namespace SupercellProxy.Networking.Protocol.Boosters.FreshBeats;
 public sealed record BuyFreshBeatCommand(int BeatIndex) : CodecCommand<BuyFreshBeatCommand>, ICommandCodecProvider<BuyFreshBeatCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<BuyFreshBeatCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt, static command => command.BeatIndex, static beatIndex => new BuyFreshBeatCommand(beatIndex)),
+    public static CommandCodec<BuyFreshBeatCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.VarInt,
+            static command => command.BeatIndex,
+            static beatIndex => new BuyFreshBeatCommand(beatIndex)),
         CommandLayout.MetadataFirst);
 }

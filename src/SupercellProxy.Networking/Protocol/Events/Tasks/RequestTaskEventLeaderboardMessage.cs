@@ -25,5 +25,10 @@ public sealed record RequestTaskEventLeaderboardMessage(LongId? NeighborhoodId, 
         static message => message.PageSize,
         Codecs.Boolean,
         static message => message.Global,
-        static (neighborhoodId, eventId, variantId, page, pageSize, global) => new RequestTaskEventLeaderboardMessage(neighborhoodId, eventId, variantId, page, pageSize, global));
+        static (neighborhoodId, eventId, variantId, page, pageSize, global) => new RequestTaskEventLeaderboardMessage(neighborhoodId,
+            eventId,
+            variantId,
+            page,
+            pageSize,
+            global));
 }

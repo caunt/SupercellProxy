@@ -23,7 +23,8 @@ internal readonly record struct AvatarSocialSection(ImmutableArray<RoadsideShopE
     ImmutableArray<ServiceHelpRequest> TruckOrderHelpRequests) : ICodecProvider<AvatarSocialSection>
 {
     /// <inheritdoc />
-    public static ICodec<AvatarSocialSection> Codec { get; } = Codecs.Composite(Codecs.Array(RoadsideShopEntry.Codec, CollectionCount.Bounded),
+    public static ICodec<AvatarSocialSection> Codec { get; } = Codecs.Composite(Codecs.Array(RoadsideShopEntry.Codec,
+            CollectionCount.Bounded),
         static section => section.RoadsideShop,
         Codecs.Optional(NeighborhoodData.Codec),
         static section => section.Neighborhood,

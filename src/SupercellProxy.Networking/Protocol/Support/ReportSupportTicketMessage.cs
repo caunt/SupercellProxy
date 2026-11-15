@@ -22,5 +22,9 @@ public sealed record ReportSupportTicketMessage(int Category, int Issue, string?
         static message => message.Subject,
         Codecs.OptionalUtf8String,
         static message => message.Description,
-        static (category, issue, email, subject, description) => new ReportSupportTicketMessage(category, issue, email, subject, description));
+        static (category, issue, email, subject, description) => new ReportSupportTicketMessage(category,
+            issue,
+            email,
+            subject,
+            description));
 }

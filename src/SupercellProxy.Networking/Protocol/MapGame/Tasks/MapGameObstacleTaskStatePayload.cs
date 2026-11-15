@@ -35,7 +35,10 @@ public sealed record MapGameObstacleTaskStatePayload : MapGameTaskStatePayload, 
         static value => value.HelperAvatarId,
         Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
         static value => value.RewardData,
-        static (positive, helpRequestSent, helperAvatarId, rewardData) => new MapGameObstacleTaskStatePayload(positive, helpRequestSent, helperAvatarId, rewardData));
+        static (positive, helpRequestSent, helperAvatarId, rewardData) => new MapGameObstacleTaskStatePayload(positive,
+            helpRequestSent,
+            helperAvatarId,
+            rewardData));
 
     /// <summary>
     /// Gets or sets a value indicating whether help was requested (native JSON <c>HelpRequestSent</c>).

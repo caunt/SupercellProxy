@@ -8,7 +8,9 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Events.TaskEvents;
 /// <param name="Pawn">The acting pawn.</param>
 /// <param name="Task">Valley task the event concerns.</param>
 /// <param name="Value">The value native reads after the task.</param>
-public sealed record MapGamePawnTaskValueEvent(int Type, MapGamePawn? Pawn, MapGameTask? Task, int Value) : MapGamePawnTaskEvent(Type, Pawn, Task)
+public sealed record MapGamePawnTaskValueEvent(int Type, MapGamePawn? Pawn, MapGameTask? Task, int Value) : MapGamePawnTaskEvent(Type,
+    Pawn,
+    Task)
 {
     /// <summary>
     /// Gets the codec for the event type <paramref name="type"/>.

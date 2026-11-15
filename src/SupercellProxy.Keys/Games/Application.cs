@@ -46,7 +46,8 @@ internal static partial class Application
         if (!File.Exists(keysPath))
             throw new FileNotFoundException(message: "The keys document was not found.", keysPath);
 
-        KeysDocument document = KeysDocument.Parse(await File.ReadAllTextAsync(keysPath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false));
+        KeysDocument document = KeysDocument.Parse(await File.ReadAllTextAsync(keysPath, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false));
 
         if (outputDocument)
         {

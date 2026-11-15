@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.Avatars.Streams;
 public sealed record InboxUnreadCountMessage(int UnreadCount) : CodecMessage<InboxUnreadCountMessage>, ICodecProvider<InboxUnreadCountMessage>
 {
     /// <inheritdoc />
-    public static ICodec<InboxUnreadCountMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt, static message => message.UnreadCount, static unreadCount => new InboxUnreadCountMessage(unreadCount));
+    public static ICodec<InboxUnreadCountMessage> Codec { get; } = Codecs.Composite(Codecs.VarInt,
+        static message => message.UnreadCount,
+        static unreadCount => new InboxUnreadCountMessage(unreadCount));
 }

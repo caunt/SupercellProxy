@@ -8,5 +8,7 @@ namespace SupercellProxy.Networking.Protocol.MapGame.Membership;
 public sealed record SetMapGameServerCommand(LongId? MapGameId) : CodecServerCommand<SetMapGameServerCommand>, ICommandCodecProvider<SetMapGameServerCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<SetMapGameServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalLongId, static command => command.MapGameId, static mapGameId => new SetMapGameServerCommand(mapGameId)));
+    public static CommandCodec<SetMapGameServerCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.OptionalLongId,
+        static command => command.MapGameId,
+        static mapGameId => new SetMapGameServerCommand(mapGameId)));
 }

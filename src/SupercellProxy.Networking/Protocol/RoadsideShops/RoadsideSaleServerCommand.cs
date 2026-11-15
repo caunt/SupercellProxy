@@ -40,7 +40,12 @@ public sealed record RoadsideSaleServerCommand : CodecServerCommand<RoadsideSale
         static command => command.Price,
         Codecs.BigEndianInt32,
         static command => command.Quantity,
-        static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity)));
+        static (buyerAvatarId, roadsideOwnerAvatarId, itemGlobalId, slotIndex, price, quantity) => new RoadsideSaleServerCommand(buyerAvatarId,
+            roadsideOwnerAvatarId,
+            itemGlobalId,
+            slotIndex,
+            price,
+            quantity)));
 
     /// <summary>Gets the home of the player who bought the stand.</summary>
     /// <value>The buyer's home id, the first field on the wire.</value>

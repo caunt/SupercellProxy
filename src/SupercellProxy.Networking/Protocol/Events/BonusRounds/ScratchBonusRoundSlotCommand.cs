@@ -19,6 +19,9 @@ public sealed record ScratchBonusRoundSlotCommand(int RoundId, int Round, int Sl
             static command => command.SlotIndex,
             Codecs.VarInt,
             static command => command.RewardGlobalId,
-            static (roundId, round, slotIndex, rewardGlobalId) => new ScratchBonusRoundSlotCommand(roundId, round, slotIndex, rewardGlobalId)),
+            static (roundId, round, slotIndex, rewardGlobalId) => new ScratchBonusRoundSlotCommand(roundId,
+                round,
+                slotIndex,
+                rewardGlobalId)),
         CommandLayout.MetadataFirst);
 }

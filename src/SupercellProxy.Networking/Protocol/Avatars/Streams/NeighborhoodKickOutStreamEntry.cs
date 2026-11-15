@@ -24,7 +24,11 @@ public sealed record NeighborhoodKickOutStreamEntry(AvatarStreamEntryHeader Head
         static entry => entry.NeighborhoodName,
         NeighborhoodBadge.Codec,
         static entry => entry.Badge,
-        static (header, messageText, neighborhoodId, neighborhoodName, badge) => new NeighborhoodKickOutStreamEntry(header, messageText, neighborhoodId, neighborhoodName, badge));
+        static (header, messageText, neighborhoodId, neighborhoodName, badge) => new NeighborhoodKickOutStreamEntry(header,
+            messageText,
+            neighborhoodId,
+            neighborhoodName,
+            badge));
 
     /// <inheritdoc/>
     public override int EntryType => Type;

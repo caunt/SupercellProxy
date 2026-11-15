@@ -42,5 +42,13 @@ public sealed record PlaceLayoutObjectCommand(int DataGlobalId,
         static command => command.Rotation,
         Codecs.VarInt,
         static command => command.LayoutIndex,
-        static (dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex) => new PlaceLayoutObjectCommand(dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex)));
+        static (dataGlobalId, variantGlobalId, positionX, positionY, fromStorage, mirrored, objectGlobalId, rotation, layoutIndex) => new PlaceLayoutObjectCommand(dataGlobalId,
+            variantGlobalId,
+            positionX,
+            positionY,
+            fromStorage,
+            mirrored,
+            objectGlobalId,
+            rotation,
+            layoutIndex)));
 }
