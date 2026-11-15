@@ -146,7 +146,10 @@ internal sealed class MessageTransport(MessageChannel stream)
         ObserveGameVersion(message);
 
         if (container.Payload.Position != container.Payload.Length)
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
+        {
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
+        }
 
         return message;
     }

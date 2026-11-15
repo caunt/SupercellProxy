@@ -345,7 +345,10 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
 
         if (@event.IsCancelled)
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"));
+        {
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"));
+        }
     }
 
     private async Task OnMessageSentAsync(MessageSentEvent @event, CancellationToken cancellationToken = default)
@@ -361,11 +364,19 @@ public sealed partial class ProxyConnection : IAsyncDisposable
             return;
 
         if (@event.Message is EndClientTurnMessage endClientTurnMessage)
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"));
+        {
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"));
+        }
         else if (@event.Message is PassthroughMessage)
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
+        {
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
+        }
         else
+        {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {@event.Message}"));
+        }
     }
 
     private async Task PumpAsync(MessageDirection direction, CancellationToken cancellationToken)
@@ -446,11 +457,13 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (MacVerificationException exception) when (exception.IsPublicKeyBox)
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"));
         }
         catch (StreamClosedException exception)
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -458,7 +471,8 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (Exception exception) when (ProxyFailureClassifier.IsRecoverable(exception))
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
         }
         finally
         {

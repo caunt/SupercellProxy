@@ -775,7 +775,8 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
             return false;
 
-        rows = TablePhysicalRows.GetValue(table, static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
+        rows = TablePhysicalRows.GetValue(table,
+            static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
 
         return true;
     }

@@ -54,7 +54,10 @@ public static class GameDataTableParser
             }
 
             if (currentEntryBuilder is null)
-                throw new FormatException(string.Create(CultureInfo.InvariantCulture, $"Continuation row at index {rowIndex} appeared before any entry start row."));
+            {
+                throw new FormatException(string.Create(CultureInfo.InvariantCulture,
+                    $"Continuation row at index {rowIndex} appeared before any entry start row."));
+            }
 
             currentEntryBuilder.ApplyContinuationRow(parsedValues);
         }
@@ -184,7 +187,10 @@ public static class GameDataTableParser
     private static List<string> Normalize(List<string> row, int expectedColumnCount, int rowIndex)
     {
         if (row.Count > expectedColumnCount)
-            throw new FormatException(string.Create(CultureInfo.InvariantCulture, $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns."));
+        {
+            throw new FormatException(string.Create(CultureInfo.InvariantCulture,
+                $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns."));
+        }
 
         if (row.Count == expectedColumnCount)
             return row;

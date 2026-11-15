@@ -212,7 +212,9 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
 
                 if (credentials is not null)
                 {
-                    loginMessage.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32), int.CreateTruncating(credentials.AccountId));
+                    loginMessage.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32),
+                        int.CreateTruncating(credentials.AccountId));
+
                     loginMessage.PassToken = credentials.PassToken;
                 }
             }

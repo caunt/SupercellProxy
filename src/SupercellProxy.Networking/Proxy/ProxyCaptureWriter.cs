@@ -57,7 +57,8 @@ public sealed class ProxyCaptureWriter
 
         ArgumentException.ThrowIfNullOrWhiteSpace(rootDirectoryPath);
 
-        string connectionName = string.Create(CultureInfo.InvariantCulture, $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}");
+        string connectionName = string.Create(CultureInfo.InvariantCulture,
+            $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}");
 
         _directoryPath = Path.GetFullPath(Path.Combine(rootDirectoryPath, connectionName));
     }
@@ -251,7 +252,8 @@ public sealed class ProxyCaptureWriter
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 5, length: 2), container.Version);
         payload.CopyTo(frame, index: 7);
 
-        string fileName = string.Create(CultureInfo.InvariantCulture, $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
+        string fileName = string.Create(CultureInfo.InvariantCulture,
+            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
 
         ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(new ProxyCapturedFrame(sequence,
             fileName,

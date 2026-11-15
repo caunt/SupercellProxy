@@ -7,5 +7,6 @@ namespace SupercellProxy.Networking.Protocol.Homes.Requests;
 public sealed record RequestOwnTownMessage : CodecMessage<RequestOwnTownMessage>, ICodecProvider<RequestOwnTownMessage>
 {
     /// <inheritdoc />
-    public static ICodec<RequestOwnTownMessage> Codec { get; } = Codecs.Complete(Codecs.Unit(static () => new RequestOwnTownMessage()), trailingDataMessage: "The own-town request must have an empty payload.");
+    public static ICodec<RequestOwnTownMessage> Codec { get; } = Codecs.Complete(Codecs.Unit(static () => new RequestOwnTownMessage()),
+        trailingDataMessage: "The own-town request must have an empty payload.");
 }

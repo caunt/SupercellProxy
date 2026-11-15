@@ -9,7 +9,8 @@ namespace SupercellProxy.Networking.Protocol.Events.Decoration;
 public sealed record FeaturingDesignListMessage : CodecMessage<FeaturingDesignListMessage>, ICodecProvider<FeaturingDesignListMessage>
 {
     /// <inheritdoc />
-    public static ICodec<FeaturingDesignListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalValue(Codecs.Array(Codecs.Optional(FeaturingDesignEntry.Codec), CollectionCount.AtMost(maximum: 1024))),
+    public static ICodec<FeaturingDesignListMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalValue(Codecs.Array(Codecs.Optional(FeaturingDesignEntry.Codec),
+                CollectionCount.AtMost(maximum: 1024))),
             static message => message.Entries,
             Codecs.VarLong,
             static message => message.BatchTimestampMilliseconds,

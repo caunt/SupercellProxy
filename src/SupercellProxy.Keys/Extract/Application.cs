@@ -10,7 +10,10 @@ internal static partial class Application
     private static async Task<int> RunExtractAsync(string[] arguments, CancellationToken cancellationToken)
     {
         if (arguments.Any(IsHelp))
-            return PrintCommandHelp(usage: "extract INPUT [--key-version]", description: "Extract a server public key or its numeric version from a native binary or IPA");
+        {
+            return PrintCommandHelp(usage: "extract INPUT [--key-version]",
+                description: "Extract a server public key or its numeric version from a native binary or IPA");
+        }
 
         bool keyVersion = arguments.Length == 2 && arguments[1] == "--key-version";
 

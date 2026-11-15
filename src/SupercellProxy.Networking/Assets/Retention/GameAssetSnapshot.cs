@@ -9,9 +9,7 @@ namespace SupercellProxy.Networking.Assets.Retention;
 public static class GameAssetSnapshot
 {
     /// <summary>Orders assets by their bundle file path, compared ordinally, so a retained snapshot lists its files in the same order every time.</summary>
-    private static Comparer<GameAsset> FileOrder { get; } = Comparer<GameAsset>.Create(static (left, right) => string.CompareOrdinal(left.Fingerprint
-        .File,
-        right.Fingerprint.File));
+    private static Comparer<GameAsset> FileOrder { get; } = Comparer<GameAsset>.Create(static (left, right) => string.CompareOrdinal(left.Fingerprint.File, right.Fingerprint.File));
 
     /// <summary>Finds a cached fingerprint without selecting assets by release ordering or modification time.</summary>
     /// <param name="root">Asset cache folder to search, such as the per-version download folder; it is searched itself and in every

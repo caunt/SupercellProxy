@@ -35,16 +35,24 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         foreach (ReleaseIds<TContract> release in releases)
         {
             if (previous is not null && release.Version <= previous)
-                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Release {release.Version} is not newer than {previous}."));
+            {
+                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                    $"Release {release.Version} is not newer than {previous}."));
+            }
 
             foreach ((TContract contract, int? id) in release.Changes)
             {
                 contracts.Add(contract);
 
                 if (id is { } value)
+                {
                     current[contract] = value;
+                }
                 else if (!current.Remove(contract))
-                    throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Release {release.Version} removes {contract}, which no earlier release has."));
+                {
+                    throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                        $"Release {release.Version} removes {contract}, which no earlier release has."));
+                }
             }
 
             versions.Add(release.Version);
@@ -83,7 +91,8 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     {
         return TryGetContract(id, gameVersion, out TContract? contract)
             ? contract
-            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"Id {id} is not registered for game version {gameVersion}."));
+            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
+                $"Id {id} is not registered for game version {gameVersion}."));
     }
 
     /// <summary>Gets the wire id of a contract in a game release.</summary>
@@ -101,7 +110,8 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
     {
         return TryGetId(contract, gameVersion, out int id)
             ? id
-            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture, $"{contract} is not registered for game version {gameVersion}."));
+            : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
+                $"{contract} is not registered for game version {gameVersion}."));
     }
 
     /// <summary>Gets every wire id a contract has used across releases.</summary>
@@ -153,7 +163,10 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         TContract[] owners = DistinctValues(_contractsByRelease, id);
 
         if (owners.Length > 1)
-            throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Id {id} belongs to different contracts across releases; the game version is required."));
+        {
+            throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                $"Id {id} belongs to different contracts across releases; the game version is required."));
+        }
 
         if (owners is [TContract owner])
         {
@@ -192,7 +205,10 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         int[] ids = DistinctValues(_idsByRelease, contract);
 
         if (ids.Length > 1)
-            throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"{contract} has different ids across releases; the game version is required."));
+        {
+            throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                $"{contract} has different ids across releases; the game version is required."));
+        }
 
         id = ids is [int only] ? only : 0;
 
@@ -221,7 +237,10 @@ public sealed class ProtocolIdRegistry<TContract> where TContract : notnull
         foreach ((TContract contract, int id) in ids)
         {
             if (!contracts.TryAdd(id, contract))
-                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture, $"Release {version} assigns id {id} to both {contracts[id]} and {contract}."));
+            {
+                throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
+                    $"Release {version} assigns id {id} to both {contracts[id]} and {contract}."));
+            }
         }
 
         return contracts.ToFrozenDictionary();

@@ -94,7 +94,8 @@ internal static partial class Application
 
     private static int PrintDownloadHelp()
     {
-        return PrintCommandHelp(usage: "download APP [VERSION] [--output PATH]", description: "Download an IPA (defaults to the newest available version)");
+        return PrintCommandHelp(usage: "download APP [VERSION] [--output PATH]",
+            description: "Download an IPA (defaults to the newest available version)");
     }
 
     private static int PrintRootHelp()

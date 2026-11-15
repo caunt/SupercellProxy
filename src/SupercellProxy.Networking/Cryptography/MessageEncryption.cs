@@ -90,9 +90,7 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
 
         // The rest is a box sealed under a nonce derived from both public keys.
         Memory<byte> ciphertext = payloadMemory[32..];
-
-        Nonce temporaryNonce = new(clientPublicKey: encryption.RemotePublicKey.Span,
-            serverPublicKey: encryption.LocalPublicKey.Span);
+        Nonce temporaryNonce = new(clientPublicKey: encryption.RemotePublicKey.Span, serverPublicKey: encryption.LocalPublicKey.Span);
 
         byte[] plaintext = NaClV3Cryptography.BoxOpen(ciphertext.Span,
             temporaryNonce.Span,
@@ -147,8 +145,7 @@ internal sealed class MessageEncryption(RemotePeerRole with, Memory<byte> localP
         if (encryption.RemotePublicKey.IsEmpty)
             throw new InvalidOperationException(message: "Remote public key is not set.");
 
-        Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span,
-            serverPublicKey: encryption.RemotePublicKey.Span);
+        Nonce temporaryNonce = new(clientPublicKey: encryption.LocalPublicKey.Span, serverPublicKey: encryption.RemotePublicKey.Span);
 
         byte[] ciphertext = NaClV3Cryptography.Box(plaintext: [.. encryption.SessionKey.Span, .. encryption.SendNonce.Span, .. payload, .. stackalloc byte[PromonPadSize]],
             temporaryNonce.Span,

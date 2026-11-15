@@ -99,7 +99,8 @@ internal static partial class Application
 
     private static string NormalizeReason(string value)
     {
-        string normalized = string.Join(separator: ' ', value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
+        string normalized = string.Join(separator: ' ',
+            value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
 
         return normalized.Length <= 500 ? normalized : normalized[..497] + "...";
     }
@@ -154,7 +155,8 @@ internal static partial class Application
 
     private static int PrintUpdateHelp()
     {
-        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]", description: "Fill missing KEYS.md entries from decrypt.day IPAs");
+        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]",
+            description: "Fill missing KEYS.md entries from decrypt.day IPAs");
     }
 
     private static async Task<int> RunUpdateAsync(string[] arguments, CancellationToken cancellationToken)
@@ -330,7 +332,8 @@ internal static partial class Application
 
                 async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
-                    string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
+                    string temporaryPath = Path.Combine(Path.GetTempPath(),
+                        $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
 
                     try
                     {
@@ -393,7 +396,8 @@ internal static partial class Application
 
         int addedKeyCount = report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
 
-        Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
     }
 
     private static async Task WriteAtomicallyAsync(string path, string content, CancellationToken cancellationToken)

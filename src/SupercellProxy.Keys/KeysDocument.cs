@@ -72,14 +72,9 @@ internal sealed class KeysDocument
             return _content;
 
         // Each rendered section is looked up by the line where its header, separator or first data row sits.
-        Dictionary<int, RenderedKeysSection> headers = renderedSections.ToDictionary(static rendered => rendered.Section
-            .HeaderIndex);
-
-        Dictionary<int, RenderedKeysSection> separators = renderedSections.ToDictionary(static rendered => rendered.Section
-            .SeparatorIndex);
-
-        Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section
-            .DataStartIndex);
+        Dictionary<int, RenderedKeysSection> headers = renderedSections.ToDictionary(static rendered => rendered.Section.HeaderIndex);
+        Dictionary<int, RenderedKeysSection> separators = renderedSections.ToDictionary(static rendered => rendered.Section.SeparatorIndex);
+        Dictionary<int, RenderedKeysSection> dataStarts = renderedSections.ToDictionary(static rendered => rendered.Section.DataStartIndex);
 
         // The new document is built line by line, with room reserved for the keys being added.
         List<string> documentLines = new(_lines.Length + updates.Values.Sum(static update => update.NewKeys.Count));
@@ -136,7 +131,8 @@ internal sealed class KeysDocument
 
     private static InvalidDataException CreateInvalidRowException(string sectionName, int rowIndex)
     {
-        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture, $"{rowIndex + 1}."));
+        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture,
+            $"{rowIndex + 1}."));
     }
 
     private static string FormatSeparatorCell(string separator, int width)

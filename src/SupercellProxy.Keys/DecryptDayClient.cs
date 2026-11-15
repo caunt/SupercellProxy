@@ -215,7 +215,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
-        HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
+        HttpRequestMessage request = new(HttpMethod.Post,
+            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
         {
             Content = content,
         };
@@ -231,7 +232,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static HttpRequestMessage CreateMetadataRequest(string appStoreId)
     {
-        HttpRequestMessage request = new(HttpMethod.Get, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
+        HttpRequestMessage request = new(HttpMethod.Get,
+            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
@@ -478,7 +480,9 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task<string> SaveDiagnosticsAsync(IPage page, Exception exception, CancellationToken cancellationToken)
     {
-        string directory = Path.Combine(Environment.CurrentDirectory, string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
+        string directory = Path.Combine(Environment.CurrentDirectory,
+            string.Create(CultureInfo.InvariantCulture,
+                $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
 
@@ -698,8 +702,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         foreach (DecryptDayPageNode? node in document.Nodes)
         {
-            DecryptDayApplicationPayload? payload = node?.Data?.Decode(DecryptDaySerializationContext.Default
-                .DecryptDayApplicationPayload);
+            DecryptDayApplicationPayload? payload = node?.Data?.Decode(DecryptDaySerializationContext.Default.DecryptDayApplicationPayload);
 
             if (payload?.Application?.BundleId is not { } bundleId)
                 continue;
@@ -734,7 +737,8 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture, $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
+            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture,
+                    $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
                 inner: null,
                 response.StatusCode);
         }
@@ -755,9 +759,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         string serialized = envelope?.Data
             ?? throw new InvalidDataException(message: "decrypt.day returned an unrecognized file list.");
 
-        DecryptDayFileMetadata?[] files = JsonSerializer.Deserialize(serialized,
-            DecryptDaySerializationContext.Default.SvelteData)?.Decode(DecryptDaySerializationContext.Default
-                .DecryptDayFilePayload)?.Data?.Files
+        DecryptDayFileMetadata?[] files = JsonSerializer.Deserialize(serialized, DecryptDaySerializationContext.Default.SvelteData)?.Decode(DecryptDaySerializationContext.Default.DecryptDayFilePayload)?.Data?.Files
             ?? throw new InvalidDataException(message: "decrypt.day returned an unrecognized file list.");
 
         return files.OfType<DecryptDayFileMetadata>()

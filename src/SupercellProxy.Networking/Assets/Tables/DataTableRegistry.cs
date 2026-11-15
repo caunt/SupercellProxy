@@ -401,7 +401,10 @@ public static class DataTableRegistry
             int exportNumber = ReadNumber(entry, field: "ExportNum");
 
             if (dataTableFiles.TryGetValue(exportNumber, out string? existingFile) && !existingFile.Equals(csvName, StringComparison.Ordinal))
-                throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
+            {
+                throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                    $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
+            }
 
             dataTableFiles[exportNumber] = csvName;
         }

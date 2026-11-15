@@ -14,11 +14,16 @@ public abstract record AvatarStreamEntry(AvatarStreamEntryHeader Header) : ICode
         static entry => entry.EntryType,
         cases:
         [
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(JoinNeighborhoodResponseAvatarStreamEntry.Type, Codecs.Subtype<AvatarStreamEntry, JoinNeighborhoodResponseAvatarStreamEntry>(JoinNeighborhoodResponseAvatarStreamEntry.Codec)),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodInvitationAvatarStreamEntry.Type, Codecs.Subtype<AvatarStreamEntry, NeighborhoodInvitationAvatarStreamEntry>(NeighborhoodInvitationAvatarStreamEntry.Codec)),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodKickOutStreamEntry.Type, Codecs.Subtype<AvatarStreamEntry, NeighborhoodKickOutStreamEntry>(NeighborhoodKickOutStreamEntry.Codec)),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodSettingsChangedStreamEntry.Type, Codecs.Subtype<AvatarStreamEntry, NeighborhoodSettingsChangedStreamEntry>(NeighborhoodSettingsChangedStreamEntry.Codec)),
-            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodDerbyOptStreamEntry.Type, Codecs.Subtype<AvatarStreamEntry, NeighborhoodDerbyOptStreamEntry>(NeighborhoodDerbyOptStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(JoinNeighborhoodResponseAvatarStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, JoinNeighborhoodResponseAvatarStreamEntry>(JoinNeighborhoodResponseAvatarStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodInvitationAvatarStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodInvitationAvatarStreamEntry>(NeighborhoodInvitationAvatarStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodKickOutStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodKickOutStreamEntry>(NeighborhoodKickOutStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodSettingsChangedStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodSettingsChangedStreamEntry>(NeighborhoodSettingsChangedStreamEntry.Codec)),
+            new KeyValuePair<int, ICodec<AvatarStreamEntry>>(NeighborhoodDerbyOptStreamEntry.Type,
+                Codecs.Subtype<AvatarStreamEntry, NeighborhoodDerbyOptStreamEntry>(NeighborhoodDerbyOptStreamEntry.Codec)),
         ]);
 
     /// <summary>Gets the native entry type written before the entry.</summary>

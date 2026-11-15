@@ -80,7 +80,10 @@ public sealed class SessionTokenData
         int decodedLength = BinaryPrimitives.ReadInt32LittleEndian(wireData.Span);
 
         if (decodedLength < 0)
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Compressed session token has invalid decoded length {decodedLength}."));
+        {
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+                $"Compressed session token has invalid decoded length {decodedLength}."));
+        }
 
         using MemoryStream input = new(wireData[sizeof(int)..].ToArray(), writable: false);
 
