@@ -25,7 +25,9 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
     /// <inheritdoc />
     public override MessageDirection Direction => IsServerCommand ? MessageDirection.Clientbound : MessageDirection.Serverbound;
 
-    private static ICodec<CommandMetadata> MetadataCodec => IsServerCommand ? CommandMetadata.ServerCodec : CommandMetadata.ClientCodec;
+    private static ICodec<CommandMetadata> MetadataCodec => IsServerCommand
+        ? CommandMetadata.ServerCodec
+        : CommandMetadata.ClientCodec;
 
     /// <inheritdoc />
     public TCommand Read(MessageChannel stream)

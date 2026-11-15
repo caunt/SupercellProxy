@@ -58,9 +58,7 @@ internal static partial class Application
             await using (archive.ConfigureAwait(continueOnCapturedContext: false))
             {
                 return archive.Entries
-                    .Any(static entry => !string.IsNullOrEmpty(entry.Name)
-                    && entry.FullName.StartsWith(value: "Payload/", StringComparison.Ordinal)
-                    && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal));
+                    .Any(static entry => !string.IsNullOrEmpty(entry.Name) && entry.FullName.StartsWith(value: "Payload/", StringComparison.Ordinal) && entry.FullName.Contains(value: ".app/", StringComparison.Ordinal));
             }
         }
         catch (InvalidDataException)
@@ -99,8 +97,7 @@ internal static partial class Application
         }
 
         return positionalArguments.Count is < 1 or > 2 || positionalArguments.Exists(string.IsNullOrWhiteSpace)
-            ? throw new ArgumentException(message: "Usage: SupercellProxy.Keys download APP [VERSION] [--output PATH]",
-                nameof(arguments))
+            ? throw new ArgumentException(message: "Usage: SupercellProxy.Keys download APP [VERSION] [--output PATH]", nameof(arguments))
             : new DownloadArguments(positionalArguments, outputOption);
     }
 

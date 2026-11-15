@@ -61,7 +61,8 @@ public static class GameAssetSnapshot
             .ConfigureAwait(continueOnCapturedContext: false))
             ?? throw new InvalidDataException(message: "The retained asset manifest is empty.");
 
-        bool valid = string.Equals(manifest.Fingerprint, fingerprint, StringComparison.OrdinalIgnoreCase) && manifest.Files is { Length: > 0 };
+        bool valid = string.Equals(manifest.Fingerprint, fingerprint, StringComparison.OrdinalIgnoreCase)
+            && manifest.Files is { Length: > 0 };
 
         if (!valid)
             throw new InvalidDataException(message: "The retained asset manifest has another fingerprint or no files.");
@@ -79,9 +80,8 @@ public static class GameAssetSnapshot
             byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            bool matches = bytes.LongLength == file.Length && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)),
-                file.Sha256,
-                StringComparison.OrdinalIgnoreCase);
+            bool matches = bytes.LongLength == file.Length
+                && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)), file.Sha256, StringComparison.OrdinalIgnoreCase);
 
             if (!matches)
                 throw new InvalidDataException($"Retained asset {file.File} does not match its checksum for {fingerprint}.");
@@ -176,7 +176,9 @@ public static class GameAssetSnapshot
         if (!assets.Any(static asset => asset.Fingerprint.File == GameAssetFiles.ProductionBuildingsGoods))
             throw new InvalidDataException(message: "The source does not contain the game's production tables.");
 
-        string parent = Path.GetDirectoryName(destination) ?? throw new InvalidDataException(message: "The snapshot has no parent directory.");
+        string parent = Path.GetDirectoryName(destination)
+            ?? throw new InvalidDataException(message: "The snapshot has no parent directory.");
+
         DirectoryInfo parentDirectory = Directory.CreateDirectory(parent);
         string temporary = Path.Combine(parentDirectory.FullName, $".{fingerprint}-{Guid.NewGuid():N}.pending");
         DirectoryInfo temporaryDirectory = Directory.CreateDirectory(temporary);
@@ -212,8 +214,8 @@ public static class GameAssetSnapshot
             {
                 ImmutableArray<GameAsset> existing = await LoadAsync(destination, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-                bool identical = existing.Length == files.Count && existing.All(asset => files.Any(file => file.File == asset.Fingerprint
-                    .File && file.Sha256 == Convert.ToHexString(SHA256.HashData(asset.Content.Span))));
+                bool identical = existing.Length == files.Count
+                    && existing.All(asset => files.Any(file => file.File == asset.Fingerprint.File && file.Sha256 == Convert.ToHexString(SHA256.HashData(asset.Content.Span))));
 
                 if (!identical)
                     throw new InvalidDataException(message: "Concurrent asset snapshots differ for the same fingerprint.");
@@ -253,8 +255,9 @@ public static class GameAssetSnapshot
         string root = Path.GetFullPath(directory) + Path.DirectorySeparatorChar.ToString();
         string path = Path.GetFullPath(Path.Combine(root, relative));
 
-        bool outside = Path.IsPathRooted(relative) || !path.StartsWith(root, StringComparison.Ordinal) || relative.Contains(value: '\\',
-            StringComparison.Ordinal);
+        bool outside = Path.IsPathRooted(relative)
+            || !path.StartsWith(root, StringComparison.Ordinal)
+            || relative.Contains(value: '\\', StringComparison.Ordinal);
 
         return outside ? throw new InvalidDataException(message: "An asset path leaves its fingerprint directory.") : path;
     }

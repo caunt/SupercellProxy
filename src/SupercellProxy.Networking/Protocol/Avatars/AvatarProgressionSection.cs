@@ -143,7 +143,6 @@ internal readonly record struct AvatarProgressionSection(int UnknownNullableList
                     ParticipantsCodec.Write(stream, block.Participants);
             });
 
-        private static ICodec<ImmutableArray<MapGameParticipant>?> ParticipantsCodec => field ??= Codecs.OptionalValue(Codecs.Array(MapGameParticipant.Codec,
-            CollectionCount.Bounded));
+        private static ICodec<ImmutableArray<MapGameParticipant>?> ParticipantsCodec => field ??= Codecs.OptionalValue(Codecs.Array(MapGameParticipant.Codec, CollectionCount.Bounded));
     }
 }

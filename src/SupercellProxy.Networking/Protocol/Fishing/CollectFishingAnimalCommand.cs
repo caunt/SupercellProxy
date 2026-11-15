@@ -15,8 +15,7 @@ public sealed record CollectFishingAnimalCommand(int AnimalId, bool Duck)
 
     /// <summary>Gets the contract of the native command that collects a lobster.</summary>
     /// <value>The codec registered as <c>CollectLobsterCommand</c>, which writes the animal id as one variable-length integer and decodes with <see cref="Duck"/> set to <see langword="false"/>.</value>
-    public static CommandCodec<CollectFishingAnimalCommand> LobsterCodec { get; } = Create(name: "CollectLobsterCommand",
-        duck: false);
+    public static CommandCodec<CollectFishingAnimalCommand> LobsterCodec { get; } = Create(name: "CollectLobsterCommand", duck: false);
 
     /// <inheritdoc />
     public override CommandContract Contract => Duck ? DuckCodec : LobsterCodec;

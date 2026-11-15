@@ -18,8 +18,7 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
     private const int StatisticCount = 24;
 
     /// <inheritdoc />
-    public static ICodec<NeighborhoodHeaderEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt,
-            HeaderCount),
+    public static ICodec<NeighborhoodHeaderEntry> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, HeaderCount),
         static entry => entry.HeaderValues,
         Codecs.Boolean,
         static entry => entry.Flag0,
@@ -179,8 +178,7 @@ public sealed record NeighborhoodHeaderEntry : ICodecProvider<NeighborhoodHeader
     // The values native reads after the history, as one group to keep the field list within a composite.
     private readonly record struct TrailingBlock(ImmutableArray<int> AdditionalValues, string? AdditionalText, int TrailingValue0, int TrailingValue1)
     {
-        public static ICodec<TrailingBlock> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt,
-                AdditionalValueCount),
+        public static ICodec<TrailingBlock> Codec { get; } = Codecs.Composite(Codecs.FixedArray(Codecs.VarInt, AdditionalValueCount),
             static segment => segment.AdditionalValues,
             Codecs.OptionalUtf8String,
             static segment => segment.AdditionalText,

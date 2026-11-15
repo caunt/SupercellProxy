@@ -13,7 +13,9 @@ internal sealed class CompositeCodec4<TValue, TFirst, TSecond, TThird, TFourth>(
     Func<TValue, TFourth> getFourth,
     Func<TFirst, TSecond, TThird, TFourth, TValue> factory) : ICodec<TValue>
 {
-    private readonly Func<TFirst, TSecond, TThird, TFourth, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+    private readonly Func<TFirst, TSecond, TThird, TFourth, TValue> _factory = factory
+        ?? throw new ArgumentNullException(nameof(factory));
+
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
     private readonly Func<TValue, TFirst> _getFirst = getFirst ?? throw new ArgumentNullException(nameof(getFirst));
     private readonly ICodec<TSecond> _second = second ?? throw new ArgumentNullException(nameof(second));

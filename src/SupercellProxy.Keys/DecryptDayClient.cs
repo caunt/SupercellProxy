@@ -215,8 +215,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
-        HttpRequestMessage request = new(HttpMethod.Post,
-            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
+        HttpRequestMessage request = new(HttpMethod.Post, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
         {
             Content = content,
         };
@@ -232,8 +231,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static HttpRequestMessage CreateMetadataRequest(string appStoreId)
     {
-        HttpRequestMessage request = new(HttpMethod.Get,
-            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
+        HttpRequestMessage request = new(HttpMethod.Get, $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
@@ -355,8 +353,7 @@ internal sealed class DecryptDayClient(HttpClient client)
             if (!File.Exists(binaryPath))
                 throw new InvalidOperationException($"CloakBrowser archive did not contain its expected executable at {binaryPath}.");
 
-            File.SetUnixFileMode(binaryPath,
-                UnixFileMode.UserRead
+            File.SetUnixFileMode(binaryPath, UnixFileMode.UserRead
                     | UnixFileMode.UserWrite
                     | UnixFileMode.UserExecute
                     | UnixFileMode.GroupRead
@@ -378,7 +375,8 @@ internal sealed class DecryptDayClient(HttpClient client)
             UseShellExecute = false,
             RedirectStandardError = true,
             ArgumentList = { "-xzf", archivePath, "-C", binaryDirectory },
-        }) ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
+        })
+            ?? throw new InvalidOperationException(message: "Could not start the macOS tar extractor.");
 
         Task<string> errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 
@@ -480,9 +478,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
     private static async Task<string> SaveDiagnosticsAsync(IPage page, Exception exception, CancellationToken cancellationToken)
     {
-        string directory = Path.Combine(Environment.CurrentDirectory,
-            string.Create(CultureInfo.InvariantCulture,
-                $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
+        string directory = Path.Combine(Environment.CurrentDirectory, string.Create(CultureInfo.InvariantCulture, $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
 
@@ -637,8 +633,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         {
             string locations = string.Join(separator: ", ", context.Pages.Select(static candidate => candidate.Url));
 
-            throw new TimeoutException($"No download started within 60 seconds of clicking Download. Open pages: {locations}",
-                exception);
+            throw new TimeoutException($"No download started within 60 seconds of clicking Download. Open pages: {locations}", exception);
         }
         finally
         {
@@ -739,8 +734,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture,
-                    $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
+            throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture, $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
                 inner: null,
                 response.StatusCode);
         }

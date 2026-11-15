@@ -35,9 +35,7 @@ public readonly record struct FollowOperation
         return this == Follow
             ? nameof(Follow)
             : this == Unfollow
-            ? nameof(Unfollow)
-            : this == RemoveFollower
-            ? nameof(RemoveFollower)
-            : Value.ToString(CultureInfo.InvariantCulture);
+                ? nameof(Unfollow)
+                : this == RemoveFollower ? nameof(RemoveFollower) : Value.ToString(CultureInfo.InvariantCulture);
     }
 }

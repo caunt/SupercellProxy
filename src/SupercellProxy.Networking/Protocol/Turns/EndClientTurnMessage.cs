@@ -26,8 +26,7 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
 
     /// <inheritdoc />
     /// <remarks>Commands, debug data and development byte arrays follow the stream's command environment when read and the message's own environment when written.</remarks>
-    public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write),
-        $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
+    public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write), $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
 
     /// <summary>
     /// Gets or sets the turn checksum, the first field of the turn header.
@@ -92,8 +91,9 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
             Commands = commands,
             Environment = environment,
             DebugCommandData = environment is CommandEnvironment.Production ? [] : DebugCommandDataCodec.Read(stream).ToArray(),
-            DevelopmentByteArrays = environment is CommandEnvironment.Development ? DevelopmentByteArraysCodec.Read(stream)
-                .ToArray() : [],
+            DevelopmentByteArrays = environment is CommandEnvironment.Development
+                ? DevelopmentByteArraysCodec.Read(stream).ToArray()
+                : [],
         };
     }
 

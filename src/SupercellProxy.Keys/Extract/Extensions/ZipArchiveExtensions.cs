@@ -121,6 +121,11 @@ internal static class ZipArchiveExtensions
     /// </summary>
     public static bool HasZipArchiveHeader(this ReadOnlySpan<byte> source)
     {
-        return source.Length >= 4 && source[index: 0] is 0x50 && source[index: 1] is 0x4B && ((source[index: 2] is 0x03 && source[index: 3] is 0x04) || (source[index: 2] is 0x05 && source[index: 3] is 0x06) || (source[index: 2] is 0x07 && source[index: 3] is 0x08));
+        return source.Length >= 4
+            && source[index: 0] is 0x50
+            && source[index: 1] is 0x4B
+            && ((source[index: 2] is 0x03 && source[index: 3] is 0x04)
+                || (source[index: 2] is 0x05 && source[index: 3] is 0x06)
+                || (source[index: 2] is 0x07 && source[index: 3] is 0x08));
     }
 }

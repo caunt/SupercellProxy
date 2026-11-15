@@ -37,7 +37,9 @@ internal sealed class CompositeCodec16<TValue, TFirst, TSecond, TThird, TFourth,
     Func<TValue, TSixteenth> getSixteenth,
     Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixteenth, TValue> factory) : ICodec<TValue>
 {
-    private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixteenth, TValue> _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+    private readonly Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixteenth, TValue> _factory = factory
+        ?? throw new ArgumentNullException(nameof(factory));
+
     private readonly ICodec<TFirst> _first = first ?? throw new ArgumentNullException(nameof(first));
     private readonly Func<TValue, TFirst> _getFirst = getFirst ?? throw new ArgumentNullException(nameof(getFirst));
     private readonly ICodec<TSecond> _second = second ?? throw new ArgumentNullException(nameof(second));
@@ -63,13 +65,24 @@ internal sealed class CompositeCodec16<TValue, TFirst, TSecond, TThird, TFourth,
     private readonly ICodec<TTwelfth> _twelfth = twelfth ?? throw new ArgumentNullException(nameof(twelfth));
     private readonly Func<TValue, TTwelfth> _getTwelfth = getTwelfth ?? throw new ArgumentNullException(nameof(getTwelfth));
     private readonly ICodec<TThirteenth> _thirteenth = thirteenth ?? throw new ArgumentNullException(nameof(thirteenth));
-    private readonly Func<TValue, TThirteenth> _getThirteenth = getThirteenth ?? throw new ArgumentNullException(nameof(getThirteenth));
+
+    private readonly Func<TValue, TThirteenth> _getThirteenth = getThirteenth
+        ?? throw new ArgumentNullException(nameof(getThirteenth));
+
     private readonly ICodec<TFourteenth> _fourteenth = fourteenth ?? throw new ArgumentNullException(nameof(fourteenth));
-    private readonly Func<TValue, TFourteenth> _getFourteenth = getFourteenth ?? throw new ArgumentNullException(nameof(getFourteenth));
+
+    private readonly Func<TValue, TFourteenth> _getFourteenth = getFourteenth
+        ?? throw new ArgumentNullException(nameof(getFourteenth));
+
     private readonly ICodec<TFifteenth> _fifteenth = fifteenth ?? throw new ArgumentNullException(nameof(fifteenth));
-    private readonly Func<TValue, TFifteenth> _getFifteenth = getFifteenth ?? throw new ArgumentNullException(nameof(getFifteenth));
+
+    private readonly Func<TValue, TFifteenth> _getFifteenth = getFifteenth
+        ?? throw new ArgumentNullException(nameof(getFifteenth));
+
     private readonly ICodec<TSixteenth> _sixteenth = sixteenth ?? throw new ArgumentNullException(nameof(sixteenth));
-    private readonly Func<TValue, TSixteenth> _getSixteenth = getSixteenth ?? throw new ArgumentNullException(nameof(getSixteenth));
+
+    private readonly Func<TValue, TSixteenth> _getSixteenth = getSixteenth
+        ?? throw new ArgumentNullException(nameof(getSixteenth));
 
     public TValue Read(MessageChannel stream)
     {

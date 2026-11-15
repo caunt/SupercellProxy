@@ -29,8 +29,7 @@ public static class NetworkingServiceCollectionExtensions
         OptionsBuilder<ClientOptions> options = services.AddSupercellNetworking()
             .AddOptions<ClientOptions>()
             .Validate(static value => !string.IsNullOrWhiteSpace(value.UpstreamHost), $"{nameof(ClientOptions.UpstreamHost)} is required.")
-            .Validate(static value => value.UpstreamPort is > 0 and <= IPEndPoint.MaxPort,
-                $"{nameof(ClientOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}.")
+            .Validate(static value => value.UpstreamPort is > 0 and <= IPEndPoint.MaxPort, $"{nameof(ClientOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}.")
             .Validate(static value => value.SessionTokenProvider is not null, failureMessage: "A session-token provider is required.")
             .ValidateOnStart();
 
@@ -56,11 +55,9 @@ public static class NetworkingServiceCollectionExtensions
         OptionsBuilder<ProxyOptions> options = services.AddSupercellNetworking()
             .AddOptions<ProxyOptions>()
             .Validate(static value => !string.IsNullOrWhiteSpace(value.UpstreamHost), $"{nameof(ProxyOptions.UpstreamHost)} is required.")
-            .Validate(static value => value.UpstreamPort is > 0 and <= IPEndPoint.MaxPort,
-                $"{nameof(ProxyOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}.")
+            .Validate(static value => value.UpstreamPort is > 0 and <= IPEndPoint.MaxPort, $"{nameof(ProxyOptions.UpstreamPort)} must be between 1 and {IPEndPoint.MaxPort}.")
             .Validate(static value => IPAddress.TryParse(value.ListenAddress, out _), $"{nameof(ProxyOptions.ListenAddress)} must be an IP address.")
-            .Validate(static value => value.ListenPort is >= 0 and <= IPEndPoint.MaxPort,
-                $"{nameof(ProxyOptions.ListenPort)} must be between 0 and {IPEndPoint.MaxPort}.")
+            .Validate(static value => value.ListenPort is >= 0 and <= IPEndPoint.MaxPort, $"{nameof(ProxyOptions.ListenPort)} must be between 0 and {IPEndPoint.MaxPort}.")
             .ValidateOnStart();
 
         if (configure is not null)

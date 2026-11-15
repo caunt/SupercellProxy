@@ -34,7 +34,10 @@ public sealed record AnalyticsContext(AnalyticsContextValues? Values,
         // Each present section follows in flag order; an absent one takes no bytes.
         AnalyticsContextValues? values = hasValues ? AnalyticsContextValues.Codec.Read(stream) : null;
         AnalyticsContextStatistics? firstStatistics = hasFirstStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
-        AnalyticsContextStatistics? secondStatistics = hasSecondStatistics ? AnalyticsContextStatistics.Codec.Read(stream) : null;
+
+        AnalyticsContextStatistics? secondStatistics = hasSecondStatistics
+            ? AnalyticsContextStatistics.Codec.Read(stream)
+            : null;
 
         // The counters and timestamp; the third statistics are read last, when the record is built.
         AnalyticsContextCounters? counters = hasCounters ? AnalyticsContextCounters.Codec.Read(stream) : null;

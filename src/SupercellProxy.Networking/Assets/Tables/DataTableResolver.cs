@@ -91,9 +91,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         return resources.IsDefault
             ? throw new ArgumentException(message: "The asset bundle is uninitialized.", nameof(resources))
-            : fingerprint is null ? new DataTableResolver(resources) : SharedResolvers.GetOrAdd(fingerprint.Sha,
-                static (sha, assets) => new DataTableResolver(assets),
-                resources);
+            : fingerprint is null
+                ? new DataTableResolver(resources)
+                : SharedResolvers.GetOrAdd(fingerprint.Sha, static (sha, assets) => new DataTableResolver(assets), resources);
     }
 
     /// <summary>
@@ -125,7 +125,10 @@ public sealed class DataTableResolver : ICommandDataResolver
         DataTableReference[] entries = new DataTableReference[references.Length];
 
         for (int index = 0; index < references.Length; index++)
-            entries[index] = references[index] ?? throw new InvalidDataException(message: "The data table entry is unavailable.");
+        {
+            entries[index] = references[index]
+                ?? throw new InvalidDataException(message: "The data table entry is unavailable.");
+        }
 
         return entries;
     }
@@ -216,10 +219,9 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         reference = null;
 
-        return _tableIdsByFile.TryGetValue(file, out int tableId) && ResolveTable(tableId) is { } table && TryFindRow(file,
-            table,
-            name,
-            out int rowIndex)
+        return _tableIdsByFile.TryGetValue(file, out int tableId)
+            && ResolveTable(tableId) is { } table
+            && TryFindRow(file, table, name, out int rowIndex)
             && TryResolve((tableId * GlobalIdTableSize) + rowIndex, out reference);
     }
 
@@ -703,7 +705,10 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         FrozenDictionary<string, int> rows = TableRowNames.GetValue(table, static parsed => IndexNames(parsed.Entries));
 
-        return rows.TryGetValue(name, out rowIndex) && (rowIndex is -1 ? throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.") : true);
+        return rows.TryGetValue(name, out rowIndex)
+            && (rowIndex is -1
+                ? throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.")
+                : true);
     }
 
     private static bool TryResolveIndexedValue(GameDataTableEntry entry, string fieldName, int valueIndex, out LiteralValue value)
@@ -752,13 +757,15 @@ public sealed class DataTableResolver : ICommandDataResolver
         return index < 0
             ? null
             : !TryResolvePhysicalRows(file, out IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>>? rows)
-            ? null
-            : index < rows.Count ? rows[index] : null;
+                ? null
+                : index < rows.Count ? rows[index] : null;
     }
 
     private GameDataTable? ResolveTable(int id)
     {
-        return _dataTables.TryGetValue(id, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table) ? table.Table.Value : null;
+        return _dataTables.TryGetValue(id, out (GameAsset GameAsset, Lazy<GameDataTable> Table) table)
+            ? table.Table.Value
+            : null;
     }
 
     private bool TryResolvePhysicalRows(string file, [NotNullWhen(true)] out IReadOnlyList<IReadOnlyDictionary<string, LiteralValue>>? rows)
@@ -768,8 +775,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource) || !resource.TryGetTable(out GameDataTable? table))
             return false;
 
-        rows = TablePhysicalRows.GetValue(table,
-            static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
+        rows = TablePhysicalRows.GetValue(table, static parsed => [.. parsed.Entries.SelectMany(static entry => entry.Snapshots)]);
 
         return true;
     }

@@ -11,8 +11,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby;
 public sealed record DerbyRewardSelection(ImmutableArray<int> ThresholdIndices, ImmutableArray<int> BingoIndices, ImmutableArray<int> BunnyIndices) : ICodecProvider<DerbyRewardSelection>
 {
     /// <inheritdoc />
-    public static ICodec<DerbyRewardSelection> Codec { get; } = Codecs.Composite(Codecs.Array(Codecs.VarInt,
-            CollectionCount.Bounded),
+    public static ICodec<DerbyRewardSelection> Codec { get; } = Codecs.Composite(Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
         static selection => selection.ThresholdIndices,
         Codecs.Array(Codecs.VarInt, CollectionCount.Bounded),
         static selection => selection.BingoIndices,

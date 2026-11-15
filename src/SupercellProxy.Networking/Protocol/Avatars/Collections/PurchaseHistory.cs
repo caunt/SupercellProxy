@@ -15,13 +15,15 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     {
         int version = stream.ReadVarInt();
 
-        return version <= 0 ? new PurchaseHistory
-        {
-            Version = version
-        } : Body.Read(stream) with
-        {
-            Version = version
-        };
+        return version <= 0
+            ? new PurchaseHistory
+            {
+                Version = version
+            }
+            : Body.Read(stream) with
+            {
+                Version = version
+            };
     },
         static (stream, history) =>
         {
@@ -64,8 +66,7 @@ public sealed record PurchaseHistory : ICodecProvider<PurchaseHistory>
     /// <value>The VarInt revision read before the body; 0 by default, in which case only this number is written and the other properties keep their empty defaults.</value>
     public int Version { get; init; }
 
-    private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(Codecs.Array(PurchaseReceipt.Codec,
-            CollectionCount.Bounded),
+    private static ICodec<PurchaseHistory> Body => field ??= Codecs.Composite(Codecs.Array(PurchaseReceipt.Codec, CollectionCount.Bounded),
         static history => history.Receipts,
         PurchaseTotals.Codec,
         static history => history.Totals,

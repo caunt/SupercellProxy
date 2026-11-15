@@ -7,6 +7,5 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 public sealed record ResetDerbyRewardsCommand : CodecCommand<ResetDerbyRewardsCommand>, ICommandCodecProvider<ResetDerbyRewardsCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<ResetDerbyRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ResetDerbyRewardsCommand()),
-        CommandLayout.MetadataFirst);
+    public static CommandCodec<ResetDerbyRewardsCommand> Codec { get; } = Codecs.Command(Codecs.Unit(static () => new ResetDerbyRewardsCommand()), CommandLayout.MetadataFirst);
 }

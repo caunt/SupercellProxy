@@ -14,13 +14,11 @@ public sealed record BoatCrateHelpedServerCommand(bool OwnHomeNotification, Long
 {
     /// <summary>Gets the contract of the native command that notifies the farm owner.</summary>
     /// <value>The <c>OwnBoatCrateHelpedServerCommand</c> codec; commands it reads have <see cref="OwnHomeNotification"/> set to <see langword="true"/>.</value>
-    public static CommandCodec<BoatCrateHelpedServerCommand> OwnHomeCodec { get; } = Create(name: "OwnBoatCrateHelpedServerCommand",
-        ownHomeNotification: true);
+    public static CommandCodec<BoatCrateHelpedServerCommand> OwnHomeCodec { get; } = Create(name: "OwnBoatCrateHelpedServerCommand", ownHomeNotification: true);
 
     /// <summary>Gets the contract of the native command that notifies an observer of the farm.</summary>
     /// <value>The <c>VisitedBoatHelpServerCommand</c> codec; commands it reads have <see cref="OwnHomeNotification"/> set to <see langword="false"/>.</value>
-    public static CommandCodec<BoatCrateHelpedServerCommand> VisitedHomeCodec { get; } = Create(name: "VisitedBoatHelpServerCommand",
-        ownHomeNotification: false);
+    public static CommandCodec<BoatCrateHelpedServerCommand> VisitedHomeCodec { get; } = Create(name: "VisitedBoatHelpServerCommand", ownHomeNotification: false);
 
     /// <inheritdoc />
     public override CommandContract Contract => OwnHomeNotification ? OwnHomeCodec : VisitedHomeCodec;

@@ -39,8 +39,7 @@ public sealed record MapGameDumpTaskStatePayload : MapGameTaskStatePayload, ICod
     }
 
     /// <inheritdoc />
-    public static ICodec<MapGameDumpTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.Memory(CommandDataReferenceVarIntPair.Codec,
-            CommandVarIntPair.ArrayCount),
+    public static ICodec<MapGameDumpTaskStatePayload> Codec { get; } = Codecs.Composite(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount),
         static value => value.RequiredGoods,
         Codecs.OptionalValue(Codecs.Memory(CommandDataReferenceVarIntPair.Codec, CommandVarIntPair.ArrayCount)),
         static value => value.RewardData,

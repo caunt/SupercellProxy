@@ -57,8 +57,7 @@ public sealed class ProxyCaptureWriter
 
         ArgumentException.ThrowIfNullOrWhiteSpace(rootDirectoryPath);
 
-        string connectionName = string.Create(CultureInfo.InvariantCulture,
-            $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}");
+        string connectionName = string.Create(CultureInfo.InvariantCulture, $"{(timeProvider ?? TimeProvider.System).GetUtcNow():yyyyMMddTHHmmss.fffffffZ}-{SanitizeFileName(remoteEndPoint)}-{Guid.NewGuid():N}");
 
         _directoryPath = Path.GetFullPath(Path.Combine(rootDirectoryPath, connectionName));
     }
@@ -216,7 +215,9 @@ public sealed class ProxyCaptureWriter
         long sequence = ++_sequence;
         byte[] payload = container.Payload.ToArray();
 
-        bool clientHello = Archive is not null && stage == "incoming" && direction == MessageDirection.Serverbound
+        bool clientHello = Archive is not null
+            && stage == "incoming"
+            && direction == MessageDirection.Serverbound
             && container.Id == MessageRegistry.GetId<ClientHelloMessage>(gameVersion: null);
 
         if (clientHello)
@@ -228,7 +229,9 @@ public sealed class ProxyCaptureWriter
             Configure(identity);
         }
 
-        bool loginAccepted = Archive is not null && stage == "incoming" && direction == MessageDirection.Clientbound
+        bool loginAccepted = Archive is not null
+            && stage == "incoming"
+            && direction == MessageDirection.Clientbound
             && container.Id == MessageRegistry.GetId<LoginOkMessage>(gameVersion: null);
 
         if (loginAccepted)
@@ -248,8 +251,7 @@ public sealed class ProxyCaptureWriter
         BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(start: 5, length: 2), container.Version);
         payload.CopyTo(frame, index: 7);
 
-        string fileName = string.Create(CultureInfo.InvariantCulture,
-            $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
+        string fileName = string.Create(CultureInfo.InvariantCulture, $"{sequence:D8}-{stage}-{GetDirectionName(direction)}-{container.Id}-{container.Version}-{messageName}.bin");
 
         ProxyCaptureAnnotation? annotation = AnnotateFrame?.Invoke(new ProxyCapturedFrame(sequence,
             fileName,
@@ -308,8 +310,12 @@ public sealed class ProxyCaptureWriter
 
     private static void ValidateArtifactName(string directoryName, string name)
     {
-        bool invalid = string.IsNullOrWhiteSpace(directoryName) || Path.GetFileName(directoryName) != directoryName || directoryName is "." or ".."
-            || string.IsNullOrWhiteSpace(name) || Path.GetFileName(name) != name || name is "." or "..";
+        bool invalid = string.IsNullOrWhiteSpace(directoryName)
+            || Path.GetFileName(directoryName) != directoryName
+            || directoryName is "." or ".."
+            || string.IsNullOrWhiteSpace(name)
+            || Path.GetFileName(name) != name
+            || name is "." or "..";
 
         if (invalid)
             throw new ArgumentException(message: "Artifact directories and names must be simple path segments.");

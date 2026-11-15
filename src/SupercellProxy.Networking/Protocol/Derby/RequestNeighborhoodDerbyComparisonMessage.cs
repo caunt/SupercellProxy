@@ -13,6 +13,5 @@ public sealed record RequestNeighborhoodDerbyComparisonMessage(LongId? FirstNeig
         static message => message.FirstNeighborhoodId,
         Codecs.OptionalLongId,
         static message => message.SecondNeighborhoodId,
-        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodDerbyComparisonMessage(firstNeighborhoodId,
-            secondNeighborhoodId));
+        static (firstNeighborhoodId, secondNeighborhoodId) => new RequestNeighborhoodDerbyComparisonMessage(firstNeighborhoodId, secondNeighborhoodId));
 }

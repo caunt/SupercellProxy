@@ -13,7 +13,6 @@ public sealed record ApplyConsumableToFieldCommand(int FieldObjectGlobalId, int 
             static command => command.FieldObjectGlobalId,
             Codecs.VarInt,
             static command => command.ConsumableGlobalId,
-            static (fieldObjectGlobalId, consumableGlobalId) => new ApplyConsumableToFieldCommand(fieldObjectGlobalId,
-                consumableGlobalId)),
+            static (fieldObjectGlobalId, consumableGlobalId) => new ApplyConsumableToFieldCommand(fieldObjectGlobalId, consumableGlobalId)),
         CommandLayout.MetadataFirst);
 }

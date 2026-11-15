@@ -122,10 +122,10 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     internal bool CanUpdateVersion => Configuration.Protocol is null && _serverKeys is HayDayServerPublicKeySource;
 
     internal ClientConfiguration Configuration =>
-        field
-        ?? throw new InvalidOperationException(message: "This client has no online configuration.");
+        field ?? throw new InvalidOperationException(message: "This client has no online configuration.");
 
-    internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol() ?? Configuration.Protocol
+    internal ProtocolConfiguration Protocol => _clientVersion?.ToProtocol()
+        ?? Configuration.Protocol
         ?? throw new InvalidOperationException(message: "The protocol version has not been resolved. Custom key sources require an explicit version.");
 
     /// <summary>Exclusively reuses a saved anonymous account or creates and saves one, without loading its home.</summary>
@@ -156,8 +156,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
 
-        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
-            _lifetime.Token);
+        using CancellationTokenSource request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
 
         using IDisposable gate = await _authenticationGate.LockAsync(request.Token)
             .ConfigureAwait(continueOnCapturedContext: false);
@@ -371,8 +370,7 @@ public sealed partial class ProtocolClient : IAsyncDisposable
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await onMessage(await ReceiveAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false),
-                cancellationToken)
+            await onMessage(await ReceiveAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

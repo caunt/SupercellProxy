@@ -76,10 +76,14 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
             published = null;
         }
 
-        bool useLocal = local is not null && (published is null || local.GameVersion > published.GameVersion
-            || (local.GameVersion == published.GameVersion && local.KeyVersion is not null));
+        bool useLocal = local is not null
+            && (published is null
+                || local.GameVersion > published.GameVersion
+                || (local.GameVersion == published.GameVersion && local.KeyVersion is not null));
 
-        _latest = (useLocal ? local : published) ?? throw new InvalidDataException(message: "The Hay Day server public key was not found.");
+        _latest = (useLocal ? local : published)
+            ?? throw new InvalidDataException(message: "The Hay Day server public key was not found.");
+
         _expiresAt = DateTimeOffset.UtcNow.AddMinutes(minutes: 5);
 
         return _latest;
@@ -123,8 +127,10 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
 
             string key = cells[keyColumn].Trim(trimChar: '`');
 
-            bool valid = Version.TryParse(cells[versionColumn], out Version? version) && version.Build >= 0
-                && key.Length == 64 && key.All(Uri.IsHexDigit);
+            bool valid = Version.TryParse(cells[versionColumn], out Version? version)
+                && version.Build >= 0
+                && key.Length == 64
+                && key.All(Uri.IsHexDigit);
 
             if (!valid || version is null)
                 continue;
@@ -132,7 +138,8 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
             int parsed = 0;
 
             bool hasKeyVersion = keyVersionColumn >= 0
-                && int.TryParse(cells[keyVersionColumn], NumberStyles.None, CultureInfo.InvariantCulture, out parsed) && parsed > 0;
+                && int.TryParse(cells[keyVersionColumn], NumberStyles.None, CultureInfo.InvariantCulture, out parsed)
+                && parsed > 0;
 
             int? keyVersion = hasKeyVersion ? parsed : null;
 

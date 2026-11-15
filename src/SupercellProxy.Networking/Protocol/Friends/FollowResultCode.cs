@@ -35,9 +35,9 @@ public readonly record struct FollowResultCode
         return this == Success
             ? nameof(Success)
             : this == CannotFollowFarm
-            ? nameof(CannotFollowFarm)
-            : this == TargetHasTooManyFollowers
-            ? nameof(TargetHasTooManyFollowers)
-            : Value.ToString(CultureInfo.InvariantCulture);
+                ? nameof(CannotFollowFarm)
+                : this == TargetHasTooManyFollowers
+                    ? nameof(TargetHasTooManyFollowers)
+                    : Value.ToString(CultureInfo.InvariantCulture);
     }
 }

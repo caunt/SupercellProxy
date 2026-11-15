@@ -182,7 +182,9 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
 
         return length is 0
             ? Memory<byte>.Empty
-            : length < 0 ? throw new InvalidDataException(message: "Negative length for byte array.") : (Memory<byte>)ReadBytes(length);
+            : length < 0
+                ? throw new InvalidDataException(message: "Negative length for byte array.")
+                : (Memory<byte>)ReadBytes(length);
     }
 
     /// <summary>Reads an exact number of bytes without consuming a length prefix.</summary>
@@ -443,8 +445,8 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
         return length is 0
             ? Memory<byte>.Empty
             : length is < 0 or > MaximumPayloadLength
-            ? throw new InvalidDataException(message: "Invalid var-length byte array length.")
-            : (Memory<byte>)ReadBytes(length);
+                ? throw new InvalidDataException(message: "Invalid var-length byte array length.")
+                : (Memory<byte>)ReadBytes(length);
     }
 
     /// <summary>
@@ -886,8 +888,8 @@ public sealed class MessageChannel : ProtocolEncoder, IDisposable
         int temporarySignByte = int.CreateTruncating(valueToWrite >> 57) & 0x40;
 
         ulong boundariesTracker = valueToWrite < 0
-                ? unchecked(ulong.CreateTruncating(-(valueToWrite + 1))) + 1
-                : ulong.CreateTruncating(valueToWrite);
+            ? unchecked(ulong.CreateTruncating(-(valueToWrite + 1))) + 1
+            : ulong.CreateTruncating(valueToWrite);
 
         temporarySignByte |= int.CreateTruncating(valueToWrite) & 0x3F;
         valueToWrite >>= 6;

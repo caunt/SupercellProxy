@@ -13,6 +13,5 @@ public sealed record ThankTownServiceHelperCommand(int ServiceIndex, int Service
         static command => command.ServiceIndex,
         Codecs.VarInt,
         static command => command.ServiceBuildingGlobalId,
-        static (serviceIndex, serviceBuildingGlobalId) => new ThankTownServiceHelperCommand(serviceIndex,
-            serviceBuildingGlobalId)));
+        static (serviceIndex, serviceBuildingGlobalId) => new ThankTownServiceHelperCommand(serviceIndex, serviceBuildingGlobalId)));
 }

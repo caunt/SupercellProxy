@@ -136,8 +136,7 @@ internal sealed class KeysDocument
 
     private static InvalidDataException CreateInvalidRowException(string sectionName, int rowIndex)
     {
-        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture,
-            $"{rowIndex + 1}."));
+        return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture, $"{rowIndex + 1}."));
     }
 
     private static string FormatSeparatorCell(string separator, int width)
@@ -248,8 +247,8 @@ internal sealed class KeysDocument
         bool HasDataRow()
         {
             return dataEndIndex < parsedLines.Length
-            && !string.IsNullOrWhiteSpace(parsedLines[dataEndIndex])
-            && !parsedLines[dataEndIndex].StartsWith(value: "## ", StringComparison.Ordinal);
+                && !string.IsNullOrWhiteSpace(parsedLines[dataEndIndex])
+                && !parsedLines[dataEndIndex].StartsWith(value: "## ", StringComparison.Ordinal);
         }
     }
 
@@ -267,8 +266,7 @@ internal sealed class KeysDocument
         int versionColumnIndex = headers is null
             ? -1
             : Array.FindIndex(headers,
-                static header => header.Equals(value: "Version", StringComparison.OrdinalIgnoreCase)
-                || header.Equals(value: "Game version", StringComparison.OrdinalIgnoreCase));
+                static header => header.Equals(value: "Version", StringComparison.OrdinalIgnoreCase) || header.Equals(value: "Game version", StringComparison.OrdinalIgnoreCase));
 
         int keyVersionColumnIndex = headers is null
             ? -1
@@ -360,8 +358,7 @@ internal sealed class KeysDocument
                 continue;
             }
 
-            rowsByVersion.Add(version,
-                (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
+            rowsByVersion.Add(version, (key.Key, key.KeyVersion, CreateGeneratedCells(section, version, key.Key, key.KeyVersion)));
         }
 
         string[][] rows = [.. rowsByVersion.Values

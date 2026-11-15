@@ -56,8 +56,6 @@ internal readonly record struct AvatarInventorySection(AvatarInventoryLayout Lay
             stream.WriteVarInt(section.Unknown0);
         });
 
-    private static ICodec<ImmutableArray<DataReferenceValue>> MapCodec => field ??= Codecs.Array(DataReferenceValue.Codec,
-        CollectionCount.Bounded);
-
+    private static ICodec<ImmutableArray<DataReferenceValue>> MapCodec => field ??= Codecs.Array(DataReferenceValue.Codec, CollectionCount.Bounded);
     private static ICodec<ImmutableArray<int>> ValuesCodec => field ??= Codecs.Array(Codecs.VarInt, CollectionCount.Bounded);
 }

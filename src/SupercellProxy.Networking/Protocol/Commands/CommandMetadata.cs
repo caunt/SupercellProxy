@@ -71,6 +71,8 @@ internal readonly record struct CommandMetadata(int? ServerCommandId, int Execut
 
     private static int Validate(int serverCommandId)
     {
-        return serverCommandId is -1 ? throw new InvalidDataException(message: "Server command ID cannot be -1.") : serverCommandId;
+        return serverCommandId is -1
+            ? throw new InvalidDataException(message: "Server command ID cannot be -1.")
+            : serverCommandId;
     }
 }

@@ -25,10 +25,7 @@ internal sealed class FixedArrayCodec<TElement>(ICodec<TElement> element, int le
             throw new ArgumentException(message: "An uninitialized array cannot be written.", nameof(value));
 
         if (value.Length != length)
-        {
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Expected exactly {length} elements, got {value.Length}."));
-        }
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Expected exactly {length} elements, got {value.Length}."));
 
         foreach (TElement item in value)
             element.Write(encoder, item);

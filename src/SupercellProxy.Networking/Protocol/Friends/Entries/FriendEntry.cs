@@ -75,8 +75,8 @@ public sealed record FriendEntry(LongId HomeId,
         return length < 0
             ? null
             : length > MaximumStringByteLength
-            ? throw new InvalidDataException(message: "Friend-entry text exceeds the native byte limit.")
-            : Encoding.UTF8.GetString(stream.ReadBytes(length));
+                ? throw new InvalidDataException(message: "Friend-entry text exceeds the native byte limit.")
+                : Encoding.UTF8.GetString(stream.ReadBytes(length));
     }
 
     private static ICodec<string?> TextCodec()

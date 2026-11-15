@@ -12,8 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Events.Derby.Commands.Rewards;
 public sealed record AcknowledgeDerbyEntriesCommand(ImmutableArray<DerbyEntryState> Entries, int Mode) : CodecCommand<AcknowledgeDerbyEntriesCommand>, ICommandCodecProvider<AcknowledgeDerbyEntriesCommand>
 {
     /// <inheritdoc />
-    public static CommandCodec<AcknowledgeDerbyEntriesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Array(DerbyEntryState.Codec,
-            CollectionCount.Bounded),
+    public static CommandCodec<AcknowledgeDerbyEntriesCommand> Codec { get; } = Codecs.Command(Codecs.Composite(Codecs.Array(DerbyEntryState.Codec, CollectionCount.Bounded),
         static command => command.Entries,
         Codecs.VarInt,
         static command => command.Mode,

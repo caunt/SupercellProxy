@@ -57,7 +57,11 @@ internal sealed class MessageTransport(MessageChannel stream)
                     MemoryStream decryptedStream = _encryption.Decrypt(encryptedStream);
 
                     await using (decryptedStream.ConfigureAwait(continueOnCapturedContext: false))
-                        payload = decryptedStream.TryGetBuffer(out ArraySegment<byte> decrypted) ? decrypted.AsMemory() : decryptedStream.ToArray();
+                    {
+                        payload = decryptedStream.TryGetBuffer(out ArraySegment<byte> decrypted)
+                            ? decrypted.AsMemory()
+                            : decryptedStream.ToArray();
+                    }
                 }
             }
 
@@ -142,10 +146,7 @@ internal sealed class MessageTransport(MessageChannel stream)
         ObserveGameVersion(message);
 
         if (container.Payload.Position != container.Payload.Length)
-        {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
-        }
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
 
         return message;
     }
@@ -165,16 +166,8 @@ internal sealed class MessageTransport(MessageChannel stream)
 
         _encryption = new MessageEncryption(with: with,
             sessionKey: sessionKey.ToArray(),
-            localPrivateKey: with is RemotePeerRole.Server
-                ? RandomNumberGenerator.GetBytes(count: 32)
-                : ProxyKeyMaterial.StandardPrivateKey,
-            remotePublicKey: with is RemotePeerRole.Server
-                ? await (
-                    stream.ServerKeySource
-                    ?? throw new InvalidOperationException(message: "Configure a server key source before connecting upstream.")
-                ).GetServerPublicKeyAsync(cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false)
-                : default(Memory<byte>));
+            localPrivateKey: with is RemotePeerRole.Server ? RandomNumberGenerator.GetBytes(count: 32) : ProxyKeyMaterial.StandardPrivateKey,
+            remotePublicKey: with is RemotePeerRole.Server ? await (stream.ServerKeySource ?? throw new InvalidOperationException(message: "Configure a server key source before connecting upstream.")).GetServerPublicKeyAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false) : default(Memory<byte>));
     }
 
     /// <summary>

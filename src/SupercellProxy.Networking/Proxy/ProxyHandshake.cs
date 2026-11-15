@@ -22,9 +22,7 @@ internal sealed class ProxyHandshake(Func<bool, CancellationToken, Task<SessionT
             AnonymousAccountCredentials credentials = anonymousAccount.Credentials
                 ?? throw new InvalidOperationException(message: "A proxy anonymous account must have saved credentials.");
 
-            anonymousLogin.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32),
-                int.CreateTruncating(credentials.AccountId));
-
+            anonymousLogin.AccountId = new LongId(int.CreateTruncating(credentials.AccountId >> 32), int.CreateTruncating(credentials.AccountId));
             anonymousLogin.PassToken = credentials.PassToken;
             anonymousLogin.SessionToken = null;
         }

@@ -24,8 +24,7 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
     {
         ArgumentNullException.ThrowIfNull(hello);
 
-        CaptureIdentity identity = new(new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion).ToString(fieldCount: 3),
-            hello.FingerprintSha1);
+        CaptureIdentity identity = new(new Version(hello.MajorVersion, hello.MinorVersion, hello.PatchVersion).ToString(fieldCount: 3), hello.FingerprintSha1);
 
         identity.Validate();
 
@@ -79,7 +78,8 @@ public sealed record CaptureIdentity(string GameVersion, string AssetFingerprint
             identity = candidate;
         }
 
-        return identity ?? throw new InvalidDataException(message: "The recording has no game version and asset fingerprint metadata.");
+        return identity
+            ?? throw new InvalidDataException(message: "The recording has no game version and asset fingerprint metadata.");
     }
 
     /// <summary>Writes an identity document without replacing conflicting provenance.</summary>

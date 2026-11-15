@@ -19,9 +19,7 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     /// Gets the wire codec. A payload that does not parse is kept whole in <see cref="Fallback"/> with the error in <see cref="DecodeError"/>.
     /// </summary>
     /// <value>A codec that reads the rest of the message payload and writes back either the decoded parts in wire order or the <see cref="Fallback"/> bytes unchanged.</value>
-    public static ICodec<OtherHomeDataMessage> Codec { get; } = Codecs.Create(static stream => FromPayload(stream.ReadToEnd(),
-            stream.GameVersion),
-        static (stream, message) => message.WritePayload(stream));
+    public static ICodec<OtherHomeDataMessage> Codec { get; } = Codecs.Create(static stream => FromPayload(stream.ReadToEnd(), stream.GameVersion), static (stream, message) => message.WritePayload(stream));
 
     /// <summary>
     /// Gets or sets the visiting player's own avatar, sent along with the visited farm.

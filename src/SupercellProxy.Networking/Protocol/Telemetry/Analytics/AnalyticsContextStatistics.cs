@@ -11,8 +11,7 @@ public sealed record AnalyticsContextStatistics(ReadOnlyMemory<long> Values) : I
     private const int ValueCount = 10;
 
     /// <inheritdoc />
-    public static ICodec<AnalyticsContextStatistics> Codec { get; } = Codecs.Composite(Codecs.Map(Codecs.FixedArray(Codecs.BigEndianInt64,
-                ValueCount),
+    public static ICodec<AnalyticsContextStatistics> Codec { get; } = Codecs.Composite(Codecs.Map(Codecs.FixedArray(Codecs.BigEndianInt64, ValueCount),
             static values => values.AsMemory(),
             static values => ImmutableCollectionsMarshal.AsImmutableArray(values.ToArray())),
         static statistics => statistics.Values,

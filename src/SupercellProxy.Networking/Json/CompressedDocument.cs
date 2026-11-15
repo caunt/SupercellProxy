@@ -25,10 +25,7 @@ public static class CompressedDocument
         int decompressedLength = BinaryPrimitives.ReadInt32LittleEndian(data.Span);
 
         if (decompressedLength < 0)
-        {
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Invalid compressed JSON decompressed length: {decompressedLength}."));
-        }
+            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid compressed JSON decompressed length: {decompressedLength}."));
 
         using MemoryStream input = new(data[sizeof(int)..].ToArray(), writable: false);
 
@@ -39,8 +36,7 @@ public static class CompressedDocument
         zlib.ReadExactly(document);
 
         return zlib.ReadByte() is not -1
-            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Compressed JSON exceeds its declared decompressed length of {decompressedLength} bytes."))
+            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Compressed JSON exceeds its declared decompressed length of {decompressedLength} bytes."))
             : document;
     }
 

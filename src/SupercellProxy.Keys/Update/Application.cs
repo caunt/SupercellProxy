@@ -56,10 +56,7 @@ internal static partial class Application
                 File.Delete(temporaryPath + ".part");
 
                 if (retry == MaximumDownloadRetries)
-                {
-                    throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message),
-                        exception);
-                }
+                    throw new InvalidOperationException($"after {MaximumDownloadRetries} retries. Last error: " + NormalizeReason(exception.Message), exception);
 
                 await Console.Error
                     .WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
@@ -102,8 +99,7 @@ internal static partial class Application
 
     private static string NormalizeReason(string value)
     {
-        string normalized = string.Join(separator: ' ',
-            value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
+        string normalized = string.Join(separator: ' ', value.Split(separator: default(char[]?), StringSplitOptions.RemoveEmptyEntries));
 
         return normalized.Length <= 500 ? normalized : normalized[..497] + "...";
     }
@@ -149,10 +145,7 @@ internal static partial class Application
         }
 
         if (positionalArguments.Count > 1)
-        {
-            throw new ArgumentException(message: "Usage: SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]",
-                nameof(arguments));
-        }
+            throw new ArgumentException(message: "Usage: SupercellProxy.Keys update [FILE] [--app APP_STORE_ID] [--summary PATH]", nameof(arguments));
 
         string keysPath = Path.GetFullPath(positionalArguments.FirstOrDefault() ?? "KEYS.md");
 
@@ -161,8 +154,7 @@ internal static partial class Application
 
     private static int PrintUpdateHelp()
     {
-        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]",
-            description: "Fill missing KEYS.md entries from decrypt.day IPAs");
+        return PrintCommandHelp(usage: "update [FILE] [--app APP_STORE_ID] [--summary PATH]", description: "Fill missing KEYS.md entries from decrypt.day IPAs");
     }
 
     private static async Task<int> RunUpdateAsync(string[] arguments, CancellationToken cancellationToken)
@@ -302,7 +294,8 @@ internal static partial class Application
 
                 bool changed = existingEntry is null || key.KeyVersion is not null;
 
-                string reason = existingEntry is null ? "Added to KEYS.md"
+                string reason = existingEntry is null
+                    ? "Added to KEYS.md"
                     : changed ? "Filled missing key version" : "Key version anchor not found; existing public key retained";
 
                 report.Add(new KeysUpdateResult(section.Name,
@@ -337,8 +330,7 @@ internal static partial class Application
 
                 async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
-                    string temporaryPath = Path.Combine(Path.GetTempPath(),
-                        $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
+                    string temporaryPath = Path.Combine(Path.GetTempPath(), $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
 
                     try
                     {
@@ -401,8 +393,7 @@ internal static partial class Application
 
         int addedKeyCount = report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
 
-        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-            $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
     }
 
     private static async Task WriteAtomicallyAsync(string path, string content, CancellationToken cancellationToken)

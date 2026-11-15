@@ -289,8 +289,10 @@ internal static class MachOKeyVersionExtractor
             {
                 uint store = image.Word(address);
 
-                bool fieldStore = (store & 0xFFC00000) == 0xB9000000 && (store & 31) == 1
-                    && ((store >> 5) & 31) == 0 && ((store >> 10) & 4095) * 4 == keyField;
+                bool fieldStore = (store & 0xFFC00000) == 0xB9000000
+                    && (store & 31) == 1
+                    && ((store >> 5) & 31) == 0
+                    && ((store >> 10) & 4095) * 4 == keyField;
 
                 if (fieldStore && image.Word(address + 4) == Return && !setters.Add(address))
                     throw Ambiguous();
@@ -380,7 +382,9 @@ internal static class MachOKeyVersionExtractor
 
                     bool invalidField = (writer is not null && writer != target)
                         || (streamOffset is not null && streamOffset != stream.Offset)
-                        || field.Offset < stream.Offset || field.Offset > 65532 || fields.Contains(field.Offset);
+                        || field.Offset < stream.Offset
+                        || field.Offset > 65532
+                        || fields.Contains(field.Offset);
 
                     if (invalidField)
                         return null;
@@ -412,7 +416,8 @@ internal static class MachOKeyVersionExtractor
                 RegisterValue? source = registers[(word >> 5) & 31];
 
                 registers[word & 31] = source is { Kind: ValueKind.Object } owner
-                    ? new RegisterValue(ValueKind.Field, owner.Offset + (((word >> 10) & 4095) * 4)) : null;
+                    ? new RegisterValue(ValueKind.Field, owner.Offset + (((word >> 10) & 4095) * 4))
+                    : null;
             }
             else if (IsStackStore(word) || word == NoOperation)
             {
@@ -441,8 +446,7 @@ internal static class MachOKeyVersionExtractor
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
 
-                registers[word & 31] = new RegisterValue(ValueKind.Address,
-                    (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
+                registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
             {
@@ -452,7 +456,8 @@ internal static class MachOKeyVersionExtractor
                 RegisterValue? source = registers[(word >> 5) & 31];
 
                 registers[word & 31] = source is { Kind: ValueKind.Address } pointer
-                    ? new RegisterValue(ValueKind.LoadedInteger, pointer.Offset + (((word >> 10) & 4095) * 4)) : null;
+                    ? new RegisterValue(ValueKind.LoadedInteger, pointer.Offset + (((word >> 10) & 4095) * 4))
+                    : null;
             }
             else if ((word & CallMask) == Call)
             {
@@ -507,10 +512,8 @@ internal static class MachOKeyVersionExtractor
 
             uint constructorCall = image.Word(address + 4);
 
-            return (constructorCall & CallMask) == Call && PublishesHello(image,
-                Branch(address + 4, constructorCall),
-                encoder,
-                typeSlot);
+            return (constructorCall & CallMask) == Call
+                && PublishesHello(image, Branch(address + 4, constructorCall), encoder, typeSlot);
         }
 
         return false;
@@ -551,7 +554,8 @@ internal static class MachOKeyVersionExtractor
                 ? value with
                 {
                     Offset = checked(value.Offset + immediate)
-                } : null;
+                }
+                : null;
 
             return true;
         }
@@ -576,8 +580,7 @@ internal static class MachOKeyVersionExtractor
             {
                 long immediate = ((word >> 29) & 3) | (((word >> 5) & 0x7FFFF) << 2);
 
-                registers[word & 31] = new RegisterValue(ValueKind.Address,
-                    (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
+                registers[word & 31] = new RegisterValue(ValueKind.Address, (address & ~4095L) + (Signed(immediate, bits: 21) * 4096));
             }
             else if (MoveOrAdd(word, registers))
             {
@@ -615,7 +618,9 @@ internal static class MachOKeyVersionExtractor
     {
         ulong value = BinaryPrimitives.ReadUInt64LittleEndian(bytes);
 
-        return value > long.MaxValue ? throw Malformed(message: "Mach-O address exceeds supported range.") : long.CreateTruncating(value);
+        return value > long.MaxValue
+            ? throw Malformed(message: "Mach-O address exceeds supported range.")
+            : long.CreateTruncating(value);
     }
 
     private static Dictionary<long, long>? ReadChainedPointers(ReadOnlySpan<byte> binary, List<Segment> segments, long offset, long length)
@@ -678,7 +683,8 @@ internal static class MachOKeyVersionExtractor
 
             Segment segment = segments[index];
 
-            bool invalidMapping = segment.Address < imageBase || segmentOffset != segment.Address - imageBase
+            bool invalidMapping = segment.Address < imageBase
+                || segmentOffset != segment.Address - imageBase
                 || pages > (segment.Length + pageSize - 1) / pageSize;
 
             if (invalidMapping)

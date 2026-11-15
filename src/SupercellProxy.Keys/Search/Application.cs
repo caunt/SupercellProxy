@@ -50,9 +50,7 @@ internal static partial class Application
 
             Console.WriteLine($"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
                     + (
-                        app.Versions.Count > 10
-                            ? string.Create(CultureInfo.InvariantCulture, $" (+{app.Versions.Count - 10} more)")
-                            : string.Empty
+                        app.Versions.Count > 10 ? string.Create(CultureInfo.InvariantCulture, $" (+{app.Versions.Count - 10} more)") : string.Empty
                     ));
         }
 

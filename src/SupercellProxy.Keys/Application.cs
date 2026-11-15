@@ -94,8 +94,7 @@ internal static partial class Application
 
     private static int PrintDownloadHelp()
     {
-        return PrintCommandHelp(usage: "download APP [VERSION] [--output PATH]",
-            description: "Download an IPA (defaults to the newest available version)");
+        return PrintCommandHelp(usage: "download APP [VERSION] [--output PATH]", description: "Download an IPA (defaults to the newest available version)");
     }
 
     private static int PrintRootHelp()
@@ -148,8 +147,7 @@ internal static partial class Application
         string normalizedValue = Normalize(value);
 
         AppStoreSearchResult[] exactMatches = [.. response.Results
-            .Where(listing => string.Equals(Normalize(listing.Name), normalizedValue, StringComparison.Ordinal)
-                || listing.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
+            .Where(listing => string.Equals(Normalize(listing.Name), normalizedValue, StringComparison.Ordinal) || listing.BundleId.Equals(value, StringComparison.OrdinalIgnoreCase))];
 
         foreach (AppStoreSearchResult listing in exactMatches.Length > 0 ? exactMatches : response.Results)
         {

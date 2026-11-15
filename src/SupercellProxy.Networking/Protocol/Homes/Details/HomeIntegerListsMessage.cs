@@ -12,8 +12,7 @@ namespace SupercellProxy.Networking.Protocol.Homes.Details;
 public sealed record HomeIntegerListsMessage(ImmutableArray<int>? FirstValues, ImmutableArray<int>? SecondValues, LongId? HomeId) : CodecMessage<HomeIntegerListsMessage>, ICodecProvider<HomeIntegerListsMessage>
 {
     /// <inheritdoc />
-    public static ICodec<HomeIntegerListsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalValue(Codecs.Array(Codecs.VarInt,
-                CollectionCount.Bounded)),
+    public static ICodec<HomeIntegerListsMessage> Codec { get; } = Codecs.Complete(Codecs.Composite(Codecs.OptionalValue(Codecs.Array(Codecs.VarInt, CollectionCount.Bounded)),
             static message => message.FirstValues,
             Codecs.OptionalValue(Codecs.Array(Codecs.VarInt, CollectionCount.Bounded)),
             static message => message.SecondValues,

@@ -81,8 +81,8 @@ public readonly record struct LongId : IEquatable<LongId>
     /// <exception cref="InvalidOperationException">The shard number is above 255, so the id has no tag.</exception>
     [JsonPropertyName("TagInternalId")]
     public ulong TagInternalId => !CanRepresentAsTag
-                ? throw new InvalidOperationException(message: "HighUInt32 must be less than or equal to 255 to be representable as an public tag ID.")
-                : (LowUInt32 * 256UL) + HighUInt32;
+        ? throw new InvalidOperationException(message: "HighUInt32 must be less than or equal to 255 to be representable as an public tag ID.")
+        : (LowUInt32 * 256UL) + HighUInt32;
 
     /// <summary>
     /// Moves an id forward by an amount, treating both words as one 64-bit number, so the row number carries into the shard word.

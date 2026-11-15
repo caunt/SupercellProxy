@@ -96,8 +96,8 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
         return length is -1
             ? null
             : length < 0 || length > stream.Length - stream.Position
-            ? throw new InvalidDataException(message: "Invalid byte array length.")
-            : (ReadOnlyMemory<byte>?)stream.ReadExactly(new byte[length]).ToArray();
+                ? throw new InvalidDataException(message: "Invalid byte array length.")
+                : (ReadOnlyMemory<byte>?)stream.ReadExactly(new byte[length]).ToArray();
     }
 
     private static void WriteByteArray(ProtocolEncoder encoder, ReadOnlyMemory<byte>? data)

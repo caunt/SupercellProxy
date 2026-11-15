@@ -20,9 +20,7 @@ public readonly record struct ClientTurnHeader(int Checksum, int SubTick, Immuta
         Codecs.FixedArray(Codecs.VarInt, EndClientTurnMessage.SubChecksumCount),
         static header => header.SubChecksums,
         Codecs.Map(Codecs.VarInt,
-            static count => uint.CreateTruncating(count) > EndClientTurnMessage.MaximumCommandCount
-                ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid command count: {count}."))
-                : count,
+            static count => uint.CreateTruncating(count) > EndClientTurnMessage.MaximumCommandCount ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid command count: {count}.")) : count,
             static count => count),
         static header => header.CommandCount,
         static (checksum, subTick, subChecksums, commandCount) => new ClientTurnHeader(checksum,

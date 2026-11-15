@@ -109,7 +109,9 @@ public static class MessageRegistry
         if (dataResolver is not null)
             payload.CommandDataResolver = dataResolver;
 
-        return TryGetMessageType(container.Id, payload.GameVersion, out Type? type) ? ByType[type].Factory(payload) : PassthroughMessage.Decode(container);
+        return TryGetMessageType(container.Id, payload.GameVersion, out Type? type)
+            ? ByType[type].Factory(payload)
+            : PassthroughMessage.Decode(container);
     }
 
     /// <summary>Finds the message type a wire id names in a release.</summary>

@@ -54,8 +54,8 @@ public readonly record struct TimerValue
     public TimerSnapshot? AsCountdown()
     {
         return Kind is TimerValueKind.Counter
-        ? throw new InvalidDataException(message: "The timer contains a counter instead of a countdown.")
-        : Kind is TimerValueKind.Countdown ? Countdown : null;
+            ? throw new InvalidDataException(message: "The timer contains a counter instead of a countdown.")
+            : Kind is TimerValueKind.Countdown ? Countdown : null;
     }
 
     /// <summary>Returns the counter value and rejects a countdown representation.</summary>
@@ -64,7 +64,7 @@ public readonly record struct TimerValue
     public int AsCounter()
     {
         return Kind is TimerValueKind.Countdown
-        ? throw new InvalidDataException(message: "The timer contains a countdown instead of a counter.")
-        : Counter;
+            ? throw new InvalidDataException(message: "The timer contains a countdown instead of a counter.")
+            : Counter;
     }
 }

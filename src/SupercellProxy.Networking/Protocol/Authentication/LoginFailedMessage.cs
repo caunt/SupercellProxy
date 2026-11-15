@@ -141,8 +141,7 @@ public sealed record LoginFailedMessage : CodecMessage<LoginFailedMessage>, ICod
             string resourceFingerprintData = GameAssetFingerprintData
                 ?? throw new InvalidOperationException($"{nameof(GameAssetFingerprintData)} is null.");
 
-            GameAssetFingerprint resourceFingerprint = JsonSerializer.Deserialize<GameAssetFingerprint>(resourceFingerprintData,
-                DocumentSerializerOptions)
+            GameAssetFingerprint resourceFingerprint = JsonSerializer.Deserialize<GameAssetFingerprint>(resourceFingerprintData, DocumentSerializerOptions)
                 ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GameAssetFingerprint)} from {nameof(GameAssetFingerprintData)}:\n{GameAssetFingerprintData}");
 
             return resourceFingerprint;

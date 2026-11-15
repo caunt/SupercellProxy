@@ -50,8 +50,9 @@ public sealed partial class ProtocolProxy(IOptions<ProxyOptions> options,
     {
         ProxyConfiguration configuration = options.Value.ToConfiguration();
 
-        _archive = configuration.CaptureDirectory is { } captureRoot ? new CaptureArchive(captureRoot,
-            configuration.AssetDirectory) : null;
+        _archive = configuration.CaptureDirectory is { } captureRoot
+            ? new CaptureArchive(captureRoot, configuration.AssetDirectory)
+            : null;
 
         if (configuration.AssetDirectory is { } directory)
         {

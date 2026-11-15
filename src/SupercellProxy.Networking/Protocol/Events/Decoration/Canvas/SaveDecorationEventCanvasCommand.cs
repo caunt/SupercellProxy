@@ -22,8 +22,7 @@ public sealed record SaveDecorationEventCanvasCommand(int EventId, int EventVari
         LongId? designId = stream.ReadOptionalLongId();
 
         return designLength < 0 || designLength > stream.Length - stream.Position
-            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Invalid decoration canvas design length: {designLength}."))
+            ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid decoration canvas design length: {designLength}."))
             : new SaveDecorationEventCanvasCommand(eventId, eventVariantId, stream.ReadBytes(designLength), designId);
     },
             static (stream, command) =>
