@@ -56,7 +56,7 @@ public static class GameDataTableParser
             if (currentEntryBuilder is null)
             {
                 throw new FormatException(string.Create(CultureInfo.InvariantCulture,
-                    $"Continuation row at index {rowIndex} appeared before any entry start row."));
+                    handler: $"Continuation row at index {rowIndex} appeared before any entry start row."));
             }
 
             currentEntryBuilder.ApplyContinuationRow(parsedValues);
@@ -189,7 +189,7 @@ public static class GameDataTableParser
         if (row.Count > expectedColumnCount)
         {
             throw new FormatException(string.Create(CultureInfo.InvariantCulture,
-                $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns."));
+                handler: $"Row {rowIndex} has {row.Count} columns but the header declares {expectedColumnCount} columns."));
         }
 
         if (row.Count == expectedColumnCount)
@@ -212,7 +212,9 @@ public static class GameDataTableParser
         return normalizedValue.Equals(value: "true", StringComparison.OrdinalIgnoreCase)
             || (!normalizedValue.Equals(value: "false", StringComparison.OrdinalIgnoreCase)
                 && (normalizedValue is "1"
-                    || (normalizedValue is "0" ? false : throw new FormatException($"Cannot parse boolean value '{cellText}'."))));
+                    || (normalizedValue is "0"
+                        ? false
+                        : throw new FormatException(message: $"Cannot parse boolean value '{cellText}'."))));
     }
 
     private static Dictionary<string, LiteralValue> ParseSparseValues(List<string> headers, List<string> types, List<string> row)

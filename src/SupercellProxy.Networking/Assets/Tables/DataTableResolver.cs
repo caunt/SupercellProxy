@@ -52,7 +52,7 @@ public sealed class DataTableResolver : ICommandDataResolver
         foreach ((int tableId, string? file) in DataTableRegistry.Create(_resourcesByFile.Values))
         {
             if (!_resourcesByFile.TryGetValue(file, out GameAsset? resource))
-                throw new InvalidOperationException($"GameAsset {file} was not downloaded.");
+                throw new InvalidOperationException(message: $"GameAsset {file} was not downloaded.");
 
             resolvedDataTables.Add(tableId, (resource, new Lazy<GameDataTable>(() => ParseTable(resource))));
         }
@@ -106,7 +106,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     {
         return _resourcesByFile.TryGetValue(file, out GameAsset? asset)
             ? asset.AsUnicodeTransformationFormat8
-            : throw new InvalidDataException($"The asset {file} is unavailable.");
+            : throw new InvalidDataException(message: $"The asset {file} is unavailable.");
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public sealed class DataTableResolver : ICommandDataResolver
     public DataTableReference[] ResolveAll(string file)
     {
         if (!TryGetTableId(file, out int tableId) || References(tableId) is not { } references)
-            throw new InvalidDataException($"The data table {file} is unavailable.");
+            throw new InvalidDataException(message: $"The data table {file} is unavailable.");
 
         // Callers own the returned array, so the shared row records are copied into a new one.
         DataTableReference[] entries = new DataTableReference[references.Length];
@@ -693,10 +693,10 @@ public sealed class DataTableResolver : ICommandDataResolver
         }
         catch (FormatException exception)
         {
-            throw new InvalidDataException($"Failed to parse {resource.Fingerprint.File}.", exception);
+            throw new InvalidDataException(message: $"Failed to parse {resource.Fingerprint.File}.", exception);
         }
 
-        throw new InvalidOperationException($"Failed to parse {resource.Fingerprint.File}.");
+        throw new InvalidOperationException(message: $"Failed to parse {resource.Fingerprint.File}.");
     }
 
     // Each entry name maps to its row once per table. A name two entries share maps to -1 and fails only when it is looked up, as the
@@ -707,7 +707,7 @@ public sealed class DataTableResolver : ICommandDataResolver
 
         return rows.TryGetValue(name, out rowIndex)
             && (rowIndex is -1
-                ? throw new InvalidDataException($"Data table {file} contains duplicate entry name {name}.")
+                ? throw new InvalidDataException(message: $"Data table {file} contains duplicate entry name {name}.")
                 : true);
     }
 

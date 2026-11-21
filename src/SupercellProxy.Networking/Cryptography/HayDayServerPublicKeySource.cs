@@ -62,7 +62,7 @@ internal sealed class HayDayServerPublicKeySource(HttpClient webClient) : IServe
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"KEYS.md request failed: {response.StatusCode}.",
+                throw new HttpRequestException(message: $"KEYS.md request failed: {response.StatusCode}.",
                     inner: null,
                     response.StatusCode);
             }

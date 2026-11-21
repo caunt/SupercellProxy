@@ -23,7 +23,7 @@ public static class GameAssetSnapshot
     public static string FindSource(string root, string fingerprint)
     {
         if (!Directory.Exists(root))
-            throw new DirectoryNotFoundException($"The asset cache {root} is unavailable.");
+            throw new DirectoryNotFoundException(message: $"The asset cache {root} is unavailable.");
 
         IEnumerable<string> candidates = Directory.EnumerateDirectories(root, fingerprint, SearchOption.AllDirectories)
             .Prepend(root);
@@ -33,7 +33,7 @@ public static class GameAssetSnapshot
             .OrderBy(static path => path.Length)
             .ThenBy(static path => path, StringComparer.Ordinal)
             .FirstOrDefault()
-            ?? throw new DirectoryNotFoundException($"Assets for fingerprint {fingerprint} are unavailable in {root}.");
+            ?? throw new DirectoryNotFoundException(message: $"Assets for fingerprint {fingerprint} are unavailable in {root}.");
     }
 
     /// <summary>Loads only the manifest's files, requiring their original retained checksums.</summary>
@@ -53,7 +53,7 @@ public static class GameAssetSnapshot
         string manifestPath = Path.Combine(directory, RetainedAssetManifest.FileName);
 
         if (!File.Exists(manifestPath))
-            throw new FileNotFoundException($"Retained assets {fingerprint} are unavailable.", manifestPath);
+            throw new FileNotFoundException(message: $"Retained assets {fingerprint} are unavailable.", manifestPath);
 
         RetainedAssetManifest manifest = JsonSerializer.Deserialize<RetainedAssetManifest>(await File.ReadAllBytesAsync(manifestPath, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false))
@@ -73,7 +73,7 @@ public static class GameAssetSnapshot
             RetainedAssetFile file = manifest.Files[index];
 
             if (!names.Add(file.File))
-                throw new InvalidDataException($"The retained asset manifest repeats {file.File}.");
+                throw new InvalidDataException(message: $"The retained asset manifest repeats {file.File}.");
 
             byte[] bytes = await File.ReadAllBytesAsync(ResolveFile(directory, file.File), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -82,7 +82,7 @@ public static class GameAssetSnapshot
                 && string.Equals(Convert.ToHexString(SHA256.HashData(bytes)), file.Sha256, StringComparison.OrdinalIgnoreCase);
 
             if (!matches)
-                throw new InvalidDataException($"Retained asset {file.File} does not match its checksum for {fingerprint}.");
+                throw new InvalidDataException(message: $"Retained asset {file.File} does not match its checksum for {fingerprint}.");
 
             assets[index] = new GameAsset(new GameAssetFingerprintEntry(file.File, file.SourceSha), bytes);
         }
@@ -178,7 +178,7 @@ public static class GameAssetSnapshot
             ?? throw new InvalidDataException(message: "The snapshot has no parent directory.");
 
         DirectoryInfo parentDirectory = Directory.CreateDirectory(parent);
-        string temporary = Path.Combine(parentDirectory.FullName, $".{fingerprint}-{Guid.NewGuid():N}.pending");
+        string temporary = Path.Combine(parentDirectory.FullName, path2: $".{fingerprint}-{Guid.NewGuid():N}.pending");
         DirectoryInfo temporaryDirectory = Directory.CreateDirectory(temporary);
 
         try

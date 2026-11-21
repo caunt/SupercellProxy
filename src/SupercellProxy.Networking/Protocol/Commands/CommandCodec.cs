@@ -64,6 +64,6 @@ public sealed class CommandCodec<TCommand> : CommandContract, ICodec<TCommand> w
 
     internal override void WriteCommand(ProtocolEncoder encoder, Command command)
     {
-        Write(encoder, command as TCommand ?? throw new InvalidDataException($"Expected a {typeof(TCommand).Name}."));
+        Write(encoder, command as TCommand ?? throw new InvalidDataException(message: $"Expected a {typeof(TCommand).Name}."));
     }
 }

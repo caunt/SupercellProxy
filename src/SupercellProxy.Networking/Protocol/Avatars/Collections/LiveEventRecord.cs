@@ -31,7 +31,7 @@ public sealed record LiveEventRecord(int EventId, int SchedulingType, int Count,
             stream.WriteVarInt(record.Count);
 
             if (record.SchedulingType is 1)
-                stream.WriteVarInt(record.ImpressionId ?? throw new InvalidOperationException($"{nameof(ImpressionId)} is null."));
+                stream.WriteVarInt(record.ImpressionId ?? throw new InvalidOperationException(message: $"{nameof(ImpressionId)} is null."));
 
             stream.WriteVarInt(record.EndTime);
         });

@@ -29,9 +29,9 @@ internal static class ServerPublicKeyExtractor
             {
                 throw new InvalidOperationException("Multiple possible server public keys found in the binary (expected 1):\n"
                         + string.Create(CultureInfo.InvariantCulture,
-                            $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength))}\n")
+                            handler: $"[{foundIndex}]:{Convert.ToHexString(binary.SliceBefore(foundIndex, PublicKeyCodec.EncodedLength))}\n")
                         + string.Create(CultureInfo.InvariantCulture,
-                            $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, PublicKeyCodec.EncodedLength))}"));
+                            handler: $"[{index}]:{Convert.ToHexString(binary.SliceBefore(index, PublicKeyCodec.EncodedLength))}"));
             }
 
             foundIndex = index;

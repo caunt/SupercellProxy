@@ -220,7 +220,7 @@ public sealed record LiveEvent : ICodecProvider<LiveEvent>
             static liveEvent => liveEvent.CompressedData is { } bytes ? CompressedDocument.Decompress(bytes) : []);
 
         return JsonSerializer.Deserialize<TValue>(document)
-            ?? throw new InvalidDataException($"Compressed JSON did not contain a {typeof(TValue).Name} value.");
+            ?? throw new InvalidDataException(message: $"Compressed JSON did not contain a {typeof(TValue).Name} value.");
     }
 
     // Native sends the event definition either as compressed JSON or as plain text, chosen by the leading flag.

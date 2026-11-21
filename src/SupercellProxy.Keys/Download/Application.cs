@@ -88,7 +88,7 @@ internal static partial class Application
             }
             else if (argument.StartsWith(value: '-'))
             {
-                throw new ArgumentException($"Unknown option: {argument}", nameof(arguments));
+                throw new ArgumentException(message: $"Unknown option: {argument}", nameof(arguments));
             }
             else
             {
@@ -120,7 +120,7 @@ internal static partial class Application
                 .SingleOrDefault(version => string.Equals(version.Value, normalizedVersion, StringComparison.Ordinal));
 
             candidateVersions = candidateVersion is null
-                ? throw new InvalidOperationException($"Version {requestedVersion} not found.")
+                ? throw new InvalidOperationException(message: $"Version {requestedVersion} not found.")
                 : [candidateVersion];
         }
 
@@ -161,22 +161,22 @@ internal static partial class Application
         string outputPath = Path.GetFullPath(outputOption ?? $"{app.BundleId}-{download.Version}.ipa");
 
         if (Directory.Exists(outputPath))
-            throw new ArgumentException($"The output path is a directory: {outputPath}", nameof(arguments));
+            throw new ArgumentException(message: $"The output path is a directory: {outputPath}", nameof(arguments));
 
         if (await IsValidIpaAsync(outputPath, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
         {
-            Console.WriteLine($"Using cached IPA: {outputPath}");
+            Console.WriteLine(value: $"Using cached IPA: {outputPath}");
         }
         else
         {
             await DownloadAsync(decryptDayClient, download, outputPath, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            Console.WriteLine($"Downloaded: {outputPath}");
+            Console.WriteLine(value: $"Downloaded: {outputPath}");
         }
 
-        Console.WriteLine($"Bundle ID: {app.BundleId}");
-        Console.WriteLine($"Version: {download.Version}");
+        Console.WriteLine(value: $"Bundle ID: {app.BundleId}");
+        Console.WriteLine(value: $"Version: {download.Version}");
 
         return 0;
     }

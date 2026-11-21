@@ -151,7 +151,7 @@ public readonly record struct LongId : IEquatable<LongId>
     public static LongId Parse(ReadOnlySpan<char> tagStringSpan)
     {
         return !TryParse(tagStringSpan, out LongId logicLong)
-            ? throw new FormatException($"The provided tag string '{tagStringSpan}' is not in a valid format.")
+            ? throw new FormatException(message: $"The provided tag string '{tagStringSpan}' is not in a valid format.")
             : logicLong;
     }
 

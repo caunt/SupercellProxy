@@ -40,22 +40,22 @@ internal static partial class Application
             if (app.Versions.Count is 0)
                 continue;
 
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{++found}. {listing.Name}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, handler: $"{++found}. {listing.Name}"));
 
             if (!string.IsNullOrWhiteSpace(listing.SellerName))
-                Console.WriteLine($"   Developer: {listing.SellerName}");
+                Console.WriteLine(value: $"   Developer: {listing.SellerName}");
 
-            Console.WriteLine($"   Bundle ID: {app.BundleId}");
-            Console.WriteLine($"   App ID: {appStoreId}");
+            Console.WriteLine(value: $"   Bundle ID: {app.BundleId}");
+            Console.WriteLine(value: $"   App ID: {appStoreId}");
 
             Console.WriteLine($"   Available: {string.Join(separator: ", ", app.Versions.Take(count: 10))}"
                     + (
-                        app.Versions.Count > 10 ? string.Create(CultureInfo.InvariantCulture, $" (+{app.Versions.Count - 10} more)") : string.Empty
+                        app.Versions.Count > 10 ? string.Create(CultureInfo.InvariantCulture, handler: $" (+{app.Versions.Count - 10} more)") : string.Empty
                     ));
         }
 
         if (found is 0)
-            Console.WriteLine($"No apps found on decrypt.day for \"{arguments[0]}\".");
+            Console.WriteLine(value: $"No apps found on decrypt.day for \"{arguments[0]}\".");
 
         return 0;
     }

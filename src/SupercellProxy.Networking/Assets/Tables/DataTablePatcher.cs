@@ -35,7 +35,7 @@ public static class DataTablePatcher
         foreach (DataTableChange change in changes)
         {
             if (!resources.TryGetValue(change.File, out GameAsset? original) || !original.IsCsv)
-                throw new InvalidDataException($"The changed table {change.File} is unavailable.");
+                throw new InvalidDataException(message: $"The changed table {change.File} is unavailable.");
 
             if (change.NewFullCommaSeparatedValues is { } replacement && string.IsNullOrEmpty(change.Column))
             {
@@ -80,7 +80,7 @@ public static class DataTablePatcher
     private static void ApplyCell(List<List<string>> rows, DataTableChange change)
     {
         if (rows.Count < 2 || string.IsNullOrEmpty(change.Row) || string.IsNullOrEmpty(change.Column))
-            throw new InvalidDataException($"The table cell change {change.File} has {rows.Count} rows; row '{change.Row}', column '{change.Column}'.");
+            throw new InvalidDataException(message: $"The table cell change {change.File} has {rows.Count} rows; row '{change.Row}', column '{change.Column}'.");
 
         HashSet<string> names = Split(change.Row).ToHashSet(StringComparer.Ordinal);
         bool everyEntry = names.Contains(item: "*");
@@ -131,7 +131,7 @@ public static class DataTablePatcher
         List<List<string>> replacement = GameDataTableParser.ParseMutableRows(content);
 
         if (rows.Count < 2 || replacement.Count < 2)
-            throw new InvalidDataException($"The replacement columns {selector} have no table: {rows.Count} and {replacement.Count} lines.");
+            throw new InvalidDataException(message: $"The replacement columns {selector} have no table: {rows.Count} and {replacement.Count} lines.");
 
         foreach (string name in Split(selector))
         {

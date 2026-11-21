@@ -93,7 +93,7 @@ internal sealed class MessageTransport(MessageChannel stream)
         IMessage genericMessage = await ReadMessageAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         return genericMessage is not TValue message
-            ? throw new InvalidOperationException($"Expected message {typeof(TValue)}, but received {genericMessage}.")
+            ? throw new InvalidOperationException(message: $"Expected message {typeof(TValue)}, but received {genericMessage}.")
             : message;
     }
 
@@ -148,7 +148,7 @@ internal sealed class MessageTransport(MessageChannel stream)
         if (container.Payload.Position != container.Payload.Length)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
+                handler: $"Warning: Not all payload data was consumed for message {message}. Remaining bytes: {container.Payload.Length - container.Payload.Position}"));
         }
 
         return message;

@@ -28,6 +28,6 @@ internal sealed class DispatchCodec<TKey, TValue>(ICodec<TKey> key, Func<TValue,
         return cases.TryGetValue(tag, out ICodec<TValue>? codec)
             ? codec
             : throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Unsupported {typeof(TValue).Name} variant {tag}."));
+                handler: $"Unsupported {typeof(TValue).Name} variant {tag}."));
     }
 }

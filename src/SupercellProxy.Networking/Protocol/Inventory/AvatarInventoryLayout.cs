@@ -146,7 +146,7 @@ public sealed class AvatarInventoryLayout
             ? Legacy
             : version is { Major: 1, Minor: 73 }
                 ? WithAngus
-                : throw new NotSupportedException($"The avatar inventory layout for game version {version} is not implemented.");
+                : throw new NotSupportedException(message: $"The avatar inventory layout for game version {version} is not implemented.");
     }
 
     /// <summary>Finds the native unlock bitmap for a data table.</summary>

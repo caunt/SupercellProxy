@@ -56,7 +56,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
                 credentials: null,
                 cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new InvalidDataException($"Fingerprint discovery returned {unexpected.GetType().Name}.");
+            throw new InvalidDataException(message: $"Fingerprint discovery returned {unexpected.GetType().Name}.");
         }
         catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent } content)
         {
@@ -82,7 +82,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
                 cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            throw new InvalidDataException($"Catalog bootstrap returned {unexpectedLogin.GetType().Name} without asset metadata.");
+            throw new InvalidDataException(message: $"Catalog bootstrap returned {unexpectedLogin.GetType().Name} without asset metadata.");
         }
         catch (LoginException exception) when (exception.LoginFailedMessage is { ErrorCode: LoginFailureType.OutdatedContent } content)
         {
@@ -151,7 +151,7 @@ internal sealed class ClientAuthenticator(ProtocolClient client, GameAssetCache 
         LoginException.ThrowIfFailed(message);
 
         return message as TMessage
-            ?? throw new InvalidOperationException($"Expected {typeof(TMessage).Name}, but received {message.GetType().Name}.");
+            ?? throw new InvalidOperationException(message: $"Expected {typeof(TMessage).Name}, but received {message.GetType().Name}.");
     }
 
     private ClientHelloMessage CreateClientHelloMessage(string fingerprintSha1, AppStore appStore)

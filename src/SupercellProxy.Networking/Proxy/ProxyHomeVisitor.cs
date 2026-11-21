@@ -79,7 +79,7 @@ internal sealed class ProxyHomeVisitor(ProxyConnection connection)
         }
         catch (TaskCanceledException)
         {
-            throw new TimeoutException($"Expected message of type {typeof(TMessage)} was not received within the timeout period of {timeout}");
+            throw new TimeoutException(message: $"Expected message of type {typeof(TMessage)} was not received within the timeout period of {timeout}");
         }
     }
 

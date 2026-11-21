@@ -33,6 +33,6 @@ public abstract record MapGameTaskStatePayload
     {
         return Variants.TryGetValue(taskType, out ICodec<MapGameTaskStatePayload>? codec)
             ? codec
-            : throw new NotSupportedException($"Map-game task type '{taskType}' is not supported.");
+            : throw new NotSupportedException(message: $"Map-game task type '{taskType}' is not supported.");
     }
 }

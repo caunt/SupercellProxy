@@ -96,11 +96,11 @@ public record OtherHomeDataMessage : CodecMessage<OtherHomeDataMessage>, ICodecP
     }
 
     private static ICodec<OtherHomeDataMessage> Payload => field ??= Codecs.Complete(Codecs.Composite(ClientAvatar.Codec,
-            static message => message.HomeOwnerAvatar ?? throw new InvalidOperationException($"{nameof(HomeOwnerAvatar)} is null."),
+            static message => message.HomeOwnerAvatar ?? throw new InvalidOperationException(message: $"{nameof(HomeOwnerAvatar)} is null."),
             Codecs.VarInt,
             static message => message.ServerTimestamp,
             ClientAvatar.Codec,
-            static message => message.ClientAvatar ?? throw new InvalidOperationException($"{nameof(ClientAvatar)} is null."),
+            static message => message.ClientAvatar ?? throw new InvalidOperationException(message: $"{nameof(ClientAvatar)} is null."),
             CompressedDocumentCodec(),
             static message => message.CompressedAvatarDataDocument,
             CompressedDocumentCodec(),

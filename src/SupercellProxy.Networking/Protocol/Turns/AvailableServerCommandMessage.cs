@@ -30,7 +30,7 @@ public sealed record AvailableServerCommandMessage(Command Command) : CodecMessa
 
         return !payload.AsSpan().SequenceEqual(roundTrip)
             ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Server command {command.Contract} did not encode back to the received payload; first difference {difference} ({payload.ElementAtOrDefault(difference)} versus {roundTrip.ElementAtOrDefault(difference)}), received length {payload.Length}, encoded length {roundTrip.Length}."))
+                handler: $"Server command {command.Contract} did not encode back to the received payload; first difference {difference} ({payload.ElementAtOrDefault(difference)} versus {roundTrip.ElementAtOrDefault(difference)}), received length {payload.Length}, encoded length {roundTrip.Length}."))
             : message;
     },
         static (stream, message) => CommandRegistry.Codec.Write(stream, message.Command));

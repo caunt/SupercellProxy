@@ -16,6 +16,6 @@ internal sealed record HayDayServerKey(Version GameVersion, int? KeyVersion, byt
             GameVersion.Minor,
             GameVersion.Build,
             ProtocolConfiguration.WireProtocolVersion,
-            KeyVersion ?? throw new InvalidDataException($"KEYS.md has no key version for Hay Day {GameVersion}."));
+            KeyVersion ?? throw new InvalidDataException(message: $"KEYS.md has no key version for Hay Day {GameVersion}."));
     }
 }

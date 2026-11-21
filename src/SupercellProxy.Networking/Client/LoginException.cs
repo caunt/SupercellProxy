@@ -80,7 +80,7 @@ public sealed class LoginException : Exception
         };
 
         string error = string.Create(CultureInfo.InvariantCulture,
-            $"{Unsafe.BitCast<LoginFailureType, int>(loginFailedMessage.ErrorCode)} ({errorDescription})");
+            handler: $"{Unsafe.BitCast<LoginFailureType, int>(loginFailedMessage.ErrorCode)} ({errorDescription})");
 
         return $"{error}{(string.IsNullOrWhiteSpace(loginFailedMessage.Reason) ? string.Empty : $" (reason: {loginFailedMessage.Reason})")}";
     }

@@ -25,7 +25,7 @@ public sealed record MapGameEventsServerCommand : CodecServerCommand<MapGameEven
     public MapGameEventsServerCommand(LongId? unknownLongId0, LongId? mapGameId, ReadOnlyMemory<MapGameEvent> events)
     {
         if (events.Length > MaximumEventCount)
-            throw new InvalidDataException($"Invalid map-game event count: {events.Length}.");
+            throw new InvalidDataException(message: $"Invalid map-game event count: {events.Length}.");
 
         UnknownLongId0 = unknownLongId0;
         MapGameId = mapGameId;

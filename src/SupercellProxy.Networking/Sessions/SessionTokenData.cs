@@ -82,7 +82,7 @@ public sealed class SessionTokenData
         if (decodedLength < 0)
         {
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Compressed session token has invalid decoded length {decodedLength}."));
+                handler: $"Compressed session token has invalid decoded length {decodedLength}."));
         }
 
         using MemoryStream input = new(wireData[sizeof(int)..].ToArray(), writable: false);
@@ -223,7 +223,7 @@ public sealed class SessionTokenData
     private static byte[] DecodeBase64Address(string value, string name)
     {
         if (value.Any(static character => !(char.IsAsciiLetterOrDigit(character) || character is '-' or '_')))
-            throw new InvalidDataException($"Session token {name} is not valid unpadded Base64URL.");
+            throw new InvalidDataException(message: $"Session token {name} is not valid unpadded Base64URL.");
 
         int padding = (4 - (value.Length % 4)) % 4;
         string encoded = value.Replace(oldChar: '-', newChar: '+').Replace(oldChar: '_', newChar: '/') + new string(c: '=', padding);
@@ -234,7 +234,7 @@ public sealed class SessionTokenData
         }
         catch (FormatException exception)
         {
-            throw new InvalidDataException($"Session token {name} is not valid Base64URL.", exception);
+            throw new InvalidDataException(message: $"Session token {name} is not valid Base64URL.", exception);
         }
     }
 
@@ -266,11 +266,11 @@ public sealed class SessionTokenData
         try
         {
             return JsonSerializer.Deserialize<TValue>(DecodeBase64Address(segment, name))
-                ?? throw new InvalidDataException($"Session token {name} is null.");
+                ?? throw new InvalidDataException(message: $"Session token {name} is null.");
         }
         catch (JsonException exception)
         {
-            throw new InvalidDataException($"Session token {name} is not valid JSON.", exception);
+            throw new InvalidDataException(message: $"Session token {name} is not valid JSON.", exception);
         }
     }
 

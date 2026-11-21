@@ -127,12 +127,12 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         int downloadedAssetCount = downloadedAssets.Count(static downloaded => downloaded);
 
         if (resources.Any(static resource => resource is null))
-            throw new IOException($"The asset catalog {fingerprint.Sha} could not be downloaded completely.");
+            throw new IOException(message: $"The asset catalog {fingerprint.Sha} could not be downloaded completely.");
 
         await SaveCatalogAsync(assetsDirectory.FullName, fingerprint, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
         if (downloadedAssetCount > 0)
-            Console.WriteLine($"Downloaded {downloadedAssetCount} game assets.");
+            Console.WriteLine(value: $"Downloaded {downloadedAssetCount} game assets.");
 
         return [.. resources.OfType<GameAsset>()];
     }
@@ -145,7 +145,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
     {
         try
         {
-            Uri assetAddress = new($"{downloadAddress.Trim(trimChar: '/')}/{fingerprint.Sha.Trim(trimChar: '/')}/{file.File.Trim(trimChar: '/')}");
+            Uri assetAddress = new(uriString: $"{downloadAddress.Trim(trimChar: '/')}/{fingerprint.Sha.Trim(trimChar: '/')}/{file.File.Trim(trimChar: '/')}");
 
             using HttpResponseMessage response = await webClient.GetAsync(assetAddress, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
@@ -171,7 +171,7 @@ internal sealed class GameAssetCache(HttpClient webClient, Func<string?> assetDi
         catch (Exception exception) when (exception is HttpRequestException or IOException)
         {
             File.Delete(filePath);
-            Console.WriteLine($"Failed to download {file.File} from {downloadAddress}: {exception.Message}");
+            Console.WriteLine(value: $"Failed to download {file.File} from {downloadAddress}: {exception.Message}");
 
             return false;
         }

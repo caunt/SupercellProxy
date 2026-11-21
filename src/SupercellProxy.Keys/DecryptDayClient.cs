@@ -80,7 +80,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                     diagnostics = $"Diagnostics could not be saved: {diagnosticException.Message}";
                 }
 
-                throw new InvalidOperationException($"{exception.Message} {diagnostics}", exception);
+                throw new InvalidOperationException(message: $"{exception.Message} {diagnostics}", exception);
             }
         }
     }
@@ -112,7 +112,8 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         return fileId is null
             ? null
-            : new IpaDownload(version.Value, new Uri($"https://decrypt.day/app/id{id}/dl/{Uri.EscapeDataString(fileId)}"));
+            : new IpaDownload(version.Value,
+                new Uri(uriString: $"https://decrypt.day/app/id{id}/dl/{Uri.EscapeDataString(fileId)}"));
     }
 
     private static string BuildFilePayload(string appId, string version)
@@ -216,14 +217,14 @@ internal sealed class DecryptDayClient(HttpClient client)
         content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(name: "boundary", boundary));
 
         HttpRequestMessage request = new(HttpMethod.Post,
-            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
+            requestUri: $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}?/files")
         {
             Content = content,
         };
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
-        request.Headers.Referrer = new Uri($"https://decrypt.day/app/id{appStoreId}");
+        request.Headers.Referrer = new Uri(uriString: $"https://decrypt.day/app/id{appStoreId}");
 
         request.Headers.Add(name: "Origin", value: "https://decrypt.day");
 
@@ -233,7 +234,7 @@ internal sealed class DecryptDayClient(HttpClient client)
     private static HttpRequestMessage CreateMetadataRequest(string appStoreId)
     {
         HttpRequestMessage request = new(HttpMethod.Get,
-            $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
+            requestUri: $"https://decrypt.day/app/id{Uri.EscapeDataString(appStoreId)}/__data.json");
 
         request.Headers.UserAgent.ParseAdd(ApplicationProgrammingInterfaceUserAgent);
 
@@ -317,7 +318,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         }
         catch (Exception exception) when (IsDownloadFailure(exception, cancellationToken))
         {
-            throw new InvalidOperationException($"decrypt.day failed while {stage}: {exception.Message}", exception);
+            throw new InvalidOperationException(message: $"decrypt.day failed while {stage}: {exception.Message}", exception);
         }
     }
 
@@ -336,7 +337,7 @@ internal sealed class DecryptDayClient(HttpClient client)
             return;
 
         string binaryDirectory = Config.GetBinaryDir(version, pro: false);
-        string archivePath = Path.Combine(Path.GetTempPath(), $"cloakbrowser-{Guid.NewGuid():N}.tar.gz");
+        string archivePath = Path.Combine(Path.GetTempPath(), path2: $"cloakbrowser-{Guid.NewGuid():N}.tar.gz");
 
         try
         {
@@ -353,7 +354,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             if (!File.Exists(binaryPath))
-                throw new InvalidOperationException($"CloakBrowser archive did not contain its expected executable at {binaryPath}.");
+                throw new InvalidOperationException(message: $"CloakBrowser archive did not contain its expected executable at {binaryPath}.");
 
             File.SetUnixFileMode(binaryPath, UnixFileMode.UserRead
                     | UnixFileMode.UserWrite
@@ -397,7 +398,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         string error = await errorTask.ConfigureAwait(continueOnCapturedContext: false);
 
         if (process.ExitCode is not 0)
-            throw new InvalidOperationException($"CloakBrowser extraction failed: {error.Trim()}");
+            throw new InvalidOperationException(message: $"CloakBrowser extraction failed: {error.Trim()}");
     }
 
     private static async Task HandleDownloadOverlaysAsync(IPage page)
@@ -462,7 +463,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         if (navigation is { Status: >= 400 })
         {
             await Console.Error
-                .WriteLineAsync($"Download page returned HTTP {navigation.Status}; checking its verification controls.")
+                .WriteLineAsync(value: $"Download page returned HTTP {navigation.Status}; checking its verification controls.")
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -474,7 +475,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         string normalized = value.StartsWith(value: "id", StringComparison.OrdinalIgnoreCase) ? value[2..] : value;
 
         return normalized.Length is 0 || !normalized.All(char.IsAsciiDigit)
-            ? throw new ArgumentException($"Invalid App Store ID: {value}", nameof(value))
+            ? throw new ArgumentException(message: $"Invalid App Store ID: {value}", nameof(value))
             : normalized;
     }
 
@@ -482,7 +483,7 @@ internal sealed class DecryptDayClient(HttpClient client)
     {
         string directory = Path.Combine(Environment.CurrentDirectory,
             string.Create(CultureInfo.InvariantCulture,
-                $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
+                handler: $"decrypt-day-failure-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}"));
 
         new DirectoryInfo(directory).Create();
 
@@ -507,9 +508,9 @@ internal sealed class DecryptDayClient(HttpClient client)
         for (int index = 0; index < pages.Length; index++)
         {
             IPage diagnosticPage = pages[index];
-            string pageName = string.Create(CultureInfo.InvariantCulture, $"page-{index + 1}");
+            string pageName = string.Create(CultureInfo.InvariantCulture, handler: $"page-{index + 1}");
 
-            await File.AppendAllTextAsync(reportPath, $"{Environment.NewLine}{pageName}: {diagnosticPage.Url}{Environment.NewLine}", cancellationToken)
+            await File.AppendAllTextAsync(reportPath, contents: $"{Environment.NewLine}{pageName}: {diagnosticPage.Url}{Environment.NewLine}", cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await CaptureAsync(pageName + " HTML",
@@ -550,7 +551,7 @@ internal sealed class DecryptDayClient(HttpClient client)
             }
             catch (Exception captureException) when (captureException is not OutOfMemoryException)
             {
-                await File.AppendAllTextAsync(reportPath, $"Could not capture {description}: {captureException}{Environment.NewLine}", cancellationToken)
+                await File.AppendAllTextAsync(reportPath, contents: $"Could not capture {description}: {captureException}{Environment.NewLine}", cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
@@ -603,7 +604,7 @@ internal sealed class DecryptDayClient(HttpClient client)
             if (quotaExceeded)
                 failure = new InvalidOperationException(message: "decrypt.day reports that this file's download quota is exceeded; no IPA was returned.");
             else if (response.Status >= 400)
-                failure = new HttpRequestException($"The download server returned HTTP {response.Status} for {address.GetLeftPart(UriPartial.Path)}.");
+                failure = new HttpRequestException(message: $"The download server returned HTTP {response.Status} for {address.GetLeftPart(UriPartial.Path)}.");
 
             if (failure is not null && !responseFailure.TrySetResult(failure))
                 return;
@@ -637,7 +638,7 @@ internal sealed class DecryptDayClient(HttpClient client)
         {
             string locations = string.Join(separator: ", ", context.Pages.Select(static candidate => candidate.Url));
 
-            throw new TimeoutException($"No download started within 60 seconds of clicking Download. Open pages: {locations}", exception);
+            throw new TimeoutException(message: $"No download started within 60 seconds of clicking Download. Open pages: {locations}", exception);
         }
         finally
         {
@@ -674,7 +675,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
             string message = shown.Trim();
 
-            throw new InvalidOperationException($"decrypt.day rejected the download verification: {message}");
+            throw new InvalidOperationException(message: $"decrypt.day rejected the download verification: {message}");
         }
     }
 
@@ -738,7 +739,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             throw new HttpRequestException(string.Create(CultureInfo.InvariantCulture,
-                    $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
+                    handler: $"decrypt.day file lookup failed with {(int)response.StatusCode}: {body}"),
                 inner: null,
                 response.StatusCode);
         }

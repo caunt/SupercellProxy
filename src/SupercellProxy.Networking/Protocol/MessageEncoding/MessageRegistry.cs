@@ -143,6 +143,6 @@ public static class MessageRegistry
     {
         return ByType.TryGetValue(type, out MessageRegistryEntry? entry)
             ? entry
-            : throw new InvalidOperationException($"Message type {type} is not registered.");
+            : throw new InvalidOperationException(message: $"Message type {type} is not registered.");
     }
 }

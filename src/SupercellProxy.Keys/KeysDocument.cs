@@ -132,7 +132,7 @@ internal sealed class KeysDocument
     private static InvalidDataException CreateInvalidRowException(string sectionName, int rowIndex)
     {
         return new InvalidDataException($"The {sectionName} table contains an invalid row at line " + string.Create(CultureInfo.InvariantCulture,
-            $"{rowIndex + 1}."));
+            handler: $"{rowIndex + 1}."));
     }
 
     private static string FormatSeparatorCell(string separator, int width)
@@ -218,10 +218,10 @@ internal sealed class KeysDocument
                 ExistingKeyEntry existing = entries[existingIndex];
 
                 if (!string.Equals(existing.Key, key, StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidDataException($"The {sectionName} table contains conflicting keys for version {version}.");
+                    throw new InvalidDataException(message: $"The {sectionName} table contains conflicting keys for version {version}.");
 
                 if (existing.KeyVersion is not null && keyVersion is not null && existing.KeyVersion != keyVersion)
-                    throw new InvalidDataException($"The {sectionName} table contains conflicting key versions for version {version}.");
+                    throw new InvalidDataException(message: $"The {sectionName} table contains conflicting key versions for version {version}.");
 
                 if (existing.KeyVersion is null && keyVersion is not null)
                     entries[existingIndex] = new ExistingKeyEntry(version, key, keyVersion, dataEndIndex, normalizedCells);
@@ -254,7 +254,7 @@ internal sealed class KeysDocument
         string name = heading.Groups[groupname: "name"].Value;
 
         if (!appIds.Add(appId))
-            throw new InvalidDataException($"KEYS.md contains app ID {appId} more than once.");
+            throw new InvalidDataException(message: $"KEYS.md contains app ID {appId} more than once.");
 
         int headerIndex = NextNonEmptyLine(parsedLines, headingIndex + 1);
         string[]? headers = headerIndex < 0 ? null : ParseTableCells(parsedLines[headerIndex]);
@@ -273,16 +273,16 @@ internal sealed class KeysDocument
             : Array.FindIndex(headers, static header => string.Equals(header, b: "Key", StringComparison.OrdinalIgnoreCase));
 
         if (headers is null || versionColumnIndex < 0 || keyColumnIndex < 0)
-            throw new InvalidDataException($"The {name} section does not contain a Version/Key table.");
+            throw new InvalidDataException(message: $"The {name} section does not contain a Version/Key table.");
 
         int separatorIndex = NextNonEmptyLine(parsedLines, headerIndex + 1);
         string[]? separators = separatorIndex < 0 ? null : ParseTableCells(parsedLines[separatorIndex]);
 
         if (separators is null || separators.Length != headers.Length)
-            throw new InvalidDataException($"The {name} table has an invalid separator row.");
+            throw new InvalidDataException(message: $"The {name} table has an invalid separator row.");
 
         if (separators.Any(static separator => !TableSeparatorCellRegex.IsMatch(separator)))
-            throw new InvalidDataException($"The {name} table has an invalid separator row.");
+            throw new InvalidDataException(message: $"The {name} table has an invalid separator row.");
 
         int dataStartIndex = separatorIndex + 1;
 
@@ -340,10 +340,10 @@ internal sealed class KeysDocument
             if (rowsByVersion.TryGetValue(version, out (string Key, int? KeyVersion, string[] Cells) existing))
             {
                 if (!string.Equals(existing.Key, key.Key, StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidDataException($"The {section.Name} table contains conflicting keys for version {version}.");
+                    throw new InvalidDataException(message: $"The {section.Name} table contains conflicting keys for version {version}.");
 
                 if (existing.KeyVersion is not null && key.KeyVersion is not null && existing.KeyVersion != key.KeyVersion)
-                    throw new InvalidDataException($"The {section.Name} table contains conflicting key versions for version {version}.");
+                    throw new InvalidDataException(message: $"The {section.Name} table contains conflicting key versions for version {version}.");
 
                 if (key.KeyVersion is not null)
                 {

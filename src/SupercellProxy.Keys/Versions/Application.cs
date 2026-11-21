@@ -21,9 +21,9 @@ internal static partial class Application
         IpaApp app = await decryptDayClient.GetAppAsync(appStoreId, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        Console.WriteLine($"Bundle ID: {app.BundleId}");
-        Console.WriteLine($"App ID: {appStoreId}");
-        Console.WriteLine($"Downloadable versions: {app.Versions.Count}");
+        Console.WriteLine(value: $"Bundle ID: {app.BundleId}");
+        Console.WriteLine(value: $"App ID: {appStoreId}");
+        Console.WriteLine(value: $"Downloadable versions: {app.Versions.Count}");
 
         foreach (AppVersion? version in app.Versions.Reverse())
             Console.WriteLine(version.Value);

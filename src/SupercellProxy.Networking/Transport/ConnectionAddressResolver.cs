@@ -72,7 +72,7 @@ public static class ConnectionAddressResolver
         using HttpClient webClient = new();
 
         using HttpRequestMessage request = new(HttpMethod.Get,
-            $"https://1.1.1.1/dns-query?name={Uri.EscapeDataString(host)}&type=A");
+            requestUri: $"https://1.1.1.1/dns-query?name={Uri.EscapeDataString(host)}&type=A");
 
         request.Headers.Accept.ParseAdd(input: "application/dns-json");
 
@@ -96,7 +96,7 @@ public static class ConnectionAddressResolver
                     return answer.Address;
             }
 
-            throw new InvalidDataException($"DNS-over-HTTPS returned no IPv4 address for {host}.");
+            throw new InvalidDataException(message: $"DNS-over-HTTPS returned no IPv4 address for {host}.");
         }
     }
 

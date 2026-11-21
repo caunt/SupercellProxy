@@ -62,7 +62,7 @@ public sealed class Nonce
             if (length is not digestLength)
             {
                 throw new InvalidOperationException(string.Create(CultureInfo.InvariantCulture,
-                    $"Unexpected nonce hash length: {length}."));
+                    handler: $"Unexpected nonce hash length: {length}."));
             }
         }
     }

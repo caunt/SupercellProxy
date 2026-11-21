@@ -23,7 +23,7 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
             DocumentCodec(),
             static message => message.CompressedHomeOwnerAvatarDataDocument,
             Codecs.Map<ReadOnlyMemory<byte>?, ReadOnlyMemory<byte>?>(DocumentCodec(),
-                static document => document ?? throw new InvalidDataException($"{nameof(OwnHomeDataMessage)} has no home data."),
+                static document => document ?? throw new InvalidDataException(message: $"{nameof(OwnHomeDataMessage)} has no home data."),
                 static document => document),
             static message => message.CompressedHomeDataDocument,
             static (serverTimestamp, clientAvatar, compressedAvatarDataDocument, compressedHomeOwnerAvatarDataDocument, compressedHomeDataDocument) => new OwnHomeDataMessage
@@ -38,7 +38,7 @@ public sealed record OwnHomeDataMessage : CodecMessage<OwnHomeDataMessage>, ICod
                     : CompressedDocument.Deserialize<AvatarDataSnapshot>(compressedAvatarDataDocument.Value),
                 Home = CompressedDocument.Deserialize<HomeSnapshot>(compressedHomeDataDocument.GetValueOrDefault()),
             }),
-        $"Unexpected trailing {nameof(OwnHomeDataMessage)} data.");
+        trailingDataMessage: $"Unexpected trailing {nameof(OwnHomeDataMessage)} data.");
 
     /// <summary>
     /// Gets or sets the player's own avatar: name, ids, inventory, mail, roadside shop and so on.

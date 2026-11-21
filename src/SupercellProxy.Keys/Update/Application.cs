@@ -15,10 +15,10 @@ internal static partial class Application
     {
         string message = version is null ? $"{appName}: {reason}" : $"{appName} {version}: {reason}";
 
-        Console.Error.WriteLine($"Warning: {message}");
+        Console.Error.WriteLine(value: $"Warning: {message}");
 
         if (string.Equals(Environment.GetEnvironmentVariable(variable: "GITHUB_ACTIONS"), b: "true", StringComparison.OrdinalIgnoreCase))
-            Console.WriteLine($"::warning title=Server public key update::{EscapeWorkflowCommand(message)}");
+            Console.WriteLine(value: $"::warning title=Server public key update::{EscapeWorkflowCommand(message)}");
 
         report.Add(new KeysUpdateResult(appName, version, KeysUpdateOutcome.NotUpdated, Key: null, reason, IsWarning: true));
     }
@@ -61,7 +61,7 @@ internal static partial class Application
                 await Console.Error
                     .WriteLineAsync($"Download for {appName} {version} failed: {NormalizeReason(exception.Message)} "
                             + "Retrying from the beginning with a fresh browser session "
-                            + string.Create(CultureInfo.InvariantCulture, $"(retry {retry + 1}/{MaximumDownloadRetries})..."))
+                            + string.Create(CultureInfo.InvariantCulture, handler: $"(retry {retry + 1}/{MaximumDownloadRetries})..."))
                     .ConfigureAwait(continueOnCapturedContext: false);
 
                 await Task.Delay(TimeSpan.FromSeconds((retry + 1) * 2), TimeProvider.System, cancellationToken)
@@ -93,7 +93,7 @@ internal static partial class Application
             normalized = normalized[2..];
 
         return normalized.Length is 0 || !normalized.All(char.IsAsciiDigit)
-            ? throw new ArgumentException($"Invalid App Store ID: {value}", nameof(value))
+            ? throw new ArgumentException(message: $"Invalid App Store ID: {value}", nameof(value))
             : normalized;
     }
 
@@ -137,7 +137,7 @@ internal static partial class Application
             }
             else if (argument.StartsWith(value: '-'))
             {
-                throw new ArgumentException($"Unknown option: {argument}", nameof(arguments));
+                throw new ArgumentException(message: $"Unknown option: {argument}", nameof(arguments));
             }
             else
             {
@@ -217,7 +217,7 @@ internal static partial class Application
         {
             KeysSection section = document.Sections
                 .SingleOrDefault(candidate => string.Equals(candidate.AppStoreId, appStoreId, StringComparison.Ordinal))
-                ?? throw new InvalidOperationException($"KEYS.md does not contain an app section for ID {appStoreId}.");
+                ?? throw new InvalidOperationException(message: $"KEYS.md does not contain an app section for ID {appStoreId}.");
 
             sections = [section];
         }
@@ -324,7 +324,7 @@ internal static partial class Application
                         AddWarning(report,
                             section.Name,
                             version.Value,
-                            $"Authorization failed: {NormalizeReason(exception.Message)}");
+                            reason: $"Authorization failed: {NormalizeReason(exception.Message)}");
 
                         return null;
                     }
@@ -333,7 +333,7 @@ internal static partial class Application
                 async Task<ExtractedServerKey?> TryExtractVersionKeyAsync(IpaDownload authorizedDownload)
                 {
                     string temporaryPath = Path.Combine(Path.GetTempPath(),
-                        $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
+                        path2: $"supercell-proxy-key-{section.AppStoreId}-{Guid.NewGuid():N}.ipa");
 
                     try
                     {
@@ -352,7 +352,7 @@ internal static partial class Application
                             AddWarning(report,
                                 section.Name,
                                 version.Value,
-                                $"Download failed {NormalizeReason(exception.Message)}");
+                                reason: $"Download failed {NormalizeReason(exception.Message)}");
 
                             return null;
                         }
@@ -367,7 +367,7 @@ internal static partial class Application
                             AddWarning(report,
                                 section.Name,
                                 version.Value,
-                                $"Extraction failed: {NormalizeReason(exception.Message)}");
+                                reason: $"Extraction failed: {NormalizeReason(exception.Message)}");
 
                             return null;
                         }
@@ -397,7 +397,7 @@ internal static partial class Application
         int addedKeyCount = report.Results.Count(static result => result.Outcome is KeysUpdateOutcome.Updated);
 
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-            $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
+            handler: $"Updated {keysPath}; updated {addedKeyCount} key entry/entries."));
     }
 
     private static async Task WriteAtomicallyAsync(string path, string content, CancellationToken cancellationToken)
@@ -405,7 +405,7 @@ internal static partial class Application
         string directory = Path.GetDirectoryName(path)
             ?? throw new InvalidOperationException(message: "Invalid keys document path.");
 
-        string temporaryPath = Path.Combine(directory, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
+        string temporaryPath = Path.Combine(directory, path2: $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
 
         try
         {

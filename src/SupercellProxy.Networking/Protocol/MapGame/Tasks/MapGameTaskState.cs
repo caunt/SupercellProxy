@@ -38,7 +38,7 @@ public sealed record MapGameTaskState([property: JsonPropertyName("TaskGlobalId"
         if (!dataResolver.TryResolveString(taskGlobalId, TaskTypeFieldName, out string? taskType))
         {
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Map-game task data reference {taskGlobalId} has no resolvable {TaskTypeFieldName} field."));
+                handler: $"Map-game task data reference {taskGlobalId} has no resolvable {TaskTypeFieldName} field."));
         }
 
         MapGameTaskStatePayload payload = MapGameTaskStatePayload.For(taskType).Read(stream);

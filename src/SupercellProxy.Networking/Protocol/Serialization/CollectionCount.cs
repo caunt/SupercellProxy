@@ -164,7 +164,8 @@ public sealed class CollectionCount
 
     private static InvalidDataException Invalid(int count)
     {
-        return new InvalidDataException(string.Create(CultureInfo.InvariantCulture, $"Invalid collection count: {count}."));
+        return new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
+            handler: $"Invalid collection count: {count}."));
     }
 
     private int ReadRaw(MessageChannel stream)

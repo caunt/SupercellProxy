@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using System.Globalization;
 
 using SupercellProxy.Networking.Protocol.Commands;
 using SupercellProxy.Networking.Protocol.Serialization;
@@ -24,16 +23,10 @@ public sealed record MapGameTaskCommand : Command
     public MapGameTaskCommand(MapGameTaskKind kind, MapGameTask? task, ReadOnlyMemory<int>? optionalValues = null)
     {
         if (!Enum.IsDefined(kind))
-        {
-            throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
-                $"Valley task command {kind} is not supported."));
-        }
+            throw new NotSupportedException(message: $"Valley task command {kind} is not supported.");
 
         if (!HasOptionalValues(kind) && optionalValues is not null)
-        {
-            throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Valley task command {kind} has no optional value array."));
-        }
+            throw new InvalidDataException(message: $"Valley task command {kind} has no optional value array.");
 
         Kind = kind;
         Task = task;
@@ -70,7 +63,7 @@ public sealed record MapGameTaskCommand : Command
     {
         ICodec<MapGameTask?> task = Codecs.Optional(MapGameTask.Codec);
 
-        return Codecs.Command(string.Create(CultureInfo.InvariantCulture, $"{kind}Command"),
+        return Codecs.Command(name: $"{kind}Command",
             HasOptionalValues(kind)
                 ? Codecs.Composite(task,
                     static command => command.Task,

@@ -390,10 +390,10 @@ public static class DataTableRegistry
             dataTableFiles.Add(key: 362, GameAssetFiles.BoatTimingModifiers);
 
         if (!resourcesByFile.TryGetValue(GameAssetFiles.ProductionBuildingsGoods, out GameAsset? productionBuildingsGoodsResource))
-            throw new InvalidOperationException($"GameAsset {GameAssetFiles.ProductionBuildingsGoods} was not downloaded.");
+            throw new InvalidOperationException(message: $"GameAsset {GameAssetFiles.ProductionBuildingsGoods} was not downloaded.");
 
         if (!productionBuildingsGoodsResource.TryGetTable(out GameDataTable? productionBuildingsGoods))
-            throw new InvalidOperationException($"Failed to parse {GameAssetFiles.ProductionBuildingsGoods}.");
+            throw new InvalidOperationException(message: $"Failed to parse {GameAssetFiles.ProductionBuildingsGoods}.");
 
         foreach (GameDataTableEntry entry in productionBuildingsGoods.Entries)
         {
@@ -403,7 +403,7 @@ public static class DataTableRegistry
             if (dataTableFiles.TryGetValue(exportNumber, out string? existingFile) && !existingFile.Equals(csvName, StringComparison.Ordinal))
             {
                 throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                    $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
+                    handler: $"Data table {exportNumber} maps to both {existingFile} and {csvName}."));
             }
 
             dataTableFiles[exportNumber] = csvName;
@@ -414,7 +414,7 @@ public static class DataTableRegistry
 
     private static InvalidDataException InvalidEntry()
     {
-        return new($"Invalid entry in {GameAssetFiles.ProductionBuildingsGoods}.");
+        return new(message: $"Invalid entry in {GameAssetFiles.ProductionBuildingsGoods}.");
     }
 
     private static int ReadNumber(GameDataTableEntry entry, string field)

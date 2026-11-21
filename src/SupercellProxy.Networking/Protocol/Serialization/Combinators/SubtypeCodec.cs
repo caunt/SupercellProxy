@@ -12,6 +12,7 @@ internal sealed class SubtypeCodec<TBase, TDerived>(ICodec<TDerived> codec) : IC
 
     public void Write(ProtocolEncoder encoder, TBase value)
     {
-        codec.Write(encoder, value as TDerived ?? throw new InvalidDataException($"Expected a {typeof(TDerived).Name}."));
+        codec.Write(encoder,
+            value as TDerived ?? throw new InvalidDataException(message: $"Expected a {typeof(TDerived).Name}."));
     }
 }

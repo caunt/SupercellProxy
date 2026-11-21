@@ -52,7 +52,7 @@ public static class CommandRegistry
         CommandContract contract = TryGetContract(id, stream.GameVersion, out CommandContract? found)
             ? found
             : throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
-                $"Logic command id {id} is not supported in game version {stream.GameVersion}."));
+                handler: $"Logic command id {id} is not supported in game version {stream.GameVersion}."));
 
         EnsureAllowedEnvironment(contract, stream.CommandEnvironment);
 
@@ -63,7 +63,7 @@ public static class CommandRegistry
         catch (InvalidDataException exception)
         {
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                    $"Command {contract} (id {id}) decoding failed at byte {stream.Position}: {exception.Message}"),
+                    handler: $"Command {contract} (id {id}) decoding failed at byte {stream.Position}: {exception.Message}"),
                 exception);
         }
     }
@@ -83,7 +83,7 @@ public static class CommandRegistry
         if (!contract.CommandType.IsInstanceOfType(command))
         {
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
-                $"Logic command {contract} does not read and write {command.GetType().Name}."));
+                handler: $"Logic command {contract} does not read and write {command.GetType().Name}."));
         }
 
         EnsureAllowedEnvironment(contract, encoder.CommandEnvironment);
@@ -143,7 +143,7 @@ public static class CommandRegistry
         if (environment is CommandEnvironment.Production && !contract.ProductionAllowed)
         {
             throw new NotSupportedException(string.Create(CultureInfo.InvariantCulture,
-                $"Logic command {contract} is not allowed in the production environment."));
+                handler: $"Logic command {contract} is not allowed in the production environment."));
         }
     }
 }

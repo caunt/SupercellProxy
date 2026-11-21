@@ -30,7 +30,7 @@ internal static partial class Application
             }
             else if (argument.StartsWith(value: '-'))
             {
-                throw new ArgumentException($"Unknown option: {argument}", nameof(arguments));
+                throw new ArgumentException(message: $"Unknown option: {argument}", nameof(arguments));
             }
             else
             {
@@ -61,7 +61,7 @@ internal static partial class Application
         else
         {
             foreach (KeysSection section in document.Sections)
-                Console.WriteLine($"{section.AppStoreId}\t{section.Name}");
+                Console.WriteLine(value: $"{section.AppStoreId}\t{section.Name}");
         }
 
         return 0;

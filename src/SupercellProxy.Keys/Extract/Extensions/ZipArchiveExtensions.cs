@@ -93,7 +93,7 @@ internal static class ZipArchiveExtensions
             {
                 ZipArchiveEntry match = archive.Entries
                     .FirstOrDefault(entry => !string.IsNullOrEmpty(entry.Name) && string.Equals(entry.Name, fileName, StringComparison.OrdinalIgnoreCase))
-                    ?? throw new FileNotFoundException($"Entry named '{fileName}' was not found in the ZIP archive.");
+                    ?? throw new FileNotFoundException(message: $"Entry named '{fileName}' was not found in the ZIP archive.");
 
                 if (match.Length > int.MaxValue)
                     throw new IOException(message: "Entry is too large to fit in a single byte array.");

@@ -27,7 +27,7 @@ internal sealed class FixedArrayCodec<TElement>(ICodec<TElement> element, int le
         if (value.Length != length)
         {
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Expected exactly {length} elements, got {value.Length}."));
+                handler: $"Expected exactly {length} elements, got {value.Length}."));
         }
 
         foreach (TElement item in value)

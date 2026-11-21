@@ -27,7 +27,7 @@ public static class CompressedDocument
         if (decompressedLength < 0)
         {
             throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Invalid compressed JSON decompressed length: {decompressedLength}."));
+                handler: $"Invalid compressed JSON decompressed length: {decompressedLength}."));
         }
 
         using MemoryStream input = new(data[sizeof(int)..].ToArray(), writable: false);
@@ -40,7 +40,7 @@ public static class CompressedDocument
 
         return zlib.ReadByte() is not -1
             ? throw new InvalidDataException(string.Create(CultureInfo.InvariantCulture,
-                $"Compressed JSON exceeds its declared decompressed length of {decompressedLength} bytes."))
+                handler: $"Compressed JSON exceeds its declared decompressed length of {decompressedLength} bytes."))
             : document;
     }
 
@@ -56,7 +56,7 @@ public static class CompressedDocument
         byte[] document = Decompress(data);
 
         return JsonSerializer.Deserialize<TValue>(document)
-            ?? throw new InvalidDataException($"Compressed JSON did not contain a {typeof(TValue).Name} value.");
+            ?? throw new InvalidDataException(message: $"Compressed JSON did not contain a {typeof(TValue).Name} value.");
     }
 
     private sealed class SynchronousZLibReader(Stream input) : IDisposable

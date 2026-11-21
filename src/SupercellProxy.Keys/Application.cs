@@ -49,7 +49,7 @@ internal static partial class Application
                         .ConfigureAwait(continueOnCapturedContext: false),
                     "update" => await RunUpdateAsync(arguments[1..], cancellationTokenSource.Token)
                         .ConfigureAwait(continueOnCapturedContext: false),
-                    _ => throw new ArgumentException($"Unknown command: {arguments[0]}", nameof(arguments)),
+                    _ => throw new ArgumentException(message: $"Unknown command: {arguments[0]}", nameof(arguments)),
                 };
         }
         catch (OperationCanceledException) when (cancellationTokenSource.IsCancellationRequested)
@@ -60,7 +60,9 @@ internal static partial class Application
         }
         catch (Exception exception) when (exception is not OutOfMemoryException)
         {
-            await Console.Error.WriteLineAsync($"Error: {exception.Message}").ConfigureAwait(continueOnCapturedContext: false);
+            await Console.Error
+                .WriteLineAsync(value: $"Error: {exception.Message}")
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             return 1;
         }
@@ -89,7 +91,7 @@ internal static partial class Application
 
     private static int PrintCommandHelp(string usage, string description)
     {
-        return Print($"{description}{Environment.NewLine}{Environment.NewLine}Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}");
+        return Print(value: $"{description}{Environment.NewLine}{Environment.NewLine}Usage:{Environment.NewLine}  SupercellProxy.Keys {usage}");
     }
 
     private static int PrintDownloadHelp()
@@ -118,7 +120,7 @@ internal static partial class Application
     private static void RequireOneArgument(string[] arguments, string usage)
     {
         if (arguments.Length is not 1 || string.IsNullOrWhiteSpace(arguments[0]))
-            throw new ArgumentException($"Usage: SupercellProxy.Keys {usage}", nameof(arguments));
+            throw new ArgumentException(message: $"Usage: SupercellProxy.Keys {usage}", nameof(arguments));
     }
 
     private static string ResolveAppStore(Uri address, string value)
@@ -162,18 +164,18 @@ internal static partial class Application
                 if (app.Versions.Count is 0)
                     continue;
 
-                Console.WriteLine($"Selected search listing: {listing.Name} ({listing.BundleId}, ID {appStoreId})");
+                Console.WriteLine(value: $"Selected search listing: {listing.Name} ({listing.BundleId}, ID {appStoreId})");
 
                 return appStoreId;
             }
             catch (Exception exception) when (exception is HttpRequestException or InvalidDataException)
             {
                 await Console.Error
-                    .WriteLineAsync($"Skipping {listing.Name}: {exception.Message}")
+                    .WriteLineAsync(value: $"Skipping {listing.Name}: {exception.Message}")
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        throw new InvalidOperationException($"No apps found on decrypt.day for \"{value}\".");
+        throw new InvalidOperationException(message: $"No apps found on decrypt.day for \"{value}\".");
     }
 }

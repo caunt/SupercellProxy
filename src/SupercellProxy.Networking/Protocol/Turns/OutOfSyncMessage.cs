@@ -27,7 +27,7 @@ public sealed record OutOfSyncMessage : CodecMessage<OutOfSyncMessage>, ICodecPr
                 ServerState = serverState,
                 ClientState = clientState,
             }),
-        $"Unexpected trailing {nameof(OutOfSyncMessage)} data.");
+        trailingDataMessage: $"Unexpected trailing {nameof(OutOfSyncMessage)} data.");
 
     /// <summary>
     /// Gets or sets the checksum the client sent for the rejected turn, as text; <see langword="null"/> unless the server includes diagnostics.

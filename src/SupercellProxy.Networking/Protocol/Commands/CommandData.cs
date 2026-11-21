@@ -20,7 +20,7 @@ public sealed record CommandData : ICodecProvider<CommandData>
     public CommandData(ReadOnlyMemory<int> values, string text, int unknown0)
     {
         if (values.Length != ValueCount)
-            throw new ArgumentException($"Logic command data must contain exactly {ValueCount} values.", nameof(values));
+            throw new ArgumentException(message: $"Logic command data must contain exactly {ValueCount} values.", nameof(values));
 
         Values = values;
         Text = text;

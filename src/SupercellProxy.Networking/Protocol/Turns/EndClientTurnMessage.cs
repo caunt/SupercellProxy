@@ -27,7 +27,7 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     /// <inheritdoc />
     /// <remarks>Commands, debug data and development byte arrays follow the stream's command environment when read and the message's own environment when written.</remarks>
     public static ICodec<EndClientTurnMessage> Codec { get; } = Codecs.Complete(Codecs.Create(Read, Write),
-        $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
+        trailingDataMessage: $"Unexpected trailing {nameof(EndClientTurnMessage)} data.");
 
     /// <summary>
     /// Gets or sets the turn checksum, the first field of the turn header.
@@ -101,10 +101,10 @@ public sealed record EndClientTurnMessage : CodecMessage<EndClientTurnMessage>, 
     private static void Write(ProtocolEncoder encoder, EndClientTurnMessage message)
     {
         if (message.SubChecksums.Length != SubChecksumCount)
-            throw new InvalidDataException($"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
+            throw new InvalidDataException(message: $"EndClientTurnMessage must contain exactly {SubChecksumCount} sub-checksums.");
 
         if (message.Commands.Length > MaximumCommandCount)
-            throw new InvalidDataException($"Invalid command count: {message.Commands.Length}.");
+            throw new InvalidDataException(message: $"Invalid command count: {message.Commands.Length}.");
 
         bool hasDiagnostics = message.DebugCommandData.Length > 0 || message.DevelopmentByteArrays.Length > 0;
 

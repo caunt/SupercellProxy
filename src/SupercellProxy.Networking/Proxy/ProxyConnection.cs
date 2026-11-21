@@ -347,7 +347,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         if (@event.IsCancelled)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"));
+                handler: $"[{DateTime.Now:T}] CANCELLED {@event.Direction} {(@event.Message is PassthroughMessage ? @event.Message : string.Empty)}"));
         }
     }
 
@@ -366,16 +366,16 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         if (@event.Message is EndClientTurnMessage endClientTurnMessage)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"));
+                handler: $"[{DateTime.Now:T}] {nameof(EndClientTurnMessage)} {{ Checksum = {endClientTurnMessage.Checksum}, SubTick = {endClientTurnMessage.SubTick}, SubChecksums = [{string.Join(separator: ',', endClientTurnMessage.SubChecksums.ToArray())}], Commands = [{string.Join(separator: ',', endClientTurnMessage.Commands.ToArray().Select(static command => command.Contract.Name))}] }}"));
         }
         else if (@event.Message is PassthroughMessage)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
+                handler: $"[{DateTime.Now:T}] {@event.Direction} {@event.Message}"));
         }
         else
         {
-            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"[{DateTime.Now:T}] {@event.Message}"));
+            Console.WriteLine(string.Create(CultureInfo.InvariantCulture, handler: $"[{DateTime.Now:T}] {@event.Message}"));
         }
     }
 
@@ -438,7 +438,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         {
             string side = direction is MessageDirection.Clientbound ? "server" : "client";
 
-            throw new StreamClosedException($"{side} closed the connection", exception);
+            throw new StreamClosedException(message: $"{side} closed the connection", exception);
         }
     }
 
@@ -458,21 +458,21 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         catch (MacVerificationException exception) when (exception.IsPublicKeyBox)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"));
+                handler: $"[{DateTime.Now:T}] {remoteEndPoint} closed: messages were encrypted likely with an incorrect public key"));
         }
         catch (StreamClosedException exception)
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
+                handler: $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception.Message}"));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            Console.WriteLine($"{remoteEndPoint} proxy connection stopped.");
+            Console.WriteLine(value: $"{remoteEndPoint} proxy connection stopped.");
         }
         catch (Exception exception) when (ProxyFailureClassifier.IsRecoverable(exception))
         {
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
+                handler: $"[{DateTime.Now:T}] {remoteEndPoint} closed: {exception}"));
         }
         finally
         {
@@ -493,7 +493,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         }
         catch (TaskCanceledException)
         {
-            Console.WriteLine($"{RemoteEndPoint} proxy pumps stopped.");
+            Console.WriteLine(value: $"{RemoteEndPoint} proxy pumps stopped.");
         }
     }
 
@@ -524,7 +524,7 @@ public sealed partial class ProxyConnection : IAsyncDisposable
         {
             string side = direction is MessageDirection.Clientbound ? "client" : "server";
 
-            throw new StreamClosedException($"{side} closed the connection", exception);
+            throw new StreamClosedException(message: $"{side} closed the connection", exception);
         }
     }
 }
