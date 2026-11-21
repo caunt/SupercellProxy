@@ -5,6 +5,7 @@
 ## [Brawl Stars](https://decrypt.day/app/id1229016807)
 | Game version | Key version | Key                                                                |
 | ------------ | ----------- | ------------------------------------------------------------------ |
+| 70.877       | 60          | `1F7F356BA92043BBB8531028EFDCC2D52411677FEAEAC77C8728FE9E0AAECB2B` |
 | 70.757       | 60          | `1F7F356BA92043BBB8531028EFDCC2D52411677FEAEAC77C8728FE9E0AAECB2B` |
 | 70.648       | 60          | `1F7F356BA92043BBB8531028EFDCC2D52411677FEAEAC77C8728FE9E0AAECB2B` |
 | 69.414       | 59          | `5F4BFA1DC7B58FAC0611F34DBAF3847B376F968530F76A9A202849017AA9510A` |
@@ -244,6 +245,7 @@
 ## [Clash of Clans](https://decrypt.day/app/id529479190)
 | Game version | Key version | Key                                                                |
 | ------------ | ----------- | ------------------------------------------------------------------ |
+| 19.32.10     | 153         | `1CACB24B16C5C0C200A0956C3CAFBD90FDBCA8783733326D5FE2E2D87E876E7C` |
 | 19.32.4      | 153         | `1CACB24B16C5C0C200A0956C3CAFBD90FDBCA8783733326D5FE2E2D87E876E7C` |
 | 18.647.5     | 152         | `ED6CFCC7691626150415D045D462F66E15D7FA8AC298568EEB3E16989585E15B` |
 | 18.647.2     | 152         | `ED6CFCC7691626150415D045D462F66E15D7FA8AC298568EEB3E16989585E15B` |
