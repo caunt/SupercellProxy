@@ -67,6 +67,7 @@ jobs:
         shell: bash
         env:
           APP_ID: ${{ matrix.app_id }}
+          CLOAKBROWSER_LICENSE_KEY: ${{ secrets.CLOAKBROWSER_LICENSE_KEY }}
         run: |
           set -euo pipefail
           result_directory="$RUNNER_TEMP/server-public-key-$APP_ID"

@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -50,7 +51,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             // DOM snapshots inject scripts and patch browser APIs in every frame, disrupting Turnstile.
-            await page.Context
+            IAsyncDisposable tracing = await page.Context
                 .Tracing
                 .StartAsync(new TracingStartOptions
                 {
@@ -82,6 +83,9 @@ internal sealed class DecryptDayClient(HttpClient client)
 
                 throw new InvalidOperationException(message: $"{exception.Message} {diagnostics}", exception);
             }
+
+            // A failed download saves the trace while stopping it; a successful one needs no trace, so tracing stops without saving.
+            await tracing.DisposeAsync().ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 
@@ -241,12 +245,24 @@ internal sealed class DecryptDayClient(HttpClient client)
         return request;
     }
 
-    private static async Task DownloadBrowserArchiveAsync(string version, string archivePath, CancellationToken cancellationToken)
+    // CloakBrowser 0.7 serves Chromium only to a license key (a free one works), named in the same headers its own download sends.
+    private static async Task DownloadBrowserArchiveAsync(string version, string licenseKey, string archivePath, CancellationToken cancellationToken)
     {
         using HttpClient downloadClient = new()
         {
             Timeout = TimeSpan.FromMinutes(minutes: 10)
         };
+
+        HttpRequestMessage CreateRequest()
+        {
+            HttpRequestMessage request = new(HttpMethod.Get, Config.GetProDownloadUrl(version));
+
+            request.Headers.Authorization = new AuthenticationHeaderValue(scheme: "Bearer", licenseKey);
+
+            request.Headers.Add(name: "X-Platform", Config.GetPlatformTag());
+
+            return request;
+        }
 
         FileStream archive = new(archivePath,
             FileMode.CreateNew,
@@ -257,7 +273,7 @@ internal sealed class DecryptDayClient(HttpClient client)
 
         await using (archive.ConfigureAwait(continueOnCapturedContext: false))
         {
-            using HttpResponseMessage response = await downloadClient.SendWithRetryAsync(() => new HttpRequestMessage(HttpMethod.Get, Config.GetDownloadUrl(version)), cancellationToken)
+            using HttpResponseMessage response = await downloadClient.SendWithRetryAsync(CreateRequest, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             await response.EnsureSuccessStatusCode()
@@ -265,6 +281,9 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .CopyToAsync(archive, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
+
+        await VerifyBrowserArchiveAsync(downloadClient, version, archivePath, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     private static async Task DownloadWithBrowserAsync(IPage page, IpaDownload download, Stream destination, CancellationToken cancellationToken)
@@ -330,13 +349,22 @@ internal sealed class DecryptDayClient(HttpClient client)
         if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(variable: "CLOAKBROWSER_BINARY_PATH")))
             return;
 
-        string version = Config.GetChromiumVersion();
-        string binaryPath = Config.GetBinaryPath(version, pro: false);
+        // CloakBrowser 0.7 serves Chromium only to a license key: CLOAKBROWSER_LICENSE_KEY or ~/.cloakbrowser/license.key (a free key works).
+        string licenseKey = License.ResolveLicenseKey()
+            ?? throw new InvalidOperationException(message: "CloakBrowser needs a license key: set CLOAKBROWSER_LICENSE_KEY or save one to ~/.cloakbrowser/license.key.");
+
+        // The launcher picks the server's latest build and uses a cached one when it is already there, so the same build is prepared.
+        string version = await Task.Run(static () => License.GetProLatestVersion(), cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false)
+            ?? Config.GetEffectiveVersion()
+            ?? throw new InvalidOperationException(message: "The latest CloakBrowser Chromium version is unavailable.");
+
+        string binaryPath = Config.GetBinaryPath(version);
 
         if (File.Exists(binaryPath))
             return;
 
-        string binaryDirectory = Config.GetBinaryDir(version, pro: false);
+        string binaryDirectory = Config.GetBinaryDir(version);
         string archivePath = Path.Combine(Path.GetTempPath(), path2: $"cloakbrowser-{Guid.NewGuid():N}.tar.gz");
 
         try
@@ -345,7 +373,7 @@ internal sealed class DecryptDayClient(HttpClient client)
                 .WriteLineAsync(value: "Preparing CloakBrowser Chromium with the macOS system extractor...")
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            await DownloadBrowserArchiveAsync(version, archivePath, cancellationToken)
+            await DownloadBrowserArchiveAsync(version, licenseKey, archivePath, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
             new DirectoryInfo(binaryDirectory).Create();
@@ -554,6 +582,39 @@ internal sealed class DecryptDayClient(HttpClient client)
                 await File.AppendAllTextAsync(reportPath, contents: $"Could not capture {description}: {captureException}{Environment.NewLine}", cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
+        }
+    }
+
+    // CloakBrowser publishes each build's SHA256SUMS with a version line, and the archive must match its entry there. The library's own
+    // signature check over that manifest is internal to it, so the checksum and the declared version are compared here.
+    private static async Task VerifyBrowserArchiveAsync(HttpClient client, string version, string archivePath, CancellationToken cancellationToken)
+    {
+        string manifest = await client.GetStringAsync(new Uri(Config.GetProManifestBaseUrl(version) + "/SHA256SUMS"), cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
+
+        string[] lines = manifest.Split(separator: '\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string? declaredVersion = lines.FirstOrDefault(static line => line.StartsWith(value: "version=", StringComparison.Ordinal))?["version=".Length..];
+
+        if (declaredVersion != version)
+            throw new InvalidDataException(message: $"CloakBrowser's checksum manifest declares version {declaredVersion ?? "none"} instead of {version}.");
+
+        string archiveName = Config.GetArchiveName();
+
+        string expectedHash = lines.Select(static line => line.Split((char[]?)null, count: 2, StringSplitOptions.RemoveEmptyEntries))
+            .Where(parts => parts.Length == 2 && parts[1].TrimStart(trimChar: '*') == archiveName)
+            .Select(static parts => parts[0])
+            .FirstOrDefault()
+            ?? throw new InvalidDataException(message: $"CloakBrowser's checksum manifest has no entry for {archiveName}.");
+
+        FileStream archive = File.OpenRead(archivePath);
+
+        await using (archive.ConfigureAwait(continueOnCapturedContext: false))
+        {
+            byte[] hash = await SHA256.HashDataAsync(archive, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+
+            if (!string.Equals(Convert.ToHexStringLower(hash), expectedHash, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(message: $"The CloakBrowser archive {archiveName} does not match its published checksum.");
         }
     }
 
